@@ -1,0 +1,116 @@
+{
+    "Navbar": {
+        "home": "Home",
+        "about": "About",
+        "events": "Events",
+        "visit": "Visit",
+        "contact": "Contact"
+    },
+    "Footer": {
+        "aboutUs": "About Us",
+        "events": "Events",
+        "donate": "Donate",
+        "contactUs": "Contact Us",
+        "quickLinks": "Quick Links",
+        "contactInfo": "Contact Info",
+        "address": "Address",
+        "phone": "Phone",
+        "email": "Email",
+        "privacy": "Privacy Policy",
+        "impressum": "Impressum"
+    },
+    "HeroSection": {
+        "welcomeTo": "Welcome to",
+        "inLocation": "in Washington D.C.",
+        "viewEvents": "View Events",
+        "donate": "Donate"
+    },
+    "WelcomeSection": {
+        "welcome": "Welcome",
+        "description": "Wat Serm Rangsi serves as a spiritual center for the Thai Buddhist community in the Washington D.C. area. Our mission is to propagate the teachings of the Buddha (Dhamma) and preserve Thai cultural heritage for future generations.",
+        "meditation": "Meditation",
+        "meditationDesc": "Mindfulness Practice",
+        "sundaySchool": "Sunday School",
+        "sundaySchoolDesc": "Buddhist Education",
+        "culture": "Cultural Events",
+        "cultureDesc": "Thai Traditions"
+    },
+    "DonationSection": {
+        "title": "Support Wat Serm Rangsi",
+        "subtitle": "Make a Donation",
+        "description": "Your donations help support the temple's utilities, maintenance, Buddhist activities, and youth education programs.",
+        "donateOnline": "Donate Online",
+        "contactUs": "Contact Us",
+        "channels": "Donation Channels",
+        "zelleDesc": "Donate via Zelle (US Bank)",
+        "scanQr": "Scan QR Code (Thai Bank)",
+        "clickToView": "Click to view QR Code"
+    },
+    "EventsSection": {
+        "title": "Upcoming Events",
+        "subtitle": "Upcoming Events & Ceremonies",
+        "viewAll": "View All",
+        "readMore": "More Details"
+    },
+    "AboutPage": {
+        "title": "About Wat Serm Rangsi",
+        "subtitle": "History & Vision",
+        "historyTitle": "History",
+        "visionTitle": "Vision",
+        "vision1": "Propagate Buddhism and Dhamma teachings",
+        "vision2": "Preserve Thai culture and traditions",
+        "vision3": "Center for learning and meditation practice",
+        "missionTitle": "Mission",
+        "missionDesc": "We strive to create a peaceful, happy, and wise society through religious activities, education, and social service."
+    },
+    "ContactPage": {
+        "title": "Contact Us",
+        "subtitle": "Get in Touch",
+        "infoTitle": "Contact Information",
+        "address": "Address",
+        "phone": "Phone",
+        "email": "Email",
+        "formTitle": "Send a Message",
+        "fullName": "Full Name",
+        "subject": "Subject",
+        "message": "Message",
+        "sendMessage": "Send Message"
+    },
+    "EventsPage": {
+        "title": "Events & Ceremonies",
+        "subtitle": "Upcoming Events",
+        "readMore": "Read More",
+        "calendarView": "Calendar View",
+        "listView": "List View"
+    },
+    "VisitPage": {
+        "title": "Visit Us",
+        "subtitle": "Visitor Information",
+        "openingHours": "Opening Hours",
+        "map": "Map & Directions",
+        "directions": "Directions",
+        "etiquette": "Temple Etiquette",
+        "etiquetteDesc": "Guidelines for visiting the sacred grounds",
+        "dressCode": "Dress Code",
+        "dressCodeDesc": "Please dress modestly",
+        "behavior": "Behavior",
+        "behaviorDesc": "Please remain quiet and respectful",
+        "offerings": "Offerings",
+        "offeringsDesc": "Please inform staff...",
+        "publicTransport": "Public Transport",
+        "car": "By Car"
+    },
+    "PrivacyPage": {
+        "title": "Privacy Policy",
+        "lastUpdated": "Last Updated"
+    },
+    "ImpressumPage": {
+        "title": "Impressum",
+        "companyName": "Organization Name",
+        "address": "Address",
+        "contact": "Contact"
+    },
+    "Site": {
+        "name": "Wat Serm Rangsi"
+    }
+}
