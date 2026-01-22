@@ -1,0 +1,56 @@
+[
+    {
+        "id": 1,
+        "src": "/images/gallery/1.jpg",
+        "caption": {
+            "th": "ทำบุญตักบาตร",
+            "en": "Monks alms offering"
+        },
+        "category": "ceremony"
+    },
+    {
+        "id": 2,
+        "src": "/images/gallery/2.jpg",
+        "caption": {
+            "th": "สวดมนต์ทำวัตรเช้า",
+            "en": "Morning Chanting"
+        },
+        "category": "daily"
+    },
+    {
+        "id": 3,
+        "src": "/images/gallery/3.jpg",
+        "caption": {
+            "th": "เวียนเทียนวันวิสาขบูชา",
+            "en": "Visakha Bucha Candle Procession"
+        },
+        "category": "ceremony"
+    },
+    {
+        "id": 4,
+        "src": "/images/gallery/4.jpg",
+        "caption": {
+            "th": "สอนธรรมะวันอาทิตย์",
+            "en": "Sunday Dhamma School"
+        },
+        "category": "education"
+    },
+    {
+        "id": 5,
+        "src": "/images/gallery/5.jpg",
+        "caption": {
+            "th": "งานสงกรานต์",
+            "en": "Songkran Festival"
+        },
+        "category": "festival"
+    },
+    {
+        "id": 6,
+        "src": "/images/gallery/6.jpg",
+        "caption": {
+            "th": "โรงทาน",
+            "en": "Charity Food Stall"
+        },
+        "category": "festival"
+    }
+]

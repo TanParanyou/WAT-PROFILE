@@ -4,6 +4,7 @@
         "about": "About",
         "events": "Events",
         "visit": "Visit",
+        "gallery": "Gallery",
         "contact": "Contact"
     },
     "Footer": {
@@ -112,5 +113,14 @@
     },
     "Site": {
         "name": "Wat Serm Rangsi"
+    },
+    "GalleryPage": {
+        "title": "Photo Gallery",
+        "subtitle": "Photos of Events and Ceremonies",
+        "all": "All",
+        "ceremony": "Ceremonies",
+        "festival": "Festivals",
+        "education": "Education",
+        "daily": "Daily Routine"
     }
 }

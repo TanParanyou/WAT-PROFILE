@@ -1,67 +1,15 @@
 'use client';
 
-import { Calendar, MapPin, Clock } from 'lucide-react';
-import Link from 'next/link';
+import { MapPin, Clock } from 'lucide-react';
+import { Link } from '@/navigation';
 import { motion } from 'framer-motion';
-import { useTranslations } from 'next-intl';
-
-// Mock data - normally this would come from an API or CMS
-// NOTE: For static structure with dynamic content, we'd typically fetch data or use keys.
-// Here I'll mock using translation keys if possible or just simpler content.
-// Since these are specific "dynamic" events, in a real app they wouldn't be in messages.json usually.
-// But for this demo, I will keep the structure but use the `t` function if the text was meant to be static, 
-// OR I will assume the data passes localized strings.
-// However, `next-intl` expects `t('key')`. If I have data objects with {th: '...', en: '...'}, I need to select one based on locale.
-// But useTranslations doesn't expose locale directly unless used.
-// Easy fix: use `useLocale()` hook.
-
-import { useLocale } from 'next-intl';
-
-const events = [
-    {
-        id: 1,
-        title: { th: 'พิธีทำบุญตักบาตรวันมาฆบูชา', en: 'Makha Bucha Day Ceremony' },
-        date: '2025-02-12',
-        time: '09:00 - 14:00',
-        location: { th: 'ศาลาการเปรียญ', en: 'Main Hall' },
-        image: '/images/event-makha.jpg', // Placeholder
-        description: {
-            th: 'ขอเชิญพุทธศาสนิกชนร่วมทำบุญตักบาตร ฟังพระธรรมเทศนา และเวียนเทียน เนื่องในวันมาฆบูชา',
-            en: 'Join us for merit-making, listening to Dhamma talks, and candlelight procession on Makha Bucha Day.',
-        },
-    },
-    {
-        id: 2,
-        title: { th: 'ปฏิบัติธรรมประจำเดือน', en: 'Monthly Meditation Retreat' },
-        date: '2025-03-01',
-        time: '08:30 - 16:30',
-        location: { th: 'อาคารวิปัสสนา', en: 'Meditation Center' },
-        image: '/images/event-meditation.jpg', // Placeholder
-        description: {
-            th: 'โครงการอบรมวิปัสสนากรรมฐานเบื้องต้น สำหรับบุคคลทั่วไป ไม่มีค่าใช้จ่าย',
-            en: 'Introductory Vipassana meditation workshop for beginners. Free of charge.',
-        },
-    },
-    {
-        id: 3,
-        title: { th: 'งานเทศกาลสงกรานต์', en: 'Songkran Festival' },
-        date: '2025-04-13',
-        time: '10:00 - 17:00',
-        location: { th: 'ลานวัด', en: 'Temple Grounds' },
-        image: '/images/event-songkran.jpg', // Placeholder
-        description: {
-            th: 'สืบสานประเพณีไทย สรงน้ำพระ รดน้ำดำหัวผู้สูงอายุ และการแสดงทางวัฒนธรรม',
-            en: 'Celebrate Thai New Year with Buddha bathing ceremony, paying respect to elders, and cultural performances.',
-        },
-    },
-];
+import { useTranslations, useLocale } from 'next-intl';
+import events from '@/data/events.json';
+import { getLocalizedText } from '@/utils/i18n';
 
 export default function EventsSection() {
     const t = useTranslations('EventsSection');
     const locale = useLocale();
-
-    // Helper to get localized string from object
-    const getLoc = (obj: any) => obj[locale as keyof typeof obj] || obj['th'];
 
     return (
         <section className="py-20 bg-zinc-50 dark:bg-zinc-900 border-t border-gray-100 dark:border-gray-800">
@@ -106,7 +54,7 @@ export default function EventsSection() {
 
                             <div className="p-6 flex flex-col grow">
                                 <h3 className="text-xl font-heading font-bold mb-3 text-gray-800 dark:text-gray-100 line-clamp-2">
-                                    {getLoc(event.title)}
+                                    {getLocalizedText(event.title, locale)}
                                 </h3>
 
                                 <div className="space-y-2 mb-4 text-sm text-gray-500 dark:text-gray-400">
@@ -116,12 +64,12 @@ export default function EventsSection() {
                                     </div>
                                     <div className="flex items-center gap-2">
                                         <MapPin size={16} className="text-primary/70 shrink-0" />
-                                        <span>{getLoc(event.location)}</span>
+                                        <span>{getLocalizedText(event.location, locale)}</span>
                                     </div>
                                 </div>
 
                                 <p className="text-gray-600 dark:text-gray-400 text-sm mb-6 line-clamp-3 grow">
-                                    {getLoc(event.description)}
+                                    {getLocalizedText(event.description, locale)}
                                 </p>
 
                                 <Link

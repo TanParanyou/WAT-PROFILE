@@ -1,99 +1,203 @@
 'use client';
 
 import { siteConfig } from '@/config/site.config';
-import { Mail, MapPin, Phone, Send } from 'lucide-react';
+import { Mail, MapPin, Phone, Send, Loader2, CheckCircle, AlertCircle, Clock, Car, Info, Navigation, ArrowRight } from 'lucide-react';
 import { useTranslations, useLocale } from 'next-intl';
+import { useState } from 'react';
 
 export default function ContactPage() {
     const t = useTranslations('ContactPage');
+    const tVisit = useTranslations('VisitPage');
     const locale = useLocale();
 
+    const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
+    const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const { id, value } = e.target;
+        setFormData(prev => ({ ...prev, [id]: value }));
+    };
+
+    const handleSubmit = async (e: React.FormEvent) => {
+        e.preventDefault();
+        setStatus('loading');
+        try {
+            const response = await fetch('/api/send-email', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData),
+            });
+            if (response.ok) {
+                setStatus('success');
+                setFormData({ name: '', email: '', subject: '', message: '' });
+                setTimeout(() => setStatus('idle'), 5000);
+            } else setStatus('error');
+        } catch {
+            setStatus('error');
+        }
+    };
+
     return (
-        <div className="bg-white dark:bg-zinc-950 min-h-screen">
-            {/* Header */}
-            <div className="bg-primary text-white py-20">
-                <div className="container mx-auto px-4 md:px-6 text-center">
-                    <h1 className="text-4xl md:text-5xl font-heading font-bold mb-4">{t('title')}</h1>
-                    <p className="text-xl font-light opacity-90">{t('subtitle')}</p>
+        <div className="bg-zinc-50 dark:bg-zinc-950 min-h-screen">
+            {/* Hero Section */}
+            <div className="relative bg-primary overflow-hidden pb-20 pt-32">
+                <div className="absolute inset-0 bg-white/5 opacity-10 pointer-events-none mix-blend-overlay"></div>
+                <div className="container mx-auto px-4 relative z-10 text-center">
+                    <h1 className="text-4xl md:text-6xl font-heading font-bold text-white mb-4 tracking-tight drop-shadow-sm">
+                        {t('title')}
+                    </h1>
+                    <p className="text-xl text-white/90 font-light max-w-2xl mx-auto">
+                        {t('subtitle')}
+                    </p>
                 </div>
             </div>
 
-            {/* Content */}
-            <div className="container mx-auto px-4 md:px-6 py-12 md:py-20">
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 lg:gap-20">
-                    {/* Contact Info */}
-                    <div>
-                        <h2 className="text-3xl font-heading font-bold text-primary mb-8">{t('infoTitle')}</h2>
-                        <ul className="space-y-8">
-                            <li className="flex items-start gap-4">
-                                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary shrink-0">
+            <div className="container mx-auto px-4 -mt-16 relative z-20 pb-20">
+                {/* Main Contact Card */}
+                <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-800 flex flex-col lg:flex-row mb-20">
+
+                    {/* Left: Contact Info */}
+                    <div className="lg:w-2/5 p-8 md:p-12 bg-primary/5 dark:bg-zinc-800/50">
+                        <h2 className="text-2xl font-heading font-bold text-primary mb-8">{t('infoTitle')}</h2>
+                        <div className="space-y-8">
+                            <div className="flex gap-5">
+                                <div className="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 text-primary flex items-center justify-center shadow-sm shrink-0">
                                     <MapPin size={24} />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-lg mb-1">{t('address')}</h3>
-                                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed">
+                                    <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-1">{t('address')}</h3>
+                                    <p className="text-gray-600 dark:text-gray-400 leading-relaxed font-sans">
                                         {siteConfig.contact.address ? siteConfig.contact.address[locale as 'th' | 'en'] : ''}
                                     </p>
                                 </div>
-                            </li>
-                            <li className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary shrink-0">
+                            </div>
+
+                            <div className="flex gap-5">
+                                <div className="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 text-primary flex items-center justify-center shadow-sm shrink-0">
                                     <Phone size={24} />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-lg mb-1">{t('phone')}</h3>
-                                    <p className="text-gray-600 dark:text-gray-400">
+                                    <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-1">{t('phone')}</h3>
+                                    <p className="text-gray-600 dark:text-gray-400 font-mono">
                                         {siteConfig.contact.phone}
                                     </p>
                                 </div>
-                            </li>
-                            <li className="flex items-center gap-4">
-                                <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary shrink-0">
+                            </div>
+
+                            <div className="flex gap-5">
+                                <div className="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 text-primary flex items-center justify-center shadow-sm shrink-0">
                                     <Mail size={24} />
                                 </div>
                                 <div>
-                                    <h3 className="font-bold text-lg mb-1">{t('email')}</h3>
-                                    <p className="text-gray-600 dark:text-gray-400">
+                                    <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-1">{t('email')}</h3>
+                                    <p className="text-gray-600 dark:text-gray-400 font-mono">
                                         {siteConfig.contact.email}
                                     </p>
                                 </div>
-                            </li>
-                        </ul>
+                            </div>
+                        </div>
+
+                        {/* Decor */}
+                        <div className="mt-12 pt-8 border-t border-gray-200 dark:border-gray-700">
+                            <p className="text-sm text-gray-500 italic">
+                                &quot;{tVisit('etiquetteDesc')}&quot;
+                            </p>
+                        </div>
                     </div>
 
-                    {/* Contact Form */}
-                    <div className="bg-zinc-50 dark:bg-zinc-900 p-8 rounded-3xl border border-gray-100 dark:border-gray-800">
-                        <h2 className="text-2xl font-heading font-bold text-primary mb-6">{t('formTitle')}</h2>
-                        <form className="space-y-4">
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    {/* Right: Form */}
+                    <div className="lg:w-3/5 p-8 md:p-12">
+                        <h2 className="text-2xl font-heading font-bold text-gray-900 dark:text-white mb-6">{t('formTitle')}</h2>
+                        <form className="space-y-6" onSubmit={handleSubmit}>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                 <div className="space-y-2">
-                                    <label htmlFor="name" className="text-sm font-medium">{t('fullName')}</label>
-                                    <input type="text" id="name" className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="Your Name" />
+                                    <label htmlFor="name" className="text-sm font-semibold text-gray-700 dark:text-gray-300">{t('fullName')}</label>
+                                    <input type="text" id="name" required value={formData.name} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-zinc-950 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" />
                                 </div>
                                 <div className="space-y-2">
-                                    <label htmlFor="email" className="text-sm font-medium">{t('email')}</label>
-                                    <input type="email" id="email" className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="Your Email" />
+                                    <label htmlFor="email" className="text-sm font-semibold text-gray-700 dark:text-gray-300">{t('email')}</label>
+                                    <input type="email" id="email" required value={formData.email} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-zinc-950 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" />
                                 </div>
                             </div>
                             <div className="space-y-2">
-                                <label htmlFor="subject" className="text-sm font-medium">{t('subject')}</label>
-                                <input type="text" id="subject" className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" placeholder="Subject" />
+                                <label htmlFor="subject" className="text-sm font-semibold text-gray-700 dark:text-gray-300">{t('subject')}</label>
+                                <input type="text" id="subject" required value={formData.subject} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-zinc-950 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" />
                             </div>
                             <div className="space-y-2">
-                                <label htmlFor="message" className="text-sm font-medium">{t('message')}</label>
-                                <textarea id="message" rows={5} className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-white dark:bg-zinc-950 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all resize-none" placeholder="Message..." />
+                                <label htmlFor="message" className="text-sm font-semibold text-gray-700 dark:text-gray-300">{t('message')}</label>
+                                <textarea id="message" rows={4} required value={formData.message} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-zinc-950 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all resize-none" />
                             </div>
-                            <button type="button" className="w-full bg-primary text-white font-bold py-4 rounded-xl hover:bg-primary/90 transition-all flex items-center justify-center gap-2">
-                                <Send size={20} /> {t('sendMessage')}
+                            <button type="submit" disabled={status === 'loading' || status === 'success'} className={`w-full font-bold py-4 rounded-xl transition-all flex items-center justify-center gap-2 transform active:scale-95 ${status === 'success' ? 'bg-green-600 text-white' : status === 'error' ? 'bg-red-600 text-white' : 'bg-primary text-white hover:bg-primary/90 shadow-lg hover:shadow-primary/30'}`}>
+                                {status === 'loading' ? <Loader2 className="animate-spin" /> : status === 'success' ? <><CheckCircle /> Sent</> : <><Send /> {t('sendMessage')}</>}
                             </button>
                         </form>
                     </div>
                 </div>
-            </div>
 
-            {/* Google Map Embed (Placeholder) */}
-            <div className="h-96 w-full bg-gray-200 dark:bg-zinc-800 flex items-center justify-center">
-                <p className="text-gray-500">Google Map Embed Placeholder</p>
+                {/* Visitor Info Sections */}
+                <div className="mb-20">
+                    <div className="text-center mb-12">
+                        <h2 className="text-3xl font-heading font-bold text-gray-900 dark:text-gray-100">{tVisit('subtitle')}</h2>
+                        <div className="w-20 h-1 bg-primary mx-auto mt-4 rounded-full"></div>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {/* Card 1: Hours */}
+                        <div className="bg-white dark:bg-zinc-900 p-8 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all text-center group">
+                            <div className="w-16 h-16 bg-blue-50 dark:bg-blue-900/20 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                                <Clock size={32} />
+                            </div>
+                            <h3 className="text-xl font-bold mb-4">{tVisit('openingHours')}</h3>
+                            <p className="text-gray-600 dark:text-gray-400">Everyday</p>
+                            <p className="text-xl font-bold text-primary mt-2">08:00 - 18:00</p>
+                        </div>
+
+                        {/* Card 2: Transport */}
+                        <div className="bg-white dark:bg-zinc-900 p-8 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all text-center group">
+                            <div className="w-16 h-16 bg-green-50 dark:bg-green-900/20 text-green-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                                <Car size={32} />
+                            </div>
+                            <h3 className="text-xl font-bold mb-4">{tVisit('directions')}</h3>
+                            <p className="text-gray-600 dark:text-gray-400 text-sm">
+                                Parking available on-site.
+                            </p>
+                            <a href="https://maps.google.com" target="_blank" className="flex items-center justify-center gap-2 text-primary font-bold mt-4 hover:underline">
+                                Get Directions <ArrowRight size={16} />
+                            </a>
+                        </div>
+
+                        {/* Card 3: Etiquette */}
+                        <div className="bg-white dark:bg-zinc-900 p-8 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all text-center group">
+                            <div className="w-16 h-16 bg-orange-50 dark:bg-orange-900/20 text-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                                <Info size={32} />
+                            </div>
+                            <h3 className="text-xl font-bold mb-4">{tVisit('etiquette')}</h3>
+                            <ul className="text-sm text-gray-600 dark:text-gray-400 space-y-2 text-left inline-block">
+                                <li className="flex items-center gap-2"><CheckCircle size={14} className="text-green-500" /> {tVisit('dressCodeDesc')}</li>
+                                <li className="flex items-center gap-2"><CheckCircle size={14} className="text-green-500" /> {tVisit('behaviorDesc')}</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                {/* Map Section */}
+                <div className="rounded-3xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-800 h-[500px] relative group">
+                    <iframe
+                        title="Map of Wat Serm Rangsi"
+                        src="https://maps.google.com/maps?width=100%25&height=600&hl=en&q=Wat%20Serm%20Rangsi%2C%20Yingling%20Drive%2C%20Sterling%2C%20VA+(Wat%20Serm%20Rangsi)&t=&z=15&ie=UTF8&iwloc=B&output=embed"
+                        width="100%"
+                        height="100%"
+                        style={{ border: 0 }}
+                        allowFullScreen
+                        loading="lazy"
+                        className="grayscale group-hover:grayscale-0 transition-all duration-700"
+                        referrerPolicy="no-referrer-when-downgrade"
+                    ></iframe>
+                    <div className="absolute bottom-6 right-6 bg-white dark:bg-zinc-900 px-6 py-3 rounded-xl shadow-lg flex items-center gap-3">
+                        <Navigation size={20} className="text-primary" />
+                        <span className="font-bold">Sterling, VA</span>
+                    </div>
+                </div>
             </div>
         </div>
     );
