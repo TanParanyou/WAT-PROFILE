@@ -1,0 +1,36 @@
+[
+    {
+        "id": "1",
+        "slug": "phra-kru-serm",
+        "image": "/images/monks/abbott.jpg",
+        "name": {
+            "th": "พระครูเสริมรังษี (สมพงษ์ สุธมฺโม)",
+            "en": "Phra Kru Sermrangsi (Sompong Suthammo)"
+        },
+        "title": {
+            "th": "เจ้าอาวาส",
+            "en": "Abbot"
+        },
+        "content": {
+            "th": "<p>พระครูเสริมรังษี (สมพงษ์ สุธมฺโม) ท่านเป็นพระเถระผู้มีความเมตตา...</p>",
+            "en": "<p>Phra Kru Sermrangsi (Sompong Suthammo) is a compassionate elder monk...</p>"
+        }
+    },
+    {
+        "id": "2",
+        "slug": "phra-maha-somchai",
+        "image": "/images/monks/monk2.jpg",
+        "name": {
+            "th": "พระมหาสมชาย ฐานวโร",
+            "en": "Phra Maha Somchai Thanawaro"
+        },
+        "title": {
+            "th": "ผู้ช่วยเจ้าอาวาส",
+            "en": "Assistant Abbot"
+        },
+        "content": {
+            "th": "<p>ประวัติโดยย่อของพระมหาสมชาย...</p>",
+            "en": "<p>Brief biography of Phra Maha Somchai...</p>"
+        }
+    }
+]

@@ -2,6 +2,8 @@ import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
 import Navbar from '@/components/layout/Navbar';
 import Footer from '@/components/layout/Footer';
+import StickySocials from '@/components/layout/StickySocials';
+import CookieConsent from '@/components/layout/CookieConsent';
 import { Providers } from '../providers';
 import { Prompt, Chonburi } from 'next/font/google';
 import '../globals.css';
@@ -48,6 +50,8 @@ export default async function LocaleLayout({
                         <Navbar />
                         <main className="grow">{children}</main>
                         <Footer />
+                        <StickySocials />
+                        <CookieConsent />
                     </Providers>
                 </NextIntlClientProvider>
             </body>

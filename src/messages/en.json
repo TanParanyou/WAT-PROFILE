@@ -5,7 +5,8 @@
         "events": "Events",
         "visit": "Visit",
         "gallery": "Gallery",
-        "contact": "Contact"
+        "contact": "Contact",
+        "monks": "Monks History"
     },
     "Footer": {
         "aboutUs": "About Us",
@@ -122,5 +123,16 @@
         "festival": "Festivals",
         "education": "Education",
         "daily": "Daily Routine"
+    },
+    "CookieConsent": {
+        "title": "We value your privacy",
+        "description": "We use cookies to enhance your browsing experience, serve personalized content, and analyze our traffic. By clicking \"Accept All\", you consent to our use of cookies.",
+        "acceptAll": "ACCEPT ALL",
+        "decline": "DECLINE",
+        "readMore": "Read our Privacy Policy"
+    },
+    "MonksPage": {
+        "title": "Monks History",
+        "subtitle": "Biographies of our Venerable Monks"
     }
 }

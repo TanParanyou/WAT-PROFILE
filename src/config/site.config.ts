@@ -61,6 +61,7 @@ export type LayoutConfig = {
     headerStyle: 'minimal' | 'withBorder';
     footerStyle: 'minimal' | 'full';
     enableScrollAnimation: boolean;
+    socialSidebarPosition: 'left' | 'right';
 };
 
 export type FeatureFlags = {
@@ -162,6 +163,7 @@ export const siteConfig: SiteConfig = {
         headerStyle: 'minimal',
         footerStyle: 'full',
         enableScrollAnimation: true,
+        socialSidebarPosition: 'right',
     },
 
     integrations: {

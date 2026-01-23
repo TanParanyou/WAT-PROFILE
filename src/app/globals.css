@@ -2,33 +2,264 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-    --color-primary: #5D4037;
-    --color-primary-foreground: #ffffff;
-    --color-secondary: #FFD700;
-    --color-secondary-foreground: #000000;
-    --color-accent: #E5BE01;
-    --color-accent-foreground: #000000;
-    --color-background: var(--background);
-    --color-foreground: var(--foreground);
+    /* Fonts */
     --font-sans: var(--font-prompt);
     --font-heading: var(--font-chonburi);
+
+    /* Text Colors */
+    --color-text-50: var(--text-50);
+    --color-text-100: var(--text-100);
+    --color-text-200: var(--text-200);
+    --color-text-300: var(--text-300);
+    --color-text-400: var(--text-400);
+    --color-text-500: var(--text-500);
+    --color-text-600: var(--text-600);
+    --color-text-700: var(--text-700);
+    --color-text-800: var(--text-800);
+    --color-text-900: var(--text-900);
+    --color-text-950: var(--text-950);
+
+    /* Background Colors */
+    --color-background-50: var(--background-50);
+    --color-background-100: var(--background-100);
+    --color-background-200: var(--background-200);
+    --color-background-300: var(--background-300);
+    --color-background-400: var(--background-400);
+    --color-background-500: var(--background-500);
+    --color-background-600: var(--background-600);
+    --color-background-700: var(--background-700);
+    --color-background-800: var(--background-800);
+    --color-background-900: var(--background-900);
+    --color-background-950: var(--background-950);
+
+    /* Primary Colors */
+    --color-primary-50: var(--primary-50);
+    --color-primary-100: var(--primary-100);
+    --color-primary-200: var(--primary-200);
+    --color-primary-300: var(--primary-300);
+    --color-primary-400: var(--primary-400);
+    --color-primary-500: var(--primary-500);
+    --color-primary-600: var(--primary-600);
+    --color-primary-700: var(--primary-700);
+    --color-primary-800: var(--primary-800);
+    --color-primary-900: var(--primary-900);
+    --color-primary-950: var(--primary-950);
+
+    /* Secondary Colors */
+    --color-secondary-50: var(--secondary-50);
+    --color-secondary-100: var(--secondary-100);
+    --color-secondary-200: var(--secondary-200);
+    --color-secondary-300: var(--secondary-300);
+    --color-secondary-400: var(--secondary-400);
+    --color-secondary-500: var(--secondary-500);
+    --color-secondary-600: var(--secondary-600);
+    --color-secondary-700: var(--secondary-700);
+    --color-secondary-800: var(--secondary-800);
+    --color-secondary-900: var(--secondary-900);
+    --color-secondary-950: var(--secondary-950);
+
+    /* Accent Colors */
+    --color-accent-50: var(--accent-50);
+    --color-accent-100: var(--accent-100);
+    --color-accent-200: var(--accent-200);
+    --color-accent-300: var(--accent-300);
+    --color-accent-400: var(--accent-400);
+    --color-accent-500: var(--accent-500);
+    --color-accent-600: var(--accent-600);
+    --color-accent-700: var(--accent-700);
+    --color-accent-800: var(--accent-800);
+    --color-accent-900: var(--accent-900);
+    --color-accent-950: var(--accent-950);
+
+    /* Semantic Defaults (Mapping to new palette) */
+    --color-primary: var(--primary-500);
+    --color-primary-foreground: var(--text-50);
+
+    --color-secondary: var(--secondary-500);
+    --color-secondary-foreground: var(--text-900);
+
+    --color-accent: var(--accent-500);
+    --color-accent-foreground: var(--text-900);
+
+    --color-background: var(--background);
+    --color-foreground: var(--foreground);
 }
 
+/* Dark Mode Implementation */
 :root {
-    --background: #ffffff;
-    --foreground: #171717;
+    /* Text */
+    --text-50: #fbf5ea;
+    --text-100: #f7ebd4;
+    --text-200: #efd8a9;
+    --text-300: #e7c47e;
+    --text-400: #deb054;
+    --text-500: #d69c29;
+    --text-600: #ab7d21;
+    --text-700: #815e18;
+    --text-800: #563f10;
+    --text-900: #2b1f08;
+    --text-950: #151004;
+
+    /* Background */
+    --background-50: #fcf3e9;
+    --background-100: #f8e7d3;
+    --background-200: #f1d0a7;
+    --background-300: #eab87b;
+    --background-400: #e3a04f;
+    --background-500: #dd8922;
+    --background-600: #b06d1c;
+    --background-700: #845215;
+    --background-800: #58370e;
+    --background-900: #2c1b07;
+    --background-950: #160e03;
+
+    /* Primary */
+    --primary-50: #fbf3ea;
+    --primary-100: #f6e7d5;
+    --primary-200: #eecfaa;
+    --primary-300: #e5b880;
+    --primary-400: #dca056;
+    --primary-500: #d4882b;
+    --primary-600: #a96d23;
+    --primary-700: #7f521a;
+    --primary-800: #553611;
+    --primary-900: #2a1b09;
+    --primary-950: #150e04;
+
+    /* Secondary */
+    --secondary-50: #fbf3ea;
+    --secondary-100: #f6e7d5;
+    --secondary-200: #eeceaa;
+    --secondary-300: #e5b680;
+    --secondary-400: #dc9d56;
+    --secondary-500: #d4852b;
+    --secondary-600: #a96a23;
+    --secondary-700: #7f501a;
+    --secondary-800: #553511;
+    --secondary-900: #2a1b09;
+    --secondary-950: #150d04;
+
+    /* Accent */
+    --accent-50: #fdf6e7;
+    --accent-100: #fceccf;
+    --accent-200: #f8d9a0;
+    --accent-300: #f5c670;
+    --accent-400: #f2b440;
+    --accent-500: #eea111;
+    --accent-600: #bf810d;
+    --accent-700: #8f600a;
+    --accent-800: #5f4007;
+    --accent-900: #302003;
+    --accent-950: #181002;
+
+    /* Theme Defaults */
+    --background: var(--background-50);
+    --foreground: var(--text-900);
 }
 
 .dark {
-    --background: #1a1a1a;
-    --foreground: #ededed;
+    /* Text DO (Dark Override) */
+    --text-50: #151004;
+    --text-100: #2b1f08;
+    --text-200: #563f10;
+    --text-300: #815e18;
+    --text-400: #ab7d21;
+    --text-500: #d69c29;
+    --text-600: #deb054;
+    --text-700: #e7c47e;
+    --text-800: #efd8a9;
+    --text-900: #f7ebd4;
+    --text-950: #fbf5ea;
+
+    /* Background DO */
+    --background-50: #160e03;
+    --background-100: #2c1b07;
+    --background-200: #58370e;
+    --background-300: #845215;
+    --background-400: #b06d1c;
+    --background-500: #dd8922;
+    --background-600: #e3a04f;
+    --background-700: #eab87b;
+    --background-800: #f1d0a7;
+    --background-900: #f8e7d3;
+    --background-950: #fcf3e9;
+
+    /* Primary DO */
+    --primary-50: #150e04;
+    --primary-100: #2a1b09;
+    --primary-200: #553611;
+    --primary-300: #7f521a;
+    --primary-400: #a96d23;
+    --primary-500: #d4882b;
+    --primary-600: #dca056;
+    --primary-700: #e5b880;
+    --primary-800: #eecfaa;
+    --primary-900: #f6e7d5;
+    --primary-950: #fbf3ea;
+
+    /* Secondary DO */
+    --secondary-50: #150d04;
+    --secondary-100: #2a1b09;
+    --secondary-200: #553511;
+    --secondary-300: #7f501a;
+    --secondary-400: #a96a23;
+    --secondary-500: #d4852b;
+    --secondary-600: #dc9d56;
+    --secondary-700: #e5b680;
+    --secondary-800: #eeceaa;
+    --secondary-900: #f6e7d5;
+    --secondary-950: #fbf3ea;
+
+    /* Accent DO */
+    --accent-50: #181002;
+    --accent-100: #302003;
+    --accent-200: #5f4007;
+    --accent-300: #8f600a;
+    --accent-400: #bf810d;
+    --accent-500: #eea111;
+    --accent-600: #f2b440;
+    --accent-700: #f5c670;
+    --accent-800: #f8d9a0;
+    --accent-900: #fceccf;
+    --accent-950: #fdf6e7;
+
+    /* Theme Defaults DO */
+    --background: var(--background-950);
+    --foreground: var(--text-50);
 }
 
-body {
-    background-color: var(--background);
-    color: var(--foreground);
-    font-family: var(--font-sans), sans-serif;
-    min-height: 100vh;
+@layer base {
+    body {
+        background-color: var(--background);
+        color: var(--foreground);
+        font-family: var(--font-sans), sans-serif;
+        min-height: 100vh;
+        /* Improved Readability */
+        font-size: 1.125rem;
+        /* 18px */
+        line-height: 1.75;
+    }
+
+    h1,
+    h2,
+    h3,
+    h4,
+    h5,
+    h6 {
+        font-family: var(--font-heading), sans-serif;
+        font-weight: 700;
+        line-height: 1.2;
+    }
+}
+
+@layer utilities {
+    .glass {
+        @apply bg-white/70 dark:bg-black/30 backdrop-blur-xl border border-white/20 dark:border-white/10 shadow-lg;
+    }
+
+    .glass-hover {
+        @apply hover:bg-white/80 dark:hover:bg-white/15 transition-all duration-300;
+    }
 }
 
 /* Custom Scrollbar */
@@ -37,7 +268,6 @@ body {
     scrollbar-color: rgba(93, 64, 55, 0.5) transparent;
 }
 
-/* Webkit browsers */
 *::-webkit-scrollbar {
     width: 6px;
     height: 6px;
@@ -54,14 +284,4 @@ body {
 
 *::-webkit-scrollbar-thumb:hover {
     background: rgba(93, 64, 55, 0.8);
-}
-
-@layer utilities {
-    .glass {
-        @apply bg-white/80 dark:bg-black/30 backdrop-blur-md border border-white/20 dark:border-white/10 shadow-lg;
-    }
-
-    .glass-hover {
-        @apply hover:bg-white/90 dark:hover:bg-white/10 transition-all duration-300;
-    }
 }

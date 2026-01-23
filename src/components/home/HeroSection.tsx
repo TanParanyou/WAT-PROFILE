@@ -16,7 +16,7 @@ export default function HeroSection() {
             <div
                 className="absolute inset-0 z-0 bg-cover bg-center"
                 style={{
-                    backgroundImage: 'url(/images/hero-bg.jpg)', // We will need a placeholder or the user to provide this
+                    backgroundImage: 'url(/images/hero-bg.jpg)',
                 }}
             >
                 {/* Overlay */}
@@ -48,12 +48,6 @@ export default function HeroSection() {
                             className="px-8 py-3 bg-primary hover:bg-primary/90 text-white rounded-full font-medium transition-all flex items-center gap-2"
                         >
                             {t('viewEvents')} <ArrowRight size={18} />
-                        </Link>
-                        <Link
-                            href="/donate"
-                            className="px-8 py-3 bg-transparent border border-white text-white hover:bg-white hover:text-black rounded-full font-medium transition-all"
-                        >
-                            {t('donate')}
                         </Link>
                     </div>
                 </motion.div>

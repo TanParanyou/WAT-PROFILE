@@ -39,6 +39,7 @@ export default function Navbar() {
     const navLinks = [
         { name: t('home'), href: '/' },
         { name: t('about'), href: '/about' },
+        { name: t('monks'), href: '/monks' },
         { name: t('events'), href: '/events' },
         { name: t('gallery'), href: '/gallery' },
         { name: t('contact'), href: '/contact' },
@@ -65,7 +66,7 @@ export default function Navbar() {
     return (
         <nav
             className={`fixed top-0 w-full z-50 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${scrolled
-                ? 'bg-white/80 dark:bg-black/80 backdrop-blur-xl border-b border-white/20 dark:border-white/5 py-4 shadow-sm'
+                ? 'bg-white dark:bg-black border-b border-white/20 dark:border-white/5 py-4 shadow-sm'
                 : 'bg-transparent py-6'
                 }`}
         >
@@ -90,7 +91,7 @@ export default function Navbar() {
 
                 {/* Desktop Navigation */}
                 <div className="hidden md:flex items-center">
-                    <div className={`flex items-center gap-1 px-4 py-1.5 rounded-full transition-all duration-300 ${scrolled ? 'bg-gray-100/50 dark:bg-zinc-800/50 border border-gray-200/50 dark:border-zinc-700/50' : 'bg-black/20 backdrop-blur-md border border-white/10'
+                    <div className={`flex items-center gap-1 px-4 py-1.5 rounded-full transition-all duration-300 ${scrolled ? 'bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700' : 'bg-black/20 backdrop-blur-md border border-white/10'
                         }`}>
                         {navLinks.map((link) => {
                             const isActive = pathname === link.href;
@@ -161,7 +162,7 @@ export default function Navbar() {
                         animate={{ opacity: 1 }}
                         exit={{ opacity: 0 }}
                         transition={{ duration: 0.3 }}
-                        className="fixed inset-0 z-40 bg-white/95 dark:bg-zinc-950/98 backdrop-blur-2xl md:hidden flex flex-col pt-32 px-6"
+                        className="fixed inset-0 z-40 bg-white dark:bg-zinc-950 backdrop-blur-2xl md:hidden flex flex-col pt-32 px-6"
                     >
                         <div className="flex flex-col gap-6">
                             {navLinks.map((link, i) => (

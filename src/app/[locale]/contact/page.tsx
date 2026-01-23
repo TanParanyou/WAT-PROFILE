@@ -1,9 +1,12 @@
 'use client';
 
-import { siteConfig } from '@/config/site.config';
 import { Mail, MapPin, Phone, Send, Loader2, CheckCircle, AlertCircle, Clock, Car, Info, Navigation, ArrowRight } from 'lucide-react';
+import contactData from '@/data/contact.json';
 import { useTranslations, useLocale } from 'next-intl';
 import { useState } from 'react';
+
+import PageHeader from '@/components/layout/PageHeader';
+import PageContainer from '@/components/layout/PageContainer';
 
 export default function ContactPage() {
     const t = useTranslations('ContactPage');
@@ -39,20 +42,12 @@ export default function ContactPage() {
 
     return (
         <div className="bg-zinc-50 dark:bg-zinc-950 min-h-screen">
-            {/* Hero Section */}
-            <div className="relative bg-primary overflow-hidden pb-20 pt-32">
-                <div className="absolute inset-0 bg-white/5 opacity-10 pointer-events-none mix-blend-overlay"></div>
-                <div className="container mx-auto px-4 relative z-10 text-center">
-                    <h1 className="text-4xl md:text-6xl font-heading font-bold text-white mb-4 tracking-tight drop-shadow-sm">
-                        {t('title')}
-                    </h1>
-                    <p className="text-xl text-white/90 font-light max-w-2xl mx-auto">
-                        {t('subtitle')}
-                    </p>
-                </div>
-            </div>
+            <PageHeader
+                title={t('title')}
+                subtitle={t('subtitle')}
+            />
 
-            <div className="container mx-auto px-4 -mt-16 relative z-20 pb-20">
+            <PageContainer>
                 {/* Main Contact Card */}
                 <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-800 flex flex-col lg:flex-row mb-20">
 
@@ -67,7 +62,7 @@ export default function ContactPage() {
                                 <div>
                                     <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-1">{t('address')}</h3>
                                     <p className="text-gray-600 dark:text-gray-400 leading-relaxed font-sans">
-                                        {siteConfig.contact.address ? siteConfig.contact.address[locale as 'th' | 'en'] : ''}
+                                        {contactData.address ? contactData.address[locale as 'th' | 'en'] : ''}
                                     </p>
                                 </div>
                             </div>
@@ -79,7 +74,7 @@ export default function ContactPage() {
                                 <div>
                                     <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-1">{t('phone')}</h3>
                                     <p className="text-gray-600 dark:text-gray-400 font-mono">
-                                        {siteConfig.contact.phone}
+                                        {contactData.phone}
                                     </p>
                                 </div>
                             </div>
@@ -91,7 +86,7 @@ export default function ContactPage() {
                                 <div>
                                     <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-1">{t('email')}</h3>
                                     <p className="text-gray-600 dark:text-gray-400 font-mono">
-                                        {siteConfig.contact.email}
+                                        {contactData.email}
                                     </p>
                                 </div>
                             </div>
@@ -148,8 +143,8 @@ export default function ContactPage() {
                                 <Clock size={32} />
                             </div>
                             <h3 className="text-xl font-bold mb-4">{tVisit('openingHours')}</h3>
-                            <p className="text-gray-600 dark:text-gray-400">Everyday</p>
-                            <p className="text-xl font-bold text-primary mt-2">08:00 - 18:00</p>
+                            <p className="text-gray-600 dark:text-gray-400">{contactData.openingHours.days[locale as 'th' | 'en']}</p>
+                            <p className="text-xl font-bold text-primary mt-2">{contactData.openingHours.time}</p>
                         </div>
 
                         {/* Card 2: Transport */}
@@ -159,9 +154,9 @@ export default function ContactPage() {
                             </div>
                             <h3 className="text-xl font-bold mb-4">{tVisit('directions')}</h3>
                             <p className="text-gray-600 dark:text-gray-400 text-sm">
-                                Parking available on-site.
+                                {contactData.transport.parking[locale as 'th' | 'en']}
                             </p>
-                            <a href="https://maps.google.com" target="_blank" className="flex items-center justify-center gap-2 text-primary font-bold mt-4 hover:underline">
+                            <a href={contactData.transport.directionsUrl} target="_blank" className="flex items-center justify-center gap-2 text-primary font-bold mt-4 hover:underline">
                                 Get Directions <ArrowRight size={16} />
                             </a>
                         </div>
@@ -184,7 +179,7 @@ export default function ContactPage() {
                 <div className="rounded-3xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-800 h-[500px] relative group">
                     <iframe
                         title="Map of Wat Serm Rangsi"
-                        src="https://maps.google.com/maps?width=100%25&height=600&hl=en&q=Wat%20Serm%20Rangsi%2C%20Yingling%20Drive%2C%20Sterling%2C%20VA+(Wat%20Serm%20Rangsi)&t=&z=15&ie=UTF8&iwloc=B&output=embed"
+                        src={contactData.map.embedUrl}
                         width="100%"
                         height="100%"
                         style={{ border: 0 }}
@@ -195,10 +190,10 @@ export default function ContactPage() {
                     ></iframe>
                     <div className="absolute bottom-6 right-6 bg-white dark:bg-zinc-900 px-6 py-3 rounded-xl shadow-lg flex items-center gap-3">
                         <Navigation size={20} className="text-primary" />
-                        <span className="font-bold">Sterling, VA</span>
+                        <span className="font-bold">{contactData.map.locationName}</span>
                     </div>
                 </div>
-            </div>
+            </PageContainer>
         </div>
     );
 }

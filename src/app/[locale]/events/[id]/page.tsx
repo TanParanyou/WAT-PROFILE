@@ -10,6 +10,9 @@ interface Props {
     params: Promise<{ id: string; locale: string }>;
 }
 
+import PageHeader from '@/components/layout/PageHeader';
+import PageContainer from '@/components/layout/PageContainer';
+
 export default async function EventDetailPage({ params }: Props) {
     const { id, locale } = await params;
     const eventId = Number(id);
@@ -40,25 +43,20 @@ export default async function EventDetailPage({ params }: Props) {
 
     return (
         <div className="bg-zinc-50 dark:bg-zinc-950 min-h-screen pb-20">
-            {/* Header / Banner */}
-            <div className="bg-primary text-white pt-40 pb-20 relative overflow-hidden">
-                <div className="absolute inset-0 bg-[url('/images/thai-pattern.png')] opacity-10 pointer-events-none mix-blend-overlay"></div>
-                <div className="container mx-auto px-4 md:px-6 text-center relative z-10">
-                    <h1 className="text-3xl md:text-5xl font-heading font-bold mb-6 tracking-tight">
-                        {getLocalizedText(event.title, locale)}
-                    </h1>
-                    <div className="flex flex-wrap items-center justify-center gap-6 opacity-90 text-sm md:text-base">
-                        <span className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm">
-                            <Calendar size={18} /> {event.date}
-                        </span>
-                        <span className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-sm">
-                            <MapPin size={18} /> {getLocalizedText(event.location, locale)}
-                        </span>
-                    </div>
+            <PageHeader
+                title={getLocalizedText(event.title, locale)}
+            >
+                <div className="flex flex-wrap items-center justify-center gap-4 text-white opacity-90 text-sm md:text-base">
+                    <span className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-md border border-white/10">
+                        <Calendar size={18} /> {event.date}
+                    </span>
+                    <span className="flex items-center gap-2 bg-white/10 px-4 py-2 rounded-full backdrop-blur-md border border-white/10">
+                        <MapPin size={18} /> {getLocalizedText(event.location, locale)}
+                    </span>
                 </div>
-            </div>
+            </PageHeader>
 
-            <div className="container mx-auto px-4 md:px-6 py-12">
+            <PageContainer>
                 <Link
                     href="/events"
                     className="inline-flex items-center gap-2 text-gray-500 hover:text-primary mb-8 transition-colors font-medium group"
@@ -119,9 +117,9 @@ export default async function EventDetailPage({ params }: Props) {
                     </div>
 
                     {/* Sidebar (Right Column) */}
-                    <div className="space-y-8">
+                    <div className="space-y-8 sticky top-24 self-start h-fit">
                         {/* Event Info Card */}
-                        <div className="bg-white dark:bg-zinc-900 rounded-3xl p-8 border border-gray-100 dark:border-gray-800 shadow-sm sticky top-24">
+                        <div className="bg-white dark:bg-zinc-900 rounded-3xl p-8 border border-gray-100 dark:border-gray-800 shadow-sm">
                             <h3 className="text-xl font-bold mb-6 font-heading">Event Details</h3>
 
                             <div className="space-y-6">
@@ -198,7 +196,7 @@ export default async function EventDetailPage({ params }: Props) {
                         </div>
                     </div>
                 </div>
-            </div>
+            </PageContainer>
         </div>
     );
 }

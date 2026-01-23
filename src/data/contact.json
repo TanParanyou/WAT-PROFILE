@@ -1,0 +1,26 @@
+{
+    "address": {
+        "th": "ที่อยู่ภาษาไทย",
+        "en": "Address in English"
+    },
+    "phone": "+66-xx-xxx-xxxx",
+    "email": "contact@watsermrangsi.org",
+    "openingHours": {
+        "days": {
+            "th": "ทุกวัน",
+            "en": "Everyday"
+        },
+        "time": "08:00 - 18:00"
+    },
+    "transport": {
+        "parking": {
+            "th": "มีที่จอดรถภายในวัด",
+            "en": "Parking available on-site."
+        },
+        "directionsUrl": "https://maps.google.com"
+    },
+    "map": {
+        "embedUrl": "https://maps.google.com/maps?width=100%25&height=600&hl=en&q=Wat%20Serm%20Rangsi%2C%20Yingling%20Drive%2C%20Sterling%2C%20VA+(Wat%20Serm%20Rangsi)&t=&z=15&ie=UTF8&iwloc=B&output=embed",
+        "locationName": "Sterling, VA"
+    }
+}
