@@ -243,7 +243,7 @@ export default async function EventDetailPage({ params }: Props) {
                                 </div>
 
                                 <div className="flex items-start gap-4">
-                                    <div className="w-10 h-10 rounded-full bg-orange-50 dark:bg-orange-900/20 text-orange-600 flex items-center justify-center shrink-0">
+                                    <div className="w-10 h-10 rounded-full bg-primary-50 dark:bg-primary-900/20 text-primary-600 flex items-center justify-center shrink-0">
                                         <Clock size={20} />
                                     </div>
                                     <div>

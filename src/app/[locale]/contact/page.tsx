@@ -180,7 +180,7 @@ export default function ContactPage() {
 
                         {/* Card 3: Etiquette */}
                         <div className="bg-white dark:bg-zinc-900 p-8 rounded-3xl border border-gray-100 dark:border-gray-800 shadow-sm hover:shadow-md transition-all text-center group">
-                            <div className="w-16 h-16 bg-orange-50 dark:bg-orange-900/20 text-orange-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
+                            <div className="w-16 h-16 bg-primary-50 dark:bg-primary-900/20 text-primary-600 rounded-2xl flex items-center justify-center mx-auto mb-6 group-hover:scale-110 transition-transform">
                                 <Info size={32} />
                             </div>
                             <h3 className="text-xl font-bold mb-4">{tVisit('etiquette')}</h3>
