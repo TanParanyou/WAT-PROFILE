@@ -1,6 +1,6 @@
 'use client';
 
-import { Mail, MapPin, Phone, Send, Loader2, CheckCircle, AlertCircle, Clock, Car, Info, Navigation, ArrowRight } from 'lucide-react';
+import { Mail, MapPin, Phone, Send, Loader2, CheckCircle, AlertCircle, Clock, Car, Info, Navigation, ArrowRight, Facebook } from 'lucide-react';
 import contactData from '@/data/contact.json';
 import { useTranslations, useLocale } from 'next-intl';
 import { useState } from 'react';
@@ -88,6 +88,23 @@ export default function ContactPage() {
                                     <p className="text-gray-600 dark:text-gray-400 font-mono">
                                         {contactData.email}
                                     </p>
+                                </div>
+                            </div>
+
+                            <div className="flex gap-5">
+                                <div className="w-12 h-12 rounded-2xl bg-white dark:bg-zinc-800 text-primary flex items-center justify-center shadow-sm shrink-0">
+                                    <Facebook size={24} />
+                                </div>
+                                <div>
+                                    <h3 className="font-bold text-lg text-gray-900 dark:text-gray-100 mb-1">Facebook</h3>
+                                    <a
+                                        href={contactData.social.facebook}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-primary hover:text-primary/80 transition-colors font-medium break-all"
+                                    >
+                                        เสริมรังษี ศูนย์ปฏิบัติธรรม
+                                    </a>
                                 </div>
                             </div>
                         </div>

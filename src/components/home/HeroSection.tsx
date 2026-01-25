@@ -2,7 +2,7 @@
 
 import { siteConfig } from '@/config/site.config';
 import { ArrowRight } from 'lucide-react';
-import Link from 'next/link';
+import { Link } from '@/navigation';
 import { motion } from 'framer-motion';
 import { useTranslations } from 'next-intl';
 

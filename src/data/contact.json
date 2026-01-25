@@ -1,10 +1,13 @@
 {
     "address": {
-        "th": "ที่อยู่ภาษาไทย",
-        "en": "Address in English"
+        "th": "ต.หนองย่างเสือ อ.มวกเหล็ก จ.สระบุรี 18180",
+        "en": "Unnamed Rd, Tambon Nong Yang Sua, Amphoe Muak Lek, Saraburi 18180"
     },
-    "phone": "+66-xx-xxx-xxxx",
+    "phone": "062 540 4922",
     "email": "contact@watsermrangsi.org",
+    "social": {
+        "facebook": "https://www.facebook.com/pages/%E0%B9%80%E0%B8%AA%E0%B8%A3%E0%B8%B4%E0%B8%A1%E0%B8%A3%E0%B8%B1%E0%B8%87%E0%B8%A9%E0%B8%B5-%E0%B8%A8%E0%B8%B9%E0%B8%99%E0%B8%A2%E0%B9%8C%E0%B8%9B%E0%B8%8F%E0%B8%B4%E0%B8%9A%E0%B8%B1%E0%B8%95%E0%B8%B4%E0%B8%98%E0%B8%A3%E0%B8%A3%E0%B8%A1/109598142460157"
+    },
     "openingHours": {
         "days": {
             "th": "ทุกวัน",
@@ -14,13 +17,13 @@
     },
     "transport": {
         "parking": {
-            "th": "มีที่จอดรถภายในวัด",
+            "th": "มีที่จอดรถภายในศูนย์ปฏิบัติธรรม",
             "en": "Parking available on-site."
         },
-        "directionsUrl": "https://maps.google.com"
+        "directionsUrl": "https://maps.app.goo.gl/gTxKSwCd99EGSuoH6"
     },
     "map": {
-        "embedUrl": "https://maps.google.com/maps?width=100%25&height=600&hl=en&q=Wat%20Serm%20Rangsi%2C%20Yingling%20Drive%2C%20Sterling%2C%20VA+(Wat%20Serm%20Rangsi)&t=&z=15&ie=UTF8&iwloc=B&output=embed",
-        "locationName": "Sterling, VA"
+        "embedUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d989788.5373962214!2d100.33007723779801!3d14.29041793932083!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x311e7fddfa045357%3A0xfd28f68322cab911!2z4LmA4Liq4Lij4Li04Lih4Lij4Lix4LiH4Lip4Li1!5e0!3m2!1sen!2sth!4v1769319322733!5m2!1sen!2sth",
+        "locationName": "Serm Rangsi Meditation Center"
     }
 }

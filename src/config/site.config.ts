@@ -101,15 +101,15 @@ export type SiteConfig = {
 
 export const siteConfig: SiteConfig = {
     siteName: {
-        th: 'วัดเสริมรังษี',
-        en: 'Wat Serm Rangsi',
+        th: 'เสริมรังษี ศูนย์ปฏิบัติธรรม',
+        en: 'Serm Rangsi Meditation Center',
     },
-    siteShortName: 'Wat Serm Rangsi',
+    siteShortName: 'Serm Rangsi',
     tagline: {
         th: 'ศูนย์รวมจิตใจชาวพุทธ',
         en: 'Buddhist Meditation Center',
     },
-    domain: 'https://wat-serm-rangsi.vercel.app', // Placeholder
+    domain: 'https://sermrangsi.vercel.app', // Placeholder
 
     defaultLocale: 'th',
     locales: ['th', 'en'],
@@ -125,20 +125,20 @@ export const siteConfig: SiteConfig = {
     },
 
     social: {
-        facebook: 'https://www.facebook.com/watsermrangsi', // Placeholder
-        email: 'contact@watsermrangsi.org', // Placeholder
-        youtube: 'https://www.youtube.com/@watsermrangsi' // Placeholder
+        facebook: 'https://www.facebook.com/pages/%E0%B9%80%E0%B8%AA%E0%B8%A3%E0%B8%B4%E0%B8%A1%E0%B8%A3%E0%B8%B1%E0%B8%87%E0%B8%A9%E0%B8%B5-%E0%B8%A8%E0%B8%B9%E0%B8%99%E0%B8%A2%E0%B9%8C%E0%B8%9B%E0%B8%8F%E0%B8%B4%E0%B8%9A%E0%B8%B1%E0%B8%95%E0%B8%B4%E0%B8%98%E0%B8%A3%E0%B8%A3%E0%B8%A1/109598142460157',
+        email: 'contact@watsermrangsi.org',
+        youtube: 'https://youtu.be/oN2Ntvx_zKU?si=DLXfokvu4XmhcIu0' // Placeholder
     },
 
     seo: {
-        titleTemplate: '%s | วัดเสริมรังษี',
-        defaultTitle: 'วัดเสริมรังษี | Wat Serm Rangsi',
+        titleTemplate: '%s | เสริมรังษี ศูนย์ปฏิบัติธรรม',
+        defaultTitle: 'เสริมรังษี ศูนย์ปฏิบัติธรรม | Serm Rangsi',
         defaultDescription:
-            'วัดเสริมรังษี - ศูนย์รวมจิตใจชาวพุทธ เผยแผ่พระพุทธศาสนา และจัดกิจกรรมทางศาสนา',
+            'เสริมรังษี ศูนย์ปฏิบัติธรรม - ศูนย์รวมจิตใจชาวพุทธ เผยแผ่พระพุทธศาสนา และจัดกิจกรรมทางศาสนา',
         defaultOgImage: '/images/og-image.jpg',
         keywords: [
-            'วัดเสริมรังษี',
-            'Wat Serm Rangsi',
+            'เสริมรังษี',
+            'Serm Rangsi',
             'Buddhist Temple',
             'Meditation',
             'Dhamma',
@@ -150,12 +150,12 @@ export const siteConfig: SiteConfig = {
 
     contact: {
         email: 'contact@watsermrangsi.org',
-        phone: '+66-xx-xxx-xxxx',
+        phone: '062 540 4922',
         address: {
-            th: 'ที่อยู่ภาษาไทย',
-            en: 'Address in English',
+            th: 'ต.หนองย่างเสือ อ.มวกเหล็ก จ.สระบุรี 18180',
+            en: 'Unnamed Rd, Tambon Nong Yang Sua, Amphoe Muak Lek, Saraburi 18180',
         },
-        googleMapUrl: 'https://maps.google.com/...' // Placeholder
+        googleMapUrl: 'https://maps.app.goo.gl/gTxKSwCd99EGSuoH6'
     },
 
     layout: {
@@ -178,8 +178,8 @@ export const siteConfig: SiteConfig = {
 
     authors: [
         {
-            name: 'Wat Serm Rangsi Team',
+            name: 'Serm Rangsi Team',
         },
     ],
-    creator: 'Wat Serm Rangsi Team',
+    creator: 'Serm Rangsi Team',
 };
