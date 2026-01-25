@@ -213,21 +213,15 @@ export default function Navbar() {
                             transition={{ delay: 0.4 }}
                             className="mt-auto mb-12 space-y-6"
                         >
-                            <div className="flex items-center justify-between p-4 bg-gray-50 dark:bg-zinc-900 rounded-2xl">
-                                <span className="font-medium text-gray-600 dark:text-gray-300">Appearance</span>
-                                <button
-                                    onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                                    className="p-2 rounded-xl bg-white dark:bg-zinc-800 shadow-sm border border-gray-100 dark:border-gray-700"
-                                >
-                                    {!mounted ? (
-                                        <div className="w-5 h-5" />
-                                    ) : theme === 'dark' ? (
-                                        <Sun size={20} />
-                                    ) : (
-                                        <Moon size={20} />
-                                    )}
-                                </button>
-                            </div>
+                            <button
+                                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                                className="w-full py-4 rounded-2xl bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white font-bold text-lg shadow-sm flex items-center justify-center gap-2"
+                            >
+                                {theme === 'dark' ? <Sun size={20} /> : <Moon size={20} />}
+                                <span>
+                                    {theme === 'dark' ? 'Switch to Light Mode' : 'Switch to Dark Mode'}
+                                </span>
+                            </button>
 
                             <button
                                 onClick={() => {
