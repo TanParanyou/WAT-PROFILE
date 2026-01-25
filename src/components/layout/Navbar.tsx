@@ -189,7 +189,7 @@ export default function Navbar() {
                                 >
                                     <Link
                                         href={link.href}
-                                        className={`flex items-center justify-between text-3xl font-heading font-bold border-b border-gray-100 dark:border-gray-800 pb-4 ${pathname === link.href
+                                        className={`flex items-center justify-between text-xl font-heading font-bold border-b border-gray-100 dark:border-gray-800 pb-4 ${pathname === link.href
                                             ? 'text-primary border-primary/30 pl-4'
                                             : 'text-gray-900 dark:text-white hover:pl-4 transition-all'
                                             }`}
