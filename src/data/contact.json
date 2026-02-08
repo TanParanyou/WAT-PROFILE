@@ -1,29 +1,70 @@
 {
     "address": {
-        "th": "ต.หนองย่างเสือ อ.มวกเหล็ก จ.สระบุรี 18180",
-        "en": "Unnamed Rd, Tambon Nong Yang Sua, Amphoe Muak Lek, Saraburi 18180"
+        "th": "Buddhistisches Meditationszentrum e.V., Am Pflaster 11, 63599 Biebergemünd",
+        "en": "Buddhistisches Meditationszentrum e.V., Am Pflaster 11, 63599 Biebergemünd",
+        "de": "Buddhistisches Meditationszentrum e.V., Am Pflaster 11, 63599 Biebergemünd"
     },
-    "phone": "062 540 4922",
-    "email": "contact@watsermrangsi.org",
+    "phone": "0160-1604486",
+    "email": "Watloungporsai@gmail.com",
     "social": {
-        "facebook": "https://www.facebook.com/pages/%E0%B9%80%E0%B8%AA%E0%B8%A3%E0%B8%B4%E0%B8%A1%E0%B8%A3%E0%B8%B1%E0%B8%87%E0%B8%A9%E0%B8%B5-%E0%B8%A8%E0%B8%B9%E0%B8%99%E0%B8%A2%E0%B9%8C%E0%B8%9B%E0%B8%8F%E0%B8%B4%E0%B8%9A%E0%B8%B1%E0%B8%95%E0%B8%B4%E0%B8%98%E0%B8%A3%E0%B8%A3%E0%B8%A1/109598142460157"
+        "facebook": "https://www.facebook.com/wat.loungporsai.9",
+        "messenger": "Wat loung por sai",
+        "instagram": "https://www.instagram.com/watloungporsai/"
     },
     "openingHours": {
         "days": {
-            "th": "ทุกวัน",
-            "en": "Everyday"
+            "th": "จันทร์ - อาทิตย์",
+            "en": "Monday - Sunday",
+            "de": "Montag - Sonntag"
         },
-        "time": "08:00 - 18:00"
+        "time": "09.00 - 21.00",
+        "remark": {
+            "th": "ปล. ยกเว้นวันที่พระมีกิจนิมนต์นอกวัด",
+            "en": "Note: Except on days when the monk has an outside engagement",
+            "de": "Hinweis: Außer an Tagen, an denen der Mönch auswärts beschäftigt ist"
+        }
     },
     "transport": {
         "parking": {
-            "th": "มีที่จอดรถภายในศูนย์ปฏิบัติธรรม",
-            "en": "Parking available on-site."
+            "th": "มีที่จอดรถภายในวัด",
+            "en": "Parking available on-site",
+            "de": "Parkplätze vor Ort verfügbar"
         },
-        "directionsUrl": "https://maps.app.goo.gl/gTxKSwCd99EGSuoH6"
+        "directionsUrl": "https://www.google.com/maps/search/?api=1&query=Am+Pflaster+11,+63599+Biebergemünd",
+        "public": [
+            {
+                "icon": "train",
+                "text": {
+                    "th": "นั่งรถไฟ ลง สถานี Gelnhausen",
+                    "en": "Take the train to Gelnhausen Station",
+                    "de": "Fahren Sie mit der Bahn bis zum Bahnhof Gelnhausen"
+                }
+            },
+            {
+                "icon": "bus",
+                "text": {
+                    "th": "ต่อรถเมล์ สาย MKK64 ลงป้าย Bieber Rathaus, Biebergemünd (วัดอยู่ตรงข้ามป้ายรถเมล์)",
+                    "en": "Transfer to Bus MKK64, get off at Bieber Rathaus, Biebergemünd (Temple is opposite the bus stop)",
+                    "de": "Nehmen Sie den Bus MKK64, steigen Sie an der Haltestelle Bieber Rathaus, Biebergemünd aus (Der Tempel befindet sich gegenüber)"
+                }
+            }
+        ],
+        "car": {
+            "text": {
+                "th": "รถยนต์ส่วนบุคคล เปิด GPS นำทางไปที่ 'Wat Loung Por Sai' หรือ 'Am Pflaster 11, 63599 Biebergemünd'",
+                "en": "For personal car, enter 'Wat Loung Por Sai' or 'Am Pflaster 11, 63599 Biebergemünd' into your GPS",
+                "de": "Wenn Sie mit dem Auto anreisen, geben Sie 'Wat Loung Por Sai' oder 'Am Pflaster 11, 63599 Biebergemünd' in Ihr GPS ein"
+            }
+        }
     },
     "map": {
-        "embedUrl": "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d989788.5373962214!2d100.33007723779801!3d14.29041793932083!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x311e7fddfa045357%3A0xfd28f68322cab911!2z4LmA4Liq4Lij4Li04Lih4Lij4Lix4LiH4Lip4Li1!5e0!3m2!1sen!2sth!4v1769319322733!5m2!1sen!2sth",
-        "locationName": "Serm Rangsi Meditation Center"
+        "embedUrl": "https://maps.google.com/maps?q=Am+Pflaster+11,+63599+Biebergemünd&t=&z=15&ie=UTF8&iwloc=&output=embed",
+        "locationName": "Wat Loung Por Sai"
+    },
+    "bank": {
+        "name": "Buddhistisches Meditationszentrum Verein e. V. / VR Bank",
+        "account": "Wat Loung Por Sai",
+        "iban": "DE05 5066 1639 0004 3138 60",
+        "bic": "GENODEF1LSR"
     }
 }

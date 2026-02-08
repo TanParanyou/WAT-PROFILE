@@ -113,18 +113,18 @@
     --background-900: #2c1b07;
     --background-950: #160e03;
 
-    /* Primary (Gold - #D4AF37 Base) */
-    --primary-50: #fcfaf4;
-    --primary-100: #f8f3e3;
-    --primary-200: #efe2c1;
-    --primary-300: #e5cd97;
-    --primary-400: #dcb86d;
-    --primary-500: #d4af37;
-    --primary-600: #aa8c2c;
-    --primary-700: #7f6921;
-    --primary-800: #554616;
-    --primary-900: #2a230b;
-    --primary-950: #151205;
+    /* Primary (Brown Gold - #C88D1E Base) */
+    --primary-50: #fcf9f2;
+    --primary-100: #f8f1e1;
+    --primary-200: #eedfb8;
+    --primary-300: #e3c886;
+    --primary-400: #d8ab52;
+    --primary-500: #c88d1e;
+    --primary-600: #a97016;
+    --primary-700: #875412;
+    --primary-800: #6f4314;
+    --primary-900: #5b3713;
+    --primary-950: #351d08;
 
     /* Secondary (Forest Green - #4A6741 Base) */
     --secondary-50: #f4f7f2;
@@ -184,18 +184,18 @@
     --background-900: #f8e7d3;
     --background-950: #fcf3e9;
 
-    /* Primary DO (Gold Inverse) */
-    --primary-50: #151205;
-    --primary-100: #2a230b;
-    --primary-200: #554616;
-    --primary-300: #7f6921;
-    --primary-400: #aa8c2c;
-    --primary-500: #d4af37;
-    --primary-600: #dcb86d;
-    --primary-700: #e5cd97;
-    --primary-800: #efe2c1;
-    --primary-900: #f8f3e3;
-    --primary-950: #fcfaf4;
+    /* Primary DO (Brown Gold Inverse) */
+    --primary-50: #351d08;
+    --primary-100: #5b3713;
+    --primary-200: #6f4314;
+    --primary-300: #875412;
+    --primary-400: #a97016;
+    --primary-500: #c88d1e;
+    --primary-600: #d8ab52;
+    --primary-700: #e3c886;
+    --primary-800: #eedfb8;
+    --primary-900: #f8f1e1;
+    --primary-950: #fcf9f2;
 
     /* Secondary DO (Forest Green Inverse) */
     --secondary-50: #070a06;

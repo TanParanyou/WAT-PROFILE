@@ -4,8 +4,8 @@ import { notFound } from 'next/navigation';
 import { getLocalizedText } from '@/utils/i18n';
 import PageHeader from '@/components/layout/PageHeader';
 import PageContainer from '@/components/layout/PageContainer';
-import PageBreadcrumbs from '@/components/common/PageBreadcrumbs';
-import { ArrowLeft, User, Quote } from 'lucide-react';
+import DetailNavigation from '@/components/common/DetailNavigation';
+import { User, Quote } from 'lucide-react';
 import { Metadata } from 'next';
 import { getTranslations } from 'next-intl/server';
 
@@ -66,23 +66,14 @@ export default async function MonkDetailPage({ params }: Props) {
 
             <PageContainer>
                 {/* Navigation & Actions Card */}
-                <div className="bg-white dark:bg-zinc-900 rounded-2xl p-4 shadow-lg shadow-black/5 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4 -mt-8 relative z-20">
-                    <div className="flex flex-col gap-2">
-                        <PageBreadcrumbs
-                            items={[
-                                { label: t('title'), href: '/monks' },
-                                { label: getLocalizedText(monk.name, locale), active: true }
-                            ]}
-                        />
-                        <Link
-                            href="/monks"
-                            className="inline-flex items-center gap-2 text-gray-500 hover:text-primary transition-colors font-medium group w-fit"
-                        >
-                            <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-                            {t('backButton')}
-                        </Link>
-                    </div>
-                </div>
+                <DetailNavigation
+                    breadcrumbs={[
+                        { label: t('title'), href: '/monks' },
+                        { label: getLocalizedText(monk.name, locale), active: true }
+                    ]}
+                    backHref="/monks"
+                    backLabel={t('backButton')}
+                />
 
                 <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12">
                     {/* Left Column: Image & Quick Info */}

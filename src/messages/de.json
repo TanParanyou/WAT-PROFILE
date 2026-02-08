@@ -19,17 +19,18 @@
         "phone": "Telefon",
         "email": "E-Mail",
         "privacy": "Datenschutzerklärung",
-        "impressum": "Impressum"
+        "impressum": "Impressum",
+        "allRightsReserved": "Alle Rechte vorbehalten"
     },
     "HeroSection": {
         "welcomeTo": "Willkommen bei",
-        "inLocation": "in Washington D.C.",
+        "inLocation": "in Deutschland",
         "viewEvents": "Veranstaltungen ansehen",
         "donate": "Spenden"
     },
     "WelcomeSection": {
         "welcome": "Willkommen",
-        "description": "Wat Serm Rangsi dient als spirituelles Zentrum für die thailändische buddhistische Gemeinschaft im Großraum Washington D.C. Unsere Mission ist es, die Lehren Buddhas (Dhamma) zu verbreiten und das thailändische Kulturerbe für zukünftige Generationen zu bewahren.",
+        "description": "Wat Serm Rangsi dient als spirituelles Zentrum für die thailändische buddhistische Gemeinschaft in Deutschland. Unsere Mission ist es, die Lehren Buddhas (Dhamma) zu verbreiten und das thailändische Kulturerbe für zukünftige Generationen zu bewahren.",
         "meditation": "Meditation",
         "meditationDesc": "Achtsamkeitsübung",
         "sundaySchool": "Sonntagsschule",
@@ -45,7 +46,14 @@
         "contactUs": "Kontaktieren Sie uns",
         "channels": "Spendenkanäle",
         "zelleDesc": "Spenden über Zelle (US Bank)",
+        "bankTransfer": "Banküberweisung",
         "scanQr": "QR-Code scannen (Thai Bank)",
+        "createQrDesc": "Erstellen Sie einen QR-Code für eine Sofortüberweisung",
+        "qrImage": "QR-Code-Bild",
+        "bankLabel": "Bank",
+        "accountNameLabel": "Kontoinhaber",
+        "ibanLabel": "IBAN",
+        "bicLabel": "BIC",
         "clickToView": "Klicken zum Anzeigen des QR-Codes"
     },
     "EventsSection": {
@@ -83,7 +91,12 @@
         "subtitle": "Kommende Veranstaltungen",
         "readMore": "Weiterlesen",
         "calendarView": "Kalenderansicht",
-        "listView": "Listenansicht"
+        "listView": "Listenansicht",
+        "regularSchedule": "Regelmäßiger Terminplan",
+        "upcomingEvents": "Kommende Veranstaltungen",
+        "time": "Zeit",
+        "activity": "Aktivität",
+        "day": "Tag"
     },
     "VisitPage": {
         "title": "Besuchen Sie uns",
@@ -104,16 +117,22 @@
     },
     "PrivacyPage": {
         "title": "Datenschutzerklärung",
-        "lastUpdated": "Zuletzt aktualisiert"
+        "lastUpdated": "Zuletzt aktualisiert",
+        "introduction": "Diese Datenschutzerklärung beschreibt unsere Richtlinien und Verfahren zur Erfassung, Verwendung und Offenlegung Ihrer Daten bei der Nutzung des Dienstes und informiert Sie über Ihre Datenschutzrechte und darüber, wie das Gesetz Sie schützt.",
+        "collectionTitle": "Erfassung und Nutzung von Informationen",
+        "collectionDesc": "Wir erfassen verschiedene Arten von Informationen zu unterschiedlichen Zwecken, um unseren Service für Sie bereitzustellen und zu verbessern."
     },
     "ImpressumPage": {
         "title": "Impressum",
         "companyName": "Organisationsname",
         "address": "Adresse",
-        "contact": "Kontakt"
+        "contact": "Kontakt",
+        "phone": "Telefon",
+        "email": "E-Mail"
     },
     "Site": {
-        "name": "Wat Serm Rangsi"
+        "name": "Wat Serm Rangsi",
+        "location": "Deutschland"
     },
     "GalleryPage": {
         "title": "Fotogalerie",
@@ -141,6 +160,17 @@
         "breadcrumbs": {
             "home": "Startseite",
             "events": "Veranstaltungen"
-        }
+        },
+        "note": "*** Beachte: Die Termine können sich je nach Bedeutung ändern ***"
+    },
+    "EventPrinter": {
+        "title": "Wat Serm Rangsi",
+        "subtitle": "Offizieller Veranstaltungsplan",
+        "scheduleTitle": "Zeitplan",
+        "time": "Zeit",
+        "activity": "Aktivität",
+        "footerTitle": "Wat Serm Rangsi - Deutschland",
+        "printedOn": "Gedruckt am",
+        "printButton": "PDF drucken"
     }
 }

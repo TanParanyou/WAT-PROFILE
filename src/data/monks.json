@@ -1,36 +1,62 @@
 [
     {
         "id": "1",
-        "slug": "phra-kru-serm",
+        "slug": "phra-ajarn-tiva",
         "image": "/images/monks/abbott.png",
         "name": {
-            "th": "พระครูเสริมรังษี (สมพงษ์ สุธมฺโม)",
-            "en": "Phra Kru Sermrangsi (Sompong Suthammo)"
+            "th": "พระอาจารย์ อิทธิพล ชินวโร",
+            "en": "Phra Ajah Ittiphon Shinawaro",
+            "de": "Phra Ajah Ittiphon Shinawaro"
         },
         "title": {
-            "th": "เจ้าอาวาส",
-            "en": "Abbot"
+            "th": "ไม่ระบุ",
+            "en": "Not specified",
+            "de": "Nicht angegeben"
         },
         "content": {
-            "th": "<p>พระครูเสริมรังษี (สมพงษ์ สุธมฺโม) ท่านเป็นพระเถระผู้มีความเมตตา...</p>",
-            "en": "<p>Phra Kru Sermrangsi (Sompong Suthammo) is a compassionate elder monk...</p>"
+            "th": "<p>ไม่ระบุ</p>",
+            "en": "<p>Not specified</p>",
+            "de": "<p>Nicht angegeben</p>"
         }
     },
     {
         "id": "2",
-        "slug": "phra-maha-somchai",
-        "image": "/images/monks/monk2.png",
+        "slug": "phra-wirat",
+        "image": "/images/monks/abbott.png",
         "name": {
-            "th": "พระมหาสมชาย ฐานวโร",
-            "en": "Phra Maha Somchai Thanawaro"
+            "th": "พระมหาวิลาศ กัณตวัณโณ",
+            "en": "Phra Wirat Kantawanno",
+            "de": "Phra Wirat Kantawanno"
         },
         "title": {
-            "th": "ผู้ช่วยเจ้าอาวาส",
-            "en": "Assistant Abbot"
+            "th": "ไม่ระบุ",
+            "en": "Not specified",
+            "de": "Nicht angegeben"
         },
         "content": {
-            "th": "<p>ประวัติโดยย่อของพระมหาสมชาย...</p>",
-            "en": "<p>Brief biography of Phra Maha Somchai...</p>"
+            "th": "<p>ไม่ระบุ</p>",
+            "en": "<p>Not specified</p>",
+            "de": "<p>Nicht angegeben</p>"
+        }
+    },
+    {
+        "id": "3",
+        "slug": "phra-bunthin",
+        "image": "/images/monks/abbott.png",
+        "name": {
+            "th": "พระบุญทิน ธมฺมโชโต",
+            "en": "Phra Bunthin Dhammaschoto",
+            "de": "Phra Bunthin Dhammaschoto"
+        },
+        "title": {
+            "th": "ไม่ระบุ",
+            "en": "Not specified",
+            "de": "Nicht angegeben"
+        },
+        "content": {
+            "th": "<p>ไม่ระบุ</p>",
+            "en": "<p>Not specified</p>",
+            "de": "<p>Nicht angegeben</p>"
         }
     }
 ]

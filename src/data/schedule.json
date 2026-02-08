@@ -1,0 +1,56 @@
+{
+    "daily": [
+        {
+            "time": "10:00",
+            "activity": {
+                "th": "สวดมนต์ทำวัตรเช้าร่วมกัน เจริญเมตตาภาวนา",
+                "en": "Morning Chanting and Metta Meditation",
+                "de": "Gemeinsames Beten, Phae Metta (Alle Güte-Meditation)"
+            }
+        },
+        {
+            "time": "10:30",
+            "activity": {
+                "th": "ถวายภัตตาหาร/เครื่องไทยธรรมแด่พระสงฆ์, ฟังธรรม, รับพร",
+                "en": "Offering food/requisites to monks, Dhamma talk, Blessing",
+                "de": "Opfergabe für die Mönche"
+            }
+        },
+        {
+            "time": "19:00 - 21:00",
+            "activity": {
+                "th": "สวดมนต์ทำวัตรเย็น ปฏิบัติธรรม เจริญจิตภาวนา",
+                "en": "Evening Chanting, Dhamma Practice, Meditation",
+                "de": "Gemeinsames Beten und Meditieren"
+            }
+        }
+    ],
+    "weekly": [
+        {
+            "day": {
+                "th": "ทุกวันอาทิตย์",
+                "en": "Every Sunday",
+                "de": "Jeden Sonntag"
+            },
+            "time": "13:00 - 15:00",
+            "activity": {
+                "th": "ปฏิบัติธรรมจิตภาวนา ภาวนาแผ่เมตตา",
+                "en": "Dhamma Practice, Metta Meditation",
+                "de": "Meditieren"
+            }
+        }
+    ],
+    "online": {
+        "title": {
+            "th": "กิจกรรมปฏิบัติธรรมช่องทางออนไลน์",
+            "en": "Online Dhamma Practice",
+            "de": "Online-Aktivitäten zur Meditationspraxis"
+        },
+        "description": {
+            "th": "ปฏิบัติธรรม live สด Facebook สัปดาห์ละ 1 ครั้ง ตรงกับวันพระ",
+            "en": "Live Dhamma practice via Facebook once a week on Buddhist Holy Days.",
+            "de": "Live-Übertragung der Meditationspraxis über Facebook einmal wöchentlich, jeweils an den buddhistischen Feiertagen (Uposatha-Tage)."
+        },
+        "link": "https://www.facebook.com/wat.loungporsai.9"
+    }
+}

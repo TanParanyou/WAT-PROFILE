@@ -21,9 +21,9 @@ export default function EventPrinter({ event, locale }: EventPrinterProps) {
         <>
             <button
                 onClick={() => reactToPrintFn()}
-                className="flex items-center gap-2 px-4 py-2 bg-zinc-800 text-white rounded-lg hover:bg-zinc-700 transition-colors text-sm font-medium"
+                className="flex items-center gap-2 text-gray-500 hover:text-primary transition-all font-medium active:scale-95 hover:bg-zinc-100 dark:hover:bg-zinc-800 px-3 py-2 rounded-lg"
             >
-                <Printer size={16} />
+                <Printer size={20} />
                 <span>{t('printButton')}</span>
             </button>
 
@@ -95,7 +95,7 @@ export default function EventPrinter({ event, locale }: EventPrinterProps) {
                     {/* Footer */}
                     <div className="mt-12 pt-8 border-t border-gray-300 text-center text-xs text-gray-500">
                         <p>{t('footerTitle')}</p>
-                        <p>{t('printedOn')} {new Date().toLocaleDateString(locale === 'th' ? 'th-TH' : 'en-US')}</p>
+                        <p>{t('printedOn')} {new Date().toLocaleDateString(locale === 'th' ? 'th-TH' : locale === 'de' ? 'de-DE' : 'en-US')}</p>
                     </div>
                 </div>
             </div>

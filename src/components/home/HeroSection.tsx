@@ -30,7 +30,7 @@ export default function HeroSection() {
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8 }}
                 >
-                    <h2 className="text-xl md:text-2xl text-secondary font-medium tracking-wider mb-4 font-sans">
+                    <h2 className="text-xl md:text-2xl text-white font-medium tracking-wider mb-4 font-sans">
                         {t('welcomeTo')}
                     </h2>
                     <h1 className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold text-white mb-6 leading-tight">

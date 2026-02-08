@@ -1,0 +1,65 @@
+[
+    {
+        "id": "all",
+        "active": true,
+        "name": {
+            "th": "ทั้งหมด",
+            "en": "All",
+            "de": "Alle"
+        }
+    },
+    {
+        "id": "ceremony",
+        "active": false,
+        "name": {
+            "th": "พิธี",
+            "en": "Ceremony",
+            "de": "Zeremonien"
+        }
+    },
+    {
+        "id": "festival",
+        "active": false,
+        "name": {
+            "th": "เทศกาล",
+            "en": "Festival",
+            "de": "Feste"
+        }
+    },
+    {
+        "id": "education",
+        "active": false,
+        "name": {
+            "th": "การศึกษา",
+            "en": "Education",
+            "de": "Bildung"
+        }
+    },
+    {
+        "id": "daily",
+        "active": false,
+        "name": {
+            "th": "กิจวัตร",
+            "en": "Daily",
+            "de": "Tagesablauf"
+        }
+    },
+    {
+        "id": "common",
+        "active": true,
+        "name": {
+            "th": "ทั่วไป",
+            "en": "General",
+            "de": "Allgemein"
+        }
+    },
+    {
+        "id": "history",
+        "active": true,
+        "name": {
+            "th": "ก่อนสร้าง",
+            "en": "Before Construction",
+            "de": "Vor dem Bau"
+        }
+    }
+]

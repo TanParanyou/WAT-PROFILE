@@ -1,211 +1,482 @@
 [
     {
         "id": 1,
-        "order": 1,
         "active": true,
         "title": {
-            "th": "พิธีทำบุญตักบาตรวันมาฆบูชา",
-            "en": "Makha Bucha Day Ceremony"
+            "th": "ทำบุญตักบาตรวันขึ้นปีใหม่",
+            "en": "New Year Merit Making",
+            "de": "Neujahr (Wan Khuen Pi Mai)"
         },
-        "date": "2025-02-12",
+        "date": "2026-01-01",
         "time": "09:00 - 14:00",
         "location": {
             "th": "ศาลาการเปรียญ",
-            "en": "Main Hall"
+            "en": "Main Hall",
+            "de": "Hauptsaal"
         },
-        "image": "/images/event-makha.png",
+        "image": "/images/event-newyear.png",
         "description": {
-            "th": "ขอเชิญพุทธศาสนิกชนร่วมทำบุญตักบาตร ฟังพระธรรมเทศนา และเวียนเทียน เนื่องในวันมาฆบูชา",
-            "en": "Join us for merit-making, listening to Dhamma talks, and candlelight procession on Makha Bucha Day."
+            "th": "ทำบุญตักบาตรเนื่องในวันขึ้นปีใหม่",
+            "en": "Merit making for New Year.",
+            "de": "Verdienstmachen zum Neujahr."
         },
-        "schedule": [
-            {
-                "time": "09:00",
-                "activity": {
-                    "th": "พร้อมกันที่ศาลาการเปรียญ",
-                    "en": "Gather at Main Hall"
-                }
-            },
-            {
-                "time": "09:30",
-                "activity": {
-                    "th": "ประธานจุดธูปเทียนบูชาพระรัตนตรัย",
-                    "en": "Lighting of candles and incense"
-                }
-            },
-            {
-                "time": "10:00",
-                "activity": {
-                    "th": "พระสงฆ์เจริญพระพุทธมนต์",
-                    "en": "Chanting of Buddhist Mantras"
-                }
-            },
-            {
-                "time": "11:00",
-                "activity": {
-                    "th": "ถวายภัตตาหารเพล",
-                    "en": "Offering lunch to monks"
-                }
-            },
-            {
-                "time": "13:00",
-                "activity": {
-                    "th": "พิธีเวียนเทียนรอบอุโบสถ",
-                    "en": "Candlelight procession around the Ubosot"
-                }
-            }
-        ],
-        "mapUrl": "https://maps.google.com/maps?q=Wat%20Serm%20Rangsi&t=&z=15&ie=UTF8&iwloc=&output=embed"
+        "schedule": [],
+        "mapUrl": ""
     },
     {
         "id": 2,
-        "order": 2,
         "active": true,
         "title": {
-            "th": "ปฏิบัติธรรมประจำเดือน",
-            "en": "Monthly Meditation Retreat"
+            "th": "คอร์สปฏิบัติธรรม มกราคม",
+            "en": "Vipassana Meditation Course",
+            "de": "Vipassana Meditationkurs"
         },
-        "date": "2025-03-01",
-        "time": "08:30 - 16:30",
+        "date": "2026-01-16",
+        "time": "Fr. - So.",
         "location": {
             "th": "อาคารวิปัสสนา",
-            "en": "Meditation Center"
+            "en": "Meditation Hall",
+            "de": "Meditationshalle"
         },
         "image": "/images/event-meditation.png",
         "description": {
-            "th": "โครงการอบรมวิปัสสนากรรมฐานเบื้องต้น สำหรับบุคคลทั่วไป ไม่มีค่าใช้จ่าย",
-            "en": "Introductory Vipassana meditation workshop for beginners. Free of charge."
+            "th": "คอร์สปฏิบัติธรรมประจำเดือน",
+            "en": "Monthly Meditation Course",
+            "de": "Monatlicher Meditationskurs"
         },
-        "schedule": [
-            {
-                "day": {
-                    "th": "วันที่ 1 - การเริ่มต้น",
-                    "en": "Day 1 - The Beginning"
-                },
-                "time": "08:30",
-                "activity": {
-                    "th": "ลงทะเบียน",
-                    "en": "Registration"
-                }
-            },
-            {
-                "day": {
-                    "th": "วันที่ 1 - การเริ่มต้น",
-                    "en": "Day 1 - The Beginning"
-                },
-                "time": "09:00",
-                "activity": {
-                    "th": "ปฐมนิเทศและสวดมนต์เช้า",
-                    "en": "Orientation and Morning Chanting"
-                }
-            },
-            {
-                "day": {
-                    "th": "วันที่ 1 - การเริ่มต้น",
-                    "en": "Day 1 - The Beginning"
-                },
-                "time": "10:00",
-                "activity": {
-                    "th": "ปฏิบัติเดินจงกรมและนั่งสมาธิ",
-                    "en": "Walking and Sitting Meditation"
-                }
-            },
-            {
-                "day": {
-                    "th": "วันที่ 1 - การเริ่มต้น",
-                    "en": "Day 1 - The Beginning"
-                },
-                "time": "12:00",
-                "activity": {
-                    "th": "พักรับประทานอาหารกลางวัน",
-                    "en": "Lunch Break"
-                }
-            },
-            {
-                "day": {
-                    "th": "วันที่ 2 - การปฏิบัติ",
-                    "en": "Day 2 - Practice"
-                },
-                "time": "05:00",
-                "activity": {
-                    "th": "ตื่นนอนและปฏิบัติส่วนตัว",
-                    "en": "Wake up and personal practice"
-                }
-            },
-            {
-                "day": {
-                    "th": "วันที่ 2 - การปฏิบัติ",
-                    "en": "Day 2 - Practice"
-                },
-                "time": "13:00",
-                "activity": {
-                    "th": "ธรรมบรรยาย",
-                    "en": "Dhamma Talk"
-                }
-            },
-            {
-                "day": {
-                    "th": "วันที่ 2 - การปฏิบัติ",
-                    "en": "Day 2 - Practice"
-                },
-                "time": "16:00",
-                "activity": {
-                    "th": "สวดมนต์เย็นและแผ่เมตตา",
-                    "en": "Evening Chanting and Metta"
-                }
-            }
-        ],
-        "mapUrl": "https://maps.google.com/maps?q=Wat%20Serm%20Rangsi&t=&z=15&ie=UTF8&iwloc=&output=embed"
+        "schedule": [],
+        "mapUrl": ""
     },
     {
         "id": 3,
-        "order": 3,
         "active": true,
         "title": {
-            "th": "งานเทศกาลสงกรานต์",
-            "en": "Songkran Festival"
+            "th": "คอร์สปฏิบัติธรรม กุมภาพันธ์",
+            "en": "Vipassana Meditation Course",
+            "de": "Vipassana Meditationkurs"
         },
-        "date": "2025-04-13",
-        "time": "10:00 - 17:00",
+        "date": "2026-02-13",
+        "time": "Fr. - So.",
+        "location": {
+            "th": "อาคารวิปัสสนา",
+            "en": "Meditation Hall",
+            "de": "Meditationshalle"
+        },
+        "image": "/images/event-meditation.png",
+        "description": {
+            "th": "คอร์สปฏิบัติธรรมประจำเดือน",
+            "en": "Monthly Meditation Course",
+            "de": "Monatlicher Meditationskurs"
+        },
+        "schedule": [],
+        "mapUrl": ""
+    },
+    {
+        "id": 4,
+        "active": true,
+        "title": {
+            "th": "วันมาฆบูชา",
+            "en": "Makha Bucha Day",
+            "de": "Makha Bucha Tag"
+        },
+        "date": "2026-03-15",
+        "time": "09:00 - 14:00",
+        "location": {
+            "th": "ศาลาการเปรียญ",
+            "en": "Main Hall",
+            "de": "Hauptsaal"
+        },
+        "image": "/images/event-makha.png",
+        "description": {
+            "th": "เวียนเทียนและฟังธรรม",
+            "en": "Candlelight procession and Dhamma talk",
+            "de": "Kerzenprozession und Dhamma-Vortrag"
+        },
+        "schedule": [],
+        "mapUrl": ""
+    },
+    {
+        "id": 5,
+        "active": true,
+        "title": {
+            "th": "คอร์สปฏิบัติธรรม มีนาคม",
+            "en": "Vipassana Meditation Course",
+            "de": "Vipassana Meditationkurs"
+        },
+        "date": "2026-03-20",
+        "time": "Fr. - So.",
+        "location": {
+            "th": "อาคารวิปัสสนา",
+            "en": "Meditation Hall",
+            "de": "Meditationshalle"
+        },
+        "image": "/images/event-meditation.png",
+        "description": {
+            "th": "คอร์สปฏิบัติธรรมประจำเดือน",
+            "en": "Monthly Meditation Course",
+            "de": "Monatlicher Meditationskurs"
+        },
+        "schedule": [],
+        "mapUrl": ""
+    },
+    {
+        "id": 6,
+        "active": true,
+        "title": {
+            "th": "วันสงกรานต์",
+            "en": "Songkran Festival",
+            "de": "Songkran Tag"
+        },
+        "date": "2026-04-12",
+        "time": "09:00 - 16:00",
         "location": {
             "th": "ลานวัด",
-            "en": "Temple Grounds"
+            "en": "Temple Grounds",
+            "de": "Tempelgelände"
         },
         "image": "/images/event-songkran.png",
         "description": {
-            "th": "สืบสานประเพณีไทย สรงน้ำพระ รดน้ำดำหัวผู้สูงอายุ และการแสดงทางวัฒนธรรม",
-            "en": "Celebrate Thai New Year with Buddha bathing ceremony, paying respect to elders, and cultural performances."
+            "th": "ประเพณีสงกรานต์ สรงน้ำพระ",
+            "en": "Thai New Year Celebration",
+            "de": "Thailändisches Neujahrsfest"
         },
-        "schedule": [
-            {
-                "time": "10:00",
-                "activity": {
-                    "th": "พิธีทำบุญตักบาตร",
-                    "en": "Alms Offering"
-                }
-            },
-            {
-                "time": "11:00",
-                "activity": {
-                    "th": "สรงน้ำพระพุทธรูป",
-                    "en": "Bathing of Buddha Images"
-                }
-            },
-            {
-                "time": "13:00",
-                "activity": {
-                    "th": "รดน้ำดำหัวผู้สูงอายุ",
-                    "en": "Water Pouring Ceremony for Elders"
-                }
-            },
-            {
-                "time": "14:00",
-                "activity": {
-                    "th": "การแสดงศิลปวัฒนธรรมไทย",
-                    "en": "Thai Cultural Performances"
-                }
-            }
-        ],
-        "mapUrl": "https://maps.google.com/maps?q=Wat%20Serm%20Rangsi&t=&z=15&ie=UTF8&iwloc=&output=embed"
+        "schedule": [],
+        "mapUrl": ""
+    },
+    {
+        "id": 7,
+        "active": true,
+        "title": {
+            "th": "คอร์สปฏิบัติธรรม เมษายน",
+            "en": "Vipassana Meditation Course",
+            "de": "Vipassana Meditationkurs"
+        },
+        "date": "2026-04-17",
+        "time": "Fr. - So.",
+        "location": {
+            "th": "อาคารวิปัสสนา",
+            "en": "Meditation Hall",
+            "de": "Meditationshalle"
+        },
+        "image": "/images/event-meditation.png",
+        "description": {
+            "th": "คอร์สปฏิบัติธรรมประจำเดือน",
+            "en": "Monthly Meditation Course",
+            "de": "Monatlicher Meditationskurs"
+        },
+        "schedule": [],
+        "mapUrl": ""
+    },
+    {
+        "id": 8,
+        "active": true,
+        "title": {
+            "th": "คอร์สปฏิบัติธรรม พฤษภาคม",
+            "en": "Vipassana Meditation Course",
+            "de": "Vipassana Meditationkurs"
+        },
+        "date": "2026-05-15",
+        "time": "Fr. - So.",
+        "location": {
+            "th": "อาคารวิปัสสนา",
+            "en": "Meditation Hall",
+            "de": "Meditationshalle"
+        },
+        "image": "/images/event-meditation.png",
+        "description": {
+            "th": "คอร์สปฏิบัติธรรมประจำเดือน",
+            "en": "Monthly Meditation Course",
+            "de": "Monatlicher Meditationskurs"
+        },
+        "schedule": [],
+        "mapUrl": ""
+    },
+    {
+        "id": 9,
+        "active": true,
+        "title": {
+            "th": "วันวิสาขบูชา",
+            "en": "Visakha Bucha Day",
+            "de": "Visakha Bucha Tag"
+        },
+        "date": "2026-05-31",
+        "time": "09:00 - 14:00",
+        "location": {
+            "th": "ศาลาการเปรียญ",
+            "en": "Main Hall",
+            "de": "Hauptsaal"
+        },
+        "image": "/images/event-visakha.png",
+        "description": {
+            "th": "เวียนเทียนและฟังธรรม",
+            "en": "Candlelight procession and Dhamma talk",
+            "de": "Kerzenprozession und Dhamma-Vortrag"
+        },
+        "schedule": [],
+        "mapUrl": ""
+    },
+    {
+        "id": 10,
+        "active": true,
+        "title": {
+            "th": "คอร์สปฏิบัติธรรม มิถุนายน",
+            "en": "Vipassana Meditation Course",
+            "de": "Vipassana Meditationkurs"
+        },
+        "date": "2026-06-19",
+        "time": "Fr. - So.",
+        "location": {
+            "th": "อาคารวิปัสสนา",
+            "en": "Meditation Hall",
+            "de": "Meditationshalle"
+        },
+        "image": "/images/event-meditation.png",
+        "description": {
+            "th": "คอร์สปฏิบัติธรรมประจำเดือน",
+            "en": "Monthly Meditation Course",
+            "de": "Monatlicher Meditationskurs"
+        },
+        "schedule": [],
+        "mapUrl": ""
+    },
+    {
+        "id": 11,
+        "active": true,
+        "title": {
+            "th": "คอร์สปฏิบัติธรรม กรกฎาคม",
+            "en": "Vipassana Meditation Course",
+            "de": "Vipassana Meditationkurs"
+        },
+        "date": "2026-07-17",
+        "time": "Fr. - So.",
+        "location": {
+            "th": "อาคารวิปัสสนา",
+            "en": "Meditation Hall",
+            "de": "Meditationshalle"
+        },
+        "image": "/images/event-meditation.png",
+        "description": {
+            "th": "คอร์สปฏิบัติธรรมประจำเดือน",
+            "en": "Monthly Meditation Course",
+            "de": "Monatlicher Meditationskurs"
+        },
+        "schedule": [],
+        "mapUrl": ""
+    },
+    {
+        "id": 12,
+        "active": true,
+        "title": {
+            "th": "วันอาสฬหบูชา / เข้าพรรษา / ครบรอบ 8 ปี",
+            "en": "Asanha Bucha / Khao Phansa / 8th Anniversary",
+            "de": "Asanha Bucha / Khao Phansa / 8-jähriges Jubiläum"
+        },
+        "date": "2026-07-26",
+        "time": "09:00 - 15:00",
+        "location": {
+            "th": "ศาลาการเปรียญ",
+            "en": "Main Hall",
+            "de": "Hauptsaal"
+        },
+        "image": "/images/event-asanha.png",
+        "description": {
+            "th": "ทำบุญวันอาสฬหบูชาและวันเข้าพรรษา และฉลองครบรอบ 8 ปีวัดหลวงพ่อใส",
+            "en": "Merit making for Asanha Bucha, Khao Phansa, and Temple's 8th Anniversary.",
+            "de": "Verdienstmachen"
+        },
+        "schedule": [],
+        "mapUrl": ""
+    },
+    {
+        "id": 13,
+        "active": true,
+        "title": {
+            "th": "คอร์สปฏิบัติธรรม สิงหาคม",
+            "en": "Vipassana Meditation Course",
+            "de": "Vipassana Meditationkurs"
+        },
+        "date": "2026-08-14",
+        "time": "Fr. - So.",
+        "location": {
+            "th": "อาคารวิปัสสนา",
+            "en": "Meditation Hall",
+            "de": "Meditationshalle"
+        },
+        "image": "/images/event-meditation.png",
+        "description": {
+            "th": "คอร์สปฏิบัติธรรมประจำเดือน",
+            "en": "Monthly Meditation Course",
+            "de": "Monatlicher Meditationskurs"
+        },
+        "schedule": [],
+        "mapUrl": ""
+    },
+    {
+        "id": 14,
+        "active": true,
+        "title": {
+            "th": "คอร์สปฏิบัติธรรม กันยายน",
+            "en": "Vipassana Meditation Course",
+            "de": "Vipassana Meditationkurs"
+        },
+        "date": "2026-09-11",
+        "time": "Fr. - So.",
+        "location": {
+            "th": "อาคารวิปัสสนา",
+            "en": "Meditation Hall",
+            "de": "Meditationshalle"
+        },
+        "image": "/images/event-meditation.png",
+        "description": {
+            "th": "คอร์สปฏิบัติธรรมประจำเดือน",
+            "en": "Monthly Meditation Course",
+            "de": "Monatlicher Meditationskurs"
+        },
+        "schedule": [],
+        "mapUrl": ""
+    },
+    {
+        "id": 15,
+        "active": true,
+        "title": {
+            "th": "วันสารทไทย",
+            "en": "Sart Thai Day",
+            "de": "Sart-Thai Tag"
+        },
+        "date": "2026-09-20",
+        "time": "09:00 - 14:00",
+        "location": {
+            "th": "ศาลาการเปรียญ",
+            "en": "Main Hall",
+            "de": "Hauptsaal"
+        },
+        "image": "/images/event-sartthai.png",
+        "description": {
+            "th": "ทำบุญวันสารทไทย",
+            "en": "Merit making for Sart Thai.",
+            "de": "Verdienstmachen zum Sart-Thai Tag."
+        },
+        "schedule": [],
+        "mapUrl": ""
+    },
+    {
+        "id": 16,
+        "active": true,
+        "title": {
+            "th": "คอร์สปฏิบัติธรรม ตุลาคม",
+            "en": "Vipassana Meditation Course",
+            "de": "Vipassana Meditationkurs"
+        },
+        "date": "2026-10-16",
+        "time": "Fr. - So.",
+        "location": {
+            "th": "อาคารวิปัสสนา",
+            "en": "Meditation Hall",
+            "de": "Meditationshalle"
+        },
+        "image": "/images/event-meditation.png",
+        "description": {
+            "th": "คอร์สปฏิบัติธรรมประจำเดือน",
+            "en": "Monthly Meditation Course",
+            "de": "Monatlicher Meditationskurs"
+        },
+        "schedule": [],
+        "mapUrl": ""
+    },
+    {
+        "id": 17,
+        "active": true,
+        "title": {
+            "th": "วันออกพรรษา",
+            "en": "Wan Ok Phansa",
+            "de": "Wan Ok Phansa"
+        },
+        "date": "2026-11-08",
+        "time": "09:00 - 14:00",
+        "location": {
+            "th": "ศาลาการเปรียญ",
+            "en": "Main Hall",
+            "de": "Hauptsaal"
+        },
+        "image": "/images/event-okphansa.png",
+        "description": {
+            "th": "ทำบุญตักบาตรเทโว",
+            "en": "End of Buddhist Lent merit making.",
+            "de": "Verdienstmachen zum Ende der buddhistischen Fastenzeit."
+        },
+        "schedule": [],
+        "mapUrl": ""
+    },
+    {
+        "id": 18,
+        "active": true,
+        "title": {
+            "th": "คอร์สปฏิบัติธรรม พฤศจิกายน",
+            "en": "Vipassana Meditation Course",
+            "de": "Vipassana Meditationkurs"
+        },
+        "date": "2026-11-20",
+        "time": "Fr. - So.",
+        "location": {
+            "th": "อาคารวิปัสสนา",
+            "en": "Meditation Hall",
+            "de": "Meditationshalle"
+        },
+        "image": "/images/event-meditation.png",
+        "description": {
+            "th": "คอร์สปฏิบัติธรรมประจำเดือน",
+            "en": "Monthly Meditation Course",
+            "de": "Monatlicher Meditationskurs"
+        },
+        "schedule": [],
+        "mapUrl": ""
+    },
+    {
+        "id": 19,
+        "active": true,
+        "title": {
+            "th": "คอร์สปฏิบัติธรรม ธันวาคม",
+            "en": "Vipassana Meditation Course",
+            "de": "Vipassana Meditationkurs"
+        },
+        "date": "2026-12-18",
+        "time": "Fr. - So.",
+        "location": {
+            "th": "อาคารวิปัสสนา",
+            "en": "Meditation Hall",
+            "de": "Meditationshalle"
+        },
+        "image": "/images/event-meditation.png",
+        "description": {
+            "th": "คอร์สปฏิบัติธรรมประจำเดือน",
+            "en": "Monthly Meditation Course",
+            "de": "Monatlicher Meditationskurs"
+        },
+        "schedule": [],
+        "mapUrl": ""
+    },
+    {
+        "id": 20,
+        "active": true,
+        "title": {
+            "th": "สวดมนต์ข้ามปี",
+            "en": "New Year's Eve Chanting",
+            "de": "Silvester-Meditation"
+        },
+        "date": "2026-12-31",
+        "time": "18:00 - 01:00",
+        "location": {
+            "th": "ศาลาการเปรียญ",
+            "en": "Main Hall",
+            "de": "Hauptsaal"
+        },
+        "image": "/images/event-nye-chanting.png",
+        "description": {
+            "th": "สวดมนต์และปฏิบัติธรรมส่งท้ายปีเก่าต้อนรับปีใหม่",
+            "en": "Chanting and meditation to welcome the New Year.",
+            "de": "Beten und Meditieren zum Jahreswechsel."
+        },
+        "schedule": [],
+        "mapUrl": ""
     }
 ]

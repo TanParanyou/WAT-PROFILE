@@ -8,6 +8,8 @@ import { AnimatePresence, motion, Variants } from 'framer-motion';
 import { useTranslations, useLocale } from 'next-intl';
 import { Link, usePathname, useRouter } from '@/navigation';
 import { routing } from '@/routing';
+import { getLocalizedText } from '@/utils/i18n';
+import Image from 'next/image';
 
 export default function Navbar() {
     const [isOpen, setIsOpen] = useState(false);
@@ -80,7 +82,13 @@ export default function Navbar() {
                 <Link href="/" className="flex items-center gap-3 group relative z-50">
                     <div className={`w-11 h-11 rounded-2xl flex items-center justify-center font-heading font-bold text-xl shadow-lg transition-all duration-500 group-hover:rotate-12 ${scrolled || isOpen ? 'bg-primary text-white' : 'bg-white text-primary'
                         }`}>
-                        W
+                        <Image
+                            src="/images/icon/logo.png"
+                            alt={getLocalizedText(siteConfig.siteName, locale)}
+                            width={40}
+                            height={40}
+                            className="object-cover"
+                        />
                     </div>
                     <div className="flex flex-col">
                         <span className={`font-heading font-bold text-lg leading-none tracking-tight transition-colors duration-300 ${scrolled || isOpen ? 'text-gray-900 dark:text-white' : 'text-white'
