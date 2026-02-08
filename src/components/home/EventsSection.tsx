@@ -6,6 +6,21 @@ import { motion } from 'framer-motion';
 import { useTranslations, useLocale, useFormatter } from 'next-intl';
 import events from '@/data/events.json';
 import { getLocalizedText } from '@/utils/i18n';
+import { LocalizedText } from '@/config/site.config';
+
+type Event = {
+    id: number;
+    active: boolean;
+    title: LocalizedText;
+    date: string;
+    time: string;
+    location: LocalizedText;
+    image: string;
+    description: LocalizedText;
+    schedule: any[];
+    mapUrl: string;
+    order?: number;
+};
 
 export default function EventsSection() {
     const t = useTranslations('EventsSection');
@@ -33,7 +48,7 @@ export default function EventsSection() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {events
+                    {(events as Event[])
                         .filter(e => e.active)
                         .sort((a, b) => (a.order || 999) - (b.order || 999))
                         .map((event, index) => (

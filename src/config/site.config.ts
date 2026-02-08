@@ -36,11 +36,32 @@ export type SeoConfig = {
     keywords: string[];
 };
 
+export type AddressDetails = {
+    streetAddress: string;
+    addressLocality: string;
+    postalCode: string;
+    addressCountry: string;
+};
+
+export type GeoLocation = {
+    latitude: number;
+    longitude: number;
+};
+
+export type OpeningHours = {
+    dayOfWeek: string[];
+    opens: string;
+    closes: string;
+};
+
 export type ContactInfo = {
     email?: string;
     phone?: string;
     phone2?: string;
     address?: LocalizedText;
+    addressDetails?: AddressDetails;
+    geo?: GeoLocation;
+    openingHours?: OpeningHours[];
     googleMapUrl?: string;
 };
 
@@ -159,6 +180,31 @@ export const siteConfig: SiteConfig = {
             en: 'Buddhistisches Meditationszentrum e.V.Am Pflaster 11, 63599 Biebergemünd',
             de: 'Buddhistisches Meditationszentrum e.V.Am Pflaster 11, 63599 Biebergemünd'
         },
+        addressDetails: {
+            streetAddress: 'Am Pflaster 11',
+            addressLocality: 'Biebergemünd',
+            postalCode: '63599',
+            addressCountry: 'DE',
+        },
+        geo: {
+            latitude: 50.228,
+            longitude: 9.288,
+        },
+        openingHours: [
+            {
+                dayOfWeek: [
+                    'Monday',
+                    'Tuesday',
+                    'Wednesday',
+                    'Thursday',
+                    'Friday',
+                    'Saturday',
+                    'Sunday',
+                ],
+                opens: '08:00',
+                closes: '18:00',
+            },
+        ],
         googleMapUrl: 'https://maps.app.goo.gl/JfSweaU6LYLtFdfw7'
     },
 
