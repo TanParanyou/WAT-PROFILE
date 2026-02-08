@@ -223,6 +223,9 @@ export default async function EventDetailPage({ params }: Props) {
                                 </div>
                             </div>
                         )}
+                        <div className="text-center text-xs text-gray-500">
+                            {t('note')}
+                        </div>
                     </div>
 
                     {/* Sidebar (Right Column) */}

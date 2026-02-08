@@ -110,13 +110,18 @@
     },
     "PrivacyPage": {
         "title": "Datenschutzerklärung",
-        "lastUpdated": "Zuletzt aktualisiert"
+        "lastUpdated": "Zuletzt aktualisiert",
+        "introduction": "Diese Datenschutzerklärung beschreibt unsere Richtlinien und Verfahren zur Erfassung, Verwendung und Offenlegung Ihrer Daten bei der Nutzung des Dienstes und informiert Sie über Ihre Datenschutzrechte und darüber, wie das Gesetz Sie schützt.",
+        "collectionTitle": "Erfassung und Nutzung von Informationen",
+        "collectionDesc": "Wir erfassen verschiedene Arten von Informationen zu unterschiedlichen Zwecken, um unseren Service für Sie bereitzustellen und zu verbessern."
     },
     "ImpressumPage": {
         "title": "Impressum",
         "companyName": "Organisationsname",
         "address": "Adresse",
-        "contact": "Kontakt"
+        "contact": "Kontakt",
+        "phone": "Telefon",
+        "email": "E-Mail"
     },
     "Site": {
         "name": "Wat Serm Rangsi",
@@ -148,6 +153,7 @@
         "breadcrumbs": {
             "home": "Startseite",
             "events": "Veranstaltungen"
-        }
+        },
+        "note": "*** Beachte: Die Termine können sich je nach Bedeutung ändern ***"
     }
 }
