@@ -1,36 +1,82 @@
 [
     {
         "id": "1",
-        "slug": "phra-kru-serm",
+        "slug": "phra-ajarn-tiva",
         "image": "/images/monks/abbott.png",
         "name": {
-            "th": "พระครูเสริมรังษี (สมพงษ์ สุธมฺโม)",
-            "en": "Phra Kru Sermrangsi (Sompong Suthammo)"
+            "th": "พระอาจารย์ ทิวา อาภากโร",
+            "en": "Phra Ajarn Tiva Abhakaro",
+            "de": "Phra Ajarn Tiva Abhakaro"
         },
         "title": {
-            "th": "เจ้าอาวาส",
-            "en": "Abbot"
+            "th": "ประธานผู้ก่อตั้งวัด",
+            "en": "Founder",
+            "de": "Gründer"
         },
         "content": {
-            "th": "<p>พระครูเสริมรังษี (สมพงษ์ สุธมฺโม) ท่านเป็นพระเถระผู้มีความเมตตา...</p>",
-            "en": "<p>Phra Kru Sermrangsi (Sompong Suthammo) is a compassionate elder monk...</p>"
+            "th": "<p>ประธานผู้ก่อตั้งวัดหลวงพ่อใส ผู้มีเจตนารมณ์ในการเผยแผ่พระพุทธศาสนาในต่างแดน</p>",
+            "en": "<p>Founder of Wat Loung Por Sai, with the intention of propagating Buddhism abroad.</p>",
+            "de": "<p>Gründer des Wat Loung Por Sai, mit der Absicht, den Buddhismus im Ausland zu verbreiten.</p>"
         }
     },
     {
         "id": "2",
-        "slug": "phra-maha-somchai",
+        "slug": "phra-ajarn-ittiphon",
         "image": "/images/monks/monk2.png",
         "name": {
-            "th": "พระมหาสมชาย ฐานวโร",
-            "en": "Phra Maha Somchai Thanawaro"
+            "th": "พระอาจารย์ อิทธิพล ชินวโร",
+            "en": "Phra Ajarn Ittiphon Shinawaro",
+            "de": "Phra Ajarn Ittiphon Shinawaro"
         },
         "title": {
-            "th": "ผู้ช่วยเจ้าอาวาส",
-            "en": "Assistant Abbot"
+            "th": "พระสงฆ์",
+            "en": "Monk",
+            "de": "Mönch"
         },
         "content": {
-            "th": "<p>ประวัติโดยย่อของพระมหาสมชาย...</p>",
-            "en": "<p>Brief biography of Phra Maha Somchai...</p>"
+            "th": "<p>พระสงฆ์ผู้นำการปฏิบัติธรรม</p>",
+            "en": "<p>Monk leading Dharma practice.</p>",
+            "de": "<p>Mönch, der die Dharma-Praxis leitet.</p>"
+        }
+    },
+    {
+        "id": "3",
+        "slug": "phra-wirat",
+        "image": "/images/monks/monk2.png",
+        "name": {
+            "th": "พระมหาวิลาศ กัณตวัณโณ",
+            "en": "Phra Wirat Kantawanno",
+            "de": "Phra Wirat Kantawanno"
+        },
+        "title": {
+            "th": "พระสงฆ์",
+            "en": "Monk",
+            "de": "Mönch"
+        },
+        "content": {
+            "th": "<p>พระสงฆ์ผู้นำการปฏิบัติธรรม</p>",
+            "en": "<p>Monk leading Dharma practice.</p>",
+            "de": "<p>Mönch, der die Dharma-Praxis leitet.</p>"
+        }
+    },
+    {
+        "id": "4",
+        "slug": "phra-bunthin",
+        "image": "/images/monks/monk2.png",
+        "name": {
+            "th": "พระบุญทิน ธมฺมโชโต",
+            "en": "Phra Bunthin Dhammaschoto",
+            "de": "Phra Bunthin Dhammaschoto"
+        },
+        "title": {
+            "th": "พระสงฆ์",
+            "en": "Monk",
+            "de": "Mönch"
+        },
+        "content": {
+            "th": "<p>พระสงฆ์ผู้นำการปฏิบัติธรรม</p>",
+            "en": "<p>Monk leading Dharma practice.</p>",
+            "de": "<p>Mönch, der die Dharma-Praxis leitet.</p>"
         }
     }
 ]

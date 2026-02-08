@@ -1,11 +1,12 @@
-'use client';
-
-import { useTranslations } from 'next-intl';
+import { useTranslations, useLocale } from 'next-intl';
 import PageHeader from '@/components/layout/PageHeader';
 import PageContainer from '@/components/layout/PageContainer';
+import aboutData from '@/data/about.json';
+import { getLocalizedText } from '@/utils/i18n';
 
 export default function AboutPage() {
     const t = useTranslations('AboutPage');
+    const locale = useLocale();
 
     return (
         <div className="bg-zinc-50 dark:bg-zinc-950 min-h-screen">
@@ -15,53 +16,86 @@ export default function AboutPage() {
             />
 
             <PageContainer>
-                <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-800 p-8 md:p-16">
-                    <div className="max-w-3xl mx-auto prose prose-lg dark:prose-invert">
-                        <div className="flex items-center gap-4 mb-8">
-                            <div className="h-10 w-2 bg-primary rounded-full"></div>
-                            <h2 className="font-heading text-3xl font-bold text-gray-900 dark:text-white m-0">{t('historyTitle')}</h2>
-                        </div>
+                <div className="max-w-4xl mx-auto space-y-12">
 
-                        <p className="lead text-gray-600 dark:text-gray-300">
-                            วัดเสริมรังษี ก่อตั้งขึ้นเมื่อ... (รอข้อมูลจากผู้ใช้งาน) โดยมีวัตถุประสงค์เพื่อเป็นศูนย์รวมจิตใจ
-                            ของพุทธศาสนิกชนในพื้นที่ กรุงวอชิงตัน ดี.ซี. และรัฐใกล้เคียง
-                        </p>
+                    {/* Introduction */}
+                    <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-800 p-8 md:p-12">
+                        <section className="prose prose-lg dark:prose-invert max-w-none">
+                            <h2 className="font-heading text-3xl font-bold text-primary mb-6">
+                                {getLocalizedText(aboutData.intro.title, locale)}
+                            </h2>
+                            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                                {getLocalizedText(aboutData.intro.description, locale)}
+                            </p>
+                            <p className="text-gray-600 dark:text-gray-300 leading-relaxed font-medium">
+                                {getLocalizedText(aboutData.intro.founded, locale)}
+                            </p>
+                            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                                {getLocalizedText(aboutData.intro.location, locale)}
+                            </p>
+                        </section>
+                    </div>
 
-                        <hr className="my-12 border-gray-100 dark:border-gray-700" />
-
-                        <div className="grid md:grid-cols-2 gap-12 not-prose">
-                            <div>
-                                <h2 className="font-heading text-2xl font-bold text-primary mb-6 flex items-center gap-3">
-                                    {t('visionTitle')}
-                                </h2>
-                                <ul className="space-y-4">
-                                    <li className="flex items-start gap-3 bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-xl">
-                                        <span className="flex-shrink-0 w-6 h-6 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold text-sm">1</span>
-                                        <span className="text-gray-700 dark:text-gray-300">{t('vision1')}</span>
-                                    </li>
-                                    <li className="flex items-start gap-3 bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-xl">
-                                        <span className="flex-shrink-0 w-6 h-6 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold text-sm">2</span>
-                                        <span className="text-gray-700 dark:text-gray-300">{t('vision2')}</span>
-                                    </li>
-                                    <li className="flex items-start gap-3 bg-zinc-50 dark:bg-zinc-900/50 p-4 rounded-xl">
-                                        <span className="flex-shrink-0 w-6 h-6 bg-primary/10 text-primary rounded-full flex items-center justify-center font-bold text-sm">3</span>
-                                        <span className="text-gray-700 dark:text-gray-300">{t('vision3')}</span>
-                                    </li>
-                                </ul>
+                    {/* Objective */}
+                    <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-800 p-8 md:p-12">
+                        <section className="prose prose-lg dark:prose-invert max-w-none">
+                            <h2 className="font-heading text-2xl font-bold text-primary mb-6">
+                                {getLocalizedText(aboutData.objective.title, locale)}
+                            </h2>
+                            <div className="whitespace-pre-wrap text-gray-600 dark:text-gray-300 leading-relaxed italic border-l-4 border-primary/20 pl-6">
+                                {getLocalizedText(aboutData.objective.content, locale)}
                             </div>
+                        </section>
+                    </div>
 
-                            <div>
-                                <h2 className="font-heading text-2xl font-bold text-primary mb-6 flex items-center gap-3">
-                                    {t('missionTitle')}
-                                </h2>
-                                <div className="bg-primary/5 dark:bg-primary/10 p-6 rounded-2xl border border-primary/10">
-                                    <p className="text-gray-700 dark:text-gray-300 italic leading-relaxed">
-                                        &quot;{t('missionDesc')}&quot;
-                                    </p>
+                    {/* Administration */}
+                    <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-800 p-8 md:p-12">
+                        <section className="prose prose-lg dark:prose-invert max-w-none">
+                            <h2 className="font-heading text-2xl font-bold text-primary mb-6">
+                                {getLocalizedText(aboutData.administration.title, locale)}
+                            </h2>
+                            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                                {getLocalizedText(aboutData.administration.content, locale)}
+                            </p>
+                        </section>
+                    </div>
+
+                    {/* Buddha History */}
+                    <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-800 p-8 md:p-12">
+                        <section className="prose prose-lg dark:prose-invert max-w-none">
+                            <h2 className="font-heading text-2xl font-bold text-primary mb-6">
+                                {getLocalizedText(aboutData.buddhaHistory.title, locale)}
+                            </h2>
+                            <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
+                                {getLocalizedText(aboutData.buddhaHistory.content, locale)}
+                            </p>
+                        </section>
+                    </div>
+
+                    {/* Buildings */}
+                    <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-800 p-8 md:p-12">
+                        <h2 className="font-heading text-2xl font-bold text-gray-900 dark:text-white mb-8">
+                            {locale === 'th' ? 'อาคารภายในวัด' : locale === 'en' ? 'Buildings' : 'Gebäude'}
+                        </h2>
+                        <div className="grid md:grid-cols-1 gap-8">
+                            {aboutData.buildings.map((building, index) => (
+                                <div key={index} className="flex gap-4">
+                                    <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold shrink-0">
+                                        {index + 1}
+                                    </div>
+                                    <div>
+                                        <h3 className="font-bold text-lg text-gray-900 dark:text-white capitalize mb-2">
+                                            {getLocalizedText(building.name, locale)}
+                                        </h3>
+                                        <p className="text-gray-600 dark:text-gray-400">
+                                            {getLocalizedText(building.description, locale)}
+                                        </p>
+                                    </div>
                                 </div>
-                            </div>
+                            ))}
                         </div>
                     </div>
+
                 </div>
             </PageContainer>
         </div>

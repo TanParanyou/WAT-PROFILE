@@ -45,6 +45,7 @@
         "contactUs": "Kontaktieren Sie uns",
         "channels": "Spendenkanäle",
         "zelleDesc": "Spenden über Zelle (US Bank)",
+        "bankTransfer": "Banküberweisung",
         "scanQr": "QR-Code scannen (Thai Bank)",
         "clickToView": "Klicken zum Anzeigen des QR-Codes"
     },
@@ -113,7 +114,8 @@
         "contact": "Kontakt"
     },
     "Site": {
-        "name": "Wat Serm Rangsi"
+        "name": "Wat Serm Rangsi",
+        "location": "Germany"
     },
     "GalleryPage": {
         "title": "Fotogalerie",

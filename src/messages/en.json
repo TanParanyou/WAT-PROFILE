@@ -45,6 +45,7 @@
         "contactUs": "Contact Us",
         "channels": "Donation Channels",
         "zelleDesc": "Donate via Zelle (US Bank)",
+        "bankTransfer": "Bank Transfer",
         "scanQr": "Scan QR Code (Thai Bank)",
         "clickToView": "Click to view QR Code"
     },
@@ -114,7 +115,7 @@
     },
     "Site": {
         "name": "Serm Rangsi Meditation Center",
-        "location": "Saraburi"
+        "location": "Germany"
     },
     "GalleryPage": {
         "title": "Photo Gallery",

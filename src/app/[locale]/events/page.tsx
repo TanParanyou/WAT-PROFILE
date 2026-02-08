@@ -1,8 +1,9 @@
 'use client';
 
 import { useTranslations, useLocale, useFormatter } from 'next-intl';
-import { Clock, MapPin } from 'lucide-react';
+import { Clock, MapPin, Calendar, Video } from 'lucide-react';
 import events from '@/data/events.json';
+import scheduleData from '@/data/schedule.json';
 import { Link } from '@/navigation';
 import { getLocalizedText } from '@/utils/i18n';
 
@@ -24,10 +25,86 @@ export default function EventsPage() {
             />
 
             <PageContainer>
+                {/* Regular Schedule Section */}
+                <div className="max-w-5xl mx-auto mb-16">
+                    <h2 className="text-2xl font-heading font-bold mb-8 text-center text-primary">{t('regularSchedule') || (locale === 'th' ? 'ตารางกิจวัตรประจำวัน' : 'Daily Schedule')}</h2>
+                    <div className="grid md:grid-cols-2 gap-8">
+                        {/* Daily */}
+                        <div className="bg-white dark:bg-zinc-900 rounded-2xl p-8 shadow-md border border-gray-100 dark:border-gray-800">
+                            <div className="flex items-center gap-3 mb-6">
+                                <div className="p-3 bg-primary/10 rounded-xl text-primary">
+                                    <Clock size={24} />
+                                </div>
+                                <h3 className="text-xl font-bold">{locale === 'th' ? 'ประจำวัน' : 'Daily'}</h3>
+                            </div>
+                            <div className="space-y-6">
+                                {scheduleData.daily.map((item, index) => (
+                                    <div key={index} className="flex gap-4">
+                                        <div className="font-mono font-bold text-gray-500 whitespace-nowrap">{item.time}</div>
+                                        <div className="text-gray-700 dark:text-gray-300">
+                                            {getLocalizedText(item.activity, locale)}
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Weekly & Online */}
+                        <div className="space-y-8">
+                            {/* Weekly */}
+                            <div className="bg-white dark:bg-zinc-900 rounded-2xl p-8 shadow-md border border-gray-100 dark:border-gray-800">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="p-3 bg-green-500/10 rounded-xl text-green-600">
+                                        <Calendar size={24} />
+                                    </div>
+                                    <h3 className="text-xl font-bold">{locale === 'th' ? 'ประจำสัปดาห์' : 'Weekly'}</h3>
+                                </div>
+                                <div className="space-y-6">
+                                    {scheduleData.weekly.map((item, index) => (
+                                        <div key={index}>
+                                            <div className="font-bold text-gray-900 dark:text-white mb-1">
+                                                {getLocalizedText(item.day, locale)}
+                                            </div>
+                                            <div className="flex gap-4">
+                                                <div className="font-mono font-bold text-gray-500 whitespace-nowrap">{item.time}</div>
+                                                <div className="text-gray-700 dark:text-gray-300">
+                                                    {getLocalizedText(item.activity, locale)}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {/* Online */}
+                            <div className="bg-blue-50 dark:bg-blue-900/10 rounded-2xl p-8 shadow-sm border border-blue-100 dark:border-blue-900/30">
+                                <div className="flex items-center gap-3 mb-4">
+                                    <div className="p-3 bg-blue-500/10 rounded-xl text-blue-600">
+                                        <Video size={24} />
+                                    </div>
+                                    <h3 className="text-xl font-bold">{getLocalizedText(scheduleData.online.title, locale)}</h3>
+                                </div>
+                                <p className="text-gray-700 dark:text-gray-300 mb-4">
+                                    {getLocalizedText(scheduleData.online.description, locale)}
+                                </p>
+                                <a
+                                    href={scheduleData.online.link}
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="inline-flex items-center gap-2 text-blue-600 font-bold hover:underline"
+                                >
+                                    Join via Facebook <ArrowRight size={16} />
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <h2 className="text-2xl font-heading font-bold mb-8 text-primary max-w-5xl mx-auto">{t('upcomingEvents') || (locale === 'th' ? 'ปฏิทินกิจกรรม 2569' : 'Events Calendar 2026')}</h2>
                 <div className="grid grid-cols-1 gap-6 max-w-5xl mx-auto">
                     {events
                         .filter(e => e.active)
-                        .sort((a, b) => (a.order || 999) - (b.order || 999))
+                        .sort((a, b) => new Date(a.date).getTime() - new Date(b.date).getTime())
                         .map((event) => (
                             <div key={event.id} className="bg-white dark:bg-zinc-900 rounded-2xl p-6 md:p-8 flex flex-col md:flex-row gap-8 shadow-lg hover:shadow-xl transition-all border border-gray-100 dark:border-gray-800 relative group overflow-hidden">
                                 {/* Decorative accent */}

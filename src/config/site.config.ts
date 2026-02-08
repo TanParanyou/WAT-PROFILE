@@ -1,8 +1,9 @@
-export type Locale = 'th' | 'en';
+export type Locale = 'th' | 'en' | 'de';
 
 export type LocalizedText = {
     th: string;
     en: string;
+    de: string;
 };
 
 export type SocialLinks = {
@@ -101,18 +102,20 @@ export type SiteConfig = {
 
 export const siteConfig: SiteConfig = {
     siteName: {
-        th: 'เสริมรังษี ศูนย์ปฏิบัติธรรม',
-        en: 'Serm Rangsi Meditation Center',
+        th: 'วัดหลวงพ่อใส',
+        en: 'Wat Loung Por Sai',
+        de: 'Wat Loung Por Sai',
     },
-    siteShortName: 'Serm Rangsi',
+    siteShortName: 'Wat Loung Por Sai',
     tagline: {
         th: 'ศูนย์รวมจิตใจชาวพุทธ',
         en: 'Buddhist Meditation Center',
+        de: 'Buddhist Meditation Center',
     },
     domain: 'https://sermrangsi.vercel.app', // Placeholder
 
     defaultLocale: 'th',
-    locales: ['th', 'en'],
+    locales: ['th', 'en', 'de'],
 
     logo: {
         light: '/images/logo-light.svg', // Placeholder
@@ -125,20 +128,20 @@ export const siteConfig: SiteConfig = {
     },
 
     social: {
-        facebook: 'https://www.facebook.com/pages/%E0%B9%80%E0%B8%AA%E0%B8%A3%E0%B8%B4%E0%B8%A1%E0%B8%A3%E0%B8%B1%E0%B8%87%E0%B8%A9%E0%B8%B5-%E0%B8%A8%E0%B8%B9%E0%B8%99%E0%B8%A2%E0%B9%8C%E0%B8%9B%E0%B8%8F%E0%B8%B4%E0%B8%9A%E0%B8%B1%E0%B8%95%E0%B8%B4%E0%B8%98%E0%B8%A3%E0%B8%A3%E0%B8%A1/109598142460157',
-        email: 'contact@watsermrangsi.org',
-        youtube: 'https://youtu.be/oN2Ntvx_zKU?si=DLXfokvu4XmhcIu0' // Placeholder
+        facebook: 'https://www.facebook.com/wat.loungporsai.9',
+        email: 'Watloungporsai@gmail.com',
+        //youtube: 'https://youtu.be/oN2Ntvx_zKU?si=DLXfokvu4XmhcIu0' // Placeholder
     },
 
     seo: {
-        titleTemplate: '%s | เสริมรังษี ศูนย์ปฏิบัติธรรม',
-        defaultTitle: 'เสริมรังษี ศูนย์ปฏิบัติธรรม | Serm Rangsi',
+        titleTemplate: '%s | วัดหลวงพ่อใส',
+        defaultTitle: 'วัดหลวงพ่อใส | Wat Loung Por Sai',
         defaultDescription:
-            'เสริมรังษี ศูนย์ปฏิบัติธรรม - ศูนย์รวมจิตใจชาวพุทธ เผยแผ่พระพุทธศาสนา และจัดกิจกรรมทางศาสนา',
+            'วัดหลวงพ่อใส - ศูนย์รวมจิตใจชาวพุทธ เผยแผ่พระพุทธศาสนา และจัดกิจกรรมทางศาสนา',
         defaultOgImage: '/images/og-image.jpg',
         keywords: [
-            'เสริมรังษี',
-            'Serm Rangsi',
+            'วัดหลวงพ่อใส',
+            'Wat Loung Por Sai',
             'Buddhist Temple',
             'Meditation',
             'Dhamma',
@@ -149,13 +152,14 @@ export const siteConfig: SiteConfig = {
     },
 
     contact: {
-        email: 'contact@watsermrangsi.org',
-        phone: '062 540 4922',
+        email: 'Watloungporsai@gmail.com',
+        phone: '0160-1604486',
         address: {
-            th: 'ต.หนองย่างเสือ อ.มวกเหล็ก จ.สระบุรี 18180',
-            en: 'Unnamed Rd, Tambon Nong Yang Sua, Amphoe Muak Lek, Saraburi 18180',
+            th: 'Buddhistisches Meditationszentrum e.V.Am Pflaster 11, 63599 Biebergemünd',
+            en: 'Buddhistisches Meditationszentrum e.V.Am Pflaster 11, 63599 Biebergemünd',
+            de: 'Buddhistisches Meditationszentrum e.V.Am Pflaster 11, 63599 Biebergemünd'
         },
-        googleMapUrl: 'https://maps.app.goo.gl/gTxKSwCd99EGSuoH6'
+        googleMapUrl: 'https://maps.app.goo.gl/JfSweaU6LYLtFdfw7'
     },
 
     layout: {
@@ -178,8 +182,8 @@ export const siteConfig: SiteConfig = {
 
     authors: [
         {
-            name: 'Serm Rangsi Team',
+            name: 'Wat Loung Por Sai Team',
         },
     ],
-    creator: 'Serm Rangsi Team',
+    creator: 'Wat Loung Por Sai Team',
 };
