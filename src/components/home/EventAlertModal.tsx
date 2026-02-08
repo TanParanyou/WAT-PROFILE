@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTranslations, useLocale, useFormatter } from 'next-intl';
 import { Link } from '@/navigation';
+import Image from 'next/image';
 import { X, Calendar, MapPin, Clock } from 'lucide-react';
 import events from '@/data/events.json';
 import { getLocalizedText } from '@/utils/i18n';
@@ -88,10 +89,14 @@ export default function EventAlertModal() {
 
                         {/* Image Header */}
                         <div className="relative h-56 bg-zinc-200 dark:bg-zinc-800">
-                            {/* Placeholder for real image */}
-                            <div className="absolute inset-0 bg-primary/10 flex items-center justify-center text-zinc-400">
-                                [Image: {upcomingEvent.image}]
-                            </div>
+                            <Image
+                                src={upcomingEvent.image}
+                                alt={getLocalizedText(upcomingEvent.title, locale)}
+                                fill
+                                className="object-cover"
+                            />
+                            {/* Overlay for better contrast if needed, mostly for aesthetics here */}
+                            <div className="absolute inset-0 bg-black/10" />
 
                             {/* Date Badge */}
                             <div className="absolute bottom-4 left-4 bg-white dark:bg-zinc-950 px-3 py-1.5 rounded-full text-xs font-bold text-primary shadow-lg flex items-center gap-1.5">

@@ -20,6 +20,7 @@ import PageContainer from '@/components/layout/PageContainer';
 import ShareButton from '@/components/common/ShareButton';
 import PageBreadcrumbs from '@/components/common/PageBreadcrumbs';
 import EventPrinter from '@/components/events/EventPrinter';
+import DetailNavigation from '@/components/common/DetailNavigation';
 
 export async function generateStaticParams() {
     return events.flatMap((event) => [
@@ -127,33 +128,22 @@ export default async function EventDetailPage({ params }: Props) {
             </PageHeader>
 
             <PageContainer>
-                {/* Navigation & Actions Card */}
-                <div className="bg-white dark:bg-zinc-900 rounded-2xl p-4 shadow-lg shadow-black/5 mb-8 flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    {/* Breadcrumbs & Back */}
-                    <div className="flex flex-col gap-2">
-                        <div className="">
-                            <PageBreadcrumbs
-                                items={[
-                                    { label: t('breadcrumbs.events'), href: '/events' },
-                                    { label: getLocalizedText(event.title, locale), active: true }
-                                ]}
-                            />
+                {/* Navigation & Actions */}
+                <DetailNavigation
+                    breadcrumbs={[
+                        { label: t('breadcrumbs.events'), href: '/events' },
+                        { label: getLocalizedText(event.title, locale), active: true }
+                    ]}
+                    backHref="/events"
+                    backLabel={tEvents('viewAll')}
+                    actions={
+                        <div className="flex items-center gap-2">
+                            <EventPrinter event={event} locale={locale} />
+                            <div className="w-px h-6 bg-zinc-300 dark:bg-zinc-700 mx-2 hidden md:block"></div>
+                            <ShareButton />
                         </div>
-                        <Link
-                            href="/events"
-                            className="inline-flex items-center gap-2 text-gray-500 hover:text-primary transition-colors font-medium group w-fit"
-                        >
-                            <ArrowLeft size={18} className="group-hover:-translate-x-1 transition-transform" />
-                            Back to Events
-                        </Link>
-                    </div>
-
-                    {/* Share Button & Print */}
-                    <div className="flex items-center gap-4 border-t md:border-t-0 md:border-l border-gray-100 dark:border-gray-800 pt-4 md:pt-0 md:pl-6">
-                        <EventPrinter event={event} locale={locale} />
-                        <ShareButton />
-                    </div>
-                </div>
+                    }
+                />
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                     {/* Main Content (Left Column) */}
