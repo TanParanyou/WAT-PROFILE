@@ -1,98 +1,152 @@
 {
     "intro": {
+        "navTitle": {
+            "th": "บทนำ",
+            "en": "Introduction",
+            "de": "Einführung"
+        },
         "title": {
             "th": "วัดหลวงพ่อใส",
             "en": "Wat Loung Por Sai",
             "de": "Wat Loung Por Sai"
         },
         "description": {
-            "th": "วัดไทยในสหพันธ์สาธารณรัฐเยอรมนี วัดป่าศาสนาพุทธ สังกัดธรรมยุติกนิกาย (Dhammayuttika-Nikāya) ดำเนินแนวทางการปฏิบัติแบบ วิปัสสนายานิก ตามแนวทางสายพระกรรมฐานของ องค์หลวงปู่มั่น ภูริทตฺโต และ องค์หลวงปู่หลุย จนฺทสาโร",
-            "en": "A Thai Forest Monastery in Germany under the Dhammayuttika Nikaya. We follow the Vipassana Yanika practice lineage of Luang Pu Mun Bhuridatto and Luang Pu Louis Chandasaro.",
-            "de": "Ein thailändisches Waldkloster in Deutschland unter dem Dhammayuttika Nikaya. Wir folgen der Vipassana Yanika Praxis-Linie von Luang Pu Mun Bhuridatto und Luang Pu Louis Chandasaro."
+            "th": "วัดไทยในสหพันธ์สาธารณรัฐเยอรมนี วัดป่าศาสนาพุทธ สังกัดธรรมยุติกนิกาย (Dhammayuttika-Nikāya) ดำเนินแนวทางการปฏิบัติแบบ วิปัสสนายานิก ตามแนวทางสายพระกรรมฐานของ องค์หลวงปู่มั่น ภูริทตฺโต และ องค์หลวงปู่หลุย จนฺทสาโร\n\nโดย พระอาจารย์ ทิวา อาภากโร เมตตาเผยแผ่แนวทางปฏิบัติธรรมวิปัสสนานานิก โดยเน้นภาคปฏิบัติเป็นสำคัญ ตามแนวทางคำสอนของพระพุทธเจ้าอย่างเคร่งครัด",
+            "en": "A Thai Forest Monastery in Germany under the Dhammayuttika Nikaya. We follow the Vipassana Yanika practice lineage and meditation tradition of Luang Pu Mun Bhuridatto and Luang Pu Louis Chandasaro.\n\nPhra Ajarn Tiva Abhakaro mercifully propagates the Vipassana Yanika meditation practice, emphasizing strict practical application according to the Buddha's teachings.",
+            "de": "Ein thailändisches Waldkloster in Deutschland unter dem Dhammayuttika Nikaya. Wir folgen der Vipassana Yanika Praxis-Linie und Meditationstradition von Luang Pu Mun Bhuridatto und Luang Pu Louis Chandasaro.\n\nPhra Ajarn Tiva Abhakaro verbreitet barmherzig die Vipassana Yanika Meditationspraxis, wobei er strengen Wert auf die praktische Anwendung gemäß den Lehren des Buddha legt."
         },
         "founded": {
-            "th": "ก่อตั้งขึ้นเมื่อ พุทธศักราช 2561 (ค.ศ. 2018) โดย พระอาจารย์ ทิวา อาภากโร",
-            "en": "Founded in 2018 by Phra Ajarn Tiva Abhakaro.",
-            "de": "Gegründet im Jahr 2018 von Phra Ajahn Tiva Abhakaro."
+            "th": "ก่อตั้งขึ้นเมื่อ พุทธศักราช 2561 (ค.ศ. 2018) โดยได้รับความเมตตาจาก พระอาจารย์ ทิวา อาภากโร (Phra Ajarn Tiva Abhakaro) เป็นประธานผู้ก่อตั้งวัดหลวงพ่อใส",
+            "en": "Founded in 2018 by Phra Ajarn Tiva Abhakaro, the founding chairman of Wat Loung Por Sai.",
+            "de": "Gegründet im Jahr 2018 von Phra Ajahn Tiva Abhakaro, dem Gründungsvorsitzenden des Wat Loung Por Sai."
         },
         "location": {
-            "th": "วัดหลวงพ่อใสตั้งอยู่เมือง Biebergemünd ห่างจากสนามบินแฟรงก์เฟิร์ตประมาณ 40 นาที บรรยากาศสงบ ร่มรื่น เอื้อต่อการปฏิบัติธรรม",
-            "en": "Located in Biebergemünd, about 40 minutes from Frankfurt Airport. A peaceful atmosphere suitable for Dhamma practice.",
-            "de": "Gelegen in Biebergemünd, ca. 40 Minuten vom Frankfurter Flughafen entfernt. Eine friedliche Atmosphäre, geeignet für die Dhamma-Praxis."
+            "th": "วัดหลวงพ่อใสตั้งอยู่เมือง Biebergemünd เป็นเมืองเล็ก ๆ อยู่ห่างจาก สนามบินแฟรงก์เฟิร์ต (Frankfurt Airport) ประมาณ 40 นาที บริเวณวัดมีบรรยากาศสงบ ร่มรื่น เป็นพื้นที่อนุรักษ์บางส่วน ทางวัดได้ทำการบูรณะซ่อมแซมตามลำดับ เพื่อให้ใช้ประโยชน์เอื้อต่อการปฏิบัติธรรม (สัปปายะ – Sappāya)\n\nตั้งอยู่ใกล้สาธารณูปโภคและป้ายรถประจำทาง อีกทั้งยังโอบล้อมด้วยภูเขา ธรรมชาติอันงดงาม มีลำธาร และเหมืองแร่ธรรมชาติ สร้างบรรยากาศแห่งความสงบและความเป็นธรรมชาติอย่างแท้จริง",
+            "en": "Located in Biebergemünd, a small town about 40 minutes from Frankfurt Airport. The temple area has a peaceful, shady atmosphere and includes some conservation areas. Renovation is ongoing to support Dharma practice (Sappāya).\n\nConveniently located near public utilities and bus stops, surrounded by beautiful mountains, streams, and natural mines, creating a truly peaceful and natural atmosphere.",
+            "de": "Gelegen in Biebergemünd, einer kleinen Stadt ca. 40 Minuten vom Frankfurter Flughafen entfernt. Das Tempelgelände hat eine friedliche, schattige Atmosphäre und umfasst einige Naturschutzgebiete. Renovierungen sind im Gange, um die Dhamma-Praxis (Sappāya) zu unterstützen.\n\nGünstig gelegen in der Nähe von öffentlichen Einrichtungen und Bushaltestellen, umgeben von wunderschönen Bergen, Bächen und natürlichen Minen, was eine wahrhaft friedliche und natürliche Atmosphäre schafft."
         }
     },
     "objective": {
+        "navTitle": {
+            "th": "เจตนารมณ์",
+            "en": "Objective",
+            "de": "Zielsetzung"
+        },
         "title": {
-            "th": "วัตถุประสงค์โดย หลวงปู่ทิวา อาภากโร",
-            "en": "Objective by Luang Pu Tiva Abhakaro",
-            "de": "Die Absicht von Phra Ajahn Tiva Abhakaro"
+            "th": "เจตนารมณ์หลวงปู่ทิวา อาภากโร",
+            "en": "Intention of Luang Pu Tiva Abhakaro",
+            "de": "Die Absicht von Luang Pu Tiva Abhakaro"
+        },
+        "subtitle": {
+            "th": "สร้างวัดหลวงพ่อใส",
+            "en": "Founding of Wat Loung Por Sai",
+            "de": "Gründung des Wat Loung Por Sai"
         },
         "content": {
-            "th": "วัดหลวงพ่อใส ได้รับความเมตตาที่ไม่มีปริมาณจาก หลวงปู่ ทิวา อาภากโร ผู้ก่อตั่งวัดเพียงแค่วัตถุประสงค์หลัก คือ เผื่อแผ่พระพุทธศาสนา การปฎิบัติภาวนาให้มนุษย์ทั่งชาวไทยและชาวเยอรมัน พัฒนาจิต \n\n'อาตมาเป็นพระฝ่ายปฏิบัติมาตั่งแต่บวชจนถึงปัจจุบันนี้ ในชีวิตของการบวชไม่เคยติดสถานที่อยู่ ไม่คิดจะบริหารและปกครองวัด คิดจะสอนธรรมะให้กับญาติโยมพัฒนาตนเองให้มีความสุขอย่างแท้จริงเท่านั้น ตลอดเวลาที่อาตมาเข้ามาในเยอรมัน อาตมาคิดที่จะเอา คำสอนที่ดีที่สุดมาให้กับชาวเยอรมันและชาวไทยในเยอรมันให้ปฏิบัติ แล้วทำให้พระพุทธศาสนาเจริญรุ่งเรืองในเยอรมัน เพราะพุทธศาสนาเข้ามาในเยอรมัน 200 ปีที่แล้ว ทำให้วิทยาศาสตร์เจริญมากในเยอรมัน เพราะนำเอาหลักของพระพุทธศาสนามาใช้คือ สัจธรรมความจริงของธรรมชาติ แต่เป็นไปในเรื่องของวัตถุเท่านั้น ทางด้านจิตใจยังเข้าไปไม่ถึง ถ้าเยอรมันเข้าใจพุทธศาสนาลึกซึ้ง เข้าถึงด้านจิตใจและด้านนามธรรม เยอรมันจะนำความคิดของชาวโลกเช่นเดียวกับที่เคยนำมาแล้วหลายร้อยปี แต่ครั่งนี้จะนำโลกเข้าสู่สันติภาพและความสงบสุขที่แท้จริง'",
-            "en": "Wat Loung Por Sai received immeasurable mercy from Luang Pu Tiva Abhakaro. The main objective is to propagate Buddhism and meditation practice to develop the minds of both Thai and German people. \n\n'I have been a practicing monk since I was ordained. I have never been attached to any place, nor wished to administer a temple. I only intend to teach Dhamma to help people develop themselves for true happiness. I intend to bring the best teachings to Germans and Thais in Germany to practice, and to make Buddhism flourish here. If Germany understands Buddhism deeply, reaching the spiritual aspect, they will lead the world's thought again, but this time leading the world to true peace.'",
-            "de": "Der Loung Por Sai Tempel erhielt unzählige Gefälligkeiten von Phra Ajahn Tiva Abhakaro. Seine Hauptabsicht ist die Verbreitung des Buddhismus und der Mediationsübungen, sodass sich Deutsche, als auch in Deutschland lebende Thais, geistig entwickeln und entfalten können. \n\n'Ich bin seit meiner Weihe bis heute ein Mönch der Praktiken-Linie. Während meines Mönchtuns bin ich nie an einen Platz gebunden. Auch möchte ich nie einen Tempel beaufsichtigen oder verwalten. Ich habe nur vor, den Menschen die Dharma beizubringen, sodass sie sich weiter entwickeln und sich selbst wahrhaftig glücklich machen können. Ich habe die Absicht, die besten Lehren zu den Deutschen und den in Deutschland lebenden Thais zu bringen. Und dadurch den Buddhismus in Deutschland erblühen zu lassen. Wenn die Deutschen die Tiefen des Buddhismus verstehen, in dem geistigen und abstrakten Bereich, werden sie wieder einmal Gedankenführer der Menschheit sein, so wie sie es schon vor ein paar hundert Jahren waren. Aber dieses Mal, werden sie der Welt den wahren Frieden und Ruhe bringen'."
+            "th": "วัดหลวงพ่อใส ได้รับความเมตตาที่ไม่มีปริมาณจาก หลวงปู่ ทิวา อาภากโร ผู้ก่อตั่งวัดเพียงแค่วัตถุประสงค์หลัก คือ เผื่อแผ่พระพุทธศาสนา การปฎิบัติภาวนาให้มนุษย์ทั่งชาวไทยและชาวเยอรมัน พัฒนาจิต\n\n“อาตมาเป็นพระฝ่ายปฏิบัติมาตั่งแต่บวชจนถึงปัจจุบันนี้ ในชีวิตของการบวชไม่เคยติดสถานที่อยู่ ไม่คิดจะบริหารและปกครองวัด คิดจะสอนธรรมะให้กับญาติโยมพัฒนาตนเองให้มีความสุขอย่างแท้จริงเท่านั้น ตลอดเวลาที่อาตมาเข้ามาในเยอรมัน อาตมาคิดที่จะเอา คำสอนที่ดีที่สุดมาให้กับชาวเยอรมันและชาวไทยในเยอรมันให้ปฏิบัติ แล้วทำให้พระพุทธศาสนาเจริญรุ่งเรืองในเยอรมัน เพราะพุทธศาสนาเข้ามาในเยอรมัน 200 ปีที่แล้ว ทำให้วิทยาศาสตร์เจริญมากในเยอรมัน เพราะนำเอาหลักของพระพุทธศาสนามาใช้คือ สัจธรรมความจริงของธรรมชาติ แต่เป็นไปในเรื่องของวัตถุเท่านั้น ทางด้านจิตใจยังเข้าไปไม่ถึง ถ้าเยอรมันเข้าใจพุทธศาสนาลึกซึ้ง เข้าถึงด้านจิตใจและด้านนามธรรม เยอรมันจะนำความคิดของชาวโลกเช่นเดียวกับที่เคยนำมาแล้วหลายร้อยปี แต่ครั่งนี้จะนำโลกเข้าสู่สันติภาพและความสงบสุขที่แท้จริง”\n\n— หลวงพ่อทิวา อาภากโร (07.04.2018)",
+            "en": "Wat Loung Por Sai received immeasurable mercy from Luang Pu Tiva Abhakaro. The main objective is to propagate Buddhism and meditation practice to develop the minds of both Thai and German people.\n\n“I have been a practicing monk since I was ordained. In my monastic life, I have never been attached to any place, nor wished to administer a temple. I only intend to teach Dhamma to help people develop themselves for true happiness. Throughout my time in Germany, I intended to bring the best teachings to Germans and Thais in Germany to practice, and to make Buddhism flourish here. Buddhism arrived in Germany 200 years ago, contributing greatly to scientific progress by applying Buddhist principles—the truths of nature—but only in a material sense. The spiritual aspect has not yet been fully reached. If Germany understands Buddhism deeply, reaching the spiritual and abstract aspects, they will lead the world's thought again, as they did centuries ago. But this time, they will lead the world to true peace and tranquility.”\n\n— Luang Por Tiva Abhakaro (07.04.2018)",
+            "de": "Der Loung Por Sai Tempel erhielt unzählige Gefälligkeiten von Phra Ajahn Tiva Abhakaro. Seine Hauptabsicht ist die Verbreitung des Buddhismus und der Mediationsübungen, sodass sich Deutsche, als auch in Deutschland lebende Thais, geistig entwickeln und entfalten können.\n\n“Ich bin seit meiner Weihe bis heute ein Mönch der Praktiken-Linie. Während meines Mönchtuns bin ich nie an einen Platz gebunden. Auch möchte ich nie einen Tempel beaufsichtigen oder verwalten. Ich habe nur vor, den Menschen die Dharma beizubringen, sodass sie sich weiter entwickeln und sich selbst wahrhaftig glücklich machen können. Ich habe die Absicht, die besten Lehren zu den Deutschen und den in Deutschland lebenden Thais zu bringen. Und dadurch den Buddhismus in Deutschland erblühen zu lassen. Es wurden weitreichende Fortschritte in der Wissenschaft gemacht, als der Buddhismus Deutschland vor 200 Jahren erreichte und durch die Anwendung der buddhistischen Prinzipien, welche den Naturgesetzen entsprechen. Jedoch war diese Anwendung nur im materiellen Rahmen, der geistige Bereich wurde nicht erreicht. Wenn die Deutschen die Tiefen des Buddhismus verstehen, in dem geistigen und abstrakten Bereich, werden sie wieder einmal Gedankenführer der Menschheit sein, so wie sie es schon vor ein paar hundert Jahren waren. Aber dieses Mal, werden sie der Welt den wahren Frieden und Ruhe bringen”\n\n— Phra Ajahn Tiva Abhakaro (07.04.2018)"
         }
     },
     "administration": {
+        "navTitle": {
+            "th": "หลักการปกครอง",
+            "en": "Administration",
+            "de": "Verwaltung"
+        },
         "title": {
-            "th": "หลักในการปกครอง",
+            "th": "หลักในการปกครองวัดหลวงพ่อใส",
             "en": "Administration Principles",
             "de": "Verwaltungsgrundsätze"
         },
         "content": {
-            "th": "วัดหลวงพ่อใสจะใช้การบริหารแบบธรรมวินัยโดยตรง คือไม่มีผู้มีอำนาจเบ็ดเสร็จ แต่ให้ทุกคนทำตามหน้าที่ คือการพัฒนาตัวเองให้ดีที่สุดตามคำสอนของพระพุทธเจ้า คือ ทาน ศีล ภาวนา แล้วตนเองก็จะมีความสุข จะเป็นที่ยอมรับของสังคม... วัดเป็นสถานที่ส่วนกลาง ที่ทุกคนเข้ามาเพื่อจะมาหาความสุขกาย สบายใจ",
-            "en": "Wat Loung Por Sai is administered directly by Dharma-Vinaya. There is no absolute authority, but everyone performs their duties to develop themselves according to the Buddha's teachings: Dana, Sila, Bhavana. The temple is a center for everyone to find physical and mental happiness.",
-            "de": "Der Grundsatz für die Verwaltung des Loung Por Sai Tempels ist die direkte Annahme der Dharma-Vinaya. Das heißt, es gibt keinen, der die alleinige Vollmacht hat. Sondern jeder hat die Pflicht sich selbst nach den Lehren des Buddhas (Dana, Sila, Bhavana) zu verhalten und zu entwickeln. Der Tempel ist ein Mittelpunkt, zu dem jeder hinkommen kann, der nach körperlichen Komfort und geistiger Seligkeit sucht."
+            "th": "วัดหลวงพ่อใสจะใช้การบริหารแบบธรรมวินัยโดยตรง คือไม่มีผู้มีอำนาจเบ็ดเสร็จ แต่ให้ทุกคนทำตามหน้าที่ คือการพัฒนาตัวเองให้ดีที่สุดตามคำสอนของพระพุทธเจ้า คือ ทาน ศีล ภาวนา แล้วตนเองก็จะมีความสุข จะเป็นที่ยอมรับของสังคม ไม่ว่าจะไปอยู่ในประเทศใดก็ตาม ถือศาสนาใดก็ตาม เมื่อมีกิจกรรมหรือการงานเกิดขึ้น ก็มาปรึกษาหารือกันก่อน ร่วมมือกันทำ โดยเลือกคนที่มีความสามารถและเป็นที่ยอมรับของสังคมขึ้นมารับผิดชอบ เมื่อมีกิจกรรมนั้นเสร็จสิ้นลงก็แยกย้ายกันไป\n\nวัดเป็นสถานที่ส่วนกลาง ที่ทุกคนเข้ามาเพื่อจะมาหาความสุขกาย สบายใจ เพราะฉะนั้นทุกคนเข้ามาในวัด ผู้อยู่เก่าหรือผู้มาใหม่ก็ตาม ต้องตั้งเจตนาที่จะให้ทุกคนที่เข้ามาในวัดมีความสุข เหมือนเป็นเพื่อนฝูงญาติสนิท หรือลูกหลาน ขอให้ทุกคนจงมีความสุข อันเป็นบุญเป็นกุศลที่ยิ่งใหญ่สำหรับตนเอง และผู้ที่อยู่รอบข้างกับเรา\n\nวัดไม่ต้องการมีกฏเกณฑ์อะไรมาก ถ้าทุกคนมีเจตนาที่ดีต่อกัน วัดหลวงพ่อใส ปัจจุบันไม่มีสถานที่ที่ถาวรก็ตาม แต่อาตมาจะพยายามสนับสนุนให้ใช้สถานที่ชั่วคราวเพื่อจัดกิจกรรมของวัด ให้ญาติโยมได้มาพบประชุมกันเป็นครั่งคราว เพื่อจะมาหาความสุขกายสบายใจและจิตใจดีพัฒนาไปสู่ความสุขที่แท้จริง “คือความพ้นทุกข์” ตามคำสอนของพระพุทธเจ้า\n\nสุดท้ายนี้ขอให้ทุกคนที่เข้ามาร่วมงาน มีความสุขกายสบายใจ และเมื่อกลับบ้านไปแล้วก็ยังมีความประทับใจ ไม่ลืมพร้อมกับรอเวลาที่จะมาพบกัน ใหม่ที่วัดหลวงพ่อใส”",
+            "en": "Wat Loung Por Sai is administered directly by Dharma-Vinaya. There is no absolute authority, but everyone performs their duties to develop themselves according to the Buddha's teachings: Dana (Giving), Sila (Morality), Bhavana (Meditation). By doing so, one finds happiness and social acceptance.\n\nWhen activities arise, we consult and cooperate, selecting capable individuals to lead. Once completed, we disperse. The temple is a central place for everyone to find physical and mental happiness. Whether old or new, everyone must intend for others to be happy, treating each other like close relatives. \n\nThe temple needs few rules if everyone has good intentions. Although currently temporary, I support using this space for gatherings to find happiness and develop towards true happiness—\"Freedom from Suffering\"—as taught by the Buddha. I wish everyone physical and mental happiness, returning home with good impressions and looking forward to meeting again at Wat Loung Por Sai.",
+            "de": "Der Grundsatz für die Verwaltung des Loung Por Sai Tempels ist die direkte Annahme der Dharma-Vinaya. Das heißt, es gibt keinen, der die alleinige Vollmacht hat. Sondern jeder hat die Pflicht sich selbst nach den Lehren des Buddhas, welche Dana (Gabe), Sila (Vorschrift) und Bahvana (Meditation) sind, zu verhalten und zu entwickeln. \n\nWenn sich eine Aufgabe oder Arbeit ergibt, sollten sich alle zuerst besprechen und eine fähige Person wählen, welche die gemeinsame Arbeit leiten kann. Nach dem Ende der Arbeit, zerstreut man wieder. Der Tempel ist ein Mittelpunkt, zu dem jeder hinkommen kann, der nach körperlichen Komfort und geistiger Seligkeit sucht. Jeder sollte dafür sorgen, dass sich Besucher glücklich und wohl fühlen. \n\nDer Tempel braucht nicht viele Regeln und Vorschriften, wenn man gegeneinander nur gute Absichten hegt. Ich strebe dahin, dass der Loung Por Sai Tempel einen Platz bietet, wo Leute den körperlichen Komfort und geistige Seligkeit finden können. Und dann mit diesen guten Gefühlen weiterentwickeln können bis sie die wahre Seligkeit, welche \"die Erlösung\" ist, finden. Ich wünsche allen Teilnehmern gesunde Körper und einen seligen Geist."
         }
     },
     "buddhaHistory": {
+        "navTitle": {
+            "th": "ประวัติหลวงพ่อใส",
+            "en": "History",
+            "de": "Geschichte"
+        },
         "title": {
             "th": "ประวัติหลวงพ่อใส",
-            "en": "History of Luang Por Sai (Buddha Image)",
+            "en": "History of Luang Por Sai",
             "de": "Geschichte von Luang Por Sai"
         },
         "content": {
-            "th": "หลวงปู่ทิวา อาภากโร มีความปรารถนาที่จะหล่อองค์​หลวงพ่อใส มีขนาดใหญ่กว่า พระประธานปกติ เพื่อมาประดิษฐานที่วัดในประเทศ​เยอรมัน หล่อขึ้นเมื่อปี พ.ศ. 2535... ที่มาของชื่อ 'หลวงพ่อใส' เพราะว่าญาติโยม​ขัดองค์​หลวงพ่อใส​ จนองค์​ท่าน​ เงา​ ใส... ท่านจึงมีความศักดิ์สิทธิ์มาก ท่านผู้ใดปรารถนาสิ่งใด ขอพรหลวงพ่อใสย่อมได้รับความสำเร็จ",
-            "en": "Luang Pu Tiva wished to cast a large Buddha image, 'Luang Por Sai', to be enshrined in Germany. It was cast in 1992. The name 'Sai' (Clear/Bright) comes from devotees polishing the image until it shone brightly. It is considered very sacred; those who pray to Luang Por Sai often have their wishes granted.",
-            "de": "Luang Pu Tiva wünschte sich eine große Buddha-Statue, 'Luang Por Sai', für Deutschland. Sie wurde 1992 gegossen. Der Name 'Sai' (Klar/Hell) kommt daher, dass Gläubige die Statue polierten, bis sie hell glänzte. Sie gilt als sehr heilig."
+            "th": "หลวงปู่ทิวา อาภากโร มีความปรารถนาที่จะหล่อองค์หลวงพ่อใส มีขนาดใหญ่กว่าพระประธานปกติ เพื่อมาประดิษฐานที่วัดในประเทศเยอรมัน เพื่อให้เป็นขวัญใจ กำลังใจ และเป็นที่พึ่งทางใจ กับศรัทธาญาติโยม เมื่อปี พ.ศ. 2535 หลวงปู่ ได้ไปเป็นประธานการหล่อองค์หลวงพ่อใสและทำการขนส่งทางเรือ มาที่ประเทศเยอรมันนี\n\nหลวงพ่อใสเป็นพระพุทธรูปปาง “ประทานพร” (หมายถึง ปางแห่งการให้ ให้พรให้ศิริมงคลทั้งปวง)\n\nที่มาของชื่อ “หลวงพ่อใส“ เพราะว่าญาติโยมขัดองค์หลวงพ่อใส จนองค์ท่าน เงา ใส ญาติโยมจึงเรียกพระพุทธรูปองค์นี้ว่า “หลวงพ่อใส”\n\nเมื่อองค์หลวงพ่อใส มาถึงที่เยอรมัน ประดิษฐานเป็นพระประธานที่วัดพุทธเบญจพล ด้วยคณะสงฆ์ และญาติโยม ร่วมกัน กราบสักการะ สวดมนต์ และแผ่เมตตา ภาวนา ทุกวัน ต่อองค์หลวงพ่อใส ท่านจึงมีความศักดิ์สิทธิ์มาก ท่านผู้ใดปรารถนาสิ่งใด ขอพรหลวงพ่อใสย่อมได้รับความสำเร็จในสิ่งนั้น และในปัจจุบัน หลวงพ่อใส เป็นพระประธาน ณ วัดหลวงพ่อใส",
+            "en": "Luang Pu Tiva Abhakaro wished to cast a Buddha image, 'Luang Por Sai', larger than usual, to be enshrined in Germany as a spiritual anchor for devotees. In 1992, Luang Pu presided over the casting ceremony and transported the image by ship to Germany.\n\nLuang Por Sai is in the \"Granting Blessings\" posture (Prathan Porn), symbolizing the bestowal of all blessings and auspiciousness.\n\nThe name \"Luang Por Sai\" (Clear/Bright Father) comes from devotees polishing the image until it shone brightly. Upon arrival in Germany, it was first enshrined at Wat Buddhabenchapon. Due to daily chanting, meditation, and reverence by monks and laity, the image is considered very sacred. Those who pray to Luang Por Sai often receive what they wish for. Currently, Luang Por Sai is the presiding Buddha image at Wat Loung Por Sai.",
+            "de": "Luang Pu Tiva Abhakaro wünschte sich eine Buddha-Statue, 'Luang Por Sai', größer als üblich, für Deutschland als geistigen Anker für die Gläubigen. Im Jahr 1992 leitete Luang Pu den Guss und ließ die Statue per Schiff nach Deutschland transportieren.\n\nLuang Por Sai ist in der Haltung \"Segen gewähren\" (Prathan Porn), was das Gewähren aller Segen und Glückseligkeit symbolisiert.\n\nDer Name \"Luang Por Sai\" (Klarer/Heller Vater) kommt daher, dass Gläubige die Statue polierten, bis sie hell glänzte. Nach der Ankunft in Deutschland wurde sie zunächst im Wat Buddhabenchapon aufgestellt. Durch tägliches Rezitieren, Meditieren und Verehren durch Mönche und Laien gilt die Statue als sehr heilig. Wer zu Luang Por Sai betet, dessen Wünsche gehen oft in Erfüllung. Derzeit ist Luang Por Sai die Haupt-Buddha-Statue im Wat Loung Por Sai."
         }
     },
-    "buildings": [
-        {
-            "name": {
-                "th": "อาคารหลวงพ่อใส",
-                "en": "Luang Por Sai Building",
-                "de": "Luang Por Sai Gebäude"
-            },
-            "description": {
-                "th": "เป็นอาคารหลักสำหรับประกอบกิจกรรมทางพระพุทธศาสนา และเป็นสถานที่ปฏิบัติธรรมประจำเดือน เปรียบเสมือนอุโบสถใหญ่ ภายในประดิษฐานองค์หลวงพ่อใส",
-                "en": "The main building for Buddhist activities and monthly retreats. It houses the Luang Por Sai Buddha image.",
-                "de": "Das Hauptgebäude für buddhistische Aktivitäten und monatliche Retreats. Hier befindet sich die Luang Por Sai Buddha-Statue."
-            }
+    "buildings": {
+        "title": {
+            "th": "อาคารภายในวัด",
+            "en": "Buildings",
+            "de": "Gebäude"
         },
-        {
-            "name": {
-                "th": "อาคารฆราวาส",
-                "en": "Laypeople Building",
-                "de": "Laiengebäude"
+        "items": [
+            {
+                "name": {
+                    "th": "1. อาคารหลวงพ่อใส",
+                    "en": "1. Luang Por Sai Building",
+                    "de": "1. Luang Por Sai Gebäude"
+                },
+                "description": {
+                    "th": "เป็นอาคารหลักสำหรับประกอบกิจกรรมทางพระพุทธศาสนา และเป็นสถานที่ปฏิบัติธรรมประจำเดือน เปรียบเสมือนอุโบสถใหญ่ของวัด ภายในประดิษฐาน องค์หลวงพ่อใส เป็นเนพระประธานมีขนาดใหญ่กว่าพระประธานทั่วไป สีทองอร่าม สง่างาม เปี่ยมด้วยเมตตาบารมี",
+                    "en": "The main building for Buddhist activities and monthly retreats, acting as the main Ubosot. It houses 'Luang Por Sai', the large, golden, and majestic presiding Buddha image.",
+                    "de": "Das Hauptgebäude für buddhistische Aktivitäten und monatliche Retreats, das als Haupt-Ubosot dient. Hier befindet sich 'Luang Por Sai', die große, goldene und majestätische Haupt-Buddha-Statue."
+                }
             },
-            "description": {
-                "th": "อาคาร 3 ชั้น สำหรับกิจกรรมและที่พักผู้ปฏิบัติธรรม (หญิง) ประกอบด้วยห้องปฏิบัติธรรม ห้องพักที่ปลอดภัยและสะดวกสบาย",
-                "en": "A 3-story building for activities and accommodation for female practitioners.",
-                "de": "Ein 3-stöckiges Gebäude für Aktivitäten und Unterkunft für weibliche Praktizierende."
+            {
+                "name": {
+                    "th": "2. อาคารฆราวาส",
+                    "en": "2. Laypeople Building",
+                    "de": "2. Laiengebäude"
+                },
+                "description": {
+                    "th": "เป็นอาคาร 3 ชั้น ใช้สำหรับประกอบกิจกรรมของพระสงฆ์ ฆราวาส และผู้ปฏิบัติธรรม ประกอบด้วยห้องปฏิบัติธรรม และพื้นที่สำหรับกิจกรรมทางพระพุทธศาสนาประจำวัน อาทิ การทำวัตรเช้า–เย็น การถวายภัตตาหาร และการเจริญจิตภาวนา ภายในอาคารมีห้องพักสำหรับฆราวาสหญิงจัดสภาพแวดล้อมให้มีความปลอดภัย สะดวกสบาย",
+                    "en": "A 3-story building for monks, laity, and practitioners. It includes meditation rooms and spaces for daily activities like morning/evening chanting, alms offering, and meditation. It also houses safe and comfortable accommodation for female practitioners.",
+                    "de": "Ein 3-stöckiges Gebäude für Mönche, Laien und Praktizierende. Es umfasst Meditationsräume und Bereiche für tägliche Aktivitäten wie Morgen-/Abendrezitationen, Almosengeben und Meditation. Es beherbergt auch sichere und komfortable Unterkünfte für weibliche Praktizierende."
+                }
+            },
+            {
+                "name": {
+                    "th": "3. อาคารสงฆ์",
+                    "en": "3. Monk Building",
+                    "de": "3. Mönchsgebäude"
+                },
+                "description": {
+                    "th": "เป็นอาคารกุฏิสำหรับพระสงฆ์ รวมถึงที่พักสำหรับฆราวาสชายที่เข้าร่วมการปฏิบัติธรรม",
+                    "en": "Living quarters (Kuti) for monks and accommodation for male practitioners joining the extensive practice.",
+                    "de": "Wohnbereiche (Kuti) für Mönche und Unterkünfte für männliche Praktizierende, die an der intensiven Praxis teilnehmen."
+                }
             }
+        ]
+    },
+    "sangha": {
+        "navTitle": {
+            "th": "คณะสงฆ์",
+            "en": "Sangha",
+            "de": "Sangha"
         },
-        {
-            "name": {
-                "th": "อาคารสงฆ์",
-                "en": "Monk Building",
-                "de": "Mönchsgebäude"
-            },
-            "description": {
-                "th": "กุฏิสำหรับพระสงฆ์ และที่พักสำหรับฆราวาสชาย",
-                "en": "Living quarters (Kuti) for monks and separation accommodation for male practitioners.",
-                "de": "Unterkunft (Kuti) für Mönche und Unterkunft für männliche Praktizierende."
-            }
+        "title": {
+            "th": "คณะสงฆ์วัดหลวงพ่อใส",
+            "en": "Sangha of Wat Loung Por Sai",
+            "de": "Sangha von Wat Loung Por Sai"
+        },
+        "mission": {
+            "th": "คณะสงฆ์วัดหลวงพ่อใสดำเนินภารกิจด้านการเผยแผ่พระพุทธศาสนา ตามแนวทาง วิปัสสนายานิก ในต่างแดน โดยเน้นทั้งภาคปฏิบัติและภาคทฤษฎี\n\nมีการจัดการเรียนการสอนตามหลักสูตรคอร์สปฏิบัติธรรม ระดับปริญญาตรี วิปัสสนายานิก ยึดแนวทางคำสอนของพ่อแม่ครูอาจารย์ โดยมี พระอาจารย์ ทิวา อาภากโร เป็นหลักสำคัญในการการศึกษาการพัฒนาจิต และการปฏิบัติธรรม แผ่เมตตา จิตภาวนา",
+            "en": "The Sangha of Wat Loung Por Sai carries out the mission of propagating Buddhism abroad according to the Vipassana Yanika tradition, emphasizing both theory and practice.\n\nWe offer a meditation course curriculum (Bachelor's level) based on the teachings of our masters, with Phra Ajarn Tiva Abhakaro as the key figure in spiritual development and meditation practice.",
+            "de": "Die Sangha von Wat Loung Por Sai erfüllt die Mission, den Buddhismus im Ausland gemäß der Vipassana Yanika Tradition zu verbreiten, wobei sowohl Theorie als auch Praxis betont werden.\n\nWir bieten einen Meditationskurs (Bachelor-Niveau) an, der auf den Lehren unserer Meister basiert, mit Phra Ajarn Tiva Abhakaro als Schlüsselfigur für geistige Entwicklung und Meditationspraxis."
+        },
+        "currentWork": {
+            "th": "ในปัจจุบัน พระสงฆ์ผู้นำการปฏิบัติธรรมของวัด ดำเนินงานตามเจตนารมณ์ ปฏิปทา และหลักสูตรของ พระอาจารย์ ทิวา อาภากโร โดยมุ่งเน้นการให้ความรู้ทางพระพุทธศาสนา การแสดงธรรม สอนปฏิบัติธรรมภาวนา แผ่เมตตา ระบบวิปัสสนายานิก และการประกอบกิจกรรมทางพระพุทธศาสนา เพื่อประโยชน์แก่พุทธศาสนิกชนและผู้สนใจทั่วไป ชาวไทย ชาวเยอรมันและชาวต่างชาติ ณ วัดหลวงพ่อใส",
+            "en": "Currently, the leading monks continue the mission, conduct, and curriculum of Phra Ajarn Tiva Abhakaro. We focus on providing Buddhist knowledge, Dhamma talks, teaching meditation, spreading loving-kindness, and conducting Buddhist activities for the benefit of Thais, Germans, and all interested people.",
+            "de": "Derzeit setzen die leitenden Mönche die Mission, das Verhalten und den Lehrplan von Phra Ajarn Tiva Abhakaro fort. Wir konzentrieren uns auf die Vermittlung von buddhistischem Wissen, Dhamma-Vorträge, das Lehren von Meditation, das Verbreiten von liebender Güte und die Durchführung buddhistischer Aktivitäten zum Wohle von Thais, Deutschen und allen Interessierten."
         }
-    ]
+    }
 }
