@@ -14,7 +14,7 @@
             "en": "Main Hall",
             "de": "Hauptsaal"
         },
-        "image": "/images/event-meditation.png",
+        "image": "/images/event-newyear.png",
         "description": {
             "th": "ทำบุญตักบาตรเนื่องในวันขึ้นปีใหม่",
             "en": "Merit making for New Year.",
@@ -206,7 +206,7 @@
             "en": "Main Hall",
             "de": "Hauptsaal"
         },
-        "image": "/images/event-makha.png",
+        "image": "/images/event-visakha.png",
         "description": {
             "th": "เวียนเทียนและฟังธรรม",
             "en": "Candlelight procession and Dhamma talk",
@@ -278,7 +278,7 @@
             "en": "Main Hall",
             "de": "Hauptsaal"
         },
-        "image": "/images/event-makha.png",
+        "image": "/images/event-asanha.png",
         "description": {
             "th": "ทำบุญวันอาสฬหบูชาและวันเข้าพรรษา และฉลองครบรอบ 8 ปีวัดหลวงพ่อใส",
             "en": "Merit making for Asanha Bucha, Khao Phansa, and Temple's 8th Anniversary.",
@@ -350,7 +350,7 @@
             "en": "Main Hall",
             "de": "Hauptsaal"
         },
-        "image": "/images/event-songkran.png",
+        "image": "/images/event-sartthai.png",
         "description": {
             "th": "ทำบุญวันสารทไทย",
             "en": "Merit making for Sart Thai.",
@@ -398,7 +398,7 @@
             "en": "Main Hall",
             "de": "Hauptsaal"
         },
-        "image": "/images/event-makha.png",
+        "image": "/images/event-okphansa.png",
         "description": {
             "th": "ทำบุญตักบาตรเทโว",
             "en": "End of Buddhist Lent merit making.",
@@ -470,7 +470,7 @@
             "en": "Main Hall",
             "de": "Hauptsaal"
         },
-        "image": "/images/event-makha.png",
+        "image": "/images/event-nye-chanting.png",
         "description": {
             "th": "สวดมนต์และปฏิบัติธรรมส่งท้ายปีเก่าต้อนรับปีใหม่",
             "en": "Chanting and meditation to welcome the New Year.",

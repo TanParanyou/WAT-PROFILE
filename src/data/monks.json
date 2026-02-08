@@ -4,79 +4,59 @@
         "slug": "phra-ajarn-tiva",
         "image": "/images/monks/abbott.png",
         "name": {
-            "th": "พระอาจารย์ ทิวา อาภากโร",
-            "en": "Phra Ajarn Tiva Abhakaro",
-            "de": "Phra Ajarn Tiva Abhakaro"
+            "th": "พระอาจารย์ อิทธิพล ชินวโร",
+            "en": "Phra Ajah Ittiphon Shinawaro",
+            "de": "Phra Ajah Ittiphon Shinawaro"
         },
         "title": {
-            "th": "ประธานผู้ก่อตั้งวัด",
-            "en": "Founder",
-            "de": "Gründer"
+            "th": "ไม่ระบุ",
+            "en": "Not specified",
+            "de": "Nicht angegeben"
         },
         "content": {
-            "th": "<p>ประธานผู้ก่อตั้งวัดหลวงพ่อใส ผู้มีเจตนารมณ์ในการเผยแผ่พระพุทธศาสนาในต่างแดน</p>",
-            "en": "<p>Founder of Wat Loung Por Sai, with the intention of propagating Buddhism abroad.</p>",
-            "de": "<p>Gründer des Wat Loung Por Sai, mit der Absicht, den Buddhismus im Ausland zu verbreiten.</p>"
+            "th": "<p>ไม่ระบุ</p>",
+            "en": "<p>Not specified</p>",
+            "de": "<p>Nicht angegeben</p>"
         }
     },
     {
         "id": "2",
-        "slug": "phra-ajarn-ittiphon",
-        "image": "/images/monks/monk2.png",
-        "name": {
-            "th": "พระอาจารย์ อิทธิพล ชินวโร",
-            "en": "Phra Ajarn Ittiphon Shinawaro",
-            "de": "Phra Ajarn Ittiphon Shinawaro"
-        },
-        "title": {
-            "th": "พระสงฆ์",
-            "en": "Monk",
-            "de": "Mönch"
-        },
-        "content": {
-            "th": "<p>พระสงฆ์ผู้นำการปฏิบัติธรรม</p>",
-            "en": "<p>Monk leading Dharma practice.</p>",
-            "de": "<p>Mönch, der die Dharma-Praxis leitet.</p>"
-        }
-    },
-    {
-        "id": "3",
         "slug": "phra-wirat",
-        "image": "/images/monks/monk2.png",
+        "image": "/images/monks/abbott.png",
         "name": {
             "th": "พระมหาวิลาศ กัณตวัณโณ",
             "en": "Phra Wirat Kantawanno",
             "de": "Phra Wirat Kantawanno"
         },
         "title": {
-            "th": "พระสงฆ์",
-            "en": "Monk",
-            "de": "Mönch"
+            "th": "ไม่ระบุ",
+            "en": "Not specified",
+            "de": "Nicht angegeben"
         },
         "content": {
-            "th": "<p>พระสงฆ์ผู้นำการปฏิบัติธรรม</p>",
-            "en": "<p>Monk leading Dharma practice.</p>",
-            "de": "<p>Mönch, der die Dharma-Praxis leitet.</p>"
+            "th": "<p>ไม่ระบุ</p>",
+            "en": "<p>Not specified</p>",
+            "de": "<p>Nicht angegeben</p>"
         }
     },
     {
-        "id": "4",
+        "id": "3",
         "slug": "phra-bunthin",
-        "image": "/images/monks/monk2.png",
+        "image": "/images/monks/abbott.png",
         "name": {
             "th": "พระบุญทิน ธมฺมโชโต",
             "en": "Phra Bunthin Dhammaschoto",
             "de": "Phra Bunthin Dhammaschoto"
         },
         "title": {
-            "th": "พระสงฆ์",
-            "en": "Monk",
-            "de": "Mönch"
+            "th": "ไม่ระบุ",
+            "en": "Not specified",
+            "de": "Nicht angegeben"
         },
         "content": {
-            "th": "<p>พระสงฆ์ผู้นำการปฏิบัติธรรม</p>",
-            "en": "<p>Monk leading Dharma practice.</p>",
-            "de": "<p>Mönch, der die Dharma-Praxis leitet.</p>"
+            "th": "<p>ไม่ระบุ</p>",
+            "en": "<p>Not specified</p>",
+            "de": "<p>Nicht angegeben</p>"
         }
     }
 ]
