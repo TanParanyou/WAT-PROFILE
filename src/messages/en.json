@@ -19,17 +19,18 @@
         "phone": "Phone",
         "email": "Email",
         "privacy": "Privacy Policy",
-        "impressum": "Impressum"
+        "impressum": "Impressum",
+        "allRightsReserved": "All rights reserved"
     },
     "HeroSection": {
         "welcomeTo": "Welcome to",
-        "inLocation": "in Saraburi",
+        "inLocation": "in Germany",
         "viewEvents": "View Events",
         "donate": "Donate"
     },
     "WelcomeSection": {
         "welcome": "Welcome",
-        "description": "Serm Rangsi Meditation Center is a sanctuary for Dharma practice and mindfulness meditation in Saraburi. Established to be a center for Buddhist learning and to encourage practitioners to cultivate their minds according to the Four Foundations of Mindfulness.",
+        "description": "Serm Rangsi Meditation Center is a sanctuary for Dharma practice and mindfulness meditation in Germany. Established to be a center for Buddhist learning and to encourage practitioners to cultivate their minds according to the Four Foundations of Mindfulness.",
         "meditation": "Meditation",
         "meditationDesc": "Mindfulness Practice",
         "sundaySchool": "Sunday School",
@@ -47,6 +48,12 @@
         "zelleDesc": "Donate via Zelle (US Bank)",
         "bankTransfer": "Bank Transfer",
         "scanQr": "Scan QR Code (Thai Bank)",
+        "createQrDesc": "Create a QR Code for instant transfer",
+        "qrImage": "QR Code Image",
+        "bankLabel": "Bank",
+        "accountNameLabel": "Account Name",
+        "ibanLabel": "IBAN",
+        "bicLabel": "BIC",
         "clickToView": "Click to view QR Code"
     },
     "EventsSection": {
@@ -162,7 +169,7 @@
         "scheduleTitle": "Schedule",
         "time": "Time",
         "activity": "Activity",
-        "footerTitle": "Serm Rangsi Meditation Center - Saraburi",
+        "footerTitle": "Serm Rangsi Meditation Center - Germany",
         "printedOn": "Printed on",
         "printButton": "Print PDF"
     }

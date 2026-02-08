@@ -19,7 +19,8 @@
         "phone": "โทรศัพท์",
         "email": "อีเมล",
         "privacy": "นโยบายความเป็นส่วนตัว",
-        "impressum": "ข้อมูลทางกฎหมาย"
+        "impressum": "ข้อมูลทางกฎหมาย",
+        "allRightsReserved": "สงวนลิขสิทธิ์"
     },
     "HeroSection": {
         "welcomeTo": "ยินดีต้อนรับสู่",
@@ -47,6 +48,12 @@
         "zelleDesc": "บริจาคผ่าน Zelle (US Bank)",
         "bankTransfer": "โอนเงินผ่านธนาคาร",
         "scanQr": "สแกน QR Code (ธนาคารไทย)",
+        "createQrDesc": "สร้าง QR Code เพื่อโอนเงินทันที",
+        "qrImage": "รูปภาพ QR Code",
+        "bankLabel": "ธนาคาร",
+        "accountNameLabel": "ชื่อบัญชี",
+        "ibanLabel": "IBAN",
+        "bicLabel": "BIC",
         "clickToView": "กดเพื่อดู QR Code"
     },
     "EventsSection": {

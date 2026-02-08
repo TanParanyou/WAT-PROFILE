@@ -95,7 +95,7 @@ export default function EventPrinter({ event, locale }: EventPrinterProps) {
                     {/* Footer */}
                     <div className="mt-12 pt-8 border-t border-gray-300 text-center text-xs text-gray-500">
                         <p>{t('footerTitle')}</p>
-                        <p>{t('printedOn')} {new Date().toLocaleDateString(locale === 'th' ? 'th-TH' : 'en-US')}</p>
+                        <p>{t('printedOn')} {new Date().toLocaleDateString(locale === 'th' ? 'th-TH' : locale === 'de' ? 'de-DE' : 'en-US')}</p>
                     </div>
                 </div>
             </div>

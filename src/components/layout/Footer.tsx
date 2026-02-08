@@ -98,7 +98,7 @@ export default function Footer() {
 
                 <div className="border-t border-gray-200 dark:border-gray-800 pt-8 text-center text-gray-500 dark:text-gray-500 text-sm">
                     <div className="flex flex-col md:flex-row justify-center items-center gap-4">
-                        <span>© {new Date().getFullYear()} {tSite('name')}. All rights reserved.</span>
+                        <span>© {new Date().getFullYear()} {tSite('name')}. {t('allRightsReserved')}.</span>
                         <div className="flex gap-6 text-xs">
                             <Link href="/privacy" className="hover:text-primary transition-colors">{t('privacy')}</Link>
                             <Link href="/impressum" className="hover:text-primary transition-colors">{t('impressum')}</Link>
