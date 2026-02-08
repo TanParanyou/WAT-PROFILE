@@ -84,7 +84,12 @@
         "subtitle": "ปฏิทินกิจกรรม",
         "readMore": "อ่านรายละเอียด",
         "calendarView": "มุมมองปฏิทิน",
-        "listView": "มุมมองรายการ"
+        "listView": "มุมมองรายการ",
+        "regularSchedule": "ตารางประจำวัน",
+        "upcomingEvents": "กิจกรรมที่กำลังจะมาถึง",
+        "time": "เวลา",
+        "activity": "กิจกรรม",
+        "day": "วัน"
     },
     "VisitPage": {
         "title": "การเยี่ยมชมวัด",

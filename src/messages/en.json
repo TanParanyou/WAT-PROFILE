@@ -84,7 +84,12 @@
         "subtitle": "Upcoming Events",
         "readMore": "Read More",
         "calendarView": "Calendar View",
-        "listView": "List View"
+        "listView": "List View",
+        "regularSchedule": "Regular Schedule",
+        "upcomingEvents": "Upcoming Events",
+        "time": "Time",
+        "activity": "Activity",
+        "day": "Day"
     },
     "VisitPage": {
         "title": "Visit Us",

@@ -84,7 +84,12 @@
         "subtitle": "Kommende Veranstaltungen",
         "readMore": "Weiterlesen",
         "calendarView": "Kalenderansicht",
-        "listView": "Listenansicht"
+        "listView": "Listenansicht",
+        "regularSchedule": "Regelmäßiger Terminplan",
+        "upcomingEvents": "Kommende Veranstaltungen",
+        "time": "Zeit",
+        "activity": "Aktivität",
+        "day": "Tag"
     },
     "VisitPage": {
         "title": "Besuchen Sie uns",

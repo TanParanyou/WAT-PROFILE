@@ -1,12 +1,12 @@
 'use client';
 
-import { MapPin, Clock } from 'lucide-react';
+import { useRef } from 'react';
+import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { Link } from '@/navigation';
-import { motion } from 'framer-motion';
-import { useTranslations, useLocale, useFormatter } from 'next-intl';
+import { useTranslations } from 'next-intl';
 import events from '@/data/events.json';
-import { getLocalizedText } from '@/utils/i18n';
 import { LocalizedText } from '@/config/site.config';
+import EventCard from '@/components/events/EventCard';
 
 type Event = {
     id: number;
@@ -24,8 +24,23 @@ type Event = {
 
 export default function EventsSection() {
     const t = useTranslations('EventsSection');
-    const locale = useLocale();
-    const format = useFormatter();
+    const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+    const scrollLeft = () => {
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollBy({ left: -340, behavior: 'smooth' });
+        }
+    };
+
+    const scrollRight = () => {
+        if (scrollContainerRef.current) {
+            scrollContainerRef.current.scrollBy({ left: 340, behavior: 'smooth' });
+        }
+    };
+
+    const activeEvents = (events as Event[])
+        .filter(e => e.active)
+        .sort((a, b) => (a.order || 999) - (b.order || 999));
 
     return (
         <section className="py-20 bg-zinc-50 dark:bg-zinc-900 border-t border-gray-100 dark:border-gray-800">
@@ -39,67 +54,61 @@ export default function EventsSection() {
                             {t('subtitle')}
                         </p>
                     </div>
+
+                    <div className="flex items-center gap-4">
+                        <div className="flex gap-2">
+                            <button
+                                onClick={scrollLeft}
+                                className="p-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-700 text-gray-600 dark:text-gray-300 transition-colors"
+                                aria-label="Previous"
+                            >
+                                <ChevronLeft size={20} />
+                            </button>
+                            <button
+                                onClick={scrollRight}
+                                className="p-2 rounded-full border border-gray-200 dark:border-gray-700 bg-white dark:bg-zinc-800 hover:bg-gray-50 dark:hover:bg-zinc-700 text-gray-600 dark:text-gray-300 transition-colors"
+                                aria-label="Next"
+                            >
+                                <ChevronRight size={20} />
+                            </button>
+                        </div>
+                        <Link
+                            href="/events"
+                            className="text-primary hover:text-primary/80 font-medium items-center gap-2 group transition-colors hidden md:flex"
+                        >
+                            {t('viewAll')} <span className="group-hover:translate-x-1 transition-transform">→</span>
+                        </Link>
+                    </div>
+                </div>
+
+                <div className="relative">
+                    <style jsx global>{`
+                        .no-scrollbar::-webkit-scrollbar {
+                            display: none;
+                        }
+                        .no-scrollbar {
+                            -ms-overflow-style: none;
+                            scrollbar-width: none;
+                        }
+                    `}</style>
+
+                    <div
+                        ref={scrollContainerRef}
+                        className="flex gap-6 overflow-x-auto snap-x snap-mandatory pb-8 no-scrollbar"
+                    >
+                        {activeEvents.map((event, index) => (
+                            <EventCard key={event.id} event={event} index={index} />
+                        ))}
+                    </div>
+                </div>
+
+                <div className="md:hidden flex justify-center mt-4">
                     <Link
                         href="/events"
                         className="text-primary hover:text-primary/80 font-medium flex items-center gap-2 group transition-colors"
                     >
                         {t('viewAll')} <span className="group-hover:translate-x-1 transition-transform">→</span>
                     </Link>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                    {(events as Event[])
-                        .filter(e => e.active)
-                        .sort((a, b) => (a.order || 999) - (b.order || 999))
-                        .map((event, index) => (
-                            <motion.div
-                                key={event.id}
-                                initial={{ opacity: 0, y: 20 }}
-                                whileInView={{ opacity: 1, y: 0 }}
-                                transition={{ delay: index * 0.1, duration: 0.5 }}
-                                viewport={{ once: true }}
-                                className="bg-white dark:bg-zinc-800 rounded-2xl overflow-hidden shadow-sm hover:shadow-md transition-shadow border border-gray-100 dark:border-gray-700 flex flex-col h-full"
-                            >
-                                <div className="h-48 bg-gray-200 dark:bg-zinc-700 relative overflow-hidden group">
-                                    <img
-                                        src={event.image}
-                                        alt={getLocalizedText(event.title, locale)}
-                                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
-                                    />
-                                    <div className="absolute top-4 right-4 bg-white dark:bg-zinc-900 px-3 py-1 rounded-full text-xs font-bold text-primary shadow-sm">
-                                        {format.dateTime(new Date(event.date), { dateStyle: 'medium' })}
-                                    </div>
-                                </div>
-
-                                <div className="p-6 flex flex-col grow">
-                                    <h3 className="text-xl font-heading font-bold mb-3 text-gray-800 dark:text-gray-100 line-clamp-2">
-                                        {getLocalizedText(event.title, locale)}
-                                    </h3>
-
-                                    <div className="space-y-2 mb-4 text-sm text-gray-500 dark:text-gray-400">
-                                        <div className="flex items-center gap-2">
-                                            <Clock size={16} className="text-primary/70 shrink-0" />
-                                            <span>{event.time}</span>
-                                        </div>
-                                        <div className="flex items-center gap-2">
-                                            <MapPin size={16} className="text-primary/70 shrink-0" />
-                                            <span>{getLocalizedText(event.location, locale)}</span>
-                                        </div>
-                                    </div>
-
-                                    <p className="text-gray-600 dark:text-gray-400 text-sm mb-6 line-clamp-3 grow">
-                                        {getLocalizedText(event.description, locale)}
-                                    </p>
-
-                                    <Link
-                                        href={`/events/${event.id}`}
-                                        className="block w-full text-center py-2.5 border border-primary text-primary hover:bg-primary hover:text-white rounded-lg transition-colors font-medium text-sm"
-                                    >
-                                        {t('readMore')}
-                                    </Link>
-                                </div>
-                            </motion.div>
-                        ))}
                 </div>
             </div>
         </section>

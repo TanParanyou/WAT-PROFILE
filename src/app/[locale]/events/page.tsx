@@ -37,15 +37,38 @@ export default function EventsPage() {
                                 </div>
                                 <h3 className="text-xl font-bold">{locale === 'th' ? 'ประจำวัน' : 'Daily'}</h3>
                             </div>
-                            <div className="space-y-6">
+                            {/* Mobile View (List) */}
+                            <div className="md:hidden space-y-6">
                                 {scheduleData.daily.map((item, index) => (
-                                    <div key={index} className="flex gap-4">
-                                        <div className="font-mono font-bold text-gray-500 whitespace-nowrap">{item.time}</div>
+                                    <div key={index} className="flex flex-col gap-1 border-b border-gray-100 dark:border-gray-800 pb-4 last:border-0 last:pb-0">
+                                        <div className="font-mono font-bold text-primary">{item.time}</div>
                                         <div className="text-gray-700 dark:text-gray-300">
                                             {getLocalizedText(item.activity, locale)}
                                         </div>
                                     </div>
                                 ))}
+                            </div>
+
+                            {/* Desktop View (Table) */}
+                            <div className="hidden md:block overflow-x-auto">
+                                <table className="w-full text-left border-collapse">
+                                    <thead>
+                                        <tr className="border-b dark:border-gray-700">
+                                            <th className="py-3 px-4 font-bold text-gray-900 dark:text-gray-100">{t('time')}</th>
+                                            <th className="py-3 px-4 font-bold text-gray-900 dark:text-gray-100">{t('activity')}</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody className="divide-y dark:divide-gray-800">
+                                        {scheduleData.daily.map((item, index) => (
+                                            <tr key={index} className="hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors">
+                                                <td className="py-3 px-4 font-mono font-bold text-gray-500 whitespace-nowrap align-top">{item.time}</td>
+                                                <td className="py-3 px-4 text-gray-700 dark:text-gray-300">
+                                                    {getLocalizedText(item.activity, locale)}
+                                                </td>
+                                            </tr>
+                                        ))}
+                                    </tbody>
+                                </table>
                             </div>
                         </div>
 
@@ -59,20 +82,47 @@ export default function EventsPage() {
                                     </div>
                                     <h3 className="text-xl font-bold">{locale === 'th' ? 'ประจำสัปดาห์' : 'Weekly'}</h3>
                                 </div>
-                                <div className="space-y-6">
+                                {/* Mobile View (List) */}
+                                <div className="md:hidden space-y-6">
                                     {scheduleData.weekly.map((item, index) => (
-                                        <div key={index}>
-                                            <div className="font-bold text-gray-900 dark:text-white mb-1">
+                                        <div key={index} className="border-b border-gray-100 dark:border-gray-800 pb-4 last:border-0 last:pb-0">
+                                            <div className="font-bold text-gray-900 dark:text-white mb-2">
                                                 {getLocalizedText(item.day, locale)}
                                             </div>
-                                            <div className="flex gap-4">
-                                                <div className="font-mono font-bold text-gray-500 whitespace-nowrap">{item.time}</div>
+                                            <div className="flex flex-col gap-1 pl-4 border-l-2 border-primary/20">
+                                                <div className="font-mono font-bold text-gray-500 text-sm">{item.time}</div>
                                                 <div className="text-gray-700 dark:text-gray-300">
                                                     {getLocalizedText(item.activity, locale)}
                                                 </div>
                                             </div>
                                         </div>
                                     ))}
+                                </div>
+
+                                {/* Desktop View (Table) */}
+                                <div className="hidden md:block overflow-x-auto">
+                                    <table className="w-full text-left border-collapse">
+                                        <thead>
+                                            <tr className="border-b dark:border-gray-700">
+                                                <th className="py-3 px-4 font-bold text-gray-900 dark:text-gray-100">{t('day')}</th>
+                                                <th className="py-3 px-4 font-bold text-gray-900 dark:text-gray-100">{t('time')}</th>
+                                                <th className="py-3 px-4 font-bold text-gray-900 dark:text-gray-100">{t('activity')}</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody className="divide-y dark:divide-gray-800">
+                                            {scheduleData.weekly.map((item, index) => (
+                                                <tr key={index} className="hover:bg-gray-50 dark:hover:bg-zinc-800/50 transition-colors">
+                                                    <td className="py-3 px-4 font-bold text-gray-900 dark:text-white align-top whitespace-nowrap">
+                                                        {getLocalizedText(item.day, locale)}
+                                                    </td>
+                                                    <td className="py-3 px-4 font-mono font-bold text-gray-500 whitespace-nowrap align-top">{item.time}</td>
+                                                    <td className="py-3 px-4 text-gray-700 dark:text-gray-300">
+                                                        {getLocalizedText(item.activity, locale)}
+                                                    </td>
+                                                </tr>
+                                            ))}
+                                        </tbody>
+                                    </table>
                                 </div>
                             </div>
 
