@@ -30,7 +30,7 @@
     },
     "WelcomeSection": {
         "welcome": "Welcome",
-        "description": "Serm Rangsi Meditation Center is a sanctuary for Dharma practice and mindfulness meditation in Germany. Established to be a center for Buddhist learning and to encourage practitioners to cultivate their minds according to the Four Foundations of Mindfulness.",
+        "description": "Wat Loung Por Sai is a sanctuary for Dharma practice and mindfulness meditation in Germany. Established to be a center for Buddhist learning and to encourage practitioners to cultivate their minds according to the Four Foundations of Mindfulness.",
         "meditation": "Meditation",
         "meditationDesc": "Mindfulness Practice",
         "sundaySchool": "Sunday School",
@@ -39,7 +39,7 @@
         "cultureDesc": "Thai Traditions"
     },
     "DonationSection": {
-        "title": "Support Wat Serm Rangsi",
+        "title": "Support Wat Loung Por Sai",
         "subtitle": "Make a Donation",
         "description": "Your donations help support the temple's utilities, maintenance, Buddhist activities, and youth education programs.",
         "donateOnline": "Donate Online",
@@ -63,7 +63,7 @@
         "readMore": "More Details"
     },
     "AboutPage": {
-        "title": "About Wat Serm Rangsi",
+        "title": "About Wat Loung Por Sai",
         "subtitle": "History & Vision",
         "historyTitle": "History",
         "visionTitle": "Vision",
@@ -131,7 +131,7 @@
         "email": "Email"
     },
     "Site": {
-        "name": "Serm Rangsi Meditation Center",
+        "name": "Wat Loung Por Sai",
         "location": "Germany"
     },
     "GalleryPage": {
@@ -164,12 +164,12 @@
         "note": "*** Note: The schedule may be subject to change ***"
     },
     "EventPrinter": {
-        "title": "Serm Rangsi Meditation Center",
+        "title": "Wat Loung Por Sai",
         "subtitle": "Official Event Schedule",
         "scheduleTitle": "Schedule",
         "time": "Time",
         "activity": "Activity",
-        "footerTitle": "Serm Rangsi Meditation Center - Germany",
+        "footerTitle": "Wat Loung Por Sai - Germany",
         "printedOn": "Printed on",
         "printButton": "Print PDF"
     }

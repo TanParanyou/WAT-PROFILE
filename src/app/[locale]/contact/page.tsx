@@ -298,7 +298,7 @@ export default function ContactPage() {
                 {/* Map Section */}
                 <div className="rounded-3xl overflow-hidden shadow-lg border border-gray-200 dark:border-gray-800 h-[500px] relative group">
                     <iframe
-                        title="Map of Wat Serm Rangsi"
+                        title="Map of Wat Loung Por Sai"
                         src={contactData.map.embedUrl}
                         width="100%"
                         height="100%"

@@ -28,7 +28,7 @@ export const ContactTemplate: React.FC<ContactTemplateProps> = ({
         </div>
         <hr style={{ margin: '30px 0', border: 'none', borderTop: '1px solid #eaeaea' }} />
         <p style={{ fontSize: '12px', color: '#888' }}>
-            This email was sent from the Wat Serm Rangsi website contact form.
+            This email was sent from the Wat Loung Por Sai website contact form.
         </p>
     </div>
 );

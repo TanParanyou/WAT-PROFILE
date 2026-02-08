@@ -44,7 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const description = getLocalizedText(event.description, locale);
 
     return {
-        title: `${title} - Wat Serm Rangsi`,
+        title: `${title} - Wat Loung Por Sai`,
         description: description,
         openGraph: {
             title: title,
@@ -97,7 +97,7 @@ export default async function EventDetailPage({ params }: Props) {
             name: getLocalizedText(event.location, locale),
             address: {
                 '@type': 'PostalAddress',
-                streetAddress: 'Wat Serm Rangsi',
+                streetAddress: 'Wat Loung Por Sai',
                 addressLocality: 'Bangkok',
                 addressCountry: 'TH'
             }

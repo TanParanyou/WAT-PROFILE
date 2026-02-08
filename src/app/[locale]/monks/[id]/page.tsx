@@ -37,7 +37,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const title = getLocalizedText(monk.title, locale);
 
     return {
-        title: `${name} - Wat Serm Rangsi`,
+        title: `${name} - Wat Loung Por Sai`,
         description: `Biography of ${name}, ${title}`,
         openGraph: {
             title: name,
@@ -79,13 +79,13 @@ export default async function MonkDetailPage({ params }: Props) {
                     {/* Left Column: Image & Quick Info */}
                     <div className="lg:col-span-4 space-y-8">
                         <div className="bg-white dark:bg-zinc-900 rounded-3xl overflow-hidden shadow-xl shadow-primary/5 border-4 border-white dark:border-zinc-800 sticky top-24">
-                            <div className="aspect-[3/4] relative bg-zinc-100 dark:bg-zinc-800">
+                            <div className="aspect-3/4 relative bg-zinc-100 dark:bg-zinc-800">
                                 <img
                                     src={monk.image}
                                     alt={getLocalizedText(monk.name, locale)}
                                     className="w-full h-full object-cover"
                                 />
-                                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/80 to-transparent p-6 pt-24 text-white">
+                                <div className="absolute inset-x-0 bottom-0 bg-linear-to-t from-black/80 to-transparent p-6 pt-24 text-white">
                                     <span className="inline-block px-3 py-1 bg-primary text-white text-xs font-bold rounded-full mb-2">
                                         {getLocalizedText(monk.title, locale)}
                                     </span>

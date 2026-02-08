@@ -30,7 +30,7 @@
     },
     "WelcomeSection": {
         "welcome": "Willkommen",
-        "description": "Wat Serm Rangsi dient als spirituelles Zentrum für die thailändische buddhistische Gemeinschaft in Deutschland. Unsere Mission ist es, die Lehren Buddhas (Dhamma) zu verbreiten und das thailändische Kulturerbe für zukünftige Generationen zu bewahren.",
+        "description": "Wat Loung Por Sai dient als spirituelles Zentrum für die thailändische buddhistische Gemeinschaft in Deutschland. Unsere Mission ist es, die Lehren Buddhas (Dhamma) zu verbreiten und das thailändische Kulturerbe für zukünftige Generationen zu bewahren.",
         "meditation": "Meditation",
         "meditationDesc": "Achtsamkeitsübung",
         "sundaySchool": "Sonntagsschule",
@@ -39,7 +39,7 @@
         "cultureDesc": "Thailändische Traditionen"
     },
     "DonationSection": {
-        "title": "Unterstützen Sie Wat Serm Rangsi",
+        "title": "Unterstützen Sie Wat Loung Por Sai",
         "subtitle": "Spende tätigen",
         "description": "Ihre Spenden unterstützen die Instandhaltung des Tempels, buddhistische Aktivitäten und Bildungsprogramme für Jugendliche.",
         "donateOnline": "Online spenden",
@@ -63,7 +63,7 @@
         "readMore": "Mehr Details"
     },
     "AboutPage": {
-        "title": "Über Wat Serm Rangsi",
+        "title": "Über Wat Loung Por Sai",
         "subtitle": "Geschichte & Vision",
         "historyTitle": "Geschichte",
         "visionTitle": "Vision",
@@ -131,7 +131,7 @@
         "email": "E-Mail"
     },
     "Site": {
-        "name": "Wat Serm Rangsi",
+        "name": "Wat Loung Por Sai",
         "location": "Deutschland"
     },
     "GalleryPage": {
@@ -164,12 +164,12 @@
         "note": "*** Beachte: Die Termine können sich je nach Bedeutung ändern ***"
     },
     "EventPrinter": {
-        "title": "Wat Serm Rangsi",
+        "title": "Wat Loung Por Sai",
         "subtitle": "Offizieller Veranstaltungsplan",
         "scheduleTitle": "Zeitplan",
         "time": "Zeit",
         "activity": "Aktivität",
-        "footerTitle": "Wat Serm Rangsi - Deutschland",
+        "footerTitle": "Wat Loung Por Sai - Deutschland",
         "printedOn": "Gedruckt am",
         "printButton": "PDF drucken"
     }
