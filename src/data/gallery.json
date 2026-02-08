@@ -6,7 +6,8 @@
             "th": "ทำบุญตักบาตร",
             "en": "Monks alms offering"
         },
-        "category": "ceremony"
+        "category": "ceremony",
+        "active": false
     },
     {
         "id": 2,
@@ -15,7 +16,8 @@
             "th": "สวดมนต์ทำวัตรเช้า",
             "en": "Morning Chanting"
         },
-        "category": "daily"
+        "category": "daily",
+        "active": false
     },
     {
         "id": 3,
@@ -24,7 +26,8 @@
             "th": "เวียนเทียนวันวิสาขบูชา",
             "en": "Visakha Bucha Candle Procession"
         },
-        "category": "ceremony"
+        "category": "ceremony",
+        "active": false
     },
     {
         "id": 4,
@@ -33,7 +36,8 @@
             "th": "สอนธรรมะวันอาทิตย์",
             "en": "Sunday Dhamma School"
         },
-        "category": "education"
+        "category": "education",
+        "active": false
     },
     {
         "id": 5,
@@ -42,7 +46,8 @@
             "th": "งานสงกรานต์",
             "en": "Songkran Festival"
         },
-        "category": "festival"
+        "category": "festival",
+        "active": false
     },
     {
         "id": 6,
@@ -51,6 +56,287 @@
             "th": "โรงทาน",
             "en": "Charity Food Stall"
         },
-        "category": "festival"
+        "category": "festival",
+        "active": false
+    },
+    {
+        "id": 7,
+        "src": "/images/gallery/common/LINE_ALBUM_1262026_260208_1.jpg",
+        "caption": {
+            "th": "บรรยากาศวัด",
+            "en": "Temple Atmosphere"
+        },
+        "category": "common",
+        "active": true
+    },
+    {
+        "id": 8,
+        "src": "/images/gallery/common/LINE_ALBUM_1262026_260208_2.jpg",
+        "caption": {
+            "th": "บรรยากาศวัด",
+            "en": "Temple Atmosphere"
+        },
+        "category": "common",
+        "active": true
+    },
+    {
+        "id": 9,
+        "src": "/images/gallery/common/LINE_ALBUM_1262026_260208_3.jpg",
+        "caption": {
+            "th": "บรรยากาศวัด",
+            "en": "Temple Atmosphere"
+        },
+        "category": "common",
+        "active": true
+    },
+    {
+        "id": 10,
+        "src": "/images/gallery/common/LINE_ALBUM_1262026_260208_4.jpg",
+        "caption": {
+            "th": "บรรยากาศวัด",
+            "en": "Temple Atmosphere"
+        },
+        "category": "common",
+        "active": true
+    },
+    {
+        "id": 11,
+        "src": "/images/gallery/common/LINE_ALBUM_1262026_260208_5.jpg",
+        "caption": {
+            "th": "บรรยากาศวัด",
+            "en": "Temple Atmosphere"
+        },
+        "category": "common",
+        "active": true
+    },
+    {
+        "id": 12,
+        "src": "/images/gallery/common/LINE_ALBUM_1262026_260208_6.jpg",
+        "caption": {
+            "th": "บรรยากาศวัด",
+            "en": "Temple Atmosphere"
+        },
+        "category": "common",
+        "active": true
+    },
+    {
+        "id": 13,
+        "src": "/images/gallery/common/LINE_ALBUM_1262026_260208_7.jpg",
+        "caption": {
+            "th": "บรรยากาศวัด",
+            "en": "Temple Atmosphere"
+        },
+        "category": "common",
+        "active": true
+    },
+    {
+        "id": 14,
+        "src": "/images/gallery/common/LINE_ALBUM_1262026_260208_8.jpg",
+        "caption": {
+            "th": "บรรยากาศวัด",
+            "en": "Temple Atmosphere"
+        },
+        "category": "common",
+        "active": true
+    },
+    {
+        "id": 15,
+        "src": "/images/gallery/common/LINE_ALBUM_1262026_260208_9.jpg",
+        "caption": {
+            "th": "บรรยากาศวัด",
+            "en": "Temple Atmosphere"
+        },
+        "category": "common",
+        "active": true
+    },
+    {
+        "id": 16,
+        "src": "/images/gallery/common/LINE_ALBUM_1262026_260208_10.jpg",
+        "caption": {
+            "th": "บรรยากาศวัด",
+            "en": "Temple Atmosphere"
+        },
+        "category": "common",
+        "active": true
+    },
+    {
+        "id": 17,
+        "src": "/images/gallery/common/LINE_ALBUM_1262026_260208_11.jpg",
+        "caption": {
+            "th": "บรรยากาศวัด",
+            "en": "Temple Atmosphere"
+        },
+        "category": "common",
+        "active": true
+    },
+    {
+        "id": 18,
+        "src": "/images/gallery/common/LINE_ALBUM_1262026_260208_12.jpg",
+        "caption": {
+            "th": "บรรยากาศวัด",
+            "en": "Temple Atmosphere"
+        },
+        "category": "common",
+        "active": true
+    },
+    {
+        "id": 19,
+        "src": "/images/gallery/common/LINE_ALBUM_1262026_260208_13.jpg",
+        "caption": {
+            "th": "บรรยากาศวัด",
+            "en": "Temple Atmosphere"
+        },
+        "category": "common",
+        "active": true
+    },
+    {
+        "id": 20,
+        "src": "/images/gallery/common/LINE_ALBUM_1262026_260208_14.jpg",
+        "caption": {
+            "th": "บรรยากาศวัด",
+            "en": "Temple Atmosphere"
+        },
+        "category": "common",
+        "active": true
+    },
+    {
+        "id": 21,
+        "src": "/images/gallery/common/LINE_ALBUM_1262026_260208_15.jpg",
+        "caption": {
+            "th": "บรรยากาศวัด",
+            "en": "Temple Atmosphere"
+        },
+        "category": "common",
+        "active": true
+    },
+    {
+        "id": 22,
+        "src": "/images/gallery/common/LINE_ALBUM_1262026_260208_16.jpg",
+        "caption": {
+            "th": "บรรยากาศวัด",
+            "en": "Temple Atmosphere"
+        },
+        "category": "common",
+        "active": true
+    },
+    {
+        "id": 23,
+        "src": "/images/gallery/common/LINE_ALBUM_1262026_260208_17.jpg",
+        "caption": {
+            "th": "บรรยากาศวัด",
+            "en": "Temple Atmosphere"
+        },
+        "category": "common",
+        "active": true
+    },
+    {
+        "id": 24,
+        "src": "/images/gallery/common/LINE_ALBUM_1262026_260208_18.jpg",
+        "caption": {
+            "th": "บรรยากาศวัด",
+            "en": "Temple Atmosphere"
+        },
+        "category": "common",
+        "active": true
+    },
+    {
+        "id": 25,
+        "src": "/images/gallery/common/LINE_ALBUM_1262026_260208_19.jpg",
+        "caption": {
+            "th": "บรรยากาศวัด",
+            "en": "Temple Atmosphere"
+        },
+        "category": "common",
+        "active": true
+    },
+    {
+        "id": 26,
+        "src": "/images/gallery/common/LINE_ALBUM_1262026_260208_20.jpg",
+        "caption": {
+            "th": "บรรยากาศวัด",
+            "en": "Temple Atmosphere"
+        },
+        "category": "common",
+        "active": true
+    },
+    {
+        "id": 27,
+        "src": "/images/gallery/common/LINE_ALBUM_1262026_260208_21.jpg",
+        "caption": {
+            "th": "บรรยากาศวัด",
+            "en": "Temple Atmosphere"
+        },
+        "category": "common",
+        "active": true
+    },
+    {
+        "id": 28,
+        "src": "/images/gallery/before_buying_2018/LINE_ALBUM_ภาพที่หลวงปู่ทิวาไปดูก่อนซื้อปี 2018_260208_1.jpg",
+        "caption": {
+            "th": "พื้นที่ก่อนสร้าง",
+            "en": "Site Before Construction"
+        },
+        "category": "history",
+        "active": true
+    },
+    {
+        "id": 29,
+        "src": "/images/gallery/before_buying_2018/LINE_ALBUM_ภาพที่หลวงปู่ทิวาไปดูก่อนซื้อปี 2018_260208_2.jpg",
+        "caption": {
+            "th": "พื้นที่ก่อนสร้าง",
+            "en": "Site Before Construction"
+        },
+        "category": "history",
+        "active": true
+    },
+    {
+        "id": 30,
+        "src": "/images/gallery/before_buying_2018/LINE_ALBUM_ภาพที่หลวงปู่ทิวาไปดูก่อนซื้อปี 2018_260208_3.jpg",
+        "caption": {
+            "th": "พื้นที่ก่อนสร้าง",
+            "en": "Site Before Construction"
+        },
+        "category": "history",
+        "active": true
+    },
+    {
+        "id": 31,
+        "src": "/images/gallery/before_buying_2018/LINE_ALBUM_ภาพที่หลวงปู่ทิวาไปดูก่อนซื้อปี 2018_260208_4.jpg",
+        "caption": {
+            "th": "พื้นที่ก่อนสร้าง",
+            "en": "Site Before Construction"
+        },
+        "category": "history",
+        "active": true
+    },
+    {
+        "id": 32,
+        "src": "/images/gallery/before_buying_2018/LINE_ALBUM_ภาพที่หลวงปู่ทิวาไปดูก่อนซื้อปี 2018_260208_5.jpg",
+        "caption": {
+            "th": "พื้นที่ก่อนสร้าง",
+            "en": "Site Before Construction"
+        },
+        "category": "history",
+        "active": true
+    },
+    {
+        "id": 33,
+        "src": "/images/gallery/before_buying_2018/LINE_ALBUM_ภาพที่หลวงปู่ทิวาไปดูก่อนซื้อปี 2018_260208_6.jpg",
+        "caption": {
+            "th": "พื้นที่ก่อนสร้าง",
+            "en": "Site Before Construction"
+        },
+        "category": "history",
+        "active": true
+    },
+    {
+        "id": 34,
+        "src": "/images/gallery/before_buying_2018/LINE_ALBUM_ภาพที่หลวงปู่ทิวาไปดูก่อนซื้อปี 2018_260208_7.jpg",
+        "caption": {
+            "th": "พื้นที่ก่อนสร้าง",
+            "en": "Site Before Construction"
+        },
+        "category": "history",
+        "active": true
     }
 ]

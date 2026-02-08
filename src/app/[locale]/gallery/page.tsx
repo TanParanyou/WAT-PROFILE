@@ -8,6 +8,8 @@ import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import PageHeader from '@/components/layout/PageHeader';
 import PageContainer from '@/components/layout/PageContainer';
+import { getLocalizedText } from '@/utils/i18n';
+import categoriesData from '@/data/categories.json';
 
 export default function GalleryPage() {
     const t = useTranslations('GalleryPage');
@@ -16,15 +18,15 @@ export default function GalleryPage() {
     const [index, setIndex] = useState(-1);
 
     const filteredImages = filter === 'all'
-        ? galleryData
-        : galleryData.filter(img => img.category === filter);
+        ? galleryData.filter(img => img.active)
+        : galleryData.filter(img => img.category === filter && img.active);
 
-    const categories = ['all', 'ceremony', 'festival', 'education', 'daily'];
+    const categories = categoriesData;
 
     // Map filtered images to slides for lightbox
     const slides = filteredImages.map(img => ({
         src: img.src,
-        title: img.caption[locale as 'th' | 'en'],
+        title: getLocalizedText(img.caption, locale),
     }));
 
     return (
@@ -38,16 +40,16 @@ export default function GalleryPage() {
                 <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-800 p-6 md:p-8 min-h-[400px]">
                     {/* Filters */}
                     <div className="flex flex-wrap justify-center gap-3 mb-12">
-                        {categories.map(cat => (
+                        {categories.filter(cat => cat.active).map(cat => (
                             <button
-                                key={cat}
-                                onClick={() => setFilter(cat)}
-                                className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${filter === cat
+                                key={cat.id}
+                                onClick={() => setFilter(cat.id)}
+                                className={`px-6 py-2.5 rounded-xl text-sm font-bold transition-all ${filter === cat.id
                                     ? 'bg-primary text-white shadow-lg shadow-primary/30 scale-105'
                                     : 'bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-zinc-700'
                                     }`}
                             >
-                                {t(cat)}
+                                {getLocalizedText(cat.name, locale)}
                             </button>
                         ))}
                     </div>
