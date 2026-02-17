@@ -1,0 +1,123 @@
+package handlers
+
+import (
+	"strconv"
+
+	"github.com/gofiber/fiber/v2"
+	"github.com/watloungporsai/wat-profile-backend/internal/middleware"
+	"github.com/watloungporsai/wat-profile-backend/internal/models"
+	"github.com/watloungporsai/wat-profile-backend/internal/services"
+	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
+	"gorm.io/gorm"
+)
+
+type MemberHandler struct {
+	memberService *services.MemberService
+}
+
+func NewMemberHandler(db *gorm.DB) *MemberHandler {
+	return &MemberHandler{
+		memberService: services.NewMemberService(db),
+	}
+}
+
+// RegisterMember - Auth: Create member profile for authenticated user
+func (h *MemberHandler) RegisterMember(c *fiber.Ctx) error {
+	userID, err := middleware.GetCurrentUserID(c)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusUnauthorized, "User not authenticated")
+	}
+
+	var member models.Member
+	if err := c.BodyParser(&member); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	if err := h.memberService.Register(&member, userID); err != nil {
+		if err.Error() == "member profile already exists" {
+			return utils.ErrorResponse(c, fiber.StatusConflict, err.Error())
+		}
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to create member profile")
+	}
+
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "data": member})
+}
+
+// GetMyProfile - Auth: Get current user's member profile
+func (h *MemberHandler) GetMyProfile(c *fiber.Ctx) error {
+	userID, err := middleware.GetCurrentUserID(c)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusUnauthorized, "User not authenticated")
+	}
+
+	member, err := h.memberService.GetByUserID(userID)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusNotFound, "Member profile not found")
+	}
+	return utils.SuccessResponse(c, member)
+}
+
+// UpdateMyProfile - Auth: Update current user's member profile
+func (h *MemberHandler) UpdateMyProfile(c *fiber.Ctx) error {
+	userID, err := middleware.GetCurrentUserID(c)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusUnauthorized, "User not authenticated")
+	}
+
+	member, err := h.memberService.GetByUserID(userID)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusNotFound, "Member profile not found")
+	}
+
+	if err := c.BodyParser(member); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	if err := h.memberService.UpdateByUserID(member, userID); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to update member profile")
+	}
+	return utils.SuccessResponse(c, member)
+}
+
+// GetMembers - Admin: List all members with pagination
+func (h *MemberHandler) GetMembers(c *fiber.Ctx) error {
+	page, _ := strconv.Atoi(c.Query("page", "1"))
+	limit, _ := strconv.Atoi(c.Query("limit", "20"))
+	if page < 1 {
+		page = 1
+	}
+
+	members, total, err := h.memberService.List(
+		page, limit, c.Query("status"), c.Query("type"), c.Query("search"),
+	)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch members")
+	}
+	return utils.PaginatedResponse(c, members, page, limit, int(total))
+}
+
+// GetMember - Admin: Get single member by ID
+func (h *MemberHandler) GetMember(c *fiber.Ctx) error {
+	id, _ := strconv.Atoi(c.Params("id"))
+	member, err := h.memberService.GetByID(id)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusNotFound, "Member not found")
+	}
+	return utils.SuccessResponse(c, member)
+}
+
+// UpdateMember - Admin: Update member
+func (h *MemberHandler) UpdateMember(c *fiber.Ctx) error {
+	id, _ := strconv.Atoi(c.Params("id"))
+	member, err := h.memberService.GetByID(id)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusNotFound, "Member not found")
+	}
+	if err := c.BodyParser(member); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+	if err := h.memberService.Update(member); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to update member")
+	}
+	return utils.SuccessResponse(c, member)
+}

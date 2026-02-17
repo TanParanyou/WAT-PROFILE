@@ -4,27 +4,25 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/watloungporsai/wat-profile-backend/internal/config"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
+	"github.com/watloungporsai/wat-profile-backend/internal/services"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
+	"gorm.io/gorm"
 )
 
-type GalleryHandler struct{}
+type GalleryHandler struct {
+	galleryService *services.GalleryService
+}
 
-func NewGalleryHandler() *GalleryHandler {
-	return &GalleryHandler{}
+func NewGalleryHandler(db *gorm.DB) *GalleryHandler {
+	return &GalleryHandler{
+		galleryService: services.NewGalleryService(db),
+	}
 }
 
 func (h *GalleryHandler) GetGalleries(c *fiber.Ctx) error {
-	var galleries []models.Gallery
-	query := config.DB.Where("is_active = ?", true).Order("display_order ASC")
-
-	// Filter by category if provided
-	if catID := c.Query("category_id"); catID != "" {
-		query = query.Where("category_id = ?", catID)
-	}
-
-	if err := query.Preload("Category").Find(&galleries).Error; err != nil {
+	galleries, err := h.galleryService.ListActive(c.Query("category_id"))
+	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch galleries")
 	}
 	return utils.SuccessResponse(c, galleries)
@@ -35,25 +33,65 @@ func (h *GalleryHandler) CreateGallery(c *fiber.Ctx) error {
 	if err := c.BodyParser(&gallery); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request")
 	}
-	if err := config.DB.Create(&gallery).Error; err != nil {
+	if err := h.galleryService.Create(&gallery); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to create")
 	}
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "data": gallery})
 }
 
+func (h *GalleryHandler) UpdateGallery(c *fiber.Ctx) error {
+	id, _ := strconv.Atoi(c.Params("id"))
+	gallery, err := h.galleryService.GetByID(id)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusNotFound, "Gallery not found")
+	}
+	if err := c.BodyParser(gallery); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request")
+	}
+	if err := h.galleryService.Update(gallery); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to update")
+	}
+	return utils.SuccessResponse(c, gallery)
+}
+
 func (h *GalleryHandler) DeleteGallery(c *fiber.Ctx) error {
 	id, _ := strconv.Atoi(c.Params("id"))
-	if err := config.DB.Delete(&models.Gallery{}, id).Error; err != nil {
+	if err := h.galleryService.Delete(id); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete")
 	}
 	return utils.MessageResponse(c, "Deleted successfully")
 }
 
-// Category handlers
 func (h *GalleryHandler) GetCategories(c *fiber.Ctx) error {
-	var categories []models.GalleryCategory
-	if err := config.DB.Where("is_active = ?", true).Order("display_order ASC").Find(&categories).Error; err != nil {
+	categories, err := h.galleryService.ListCategories()
+	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch categories")
 	}
 	return utils.SuccessResponse(c, categories)
+}
+
+func (h *GalleryHandler) CreateCategory(c *fiber.Ctx) error {
+	var category models.GalleryCategory
+	if err := c.BodyParser(&category); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request")
+	}
+	if err := h.galleryService.CreateCategory(&category); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to create category")
+	}
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "data": category})
+}
+
+func (h *GalleryHandler) UpdateCategory(c *fiber.Ctx) error {
+	id, _ := strconv.Atoi(c.Params("id"))
+	category, err := h.galleryService.GetCategoryByID(id)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusNotFound, "Category not found")
+	}
+	if err := c.BodyParser(category); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request")
+	}
+	if err := h.galleryService.UpdateCategory(category); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to update category")
+	}
+	return utils.SuccessResponse(c, category)
 }

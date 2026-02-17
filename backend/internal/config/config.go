@@ -21,7 +21,10 @@ func InitDatabase() error {
 	}
 
 	var err error
-	DB, err = gorm.Open(postgres.Open(dsn), &gorm.Config{
+	DB, err = gorm.Open(postgres.New(postgres.Config{
+		DSN:                  dsn,
+		PreferSimpleProtocol: true, // Disable prepared statements for connection poolers (e.g. Supabase)
+	}), &gorm.Config{
 		Logger: logger.Default.LogMode(logger.Info),
 	})
 

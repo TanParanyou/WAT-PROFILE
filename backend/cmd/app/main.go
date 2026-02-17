@@ -60,13 +60,13 @@ func main() {
 	// Health check
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
-			"status": "ok",
+			"status":  "ok",
 			"message": "Server is running",
 		})
 	})
 
-	// Setup routes
-	routes.SetupRoutes(app)
+	// Setup routes with DB injection
+	routes.SetupRoutes(app, config.DB)
 
 	// Start server
 	port := getEnv("PORT", "8080")

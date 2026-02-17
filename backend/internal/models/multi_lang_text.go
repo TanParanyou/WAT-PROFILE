@@ -15,7 +15,11 @@ func (m MultiLangText) Value() (driver.Value, error) {
 	if m == nil {
 		return nil, nil
 	}
-	return json.Marshal(m)
+	bytes, err := json.Marshal(m)
+	if err != nil {
+		return nil, err
+	}
+	return string(bytes), nil
 }
 
 // Scan implements sql.Scanner interface for GORM
@@ -25,9 +29,14 @@ func (m *MultiLangText) Scan(value interface{}) error {
 		return nil
 	}
 
-	bytes, ok := value.([]byte)
-	if !ok {
-		return errors.New("type assertion to []byte failed")
+	var bytes []byte
+	switch v := value.(type) {
+	case []byte:
+		bytes = v
+	case string:
+		bytes = []byte(v)
+	default:
+		return errors.New("unsupported type for MultiLangText")
 	}
 
 	result := make(MultiLangText)

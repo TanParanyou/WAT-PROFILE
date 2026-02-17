@@ -4,22 +4,24 @@ import (
 	"errors"
 	"time"
 
-	"github.com/watloungporsai/wat-profile-backend/internal/config"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
+	"gorm.io/gorm"
 )
 
-type AuthService struct{}
+type AuthService struct {
+	db *gorm.DB
+}
 
-func NewAuthService() *AuthService {
-	return &AuthService{}
+func NewAuthService(db *gorm.DB) *AuthService {
+	return &AuthService{db: db}
 }
 
 // Register creates a new user
 func (s *AuthService) Register(email, password, name string) (*models.User, error) {
 	// Check if user exists
 	var existingUser models.User
-	if err := config.DB.Where("email = ?", email).First(&existingUser).Error; err == nil {
+	if err := s.db.Where("email = ?", email).First(&existingUser).Error; err == nil {
 		return nil, errors.New("email already exists")
 	}
 
@@ -36,7 +38,7 @@ func (s *AuthService) Register(email, password, name string) (*models.User, erro
 		Name:         name,
 	}
 
-	if err := config.DB.Create(&user).Error; err != nil {
+	if err := s.db.Create(&user).Error; err != nil {
 		return nil, err
 	}
 
@@ -47,7 +49,7 @@ func (s *AuthService) Register(email, password, name string) (*models.User, erro
 func (s *AuthService) Login(email, password string) (string, string, *models.User, error) {
 	// Find user
 	var user models.User
-	if err := config.DB.Preload("Role").Where("email = ?", email).First(&user).Error; err != nil {
+	if err := s.db.Preload("Role").Where("email = ?", email).First(&user).Error; err != nil {
 		return "", "", nil, errors.New("invalid credentials")
 	}
 
@@ -83,12 +85,12 @@ func (s *AuthService) Login(email, password string) (string, string, *models.Use
 		Token:     refreshToken,
 		ExpiresAt: time.Now().Add(7 * 24 * time.Hour),
 	}
-	config.DB.Create(&rt)
+	s.db.Create(&rt)
 
 	// Update last login
 	now := time.Now()
 	user.LastLoginAt = &now
-	config.DB.Save(&user)
+	s.db.Save(&user)
 
 	return accessToken, refreshToken, &user, nil
 }
@@ -103,7 +105,7 @@ func (s *AuthService) RefreshAccessToken(refreshToken string) (string, error) {
 
 	// Check if refresh token exists in database
 	var rt models.RefreshToken
-	if err := config.DB.Where("token = ? AND user_id = ?", refreshToken, userID).First(&rt).Error; err != nil {
+	if err := s.db.Where("token = ? AND user_id = ?", refreshToken, userID).First(&rt).Error; err != nil {
 		return "", errors.New("refresh token not found")
 	}
 
@@ -114,7 +116,7 @@ func (s *AuthService) RefreshAccessToken(refreshToken string) (string, error) {
 
 	// Get user
 	var user models.User
-	if err := config.DB.Preload("Role").First(&user, userID).Error; err != nil {
+	if err := s.db.Preload("Role").First(&user, userID).Error; err != nil {
 		return "", errors.New("user not found")
 	}
 

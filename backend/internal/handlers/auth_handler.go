@@ -5,15 +5,16 @@ import (
 	"github.com/watloungporsai/wat-profile-backend/internal/middleware"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
+	"gorm.io/gorm"
 )
 
 type AuthHandler struct {
 	authService *services.AuthService
 }
 
-func NewAuthHandler() *AuthHandler {
+func NewAuthHandler(db *gorm.DB) *AuthHandler {
 	return &AuthHandler{
-		authService: services.NewAuthService(),
+		authService: services.NewAuthService(db),
 	}
 }
 
@@ -22,7 +23,6 @@ func NewAuthHandler() *AuthHandler {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param body body RegisterRequest true "Registration details"
 // @Success 201 {object} map[string]interface{}
 // @Router /api/v1/auth/register [post]
 func (h *AuthHandler) Register(c *fiber.Ctx) error {
@@ -53,7 +53,6 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param body body LoginRequest true "Login credentials"
 // @Success 200 {object} map[string]interface{}
 // @Router /api/v1/auth/login [post]
 func (h *AuthHandler) Login(c *fiber.Ctx) error {
@@ -83,7 +82,6 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 // @Tags auth
 // @Accept json
 // @Produce json
-// @Param body body RefreshRequest true "Refresh token"
 // @Success 200 {object} map[string]interface{}
 // @Router /api/v1/auth/refresh [post]
 func (h *AuthHandler) RefreshToken(c *fiber.Ctx) error {
