@@ -8,6 +8,7 @@ import { useState } from 'react';
 import PageHeader from '@/components/layout/PageHeader';
 import PageContainer from '@/components/layout/PageContainer';
 import { getLocalizedText } from '@/utils/i18n';
+import { sendContactEmail } from '@/services/emailService';
 
 export default function ContactPage() {
     const t = useTranslations('ContactPage');
@@ -26,16 +27,10 @@ export default function ContactPage() {
         e.preventDefault();
         setStatus('loading');
         try {
-            const response = await fetch('/api/send-email', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(formData),
-            });
-            if (response.ok) {
-                setStatus('success');
-                setFormData({ name: '', email: '', subject: '', message: '' });
-                setTimeout(() => setStatus('idle'), 5000);
-            } else setStatus('error');
+            await sendContactEmail(formData);
+            setStatus('success');
+            setFormData({ name: '', email: '', subject: '', message: '' });
+            setTimeout(() => setStatus('idle'), 5000);
         } catch {
             setStatus('error');
         }
