@@ -7,12 +7,10 @@ CREATE TABLE IF NOT EXISTS donation_categories (
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_donation_categories_is_active ON donation_categories(is_active);
-
 CREATE TABLE IF NOT EXISTS members (
     id SERIAL PRIMARY KEY,
-    user_id UUID REFERENCES users(id) ON DELETE CASCADE,
-    member_code VARCHAR(20) NOT NULL,
+    user_id UUID UNIQUE REFERENCES users(id) ON DELETE CASCADE,
+    member_code VARCHAR(20) NOT NULL UNIQUE,
     first_name_th VARCHAR(100),
     last_name_th VARCHAR(100),
     first_name_en VARCHAR(100),
@@ -35,13 +33,11 @@ CREATE TABLE IF NOT EXISTS members (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_members_user_id ON members(user_id);
-CREATE UNIQUE INDEX IF NOT EXISTS idx_members_member_code ON members(member_code);
 CREATE INDEX IF NOT EXISTS idx_members_membership_status ON members(membership_status);
 
 CREATE TABLE IF NOT EXISTS donations (
     id SERIAL PRIMARY KEY,
-    receipt_number VARCHAR(50) NOT NULL,
+    receipt_number VARCHAR(50) NOT NULL UNIQUE,
     donor_type VARCHAR(20) NOT NULL,
     member_id INTEGER REFERENCES members(id) ON DELETE SET NULL,
     donor_name VARCHAR(255),
@@ -65,7 +61,6 @@ CREATE TABLE IF NOT EXISTS donations (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_donations_receipt_number ON donations(receipt_number);
 CREATE INDEX IF NOT EXISTS idx_donations_member_id ON donations(member_id);
 CREATE INDEX IF NOT EXISTS idx_donations_category_id ON donations(category_id);
 CREATE INDEX IF NOT EXISTS idx_donations_donation_date ON donations(donation_date);

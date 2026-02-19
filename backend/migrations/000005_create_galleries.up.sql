@@ -1,13 +1,12 @@
 CREATE TABLE IF NOT EXISTS gallery_categories (
     id SERIAL PRIMARY KEY,
-    slug VARCHAR(100) NOT NULL,
+    slug VARCHAR(100) NOT NULL UNIQUE,
     name JSONB NOT NULL,
     display_order INTEGER DEFAULT 0,
     is_active BOOLEAN DEFAULT TRUE,
     created_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_gallery_categories_slug ON gallery_categories(slug);
 CREATE INDEX IF NOT EXISTS idx_gallery_categories_is_active ON gallery_categories(is_active);
 
 CREATE TABLE IF NOT EXISTS galleries (

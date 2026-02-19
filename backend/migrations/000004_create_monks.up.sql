@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS monks (
     id SERIAL PRIMARY KEY,
-    slug VARCHAR(100) NOT NULL,
+    slug VARCHAR(100) NOT NULL UNIQUE,
     image_url VARCHAR(255),
     name JSONB NOT NULL,
     title JSONB,
@@ -13,5 +13,4 @@ CREATE TABLE IF NOT EXISTS monks (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_monks_slug ON monks(slug);
 CREATE INDEX IF NOT EXISTS idx_monks_is_active ON monks(is_active);

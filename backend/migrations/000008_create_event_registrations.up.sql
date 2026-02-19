@@ -11,7 +11,7 @@ CREATE TABLE IF NOT EXISTS event_registrations (
     special_needs TEXT,
     additional_notes TEXT,
     registration_status VARCHAR(20) DEFAULT 'pending',
-    confirmation_code VARCHAR(50) NOT NULL,
+    confirmation_code VARCHAR(50) UNIQUE,
     confirmed_at TIMESTAMPTZ,
     attended BOOLEAN DEFAULT FALSE,
     attended_at TIMESTAMPTZ,
@@ -21,7 +21,6 @@ CREATE TABLE IF NOT EXISTS event_registrations (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_event_registrations_confirmation_code ON event_registrations(confirmation_code);
 CREATE INDEX IF NOT EXISTS idx_event_registrations_event_id ON event_registrations(event_id);
 CREATE INDEX IF NOT EXISTS idx_event_registrations_member_id ON event_registrations(member_id);
 CREATE INDEX IF NOT EXISTS idx_event_registrations_status ON event_registrations(registration_status);

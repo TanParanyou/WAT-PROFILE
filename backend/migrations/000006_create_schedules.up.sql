@@ -13,5 +13,5 @@ CREATE TABLE IF NOT EXISTS schedules (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE INDEX IF NOT EXISTS idx_schedules_schedule_type ON schedules(schedule_type);
+CREATE INDEX IF NOT EXISTS idx_schedules_type ON schedules(schedule_type);
 CREATE INDEX IF NOT EXISTS idx_schedules_is_active ON schedules(is_active);

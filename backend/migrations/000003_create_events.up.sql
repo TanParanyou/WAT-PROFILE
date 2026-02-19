@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS events (
     id SERIAL PRIMARY KEY,
-    slug VARCHAR(100) NOT NULL,
+    slug VARCHAR(100) NOT NULL UNIQUE,
     title JSONB NOT NULL,
     description JSONB,
     event_date TIMESTAMPTZ NOT NULL,
@@ -21,7 +21,6 @@ CREATE TABLE IF NOT EXISTS events (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_events_slug ON events(slug);
 CREATE INDEX IF NOT EXISTS idx_events_event_date ON events(event_date);
 CREATE INDEX IF NOT EXISTS idx_events_event_type ON events(event_type);
 CREATE INDEX IF NOT EXISTS idx_events_is_active ON events(is_active);

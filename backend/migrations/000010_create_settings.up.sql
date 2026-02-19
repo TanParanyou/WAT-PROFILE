@@ -1,6 +1,6 @@
 CREATE TABLE IF NOT EXISTS settings (
     id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-    key VARCHAR(100) NOT NULL,
+    key VARCHAR(100) NOT NULL UNIQUE,
     value TEXT,
     type VARCHAR(50),
     category VARCHAR(50),
@@ -9,6 +9,5 @@ CREATE TABLE IF NOT EXISTS settings (
     updated_at TIMESTAMPTZ DEFAULT NOW()
 );
 
-CREATE UNIQUE INDEX IF NOT EXISTS idx_settings_key ON settings(key);
 CREATE INDEX IF NOT EXISTS idx_settings_category ON settings(category);
 CREATE INDEX IF NOT EXISTS idx_settings_is_public ON settings(is_public);

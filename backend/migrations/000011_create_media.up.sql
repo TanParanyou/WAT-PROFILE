@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS media (
     size BIGINT,
     url TEXT NOT NULL,
     path TEXT,
-    uploaded_by_id UUID REFERENCES users(id) ON DELETE SET NULL,
+    uploaded_by_id UUID REFERENCES users(id),
     alt_text VARCHAR(255),
     category VARCHAR(50),
     metadata JSONB,
@@ -15,4 +15,3 @@ CREATE TABLE IF NOT EXISTS media (
 );
 
 CREATE INDEX IF NOT EXISTS idx_media_category ON media(category);
-CREATE INDEX IF NOT EXISTS idx_media_uploaded_by_id ON media(uploaded_by_id);
