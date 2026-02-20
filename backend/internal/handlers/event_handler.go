@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"strconv"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
@@ -52,7 +50,10 @@ func (h *EventHandler) CreateEvent(c *fiber.Ctx) error {
 
 // UpdateEvent - Admin: Update event
 func (h *EventHandler) UpdateEvent(c *fiber.Ctx) error {
-	id, _ := strconv.Atoi(c.Params("id"))
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 	event, err := h.eventService.GetByID(id)
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusNotFound, "Event not found")
@@ -68,7 +69,10 @@ func (h *EventHandler) UpdateEvent(c *fiber.Ctx) error {
 
 // DeleteEvent - Admin: Delete event
 func (h *EventHandler) DeleteEvent(c *fiber.Ctx) error {
-	id, _ := strconv.Atoi(c.Params("id"))
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 	if err := h.eventService.Delete(id); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete event")
 	}

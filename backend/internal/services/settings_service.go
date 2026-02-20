@@ -1,6 +1,8 @@
 package services
 
 import (
+	"fmt"
+
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"gorm.io/gorm"
 )
@@ -40,16 +42,20 @@ func (s *SettingsService) GetAll(category string) ([]models.Setting, error) {
 	return settings, err
 }
 
-// UpdateBatch updates multiple settings at once
+// UpdateBatch updates multiple settings at once (ใช้ transaction เพื่อความปลอดภัย)
 func (s *SettingsService) UpdateBatch(items []struct {
 	Key   string `json:"key"`
 	Value string `json:"value"`
 }) error {
-	for _, item := range items {
-		s.db.Model(&models.Setting{}).Where("key = ?", item.Key).
-			Update("value", item.Value)
-	}
-	return nil
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		for _, item := range items {
+			if err := tx.Model(&models.Setting{}).Where("key = ?", item.Key).
+				Update("value", item.Value).Error; err != nil {
+				return fmt.Errorf("failed to update setting %q: %w", item.Key, err)
+			}
+		}
+		return nil
+	})
 }
 
 // Upsert creates or updates a single setting

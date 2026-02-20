@@ -55,9 +55,7 @@ func (h *DonationHandler) CreateDonation(c *fiber.Ctx) error {
 func (h *DonationHandler) GetDonations(c *fiber.Ctx) error {
 	page, _ := strconv.Atoi(c.Query("page", "1"))
 	limit, _ := strconv.Atoi(c.Query("limit", "20"))
-	if page < 1 {
-		page = 1
-	}
+	page, limit = utils.ClampPagination(page, limit)
 
 	donations, total, err := h.donationService.ListDonations(
 		page, limit, c.Query("status"), c.Query("category_id"), c.Query("from"), c.Query("to"),
@@ -79,7 +77,10 @@ func (h *DonationHandler) GetDonationStats(c *fiber.Ctx) error {
 
 // UpdateDonation - Admin: Update donation
 func (h *DonationHandler) UpdateDonation(c *fiber.Ctx) error {
-	id, _ := strconv.Atoi(c.Params("id"))
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 	donation, err := h.donationService.GetByID(id)
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusNotFound, "Donation not found")
@@ -95,7 +96,10 @@ func (h *DonationHandler) UpdateDonation(c *fiber.Ctx) error {
 
 // DeleteDonation - Admin: Delete donation
 func (h *DonationHandler) DeleteDonation(c *fiber.Ctx) error {
-	id, _ := strconv.Atoi(c.Params("id"))
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 	if err := h.donationService.Delete(id); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete donation")
 	}
@@ -114,7 +118,10 @@ func (h *DonationHandler) CreateDonationCategory(c *fiber.Ctx) error {
 }
 
 func (h *DonationHandler) UpdateDonationCategory(c *fiber.Ctx) error {
-	id, _ := strconv.Atoi(c.Params("id"))
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 	category, err := h.donationService.GetCategoryByID(id)
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusNotFound, "Category not found")
@@ -129,7 +136,10 @@ func (h *DonationHandler) UpdateDonationCategory(c *fiber.Ctx) error {
 }
 
 func (h *DonationHandler) DeleteDonationCategory(c *fiber.Ctx) error {
-	id, _ := strconv.Atoi(c.Params("id"))
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 	if err := h.donationService.DeleteCategory(id); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete category")
 	}

@@ -84,7 +84,11 @@
         "fullName": "Full Name",
         "subject": "Subject",
         "message": "Message",
-        "sendMessage": "Send Message"
+        "sendMessage": "Send Message",
+        "errorRequired": "Please fill in all required fields",
+        "errorEmail": "Invalid email format",
+        "errorMessageLength": "Message must not exceed 5,000 characters",
+        "errorSend": "Failed to send message. Please try again."
     },
     "EventsPage": {
         "title": "Events & Ceremonies",

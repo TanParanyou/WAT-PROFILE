@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"strings"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/watloungporsai/wat-profile-backend/internal/middleware"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
@@ -27,13 +29,31 @@ func NewAuthHandler(db *gorm.DB) *AuthHandler {
 // @Router /api/v1/auth/register [post]
 func (h *AuthHandler) Register(c *fiber.Ctx) error {
 	var req struct {
-		Email    string `json:"email" validate:"required,email"`
-		Password string `json:"password" validate:"required,min=8"`
-		Name     string `json:"name" validate:"required"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
+		Name     string `json:"name"`
 	}
 
 	if err := c.BodyParser(&req); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	// ตรวจสอบ required fields
+	missing := utils.ValidateRequired(map[string]string{
+		"email": req.Email, "password": req.Password, "name": req.Name,
+	})
+	if len(missing) > 0 {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Missing required fields: "+strings.Join(missing, ", "))
+	}
+
+	// ตรวจสอบ email format
+	if !utils.ValidateEmail(req.Email) {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid email format")
+	}
+
+	// ตรวจสอบความยาว password
+	if err := utils.ValidateMinLength(req.Password, 8, "password"); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
 
 	user, err := h.authService.Register(req.Email, req.Password, req.Name)
@@ -57,12 +77,16 @@ func (h *AuthHandler) Register(c *fiber.Ctx) error {
 // @Router /api/v1/auth/login [post]
 func (h *AuthHandler) Login(c *fiber.Ctx) error {
 	var req struct {
-		Email    string `json:"email" validate:"required,email"`
-		Password string `json:"password" validate:"required"`
+		Email    string `json:"email"`
+		Password string `json:"password"`
 	}
 
 	if err := c.BodyParser(&req); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	if req.Email == "" || req.Password == "" {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Email and password are required")
 	}
 
 	accessToken, refreshToken, user, err := h.authService.Login(req.Email, req.Password)
@@ -86,11 +110,15 @@ func (h *AuthHandler) Login(c *fiber.Ctx) error {
 // @Router /api/v1/auth/refresh [post]
 func (h *AuthHandler) RefreshToken(c *fiber.Ctx) error {
 	var req struct {
-		RefreshToken string `json:"refresh_token" validate:"required"`
+		RefreshToken string `json:"refresh_token"`
 	}
 
 	if err := c.BodyParser(&req); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	if req.RefreshToken == "" {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Refresh token is required")
 	}
 
 	accessToken, err := h.authService.RefreshAccessToken(req.RefreshToken)

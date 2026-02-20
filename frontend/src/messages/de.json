@@ -84,7 +84,11 @@
         "fullName": "Vollständiger Name",
         "subject": "Betreff",
         "message": "Nachricht",
-        "sendMessage": "Nachricht senden"
+        "sendMessage": "Nachricht senden",
+        "errorRequired": "Bitte füllen Sie alle Pflichtfelder aus",
+        "errorEmail": "Ungültiges E-Mail-Format",
+        "errorMessageLength": "Die Nachricht darf 5.000 Zeichen nicht überschreiten",
+        "errorSend": "Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut."
     },
     "EventsPage": {
         "title": "Veranstaltungen & Zeremonien",

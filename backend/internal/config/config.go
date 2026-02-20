@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"time"
 
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"gorm.io/driver/postgres"
@@ -70,6 +71,36 @@ func MigrateModels() error {
 
 	log.Println("Database migration completed successfully")
 	return nil
+}
+
+// ConfigureConnectionPool ตั้งค่า connection pool สำหรับ database
+func ConfigureConnectionPool() {
+	sqlDB, err := DB.DB()
+	if err != nil {
+		log.Printf("Warning: failed to get sql.DB for pool config: %v", err)
+		return
+	}
+
+	sqlDB.SetMaxOpenConns(25)
+	sqlDB.SetMaxIdleConns(10)
+	sqlDB.SetConnMaxLifetime(5 * time.Minute)
+	sqlDB.SetConnMaxIdleTime(1 * time.Minute)
+
+	log.Println("Database connection pool configured")
+}
+
+// CloseDatabase ปิด database connection อย่างปลอดภัย
+func CloseDatabase() {
+	sqlDB, err := DB.DB()
+	if err != nil {
+		log.Printf("Warning: failed to get sql.DB for closing: %v", err)
+		return
+	}
+	if err := sqlDB.Close(); err != nil {
+		log.Printf("Warning: error closing database: %v", err)
+	} else {
+		log.Println("Database connection closed")
+	}
 }
 
 // GetDB returns the database instance

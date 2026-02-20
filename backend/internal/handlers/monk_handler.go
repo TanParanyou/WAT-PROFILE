@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"strconv"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
@@ -48,7 +46,10 @@ func (h *MonkHandler) CreateMonk(c *fiber.Ctx) error {
 }
 
 func (h *MonkHandler) UpdateMonk(c *fiber.Ctx) error {
-	id, _ := strconv.Atoi(c.Params("id"))
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 	monk, err := h.monkService.GetByID(id)
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusNotFound, "Not found")
@@ -63,7 +64,10 @@ func (h *MonkHandler) UpdateMonk(c *fiber.Ctx) error {
 }
 
 func (h *MonkHandler) DeleteMonk(c *fiber.Ctx) error {
-	id, _ := strconv.Atoi(c.Params("id"))
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 	if err := h.monkService.Delete(id); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete")
 	}

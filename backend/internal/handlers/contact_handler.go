@@ -32,6 +32,10 @@ func (h *ContactHandler) SubmitContact(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Name, email, and message are required")
 	}
 
+	if !utils.ValidateEmail(inquiry.Email) {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid email format")
+	}
+
 	if err := h.contactService.Submit(&inquiry); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to submit contact inquiry")
 	}
@@ -47,9 +51,7 @@ func (h *ContactHandler) SubmitContact(c *fiber.Ctx) error {
 func (h *ContactHandler) GetContacts(c *fiber.Ctx) error {
 	page, _ := strconv.Atoi(c.Query("page", "1"))
 	limit, _ := strconv.Atoi(c.Query("limit", "20"))
-	if page < 1 {
-		page = 1
-	}
+	page, limit = utils.ClampPagination(page, limit)
 
 	inquiries, total, err := h.contactService.List(
 		page, limit, c.Query("status"), c.Query("type"),
@@ -62,7 +64,10 @@ func (h *ContactHandler) GetContacts(c *fiber.Ctx) error {
 
 // UpdateContactStatus - Admin: Update contact inquiry status / reply
 func (h *ContactHandler) UpdateContactStatus(c *fiber.Ctx) error {
-	id, _ := strconv.Atoi(c.Params("id"))
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 
 	inquiry, err := h.contactService.GetByID(id)
 	if err != nil {
@@ -93,7 +98,10 @@ func (h *ContactHandler) UpdateContactStatus(c *fiber.Ctx) error {
 
 // DeleteContact - Admin: Delete contact inquiry
 func (h *ContactHandler) DeleteContact(c *fiber.Ctx) error {
-	id, _ := strconv.Atoi(c.Params("id"))
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 	if err := h.contactService.Delete(id); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete contact inquiry")
 	}

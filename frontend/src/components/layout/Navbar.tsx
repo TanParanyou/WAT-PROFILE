@@ -51,7 +51,7 @@ export default function Navbar() {
     ];
 
     const toggleLanguage = () => {
-        const currentIndex = routing.locales.indexOf(locale as any);
+        const currentIndex = routing.locales.indexOf(locale as typeof routing.locales[number]);
         const nextIndex = (currentIndex + 1) % routing.locales.length;
         const nextLocale = routing.locales[nextIndex];
         router.replace(pathname, { locale: nextLocale });

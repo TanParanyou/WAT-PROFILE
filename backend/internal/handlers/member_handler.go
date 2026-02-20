@@ -83,9 +83,7 @@ func (h *MemberHandler) UpdateMyProfile(c *fiber.Ctx) error {
 func (h *MemberHandler) GetMembers(c *fiber.Ctx) error {
 	page, _ := strconv.Atoi(c.Query("page", "1"))
 	limit, _ := strconv.Atoi(c.Query("limit", "20"))
-	if page < 1 {
-		page = 1
-	}
+	page, limit = utils.ClampPagination(page, limit)
 
 	members, total, err := h.memberService.List(
 		page, limit, c.Query("status"), c.Query("type"), c.Query("search"),
@@ -98,7 +96,10 @@ func (h *MemberHandler) GetMembers(c *fiber.Ctx) error {
 
 // GetMember - Admin: Get single member by ID
 func (h *MemberHandler) GetMember(c *fiber.Ctx) error {
-	id, _ := strconv.Atoi(c.Params("id"))
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 	member, err := h.memberService.GetByID(id)
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusNotFound, "Member not found")
@@ -108,7 +109,10 @@ func (h *MemberHandler) GetMember(c *fiber.Ctx) error {
 
 // UpdateMember - Admin: Update member
 func (h *MemberHandler) UpdateMember(c *fiber.Ctx) error {
-	id, _ := strconv.Atoi(c.Params("id"))
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 	member, err := h.memberService.GetByID(id)
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusNotFound, "Member not found")

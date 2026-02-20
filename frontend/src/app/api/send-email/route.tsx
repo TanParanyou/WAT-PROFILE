@@ -2,12 +2,15 @@ import { NextRequest, NextResponse } from 'next/server';
 import { resend } from '@/lib/resend';
 import ContactTemplate from '@/components/emails/ContactTemplate';
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const MAX_MESSAGE_LENGTH = 5000;
+
 export async function POST(req: NextRequest) {
     try {
         const body = await req.json();
         const { name, email, subject, message } = body;
 
-        // Simple validation
+        // ตรวจสอบ required fields
         if (!name || !email || !subject || !message) {
             return NextResponse.json(
                 { error: 'Missing required fields' },
@@ -15,9 +18,37 @@ export async function POST(req: NextRequest) {
             );
         }
 
+        // ตรวจสอบ email format
+        if (!EMAIL_REGEX.test(email)) {
+            return NextResponse.json(
+                { error: 'Invalid email format' },
+                { status: 400 }
+            );
+        }
+
+        // ตรวจสอบความยาว message
+        if (message.length > MAX_MESSAGE_LENGTH) {
+            return NextResponse.json(
+                { error: `Message must not exceed ${MAX_MESSAGE_LENGTH} characters` },
+                { status: 400 }
+            );
+        }
+
+        // ใช้ env แทน hard-coded email
+        const fromEmail = process.env.EMAIL_FROM || 'onboarding@resend.dev';
+        const toEmail = process.env.CONTACT_EMAIL;
+
+        if (!toEmail || !process.env.RESEND_API_KEY) {
+            console.error('Email environment variables are not configured (CONTACT_EMAIL / RESEND_API_KEY)');
+            return NextResponse.json(
+                { error: 'Email service is not configured' },
+                { status: 500 }
+            );
+        }
+
         const data = await resend.emails.send({
-            from: 'onboarding@resend.dev', // ✅ ใช้ Email นี้ทดสอบได้เลย (ไม่ต้อง verify domain)
-            to: ['paranyou791@gmail.com'], // ⚠️ เปลี่ยนเป็น Email ที่ใช้สมัคร Resend (paranyou791@gmail.com) เพื่อทดสอบ
+            from: fromEmail,
+            to: [toEmail],
             replyTo: email,
             subject: `[Contact Form] ${subject}`,
             react: <ContactTemplate name={name} email={email} subject={subject} message={message} />,
@@ -43,4 +74,3 @@ export async function POST(req: NextRequest) {
         );
     }
 }
-

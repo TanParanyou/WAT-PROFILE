@@ -17,14 +17,39 @@ export default function ContactPage() {
 
     const [formData, setFormData] = useState({ name: '', email: '', subject: '', message: '' });
     const [status, setStatus] = useState<'idle' | 'loading' | 'success' | 'error'>('idle');
+    const [errorMsg, setErrorMsg] = useState('');
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { id, value } = e.target;
         setFormData(prev => ({ ...prev, [id]: value }));
+        if (status === 'error') setStatus('idle');
+    };
+
+    const validateForm = (): string | null => {
+        if (!formData.name.trim() || !formData.email.trim() || !formData.subject.trim() || !formData.message.trim()) {
+            return t('errorRequired');
+        }
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(formData.email)) {
+            return t('errorEmail');
+        }
+        if (formData.message.length > 5000) {
+            return t('errorMessageLength');
+        }
+        return null;
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        setErrorMsg('');
+
+        const validationError = validateForm();
+        if (validationError) {
+            setErrorMsg(validationError);
+            setStatus('error');
+            return;
+        }
+
         setStatus('loading');
         try {
             await sendContactEmail(formData);
@@ -32,6 +57,7 @@ export default function ContactPage() {
             setFormData({ name: '', email: '', subject: '', message: '' });
             setTimeout(() => setStatus('idle'), 5000);
         } catch {
+            setErrorMsg(t('errorSend'));
             setStatus('error');
         }
     };
@@ -161,6 +187,11 @@ export default function ContactPage() {
                                 <label htmlFor="message" className="text-sm font-semibold text-gray-700 dark:text-gray-300">{t('message')}</label>
                                 <textarea id="message" rows={4} required value={formData.message} onChange={handleChange} className="w-full px-4 py-3 rounded-xl border border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-zinc-950 focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all resize-none" />
                             </div>
+                            {status === 'error' && errorMsg && (
+                                <p className="text-red-600 dark:text-red-400 text-sm flex items-center gap-2">
+                                    <AlertCircle size={16} /> {errorMsg}
+                                </p>
+                            )}
                             <button type="submit" disabled={status === 'loading' || status === 'success'} className={`w-full font-bold py-4 rounded-xl transition-all flex items-center justify-center gap-2 transform active:scale-95 ${status === 'success' ? 'bg-green-600 text-white' : status === 'error' ? 'bg-red-600 text-white' : 'bg-primary text-white hover:bg-primary/90 shadow-lg hover:shadow-primary/30'}`}>
                                 {status === 'loading' ? <Loader2 className="animate-spin" /> : status === 'success' ? <><CheckCircle /> Sent</> : <><Send /> {t('sendMessage')}</>}
                             </button>

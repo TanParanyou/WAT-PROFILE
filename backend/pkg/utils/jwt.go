@@ -111,7 +111,7 @@ func VerifyRefreshToken(tokenString string) (uuid.UUID, error) {
 func getJWTSecret() string {
 	secret := os.Getenv("JWT_SECRET")
 	if secret == "" {
-		return "your-super-secret-key-change-this-in-production"
+		panic("JWT_SECRET environment variable is required")
 	}
 	return secret
 }

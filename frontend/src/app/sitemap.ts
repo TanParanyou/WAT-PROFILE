@@ -7,8 +7,8 @@ export default function sitemap(): MetadataRoute.Sitemap {
         '/about',
         '/contact',
         '/events',
-        // '/gallery', // Assuming gallery exists based on file structure check earlier
-        // '/monks',   // Assuming monks exists
+        '/gallery',
+        '/monks',
     ];
 
     // Get all static routes for all locales

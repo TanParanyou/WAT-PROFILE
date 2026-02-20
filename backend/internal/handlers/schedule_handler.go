@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"strconv"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
@@ -40,7 +38,10 @@ func (h *ScheduleHandler) CreateSchedule(c *fiber.Ctx) error {
 }
 
 func (h *ScheduleHandler) UpdateSchedule(c *fiber.Ctx) error {
-	id, _ := strconv.Atoi(c.Params("id"))
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 	schedule, err := h.scheduleService.GetByID(id)
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusNotFound, "Schedule not found")
@@ -55,7 +56,10 @@ func (h *ScheduleHandler) UpdateSchedule(c *fiber.Ctx) error {
 }
 
 func (h *ScheduleHandler) DeleteSchedule(c *fiber.Ctx) error {
-	id, _ := strconv.Atoi(c.Params("id"))
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 	if err := h.scheduleService.Delete(id); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete schedule")
 	}

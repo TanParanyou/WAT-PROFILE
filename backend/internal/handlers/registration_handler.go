@@ -23,7 +23,10 @@ func NewRegistrationHandler(db *gorm.DB) *RegistrationHandler {
 
 // RegisterForEvent - Public: Register for an event
 func (h *RegistrationHandler) RegisterForEvent(c *fiber.Ctx) error {
-	eventID, _ := strconv.Atoi(c.Params("id"))
+	eventID, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 
 	var registration models.EventRegistration
 	if err := c.BodyParser(&registration); err != nil {
@@ -71,9 +74,7 @@ func (h *RegistrationHandler) GetMyRegistrations(c *fiber.Ctx) error {
 func (h *RegistrationHandler) GetRegistrations(c *fiber.Ctx) error {
 	page, _ := strconv.Atoi(c.Query("page", "1"))
 	limit, _ := strconv.Atoi(c.Query("limit", "20"))
-	if page < 1 {
-		page = 1
-	}
+	page, limit = utils.ClampPagination(page, limit)
 
 	registrations, total, err := h.registrationService.List(
 		page, limit, c.Query("event_id"), c.Query("status"),
@@ -86,7 +87,10 @@ func (h *RegistrationHandler) GetRegistrations(c *fiber.Ctx) error {
 
 // UpdateRegistrationStatus - Admin: Update registration status
 func (h *RegistrationHandler) UpdateRegistrationStatus(c *fiber.Ctx) error {
-	id, _ := strconv.Atoi(c.Params("id"))
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 
 	registration, err := h.registrationService.GetByID(id)
 	if err != nil {

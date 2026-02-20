@@ -1,8 +1,6 @@
 package handlers
 
 import (
-	"strconv"
-
 	"github.com/gofiber/fiber/v2"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
@@ -40,7 +38,10 @@ func (h *GalleryHandler) CreateGallery(c *fiber.Ctx) error {
 }
 
 func (h *GalleryHandler) UpdateGallery(c *fiber.Ctx) error {
-	id, _ := strconv.Atoi(c.Params("id"))
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 	gallery, err := h.galleryService.GetByID(id)
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusNotFound, "Gallery not found")
@@ -55,7 +56,10 @@ func (h *GalleryHandler) UpdateGallery(c *fiber.Ctx) error {
 }
 
 func (h *GalleryHandler) DeleteGallery(c *fiber.Ctx) error {
-	id, _ := strconv.Atoi(c.Params("id"))
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 	if err := h.galleryService.Delete(id); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete")
 	}
@@ -82,7 +86,10 @@ func (h *GalleryHandler) CreateCategory(c *fiber.Ctx) error {
 }
 
 func (h *GalleryHandler) UpdateCategory(c *fiber.Ctx) error {
-	id, _ := strconv.Atoi(c.Params("id"))
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 	category, err := h.galleryService.GetCategoryByID(id)
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusNotFound, "Category not found")

@@ -13,6 +13,7 @@
     "@react-email/render": "^2.0.4",
     "clsx": "^2.1.1",
     "framer-motion": "^12.28.1",
+    "isomorphic-dompurify": "^2.36.0",
     "lucide-react": "^0.562.0",
     "next": "^16.1.6",
     "next-intl": "^4.7.0",

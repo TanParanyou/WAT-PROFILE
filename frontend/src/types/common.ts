@@ -1,7 +1,7 @@
 export type LocalizedText = {
     th: string;
     en: string;
-    de?: string;
+    de: string;
 };
 
 export interface ScheduleItem {

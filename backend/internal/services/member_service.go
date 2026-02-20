@@ -20,22 +20,26 @@ func NewMemberService(db *gorm.DB) *MemberService {
 
 // Register creates a member profile for a user
 func (s *MemberService) Register(member *models.Member, userID uuid.UUID) error {
-	// Check if member already exists
-	var existing models.Member
-	if err := s.db.Where("user_id = ?", userID).First(&existing).Error; err == nil {
-		return errors.New("member profile already exists")
-	}
+	err := s.db.Transaction(func(tx *gorm.DB) error {
+		// Check if member already exists (ภายใน transaction)
+		var existing models.Member
+		if err := tx.Where("user_id = ?", userID).First(&existing).Error; err == nil {
+			return errors.New("member profile already exists")
+		}
 
-	member.UserID = &userID
-	member.MemberCode = s.generateMemberCode()
-	member.MembershipDate = time.Now()
+		member.UserID = &userID
+		member.MemberCode = generateMemberCode(tx)
+		member.MembershipDate = time.Now()
 
-	if err := s.db.Create(member).Error; err != nil {
-		return err
-	}
+		if err := tx.Create(member).Error; err != nil {
+			return err
+		}
 
-	// Reload with user relation
-	return s.db.Preload("User").First(member, member.ID).Error
+		// Reload with user relation
+		return tx.Preload("User").First(member, member.ID).Error
+	})
+
+	return err
 }
 
 // GetByUserID returns a member by user ID
@@ -97,11 +101,11 @@ func (s *MemberService) Update(member *models.Member) error {
 	return s.db.Save(member).Error
 }
 
-// generateMemberCode creates a unique member code
-func (s *MemberService) generateMemberCode() string {
+// generateMemberCode creates a unique member code (ใช้ tx เพื่อให้อยู่ใน transaction เดียวกัน)
+func generateMemberCode(tx *gorm.DB) string {
 	now := time.Now()
 	var count int64
-	s.db.Model(&models.Member{}).
+	tx.Model(&models.Member{}).
 		Where("EXTRACT(YEAR FROM created_at) = ?", now.Year()).
 		Count(&count)
 	return fmt.Sprintf("WLP-%d-%03d", now.Year(), count+1)

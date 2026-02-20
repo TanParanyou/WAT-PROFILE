@@ -2,6 +2,7 @@ import { Link } from '@/navigation';
 import monks from '@/data/monks.json';
 import { notFound } from 'next/navigation';
 import { getLocalizedText } from '@/utils/i18n';
+import { sanitizeHtml } from '@/utils/sanitize';
 import PageHeader from '@/components/layout/PageHeader';
 import PageContainer from '@/components/layout/PageContainer';
 import DetailNavigation from '@/components/common/DetailNavigation';
@@ -127,7 +128,7 @@ export default async function MonkDetailPage({ params }: Props) {
                                     prose-a:text-primary prose-a:no-underline hover:prose-a:underline
                                     prose-strong:text-gray-900 dark:prose-strong:text-white
                                     prose-img:rounded-2xl prose-img:shadow-md"
-                                dangerouslySetInnerHTML={{ __html: getLocalizedText(monk.content, locale) }}
+                                dangerouslySetInnerHTML={{ __html: sanitizeHtml(getLocalizedText(monk.content, locale)) }}
                             />
                         </div>
                     </div>

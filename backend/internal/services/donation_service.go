@@ -28,17 +28,23 @@ func (s *DonationService) ListCategories() ([]models.DonationCategory, error) {
 
 // CreateDonation creates a new donation with auto-generated receipt number
 func (s *DonationService) CreateDonation(donation *models.Donation, userID *uuid.UUID) error {
-	donation.ReceiptNumber = s.generateReceiptNumber()
 	if userID != nil {
 		donation.CreatedByID = userID
 	}
 
-	if err := s.db.Create(donation).Error; err != nil {
-		return err
-	}
+	err := s.db.Transaction(func(tx *gorm.DB) error {
+		// สร้าง receipt number ภายใน transaction เพื่อป้องกัน race condition
+		donation.ReceiptNumber = generateReceiptNumber(tx)
 
-	// Reload with relations
-	return s.db.Preload("Category").Preload("Member").First(donation, donation.ID).Error
+		if err := tx.Create(donation).Error; err != nil {
+			return err
+		}
+
+		// Reload with relations
+		return tx.Preload("Category").Preload("Member").First(donation, donation.ID).Error
+	})
+
+	return err
 }
 
 // ListDonations returns paginated donations with filters
@@ -145,11 +151,11 @@ func (s *DonationService) DeleteCategory(id int) error {
 	return s.db.Delete(&models.DonationCategory{}, id).Error
 }
 
-// generateReceiptNumber creates a unique receipt number
-func (s *DonationService) generateReceiptNumber() string {
+// generateReceiptNumber creates a unique receipt number (ใช้ tx เพื่อให้อยู่ใน transaction เดียวกัน)
+func generateReceiptNumber(tx *gorm.DB) string {
 	now := time.Now()
 	var count int64
-	s.db.Model(&models.Donation{}).
+	tx.Model(&models.Donation{}).
 		Where("EXTRACT(YEAR FROM created_at) = ?", now.Year()).
 		Count(&count)
 	return fmt.Sprintf("DON-%d-%03d", now.Year(), count+1)
