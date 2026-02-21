@@ -1,7 +1,6 @@
 package main
 
 import (
-	"log"
 	"os"
 	"os/signal"
 	"syscall"
@@ -10,36 +9,42 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
-	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/gofiber/fiber/v2/middleware/recover"
 	"github.com/joho/godotenv"
 	"github.com/watloungporsai/wat-profile-backend/internal/config"
 	"github.com/watloungporsai/wat-profile-backend/internal/routes"
+	"github.com/watloungporsai/wat-profile-backend/pkg/logger"
 )
 
 func main() {
+	// เริ่มต้น structured logger
+	logger.Init()
+	log := logger.Log
+
 	// โหลด environment variables
 	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found")
+		log.Warn().Msg("No .env file found")
 	}
 
 	// ตรวจสอบ required env vars
 	if os.Getenv("JWT_SECRET") == "" {
-		log.Fatal("JWT_SECRET environment variable is required")
+		log.Fatal().Msg("JWT_SECRET environment variable is required")
 	}
 
 	// เชื่อมต่อ database
 	if err := config.InitDatabase(); err != nil {
-		log.Fatal("Failed to connect to database:", err)
+		log.Fatal().Err(err).Msg("Failed to connect to database")
 	}
 
 	// ตั้งค่า connection pool
 	config.ConfigureConnectionPool()
+	log.Info().Msg("Database connection pool configured")
 
 	// Auto-migrate models
 	if err := config.MigrateModels(); err != nil {
-		log.Fatal("Failed to migrate database:", err)
+		log.Fatal().Err(err).Msg("Failed to migrate database")
 	}
+	log.Info().Msg("Database migration completed")
 
 	// สร้าง Fiber app
 	app := fiber.New(fiber.Config{
@@ -52,6 +57,14 @@ func main() {
 				message = e.Message
 			}
 
+			// Log error ด้วย zerolog
+			logger.Log.Error().
+				Str("method", c.Method()).
+				Str("path", c.Path()).
+				Int("status", code).
+				Str("error", message).
+				Msg("request error")
+
 			return c.Status(code).JSON(fiber.Map{
 				"success": false,
 				"error":   message,
@@ -61,7 +74,7 @@ func main() {
 
 	// Middleware
 	app.Use(recover.New())
-	app.Use(logger.New())
+	app.Use(logger.FiberLogger()) // ใช้ zerolog แทน Fiber logger
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     getEnv("ALLOWED_ORIGINS", "http://localhost:3000"),
 		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
@@ -97,15 +110,22 @@ func main() {
 		})
 	})
 
+	// API Documentation (Scalar)
+	app.Get("/docs", func(c *fiber.Ctx) error {
+		c.Set("Content-Type", "text/html; charset=utf-8")
+		return c.SendString(scalarHTML)
+	})
+	app.Static("/docs/openapi.yaml", "./docs/openapi.yaml")
+
 	// ตั้งค่า routes
 	routes.SetupRoutes(app, config.DB)
 
 	// Graceful shutdown
 	port := getEnv("PORT", "8080")
 	go func() {
-		log.Printf("Server starting on port %s", port)
+		log.Info().Str("port", port).Msg("Server starting")
 		if err := app.Listen(":" + port); err != nil {
-			log.Fatal("Failed to start server:", err)
+			log.Fatal().Err(err).Msg("Failed to start server")
 		}
 	}()
 
@@ -114,14 +134,14 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 	<-quit
 
-	log.Println("Shutting down server...")
+	log.Info().Msg("Shutting down server...")
 	if err := app.Shutdown(); err != nil {
-		log.Fatal("Server forced to shutdown:", err)
+		log.Fatal().Err(err).Msg("Server forced to shutdown")
 	}
 
 	// ปิด database connection
 	config.CloseDatabase()
-	log.Println("Server shutdown completed")
+	log.Info().Msg("Server shutdown completed")
 }
 
 func getEnv(key, defaultValue string) string {
@@ -130,3 +150,17 @@ func getEnv(key, defaultValue string) string {
 	}
 	return defaultValue
 }
+
+// scalarHTML — Scalar API Reference UI
+const scalarHTML = `<!DOCTYPE html>
+<html>
+<head>
+    <title>WAT Profile API Documentation</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+</head>
+<body>
+    <script id="api-reference" data-url="/docs/openapi.yaml"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@scalar/api-reference"></script>
+</body>
+</html>`

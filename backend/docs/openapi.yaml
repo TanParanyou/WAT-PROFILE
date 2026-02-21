@@ -1,0 +1,1609 @@
+openapi: 3.0.3
+info:
+  title: WAT Profile API
+  description: |
+    REST API สำหรับระบบเว็บไซต์วัดหลวงพ่อใส (Wat Loung Por Sai)
+
+    ## Authentication
+    ใช้ JWT Bearer Token สำหรับ endpoints ที่ต้องการ authentication
+
+    ## Multi-Language Support
+    ข้อมูลที่รองรับหลายภาษาจะอยู่ในรูปแบบ `MultiLangText` object:
+    ```json
+    { "th": "ข้อความ", "en": "Text", "de": "Text" }
+    ```
+  version: 1.0.0
+  contact:
+    name: Wat Loung Por Sai Team
+    email: Watloungporsai@gmail.com
+
+servers:
+  - url: /api/v1
+    description: API v1
+
+tags:
+  - name: Auth
+    description: Authentication & User management
+  - name: Events
+    description: Events & Ceremonies (Public)
+  - name: Monks
+    description: Monk profiles (Public)
+  - name: Gallery
+    description: Photo gallery (Public)
+  - name: Schedules
+    description: Temple schedules (Public)
+  - name: Donations
+    description: Donation categories (Public)
+  - name: Contact
+    description: Contact form (Public)
+  - name: Settings
+    description: Site settings (Public)
+  - name: Member
+    description: Member profile & actions (Auth required)
+  - name: Admin - Events
+    description: Events management (Admin only)
+  - name: Admin - Monks
+    description: Monks management (Admin only)
+  - name: Admin - Gallery
+    description: Gallery management (Admin only)
+  - name: Admin - Schedules
+    description: Schedules management (Admin only)
+  - name: Admin - Donations
+    description: Donations management (Admin only)
+  - name: Admin - Members
+    description: Members management (Admin only)
+  - name: Admin - Registrations
+    description: Event registrations management (Admin only)
+  - name: Admin - Contacts
+    description: Contact inquiries management (Admin only)
+  - name: Admin - Settings
+    description: Settings management (Admin only)
+
+paths:
+  # ==================== PUBLIC ====================
+  /public/events:
+    get:
+      tags: [Events]
+      summary: List all active events
+      responses:
+        '200':
+          description: Events list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /public/events/{slug}:
+    get:
+      tags: [Events]
+      summary: Get event by slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Event detail
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/Event'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /public/events/{id}/register:
+    post:
+      tags: [Events]
+      summary: Register for an event
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventRegistrationInput'
+      responses:
+        '201':
+          description: Registration created
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /public/monks:
+    get:
+      tags: [Monks]
+      summary: List all monks
+      responses:
+        '200':
+          description: Monks list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /public/monks/{slug}:
+    get:
+      tags: [Monks]
+      summary: Get monk by slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Monk detail
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/Monk'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /public/gallery:
+    get:
+      tags: [Gallery]
+      summary: List gallery images
+      responses:
+        '200':
+          description: Gallery list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /public/gallery/categories:
+    get:
+      tags: [Gallery]
+      summary: List gallery categories
+      responses:
+        '200':
+          description: Categories list
+
+  /public/schedules:
+    get:
+      tags: [Schedules]
+      summary: Get temple schedules
+      responses:
+        '200':
+          description: Schedules list
+
+  /public/donation-categories:
+    get:
+      tags: [Donations]
+      summary: List donation categories
+      responses:
+        '200':
+          description: Donation categories
+
+  /public/contact:
+    post:
+      tags: [Contact]
+      summary: Submit contact form
+      description: Rate limited to 5 requests per minute
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ContactInput'
+      responses:
+        '201':
+          description: Contact submitted
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  /public/settings:
+    get:
+      tags: [Settings]
+      summary: Get public settings
+      responses:
+        '200':
+          description: Public settings as key-value map
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties:
+                  type: string
+
+  # ==================== AUTH ====================
+  /auth/register:
+    post:
+      tags: [Auth]
+      summary: Register a new user
+      description: Rate limited to 5 requests per minute
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterInput'
+      responses:
+        '201':
+          description: User registered
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/AuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  /auth/login:
+    post:
+      tags: [Auth]
+      summary: Login
+      description: Rate limited to 10 requests per minute
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginInput'
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/AuthResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  /auth/refresh:
+    post:
+      tags: [Auth]
+      summary: Refresh JWT token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [refresh_token]
+              properties:
+                refresh_token:
+                  type: string
+      responses:
+        '200':
+          description: Token refreshed
+
+  /auth/me:
+    get:
+      tags: [Auth]
+      summary: Get current user profile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  # ==================== MEMBER ====================
+  /member/register:
+    post:
+      tags: [Member]
+      summary: Register as temple member
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemberInput'
+      responses:
+        '201':
+          description: Member registered
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /member/profile:
+    get:
+      tags: [Member]
+      summary: Get my member profile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Member profile
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/Member'
+    put:
+      tags: [Member]
+      summary: Update my member profile
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MemberInput'
+      responses:
+        '200':
+          description: Profile updated
+
+  /member/donations:
+    post:
+      tags: [Member]
+      summary: Create a donation
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DonationInput'
+      responses:
+        '201':
+          description: Donation created
+
+  /member/registrations:
+    get:
+      tags: [Member]
+      summary: Get my event registrations
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Registrations list
+
+  # ==================== ADMIN - Events ====================
+  /admin/events:
+    get:
+      tags: [Admin - Events]
+      summary: List all events (admin)
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Events list
+    post:
+      tags: [Admin - Events]
+      summary: Create event
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+      responses:
+        '201':
+          description: Event created
+
+  /admin/events/{id}:
+    put:
+      tags: [Admin - Events]
+      summary: Update event
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+      responses:
+        '200':
+          description: Event updated
+    delete:
+      tags: [Admin - Events]
+      summary: Delete event
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Event deleted
+
+  # ==================== ADMIN - Monks ====================
+  /admin/monks:
+    get:
+      tags: [Admin - Monks]
+      summary: List all monks (admin)
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Monks list
+    post:
+      tags: [Admin - Monks]
+      summary: Create monk
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Monk'
+      responses:
+        '201':
+          description: Monk created
+
+  /admin/monks/{id}:
+    put:
+      tags: [Admin - Monks]
+      summary: Update monk
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Monk'
+      responses:
+        '200':
+          description: Monk updated
+    delete:
+      tags: [Admin - Monks]
+      summary: Delete monk
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Monk deleted
+
+  # ==================== ADMIN - Gallery ====================
+  /admin/gallery:
+    get:
+      tags: [Admin - Gallery]
+      summary: List gallery (admin)
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Gallery list
+    post:
+      tags: [Admin - Gallery]
+      summary: Create gallery item
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Gallery'
+      responses:
+        '201':
+          description: Gallery item created
+
+  /admin/gallery/{id}:
+    put:
+      tags: [Admin - Gallery]
+      summary: Update gallery item
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Gallery'
+      responses:
+        '200':
+          description: Gallery item updated
+    delete:
+      tags: [Admin - Gallery]
+      summary: Delete gallery item
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Gallery item deleted
+
+  /admin/gallery/categories:
+    get:
+      tags: [Admin - Gallery]
+      summary: List gallery categories (admin)
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Categories list
+    post:
+      tags: [Admin - Gallery]
+      summary: Create gallery category
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GalleryCategory'
+      responses:
+        '201':
+          description: Category created
+
+  /admin/gallery/categories/{id}:
+    put:
+      tags: [Admin - Gallery]
+      summary: Update gallery category
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GalleryCategory'
+      responses:
+        '200':
+          description: Category updated
+
+  # ==================== ADMIN - Schedules ====================
+  /admin/schedules:
+    get:
+      tags: [Admin - Schedules]
+      summary: List schedules (admin)
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Schedules list
+    post:
+      tags: [Admin - Schedules]
+      summary: Create schedule
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Schedule'
+      responses:
+        '201':
+          description: Schedule created
+
+  /admin/schedules/{id}:
+    put:
+      tags: [Admin - Schedules]
+      summary: Update schedule
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Schedule'
+      responses:
+        '200':
+          description: Schedule updated
+    delete:
+      tags: [Admin - Schedules]
+      summary: Delete schedule
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Schedule deleted
+
+  # ==================== ADMIN - Donations ====================
+  /admin/donations:
+    get:
+      tags: [Admin - Donations]
+      summary: List donations
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            maximum: 100
+        - name: status
+          in: query
+          schema:
+            type: string
+            enum: [pending, confirmed, cancelled]
+        - name: category_id
+          in: query
+          schema:
+            type: string
+        - name: from
+          in: query
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          schema:
+            type: string
+            format: date
+      responses:
+        '200':
+          description: Paginated donations list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Donation'
+                      total:
+                        type: integer
+
+  /admin/donations/stats:
+    get:
+      tags: [Admin - Donations]
+      summary: Get donation statistics
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Donation stats
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        type: object
+                        properties:
+                          total_amount:
+                            type: number
+                          total_count:
+                            type: integer
+                          monthly_amount:
+                            type: number
+                          monthly_count:
+                            type: integer
+
+  /admin/donations/{id}:
+    put:
+      tags: [Admin - Donations]
+      summary: Update donation
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Donation'
+      responses:
+        '200':
+          description: Donation updated
+    delete:
+      tags: [Admin - Donations]
+      summary: Delete donation
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Donation deleted
+
+  /admin/donation-categories:
+    get:
+      tags: [Admin - Donations]
+      summary: List donation categories (admin)
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Donation categories
+    post:
+      tags: [Admin - Donations]
+      summary: Create donation category
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DonationCategory'
+      responses:
+        '201':
+          description: Category created
+
+  /admin/donation-categories/{id}:
+    put:
+      tags: [Admin - Donations]
+      summary: Update donation category
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DonationCategory'
+      responses:
+        '200':
+          description: Category updated
+    delete:
+      tags: [Admin - Donations]
+      summary: Delete donation category
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Category deleted
+
+  # ==================== ADMIN - Members ====================
+  /admin/members:
+    get:
+      tags: [Admin - Members]
+      summary: List members
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema:
+            type: integer
+            default: 1
+        - name: limit
+          in: query
+          schema:
+            type: integer
+            default: 10
+            maximum: 100
+        - name: status
+          in: query
+          schema:
+            type: string
+        - name: type
+          in: query
+          schema:
+            type: string
+        - name: search
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Paginated members list
+
+  /admin/members/{id}:
+    get:
+      tags: [Admin - Members]
+      summary: Get member by ID
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Member detail
+    put:
+      tags: [Admin - Members]
+      summary: Update member
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Member'
+      responses:
+        '200':
+          description: Member updated
+
+  # ==================== ADMIN - Registrations ====================
+  /admin/registrations:
+    get:
+      tags: [Admin - Registrations]
+      summary: List event registrations
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Registrations list
+
+  /admin/registrations/{id}/status:
+    put:
+      tags: [Admin - Registrations]
+      summary: Update registration status
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [status]
+              properties:
+                status:
+                  type: string
+                  enum: [confirmed, cancelled, attended]
+      responses:
+        '200':
+          description: Status updated
+
+  # ==================== ADMIN - Contacts ====================
+  /admin/contacts:
+    get:
+      tags: [Admin - Contacts]
+      summary: List contact inquiries
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Contact inquiries list
+
+  /admin/contacts/{id}/status:
+    put:
+      tags: [Admin - Contacts]
+      summary: Update contact status
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  enum: [new, read, replied, archived]
+                reply_message:
+                  type: string
+      responses:
+        '200':
+          description: Contact status updated
+
+  /admin/contacts/{id}:
+    delete:
+      tags: [Admin - Contacts]
+      summary: Delete contact inquiry
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Contact deleted
+
+  # ==================== ADMIN - Settings ====================
+  /admin/settings:
+    get:
+      tags: [Admin - Settings]
+      summary: Get all settings
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: category
+          in: query
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Settings list
+    put:
+      tags: [Admin - Settings]
+      summary: Batch update settings
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [items]
+              properties:
+                items:
+                  type: array
+                  items:
+                    type: object
+                    required: [key, value]
+                    properties:
+                      key:
+                        type: string
+                      value:
+                        type: string
+      responses:
+        '200':
+          description: Settings updated
+    post:
+      tags: [Admin - Settings]
+      summary: Upsert a single setting
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Setting'
+      responses:
+        '200':
+          description: Setting upserted
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  parameters:
+    IdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+
+  responses:
+    BadRequest:
+      description: Bad request
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    Unauthorized:
+      description: Unauthorized
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    NotFound:
+      description: Not found
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+    TooManyRequests:
+      description: Too many requests
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
+
+  schemas:
+    # ===== Common =====
+    MultiLangText:
+      type: object
+      description: "Multi-language text: { th, en, de }"
+      properties:
+        th:
+          type: string
+        en:
+          type: string
+        de:
+          type: string
+
+    SuccessResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: false
+        error:
+          type: string
+
+    # ===== Auth =====
+    RegisterInput:
+      type: object
+      required: [email, password, name]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 8
+        name:
+          type: string
+
+    LoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    AuthResponse:
+      type: object
+      properties:
+        token:
+          type: string
+        refresh_token:
+          type: string
+        user:
+          $ref: '#/components/schemas/User'
+
+    User:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+        name:
+          type: string
+        role:
+          $ref: '#/components/schemas/Role'
+        email_verified:
+          type: boolean
+        is_active:
+          type: boolean
+        last_login_at:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    Role:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        name:
+          type: string
+        description:
+          type: string
+        is_active:
+          type: boolean
+
+    # ===== Event =====
+    Event:
+      type: object
+      properties:
+        id:
+          type: integer
+        slug:
+          type: string
+        title:
+          $ref: '#/components/schemas/MultiLangText'
+        description:
+          $ref: '#/components/schemas/MultiLangText'
+        event_date:
+          type: string
+          format: date-time
+        start_time:
+          type: string
+          format: date-time
+          nullable: true
+        end_time:
+          type: string
+          format: date-time
+          nullable: true
+        location:
+          $ref: '#/components/schemas/MultiLangText'
+        image_url:
+          type: string
+        map_url:
+          type: string
+        event_type:
+          type: string
+          enum: [meditation_course, ceremony, festival]
+        is_recurring:
+          type: boolean
+        recurring_pattern:
+          type: string
+        max_participants:
+          type: integer
+          nullable: true
+        registration_enabled:
+          type: boolean
+        registration_deadline:
+          type: string
+          format: date-time
+          nullable: true
+        is_active:
+          type: boolean
+        display_order:
+          type: integer
+        schedules:
+          type: array
+          items:
+            $ref: '#/components/schemas/EventSchedule'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    EventSchedule:
+      type: object
+      properties:
+        id:
+          type: integer
+        event_id:
+          type: integer
+        time:
+          type: string
+          format: date-time
+        activity:
+          $ref: '#/components/schemas/MultiLangText'
+        display_order:
+          type: integer
+
+    EventRegistrationInput:
+      type: object
+      required: [first_name, last_name, email]
+      properties:
+        registration_type:
+          type: string
+        first_name:
+          type: string
+        last_name:
+          type: string
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        dietary_restrictions:
+          type: string
+        special_needs:
+          type: string
+        additional_notes:
+          type: string
+
+    # ===== Monk =====
+    Monk:
+      type: object
+      properties:
+        id:
+          type: integer
+        slug:
+          type: string
+        image_url:
+          type: string
+        name:
+          $ref: '#/components/schemas/MultiLangText'
+        title:
+          $ref: '#/components/schemas/MultiLangText'
+        bio:
+          $ref: '#/components/schemas/MultiLangText'
+        ordination_date:
+          type: string
+          format: date-time
+          nullable: true
+        position:
+          type: string
+        display_order:
+          type: integer
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    # ===== Gallery =====
+    GalleryCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+        slug:
+          type: string
+        name:
+          $ref: '#/components/schemas/MultiLangText'
+        display_order:
+          type: integer
+        is_active:
+          type: boolean
+
+    Gallery:
+      type: object
+      properties:
+        id:
+          type: integer
+        image_url:
+          type: string
+        thumbnail_url:
+          type: string
+        caption:
+          $ref: '#/components/schemas/MultiLangText'
+        category_id:
+          type: integer
+          nullable: true
+        category:
+          $ref: '#/components/schemas/GalleryCategory'
+        event_id:
+          type: integer
+          nullable: true
+        display_order:
+          type: integer
+        is_active:
+          type: boolean
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    # ===== Schedule =====
+    Schedule:
+      type: object
+      properties:
+        id:
+          type: integer
+        schedule_type:
+          type: string
+          enum: [daily, weekly, monthly]
+        day_of_week:
+          type: integer
+          nullable: true
+          description: "0=Sunday, 6=Saturday"
+        time_start:
+          type: string
+          format: date-time
+          nullable: true
+        time_end:
+          type: string
+          format: date-time
+          nullable: true
+        activity:
+          $ref: '#/components/schemas/MultiLangText'
+        location:
+          $ref: '#/components/schemas/MultiLangText'
+        online_link:
+          type: string
+        is_active:
+          type: boolean
+        display_order:
+          type: integer
+
+    # ===== Donation =====
+    DonationCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          $ref: '#/components/schemas/MultiLangText'
+        description:
+          $ref: '#/components/schemas/MultiLangText'
+        is_active:
+          type: boolean
+        display_order:
+          type: integer
+
+    DonationInput:
+      type: object
+      required: [donor_type, amount]
+      properties:
+        donor_type:
+          type: string
+          enum: [member, guest, anonymous]
+        donor_name:
+          type: string
+        donor_email:
+          type: string
+          format: email
+        donor_phone:
+          type: string
+        donor_address:
+          type: string
+        amount:
+          type: number
+          format: double
+          minimum: 0
+        currency:
+          type: string
+          default: EUR
+        donation_date:
+          type: string
+          format: date
+        donation_method:
+          type: string
+          enum: [bank_transfer, cash, paypal]
+        category_id:
+          type: integer
+        purpose:
+          $ref: '#/components/schemas/MultiLangText'
+        is_anonymous:
+          type: boolean
+        tax_receipt_required:
+          type: boolean
+        notes:
+          type: string
+
+    Donation:
+      type: object
+      properties:
+        id:
+          type: integer
+        receipt_number:
+          type: string
+        donor_type:
+          type: string
+        member:
+          $ref: '#/components/schemas/Member'
+        donor_name:
+          type: string
+        donor_email:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+        donation_date:
+          type: string
+          format: date
+        donation_method:
+          type: string
+        category:
+          $ref: '#/components/schemas/DonationCategory'
+        purpose:
+          $ref: '#/components/schemas/MultiLangText'
+        is_anonymous:
+          type: boolean
+        status:
+          type: string
+          enum: [pending, confirmed, cancelled]
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    # ===== Member =====
+    MemberInput:
+      type: object
+      required: [first_name_th, last_name_th]
+      properties:
+        first_name_th:
+          type: string
+        last_name_th:
+          type: string
+        first_name_en:
+          type: string
+        last_name_en:
+          type: string
+        birth_date:
+          type: string
+          format: date
+        gender:
+          type: string
+        nationality:
+          type: string
+        address_th:
+          type: string
+        address_en:
+          type: string
+        phone:
+          type: string
+        line_id:
+          type: string
+        emergency_contact_name:
+          type: string
+        emergency_contact_phone:
+          type: string
+        membership_type:
+          type: string
+
+    Member:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: string
+          format: uuid
+        member_code:
+          type: string
+        first_name_th:
+          type: string
+        last_name_th:
+          type: string
+        first_name_en:
+          type: string
+        last_name_en:
+          type: string
+        birth_date:
+          type: string
+          format: date
+          nullable: true
+        gender:
+          type: string
+        nationality:
+          type: string
+        phone:
+          type: string
+        membership_type:
+          type: string
+        membership_status:
+          type: string
+        membership_date:
+          type: string
+          format: date-time
+        profile_image_url:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    # ===== Contact =====
+    ContactInput:
+      type: object
+      required: [name, email, message]
+      properties:
+        name:
+          type: string
+          maxLength: 255
+        email:
+          type: string
+          format: email
+        phone:
+          type: string
+        subject:
+          type: string
+          maxLength: 500
+        message:
+          type: string
+          maxLength: 5000
+        inquiry_type:
+          type: string
+          enum: [general, event, donation, volunteer]
+
+    ContactInquiry:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        email:
+          type: string
+        phone:
+          type: string
+        subject:
+          type: string
+        message:
+          type: string
+        inquiry_type:
+          type: string
+        status:
+          type: string
+          enum: [new, read, replied, archived]
+        replied_at:
+          type: string
+          format: date-time
+          nullable: true
+        reply_message:
+          type: string
+        created_at:
+          type: string
+          format: date-time
+
+    # ===== Setting =====
+    Setting:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        key:
+          type: string
+        value:
+          type: string
+        type:
+          type: string
+          enum: [string, number, boolean, json]
+        category:
+          type: string
+        is_public:
+          type: boolean
