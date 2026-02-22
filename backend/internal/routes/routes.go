@@ -4,10 +4,11 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/watloungporsai/wat-profile-backend/internal/handlers"
 	"github.com/watloungporsai/wat-profile-backend/internal/middleware"
+	"github.com/watloungporsai/wat-profile-backend/internal/storage"
 	"gorm.io/gorm"
 )
 
-func SetupRoutes(app *fiber.App, db *gorm.DB) {
+func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	// API v1
 	api := app.Group("/api/v1")
 
@@ -22,6 +23,10 @@ func SetupRoutes(app *fiber.App, db *gorm.DB) {
 	registrationHandler := handlers.NewRegistrationHandler(db)
 	contactHandler := handlers.NewContactHandler(db)
 	settingsHandler := handlers.NewSettingsHandler(db)
+	uploadHandler := handlers.NewUploadHandler(db, r2)
+	dashboardHandler := handlers.NewDashboardHandler(db)
+	userHandler := handlers.NewUserHandler(db)
+	roleHandler := handlers.NewRoleHandler(db)
 
 	// ============ PUBLIC ROUTES (No Auth Required) ============
 	public := api.Group("/public")
@@ -77,6 +82,9 @@ func SetupRoutes(app *fiber.App, db *gorm.DB) {
 	// ============ ADMIN ROUTES (Auth Required + Per-Resource Permissions) ============
 	admin := api.Group("/admin", middleware.AuthRequired)
 
+	// Dashboard Stats
+	admin.Get("/dashboard/stats", dashboardHandler.GetDashboardStats)
+
 	// Events Management
 	admin.Get("/events", middleware.PermissionRequired("events", "read"), eventHandler.GetEvents)
 	admin.Post("/events", middleware.PermissionRequired("events", "create"), eventHandler.CreateEvent)
@@ -97,6 +105,9 @@ func SetupRoutes(app *fiber.App, db *gorm.DB) {
 	admin.Get("/gallery/categories", middleware.PermissionRequired("gallery", "read"), galleryHandler.GetCategories)
 	admin.Post("/gallery/categories", middleware.PermissionRequired("gallery", "create"), galleryHandler.CreateCategory)
 	admin.Put("/gallery/categories/:id", middleware.PermissionRequired("gallery", "update"), galleryHandler.UpdateCategory)
+
+	// Upload Management
+	admin.Post("/upload", middleware.PermissionRequired("gallery", "create"), uploadHandler.UploadFile)
 
 	// Schedule Management
 	admin.Get("/schedules", middleware.PermissionRequired("schedules", "read"), scheduleHandler.GetSchedules)
@@ -132,4 +143,18 @@ func SetupRoutes(app *fiber.App, db *gorm.DB) {
 	admin.Get("/settings", middleware.PermissionRequired("settings", "read"), settingsHandler.GetAllSettings)
 	admin.Put("/settings", middleware.PermissionRequired("settings", "update"), settingsHandler.UpdateSettings)
 	admin.Post("/settings", middleware.PermissionRequired("settings", "create"), settingsHandler.UpsertSetting)
+
+	// User Management
+	admin.Get("/users", middleware.PermissionRequired("users", "read"), userHandler.GetUsers)
+	admin.Get("/users/:id", middleware.PermissionRequired("users", "read"), userHandler.GetUser)
+	admin.Post("/users", middleware.PermissionRequired("users", "create"), userHandler.CreateUser)
+	admin.Put("/users/:id", middleware.PermissionRequired("users", "update"), userHandler.UpdateUser)
+	admin.Delete("/users/:id", middleware.PermissionRequired("users", "delete"), userHandler.DeleteUser)
+
+	// Role Management (reuse "users" permission resource)
+	admin.Get("/roles", middleware.PermissionRequired("users", "read"), roleHandler.GetRoles)
+	admin.Get("/roles/:id", middleware.PermissionRequired("users", "read"), roleHandler.GetRole)
+	admin.Post("/roles", middleware.PermissionRequired("users", "create"), roleHandler.CreateRole)
+	admin.Put("/roles/:id", middleware.PermissionRequired("users", "update"), roleHandler.UpdateRole)
+	admin.Delete("/roles/:id", middleware.PermissionRequired("users", "delete"), roleHandler.DeleteRole)
 }

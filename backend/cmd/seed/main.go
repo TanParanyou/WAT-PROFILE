@@ -62,6 +62,27 @@ func seedRoles() {
 			IsActive: true,
 		},
 		{
+			Name:        "editor",
+			Description: "Content editor - manages events, monks, gallery, schedules",
+			Permissions: models.PermissionsMap{
+				"events":    "all",
+				"monks":     "all",
+				"gallery":   "all",
+				"schedules": "all",
+				"contacts":  "read",
+			},
+			IsActive: true,
+		},
+		{
+			Name:        "accountant",
+			Description: "Finance manager - manages donations and views members",
+			Permissions: models.PermissionsMap{
+				"donations": "all",
+				"members":   "read",
+			},
+			IsActive: true,
+		},
+		{
 			Name:        "member",
 			Description: "Registered temple member",
 			Permissions: models.PermissionsMap{

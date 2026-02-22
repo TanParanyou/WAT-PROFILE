@@ -1,0 +1,15 @@
+import { z } from "zod";
+import { multiLangSchema, slugSchema } from "./common";
+
+export const monkSchema = z.object({
+  name: multiLangSchema("Name"),
+  title: multiLangSchema("Title").optional(),
+  bio: multiLangSchema("Bio").optional(),
+  position: z.string().optional(),
+  slug: slugSchema,
+  image_url: z.string().optional(),
+  ordination_date: z.string().nullable().optional(),
+  is_active: z.boolean().default(true),
+});
+
+export type MonkFormData = z.infer<typeof monkSchema>;

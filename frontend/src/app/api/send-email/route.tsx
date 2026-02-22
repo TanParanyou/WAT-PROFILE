@@ -48,8 +48,14 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Create the email template component outside of try-catch
-    const emailTemplate = ContactTemplate({ name, email, subject, message });
+    const emailTemplate = (
+      <ContactTemplate
+        name={name}
+        email={email}
+        subject={subject}
+        message={message}
+      />
+    );
 
     const data = await resend.emails.send({
       from: fromEmail,

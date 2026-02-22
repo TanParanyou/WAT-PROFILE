@@ -1,0 +1,33 @@
+"use client";
+
+import { NextIntlClientProvider } from "next-intl";
+import th from "@/messages/admin/th.json";
+import en from "@/messages/admin/en.json";
+import de from "@/messages/admin/de.json";
+import { useAdminLocale } from "@/hooks/useAdminLocale";
+import { ReactNode } from "react";
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+const messagesMap: Record<string, any> = { th, en, de };
+
+export default function AdminIntlProvider({
+  children,
+}: {
+  children: ReactNode;
+}) {
+  const { locale, mounted } = useAdminLocale();
+
+  // To prevent hydration mismatch, we might want to return children directly before mount
+  // but NextIntlClientProvider needs messages. We wait until mounted.
+  if (!mounted) {
+    return <div style={{ visibility: "hidden" }}>{children}</div>;
+  }
+
+  const messages = messagesMap[locale] || th;
+
+  return (
+    <NextIntlClientProvider locale={locale} messages={messages}>
+      {children}
+    </NextIntlClientProvider>
+  );
+}

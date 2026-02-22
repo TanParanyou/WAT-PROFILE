@@ -13,6 +13,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/watloungporsai/wat-profile-backend/internal/config"
 	"github.com/watloungporsai/wat-profile-backend/internal/routes"
+	"github.com/watloungporsai/wat-profile-backend/internal/storage"
 	"github.com/watloungporsai/wat-profile-backend/pkg/logger"
 )
 
@@ -117,8 +118,16 @@ func main() {
 	})
 	app.Static("/docs/openapi.yaml", "./docs/openapi.yaml")
 
+	// Storage Service
+	r2Service, err := storage.NewR2Service()
+	if err != nil {
+		log.Warn().Err(err).Msg("Failed to initialize R2 service, file uploads will not work")
+	} else {
+		log.Info().Msg("R2 storage service initialized")
+	}
+
 	// ตั้งค่า routes
-	routes.SetupRoutes(app, config.DB)
+	routes.SetupRoutes(app, config.DB, r2Service)
 
 	// Graceful shutdown
 	port := getEnv("PORT", "8080")

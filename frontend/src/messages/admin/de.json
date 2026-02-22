@@ -1,0 +1,13 @@
+{
+  "Admin": {
+    "sidebar": { "dashboard": "Dashboard", "events": "Veranstaltungen", "monks": "Mönche", "gallery": "Galerie", "schedules": "Zeitpläne", "donations": "Spenden", "members": "Mitglieder", "contacts": "Kontakte", "settings": "Einstellungen", "users": "Benutzer", "roles": "Rollen", "registrations": "Anmeldungen" },
+    "header": { "logout": "Abmelden", "language": "Sprache", "profile": "Profil", "th": "ไทย", "en": "English", "de": "Deutsch" },
+    "common": { "create": "Erstellen", "edit": "Bearbeiten", "delete": "Löschen", "save": "Speichern", "cancel": "Abbrechen", "search": "Suchen...", "loading": "Wird geladen...", "noData": "Keine Daten gefunden", "confirmDelete": "Sind Sie sicher, dass Sie dieses Element löschen möchten?", "success": "Erfolg", "error": "Ein Fehler ist aufgetreten", "actions": "Aktionen", "refresh": "Aktualisieren" },
+    "events": { "title": "Veranstaltungen", "create": "Veranstaltung erstellen", "edit": "Veranstaltung bearbeiten" },
+    "monks": { "title": "Mönche", "create": "Mönch hinzufügen", "edit": "Mönch bearbeiten" },
+    "gallery": { "title": "Galerie", "upload": "Bilder hochladen" },
+    "donations": { "title": "Spenden" },
+    "users": { "title": "Benutzer", "create": "Benutzer erstellen", "edit": "Benutzer bearbeiten" },
+    "roles": { "title": "Rollen", "create": "Rolle erstellen", "edit": "Rolle bearbeiten" }
+  }
+}

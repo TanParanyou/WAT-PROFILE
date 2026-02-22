@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { AdminSidebar } from './AdminSidebar';
 import { AdminHeader } from './AdminHeader';
 import { cn } from '@/utils/cn';
@@ -11,13 +11,39 @@ interface AdminLayoutProps {
 
 export function AdminLayout({ children }: AdminLayoutProps) {
     const [collapsed, setCollapsed] = useState(false);
+    const [mobileOpen, setMobileOpen] = useState(false);
+
+    // ปิด mobile sidebar เมื่อหน้าจอใหญ่ขึ้น
+    useEffect(() => {
+        const handleResize = () => {
+            if (window.innerWidth >= 1024) setMobileOpen(false);
+        };
+        window.addEventListener('resize', handleResize);
+        return () => window.removeEventListener('resize', handleResize);
+    }, []);
 
     return (
         <div className="min-h-screen bg-gray-50">
-            <AdminSidebar collapsed={collapsed} onToggle={() => setCollapsed(!collapsed)} />
-            <div className={cn('transition-all duration-300', collapsed ? 'ml-16' : 'ml-64')}>
-                <AdminHeader />
-                <main className="p-6">{children}</main>
+            {/* Mobile overlay */}
+            {mobileOpen && (
+                <div
+                    className="fixed inset-0 bg-black/40 z-40 lg:hidden"
+                    onClick={() => setMobileOpen(false)}
+                />
+            )}
+
+            {/* Sidebar */}
+            <AdminSidebar
+                collapsed={collapsed}
+                onToggle={() => setCollapsed(!collapsed)}
+                mobileOpen={mobileOpen}
+                onMobileClose={() => setMobileOpen(false)}
+            />
+
+            {/* Main content */}
+            <div className={cn('transition-all duration-300 lg:ml-64', collapsed ? 'lg:ml-16' : 'lg:ml-64')}>
+                <AdminHeader onMenuClick={() => setMobileOpen(true)} />
+                <main className="p-4 sm:p-6">{children}</main>
             </div>
         </div>
     );
