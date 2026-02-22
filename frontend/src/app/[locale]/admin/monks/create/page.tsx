@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, use } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState } from "react";
+import { useRouter } from "@/navigation";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { MultiLangInput } from "@/components/admin/MultiLangInput";
 import { ImageUpload } from "@/components/admin/ImageUpload";
@@ -9,7 +9,6 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Button } from "@/components/ui/Button";
-import { PageLoading } from "@/components/ui/Loading";
 import { monkAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import { useApiError } from "@/hooks/useApiError";
@@ -25,26 +24,20 @@ const positionOptions = [
   { value: "vice_abbot", label: "รองเจ้าอาวาส" },
   { value: "monk", label: "พระภิกษุ" },
 ];
+
 const emptyLang: MultiLangText = { th: "", en: "", de: "" };
 
-export default function EditMonkPage({
-  params,
-}: {
-  params: Promise<{ id: string }>;
-}) {
-  const { id } = use(params);
+export default function CreateMonkPage() {
   const t = useTranslations("Admin");
   const router = useRouter();
   const { toasts, toast, removeToast } = useToast();
   const { handleApiError } = useApiError();
   const [isLoading, setIsLoading] = useState(false);
-  const [isFetching, setIsFetching] = useState(true);
 
   const {
     register,
     control,
     handleSubmit,
-    reset,
     setError,
     formState: { errors },
   } = useForm<MonkFormData>({
@@ -56,40 +49,15 @@ export default function EditMonkPage({
       slug: "",
       position: "monk",
       image_url: "",
-      is_active: true,
       ordination_date: "",
+      is_active: true,
     },
   });
-
-  useEffect(() => {
-    (async () => {
-      try {
-        const monk = await monkAdminService.getById(id);
-        reset({
-          name: monk.name || { ...emptyLang },
-          title: monk.title || { ...emptyLang },
-          bio: monk.bio || { ...emptyLang },
-          slug: monk.slug,
-          position: monk.position,
-          image_url: monk.image_url,
-          is_active: monk.is_active,
-          ordination_date: monk.ordination_date?.split("T")[0] || "",
-        });
-      } catch (err: unknown) {
-        handleApiError(err);
-      } finally {
-        setIsFetching(false);
-      }
-    })();
-  }, [id, reset, handleApiError]);
 
   const onSubmit = async (data: MonkFormData) => {
     setIsLoading(true);
     try {
-      await monkAdminService.update(
-        id,
-        data as unknown as Record<string, unknown>,
-      );
+      await monkAdminService.create(data as unknown as Record<string, unknown>);
       toast.success(t("common.success"));
       router.push("/admin/monks");
     } catch (err: unknown) {
@@ -99,15 +67,13 @@ export default function EditMonkPage({
     }
   };
 
-  if (isFetching) return <PageLoading />;
-
   return (
     <div>
       <AdminPageHeader
-        title="แก้ไขพระสงฆ์"
+        title="เพิ่มพระสงฆ์"
         breadcrumbs={[
           { label: "พระสงฆ์", href: "/admin/monks" },
-          { label: "แก้ไข" },
+          { label: "เพิ่มใหม่" },
         ]}
       />
       <form
@@ -225,7 +191,7 @@ export default function EditMonkPage({
             {t("common.cancel")}
           </Button>
           <Button type="submit" isLoading={isLoading}>
-            อัปเดต
+            {t("common.save")}
           </Button>
         </div>
       </form>

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/navigation";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { MultiLangInput } from "@/components/admin/MultiLangInput";
 import { ImageUpload } from "@/components/admin/ImageUpload";

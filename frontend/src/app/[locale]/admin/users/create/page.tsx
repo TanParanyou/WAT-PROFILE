@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/navigation";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
@@ -15,17 +15,16 @@ import { useTranslations } from "next-intl";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
-  updateUserSchema,
-  type UpdateUserFormData,
+  createUserSchema,
+  type CreateUserFormData,
 } from "@/schemas/user.schema";
 
-export default function EditUserPage({ params }: { params: { id: string } }) {
+export default function CreateUserPage() {
   const t = useTranslations("Admin");
   const router = useRouter();
   const { toasts, toast, removeToast } = useToast();
   const { handleApiError } = useApiError();
   const [isLoading, setIsLoading] = useState(false);
-  const [isFetching, setIsFetching] = useState(true);
 
   const [roles, setRoles] = useState<{ value: string; label: string }[]>([]);
 
@@ -33,11 +32,10 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
     register,
     control,
     handleSubmit,
-    reset,
     setError,
     formState: { errors },
-  } = useForm<UpdateUserFormData>({
-    resolver: zodResolver(updateUserSchema),
+  } = useForm<CreateUserFormData>({
+    resolver: zodResolver(createUserSchema),
     defaultValues: {
       name: "",
       email: "",
@@ -48,39 +46,18 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
   });
 
   useEffect(() => {
-    const loadVars = async () => {
-      try {
-        const rolesRes = await roleAdminService.getAll();
-        const options = rolesRes.data.map((r) => ({
-          value: r.id,
-          label: r.name,
-        }));
-        setRoles([{ value: "", label: "Select a role..." }, ...options]);
+    roleAdminService.getAll().then((res) => {
+      const options = res.data.map((r) => ({ value: r.id, label: r.name }));
+      setRoles([{ value: "", label: "Select a role..." }, ...options]);
+    });
+  }, []);
 
-        const user = await userAdminService.getById(params.id);
-        reset({
-          name: user.name,
-          email: user.email,
-          password: "",
-          role_id: user.role_id || "",
-          is_active: user.is_active,
-        });
-      } catch (err: unknown) {
-        handleApiError(err);
-      } finally {
-        setIsFetching(false);
-      }
-    };
-    loadVars();
-  }, [params.id, toast, t, reset, handleApiError]);
-
-  const onSubmit = async (data: UpdateUserFormData) => {
+  const onSubmit = async (data: CreateUserFormData) => {
     setIsLoading(true);
     try {
-      await userAdminService.update(params.id, {
+      await userAdminService.create({
         ...data,
         role_id: data.role_id || null,
-        ...(data.password ? { password: data.password } : {}),
       });
       toast.success(t("common.success"));
       router.push("/admin/users");
@@ -91,17 +68,13 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
     }
   };
 
-  if (isFetching) {
-    return <div className="p-8 text-center">{t("common.loading")}</div>;
-  }
-
   return (
     <div>
       <AdminPageHeader
-        title={t("users.edit")}
+        title={t("users.create")}
         breadcrumbs={[
           { label: t("users.title"), href: "/admin/users" },
-          { label: t("common.edit") },
+          { label: t("common.create") },
         ]}
       />
       <form
@@ -123,7 +96,7 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
         />
         <Input
           id="password"
-          label="รหัสผ่านใหม่ (เว้นว่างหากไม่ต้องการเปลี่ยน)"
+          label="รหัสผ่าน"
           type="password"
           {...register("password")}
           error={errors.password?.message}

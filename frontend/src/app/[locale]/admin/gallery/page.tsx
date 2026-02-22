@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import Link from "next/link";
+import { Link } from "@/navigation";
 import { useTranslations } from "next-intl";
 import { Plus, Pencil, Trash2, FolderOpen } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";

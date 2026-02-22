@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { usePathname } from "next/navigation";
+import { usePathname } from "@/navigation";
 import { AuthProvider } from "@/context/AuthContext";
 import { AdminAuthGuard } from "@/components/admin/AdminAuthGuard";
 import { AdminLayout } from "@/components/admin/AdminLayout";

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, use } from "react";
-import { useRouter } from "next/navigation";
+import { useRouter } from "@/navigation";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { MultiLangInput } from "@/components/admin/MultiLangInput";
 import { ImageUpload } from "@/components/admin/ImageUpload";
@@ -10,7 +10,7 @@ import { Select } from "@/components/ui/Select";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/Loading";
-import { eventAdminService } from "@/services/adminService";
+import { monkAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import { useApiError } from "@/hooks/useApiError";
 import { ToastContainer } from "@/components/admin/Toast";
@@ -18,18 +18,16 @@ import type { MultiLangText } from "@/types/api";
 import { useTranslations } from "next-intl";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { eventSchema, type EventFormData } from "@/schemas/event.schema";
+import { monkSchema, type MonkFormData } from "@/schemas/monk.schema";
 
-const eventTypeOptions = [
-  { value: "ceremony", label: "พิธีกรรม" },
-  { value: "meditation_course", label: "คอร์สปฏิบัติธรรม" },
-  { value: "festival", label: "งานเทศกาล" },
-  { value: "other", label: "อื่นๆ" },
+const positionOptions = [
+  { value: "abbot", label: "เจ้าอาวาส" },
+  { value: "vice_abbot", label: "รองเจ้าอาวาส" },
+  { value: "monk", label: "พระภิกษุ" },
 ];
-
 const emptyLang: MultiLangText = { th: "", en: "", de: "" };
 
-export default function EditEventPage({
+export default function EditMonkPage({
   params,
 }: {
   params: Promise<{ id: string }>;
@@ -49,54 +47,51 @@ export default function EditEventPage({
     reset,
     setError,
     formState: { errors },
-  } = useForm<EventFormData>({
-    resolver: zodResolver(eventSchema),
+  } = useForm<MonkFormData>({
+    resolver: zodResolver(monkSchema),
     defaultValues: {
+      name: { ...emptyLang },
       title: { ...emptyLang },
-      description: { ...emptyLang },
-      location: { ...emptyLang },
+      bio: { ...emptyLang },
       slug: "",
-      event_date: "",
-      event_type: "ceremony",
+      position: "monk",
       image_url: "",
       is_active: true,
-      registration_enabled: false,
+      ordination_date: "",
     },
   });
 
   useEffect(() => {
-    const load = async () => {
+    (async () => {
       try {
-        const event = await eventAdminService.getById(id);
+        const monk = await monkAdminService.getById(id);
         reset({
-          title: event.title || { ...emptyLang },
-          description: event.description || { ...emptyLang },
-          location: event.location || { ...emptyLang },
-          slug: event.slug,
-          event_date: event.event_date?.split("T")[0] || "",
-          event_type: event.event_type,
-          image_url: event.image_url,
-          is_active: event.is_active,
-          registration_enabled: event.registration_enabled,
+          name: monk.name || { ...emptyLang },
+          title: monk.title || { ...emptyLang },
+          bio: monk.bio || { ...emptyLang },
+          slug: monk.slug,
+          position: monk.position,
+          image_url: monk.image_url,
+          is_active: monk.is_active,
+          ordination_date: monk.ordination_date?.split("T")[0] || "",
         });
       } catch (err: unknown) {
         handleApiError(err);
       } finally {
         setIsFetching(false);
       }
-    };
-    load();
+    })();
   }, [id, reset, handleApiError]);
 
-  const onSubmit = async (data: EventFormData) => {
+  const onSubmit = async (data: MonkFormData) => {
     setIsLoading(true);
     try {
-      await eventAdminService.update(
+      await monkAdminService.update(
         id,
         data as unknown as Record<string, unknown>,
       );
       toast.success(t("common.success"));
-      router.push("/admin/events");
+      router.push("/admin/monks");
     } catch (err: unknown) {
       handleApiError(err, setError);
     } finally {
@@ -109,9 +104,9 @@ export default function EditEventPage({
   return (
     <div>
       <AdminPageHeader
-        title="แก้ไขกิจกรรม"
+        title="แก้ไขพระสงฆ์"
         breadcrumbs={[
-          { label: "กิจกรรม", href: "/admin/events" },
+          { label: "พระสงฆ์", href: "/admin/monks" },
           { label: "แก้ไข" },
         ]}
       />
@@ -121,17 +116,17 @@ export default function EditEventPage({
       >
         <Controller
           control={control}
-          name="title"
+          name="name"
           render={({ field }) => (
             <MultiLangInput
-              label="ชื่อกิจกรรม *"
+              label="ชื่อ *"
               value={field.value as MultiLangText}
               onChange={field.onChange}
               error={
-                errors.title?.th?.message ||
-                errors.title?.en?.message ||
-                errors.title?.de?.message ||
-                (errors.title as unknown as { message: string })?.message
+                errors.name?.th?.message ||
+                errors.name?.en?.message ||
+                errors.name?.de?.message ||
+                (errors.name as unknown as { message: string })?.message
               }
             />
           )}
@@ -144,59 +139,50 @@ export default function EditEventPage({
         />
         <Controller
           control={control}
-          name="description"
+          name="title"
           render={({ field }) => (
             <MultiLangInput
-              label="รายละเอียด"
-              type="textarea"
+              label="ตำแหน่ง/ยศ"
               value={(field.value || { ...emptyLang }) as MultiLangText}
               onChange={field.onChange}
               error={
-                errors.description?.th?.message ||
-                errors.description?.en?.message ||
-                errors.description?.de?.message ||
-                (errors.description as unknown as { message: string })?.message
+                errors.title?.th?.message ||
+                errors.title?.en?.message ||
+                errors.title?.de?.message ||
+                (errors.title as unknown as { message: string })?.message
               }
             />
           )}
         />
-        <div className="grid grid-cols-2 gap-4">
-          <Input
-            id="event_date"
-            label="วันที่จัดงาน *"
-            type="date"
-            {...register("event_date")}
-            error={errors.event_date?.message}
-          />
-          <Controller
-            control={control}
-            name="event_type"
-            render={({ field }) => (
-              <Select
-                id="event_type"
-                label="ประเภท *"
-                options={eventTypeOptions}
-                value={field.value}
-                onChange={(e) => field.onChange(e.target.value)}
-                error={errors.event_type?.message}
-              />
-            )}
-          />
-        </div>
         <Controller
           control={control}
-          name="location"
+          name="bio"
           render={({ field }) => (
             <MultiLangInput
-              label="สถานที่"
+              label="ประวัติ"
+              type="textarea"
               value={(field.value || { ...emptyLang }) as MultiLangText}
               onChange={field.onChange}
               error={
-                errors.location?.th?.message ||
-                errors.location?.en?.message ||
-                errors.location?.de?.message ||
-                (errors.location as unknown as { message: string })?.message
+                errors.bio?.th?.message ||
+                errors.bio?.en?.message ||
+                errors.bio?.de?.message ||
+                (errors.bio as unknown as { message: string })?.message
               }
+            />
+          )}
+        />
+        <Controller
+          control={control}
+          name="position"
+          render={({ field }) => (
+            <Select
+              id="position"
+              label="ตำแหน่ง"
+              options={positionOptions}
+              value={field.value}
+              onChange={(e) => field.onChange(e.target.value)}
+              error={errors.position?.message}
             />
           )}
         />
@@ -218,37 +204,23 @@ export default function EditEventPage({
             </div>
           )}
         />
-        <div className="flex gap-6 mt-4">
-          <Controller
-            control={control}
-            name="is_active"
-            render={({ field }) => (
-              <Checkbox
-                id="is_active"
-                label="เปิดใช้งาน"
-                checked={field.value}
-                onChange={(e) => field.onChange(e.target.checked)}
-              />
-            )}
-          />
-          <Controller
-            control={control}
-            name="registration_enabled"
-            render={({ field }) => (
-              <Checkbox
-                id="registration_enabled"
-                label="เปิดลงทะเบียน"
-                checked={field.value}
-                onChange={(e) => field.onChange(e.target.checked)}
-              />
-            )}
-          />
-        </div>
-        <div className="flex gap-3 pt-6 border-t border-gray-200">
+        <Controller
+          control={control}
+          name="is_active"
+          render={({ field }) => (
+            <Checkbox
+              id="is_active"
+              label="เปิดใช้งาน"
+              checked={field.value}
+              onChange={(e) => field.onChange(e.target.checked)}
+            />
+          )}
+        />
+        <div className="flex gap-3 pt-4 border-t border-gray-200">
           <Button
             type="button"
             variant="outline"
-            onClick={() => router.push("/admin/events")}
+            onClick={() => router.push("/admin/monks")}
           >
             {t("common.cancel")}
           </Button>

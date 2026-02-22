@@ -1,7 +1,7 @@
 "use client";
 
-import React, { useState } from "react";
-import { useRouter } from "next/navigation";
+import React, { useState, useEffect, use } from "react";
+import { useRouter } from "@/navigation";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { MultiLangInput } from "@/components/admin/MultiLangInput";
 import { ImageUpload } from "@/components/admin/ImageUpload";
@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Button } from "@/components/ui/Button";
+import { PageLoading } from "@/components/ui/Loading";
 import { eventAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import { useApiError } from "@/hooks/useApiError";
@@ -26,25 +27,34 @@ const eventTypeOptions = [
   { value: "other", label: "อื่นๆ" },
 ];
 
-export default function CreateEventPage() {
+const emptyLang: MultiLangText = { th: "", en: "", de: "" };
+
+export default function EditEventPage({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
+  const { id } = use(params);
   const t = useTranslations("Admin");
   const router = useRouter();
   const { toasts, toast, removeToast } = useToast();
   const { handleApiError } = useApiError();
   const [isLoading, setIsLoading] = useState(false);
+  const [isFetching, setIsFetching] = useState(true);
 
   const {
     register,
     control,
     handleSubmit,
+    reset,
     setError,
     formState: { errors },
   } = useForm<EventFormData>({
     resolver: zodResolver(eventSchema),
     defaultValues: {
-      title: { th: "", en: "", de: "" },
-      description: { th: "", en: "", de: "" },
-      location: { th: "", en: "", de: "" },
+      title: { ...emptyLang },
+      description: { ...emptyLang },
+      location: { ...emptyLang },
       slug: "",
       event_date: "",
       event_type: "ceremony",
@@ -54,11 +64,35 @@ export default function CreateEventPage() {
     },
   });
 
+  useEffect(() => {
+    const load = async () => {
+      try {
+        const event = await eventAdminService.getById(id);
+        reset({
+          title: event.title || { ...emptyLang },
+          description: event.description || { ...emptyLang },
+          location: event.location || { ...emptyLang },
+          slug: event.slug,
+          event_date: event.event_date?.split("T")[0] || "",
+          event_type: event.event_type,
+          image_url: event.image_url,
+          is_active: event.is_active,
+          registration_enabled: event.registration_enabled,
+        });
+      } catch (err: unknown) {
+        handleApiError(err);
+      } finally {
+        setIsFetching(false);
+      }
+    };
+    load();
+  }, [id, reset, handleApiError]);
+
   const onSubmit = async (data: EventFormData) => {
     setIsLoading(true);
     try {
-      // Cast data safely for the service call
-      await eventAdminService.create(
+      await eventAdminService.update(
+        id,
         data as unknown as Record<string, unknown>,
       );
       toast.success(t("common.success"));
@@ -70,13 +104,15 @@ export default function CreateEventPage() {
     }
   };
 
+  if (isFetching) return <PageLoading />;
+
   return (
     <div>
       <AdminPageHeader
-        title="สร้างกิจกรรมใหม่"
+        title="แก้ไขกิจกรรม"
         breadcrumbs={[
           { label: "กิจกรรม", href: "/admin/events" },
-          { label: "สร้างใหม่" },
+          { label: "แก้ไข" },
         ]}
       />
       <form
@@ -103,7 +139,6 @@ export default function CreateEventPage() {
         <Input
           id="slug"
           label="Slug *"
-          placeholder="event-slug"
           {...register("slug")}
           error={errors.slug?.message}
         />
@@ -114,9 +149,7 @@ export default function CreateEventPage() {
             <MultiLangInput
               label="รายละเอียด"
               type="textarea"
-              value={
-                (field.value || { th: "", en: "", de: "" }) as MultiLangText
-              }
+              value={(field.value || { ...emptyLang }) as MultiLangText}
               onChange={field.onChange}
               error={
                 errors.description?.th?.message ||
@@ -156,9 +189,7 @@ export default function CreateEventPage() {
           render={({ field }) => (
             <MultiLangInput
               label="สถานที่"
-              value={
-                (field.value || { th: "", en: "", de: "" }) as MultiLangText
-              }
+              value={(field.value || { ...emptyLang }) as MultiLangText}
               onChange={field.onChange}
               error={
                 errors.location?.th?.message ||
@@ -222,7 +253,7 @@ export default function CreateEventPage() {
             {t("common.cancel")}
           </Button>
           <Button type="submit" isLoading={isLoading}>
-            {t("common.save")}
+            อัปเดต
           </Button>
         </div>
       </form>

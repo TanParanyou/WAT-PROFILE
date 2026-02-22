@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter } from "@/navigation";
 import { useAuth } from '@/hooks/useAuth';
 import { PageLoading } from '@/components/ui/Loading';
 
