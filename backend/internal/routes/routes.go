@@ -74,62 +74,62 @@ func SetupRoutes(app *fiber.App, db *gorm.DB) {
 	// Member registrations
 	member.Get("/registrations", registrationHandler.GetMyRegistrations)
 
-	// ============ ADMIN ROUTES (Auth + Admin Role Required) ============
-	admin := api.Group("/admin", middleware.AuthRequired, middleware.AdminOnly)
+	// ============ ADMIN ROUTES (Auth Required + Per-Resource Permissions) ============
+	admin := api.Group("/admin", middleware.AuthRequired)
 
 	// Events Management
-	admin.Get("/events", eventHandler.GetEvents)
-	admin.Post("/events", eventHandler.CreateEvent)
-	admin.Put("/events/:id", eventHandler.UpdateEvent)
-	admin.Delete("/events/:id", eventHandler.DeleteEvent)
+	admin.Get("/events", middleware.PermissionRequired("events", "read"), eventHandler.GetEvents)
+	admin.Post("/events", middleware.PermissionRequired("events", "create"), eventHandler.CreateEvent)
+	admin.Put("/events/:id", middleware.PermissionRequired("events", "update"), eventHandler.UpdateEvent)
+	admin.Delete("/events/:id", middleware.PermissionRequired("events", "delete"), eventHandler.DeleteEvent)
 
 	// Monks Management
-	admin.Get("/monks", monkHandler.GetMonks)
-	admin.Post("/monks", monkHandler.CreateMonk)
-	admin.Put("/monks/:id", monkHandler.UpdateMonk)
-	admin.Delete("/monks/:id", monkHandler.DeleteMonk)
+	admin.Get("/monks", middleware.PermissionRequired("monks", "read"), monkHandler.GetMonks)
+	admin.Post("/monks", middleware.PermissionRequired("monks", "create"), monkHandler.CreateMonk)
+	admin.Put("/monks/:id", middleware.PermissionRequired("monks", "update"), monkHandler.UpdateMonk)
+	admin.Delete("/monks/:id", middleware.PermissionRequired("monks", "delete"), monkHandler.DeleteMonk)
 
 	// Gallery Management
-	admin.Get("/gallery", galleryHandler.GetGalleries)
-	admin.Post("/gallery", galleryHandler.CreateGallery)
-	admin.Put("/gallery/:id", galleryHandler.UpdateGallery)
-	admin.Delete("/gallery/:id", galleryHandler.DeleteGallery)
-	admin.Get("/gallery/categories", galleryHandler.GetCategories)
-	admin.Post("/gallery/categories", galleryHandler.CreateCategory)
-	admin.Put("/gallery/categories/:id", galleryHandler.UpdateCategory)
+	admin.Get("/gallery", middleware.PermissionRequired("gallery", "read"), galleryHandler.GetGalleries)
+	admin.Post("/gallery", middleware.PermissionRequired("gallery", "create"), galleryHandler.CreateGallery)
+	admin.Put("/gallery/:id", middleware.PermissionRequired("gallery", "update"), galleryHandler.UpdateGallery)
+	admin.Delete("/gallery/:id", middleware.PermissionRequired("gallery", "delete"), galleryHandler.DeleteGallery)
+	admin.Get("/gallery/categories", middleware.PermissionRequired("gallery", "read"), galleryHandler.GetCategories)
+	admin.Post("/gallery/categories", middleware.PermissionRequired("gallery", "create"), galleryHandler.CreateCategory)
+	admin.Put("/gallery/categories/:id", middleware.PermissionRequired("gallery", "update"), galleryHandler.UpdateCategory)
 
 	// Schedule Management
-	admin.Get("/schedules", scheduleHandler.GetSchedules)
-	admin.Post("/schedules", scheduleHandler.CreateSchedule)
-	admin.Put("/schedules/:id", scheduleHandler.UpdateSchedule)
-	admin.Delete("/schedules/:id", scheduleHandler.DeleteSchedule)
+	admin.Get("/schedules", middleware.PermissionRequired("schedules", "read"), scheduleHandler.GetSchedules)
+	admin.Post("/schedules", middleware.PermissionRequired("schedules", "create"), scheduleHandler.CreateSchedule)
+	admin.Put("/schedules/:id", middleware.PermissionRequired("schedules", "update"), scheduleHandler.UpdateSchedule)
+	admin.Delete("/schedules/:id", middleware.PermissionRequired("schedules", "delete"), scheduleHandler.DeleteSchedule)
 
 	// Donation Management
-	admin.Get("/donations", donationHandler.GetDonations)
-	admin.Get("/donations/stats", donationHandler.GetDonationStats)
-	admin.Put("/donations/:id", donationHandler.UpdateDonation)
-	admin.Delete("/donations/:id", donationHandler.DeleteDonation)
-	admin.Get("/donation-categories", donationHandler.GetDonationCategories)
-	admin.Post("/donation-categories", donationHandler.CreateDonationCategory)
-	admin.Put("/donation-categories/:id", donationHandler.UpdateDonationCategory)
-	admin.Delete("/donation-categories/:id", donationHandler.DeleteDonationCategory)
+	admin.Get("/donations", middleware.PermissionRequired("donations", "read"), donationHandler.GetDonations)
+	admin.Get("/donations/stats", middleware.PermissionRequired("donations", "read"), donationHandler.GetDonationStats)
+	admin.Put("/donations/:id", middleware.PermissionRequired("donations", "update"), donationHandler.UpdateDonation)
+	admin.Delete("/donations/:id", middleware.PermissionRequired("donations", "delete"), donationHandler.DeleteDonation)
+	admin.Get("/donation-categories", middleware.PermissionRequired("donations", "read"), donationHandler.GetDonationCategories)
+	admin.Post("/donation-categories", middleware.PermissionRequired("donations", "create"), donationHandler.CreateDonationCategory)
+	admin.Put("/donation-categories/:id", middleware.PermissionRequired("donations", "update"), donationHandler.UpdateDonationCategory)
+	admin.Delete("/donation-categories/:id", middleware.PermissionRequired("donations", "delete"), donationHandler.DeleteDonationCategory)
 
 	// Member Management
-	admin.Get("/members", memberHandler.GetMembers)
-	admin.Get("/members/:id", memberHandler.GetMember)
-	admin.Put("/members/:id", memberHandler.UpdateMember)
+	admin.Get("/members", middleware.PermissionRequired("members", "read"), memberHandler.GetMembers)
+	admin.Get("/members/:id", middleware.PermissionRequired("members", "read"), memberHandler.GetMember)
+	admin.Put("/members/:id", middleware.PermissionRequired("members", "update"), memberHandler.UpdateMember)
 
 	// Event Registration Management
-	admin.Get("/registrations", registrationHandler.GetRegistrations)
-	admin.Put("/registrations/:id/status", registrationHandler.UpdateRegistrationStatus)
+	admin.Get("/registrations", middleware.PermissionRequired("events", "read"), registrationHandler.GetRegistrations)
+	admin.Put("/registrations/:id/status", middleware.PermissionRequired("events", "update"), registrationHandler.UpdateRegistrationStatus)
 
 	// Contact Management
-	admin.Get("/contacts", contactHandler.GetContacts)
-	admin.Put("/contacts/:id/status", contactHandler.UpdateContactStatus)
-	admin.Delete("/contacts/:id", contactHandler.DeleteContact)
+	admin.Get("/contacts", middleware.PermissionRequired("contacts", "read"), contactHandler.GetContacts)
+	admin.Put("/contacts/:id/status", middleware.PermissionRequired("contacts", "update"), contactHandler.UpdateContactStatus)
+	admin.Delete("/contacts/:id", middleware.PermissionRequired("contacts", "delete"), contactHandler.DeleteContact)
 
 	// Settings Management
-	admin.Get("/settings", settingsHandler.GetAllSettings)
-	admin.Put("/settings", settingsHandler.UpdateSettings)
-	admin.Post("/settings", settingsHandler.UpsertSetting)
+	admin.Get("/settings", middleware.PermissionRequired("settings", "read"), settingsHandler.GetAllSettings)
+	admin.Put("/settings", middleware.PermissionRequired("settings", "update"), settingsHandler.UpdateSettings)
+	admin.Post("/settings", middleware.PermissionRequired("settings", "create"), settingsHandler.UpsertSetting)
 }

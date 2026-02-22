@@ -11,6 +11,7 @@
   "dependencies": {
     "@react-email/components": "^1.0.6",
     "@react-email/render": "^2.0.4",
+    "axios": "^1.13.5",
     "clsx": "^2.1.1",
     "framer-motion": "^12.28.1",
     "isomorphic-dompurify": "^2.36.0",
