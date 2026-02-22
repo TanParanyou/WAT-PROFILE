@@ -48,21 +48,17 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const emailTemplate = (
-      <ContactTemplate
-        name={name}
-        email={email}
-        subject={subject}
-        message={message}
-      />
-    );
-
     const data = await resend.emails.send({
       from: fromEmail,
       to: [toEmail],
       replyTo: email,
       subject: `[Contact Form] ${subject}`,
-      react: emailTemplate,
+      react: ContactTemplate({
+        name,
+        email,
+        subject,
+        message,
+      }) as React.ReactElement,
     });
 
     if (data.error) {

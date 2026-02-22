@@ -1,4 +1,14 @@
 import { z } from "zod";
+import { multiLangSchema } from "./common";
+
+export const donationCategorySchema = z.object({
+  name: multiLangSchema("Name"),
+  description: multiLangSchema("Description").optional(),
+  display_order: z.number(),
+  is_active: z.boolean(),
+});
+
+export type DonationCategoryFormData = z.infer<typeof donationCategorySchema>;
 
 export const donationSchema = z.object({
   donor_name: z.string().min(1, "Donor name is required"),

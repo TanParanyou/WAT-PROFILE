@@ -12,8 +12,8 @@ export const eventSchema = z
     event_type: z.string().min(1, "Event type is required"),
     location: multiLangSchema("Location").optional(),
     image_url: z.string().optional(),
-    is_active: z.boolean().default(true),
-    registration_enabled: z.boolean().default(false),
+    is_active: z.boolean(),
+    registration_enabled: z.boolean(),
   })
   .refine(
     (data) => {

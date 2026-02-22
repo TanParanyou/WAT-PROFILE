@@ -9,7 +9,7 @@ export const monkSchema = z.object({
   slug: slugSchema,
   image_url: z.string().optional(),
   ordination_date: z.string().nullable().optional(),
-  is_active: z.boolean().default(true),
+  is_active: z.boolean(),
 });
 
 export type MonkFormData = z.infer<typeof monkSchema>;

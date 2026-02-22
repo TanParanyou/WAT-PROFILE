@@ -5,7 +5,7 @@ export interface Role {
   id: string;
   name: string;
   description: string;
-  permissions: Record<string, any>;
+  permissions: Record<string, unknown>;
   is_active: boolean;
   created_at: string;
   updated_at: string;
