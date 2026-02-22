@@ -2,7 +2,7 @@
   "Admin": {
     "sidebar": { "dashboard": "แดชบอร์ด", "events": "กิจกรรม", "monks": "พระสงฆ์", "gallery": "แกลเลอรี", "schedules": "ตารางเวลา", "donations": "เงินบริจาค", "members": "สมาชิก", "contacts": "รายงานผู้ติดต่อ", "settings": "ตั้งค่า", "users": "ผู้ใช้งาน", "roles": "บทบาท", "registrations": "ลงทะเบียน" },
     "header": { "logout": "ออกจากระบบ", "language": "ภาษา", "profile": "โปรไฟล์", "th": "ไทย", "en": "English", "de": "Deutsch" },
-    "common": { "create": "สร้างใหม่", "edit": "แก้ไข", "delete": "ลบ", "save": "บันทึก", "cancel": "ยกเลิก", "search": "ค้นหา...", "loading": "กำลังโหลด...", "noData": "ไม่พบข้อมูล", "confirmDelete": "คุณแน่ใจหรือไม่ที่จะลบรายการนี้?", "success": "สำเร็จ", "error": "เกิดข้อผิดพลาด", "actions": "จัดการ", "refresh": "รีเฟรช" },
+    "common": { "create": "สร้างใหม่", "edit": "แก้ไข", "delete": "ลบ", "save": "บันทึก", "cancel": "ยกเลิก", "search": "ค้นหา...", "loading": "กำลังโหลด...", "noData": "ไม่พบข้อมูล", "confirmDelete": "คุณแน่ใจหรือไม่ที่จะลบรายการนี้?", "success": "สำเร็จ", "error": "เกิดข้อผิดพลาด", "actions": "จัดการ", "refresh": "รีเฟรช", "selectedItems": "เลือกแล้ว {count} รายการ", "clear": "ล้างการเลือก" },
     "events": { "title": "กิจกรรม", "create": "สร้างกิจกรรม", "edit": "แก้ไขกิจกรรม" },
     "monks": { "title": "พระสงฆ์", "create": "เพิ่มพระสงฆ์", "edit": "แก้ไขข้อมูลพระสงฆ์" },
     "gallery": { "title": "แกลเลอรี", "upload": "อัพโหลดรูปภาพ" },

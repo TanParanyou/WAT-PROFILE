@@ -2,7 +2,7 @@
   "Admin": {
     "sidebar": { "dashboard": "Dashboard", "events": "Events", "monks": "Monks", "gallery": "Gallery", "schedules": "Schedules", "donations": "Donations", "members": "Members", "contacts": "Contacts", "settings": "Settings", "users": "Users", "roles": "Roles", "registrations": "Registrations" },
     "header": { "logout": "Logout", "language": "Language", "profile": "Profile", "th": "ไทย", "en": "English", "de": "Deutsch" },
-    "common": { "create": "Create", "edit": "Edit", "delete": "Delete", "save": "Save", "cancel": "Cancel", "search": "Search...", "loading": "Loading...", "noData": "No data found", "confirmDelete": "Are you sure you want to delete this item?", "success": "Success", "error": "An error occurred", "actions": "Actions", "refresh": "Refresh" },
+    "common": { "create": "Create", "edit": "Edit", "delete": "Delete", "save": "Save", "cancel": "Cancel", "search": "Search...", "loading": "Loading...", "noData": "No data found", "confirmDelete": "Are you sure you want to delete this item?", "success": "Success", "error": "An error occurred", "actions": "Actions", "refresh": "Refresh", "selectedItems": "{count} items selected", "clear": "Clear selection" },
     "events": { "title": "Events", "create": "Create Event", "edit": "Edit Event" },
     "monks": { "title": "Monks", "create": "Add Monk", "edit": "Edit Monk" },
     "gallery": { "title": "Gallery", "upload": "Upload Images" },
