@@ -114,3 +114,8 @@ func generateConfirmationCode() string {
 	rand.Read(bytes)
 	return hex.EncodeToString(bytes)
 }
+
+// BulkDelete removes multiple event registrations by their IDs
+func (s *RegistrationService) BulkDelete(ids []int) error {
+	return s.db.Where("id IN ?", ids).Delete(&models.EventRegistration{}).Error
+}

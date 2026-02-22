@@ -50,3 +50,8 @@ func (s *ScheduleService) Update(schedule *models.Schedule) error {
 func (s *ScheduleService) Delete(id int) error {
 	return s.db.Delete(&models.Schedule{}, id).Error
 }
+
+// BulkDelete removes multiple schedules by their IDs
+func (s *ScheduleService) BulkDelete(ids []int) error {
+	return s.db.Where("id IN ?", ids).Delete(&models.Schedule{}).Error
+}

@@ -159,3 +159,30 @@ func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 
 	return utils.MessageResponse(c, "User deleted successfully")
 }
+
+// BulkDeleteUsers - Admin: Delete multiple users
+func (h *UserHandler) BulkDeleteUsers(c *fiber.Ctx) error {
+	var req models.BulkDeleteUUIDRequest
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	if len(req.IDs) == 0 {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "No IDs provided for deletion")
+	}
+
+	var currentUserID uuid.UUID
+	if val := c.Locals("user_id"); val != nil {
+		if uid, ok := val.(string); ok {
+			currentUserID, _ = uuid.Parse(uid)
+		} else if uid, ok := val.(uuid.UUID); ok {
+			currentUserID = uid
+		}
+	}
+
+	if err := h.userService.BulkDelete(req.IDs, currentUserID); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, err.Error())
+	}
+
+	return utils.MessageResponse(c, "Users deleted successfully")
+}

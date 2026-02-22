@@ -110,3 +110,8 @@ func generateMemberCode(tx *gorm.DB) string {
 		Count(&count)
 	return fmt.Sprintf("WLP-%d-%03d", now.Year(), count+1)
 }
+
+// BulkDelete removes multiple members by their IDs
+func (s *MemberService) BulkDelete(ids []int) error {
+	return s.db.Where("id IN ?", ids).Delete(&models.Member{}).Error
+}

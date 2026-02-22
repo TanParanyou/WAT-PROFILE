@@ -102,3 +102,39 @@ func (h *GalleryHandler) UpdateCategory(c *fiber.Ctx) error {
 	}
 	return utils.SuccessResponse(c, category)
 }
+
+// BulkDeleteGalleries - Admin: Delete multiple gallery items
+func (h *GalleryHandler) BulkDeleteGalleries(c *fiber.Ctx) error {
+	var req models.BulkDeleteRequest
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	if len(req.IDs) == 0 {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "No IDs provided for deletion")
+	}
+
+	if err := h.galleryService.BulkDelete(req.IDs); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete gallery items")
+	}
+
+	return utils.MessageResponse(c, "Gallery items deleted successfully")
+}
+
+// BulkDeleteCategories - Admin: Delete multiple gallery categories
+func (h *GalleryHandler) BulkDeleteCategories(c *fiber.Ctx) error {
+	var req models.BulkDeleteRequest
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	if len(req.IDs) == 0 {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "No IDs provided for deletion")
+	}
+
+	if err := h.galleryService.BulkDeleteCategories(req.IDs); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete gallery categories")
+	}
+
+	return utils.MessageResponse(c, "Gallery categories deleted successfully")
+}

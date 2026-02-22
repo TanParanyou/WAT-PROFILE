@@ -107,3 +107,21 @@ func (h *ContactHandler) DeleteContact(c *fiber.Ctx) error {
 	}
 	return utils.MessageResponse(c, "Contact inquiry deleted successfully")
 }
+
+// BulkDeleteContacts - Admin: Delete multiple contact inquiries
+func (h *ContactHandler) BulkDeleteContacts(c *fiber.Ctx) error {
+	var req models.BulkDeleteRequest
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	if len(req.IDs) == 0 {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "No IDs provided for deletion")
+	}
+
+	if err := h.contactService.BulkDelete(req.IDs); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete contact inquiries")
+	}
+
+	return utils.MessageResponse(c, "Contact inquiries deleted successfully")
+}

@@ -73,3 +73,21 @@ func (h *MonkHandler) DeleteMonk(c *fiber.Ctx) error {
 	}
 	return utils.MessageResponse(c, "Deleted successfully")
 }
+
+// BulkDeleteMonks - Admin: Delete multiple monks
+func (h *MonkHandler) BulkDeleteMonks(c *fiber.Ctx) error {
+	var req models.BulkDeleteRequest
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	if len(req.IDs) == 0 {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "No IDs provided for deletion")
+	}
+
+	if err := h.monkService.BulkDelete(req.IDs); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete monks")
+	}
+
+	return utils.MessageResponse(c, "Monks deleted successfully")
+}

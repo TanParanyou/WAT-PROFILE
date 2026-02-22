@@ -56,3 +56,8 @@ func (s *MonkService) Update(monk *models.Monk) error {
 func (s *MonkService) Delete(id int) error {
 	return s.db.Delete(&models.Monk{}, id).Error
 }
+
+// BulkDelete removes multiple monks by their IDs
+func (s *MonkService) BulkDelete(ids []int) error {
+	return s.db.Where("id IN ?", ids).Delete(&models.Monk{}).Error
+}

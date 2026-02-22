@@ -67,3 +67,26 @@ func (s *RoleService) Delete(id uuid.UUID) error {
 
 	return s.db.Delete(&models.Role{}, "id = ?", id).Error
 }
+
+// BulkDelete removes multiple roles by their IDs
+func (s *RoleService) BulkDelete(ids []uuid.UUID) error {
+	for _, id := range ids {
+		var role models.Role
+		if err := s.db.First(&role, "id = ?", id).Error; err != nil {
+			continue // Skip if not found
+		}
+		if role.Name == "admin" {
+			return errors.New("cannot delete 'admin' role in bulk operation")
+		}
+
+		var count int64
+		if err := s.db.Model(&models.User{}).Where("role_id = ?", id).Count(&count).Error; err != nil {
+			return err
+		}
+		if count > 0 {
+			return errors.New("cannot delete role '" + role.Name + "' because it is assigned to users")
+		}
+	}
+
+	return s.db.Where("id IN ?", ids).Delete(&models.Role{}).Error
+}

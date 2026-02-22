@@ -125,3 +125,21 @@ func (h *MemberHandler) UpdateMember(c *fiber.Ctx) error {
 	}
 	return utils.SuccessResponse(c, member)
 }
+
+// BulkDeleteMembers - Admin: Delete multiple members
+func (h *MemberHandler) BulkDeleteMembers(c *fiber.Ctx) error {
+	var req models.BulkDeleteRequest
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	if len(req.IDs) == 0 {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "No IDs provided for deletion")
+	}
+
+	if err := h.memberService.BulkDelete(req.IDs); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete members")
+	}
+
+	return utils.MessageResponse(c, "Members deleted successfully")
+}

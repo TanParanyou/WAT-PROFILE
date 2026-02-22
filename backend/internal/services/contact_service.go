@@ -67,3 +67,8 @@ func (s *ContactService) UpdateStatus(inquiry *models.ContactInquiry, status, re
 func (s *ContactService) Delete(id int) error {
 	return s.db.Delete(&models.ContactInquiry{}, id).Error
 }
+
+// BulkDelete removes multiple contact inquiries by their IDs
+func (s *ContactService) BulkDelete(ids []int) error {
+	return s.db.Where("id IN ?", ids).Delete(&models.ContactInquiry{}).Error
+}

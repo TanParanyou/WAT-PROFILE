@@ -59,3 +59,8 @@ func (s *EventService) Update(event *models.Event) error {
 func (s *EventService) Delete(id int) error {
 	return s.db.Delete(&models.Event{}, id).Error
 }
+
+// BulkDelete removes multiple events by their IDs
+func (s *EventService) BulkDelete(ids []int) error {
+	return s.db.Where("id IN ?", ids).Delete(&models.Event{}).Error
+}

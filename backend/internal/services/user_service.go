@@ -93,3 +93,13 @@ func (s *UserService) Delete(id, currentUserID uuid.UUID) error {
 	// Soft delete or hard delete? The model uses CASCADE constraints on related tables usually.
 	return s.db.Delete(&models.User{}, "id = ?", id).Error
 }
+
+// BulkDelete removes multiple users by their IDs
+func (s *UserService) BulkDelete(ids []uuid.UUID, currentUserID uuid.UUID) error {
+	for _, id := range ids {
+		if id == currentUserID {
+			return errors.New("cannot delete yourself in a bulk operation")
+		}
+	}
+	return s.db.Where("id IN ?", ids).Delete(&models.User{}).Error
+}

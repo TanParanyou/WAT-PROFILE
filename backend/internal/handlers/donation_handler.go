@@ -145,3 +145,39 @@ func (h *DonationHandler) DeleteDonationCategory(c *fiber.Ctx) error {
 	}
 	return utils.MessageResponse(c, "Category deleted successfully")
 }
+
+// BulkDeleteDonations - Admin: Delete multiple donations
+func (h *DonationHandler) BulkDeleteDonations(c *fiber.Ctx) error {
+	var req models.BulkDeleteRequest
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	if len(req.IDs) == 0 {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "No IDs provided for deletion")
+	}
+
+	if err := h.donationService.BulkDelete(req.IDs); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete donations")
+	}
+
+	return utils.MessageResponse(c, "Donations deleted successfully")
+}
+
+// BulkDeleteDonationCategories - Admin: Delete multiple donation categories
+func (h *DonationHandler) BulkDeleteDonationCategories(c *fiber.Ctx) error {
+	var req models.BulkDeleteRequest
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	if len(req.IDs) == 0 {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "No IDs provided for deletion")
+	}
+
+	if err := h.donationService.BulkDeleteCategories(req.IDs); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete donation categories")
+	}
+
+	return utils.MessageResponse(c, "Donation categories deleted successfully")
+}

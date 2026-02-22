@@ -95,3 +95,21 @@ func (h *RoleHandler) DeleteRole(c *fiber.Ctx) error {
 
 	return utils.MessageResponse(c, "Role deleted successfully")
 }
+
+// BulkDeleteRoles - Admin: Delete multiple roles
+func (h *RoleHandler) BulkDeleteRoles(c *fiber.Ctx) error {
+	var req models.BulkDeleteUUIDRequest
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	if len(req.IDs) == 0 {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "No IDs provided for deletion")
+	}
+
+	if err := h.roleService.BulkDelete(req.IDs); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+
+	return utils.MessageResponse(c, "Roles deleted successfully")
+}

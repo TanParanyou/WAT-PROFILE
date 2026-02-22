@@ -65,3 +65,21 @@ func (h *ScheduleHandler) DeleteSchedule(c *fiber.Ctx) error {
 	}
 	return utils.MessageResponse(c, "Schedule deleted successfully")
 }
+
+// BulkDeleteSchedules - Admin: Delete multiple schedules
+func (h *ScheduleHandler) BulkDeleteSchedules(c *fiber.Ctx) error {
+	var req models.BulkDeleteRequest
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	if len(req.IDs) == 0 {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "No IDs provided for deletion")
+	}
+
+	if err := h.scheduleService.BulkDelete(req.IDs); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete schedules")
+	}
+
+	return utils.MessageResponse(c, "Schedules deleted successfully")
+}

@@ -110,3 +110,21 @@ func (h *RegistrationHandler) UpdateRegistrationStatus(c *fiber.Ctx) error {
 	}
 	return utils.SuccessResponse(c, registration)
 }
+
+// BulkDeleteRegistrations - Admin: Delete multiple event registrations
+func (h *RegistrationHandler) BulkDeleteRegistrations(c *fiber.Ctx) error {
+	var req models.BulkDeleteRequest
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	if len(req.IDs) == 0 {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "No IDs provided for deletion")
+	}
+
+	if err := h.registrationService.BulkDelete(req.IDs); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete event registrations")
+	}
+
+	return utils.MessageResponse(c, "Event registrations deleted successfully")
+}

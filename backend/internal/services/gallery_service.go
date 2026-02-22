@@ -79,3 +79,13 @@ func (s *GalleryService) GetCategoryByID(id int) (*models.GalleryCategory, error
 func (s *GalleryService) UpdateCategory(category *models.GalleryCategory) error {
 	return s.db.Save(category).Error
 }
+
+// BulkDelete removes multiple gallery items by their IDs
+func (s *GalleryService) BulkDelete(ids []int) error {
+	return s.db.Where("id IN ?", ids).Delete(&models.Gallery{}).Error
+}
+
+// BulkDeleteCategories removes multiple gallery categories by their IDs
+func (s *GalleryService) BulkDeleteCategories(ids []int) error {
+	return s.db.Where("id IN ?", ids).Delete(&models.GalleryCategory{}).Error
+}

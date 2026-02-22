@@ -151,6 +151,16 @@ func (s *DonationService) DeleteCategory(id int) error {
 	return s.db.Delete(&models.DonationCategory{}, id).Error
 }
 
+// BulkDelete removes multiple donations by their IDs
+func (s *DonationService) BulkDelete(ids []int) error {
+	return s.db.Where("id IN ?", ids).Delete(&models.Donation{}).Error
+}
+
+// BulkDeleteCategories removes multiple donation categories by their IDs
+func (s *DonationService) BulkDeleteCategories(ids []int) error {
+	return s.db.Where("id IN ?", ids).Delete(&models.DonationCategory{}).Error
+}
+
 // generateReceiptNumber creates a unique receipt number (ใช้ tx เพื่อให้อยู่ใน transaction เดียวกัน)
 func generateReceiptNumber(tx *gorm.DB) string {
 	now := time.Now()
