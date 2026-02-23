@@ -24,6 +24,9 @@ import {
   donationCategorySchema,
   type DonationCategoryFormData,
 } from "@/schemas/donation.schema";
+import { useRowSelection } from "@/hooks/useRowSelection";
+import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
+import { exportToCsv } from "@/utils/exportToCsv";
 
 const emptyLang: MultiLangText = { th: "", en: "", de: "" };
 
@@ -36,6 +39,7 @@ export default function DonationCategoriesPage() {
   const { confirm, ConfirmDialog } = useConfirm();
   const { toasts, toast, removeToast } = useToast();
   const { handleApiError } = useApiError();
+  const selectedIds = useRowSelection();
 
   const [editingId, setEditingId] = useState<number | null>(null);
 
@@ -130,6 +134,7 @@ export default function DonationCategoriesPage() {
       try {
         await donationCategoryAdminService.delete(id);
         toast.success(t("common.success"));
+        selectedIds.clearSelection();
         loadCategories();
       } catch (err: unknown) {
         handleApiError(err);
@@ -137,18 +142,66 @@ export default function DonationCategoriesPage() {
     }
   };
 
+  const handleBulkDelete = async () => {
+    if (selectedIds.selectedCount === 0) return;
+    if (
+      await confirm({
+        title: "ลบหมวดหมู่",
+        message: "ยืนยันการลบที่เลือก?",
+        variant: "danger",
+      })
+    ) {
+      try {
+        await donationCategoryAdminService.bulkDelete(
+          selectedIds.selectedArray,
+        );
+        toast.success(t("common.success"));
+        selectedIds.clearSelection();
+        loadCategories();
+      } catch (err: unknown) {
+        handleApiError(err);
+      }
+    }
+  };
+
+  const handleExportCsv = () => {
+    const exportData = categories.map((cat) => ({
+      id: cat.id,
+      "name.th": cat.name?.th || "",
+      "name.en": cat.name?.en || "",
+      "description.th": cat.description?.th || "",
+      "description.en": cat.description?.en || "",
+      display_order: cat.display_order || 0,
+      is_active: cat.is_active ? "Active" : "Inactive",
+    }));
+
+    exportToCsv("donation_categories_export", exportData, [
+      { label: "ID", key: "id" },
+      { label: "Name (TH)", key: "name.th" },
+      { label: "Name (EN)", key: "name.en" },
+      { label: "Description (TH)", key: "description.th" },
+      { label: "Description (EN)", key: "description.en" },
+      { label: "Display Order", key: "display_order" },
+      { label: "Status", key: "is_active" },
+    ]);
+  };
+
   const columns: Column<DonationCategory>[] = [
     {
       header: "ชื่อ (TH)",
       accessorKey: "name",
-      cell: (v) => v?.th || "-",
+      cell: (v) => (v as DonationCategory["name"])?.th || "-",
       sortable: true,
     },
-    { header: "ชื่อ (EN)", accessorKey: "name", cell: (v) => v?.en || "-" },
+    {
+      header: "ชื่อ (EN)",
+      accessorKey: "name",
+      cell: (v) => (v as DonationCategory["name"])?.en || "-",
+    },
     {
       header: "คำอธิบาย",
       accessorKey: "description",
-      cell: (v) => v?.th || "-",
+      cell: (v) => (v as DonationCategory["description"])?.th || "-",
     },
     { header: "ลำดับ", accessorKey: "display_order", sortable: true },
     {
@@ -200,11 +253,40 @@ export default function DonationCategoriesPage() {
           </PermissionButton>
         }
       />
+      <div className="flex justify-between items-center mb-4 mt-4">
+        <div />
+        <button
+          onClick={handleExportCsv}
+          className="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
+        >
+          Export CSV
+        </button>
+      </div>
+
+      <BulkActionToolbar
+        selectedCount={selectedIds.selectedCount}
+        onClear={selectedIds.clearSelection}
+      >
+        <PermissionGuard resource="donations" action="delete">
+          <button
+            onClick={handleBulkDelete}
+            className="flex items-center gap-2 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors text-sm font-medium"
+          >
+            <Trash2 size={16} />
+            {t("common.delete")}
+          </button>
+        </PermissionGuard>
+      </BulkActionToolbar>
+
       <DataTable
         columns={columns}
         data={categories}
         isLoading={isLoading}
         hidePagination={true}
+        selectable={true}
+        selectedIds={selectedIds.selectedIds as Set<string | number>}
+        onSelect={(id) => selectedIds.toggleSelection(id)}
+        onSelectAll={(ids) => selectedIds.selectAll(ids)}
       />
 
       <FormModal

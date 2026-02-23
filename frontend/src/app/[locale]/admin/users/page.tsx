@@ -16,6 +16,9 @@ import { ToastContainer } from "@/components/admin/Toast";
 import { useTranslations } from "next-intl";
 import type { User } from "@/types/entities";
 import { useApiError } from "@/hooks/useApiError";
+import { useRowSelection } from "@/hooks/useRowSelection";
+import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
+import { exportToCsv } from "@/utils/exportToCsv";
 
 export default function UsersListPage() {
   const t = useTranslations("Admin");
@@ -26,6 +29,7 @@ export default function UsersListPage() {
   const { confirm, ConfirmDialog } = useConfirm();
   const { toasts, toast, removeToast } = useToast();
   const { handleApiError } = useApiError();
+  const selectedIds = useRowSelection<string>();
 
   const handleDelete = async (id: string) => {
     const ok = await confirm({
@@ -37,6 +41,7 @@ export default function UsersListPage() {
       try {
         await userAdminService.delete(id);
         toast.success(t("common.success"));
+        selectedIds.clearSelection();
         fetchData();
       } catch (err: unknown) {
         handleApiError(err);
@@ -44,10 +49,55 @@ export default function UsersListPage() {
     }
   };
 
+  const handleBulkDelete = async () => {
+    if (selectedIds.selectedCount === 0) return;
+    const ok = await confirm({
+      title: t("common.delete"),
+      message: t("common.confirmDelete"),
+      variant: "danger",
+    });
+    if (ok) {
+      try {
+        await userAdminService.bulkDelete(selectedIds.selectedArray);
+        toast.success(t("common.success"));
+        selectedIds.clearSelection();
+        fetchData();
+      } catch (err: unknown) {
+        handleApiError(err);
+      }
+    }
+  };
+
+  const handleExportCsv = () => {
+    const exportData = data.map((item) => ({
+      id: item.id,
+      name: item.name || "",
+      email: item.email || "",
+      role: item.role?.name || "",
+      is_active: item.is_active ? "Active" : "Inactive",
+      last_login_at: item.last_login_at
+        ? new Date(item.last_login_at as string).toLocaleDateString("th-TH")
+        : "",
+    }));
+
+    exportToCsv("users_export", exportData, [
+      { label: "ID", key: "id" },
+      { label: "Name", key: "name" },
+      { label: "Email", key: "email" },
+      { label: "Role", key: "role" },
+      { label: "Status", key: "is_active" },
+      { label: "Last Login", key: "last_login_at" },
+    ]);
+  };
+
   const columns: Column<User>[] = [
     { header: "ชื่อ-นามสกุล", accessorKey: "name", sortable: true },
     { header: "อีเมล", accessorKey: "email", sortable: true },
-    { header: "บทบาท", accessorKey: "role", cell: (v) => v?.name || "-" },
+    {
+      header: "บทบาท",
+      accessorKey: "role",
+      cell: (v) => (v as User["role"])?.name || "-",
+    },
     {
       header: "สถานะ",
       accessorKey: "is_active",
@@ -56,7 +106,8 @@ export default function UsersListPage() {
     {
       header: "เข้าสู่ระบบล่าสุด",
       accessorKey: "last_login_at",
-      cell: (v) => (v ? new Date(v).toLocaleDateString("th-TH") : "-"),
+      cell: (v) =>
+        v ? new Date(v as string).toLocaleDateString("th-TH") : "-",
     },
     {
       header: "จัดการ",
@@ -98,6 +149,31 @@ export default function UsersListPage() {
           </PermissionButton>
         }
       />
+      <div className="flex justify-between items-center mb-4 mt-4">
+        <div />
+        <button
+          onClick={handleExportCsv}
+          className="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
+        >
+          Export CSV
+        </button>
+      </div>
+
+      <BulkActionToolbar
+        selectedCount={selectedIds.selectedCount}
+        onClear={selectedIds.clearSelection}
+      >
+        <PermissionGuard resource="users" action="delete">
+          <button
+            onClick={handleBulkDelete}
+            className="flex items-center gap-2 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors text-sm font-medium"
+          >
+            <Trash2 size={16} />
+            {t("common.delete")}
+          </button>
+        </PermissionGuard>
+      </BulkActionToolbar>
+
       <DataTable
         columns={columns}
         data={data}
@@ -106,6 +182,10 @@ export default function UsersListPage() {
         isLoading={isLoading}
         onPageChange={onPageChange}
         onSort={onSort}
+        selectable={true}
+        selectedIds={selectedIds.selectedIds as Set<string | number>}
+        onSelect={(id) => selectedIds.toggleSelection(id as string)}
+        onSelectAll={(ids) => selectedIds.selectAll(ids as string[])}
       />
       <ConfirmDialog />
       <ToastContainer toasts={toasts} onRemove={removeToast} />

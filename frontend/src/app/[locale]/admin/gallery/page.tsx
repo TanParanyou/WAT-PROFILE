@@ -15,6 +15,9 @@ import { galleryAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import { ToastContainer } from "@/components/admin/Toast";
 import type { Gallery } from "@/types/entities";
+import { useRowSelection } from "@/hooks/useRowSelection";
+import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
+import { exportToCsv } from "@/utils/exportToCsv";
 
 export default function GalleryListPage() {
   const t = useTranslations("Admin");
@@ -25,6 +28,7 @@ export default function GalleryListPage() {
     });
   const { confirm, ConfirmDialog } = useConfirm();
   const { toasts, toast, removeToast } = useToast();
+  const selectedIds = useRowSelection();
 
   const handleDelete = async (id: number) => {
     if (
@@ -37,11 +41,52 @@ export default function GalleryListPage() {
       try {
         await galleryAdminService.delete(id);
         toast.success(t("common.success"));
+        selectedIds.clearSelection();
         fetchData();
       } catch {
         toast.error(t("common.error"));
       }
     }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.selectedCount === 0) return;
+    if (
+      await confirm({
+        title: t("common.delete"),
+        message: t("common.confirmDelete"),
+        variant: "danger",
+      })
+    ) {
+      try {
+        await galleryAdminService.bulkDelete(selectedIds.selectedArray);
+        toast.success(t("common.success"));
+        selectedIds.clearSelection();
+        fetchData();
+      } catch {
+        toast.error(t("common.error"));
+      }
+    }
+  };
+
+  const handleExportCsv = () => {
+    const exportData = data.map((item) => ({
+      id: item.id,
+      "caption.th": item.caption?.th || "",
+      "caption.en": item.caption?.en || "",
+      category: item.category?.name?.th || "",
+      display_order: item.display_order || 0,
+      is_active: item.is_active ? "Active" : "Inactive",
+    }));
+
+    exportToCsv("gallery_export", exportData, [
+      { label: "ID", key: "id" },
+      { label: "Caption (TH)", key: "caption.th" },
+      { label: "Caption (EN)", key: "caption.en" },
+      { label: "Category", key: "category" },
+      { label: "Display Order", key: "display_order" },
+      { label: "Status", key: "is_active" },
+    ]);
   };
 
   const columns: Column<Gallery>[] = [
@@ -60,13 +105,13 @@ export default function GalleryListPage() {
     {
       header: "คำอธิบาย (TH)",
       accessorKey: "caption",
-      cell: (v) => v?.th || "-",
+      cell: (v) => (v as Gallery["caption"])?.th || "-",
       sortable: true,
     },
     {
       header: "หมวดหมู่",
       accessorKey: "category",
-      cell: (v) => v?.name?.th || "-",
+      cell: (v) => (v as Gallery["category"])?.name?.th || "-",
     },
     { header: "ลำดับ", accessorKey: "display_order", sortable: true },
     {
@@ -116,6 +161,31 @@ export default function GalleryListPage() {
           </div>
         }
       />
+      <div className="flex justify-between items-center mb-4 mt-4">
+        <div />
+        <button
+          onClick={handleExportCsv}
+          className="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
+        >
+          Export CSV
+        </button>
+      </div>
+
+      <BulkActionToolbar
+        selectedCount={selectedIds.selectedCount}
+        onClear={selectedIds.clearSelection}
+      >
+        <PermissionGuard resource="gallery" action="delete">
+          <button
+            onClick={handleBulkDelete}
+            className="flex items-center gap-2 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors text-sm font-medium"
+          >
+            <Trash2 size={16} />
+            {t("common.delete")}
+          </button>
+        </PermissionGuard>
+      </BulkActionToolbar>
+
       <DataTable
         columns={columns}
         data={data}
@@ -124,6 +194,10 @@ export default function GalleryListPage() {
         isLoading={isLoading}
         onPageChange={onPageChange}
         onSort={onSort}
+        selectable={true}
+        selectedIds={selectedIds.selectedIds as Set<string | number>}
+        onSelect={(id) => selectedIds.toggleSelection(id)}
+        onSelectAll={(ids) => selectedIds.selectAll(ids)}
       />
       <ConfirmDialog />
       <ToastContainer toasts={toasts} onRemove={removeToast} />

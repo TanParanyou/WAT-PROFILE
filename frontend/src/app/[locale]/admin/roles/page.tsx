@@ -21,6 +21,9 @@ import type { Role } from "@/types/entities";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { roleSchema, type RoleFormData } from "@/schemas/role.schema";
+import { useRowSelection } from "@/hooks/useRowSelection";
+import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
+import { exportToCsv } from "@/utils/exportToCsv";
 
 export default function RolesPage() {
   const t = useTranslations("Admin");
@@ -30,6 +33,7 @@ export default function RolesPage() {
   const { confirm, ConfirmDialog } = useConfirm();
   const { toasts, toast, removeToast } = useToast();
   const { handleApiError } = useApiError();
+  const selectedIds = useRowSelection<string>();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
@@ -89,11 +93,47 @@ export default function RolesPage() {
       try {
         await roleAdminService.delete(id);
         toast.success(t("common.success"));
+        selectedIds.clearSelection();
         fetchData();
       } catch (err: unknown) {
         handleApiError(err);
       }
     }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.selectedCount === 0) return;
+    const ok = await confirm({
+      title: t("common.delete"),
+      message: t("common.confirmDelete"),
+      variant: "danger",
+    });
+    if (ok) {
+      try {
+        await roleAdminService.bulkDelete(selectedIds.selectedArray);
+        toast.success(t("common.success"));
+        selectedIds.clearSelection();
+        fetchData();
+      } catch (err: unknown) {
+        handleApiError(err);
+      }
+    }
+  };
+
+  const handleExportCsv = () => {
+    const exportData = data.map((item) => ({
+      id: item.id,
+      name: item.name || "",
+      description: item.description || "",
+      is_active: item.is_active ? "Active" : "Inactive",
+    }));
+
+    exportToCsv("roles_export", exportData, [
+      { label: "ID", key: "id" },
+      { label: "Name", key: "name" },
+      { label: "Description", key: "description" },
+      { label: "Status", key: "is_active" },
+    ]);
   };
 
   const onSubmit = async (data: RoleFormData) => {
@@ -169,12 +209,41 @@ export default function RolesPage() {
         }
       />
 
+      <div className="flex justify-between items-center mb-4 mt-4">
+        <div />
+        <button
+          onClick={handleExportCsv}
+          className="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
+        >
+          Export CSV
+        </button>
+      </div>
+
+      <BulkActionToolbar
+        selectedCount={selectedIds.selectedCount}
+        onClear={selectedIds.clearSelection}
+      >
+        <PermissionGuard resource="users" action="delete">
+          <button
+            onClick={handleBulkDelete}
+            className="flex items-center gap-2 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors text-sm font-medium"
+          >
+            <Trash2 size={16} />
+            {t("common.delete")}
+          </button>
+        </PermissionGuard>
+      </BulkActionToolbar>
+
       {/* Roles are usually few, so hide pagination */}
       <DataTable
         columns={columns}
         data={data}
         isLoading={isLoading}
         hidePagination
+        selectable={true}
+        selectedIds={selectedIds.selectedIds as Set<string | number>}
+        onSelect={(id) => selectedIds.toggleSelection(id as string)}
+        onSelectAll={(ids) => selectedIds.selectAll(ids as string[])}
       />
 
       <ConfirmDialog />

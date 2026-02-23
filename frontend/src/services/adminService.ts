@@ -52,6 +52,10 @@ function createAdminService<T>(resource: string) {
     async delete(id: number | string): Promise<void> {
       await api.delete(`/admin/${resource}/${id}`);
     },
+
+    async bulkDelete(ids: (number | string)[]): Promise<void> {
+      await api.delete(`/admin/${resource}/bulk`, { data: { ids } });
+    },
   };
 }
 
@@ -89,6 +93,12 @@ export const galleryCategoryAdminService = {
     );
     return res.data.data!;
   },
+  async delete(id: number): Promise<void> {
+    await api.delete(`/admin/gallery/categories/${id}`);
+  },
+  async bulkDelete(ids: (number | string)[]): Promise<void> {
+    await api.delete(`/admin/gallery/categories/bulk`, { data: { ids } });
+  },
 };
 
 // Donation Categories
@@ -117,6 +127,9 @@ export const donationCategoryAdminService = {
   },
   async delete(id: number): Promise<void> {
     await api.delete(`/admin/donation-categories/${id}`);
+  },
+  async bulkDelete(ids: (number | string)[]): Promise<void> {
+    await api.delete(`/admin/donation-categories/bulk`, { data: { ids } });
   },
 };
 
@@ -149,6 +162,9 @@ export const contactAdminService = {
   },
   async delete(id: number): Promise<void> {
     await api.delete(`/admin/contacts/${id}`);
+  },
+  async bulkDelete(ids: (number | string)[]): Promise<void> {
+    await api.delete(`/admin/contacts/bulk`, { data: { ids } });
   },
 };
 
@@ -213,5 +229,11 @@ export const registrationAdminService = {
   },
   async updateStatus(id: number, status: string): Promise<void> {
     await api.put(`/admin/registrations/${id}/status`, { status });
+  },
+  async delete(id: number): Promise<void> {
+    await api.delete(`/admin/registrations/${id}`);
+  },
+  async bulkDelete(ids: (number | string)[]): Promise<void> {
+    await api.delete(`/admin/registrations/bulk`, { data: { ids } });
   },
 };

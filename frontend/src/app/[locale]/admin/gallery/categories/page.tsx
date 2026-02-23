@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Plus, Pencil } from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { PermissionButton } from "@/components/admin/PermissionButton";
@@ -24,6 +24,9 @@ import {
   galleryCategorySchema,
   type GalleryCategoryFormData,
 } from "@/schemas/gallery.schema";
+import { useRowSelection } from "@/hooks/useRowSelection";
+import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
+import { exportToCsv } from "@/utils/exportToCsv";
 
 const emptyLang: MultiLangText = { th: "", en: "", de: "" };
 
@@ -33,12 +36,72 @@ export default function GalleryCategoriesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const { isOpen, open, close } = useModal();
-  const { ConfirmDialog } = useConfirm();
+  const { confirm, ConfirmDialog } = useConfirm();
   const { toasts, toast, removeToast } = useToast();
   const { handleApiError } = useApiError();
+  const selectedIds = useRowSelection();
 
   const [editingCategory, setEditingCategory] =
     useState<GalleryCategory | null>(null);
+
+  const handleDelete = async (id: number) => {
+    if (
+      await confirm({
+        title: t("common.delete"),
+        message: t("common.confirmDelete"),
+        variant: "danger",
+      })
+    ) {
+      try {
+        await galleryCategoryAdminService.delete(id);
+        toast.success(t("common.success"));
+        selectedIds.clearSelection();
+        loadCategories();
+      } catch {
+        toast.error(t("common.error"));
+      }
+    }
+  };
+
+  const handleBulkDelete = async () => {
+    if (selectedIds.selectedCount === 0) return;
+    if (
+      await confirm({
+        title: t("common.delete"),
+        message: t("common.confirmDelete"),
+        variant: "danger",
+      })
+    ) {
+      try {
+        await galleryCategoryAdminService.bulkDelete(selectedIds.selectedArray);
+        toast.success(t("common.success"));
+        selectedIds.clearSelection();
+        loadCategories();
+      } catch {
+        toast.error(t("common.error"));
+      }
+    }
+  };
+
+  const handleExportCsv = () => {
+    const exportData = categories.map((cat) => ({
+      id: cat.id,
+      "name.th": cat.name?.th || "",
+      "name.en": cat.name?.en || "",
+      slug: cat.slug || "",
+      display_order: cat.display_order || 0,
+      is_active: cat.is_active ? "Active" : "Inactive",
+    }));
+
+    exportToCsv("gallery_categories_export", exportData, [
+      { label: "ID", key: "id" },
+      { label: "Name (TH)", key: "name.th" },
+      { label: "Name (EN)", key: "name.en" },
+      { label: "Slug", key: "slug" },
+      { label: "Display Order", key: "display_order" },
+      { label: "Status", key: "is_active" },
+    ]);
+  };
 
   const {
     register,
@@ -124,10 +187,14 @@ export default function GalleryCategoriesPage() {
     {
       header: "ชื่อ (TH)",
       accessorKey: "name",
-      cell: (v) => v?.th || "-",
+      cell: (v) => (v as GalleryCategory["name"])?.th || "-",
       sortable: true,
     },
-    { header: "ชื่อ (EN)", accessorKey: "name", cell: (v) => v?.en || "-" },
+    {
+      header: "ชื่อ (EN)",
+      accessorKey: "name",
+      cell: (v) => (v as GalleryCategory["name"])?.en || "-",
+    },
     { header: "Slug", accessorKey: "slug", sortable: true },
     { header: "ลำดับ", accessorKey: "display_order", sortable: true },
     {
@@ -145,6 +212,14 @@ export default function GalleryCategoriesPage() {
               className="p-1.5 rounded hover:bg-gray-100 text-gray-500"
             >
               <Pencil size={16} />
+            </button>
+          </PermissionGuard>
+          <PermissionGuard resource="gallery" action="delete">
+            <button
+              onClick={() => handleDelete(row.id)}
+              className="p-1.5 rounded hover:bg-red-50 text-red-500"
+            >
+              <Trash2 size={16} />
             </button>
           </PermissionGuard>
         </div>
@@ -172,11 +247,40 @@ export default function GalleryCategoriesPage() {
         }
       />
 
+      <div className="flex justify-between items-center mb-4 mt-4">
+        <div />
+        <button
+          onClick={handleExportCsv}
+          className="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
+        >
+          Export CSV
+        </button>
+      </div>
+
+      <BulkActionToolbar
+        selectedCount={selectedIds.selectedCount}
+        onClear={selectedIds.clearSelection}
+      >
+        <PermissionGuard resource="gallery" action="delete">
+          <button
+            onClick={handleBulkDelete}
+            className="flex items-center gap-2 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors text-sm font-medium"
+          >
+            <Trash2 size={16} />
+            {t("common.delete")}
+          </button>
+        </PermissionGuard>
+      </BulkActionToolbar>
+
       <DataTable
         columns={columns}
         data={categories}
         isLoading={isLoading}
         hidePagination={true}
+        selectable={true}
+        selectedIds={selectedIds.selectedIds as Set<string | number>}
+        onSelect={(id) => selectedIds.toggleSelection(id)}
+        onSelectAll={(ids) => selectedIds.selectAll(ids)}
       />
 
       <FormModal
