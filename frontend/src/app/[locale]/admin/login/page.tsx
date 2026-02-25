@@ -1,12 +1,14 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
+import { useTranslations } from 'next-intl';
 import { useRouter } from "@/navigation";
 import { Input } from '@/components/ui/Input';
 import { Button } from '@/components/ui/Button';
 import { useAuth } from '@/hooks/useAuth';
 
 export default function AdminLoginPage() {
+    const t = useTranslations("Admin");
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [error, setError] = useState('');
@@ -31,9 +33,9 @@ export default function AdminLoginPage() {
             router.push('/admin');
         } catch (err) {
             if (err instanceof Error) {
-                setError('อีเมลหรือรหัสผ่านไม่ถูกต้อง');
+                setError(t("login.invalidCredentials"));
             } else {
-                setError('เกิดข้อผิดพลาด กรุณาลองใหม่');
+                setError(t("login.genericError"));
             }
         } finally {
             setIsLoading(false);
@@ -45,8 +47,8 @@ export default function AdminLoginPage() {
             <div className="w-full max-w-sm">
                 {/* Header */}
                 <div className="text-center mb-8">
-                    <h1 className="text-2xl font-bold text-gray-900">WAT Admin</h1>
-                    <p className="text-sm text-gray-500 mt-1">เข้าสู่ระบบจัดการ</p>
+                    <h1 className="text-2xl font-bold text-gray-900">{t("login.title")}</h1>
+                    <p className="text-sm text-gray-500 mt-1">{t("login.subtitle")}</p>
                 </div>
 
                 {/* Login Form */}
@@ -55,7 +57,7 @@ export default function AdminLoginPage() {
                         <Input
                             id="email"
                             type="email"
-                            label="อีเมล"
+                            label={t("login.email")}
                             placeholder="admin@example.com"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
@@ -65,7 +67,7 @@ export default function AdminLoginPage() {
                         <Input
                             id="password"
                             type="password"
-                            label="รหัสผ่าน"
+                            label={t("login.password")}
                             placeholder="••••••••"
                             value={password}
                             onChange={(e) => setPassword(e.target.value)}
@@ -85,7 +87,7 @@ export default function AdminLoginPage() {
                             className="w-full"
                             size="lg"
                         >
-                            เข้าสู่ระบบ
+                            {t("login.submit")}
                         </Button>
                     </form>
                 </div>

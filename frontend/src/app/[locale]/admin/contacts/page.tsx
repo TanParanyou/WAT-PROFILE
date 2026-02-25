@@ -2,6 +2,7 @@
 
 import React, { useState } from "react";
 import { Eye, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { StatusBadge } from "@/components/admin/StatusBadge";
@@ -18,13 +19,15 @@ import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
 import { exportToCsv } from "@/utils/exportToCsv";
 
-const statusOptions = [
-  { value: "pending", label: "รอดำเนินการ" },
-  { value: "replied", label: "ตอบกลับแล้ว" },
-  { value: "closed", label: "ปิดเรื่อง" },
-];
-
 export default function ContactsPage() {
+  const t = useTranslations("Admin");
+
+  const statusOptions = [
+    { value: "pending", label: t("contacts.pending") },
+    { value: "replied", label: t("contacts.replied") },
+    { value: "closed", label: t("contacts.closed") },
+  ];
+
   const [selectedContact, setSelectedContact] = useState<ContactInquiry | null>(
     null,
   );
@@ -59,11 +62,11 @@ export default function ContactsPage() {
         selectedStatus,
         replyMessage,
       );
-      toast.success("บันทึกสำเร็จ");
+      toast.success(t("common.success"));
       close();
       fetchData();
     } catch {
-      toast.error("บันทึกไม่สำเร็จ");
+      toast.error(t("common.error"));
     } finally {
       setIsSaving(false);
     }
@@ -72,18 +75,18 @@ export default function ContactsPage() {
   const handleDelete = async (contact: ContactInquiry) => {
     if (
       await confirm({
-        title: "ลบข้อความ",
-        message: `ยืนยันการลบข้อความจาก ${contact.name}?`,
+        title: t("common.delete"),
+        message: t("common.confirmDelete"),
         variant: "danger",
       })
     ) {
       try {
         await contactAdminService.delete(contact.id);
-        toast.success("ลบสำเร็จ");
+        toast.success(t("common.success"));
         selectedIds.clearSelection();
         fetchData();
       } catch {
-        toast.error("ลบไม่สำเร็จ");
+        toast.error(t("common.error"));
       }
     }
   };
@@ -92,18 +95,18 @@ export default function ContactsPage() {
     if (selectedIds.selectedCount === 0) return;
     if (
       await confirm({
-        title: "ลบข้อความ",
-        message: "ยืนยันการลบที่เลือก?",
+        title: t("common.delete"),
+        message: t("common.confirmDelete"),
         variant: "danger",
       })
     ) {
       try {
         await contactAdminService.bulkDelete(selectedIds.selectedArray);
-        toast.success("ลบสำเร็จ");
+        toast.success(t("common.success"));
         selectedIds.clearSelection();
         fetchData();
       } catch {
-        toast.error("ลบไม่สำเร็จ");
+        toast.error(t("common.error"));
       }
     }
   };
@@ -141,24 +144,24 @@ export default function ContactsPage() {
   };
 
   const columns: Column<ContactInquiry>[] = [
-    { header: "ชื่อ", accessorKey: "name", sortable: true },
-    { header: "อีเมล", accessorKey: "email", sortable: true },
-    { header: "หัวข้อ", accessorKey: "subject", sortable: true },
-    { header: "ประเภท", accessorKey: "inquiry_type" },
+    { header: t("columns.name"), accessorKey: "name", sortable: true },
+    { header: t("columns.email"), accessorKey: "email", sortable: true },
+    { header: t("columns.subject"), accessorKey: "subject", sortable: true },
+    { header: t("columns.type"), accessorKey: "inquiry_type" },
     {
-      header: "สถานะ",
+      header: t("columns.status"),
       accessorKey: "status",
       cell: (v) => {
         const map: Record<string, string> = {
-          pending: "รอดำเนินการ",
-          replied: "ตอบกลับแล้ว",
-          closed: "ปิดเรื่อง",
+          pending: t("contacts.pending"),
+          replied: t("contacts.replied"),
+          closed: t("contacts.closed"),
         };
         return <StatusBadge label={map[v] || v} />;
       },
     },
     {
-      header: "วันที่",
+      header: t("columns.date"),
       accessorKey: "created_at",
       sortable: true,
       cell: (v) =>
@@ -169,13 +172,13 @@ export default function ContactsPage() {
         }),
     },
     {
-      header: "จัดการ",
+      header: t("columns.actions"),
       cell: (_, row) => (
         <div className="flex gap-2">
           <button
             onClick={() => handleViewReply(row)}
             className="p-1.5 rounded hover:bg-gray-100 text-gray-500"
-            title="ดู/ตอบกลับ"
+            title={t("contacts.viewReply")}
           >
             <Eye size={16} />
           </button>
@@ -183,7 +186,7 @@ export default function ContactsPage() {
             <button
               onClick={() => handleDelete(row)}
               className="p-1.5 rounded hover:bg-red-50 text-red-500"
-              title="ลบ"
+              title={t("common.delete")}
             >
               <Trash2 size={16} />
             </button>
@@ -196,8 +199,8 @@ export default function ContactsPage() {
   return (
     <div>
       <AdminPageHeader
-        title="จัดการข้อความติดต่อ"
-        breadcrumbs={[{ label: "ข้อความติดต่อ" }]}
+        title={t("contacts.title")}
+        breadcrumbs={[{ label: t("contacts.title") }]}
       />
 
       <div className="flex justify-between items-center mb-4 mt-4">
@@ -206,7 +209,7 @@ export default function ContactsPage() {
           onClick={handleExportCsv}
           className="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
         >
-          Export CSV
+          {t("common.exportCsv")}
         </button>
       </div>
 
@@ -220,7 +223,7 @@ export default function ContactsPage() {
             className="flex items-center gap-2 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors text-sm font-medium"
           >
             <Trash2 size={16} />
-            ลบข้อมูลที่เลือก
+            {t("common.bulkDelete")}
           </button>
         </PermissionGuard>
       </BulkActionToolbar>
@@ -243,37 +246,37 @@ export default function ContactsPage() {
       <Modal
         isOpen={isOpen}
         onClose={handleModalClose}
-        title="ดูรายละเอียดและตอบกลับ"
+        title={t("contacts.viewReply")}
       >
         {selectedContact && (
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="font-medium text-gray-700">ชื่อ:</span>{" "}
+                <span className="font-medium text-gray-700">{t("columns.name")}:</span>{" "}
                 {selectedContact.name}
               </div>
               <div>
-                <span className="font-medium text-gray-700">อีเมล:</span>{" "}
+                <span className="font-medium text-gray-700">{t("columns.email")}:</span>{" "}
                 {selectedContact.email}
               </div>
               <div>
-                <span className="font-medium text-gray-700">เบอร์โทร:</span>{" "}
+                <span className="font-medium text-gray-700">{t("contacts.phone")}:</span>{" "}
                 {selectedContact.phone || "-"}
               </div>
               <div>
-                <span className="font-medium text-gray-700">ประเภท:</span>{" "}
+                <span className="font-medium text-gray-700">{t("columns.type")}:</span>{" "}
                 {selectedContact.inquiry_type}
               </div>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                หัวข้อ
+                {t("contacts.subject")}
               </label>
               <p className="text-gray-900">{selectedContact.subject}</p>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                ข้อความ
+                {t("contacts.message")}
               </label>
               <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
                 <p className="text-gray-900 whitespace-pre-wrap text-sm">
@@ -283,35 +286,35 @@ export default function ContactsPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                ข้อความตอบกลับ
+                {t("contacts.replyMessage")}
               </label>
               <textarea
                 value={replyMessage}
                 onChange={(e) => setReplyMessage(e.target.value)}
                 rows={4}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
-                placeholder="พิมพ์ข้อความตอบกลับ..."
+                placeholder={t("contacts.replyPlaceholder")}
               />
             </div>
             <Select
               id="status"
-              label="สถานะ"
+              label={t("columns.status")}
               options={statusOptions}
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
             />
             {selectedContact.replied_at && (
               <p className="text-xs text-gray-500">
-                ตอบกลับเมื่อ:{" "}
+                {t("contacts.repliedAt")}:{" "}
                 {new Date(selectedContact.replied_at).toLocaleString("th-TH")}
               </p>
             )}
             <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
               <Button variant="outline" onClick={handleModalClose}>
-                ยกเลิก
+                {t("common.cancel")}
               </Button>
               <Button onClick={handleSaveReply} isLoading={isSaving}>
-                บันทึก
+                {t("common.save")}
               </Button>
             </div>
           </div>

@@ -2,12 +2,21 @@
   "Admin": {
     "sidebar": { "dashboard": "แดชบอร์ด", "events": "กิจกรรม", "monks": "พระสงฆ์", "gallery": "แกลเลอรี", "schedules": "ตารางเวลา", "donations": "เงินบริจาค", "members": "สมาชิก", "contacts": "รายงานผู้ติดต่อ", "settings": "ตั้งค่า", "users": "ผู้ใช้งาน", "roles": "บทบาท", "registrations": "ลงทะเบียน" },
     "header": { "logout": "ออกจากระบบ", "language": "ภาษา", "profile": "โปรไฟล์", "th": "ไทย", "en": "English", "de": "Deutsch" },
-    "common": { "create": "สร้างใหม่", "edit": "แก้ไข", "delete": "ลบ", "save": "บันทึก", "cancel": "ยกเลิก", "search": "ค้นหา...", "loading": "กำลังโหลด...", "noData": "ไม่พบข้อมูล", "confirmDelete": "คุณแน่ใจหรือไม่ที่จะลบรายการนี้?", "success": "สำเร็จ", "error": "เกิดข้อผิดพลาด", "actions": "จัดการ", "refresh": "รีเฟรช", "selectedItems": "เลือกแล้ว {count} รายการ", "clear": "ล้างการเลือก" },
+    "common": { "create": "สร้างใหม่", "edit": "แก้ไข", "delete": "ลบ", "save": "บันทึก", "cancel": "ยกเลิก", "search": "ค้นหา...", "loading": "กำลังโหลด...", "noData": "ไม่พบข้อมูล", "confirmDelete": "คุณแน่ใจหรือไม่ที่จะลบรายการนี้?", "success": "สำเร็จ", "error": "เกิดข้อผิดพลาด", "actions": "จัดการ", "refresh": "รีเฟรช", "selectedItems": "เลือกแล้ว {count} รายการ", "clear": "ล้างการเลือก", "exportCsv": "Export CSV", "bulkDelete": "ลบข้อมูลที่เลือก", "noChanges": "ไม่มีการเปลี่ยนแปลง", "saveChanges": "บันทึกการเปลี่ยนแปลง" },
+    "dashboard": { "welcome": "สวัสดี", "welcomeMessage": "ยินดีต้อนรับสู่ระบบจัดการวัด", "events": "กิจกรรม", "monks": "พระสงฆ์", "gallery": "อัลบั้มภาพ", "schedules": "ตารางเวลา", "donations": "การบริจาค", "members": "สมาชิก", "contacts": "ข้อความติดต่อ" },
     "events": { "title": "กิจกรรม", "create": "สร้างกิจกรรม", "edit": "แก้ไขกิจกรรม" },
     "monks": { "title": "พระสงฆ์", "create": "เพิ่มพระสงฆ์", "edit": "แก้ไขข้อมูลพระสงฆ์" },
-    "gallery": { "title": "แกลเลอรี", "upload": "อัพโหลดรูปภาพ" },
-    "donations": { "title": "เงินบริจาค" },
+    "gallery": { "title": "แกลเลอรี", "upload": "อัพโหลดรูปภาพ", "categories": "จัดการหมวดหมู่" },
+    "donations": { "title": "รายการบริจาค", "receiptNumber": "เลขที่ใบเสร็จ", "donor": "ผู้บริจาค", "amount": "จำนวนเงิน", "method": "วิธีการ", "anonymous": "นิรนาม" },
+    "schedules": { "title": "ตารางเวลา", "create": "เพิ่มตารางเวลา", "edit": "แก้ไขตารางเวลา", "type": "ประเภท", "day": "วัน", "time": "เวลา", "activity": "กิจกรรม", "location": "สถานที่", "onlineLink": "ลิงก์ออนไลน์", "daily": "รายวัน", "weekly": "รายสัปดาห์", "special": "พิเศษ", "selectType": "เลือกประเภท", "selectDay": "เลือกวัน", "timeStart": "เวลาเริ่ม", "timeEnd": "เวลาสิ้นสุด", "days": { "sun": "อาทิตย์", "mon": "จันทร์", "tue": "อังคาร", "wed": "พุธ", "thu": "พฤหัสบดี", "fri": "ศุกร์", "sat": "เสาร์" } },
+    "members": { "title": "จัดการสมาชิก", "memberCode": "รหัสสมาชิก", "fullName": "ชื่อ-สกุล (TH)", "phone": "โทรศัพท์", "type": "ประเภท", "joinDate": "วันที่สมัคร" },
+    "contacts": { "title": "จัดการข้อความติดต่อ", "viewReply": "ดูรายละเอียดและตอบกลับ", "reply": "ตอบกลับ", "replyMessage": "ข้อความตอบกลับ", "replyPlaceholder": "พิมพ์ข้อความตอบกลับ...", "repliedAt": "ตอบกลับเมื่อ", "pending": "รอดำเนินการ", "replied": "ตอบกลับแล้ว", "closed": "ปิดเรื่อง", "subject": "หัวข้อ", "message": "ข้อความ", "inquiryType": "ประเภท", "phone": "เบอร์โทร" },
+    "registrations": { "title": "การลงทะเบียน", "updateStatus": "อัปเดตสถานะ", "pending": "รอดำเนินการ", "approved": "อนุมัติ", "rejected": "ปฏิเสธ", "cancelled": "ยกเลิก" },
+    "settings": { "title": "การตั้งค่า", "loadError": "โหลดการตั้งค่าไม่สำเร็จ" },
+    "login": { "title": "WAT Admin", "subtitle": "เข้าสู่ระบบจัดการ", "email": "อีเมล", "password": "รหัสผ่าน", "submit": "เข้าสู่ระบบ", "invalidCredentials": "อีเมลหรือรหัสผ่านไม่ถูกต้อง", "genericError": "เกิดข้อผิดพลาด กรุณาลองใหม่" },
     "users": { "title": "ผู้ใช้งาน", "create": "สร้างผู้ใช้", "edit": "แก้ไขผู้ใช้" },
-    "roles": { "title": "บทบาท", "create": "สร้างบทบาท", "edit": "แก้ไขบทบาท" }
+    "roles": { "title": "บทบาท", "create": "สร้างบทบาท", "edit": "แก้ไขบทบาท" },
+    "columns": { "image": "รูป", "name": "ชื่อ", "nameTh": "ชื่อ (TH)", "status": "สถานะ", "actions": "จัดการ", "position": "ตำแหน่ง", "type": "ประเภท", "date": "วันที่", "order": "ลำดับ", "description": "คำอธิบาย", "category": "หมวดหมู่", "amount": "จำนวนเงิน", "email": "อีเมล", "subject": "หัวข้อ", "message": "ข้อความ", "role": "บทบาท", "event": "กิจกรรม", "phone": "โทรศัพท์", "caption": "คำอธิบาย (TH)" },
+    "form": { "active": "เปิดใช้งาน", "enableRegistration": "เปิดลงทะเบียน", "selectOption": "เลือก..." }
   }
 }

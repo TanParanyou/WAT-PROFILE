@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { StatusBadge } from "@/components/admin/StatusBadge";
@@ -17,6 +18,7 @@ import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
 import { exportToCsv } from "@/utils/exportToCsv";
 
 export default function MembersPage() {
+  const t = useTranslations("Admin");
   const { toasts, toast, removeToast } = useToast();
   const { confirm, ConfirmDialog } = useConfirm();
   const selectedIds = useRowSelection();
@@ -30,18 +32,18 @@ export default function MembersPage() {
   const handleDelete = async (id: number) => {
     if (
       await confirm({
-        title: "ลบสมาชิก",
-        message: "ยืนยันการลบ?",
+        title: t("common.delete"),
+        message: t("common.confirmDelete"),
         variant: "danger",
       })
     ) {
       try {
         await memberAdminService.delete(id);
-        toast.success("ลบสำเร็จ");
+        toast.success(t("common.success"));
         selectedIds.clearSelection();
         fetchData();
       } catch {
-        toast.error("ลบไม่สำเร็จ");
+        toast.error(t("common.error"));
       }
     }
   };
@@ -50,18 +52,18 @@ export default function MembersPage() {
     if (selectedIds.selectedCount === 0) return;
     if (
       await confirm({
-        title: "ลบสมาชิก",
-        message: "ยืนยันการลบที่เลือก?",
+        title: t("common.delete"),
+        message: t("common.confirmDelete"),
         variant: "danger",
       })
     ) {
       try {
         await memberAdminService.bulkDelete(selectedIds.selectedArray);
-        toast.success("ลบสำเร็จ");
+        toast.success(t("common.success"));
         selectedIds.clearSelection();
         fetchData();
       } catch {
-        toast.error("ลบไม่สำเร็จ");
+        toast.error(t("common.error"));
       }
     }
   };
@@ -94,7 +96,7 @@ export default function MembersPage() {
 
   const columns: Column<Member>[] = [
     {
-      header: "รูป",
+      header: t("columns.image"),
       accessorKey: "profile_image_url",
       cell: (v) =>
         v ? (
@@ -107,30 +109,30 @@ export default function MembersPage() {
           <div className="h-10 w-10 rounded-full bg-gray-200" />
         ),
     },
-    { header: "รหัสสมาชิก", accessorKey: "member_code", sortable: true },
+    { header: t("members.memberCode"), accessorKey: "member_code", sortable: true },
     {
-      header: "ชื่อ-สกุล (TH)",
+      header: t("members.fullName"),
       accessorKey: "first_name_th",
       sortable: true,
       cell: (_, row) => `${row.first_name_th} ${row.last_name_th}`,
     },
-    { header: "โทรศัพท์", accessorKey: "phone" },
-    { header: "ประเภท", accessorKey: "membership_type", sortable: true },
+    { header: t("columns.phone"), accessorKey: "phone" },
+    { header: t("columns.type"), accessorKey: "membership_type", sortable: true },
     {
-      header: "สถานะ",
+      header: t("columns.status"),
       accessorKey: "membership_status",
       sortable: true,
       cell: (v) => <StatusBadge label={v as string} />,
     },
     {
-      header: "วันที่สมัคร",
+      header: t("members.joinDate"),
       accessorKey: "membership_date",
       sortable: true,
       cell: (v) =>
         v ? new Date(v as string).toLocaleDateString("th-TH") : "-",
     },
     {
-      header: "จัดการ",
+      header: t("columns.actions"),
       cell: (_, row) => (
         <PermissionGuard resource="members" action="delete">
           <button
@@ -147,8 +149,8 @@ export default function MembersPage() {
   return (
     <div>
       <AdminPageHeader
-        title="จัดการสมาชิก"
-        breadcrumbs={[{ label: "สมาชิก" }]}
+        title={t("members.title")}
+        breadcrumbs={[{ label: t("members.title") }]}
       />
 
       <div className="flex justify-between items-center mb-4 mt-4">
@@ -157,7 +159,7 @@ export default function MembersPage() {
           onClick={handleExportCsv}
           className="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
         >
-          Export CSV
+          {t("common.exportCsv")}
         </button>
       </div>
 
@@ -171,7 +173,7 @@ export default function MembersPage() {
             className="flex items-center gap-2 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors text-sm font-medium"
           >
             <Trash2 size={16} />
-            ลบข้อมูลที่เลือก
+            {t("common.bulkDelete")}
           </button>
         </PermissionGuard>
       </BulkActionToolbar>

@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Link } from "@/navigation";
+import { useTranslations } from "next-intl";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
@@ -19,6 +20,7 @@ import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
 import { exportToCsv } from "@/utils/exportToCsv";
 
 export default function MonksListPage() {
+  const t = useTranslations("Admin");
   const { data, pagination, sort, isLoading, onPageChange, onSort, fetchData } =
     useDataTable<Monk>({
       fetcher: (p) => monkAdminService.getAll({ page: p.page, limit: p.limit }),
@@ -30,18 +32,18 @@ export default function MonksListPage() {
   const handleDelete = async (id: number) => {
     if (
       await confirm({
-        title: "ลบข้อมูลพระสงฆ์",
-        message: "ยืนยันการลบ?",
+        title: t("common.delete"),
+        message: t("common.confirmDelete"),
         variant: "danger",
       })
     ) {
       try {
         await monkAdminService.delete(id);
-        toast.success("ลบสำเร็จ");
+        toast.success(t("common.success"));
         selectedIds.clearSelection();
         fetchData();
       } catch {
-        toast.error("ลบไม่สำเร็จ");
+        toast.error(t("common.error"));
       }
     }
   };
@@ -50,18 +52,18 @@ export default function MonksListPage() {
     if (selectedIds.selectedCount === 0) return;
     if (
       await confirm({
-        title: "ลบข้อมูลพระสงฆ์",
-        message: "ยืนยันการลบที่เลือก?",
+        title: t("common.delete"),
+        message: t("common.confirmDelete"),
         variant: "danger",
       })
     ) {
       try {
         await monkAdminService.bulkDelete(selectedIds.selectedArray);
-        toast.success("ลบสำเร็จ");
+        toast.success(t("common.success"));
         selectedIds.clearSelection();
         fetchData();
       } catch {
-        toast.error("ลบไม่สำเร็จ");
+        toast.error(t("common.error"));
       }
     }
   };
@@ -85,7 +87,7 @@ export default function MonksListPage() {
 
   const columns: Column<Monk>[] = [
     {
-      header: "รูป",
+      header: t("columns.image"),
       accessorKey: "image_url",
       cell: (v) =>
         v ? (
@@ -99,19 +101,19 @@ export default function MonksListPage() {
         ),
     },
     {
-      header: "ชื่อ (TH)",
+      header: t("columns.nameTh"),
       accessorKey: "name",
       cell: (v) => (v as Monk["name"])?.th || "-",
       sortable: true,
     },
-    { header: "ตำแหน่ง", accessorKey: "position", sortable: true },
+    { header: t("columns.position"), accessorKey: "position", sortable: true },
     {
-      header: "สถานะ",
+      header: t("columns.status"),
       accessorKey: "is_active",
       cell: (v) => <StatusBadge label={v ? "Active" : "Inactive"} />,
     },
     {
-      header: "จัดการ",
+      header: t("columns.actions"),
       cell: (_, row) => (
         <div className="flex gap-2">
           <PermissionGuard resource="monks" action="update">
@@ -138,15 +140,15 @@ export default function MonksListPage() {
   return (
     <div>
       <AdminPageHeader
-        title="จัดการพระสงฆ์"
-        breadcrumbs={[{ label: "พระสงฆ์" }]}
+        title={t("monks.title")}
+        breadcrumbs={[{ label: t("monks.title") }]}
         actions={
           <PermissionButton
             resource="monks"
             action="create"
             icon={<Plus size={16} />}
           >
-            <Link href="/admin/monks/create">เพิ่มพระสงฆ์</Link>
+            <Link href="/admin/monks/create">{t("monks.create")}</Link>
           </PermissionButton>
         }
       />
@@ -157,7 +159,7 @@ export default function MonksListPage() {
           onClick={handleExportCsv}
           className="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
         >
-          Export CSV
+          {t("common.exportCsv")}
         </button>
       </div>
 
@@ -171,7 +173,7 @@ export default function MonksListPage() {
             className="flex items-center gap-2 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors text-sm font-medium"
           >
             <Trash2 size={16} />
-            ลบข้อมูลที่เลือก
+            {t("common.bulkDelete")}
           </button>
         </PermissionGuard>
       </BulkActionToolbar>

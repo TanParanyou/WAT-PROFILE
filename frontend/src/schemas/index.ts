@@ -5,3 +5,5 @@ export * from "./donation.schema";
 export * from "./user.schema";
 export * from "./role.schema";
 export * from "./contact-reply.schema";
+export * from "./gallery.schema";
+export * from "./schedule.schema";

@@ -18,7 +18,11 @@ export default function AdminRootLayout({
   const isLoginPage = pathname === "/admin/login";
 
   if (isLoginPage) {
-    return <AuthProvider>{children}</AuthProvider>;
+    return (
+      <AuthProvider>
+        <AdminIntlProvider>{children}</AdminIntlProvider>
+      </AuthProvider>
+    );
   }
 
   return (

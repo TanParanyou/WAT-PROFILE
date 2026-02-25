@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { StatusBadge } from "@/components/admin/StatusBadge";
@@ -17,6 +18,7 @@ import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
 import { exportToCsv } from "@/utils/exportToCsv";
 
 export default function DonationsPage() {
+  const t = useTranslations("Admin");
   const { toasts, toast, removeToast } = useToast();
   const { confirm, ConfirmDialog } = useConfirm();
   const selectedIds = useRowSelection();
@@ -30,18 +32,18 @@ export default function DonationsPage() {
   const handleDelete = async (id: number) => {
     if (
       await confirm({
-        title: "ลบรายการบริจาค",
-        message: "ยืนยันการลบ?",
+        title: t("common.delete"),
+        message: t("common.confirmDelete"),
         variant: "danger",
       })
     ) {
       try {
         await donationAdminService.delete(id);
-        toast.success("ลบสำเร็จ");
+        toast.success(t("common.success"));
         selectedIds.clearSelection();
         fetchData();
       } catch {
-        toast.error("ลบไม่สำเร็จ");
+        toast.error(t("common.error"));
       }
     }
   };
@@ -50,18 +52,18 @@ export default function DonationsPage() {
     if (selectedIds.selectedCount === 0) return;
     if (
       await confirm({
-        title: "ลบรายการบริจาค",
-        message: "ยืนยันการลบที่เลือก?",
+        title: t("common.delete"),
+        message: t("common.confirmDelete"),
         variant: "danger",
       })
     ) {
       try {
         await donationAdminService.bulkDelete(selectedIds.selectedArray);
-        toast.success("ลบสำเร็จ");
+        toast.success(t("common.success"));
         selectedIds.clearSelection();
         fetchData();
       } catch {
-        toast.error("ลบไม่สำเร็จ");
+        toast.error(t("common.error"));
       }
     }
   };
@@ -95,22 +97,22 @@ export default function DonationsPage() {
   };
 
   const columns: Column<Donation>[] = [
-    { header: "เลขที่ใบเสร็จ", accessorKey: "receipt_number", sortable: true },
+    { header: t("donations.receiptNumber"), accessorKey: "receipt_number", sortable: true },
     {
-      header: "ผู้บริจาค",
+      header: t("donations.donor"),
       accessorKey: "donor_name",
       sortable: true,
       cell: (v, row) => (
         <div>
           <span className="font-medium">{v}</span>
           {row.is_anonymous && (
-            <span className="ml-1 text-xs text-gray-500">(นิรนาม)</span>
+            <span className="ml-1 text-xs text-gray-500">{t("donations.anonymous")}</span>
           )}
         </div>
       ),
     },
     {
-      header: "จำนวนเงิน",
+      header: t("donations.amount"),
       accessorKey: "amount",
       sortable: true,
       cell: (v, row) => (
@@ -120,14 +122,14 @@ export default function DonationsPage() {
         </span>
       ),
     },
-    { header: "วิธีการ", accessorKey: "donation_method", sortable: true },
+    { header: t("donations.method"), accessorKey: "donation_method", sortable: true },
     {
-      header: "หมวดหมู่",
+      header: t("columns.category"),
       accessorKey: "category",
       cell: (v) => (v as Donation["category"])?.name?.th || "-",
     },
     {
-      header: "วันที่",
+      header: t("columns.date"),
       accessorKey: "donation_date",
       sortable: true,
       cell: (v) =>
@@ -138,13 +140,13 @@ export default function DonationsPage() {
         }),
     },
     {
-      header: "สถานะ",
+      header: t("columns.status"),
       accessorKey: "status",
       sortable: true,
       cell: (v) => <StatusBadge label={v as string} />,
     },
     {
-      header: "จัดการ",
+      header: t("columns.actions"),
       cell: (_, row) => (
         <PermissionGuard resource="donations" action="delete">
           <button
@@ -161,8 +163,8 @@ export default function DonationsPage() {
   return (
     <div>
       <AdminPageHeader
-        title="รายการบริจาค"
-        breadcrumbs={[{ label: "รายการบริจาค" }]}
+        title={t("donations.title")}
+        breadcrumbs={[{ label: t("donations.title") }]}
       />
       <div className="flex justify-between items-center mb-4 mt-4">
         <div />
@@ -170,7 +172,7 @@ export default function DonationsPage() {
           onClick={handleExportCsv}
           className="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
         >
-          Export CSV
+          {t("common.exportCsv")}
         </button>
       </div>
 
@@ -184,7 +186,7 @@ export default function DonationsPage() {
             className="flex items-center gap-2 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors text-sm font-medium"
           >
             <Trash2 size={16} />
-            ลบข้อมูลที่เลือก
+            {t("common.bulkDelete")}
           </button>
         </PermissionGuard>
       </BulkActionToolbar>

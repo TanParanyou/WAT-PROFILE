@@ -2,12 +2,21 @@
   "Admin": {
     "sidebar": { "dashboard": "Dashboard", "events": "Events", "monks": "Monks", "gallery": "Gallery", "schedules": "Schedules", "donations": "Donations", "members": "Members", "contacts": "Contacts", "settings": "Settings", "users": "Users", "roles": "Roles", "registrations": "Registrations" },
     "header": { "logout": "Logout", "language": "Language", "profile": "Profile", "th": "ไทย", "en": "English", "de": "Deutsch" },
-    "common": { "create": "Create", "edit": "Edit", "delete": "Delete", "save": "Save", "cancel": "Cancel", "search": "Search...", "loading": "Loading...", "noData": "No data found", "confirmDelete": "Are you sure you want to delete this item?", "success": "Success", "error": "An error occurred", "actions": "Actions", "refresh": "Refresh", "selectedItems": "{count} items selected", "clear": "Clear selection" },
+    "common": { "create": "Create", "edit": "Edit", "delete": "Delete", "save": "Save", "cancel": "Cancel", "search": "Search...", "loading": "Loading...", "noData": "No data found", "confirmDelete": "Are you sure you want to delete this item?", "success": "Success", "error": "An error occurred", "actions": "Actions", "refresh": "Refresh", "selectedItems": "{count} items selected", "clear": "Clear selection", "exportCsv": "Export CSV", "bulkDelete": "Delete selected", "noChanges": "No changes", "saveChanges": "Save changes" },
+    "dashboard": { "welcome": "Hello", "welcomeMessage": "Welcome to Temple Management System", "events": "Events", "monks": "Monks", "gallery": "Gallery", "schedules": "Schedules", "donations": "Donations", "members": "Members", "contacts": "Contact Messages" },
     "events": { "title": "Events", "create": "Create Event", "edit": "Edit Event" },
     "monks": { "title": "Monks", "create": "Add Monk", "edit": "Edit Monk" },
-    "gallery": { "title": "Gallery", "upload": "Upload Images" },
-    "donations": { "title": "Donations" },
+    "gallery": { "title": "Gallery", "upload": "Upload Images", "categories": "Manage Categories" },
+    "donations": { "title": "Donations", "receiptNumber": "Receipt No.", "donor": "Donor", "amount": "Amount", "method": "Method", "anonymous": "Anonymous" },
+    "schedules": { "title": "Schedules", "create": "Add Schedule", "edit": "Edit Schedule", "type": "Type", "day": "Day", "time": "Time", "activity": "Activity", "location": "Location", "onlineLink": "Online Link", "daily": "Daily", "weekly": "Weekly", "special": "Special", "selectType": "Select type", "selectDay": "Select day", "timeStart": "Start time", "timeEnd": "End time", "days": { "sun": "Sunday", "mon": "Monday", "tue": "Tuesday", "wed": "Wednesday", "thu": "Thursday", "fri": "Friday", "sat": "Saturday" } },
+    "members": { "title": "Members", "memberCode": "Member Code", "fullName": "Full Name (TH)", "phone": "Phone", "type": "Type", "joinDate": "Join Date" },
+    "contacts": { "title": "Contact Messages", "viewReply": "View Details & Reply", "reply": "Reply", "replyMessage": "Reply Message", "replyPlaceholder": "Type your reply...", "repliedAt": "Replied at", "pending": "Pending", "replied": "Replied", "closed": "Closed", "subject": "Subject", "message": "Message", "inquiryType": "Type", "phone": "Phone" },
+    "registrations": { "title": "Registrations", "updateStatus": "Update Status", "pending": "Pending", "approved": "Approved", "rejected": "Rejected", "cancelled": "Cancelled" },
+    "settings": { "title": "Settings", "loadError": "Failed to load settings" },
+    "login": { "title": "WAT Admin", "subtitle": "Sign in to management system", "email": "Email", "password": "Password", "submit": "Sign In", "invalidCredentials": "Invalid email or password", "genericError": "An error occurred. Please try again" },
     "users": { "title": "Users", "create": "Create User", "edit": "Edit User" },
-    "roles": { "title": "Roles", "create": "Create Role", "edit": "Edit Role" }
+    "roles": { "title": "Roles", "create": "Create Role", "edit": "Edit Role" },
+    "columns": { "image": "Image", "name": "Name", "nameTh": "Name (TH)", "status": "Status", "actions": "Actions", "position": "Position", "type": "Type", "date": "Date", "order": "Order", "description": "Description", "category": "Category", "amount": "Amount", "email": "Email", "subject": "Subject", "message": "Message", "role": "Role", "event": "Event", "phone": "Phone", "caption": "Caption (TH)" },
+    "form": { "active": "Active", "enableRegistration": "Enable Registration", "selectOption": "Select..." }
   }
 }

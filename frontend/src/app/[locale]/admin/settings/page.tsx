@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { Save } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { Input } from '@/components/ui/Input';
 import { Checkbox } from '@/components/ui/Checkbox';
@@ -13,6 +14,7 @@ import { ToastContainer } from '@/components/admin/Toast';
 import type { Setting } from '@/types/entities';
 
 export default function SettingsPage() {
+    const t = useTranslations('Admin');
     const [settings, setSettings] = useState<Setting[]>([]);
     const [changes, setChanges] = useState<Record<string, string>>({});
     const [isLoading, setIsLoading] = useState(true);
@@ -24,7 +26,7 @@ export default function SettingsPage() {
             setIsLoading(true);
             const data = await settingsAdminService.getAll();
             setSettings(data);
-        } catch { toast.error('โหลดการตั้งค่าไม่สำเร็จ'); }
+        } catch { toast.error(t('settings.loadError')); }
         finally { setIsLoading(false); }
     };
 
@@ -37,14 +39,14 @@ export default function SettingsPage() {
     const getValue = (setting: Setting) => changes[setting.key] ?? setting.value;
 
     const handleSave = async () => {
-        if (Object.keys(changes).length === 0) { toast.info('ไม่มีการเปลี่ยนแปลง'); return; }
+        if (Object.keys(changes).length === 0) { toast.info(t('common.noChanges')); return; }
         setIsSaving(true);
         try {
             await settingsAdminService.update(Object.entries(changes).map(([key, value]) => ({ key, value })));
-            toast.success('บันทึกสำเร็จ');
+            toast.success(t('common.success'));
             setChanges({});
             loadSettings();
-        } catch { toast.error('บันทึกไม่สำเร็จ'); }
+        } catch { toast.error(t('common.error')); }
         finally { setIsSaving(false); }
     };
 
@@ -79,7 +81,7 @@ export default function SettingsPage() {
 
     return (
         <div>
-            <AdminPageHeader title="การตั้งค่า" breadcrumbs={[{ label: 'การตั้งค่า' }]} />
+            <AdminPageHeader title={t('settings.title')} breadcrumbs={[{ label: t('settings.title') }]} />
             <div className="space-y-6 max-w-3xl">
                 {Object.entries(grouped).map(([category, items]) => (
                     <div key={category} className="bg-white rounded-xl border border-gray-200">
@@ -93,7 +95,7 @@ export default function SettingsPage() {
                 ))}
                 <div className="flex justify-end">
                     <Button onClick={handleSave} disabled={isSaving || Object.keys(changes).length === 0} isLoading={isSaving}>
-                        <Save size={16} className="mr-2" />บันทึกการเปลี่ยนแปลง
+                        <Save size={16} className="mr-2" />{t('common.saveChanges')}
                     </Button>
                 </div>
             </div>

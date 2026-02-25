@@ -7,6 +7,13 @@ export const multiLangSchema = (name: string) =>
     de: z.string().optional(),
   });
 
+export const multiLangOptionalSchema = () =>
+  z.object({
+    th: z.string(),
+    en: z.string(),
+    de: z.string(),
+  });
+
 export const slugSchema = z
   .string()
   .min(1, "Slug is required")

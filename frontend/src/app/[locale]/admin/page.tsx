@@ -2,6 +2,7 @@
 
 import React, { useEffect, useState } from 'react';
 import { Link } from "@/navigation";
+import { useTranslations } from "next-intl";
 import {
     Calendar,
     Users,
@@ -19,7 +20,7 @@ import type { PermissionResource } from '@/types/auth';
 import type { LucideIcon } from 'lucide-react';
 
 interface StatCard {
-    label: string;
+    labelKey: string;
     icon: LucideIcon;
     color: string;
     resource: PermissionResource;
@@ -28,16 +29,17 @@ interface StatCard {
 }
 
 const stats: StatCard[] = [
-    { label: 'กิจกรรม', icon: Calendar, color: 'bg-blue-50 text-blue-600', resource: 'events', statKey: 'events', href: '/admin/events' },
-    { label: 'พระสงฆ์', icon: Users, color: 'bg-purple-50 text-purple-600', resource: 'monks', statKey: 'monks', href: '/admin/monks' },
-    { label: 'อัลบั้มภาพ', icon: Image, color: 'bg-green-50 text-green-600', resource: 'gallery', statKey: 'gallery', href: '/admin/gallery' },
-    { label: 'ตารางเวลา', icon: Clock, color: 'bg-indigo-50 text-indigo-600', resource: 'schedules', statKey: 'schedules', href: '/admin/schedules' },
-    { label: 'การบริจาค', icon: Heart, color: 'bg-red-50 text-red-600', resource: 'donations', statKey: 'donations', href: '/admin/donations' },
-    { label: 'สมาชิก', icon: UserCheck, color: 'bg-amber-50 text-amber-600', resource: 'members', statKey: 'members', href: '/admin/members' },
-    { label: 'ข้อความติดต่อ', icon: Mail, color: 'bg-cyan-50 text-cyan-600', resource: 'contacts', statKey: 'contacts', href: '/admin/contacts' },
+    { labelKey: 'events', icon: Calendar, color: 'bg-blue-50 text-blue-600', resource: 'events', statKey: 'events', href: '/admin/events' },
+    { labelKey: 'monks', icon: Users, color: 'bg-purple-50 text-purple-600', resource: 'monks', statKey: 'monks', href: '/admin/monks' },
+    { labelKey: 'gallery', icon: Image, color: 'bg-green-50 text-green-600', resource: 'gallery', statKey: 'gallery', href: '/admin/gallery' },
+    { labelKey: 'schedules', icon: Clock, color: 'bg-indigo-50 text-indigo-600', resource: 'schedules', statKey: 'schedules', href: '/admin/schedules' },
+    { labelKey: 'donations', icon: Heart, color: 'bg-red-50 text-red-600', resource: 'donations', statKey: 'donations', href: '/admin/donations' },
+    { labelKey: 'members', icon: UserCheck, color: 'bg-amber-50 text-amber-600', resource: 'members', statKey: 'members', href: '/admin/members' },
+    { labelKey: 'contacts', icon: Mail, color: 'bg-cyan-50 text-cyan-600', resource: 'contacts', statKey: 'contacts', href: '/admin/contacts' },
 ];
 
 export default function AdminDashboardPage() {
+    const t = useTranslations("Admin");
     const { user } = useAuth();
     const { can } = usePermission();
     const [data, setData] = useState<DashboardStats | null>(null);
@@ -57,9 +59,9 @@ export default function AdminDashboardPage() {
             {/* Welcome */}
             <div className="mb-8">
                 <h1 className="text-2xl font-bold text-gray-900">
-                    สวัสดี, {user?.name}
+                    {t("dashboard.welcome")}, {user?.name}
                 </h1>
-                <p className="text-gray-500 mt-1">ยินดีต้อนรับสู่ระบบจัดการวัด</p>
+                <p className="text-gray-500 mt-1">{t("dashboard.welcomeMessage")}</p>
             </div>
 
             {/* Stats Grid */}
@@ -69,7 +71,7 @@ export default function AdminDashboardPage() {
                     const count = data ? data[stat.statKey] : null;
                     return (
                         <Link
-                            key={stat.label}
+                            key={stat.labelKey}
                             href={stat.href}
                             className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md hover:border-gray-300 transition-all"
                         >
@@ -78,7 +80,7 @@ export default function AdminDashboardPage() {
                                     <Icon size={24} />
                                 </div>
                                 <div>
-                                    <p className="text-sm text-gray-500">{stat.label}</p>
+                                    <p className="text-sm text-gray-500">{t(`dashboard.${stat.labelKey}`)}</p>
                                     {isLoading ? (
                                         <Loading size="sm" />
                                     ) : (

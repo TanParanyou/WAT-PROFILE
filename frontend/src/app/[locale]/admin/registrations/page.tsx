@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useTranslations } from "next-intl";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { DataTable, Column } from "@/components/ui/DataTable";
@@ -16,14 +17,16 @@ import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { Trash2 } from "lucide-react";
 import { useConfirm } from "@/components/ui/Modal";
 
-const statusOptions = [
-  { value: "pending", label: "รอดำเนินการ" },
-  { value: "approved", label: "อนุมัติ" },
-  { value: "rejected", label: "ปฏิเสธ" },
-  { value: "cancelled", label: "ยกเลิก" },
-];
-
 export default function RegistrationsPage() {
+  const t = useTranslations("Admin");
+
+  const statusOptions = [
+    { value: "pending", label: t("registrations.pending") },
+    { value: "approved", label: t("registrations.approved") },
+    { value: "rejected", label: t("registrations.rejected") },
+    { value: "cancelled", label: t("registrations.cancelled") },
+  ];
+
   const { toasts, toast, removeToast } = useToast();
   const { confirm, ConfirmDialog } = useConfirm();
   const [updatingId, setUpdatingId] = useState<number | null>(null);
@@ -38,18 +41,18 @@ export default function RegistrationsPage() {
   const handleDelete = async (id: number) => {
     if (
       await confirm({
-        title: "ลบการลงทะเบียน",
-        message: "ยืนยันการลบ?",
+        title: t("common.delete"),
+        message: t("common.confirmDelete"),
         variant: "danger",
       })
     ) {
       try {
         await registrationAdminService.delete(id);
-        toast.success("ลบสำเร็จ");
+        toast.success(t("common.success"));
         selectedIds.clearSelection();
         fetchData();
       } catch {
-        toast.error("ลบไม่สำเร็จ");
+        toast.error(t("common.error"));
       }
     }
   };
@@ -58,18 +61,18 @@ export default function RegistrationsPage() {
     if (selectedIds.selectedCount === 0) return;
     if (
       await confirm({
-        title: "ลบการลงทะเบียน",
-        message: "ยืนยันการลบที่เลือก?",
+        title: t("common.delete"),
+        message: t("common.confirmDelete"),
         variant: "danger",
       })
     ) {
       try {
         await registrationAdminService.bulkDelete(selectedIds.selectedArray);
-        toast.success("ลบสำเร็จ");
+        toast.success(t("common.success"));
         selectedIds.clearSelection();
         fetchData();
       } catch {
-        toast.error("ลบไม่สำเร็จ");
+        toast.error(t("common.error"));
       }
     }
   };
@@ -102,10 +105,10 @@ export default function RegistrationsPage() {
     setUpdatingId(id);
     try {
       await registrationAdminService.updateStatus(id, newStatus);
-      toast.success("อัปเดตสถานะสำเร็จ");
+      toast.success(t("common.success"));
       fetchData();
     } catch {
-      toast.error("อัปเดตไม่สำเร็จ");
+      toast.error(t("common.error"));
     } finally {
       setUpdatingId(null);
     }
@@ -113,32 +116,32 @@ export default function RegistrationsPage() {
 
   const columns: Column<Record<string, unknown>>[] = [
     {
-      header: "ชื่อ",
+      header: t("columns.name"),
       accessorKey: "name",
       sortable: true,
       cell: (v) => <span className="font-medium">{String(v || "-")}</span>,
     },
     {
-      header: "อีเมล",
+      header: t("columns.email"),
       accessorKey: "email",
       sortable: true,
       cell: (v) => String(v || "-"),
     },
-    { header: "โทรศัพท์", accessorKey: "phone", cell: (v) => String(v || "-") },
+    { header: t("columns.phone"), accessorKey: "phone", cell: (v) => String(v || "-") },
     {
-      header: "กิจกรรม",
+      header: t("columns.event"),
       accessorKey: "event_title",
       sortable: true,
       cell: (v) => String(v || "-"),
     },
     {
-      header: "สถานะ",
+      header: t("columns.status"),
       accessorKey: "status",
       sortable: true,
       cell: (v) => <StatusBadge label={String(v || "pending")} />,
     },
     {
-      header: "วันที่",
+      header: t("columns.date"),
       accessorKey: "created_at",
       sortable: true,
       cell: (v) =>
@@ -151,7 +154,7 @@ export default function RegistrationsPage() {
           : "-",
     },
     {
-      header: "สถานะ",
+      header: t("columns.status"),
       accessorKey: "id",
       cell: (v, row) => {
         const id = Number(v);
@@ -166,7 +169,7 @@ export default function RegistrationsPage() {
       },
     },
     {
-      header: "จัดการ",
+      header: t("columns.actions"),
       cell: (_, row) => (
         <div className="flex gap-2">
           <PermissionGuard resource="events" action="delete">
@@ -185,8 +188,8 @@ export default function RegistrationsPage() {
   return (
     <div>
       <AdminPageHeader
-        title="การลงทะเบียน"
-        breadcrumbs={[{ label: "การลงทะเบียน" }]}
+        title={t("registrations.title")}
+        breadcrumbs={[{ label: t("registrations.title") }]}
       />
 
       <div className="flex justify-between items-center mb-4 mt-4">
@@ -195,7 +198,7 @@ export default function RegistrationsPage() {
           onClick={handleExportCsv}
           className="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
         >
-          Export CSV
+          {t("common.exportCsv")}
         </button>
       </div>
 
@@ -209,7 +212,7 @@ export default function RegistrationsPage() {
             className="flex items-center gap-2 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors text-sm font-medium"
           >
             <Trash2 size={16} />
-            ลบข้อมูลที่เลือก
+            {t("common.bulkDelete")}
           </button>
         </PermissionGuard>
       </BulkActionToolbar>

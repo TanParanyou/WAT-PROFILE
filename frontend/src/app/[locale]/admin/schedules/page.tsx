@@ -2,6 +2,9 @@
 
 import React, { useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
+import { useTranslations } from "next-intl";
+import { useForm, Controller } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { PermissionButton } from "@/components/admin/PermissionButton";
@@ -21,47 +24,52 @@ import type { MultiLangText } from "@/types/api";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
 import { exportToCsv } from "@/utils/exportToCsv";
-
-const scheduleTypeOptions = [
-  { value: "", label: "เลือกประเภท" },
-  { value: "daily", label: "รายวัน" },
-  { value: "weekly", label: "รายสัปดาห์" },
-  { value: "special", label: "พิเศษ" },
-];
-
-const dayOfWeekOptions = [
-  { value: "", label: "เลือกวัน" },
-  { value: "0", label: "อาทิตย์" },
-  { value: "1", label: "จันทร์" },
-  { value: "2", label: "อังคาร" },
-  { value: "3", label: "พุธ" },
-  { value: "4", label: "พฤหัสบดี" },
-  { value: "5", label: "ศุกร์" },
-  { value: "6", label: "เสาร์" },
-];
+import {
+  scheduleSchema,
+  type ScheduleFormData,
+  defaultScheduleValues,
+} from "@/schemas/schedule.schema";
 
 const emptyLang: MultiLangText = { th: "", en: "", de: "" };
 
-const defaultForm = {
-  schedule_type: "",
-  day_of_week: null as number | null,
-  time_start: "",
-  time_end: "",
-  activity: { ...emptyLang },
-  location: { ...emptyLang },
-  online_link: "",
-  is_active: true,
-  display_order: 0,
-};
-
 export default function SchedulesPage() {
+  const t = useTranslations("Admin");
   const { toasts, toast, removeToast } = useToast();
   const { confirm, ConfirmDialog } = useConfirm();
   const { isOpen, open, close } = useModal();
   const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
   const [isSaving, setIsSaving] = useState(false);
-  const [form, setForm] = useState({ ...defaultForm });
   const selectedIds = useRowSelection();
+
+  const {
+    control,
+    register,
+    handleSubmit: rhfHandleSubmit,
+    reset,
+    watch,
+    formState: { errors },
+  } = useForm<ScheduleFormData>({
+    resolver: zodResolver(scheduleSchema),
+    defaultValues: defaultScheduleValues,
+  });
+
+  const scheduleType = watch("schedule_type");
+
+  const scheduleTypeOptions = [
+    { value: "", label: t("schedules.selectType") },
+    { value: "daily", label: t("schedules.daily") },
+    { value: "weekly", label: t("schedules.weekly") },
+    { value: "special", label: t("schedules.special") },
+  ];
+
+  const dayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
+  const dayOfWeekOptions = [
+    { value: "", label: t("schedules.selectDay") },
+    ...dayKeys.map((key, i) => ({
+      value: String(i),
+      label: t(`schedules.days.${key}`),
+    })),
+  ];
 
   const { data, pagination, sort, onPageChange, onSort, isLoading, fetchData } =
     useDataTable<Schedule>({
@@ -78,17 +86,13 @@ export default function SchedulesPage() {
 
   const handleCreate = () => {
     setEditingSchedule(null);
-    setForm({
-      ...defaultForm,
-      activity: { ...emptyLang },
-      location: { ...emptyLang },
-    });
+    reset(defaultScheduleValues);
     open();
   };
 
   const handleEdit = (schedule: Schedule) => {
     setEditingSchedule(schedule);
-    setForm({
+    reset({
       schedule_type: schedule.schedule_type,
       day_of_week: schedule.day_of_week,
       time_start: schedule.time_start || "",
@@ -102,40 +106,27 @@ export default function SchedulesPage() {
     open();
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!form.schedule_type) {
-      toast.error("กรุณาเลือกประเภท");
-      return;
-    }
-    if (form.schedule_type === "weekly" && form.day_of_week === null) {
-      toast.error("กรุณาเลือกวัน");
-      return;
-    }
-    if (!form.activity.th) {
-      toast.error("กรุณากรอกกิจกรรม (ไทย)");
-      return;
-    }
-
+  const onSubmit = async (formData: ScheduleFormData) => {
     setIsSaving(true);
     try {
       const submitData = {
-        ...form,
-        time_start: form.time_start || null,
-        time_end: form.time_end || null,
-        day_of_week: form.schedule_type === "weekly" ? form.day_of_week : null,
+        ...formData,
+        time_start: formData.time_start || null,
+        time_end: formData.time_end || null,
+        day_of_week:
+          formData.schedule_type === "weekly" ? formData.day_of_week : null,
       };
       if (editingSchedule) {
-        await scheduleAdminService.update(editingSchedule.id, submitData);
-        toast.success("อัปเดตสำเร็จ");
+        await scheduleAdminService.update(editingSchedule.id, submitData as unknown as Record<string, unknown>);
+        toast.success(t("common.success"));
       } else {
-        await scheduleAdminService.create(submitData);
-        toast.success("เพิ่มสำเร็จ");
+        await scheduleAdminService.create(submitData as unknown as Record<string, unknown>);
+        toast.success(t("common.success"));
       }
       close();
       fetchData();
     } catch {
-      toast.error("บันทึกไม่สำเร็จ");
+      toast.error(t("common.error"));
     } finally {
       setIsSaving(false);
     }
@@ -144,18 +135,18 @@ export default function SchedulesPage() {
   const handleDelete = async (schedule: Schedule) => {
     if (
       await confirm({
-        title: "ลบตารางเวลา",
-        message: `ยืนยันการลบ "${schedule.activity?.th || schedule.id}"?`,
+        title: t("common.delete"),
+        message: t("common.confirmDelete"),
         variant: "danger",
       })
     ) {
       try {
         await scheduleAdminService.delete(schedule.id);
-        toast.success("ลบสำเร็จ");
+        toast.success(t("common.success"));
         selectedIds.clearSelection();
         fetchData();
       } catch {
-        toast.error("ลบไม่สำเร็จ");
+        toast.error(t("common.error"));
       }
     }
   };
@@ -164,18 +155,18 @@ export default function SchedulesPage() {
     if (selectedIds.selectedCount === 0) return;
     if (
       await confirm({
-        title: "ลบตารางเวลา",
-        message: "ยืนยันการลบที่เลือก?",
+        title: t("common.delete"),
+        message: t("common.confirmDelete"),
         variant: "danger",
       })
     ) {
       try {
         await scheduleAdminService.bulkDelete(selectedIds.selectedArray);
-        toast.success("ลบสำเร็จ");
+        toast.success(t("common.success"));
         selectedIds.clearSelection();
         fetchData();
       } catch {
-        toast.error("ลบไม่สำเร็จ");
+        toast.error(t("common.error"));
       }
     }
   };
@@ -207,36 +198,36 @@ export default function SchedulesPage() {
 
   const columns: Column<Schedule>[] = [
     {
-      header: "ประเภท",
+      header: t("schedules.type"),
       accessorKey: "schedule_type",
       sortable: true,
       cell: (v) => getTypeLabel(v),
     },
     {
-      header: "วัน",
+      header: t("schedules.day"),
       accessorKey: "day_of_week",
       cell: (v) => getDayLabel(v as number | null),
     },
     {
-      header: "เวลา",
+      header: t("schedules.time"),
       cell: (_, row) =>
         row.time_start && row.time_end
           ? `${row.time_start} - ${row.time_end}`
           : row.time_start || row.time_end || "-",
     },
     {
-      header: "กิจกรรม (TH)",
+      header: t("schedules.activity"),
       accessorKey: "activity",
       sortable: true,
       cell: (v) => (v as Schedule["activity"])?.th || "-",
     },
     {
-      header: "สถานะ",
+      header: t("columns.status"),
       accessorKey: "is_active",
       cell: (v) => <StatusBadge label={v ? "Active" : "Inactive"} />,
     },
     {
-      header: "จัดการ",
+      header: t("columns.actions"),
       cell: (_, row) => (
         <div className="flex gap-2">
           <PermissionGuard resource="schedules" action="update">
@@ -263,8 +254,8 @@ export default function SchedulesPage() {
   return (
     <div>
       <AdminPageHeader
-        title="ตารางเวลา"
-        breadcrumbs={[{ label: "ตารางเวลา" }]}
+        title={t("schedules.title")}
+        breadcrumbs={[{ label: t("schedules.title") }]}
         actions={
           <PermissionButton
             resource="schedules"
@@ -272,7 +263,7 @@ export default function SchedulesPage() {
             icon={<Plus size={16} />}
             onClick={handleCreate}
           >
-            เพิ่มตารางเวลา
+            {t("schedules.create")}
           </PermissionButton>
         }
       />
@@ -283,7 +274,7 @@ export default function SchedulesPage() {
           onClick={handleExportCsv}
           className="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
         >
-          Export CSV
+          {t("common.exportCsv")}
         </button>
       </div>
 
@@ -297,7 +288,7 @@ export default function SchedulesPage() {
             className="flex items-center gap-2 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors text-sm font-medium"
           >
             <Trash2 size={16} />
-            ลบข้อมูลที่เลือก
+            {t("common.bulkDelete")}
           </button>
         </PermissionGuard>
       </BulkActionToolbar>
@@ -319,73 +310,112 @@ export default function SchedulesPage() {
       <FormModal
         isOpen={isOpen}
         onClose={close}
-        onSubmit={handleSubmit}
-        title={editingSchedule ? "แก้ไขตารางเวลา" : "เพิ่มตารางเวลา"}
+        onSubmit={rhfHandleSubmit(onSubmit)}
+        title={editingSchedule ? t("schedules.edit") : t("schedules.create")}
         isLoading={isSaving}
       >
         <div className="space-y-4">
-          <Select
-            id="schedule_type"
-            label="ประเภท"
-            options={scheduleTypeOptions}
-            value={form.schedule_type}
-            onChange={(e) =>
-              setForm({ ...form, schedule_type: e.target.value })
-            }
-            required
+          <Controller
+            control={control}
+            name="schedule_type"
+            render={({ field }) => (
+              <Select
+                id="schedule_type"
+                label={t("schedules.type")}
+                options={scheduleTypeOptions}
+                value={field.value}
+                onChange={(e) => field.onChange(e.target.value)}
+                error={errors.schedule_type?.message}
+                required
+              />
+            )}
           />
-          {form.schedule_type === "weekly" && (
-            <Select
-              id="day_of_week"
-              label="วัน"
-              options={dayOfWeekOptions}
-              value={form.day_of_week !== null ? String(form.day_of_week) : ""}
-              onChange={(e) =>
-                setForm({
-                  ...form,
-                  day_of_week: e.target.value ? Number(e.target.value) : null,
-                })
-              }
-              required
+          {scheduleType === "weekly" && (
+            <Controller
+              control={control}
+              name="day_of_week"
+              render={({ field }) => (
+                <Select
+                  id="day_of_week"
+                  label={t("schedules.day")}
+                  options={dayOfWeekOptions}
+                  value={
+                    field.value !== null ? String(field.value) : ""
+                  }
+                  onChange={(e) =>
+                    field.onChange(
+                      e.target.value ? Number(e.target.value) : null
+                    )
+                  }
+                  error={errors.day_of_week?.message}
+                  required
+                />
+              )}
             />
           )}
           <div className="grid grid-cols-2 gap-4">
             <Input
               id="time_start"
-              label="เวลาเริ่ม"
+              label={t("schedules.timeStart")}
               type="time"
-              value={form.time_start}
-              onChange={(e) => setForm({ ...form, time_start: e.target.value })}
+              {...register("time_start")}
+              error={errors.time_start?.message}
             />
             <Input
               id="time_end"
-              label="เวลาสิ้นสุด"
+              label={t("schedules.timeEnd")}
               type="time"
-              value={form.time_end}
-              onChange={(e) => setForm({ ...form, time_end: e.target.value })}
+              {...register("time_end")}
+              error={errors.time_end?.message}
             />
           </div>
-          <MultiLangInput
-            label="กิจกรรม"
-            value={form.activity}
-            onChange={(v) => setForm({ ...form, activity: v })}
-            required
+          <Controller
+            control={control}
+            name="activity"
+            render={({ field }) => (
+              <MultiLangInput
+                label={t("schedules.activity")}
+                value={field.value as MultiLangText}
+                onChange={field.onChange}
+                error={
+                  errors.activity?.th?.message ||
+                  (errors.activity as unknown as { message: string })?.message
+                }
+                required
+              />
+            )}
           />
-          <MultiLangInput
-            label="สถานที่"
-            value={form.location}
-            onChange={(v) => setForm({ ...form, location: v })}
+          <Controller
+            control={control}
+            name="location"
+            render={({ field }) => (
+              <MultiLangInput
+                label={t("schedules.location")}
+                value={(field.value || { ...emptyLang }) as MultiLangText}
+                onChange={field.onChange}
+                error={
+                  errors.location?.th?.message ||
+                  (errors.location as unknown as { message: string })?.message
+                }
+              />
+            )}
           />
           <Input
             id="online_link"
-            label="ลิงก์ออนไลน์"
-            value={form.online_link}
-            onChange={(e) => setForm({ ...form, online_link: e.target.value })}
+            label={t("schedules.onlineLink")}
+            {...register("online_link")}
+            error={errors.online_link?.message}
           />
-          <Checkbox
-            label="เปิดใช้งาน"
-            checked={form.is_active}
-            onChange={(e) => setForm({ ...form, is_active: e.target.checked })}
+          <Controller
+            control={control}
+            name="is_active"
+            render={({ field }) => (
+              <Checkbox
+                label={t("form.active")}
+                checked={field.value}
+                onChange={(e) => field.onChange(e.target.checked)}
+              />
+            )}
           />
         </div>
       </FormModal>
