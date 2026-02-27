@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"fmt"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
@@ -9,12 +11,14 @@ import (
 )
 
 type MonkHandler struct {
-	monkService *services.MonkService
+	monkService  *services.MonkService
+	auditService *services.AuditService
 }
 
 func NewMonkHandler(db *gorm.DB) *MonkHandler {
 	return &MonkHandler{
-		monkService: services.NewMonkService(db),
+		monkService:  services.NewMonkService(db),
+		auditService: services.NewAuditService(db),
 	}
 }
 
@@ -42,6 +46,9 @@ func (h *MonkHandler) CreateMonk(c *fiber.Ctx) error {
 	if err := h.monkService.Create(&monk); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to create")
 	}
+
+	go h.auditService.LogAction(c, "create", "monks", "", map[string]interface{}{"name": monk.Name})
+
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "data": monk})
 }
 
@@ -60,6 +67,10 @@ func (h *MonkHandler) UpdateMonk(c *fiber.Ctx) error {
 	if err := h.monkService.Update(monk); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to update")
 	}
+
+	uid := fmt.Sprint(monk.ID)
+	go h.auditService.LogAction(c, "update", "monks", uid, map[string]interface{}{"name": monk.Name})
+
 	return utils.SuccessResponse(c, monk)
 }
 
@@ -71,6 +82,9 @@ func (h *MonkHandler) DeleteMonk(c *fiber.Ctx) error {
 	if err := h.monkService.Delete(id); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete")
 	}
+
+	go h.auditService.LogAction(c, "delete", "monks", fmt.Sprint(id), nil)
+
 	return utils.MessageResponse(c, "Deleted successfully")
 }
 
@@ -88,6 +102,8 @@ func (h *MonkHandler) BulkDeleteMonks(c *fiber.Ctx) error {
 	if err := h.monkService.BulkDelete(req.IDs); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete monks")
 	}
+
+	go h.auditService.LogAction(c, "bulk_delete", "monks", "", map[string]interface{}{"count": len(req.IDs)})
 
 	return utils.MessageResponse(c, "Monks deleted successfully")
 }

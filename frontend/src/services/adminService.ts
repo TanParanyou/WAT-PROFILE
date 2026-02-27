@@ -16,7 +16,7 @@ import type {
 } from "@/types/entities";
 
 // Generic CRUD helpers สำหรับ admin endpoints
-function createAdminService<T>(resource: string) {
+export function createAdminService<T>(resource: string) {
   return {
     async getAll(
       params?: Record<string, string | number>,

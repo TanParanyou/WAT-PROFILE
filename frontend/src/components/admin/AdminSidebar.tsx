@@ -19,6 +19,7 @@ import {
   X,
   UserCog,
   Shield,
+  Activity,
 } from "lucide-react";
 import { usePermission } from "@/hooks/usePermission";
 import { cn } from "@/utils/cn";
@@ -86,6 +87,12 @@ const menuItems: MenuItem[] = [
   },
   { labelKey: "users", href: "/admin/users", icon: UserCog, resource: "users" },
   { labelKey: "roles", href: "/admin/roles", icon: Shield, resource: "users" },
+  {
+    labelKey: "audit_logs",
+    href: "/admin/audit-logs",
+    icon: Activity,
+    resource: "audit_logs",
+  },
   {
     labelKey: "settings",
     href: "/admin/settings",

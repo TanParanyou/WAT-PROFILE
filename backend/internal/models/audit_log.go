@@ -13,8 +13,8 @@ type AuditLog struct {
 	UserID     *uuid.UUID             `gorm:"type:uuid;index" json:"user_id"`
 	User       *User                  `gorm:"foreignKey:UserID;constraint:OnDelete:SET NULL" json:"user,omitempty"`
 	Action     string                 `gorm:"size:50;not null;index" json:"action"` // 'create', 'update', 'delete'
-	EntityType string                 `gorm:"size:100;index" json:"entity_type"` // 'user', 'post', etc.
-	EntityID   *uuid.UUID             `gorm:"type:uuid;index" json:"entity_id"`
+	EntityType string                 `gorm:"size:100;index" json:"entity_type"`    // 'user', 'post', etc.
+	EntityID   string                 `gorm:"size:255;index" json:"entity_id"`
 	Changes    map[string]interface{} `gorm:"type:jsonb" json:"changes"` // Old/new values
 	IPAddress  string                 `gorm:"size:45" json:"ip_address"`
 	UserAgent  string                 `gorm:"type:text" json:"user_agent"`

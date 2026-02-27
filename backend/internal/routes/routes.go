@@ -27,6 +27,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	dashboardHandler := handlers.NewDashboardHandler(db)
 	userHandler := handlers.NewUserHandler(db)
 	roleHandler := handlers.NewRoleHandler(db)
+	auditHandler := handlers.NewAuditLogHandler(db)
 
 	// ============ PUBLIC ROUTES (No Auth Required) ============
 	public := api.Group("/public")
@@ -84,6 +85,9 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 
 	// Dashboard Stats
 	admin.Get("/dashboard/stats", dashboardHandler.GetDashboardStats)
+
+	// Audit Logs
+	admin.Get("/audit-logs", middleware.PermissionRequired("audit_logs", "read"), auditHandler.GetAuditLogs)
 
 	// Events Management
 	admin.Get("/events", middleware.PermissionRequired("events", "read"), eventHandler.GetEvents)
