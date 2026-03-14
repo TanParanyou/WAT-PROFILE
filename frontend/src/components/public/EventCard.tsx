@@ -62,7 +62,7 @@ export function EventCard({ event, locale }: EventCardProps) {
           </Link>
         </h3>
         <p className="text-gray-600 text-sm line-clamp-3 mb-4 flex-grow">
-          {description}
+          {description ? description.replace(/<[^>]*>?/gm, "").trim() : ""}
         </p>
         {location && (
           <div className="flex items-center gap-2 text-xs text-gray-500 mt-auto pt-4 border-t border-gray-100 shrink-0">

@@ -4,6 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "@/navigation";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { MultiLangInput } from "@/components/admin/MultiLangInput";
+import { MultiLangRichText } from "@/components/admin/MultiLangRichText";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
@@ -124,9 +125,8 @@ export default function CreateMonkPage() {
           control={control}
           name="bio"
           render={({ field }) => (
-            <MultiLangInput
+            <MultiLangRichText
               label="ประวัติ"
-              type="textarea"
               value={(field.value || { ...emptyLang }) as MultiLangText}
               onChange={field.onChange}
               error={
