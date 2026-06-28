@@ -1,0 +1,483 @@
+[
+  {
+    "id": "11111111-1111-4111-8111-111111111111",
+    "page_key": "PAGE-CONTACT",
+    "slug": "contact",
+    "title": {
+      "th": "ติดต่อวัดหลวงพ่อใส",
+      "en": "Contact Wat Loung Por Sai",
+      "de": "Kontakt Wat Loung Por Sai"
+    },
+    "description": {
+      "th": "ข้อมูลติดต่อ เส้นทาง และแบบฟอร์มส่งข้อความถึงวัด",
+      "en": "Contact details, directions, and message form for the temple.",
+      "de": "Kontaktdaten, Wegbeschreibung und Nachrichtenformular fuer den Tempel."
+    },
+    "seo": {
+      "canonical_url": "/th/contact",
+      "noindex": false,
+      "title": {
+        "th": "ติดต่อวัดหลวงพ่อใส",
+        "en": "Contact Wat Loung Por Sai",
+        "de": "Kontakt Wat Loung Por Sai"
+      },
+      "description": {
+        "th": "ข้อมูลติดต่อ เส้นทาง โทรศัพท์ อีเมล และการเดินทางมายังวัดหลวงพ่อใส",
+        "en": "Temple contact details, phone, email, and directions to Wat Loung Por Sai.",
+        "de": "Kontaktdaten, Telefon, E-Mail und Anfahrt zum Wat Loung Por Sai."
+      }
+    },
+    "body": {
+      "layout": "contact"
+    },
+    "settings": {
+      "preview_mode": "mono",
+      "show_bank": true,
+      "show_social": true
+    },
+    "status": "published",
+    "published_title": {
+      "th": "ติดต่อวัดหลวงพ่อใส",
+      "en": "Contact Wat Loung Por Sai",
+      "de": "Kontakt Wat Loung Por Sai"
+    },
+    "published_description": {
+      "th": "ข้อมูลติดต่อ เส้นทาง และแบบฟอร์มส่งข้อความถึงวัด",
+      "en": "Contact details, directions, and message form for the temple.",
+      "de": "Kontaktdaten, Wegbeschreibung und Nachrichtenformular fuer den Tempel."
+    },
+    "published_seo": {
+      "canonical_url": "/th/contact",
+      "noindex": false
+    },
+    "published_body": {
+      "layout": "contact"
+    },
+    "published_settings": {
+      "preview_mode": "mono",
+      "show_bank": true,
+      "show_social": true
+    },
+    "published_at": "2026-06-27T00:00:00Z",
+    "created_at": "2026-06-27T00:00:00Z",
+    "updated_at": "2026-06-27T00:00:00Z",
+    "sections": [
+      {
+        "id": "22222222-2222-4222-8222-222222222201",
+        "page_id": "11111111-1111-4111-8111-111111111111",
+        "section_key": "hero",
+        "section_type": "hero",
+        "title": {
+          "th": "ติดต่อเรา",
+          "en": "Contact Us",
+          "de": "Kontakt"
+        },
+        "description": {
+          "th": "สอบถามเส้นทาง เวลาทำการ และข้อมูลติดต่อ",
+          "en": "Ask about directions, opening hours, and temple information.",
+          "de": "Fragen zu Anfahrt, Oeffnungszeiten und Tempelinformationen."
+        },
+        "body": {},
+        "settings": {
+          "tone": "calm"
+        },
+        "sort_order": 0,
+        "status": "published",
+        "published_title": {
+          "th": "ติดต่อเรา",
+          "en": "Contact Us",
+          "de": "Kontakt"
+        },
+        "published_description": {
+          "th": "สอบถามเส้นทาง เวลาทำการ และข้อมูลติดต่อ",
+          "en": "Ask about directions, opening hours, and temple information.",
+          "de": "Fragen zu Anfahrt, Oeffnungszeiten und Tempelinformationen."
+        },
+        "published_body": {},
+        "published_settings": {
+          "tone": "calm"
+        },
+        "published_at": "2026-06-27T00:00:00Z",
+        "created_at": "2026-06-27T00:00:00Z",
+        "updated_at": "2026-06-27T00:00:00Z"
+      },
+      {
+        "id": "22222222-2222-4222-8222-222222222202",
+        "page_id": "11111111-1111-4111-8111-111111111111",
+        "section_key": "contact-info",
+        "section_type": "contact_info",
+        "title": {
+          "th": "ข้อมูลติดต่อ",
+          "en": "Contact Details",
+          "de": "Kontaktdaten"
+        },
+        "description": {
+          "th": "ที่อยู่ โทรศัพท์ อีเมล และช่องทางโซเชียล",
+          "en": "Address, phone, email, and social channels.",
+          "de": "Adresse, Telefon, E-Mail und soziale Kanaele."
+        },
+        "body": {},
+        "settings": {
+          "show_map": true
+        },
+        "sort_order": 1,
+        "status": "published",
+        "published_title": {
+          "th": "ข้อมูลติดต่อ",
+          "en": "Contact Details",
+          "de": "Kontaktdaten"
+        },
+        "published_description": {
+          "th": "ที่อยู่ โทรศัพท์ อีเมล และช่องทางโซเชียล",
+          "en": "Address, phone, email, and social channels.",
+          "de": "Adresse, Telefon, E-Mail und soziale Kanaele."
+        },
+        "published_body": {},
+        "published_settings": {
+          "show_map": true
+        },
+        "published_at": "2026-06-27T00:00:00Z",
+        "created_at": "2026-06-27T00:00:00Z",
+        "updated_at": "2026-06-27T00:00:00Z"
+      },
+      {
+        "id": "22222222-2222-4222-8222-222222222203",
+        "page_id": "11111111-1111-4111-8111-111111111111",
+        "section_key": "contact-form",
+        "section_type": "contact_form",
+        "title": {
+          "th": "ส่งข้อความถึงเรา",
+          "en": "Send us a message",
+          "de": "Senden Sie uns eine Nachricht"
+        },
+        "description": {
+          "th": "กรอกแบบฟอร์มเพื่อส่งข้อความถึงทีมงานวัด",
+          "en": "Use the form to send a message to the temple team.",
+          "de": "Nutzen Sie das Formular, um eine Nachricht an das Tempelteam zu senden."
+        },
+        "body": {},
+        "settings": {
+          "enabled": true
+        },
+        "sort_order": 2,
+        "status": "published",
+        "published_title": {
+          "th": "ส่งข้อความถึงเรา",
+          "en": "Send us a message",
+          "de": "Senden Sie uns eine Nachricht"
+        },
+        "published_description": {
+          "th": "กรอกแบบฟอร์มเพื่อส่งข้อความถึงทีมงานวัด",
+          "en": "Use the form to send a message to the temple team.",
+          "de": "Nutzen Sie das Formular, um eine Nachricht an das Tempelteam zu senden."
+        },
+        "published_body": {},
+        "published_settings": {
+          "enabled": true
+        },
+        "published_at": "2026-06-27T00:00:00Z",
+        "created_at": "2026-06-27T00:00:00Z",
+        "updated_at": "2026-06-27T00:00:00Z"
+      }
+    ]
+  },
+  {
+    "id": "11111111-1111-4111-8111-111111111112",
+    "page_key": "PAGE-HOME",
+    "slug": "home",
+    "title": {
+      "th": "วัดหลวงพ่อใส",
+      "en": "Wat Loung Por Sai",
+      "de": "Wat Loung Por Sai"
+    },
+    "description": {
+      "th": "หน้าแรกของวัด ข่าวสาร และกิจกรรมสำคัญ",
+      "en": "Temple homepage, news, and highlighted activities.",
+      "de": "Startseite des Tempels, Nachrichten und wichtige Aktivitaeten."
+    },
+    "seo": {
+      "canonical_url": "/th",
+      "noindex": false,
+      "title": {
+        "th": "วัดหลวงพ่อใส",
+        "en": "Wat Loung Por Sai",
+        "de": "Wat Loung Por Sai"
+      },
+      "description": {
+        "th": "ศูนย์รวมข้อมูลวัดหลวงพ่อใส กิจกรรม ตารางเวลา และการติดต่อ",
+        "en": "Information hub for Wat Loung Por Sai, activities, schedules, and contact details.",
+        "de": "Informationszentrum fuer Wat Loung Por Sai, Aktivitaeten, Zeitplaene und Kontakt."
+      }
+    },
+    "body": {
+      "layout": "home"
+    },
+    "settings": {
+      "featured_event_limit": 3,
+      "show_donation_cta": true
+    },
+    "status": "published",
+    "published_title": {
+      "th": "วัดหลวงพ่อใส",
+      "en": "Wat Loung Por Sai",
+      "de": "Wat Loung Por Sai"
+    },
+    "published_description": {
+      "th": "หน้าแรกของวัด ข่าวสาร และกิจกรรมสำคัญ",
+      "en": "Temple homepage, news, and highlighted activities.",
+      "de": "Startseite des Tempels, Nachrichten und wichtige Aktivitaeten."
+    },
+    "published_seo": {
+      "canonical_url": "/th",
+      "noindex": false
+    },
+    "published_body": {
+      "layout": "home"
+    },
+    "published_settings": {
+      "featured_event_limit": 3,
+      "show_donation_cta": true
+    },
+    "published_at": "2026-06-27T00:00:00Z",
+    "created_at": "2026-06-27T00:00:00Z",
+    "updated_at": "2026-06-28T00:00:00Z",
+    "sections": [
+      {
+        "id": "22222222-2222-4222-8222-222222222211",
+        "page_id": "11111111-1111-4111-8111-111111111112",
+        "section_key": "hero",
+        "section_type": "hero",
+        "title": {
+          "th": "ยินดีต้อนรับสู่วัดหลวงพ่อใส",
+          "en": "Welcome to Wat Loung Por Sai",
+          "de": "Willkommen im Wat Loung Por Sai"
+        },
+        "description": {
+          "th": "พื้นที่สงบสำหรับการปฏิบัติธรรมและชุมชน",
+          "en": "A calm place for practice and community.",
+          "de": "Ein ruhiger Ort fuer Praxis und Gemeinschaft."
+        },
+        "body": {
+          "image": "/images/temple/hero.jpg"
+        },
+        "settings": {
+          "align": "center"
+        },
+        "sort_order": 0,
+        "status": "published",
+        "published_title": {
+          "th": "ยินดีต้อนรับสู่วัดหลวงพ่อใส",
+          "en": "Welcome to Wat Loung Por Sai",
+          "de": "Willkommen im Wat Loung Por Sai"
+        },
+        "published_description": {
+          "th": "พื้นที่สงบสำหรับการปฏิบัติธรรมและชุมชน",
+          "en": "A calm place for practice and community.",
+          "de": "Ein ruhiger Ort fuer Praxis und Gemeinschaft."
+        },
+        "published_body": {
+          "image": "/images/temple/hero.jpg"
+        },
+        "published_settings": {
+          "align": "center"
+        },
+        "published_at": "2026-06-27T00:00:00Z",
+        "created_at": "2026-06-27T00:00:00Z",
+        "updated_at": "2026-06-28T00:00:00Z"
+      },
+      {
+        "id": "22222222-2222-4222-8222-222222222212",
+        "page_id": "11111111-1111-4111-8111-111111111112",
+        "section_key": "featured-events",
+        "section_type": "event_teaser",
+        "title": {
+          "th": "กิจกรรมสำคัญ",
+          "en": "Featured Events",
+          "de": "Ausgewaehlte Veranstaltungen"
+        },
+        "description": {
+          "th": "อัปเดตกิจกรรมและวันสำคัญของวัด",
+          "en": "Updates for temple events and important dates.",
+          "de": "Aktuelles zu Tempelveranstaltungen und wichtigen Terminen."
+        },
+        "body": {},
+        "settings": {
+          "limit": 3
+        },
+        "sort_order": 1,
+        "status": "draft",
+        "created_at": "2026-06-27T00:00:00Z",
+        "updated_at": "2026-06-28T00:00:00Z"
+      }
+    ]
+  },
+  {
+    "id": "11111111-1111-4111-8111-111111111113",
+    "page_key": "PAGE-ABOUT",
+    "slug": "about",
+    "title": {
+      "th": "เกี่ยวกับวัด",
+      "en": "About the Temple",
+      "de": "Ueber den Tempel"
+    },
+    "description": {
+      "th": "ประวัติ วิสัยทัศน์ และข้อมูลของวัด",
+      "en": "History, vision, and temple information.",
+      "de": "Geschichte, Vision und Informationen zum Tempel."
+    },
+    "seo": {
+      "canonical_url": "/th/about",
+      "noindex": false
+    },
+    "body": {
+      "layout": "about"
+    },
+    "settings": {
+      "show_timeline": true
+    },
+    "status": "draft",
+    "published_at": null,
+    "created_at": "2026-06-27T00:00:00Z",
+    "updated_at": "2026-06-28T00:00:00Z",
+    "sections": [
+      {
+        "id": "22222222-2222-4222-8222-222222222221",
+        "page_id": "11111111-1111-4111-8111-111111111113",
+        "section_key": "history",
+        "section_type": "rich_text",
+        "title": {
+          "th": "ประวัติความเป็นมา",
+          "en": "Our History",
+          "de": "Unsere Geschichte"
+        },
+        "description": {
+          "th": "เรื่องราวของวัดและชุมชนโดยรอบ",
+          "en": "The story of the temple and surrounding community.",
+          "de": "Die Geschichte des Tempels und der umliegenden Gemeinschaft."
+        },
+        "body": {
+          "blocks": []
+        },
+        "settings": {
+          "width": "readable"
+        },
+        "sort_order": 0,
+        "status": "draft",
+        "created_at": "2026-06-27T00:00:00Z",
+        "updated_at": "2026-06-28T00:00:00Z"
+      }
+    ]
+  },
+  {
+    "id": "11111111-1111-4111-8111-111111111114",
+    "page_key": "PAGE-EVENTS",
+    "slug": "events",
+    "title": {
+      "th": "กิจกรรม",
+      "en": "Events",
+      "de": "Veranstaltungen"
+    },
+    "description": {
+      "th": "กิจกรรม ตารางพิธี และวันสำคัญ",
+      "en": "Activities, ceremonies, and important dates.",
+      "de": "Aktivitaeten, Zeremonien und wichtige Termine."
+    },
+    "seo": {
+      "canonical_url": "/th/events",
+      "noindex": false
+    },
+    "body": {
+      "layout": "events"
+    },
+    "settings": {
+      "show_registration": false
+    },
+    "status": "published",
+    "published_at": "2026-06-27T00:00:00Z",
+    "created_at": "2026-06-27T00:00:00Z",
+    "updated_at": "2026-06-28T00:00:00Z",
+    "sections": [
+      {
+        "id": "22222222-2222-4222-8222-222222222231",
+        "page_id": "11111111-1111-4111-8111-111111111114",
+        "section_key": "event-list",
+        "section_type": "event_list",
+        "title": {
+          "th": "รายการกิจกรรม",
+          "en": "Event List",
+          "de": "Veranstaltungsliste"
+        },
+        "description": {
+          "th": "กิจกรรมทั้งหมดที่เปิดเผยบนเว็บไซต์",
+          "en": "All events visible on the public website.",
+          "de": "Alle Veranstaltungen auf der oeffentlichen Website."
+        },
+        "body": {},
+        "settings": {
+          "default_view": "upcoming"
+        },
+        "sort_order": 0,
+        "status": "published",
+        "published_at": "2026-06-27T00:00:00Z",
+        "created_at": "2026-06-27T00:00:00Z",
+        "updated_at": "2026-06-28T00:00:00Z"
+      }
+    ]
+  },
+  {
+    "id": "11111111-1111-4111-8111-111111111115",
+    "page_key": "PAGE-GALLERY",
+    "slug": "gallery",
+    "title": {
+      "th": "แกลเลอรี",
+      "en": "Gallery",
+      "de": "Galerie"
+    },
+    "description": {
+      "th": "ภาพกิจกรรมและบรรยากาศของวัด",
+      "en": "Activity photos and temple atmosphere.",
+      "de": "Fotos von Aktivitaeten und Tempelatmosphaere."
+    },
+    "seo": {
+      "canonical_url": "/th/gallery",
+      "noindex": false
+    },
+    "body": {
+      "layout": "gallery"
+    },
+    "settings": {
+      "default_category": "all"
+    },
+    "status": "published",
+    "published_at": "2026-06-27T00:00:00Z",
+    "created_at": "2026-06-27T00:00:00Z",
+    "updated_at": "2026-06-28T00:00:00Z",
+    "sections": [
+      {
+        "id": "22222222-2222-4222-8222-222222222241",
+        "page_id": "11111111-1111-4111-8111-111111111115",
+        "section_key": "gallery-grid",
+        "section_type": "gallery_grid",
+        "title": {
+          "th": "ภาพทั้งหมด",
+          "en": "All Photos",
+          "de": "Alle Fotos"
+        },
+        "description": {
+          "th": "รวมภาพที่เผยแพร่บนเว็บไซต์",
+          "en": "Published photos on the website.",
+          "de": "Veroeffentlichte Fotos auf der Website."
+        },
+        "body": {},
+        "settings": {
+          "columns": 3
+        },
+        "sort_order": 0,
+        "status": "published",
+        "published_at": "2026-06-27T00:00:00Z",
+        "created_at": "2026-06-27T00:00:00Z",
+        "updated_at": "2026-06-28T00:00:00Z"
+      }
+    ]
+  }
+]

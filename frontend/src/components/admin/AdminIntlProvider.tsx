@@ -16,18 +16,11 @@ export default function AdminIntlProvider({
   children: ReactNode;
 }) {
   const { locale, mounted } = useAdminLocale();
-
-  // To prevent hydration mismatch, we might want to return children directly before mount
-  // but NextIntlClientProvider needs messages. We wait until mounted.
-  if (!mounted) {
-    return <div style={{ visibility: "hidden" }}>{children}</div>;
-  }
-
   const messages = messagesMap[locale] || th;
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>
-      {children}
+      {mounted ? children : <div style={{ visibility: "hidden" }}>{children}</div>}
     </NextIntlClientProvider>
   );
 }

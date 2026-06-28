@@ -21,12 +21,53 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
+const skipAdminAuth = process.env.NEXT_PUBLIC_SKIP_ADMIN_AUTH !== "false";
+
+const mockAdminUser: User = {
+  id: "mock-admin",
+  email: "admin@wat.local",
+  name: "Mock Admin",
+  role_id: "mock-admin-role",
+  role: {
+    id: "mock-admin-role",
+    name: "admin",
+    description: "Mock admin for frontend review",
+    permissions: {
+      events: "all",
+      monks: "all",
+      gallery: "all",
+      schedules: "all",
+      donations: "all",
+      members: "all",
+      contacts: "all",
+      settings: "all",
+      users: "all",
+      registrations: "all",
+      audit_logs: "all",
+      website: "all",
+    },
+    is_active: true,
+    created_at: "2026-01-01T00:00:00.000Z",
+    updated_at: "2026-01-01T00:00:00.000Z",
+  },
+  email_verified: true,
+  is_active: true,
+  last_login_at: null,
+  created_at: "2026-01-01T00:00:00.000Z",
+  updated_at: "2026-01-01T00:00:00.000Z",
+};
+
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(null);
-  const [isLoading, setIsLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(skipAdminAuth ? mockAdminUser : null);
+  const [isLoading, setIsLoading] = useState(!skipAdminAuth);
 
   // โหลด user จาก token ตอนเริ่ม
   const refreshUser = useCallback(async () => {
+    if (skipAdminAuth) {
+      setUser(mockAdminUser);
+      return;
+    }
+
     try {
       if (typeof window !== "undefined" && authService.isAuthenticated()) {
         const profile = await authService.getProfile();
@@ -41,6 +82,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
+    if (skipAdminAuth) return;
+
     let isMounted = true;
     const init = async () => {
       await refreshUser();
@@ -53,11 +96,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [refreshUser]);
 
   const login = async (data: LoginRequest) => {
+    if (skipAdminAuth) {
+      setUser(mockAdminUser);
+      return;
+    }
+
     const result = await authService.login(data);
     setUser(result.user);
   };
 
   const logout = () => {
+    if (skipAdminAuth) {
+      setUser(mockAdminUser);
+      return;
+    }
+
     authService.logout();
     setUser(null);
   };

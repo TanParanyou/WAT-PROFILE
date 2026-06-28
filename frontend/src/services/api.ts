@@ -53,9 +53,10 @@ api.interceptors.response.use(
         localStorage.removeItem("refresh_token");
         if (
           typeof window !== "undefined" &&
-          window.location.pathname.startsWith("/admin")
+          window.location.pathname.includes("/admin")
         ) {
-          window.location.href = "/admin/login";
+          const locale = window.location.pathname.split("/")[1];
+          window.location.href = `/${locale}/admin/login`;
         }
       }
     }

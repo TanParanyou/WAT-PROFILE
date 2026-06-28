@@ -29,4 +29,9 @@ export const publicService = {
     const res = await publicApi.get("/schedules");
     return res.data;
   },
+
+  getPublicPage: async (slug: string) => {
+    const res = await publicApi.get(`/pages/${slug}`);
+    return res.data;
+  },
 };

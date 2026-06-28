@@ -14,6 +14,7 @@ import {
   Mail,
   ClipboardList,
   Settings,
+  Globe,
   ChevronLeft,
   ChevronRight,
   X,
@@ -41,6 +42,12 @@ const menuItems: MenuItem[] = [
     href: "/admin",
     icon: LayoutDashboard,
     alwaysShow: true,
+  },
+  {
+    labelKey: "website",
+    href: "/admin/website",
+    icon: Globe,
+    resource: "website",
   },
   {
     labelKey: "events",
@@ -117,6 +124,7 @@ export function AdminSidebar({
   const pathname = usePathname();
   const { can } = usePermission();
   const t = useTranslations("Admin.sidebar");
+  const normalizedPathname = normalizeAdminPath(pathname);
 
   // กรองเมนูตาม permission
   const visibleItems = menuItems.filter(
@@ -124,8 +132,8 @@ export function AdminSidebar({
   );
 
   const isActive = (href: string) => {
-    if (href === "/admin") return pathname === "/admin";
-    return pathname.startsWith(href);
+    if (href === "/admin") return normalizedPathname === "/admin";
+    return normalizedPathname === href || normalizedPathname.startsWith(`${href}/`);
   };
 
   return (
@@ -192,4 +200,9 @@ export function AdminSidebar({
       </nav>
     </aside>
   );
+}
+
+function normalizeAdminPath(pathname: string) {
+  const match = pathname.match(/^\/(th|en|de)(\/.*)?$/);
+  return match?.[2] || pathname;
 }

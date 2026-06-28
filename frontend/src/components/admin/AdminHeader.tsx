@@ -5,6 +5,7 @@ import { LogOut, User, Menu } from "lucide-react";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminLocale } from "@/hooks/useAdminLocale";
 import { useTranslations } from "next-intl";
+import { useLocale } from "next-intl";
 
 interface AdminHeaderProps {
   onMenuClick: () => void;
@@ -13,11 +14,12 @@ interface AdminHeaderProps {
 export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
   const { user, logout } = useAuth();
   const { locale, changeLocale } = useAdminLocale();
+  const currentLocale = useLocale();
   const t = useTranslations("Admin.header");
 
   const handleLogout = () => {
     logout();
-    window.location.href = "/admin/login";
+    window.location.href = `/${currentLocale}/admin/login`;
   };
 
   return (

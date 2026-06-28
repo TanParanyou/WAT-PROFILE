@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PAGE-CONTACT Preview-first CMS</title>
+  <style>
+    :root {
+      --bg: #f7f7f5;
+      --panel: #ffffff;
+      --ink: #111111;
+      --soft: #666666;
+      --muted: #8a8a8a;
+      --line: #deded9;
+      --line-dark: #2a2a2a;
+      --fill: #f0f0ed;
+      --inverse: #181818;
+      --ok: #315f3c;
+      --warn: #8a5b08;
+      --bad: #9b3428;
+      --radius: 6px;
+      --shadow: 0 18px 48px rgba(0, 0, 0, .08);
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace;
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; background: var(--bg); color: var(--ink); font-size: 13px; line-height: 1.45; }
+    button, input, textarea, select { font: inherit; }
+    .shell { min-height: 100vh; display: grid; grid-template-columns: 232px minmax(0, 1fr); }
+    .side { background: #111; color: #e8e8e2; padding: 14px 10px; }
+    .brand { height: 48px; display: flex; align-items: center; gap: 10px; padding: 0 8px; border-bottom: 1px solid #2c2c2c; margin-bottom: 12px; }
+    .mark { width: 28px; height: 28px; border: 1px solid #e8e8e2; display: grid; place-items: center; font-weight: 800; }
+    .brand strong { display: block; font-size: 12px; }
+    .brand span { color: #999; font-size: 10px; }
+    .nav-title { color: #888; font-size: 10px; text-transform: uppercase; letter-spacing: .08em; padding: 12px 8px 5px; }
+    .nav { display: grid; gap: 2px; }
+    .nav a { color: #d9d9d3; text-decoration: none; display: flex; gap: 9px; align-items: center; padding: 8px; border-radius: 4px; }
+    .nav a.active { color: #111; background: #efefea; }
+    .nav i { width: 14px; height: 14px; border: 1px solid currentColor; display: inline-block; }
+    .main { min-width: 0; display: grid; grid-template-rows: 56px minmax(0, 1fr); }
+    .top { background: rgba(255,255,255,.9); border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; padding: 0 18px; position: sticky; top: 0; z-index: 4; backdrop-filter: blur(10px); }
+    .route { color: var(--soft); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .route b { color: var(--ink); }
+    .top-actions { display: flex; gap: 8px; align-items: center; }
+    .btn { height: 34px; border: 1px solid var(--line-dark); background: #fff; color: var(--ink); border-radius: 4px; padding: 0 10px; display: inline-flex; align-items: center; gap: 7px; font-weight: 700; cursor: pointer; white-space: nowrap; }
+    .btn.primary { background: var(--inverse); color: #fff; }
+    .btn.ghost { border-color: var(--line); color: var(--soft); }
+    .btn.icon { width: 34px; justify-content: center; padding: 0; }
+    .workspace { padding: 16px; min-width: 0; }
+    .page-head { display: grid; grid-template-columns: minmax(0, 1fr) auto; gap: 18px; align-items: start; margin-bottom: 14px; }
+    h1 { margin: 0; font-size: 20px; letter-spacing: -.02em; }
+    .sub { color: var(--soft); margin-top: 5px; }
+    .status-line { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 9px; }
+    .pill { border: 1px solid var(--line); background: #fff; border-radius: 999px; padding: 4px 8px; color: var(--soft); font-size: 11px; font-weight: 700; }
+    .pill.ok { color: var(--ok); border-color: #c8d6ca; background: #f3f8f3; }
+    .pill.warn { color: var(--warn); border-color: #ead9b5; background: #fff9ea; }
+    .editor-grid { display: grid; grid-template-columns: 420px minmax(0, 1fr); gap: 14px; align-items: start; }
+    .panel { background: var(--panel); border: 1px solid var(--line); border-radius: var(--radius); box-shadow: var(--shadow); min-width: 0; }
+    .panel-head { height: 46px; border-bottom: 1px solid var(--line); display: flex; align-items: center; justify-content: space-between; padding: 0 12px; gap: 10px; }
+    .panel-head h2 { margin: 0; font-size: 13px; text-transform: uppercase; letter-spacing: .05em; }
+    .panel-body { padding: 12px; }
+    .tabs { display: flex; gap: 6px; margin-bottom: 12px; }
+    .tab { border: 1px solid var(--line); background: var(--fill); border-radius: 4px; padding: 6px 9px; color: var(--soft); font-weight: 800; cursor: pointer; }
+    .tab.active { background: #111; color: #fff; border-color: #111; }
+    .section-list { display: grid; gap: 8px; margin-bottom: 12px; }
+    .section-item { border: 1px solid var(--line); border-radius: 5px; background: #fff; padding: 10px; display: grid; grid-template-columns: 22px minmax(0, 1fr) auto; gap: 9px; align-items: center; cursor: pointer; }
+    .section-item.active { border-color: #111; box-shadow: inset 3px 0 0 #111; }
+    .drag { color: var(--muted); }
+    .section-item strong { display: block; font-size: 12px; }
+    .section-item span { display: block; color: var(--soft); font-size: 11px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .dot-status { width: 8px; height: 8px; border-radius: 50%; background: var(--ok); }
+    .dot-status.warn { background: var(--warn); }
+    .field { margin-bottom: 11px; }
+    .field label { display: flex; justify-content: space-between; color: #333; font-size: 11px; font-weight: 800; margin-bottom: 5px; text-transform: uppercase; letter-spacing: .04em; }
+    .box { border: 1px solid var(--line); border-radius: 4px; background: #fff; min-height: 35px; padding: 9px; color: #222; }
+    .box.muted { color: var(--muted); }
+    .box.area { min-height: 94px; }
+    .split-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+    .accordion { border-top: 1px solid var(--line); margin-top: 12px; padding-top: 10px; display: grid; gap: 8px; }
+    .acc-row { border: 1px solid var(--line); border-radius: 4px; background: var(--fill); padding: 9px; display: flex; justify-content: space-between; align-items: center; }
+    .preview-shell { position: sticky; top: 72px; }
+    .preview-toolbar { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px; border-bottom: 1px solid var(--line); background: #fff; border-radius: var(--radius) var(--radius) 0 0; }
+    .device-tabs { display: flex; gap: 5px; }
+    .device-tabs button { height: 30px; border: 1px solid var(--line); background: var(--fill); border-radius: 4px; padding: 0 9px; font-weight: 800; color: var(--soft); cursor: pointer; }
+    .device-tabs button.active { background: #111; color: #fff; border-color: #111; }
+    .preview-stage { background: #d9d9d4; padding: 18px; min-height: 660px; display: flex; align-items: flex-start; justify-content: center; overflow: auto; border-radius: 0 0 var(--radius) var(--radius); }
+    .site { background: #fff; color: #191919; border: 1px solid #bdbdb7; box-shadow: 0 20px 44px rgba(0,0,0,.15); transition: width .22s ease; overflow: hidden; }
+    .site.desktop { width: 100%; max-width: 960px; }
+    .site.tablet { width: 720px; }
+    .site.mobile { width: 375px; }
+    .site-nav { height: 54px; border-bottom: 1px solid #e5e5df; display: flex; align-items: center; justify-content: space-between; padding: 0 24px; font-size: 12px; }
+    .site.mobile .site-nav { padding: 0 16px; }
+    .site-brand { font-weight: 900; letter-spacing: -.02em; }
+    .site-links { display: flex; gap: 16px; color: #666; }
+    .site.mobile .site-links { display: none; }
+    .hero { padding: 48px 42px; border-bottom: 1px solid #e5e5df; background: #f8f8f4; }
+    .site.mobile .hero { padding: 34px 18px; }
+    .eyebrow { font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: #666; margin-bottom: 10px; }
+    .hero h3 { margin: 0; font-size: 34px; line-height: 1.08; letter-spacing: -.04em; max-width: 620px; }
+    .site.mobile .hero h3 { font-size: 28px; }
+    .hero p { color: #555; max-width: 560px; margin: 14px 0 0; }
+    .contact-layout { display: grid; grid-template-columns: .9fr 1.1fr; }
+    .site.tablet .contact-layout, .site.mobile .contact-layout { grid-template-columns: 1fr; }
+    .info { padding: 32px 34px; border-right: 1px solid #e5e5df; background: #fff; }
+    .site.tablet .info, .site.mobile .info { border-right: 0; border-bottom: 1px solid #e5e5df; }
+    .site.mobile .info, .site.mobile .form { padding: 22px 18px; }
+    .info-row { padding: 14px 0; border-bottom: 1px solid #eeeeea; }
+    .info-row:last-child { border-bottom: 0; }
+    .info-row b { display: block; font-size: 12px; text-transform: uppercase; letter-spacing: .06em; margin-bottom: 5px; }
+    .info-row span { color: #555; }
+    .form { padding: 32px 34px; background: #fbfbf8; }
+    .form h4 { margin: 0 0 18px; font-size: 20px; }
+    .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .site.mobile .form-grid { grid-template-columns: 1fr; }
+    .fake-input { height: 42px; border: 1px solid #d8d8d2; background: #fff; border-radius: 2px; display: flex; align-items: center; padding: 0 12px; color: #777; }
+    .fake-input.area { height: 108px; align-items: flex-start; padding-top: 12px; margin-top: 10px; }
+    .send { margin-top: 12px; height: 42px; background: #111; color: #fff; display: grid; place-items: center; font-weight: 900; }
+    .visit { border-top: 1px solid #e5e5df; padding: 30px 34px; }
+    .site.mobile .visit { padding: 24px 18px; }
+    .visit h4 { margin: 0 0 14px; font-size: 20px; }
+    .visit-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; }
+    .site.tablet .visit-grid { grid-template-columns: repeat(2, 1fr); }
+    .site.mobile .visit-grid { grid-template-columns: 1fr; }
+    .visit-card { border: 1px solid #e5e5df; padding: 14px; min-height: 96px; }
+    .visit-card b { display: block; margin-bottom: 6px; }
+    .visit-card span { color: #666; font-size: 12px; }
+    .seo-drawer { display: grid; grid-template-columns: minmax(0, 1fr) 330px; gap: 14px; margin-top: 14px; }
+    .seo-preview { border: 1px solid var(--line); border-radius: 5px; padding: 12px; background: #fff; }
+    .google-title { color: #1a0dab; font-size: 16px; margin-bottom: 4px; }
+    .google-url { color: #006621; font-size: 12px; margin-bottom: 5px; }
+    .google-desc { color: #545454; }
+    @media (max-width: 1180px) {
+      .editor-grid { grid-template-columns: 380px minmax(0, 1fr); }
+    }
+    @media (max-width: 960px) {
+      .shell { grid-template-columns: 1fr; }
+      .side { display: none; }
+      .editor-grid { grid-template-columns: 1fr; }
+      .preview-shell { position: relative; top: auto; }
+      .preview-stage { min-height: 520px; }
+      .page-head { grid-template-columns: 1fr; }
+      .seo-drawer { grid-template-columns: 1fr; }
+    }
+    @media (max-width: 560px) {
+      .workspace { padding: 10px; }
+      .top { padding: 0 10px; }
+      .top-actions .btn.ghost { display: none; }
+      .split-fields { grid-template-columns: 1fr; }
+      .preview-stage { padding: 8px; }
+      .site.mobile { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <aside class="side">
+      <div class="brand"><div class="mark">W</div><div><strong>WAT ADMIN</strong><span>mono cms console</span></div></div>
+      <div class="nav-title">Website</div>
+      <nav class="nav">
+        <a class="active" href="#"><i></i>Pages</a>
+        <a href="#"><i></i>Sections</a>
+        <a href="#"><i></i>Media</a>
+        <a href="#"><i></i>SEO Defaults</a>
+      </nav>
+      <div class="nav-title">Content</div>
+      <nav class="nav">
+        <a href="#"><i></i>Events</a>
+        <a href="#"><i></i>Monks</a>
+        <a href="#"><i></i>Gallery</a>
+        <a href="#"><i></i>Schedules</a>
+      </nav>
+      <div class="nav-title">Operations</div>
+      <nav class="nav">
+        <a href="#"><i></i>Contacts</a>
+        <a href="#"><i></i>Donations</a>
+      </nav>
+    </aside>
+    <main class="main">
+      <header class="top">
+        <div class="route">localhost:3000 / th / admin / website / pages / <b>PAGE-CONTACT</b></div>
+        <div class="top-actions">
+          <button class="btn ghost">Audit</button>
+          <button class="btn ghost">Preview URL</button>
+          <button class="btn primary">Publish</button>
+        </div>
+      </header>
+      <div class="workspace">
+        <div class="page-head">
+          <div>
+            <h1>PAGE-CONTACT</h1>
+            <div class="sub">Preview-first editor for public Contact + Visit page. Edit structured sections on the left, verify responsive public output on the right.</div>
+            <div class="status-line">
+              <span class="pill ok">published</span>
+              <span class="pill warn">2 draft edits</span>
+              <span class="pill">th/en/de</span>
+              <span class="pill">seo score 82%</span>
+            </div>
+          </div>
+          <div class="top-actions">
+            <button class="btn">Save draft</button>
+            <button class="btn primary">Publish changes</button>
+          </div>
+        </div>
+
+        <div class="editor-grid">
+          <section class="panel">
+            <div class="panel-head">
+              <h2>Editor</h2>
+              <button class="btn ghost">+ Section</button>
+            </div>
+            <div class="panel-body">
+              <div class="tabs"><button class="tab active">TH</button><button class="tab">EN</button><button class="tab">DE</button></div>
+              <div class="section-list">
+                <div class="section-item active"><div class="drag">::</div><div><strong>Hero</strong><span>title, subtitle, background, breadcrumbs</span></div><div class="dot-status"></div></div>
+                <div class="section-item"><div class="drag">::</div><div><strong>Contact information</strong><span>address, phone, email, socials, bank</span></div><div class="dot-status"></div></div>
+                <div class="section-item"><div class="drag">::</div><div><strong>Contact form copy</strong><span>form labels, success/error copy</span></div><div class="dot-status warn"></div></div>
+                <div class="section-item"><div class="drag">::</div><div><strong>Visit cards</strong><span>opening hours, parking, transit, etiquette</span></div><div class="dot-status"></div></div>
+                <div class="section-item"><div class="drag">::</div><div><strong>Map block</strong><span>google map url and fallback address</span></div><div class="dot-status"></div></div>
+              </div>
+
+              <div class="field"><label>Section title <span>TH</span></label><div class="box">ติดต่อวัดหลวงพ่อใส</div></div>
+              <div class="field"><label>Subtitle <span>fallback EN if empty</span></label><div class="box">สอบถามข้อมูลกิจกรรม การเดินทาง และการร่วมทำบุญ</div></div>
+              <div class="field"><label>Body</label><div class="box area">ข้อความเกริ่นนำสั้น ๆ ก่อนเข้าข้อมูลติดต่อ ไม่ควรยาวเกิน 2-3 บรรทัด เพื่อให้ preview บน mobile อ่านง่าย</div></div>
+
+              <div class="split-fields">
+                <div class="field"><label>Hero image</label><div class="box muted">media: temple-front.jpg</div></div>
+                <div class="field"><label>CTA URL</label><div class="box muted">#contact-form</div></div>
+              </div>
+
+              <div class="accordion">
+                <div class="acc-row"><strong>SEO</strong><span class="pill ok">complete</span></div>
+                <div class="acc-row"><strong>Publishing</strong><span>published_at: now</span></div>
+                <div class="acc-row"><strong>Responsive rules</strong><span>stack at 960px</span></div>
+              </div>
+            </div>
+          </section>
+
+          <section class="panel preview-shell">
+            <div class="preview-toolbar">
+              <div>
+                <strong>Live public preview</strong>
+                <span style="color:var(--soft); margin-left:8px;">/th/contact</span>
+              </div>
+              <div class="device-tabs">
+                <button class="active" onclick="setDevice('desktop', this)">Desktop</button>
+                <button onclick="setDevice('tablet', this)">Tablet</button>
+                <button onclick="setDevice('mobile', this)">Mobile</button>
+              </div>
+            </div>
+            <div class="preview-stage">
+              <article id="sitePreview" class="site desktop">
+                <nav class="site-nav">
+                  <div class="site-brand">Wat Loung Por Sai</div>
+                  <div class="site-links"><span>Home</span><span>Events</span><span>Monks</span><span>Gallery</span><span>Contact</span></div>
+                </nav>
+                <section class="hero">
+                  <div class="eyebrow">Contact</div>
+                  <h3>ติดต่อวัดหลวงพ่อใส</h3>
+                  <p>สอบถามข้อมูลกิจกรรม การเดินทาง และการร่วมทำบุญ</p>
+                </section>
+                <section class="contact-layout">
+                  <div class="info">
+                    <div class="info-row"><b>Address</b><span>Wat Loung Por Sai, Germany</span></div>
+                    <div class="info-row"><b>Phone</b><span>+49 000 000000</span></div>
+                    <div class="info-row"><b>Email</b><span>info@watloungporsai.de</span></div>
+                    <div class="info-row"><b>Bank donation</b><span>Sparkasse · IBAN DE00 0000 0000</span></div>
+                  </div>
+                  <div class="form">
+                    <h4>ส่งข้อความถึงวัด</h4>
+                    <div class="form-grid"><div class="fake-input">ชื่อ</div><div class="fake-input">อีเมล</div></div>
+                    <div class="fake-input" style="margin-top:10px;">หัวข้อ</div>
+                    <div class="fake-input area">ข้อความ</div>
+                    <div class="send">ส่งข้อความ</div>
+                  </div>
+                </section>
+                <section class="visit">
+                  <h4>ข้อมูลสำหรับผู้มาเยือน</h4>
+                  <div class="visit-grid">
+                    <div class="visit-card"><b>Opening hours</b><span>Daily practice and ceremonies by schedule.</span></div>
+                    <div class="visit-card"><b>Parking</b><span>Use the entrance beside the main hall.</span></div>
+                    <div class="visit-card"><b>Etiquette</b><span>Dress modestly and keep phones silent.</span></div>
+                  </div>
+                </section>
+              </article>
+            </div>
+          </section>
+        </div>
+
+        <div class="seo-drawer">
+          <div class="panel">
+            <div class="panel-head"><h2>Search result preview</h2><span class="pill ok">auto fallback enabled</span></div>
+            <div class="panel-body">
+              <div class="seo-preview">
+                <div class="google-title">ติดต่อวัดหลวงพ่อใส | Wat Loung Por Sai</div>
+                <div class="google-url">https://watloungporsai.de/th/contact</div>
+                <div class="google-desc">สอบถามข้อมูลกิจกรรม การเดินทาง และการร่วมทำบุญกับวัดหลวงพ่อใส พร้อมข้อมูลที่อยู่ เบอร์โทร และช่องทางติดต่อ</div>
+              </div>
+            </div>
+          </div>
+          <div class="panel">
+            <div class="panel-head"><h2>Notes</h2></div>
+            <div class="panel-body" style="color:var(--soft)">
+              Mono style keeps admin quiet and utilitarian. Preview stays visible on desktop, moves below editor on tablet/mobile, and can switch public viewport without leaving the page.
+            </div>
+          </div>
+        </div>
+      </div>
+    </main>
+  </div>
+  <script>
+    function setDevice(device, button) {
+      const preview = document.getElementById('sitePreview');
+      preview.className = 'site ' + device;
+      document.querySelectorAll('.device-tabs button').forEach((b) => b.classList.remove('active'));
+      button.classList.add('active');
+    }
+  </script>
+</body>
+</html>

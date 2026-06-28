@@ -3,8 +3,8 @@
 
 @theme {
     /* Fonts */
-    --font-sans: var(--font-prompt);
-    --font-heading: var(--font-chonburi);
+    --font-sans: "Inter", "Segoe UI", Arial, sans-serif;
+    --font-heading: "Georgia", "Times New Roman", serif;
 
     /* Text Colors */
     --color-text-50: var(--text-50);

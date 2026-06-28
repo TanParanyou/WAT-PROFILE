@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
+import { useParams } from "next/navigation";
 import { useRouter } from "@/navigation";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { Input } from "@/components/ui/Input";
@@ -19,9 +20,10 @@ import {
   type UpdateUserFormData,
 } from "@/schemas/user.schema";
 
-export default function EditUserPage({ params }: { params: { id: string } }) {
+export default function EditUserPage() {
   const t = useTranslations("Admin");
   const router = useRouter();
+  const { id } = useParams<{ id: string }>();
   const { toasts, toast, removeToast } = useToast();
   const { handleApiError } = useApiError();
   const [isLoading, setIsLoading] = useState(false);
@@ -57,7 +59,7 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
         }));
         setRoles([{ value: "", label: "Select a role..." }, ...options]);
 
-        const user = await userAdminService.getById(params.id);
+        const user = await userAdminService.getById(id);
         reset({
           name: user.name,
           email: user.email,
@@ -72,12 +74,12 @@ export default function EditUserPage({ params }: { params: { id: string } }) {
       }
     };
     loadVars();
-  }, [params.id, toast, t, reset, handleApiError]);
+  }, [id, toast, t, reset, handleApiError]);
 
   const onSubmit = async (data: UpdateUserFormData) => {
     setIsLoading(true);
     try {
-      await userAdminService.update(params.id, {
+      await userAdminService.update(id, {
         ...data,
         role_id: data.role_id || null,
         ...(data.password ? { password: data.password } : {}),

@@ -55,4 +55,5 @@ export type PermissionResource =
   | "settings"
   | "users"
   | "registrations"
-  | "audit_logs";
+  | "audit_logs"
+  | "website";

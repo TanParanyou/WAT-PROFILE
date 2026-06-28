@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useTheme } from "next-themes";
 import { siteConfig } from "@/config/site.config";
 import { Menu, X, Sun, Moon, Globe } from "lucide-react";
 import { AnimatePresence, motion, Variants } from "framer-motion";
@@ -15,7 +14,7 @@ export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [mounted, setMounted] = useState(false);
-  const { theme, setTheme } = useTheme();
+  const [theme, setTheme] = useState<"light" | "dark">("light");
   const t = useTranslations("Navbar");
   const tSite = useTranslations("Site");
   const locale = useLocale();
@@ -28,6 +27,10 @@ export default function Navbar() {
     // so we can safely set mounted to true here.
     // eslint-disable-next-line react-hooks/set-state-in-effect
     setMounted(true);
+    const savedTheme = window.localStorage.getItem("theme") as "light" | "dark" | null;
+    const initialTheme = savedTheme || (window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light");
+    setTheme(initialTheme);
+    document.documentElement.classList.toggle("dark", initialTheme === "dark");
     const handleScroll = () => {
       setScrolled(window.scrollY > 20);
     };
@@ -36,6 +39,12 @@ export default function Navbar() {
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
+
+  useEffect(() => {
+    if (!mounted) return;
+    window.localStorage.setItem("theme", theme);
+    document.documentElement.classList.toggle("dark", theme === "dark");
+  }, [theme, mounted]);
 
   // Lock body scroll when mobile menu is open
   useEffect(() => {
@@ -171,7 +180,7 @@ export default function Navbar() {
         {/* Actions (Desktop) */}
         <div className="hidden md:flex items-center gap-4">
           <button
-            onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+            onClick={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
             className={`w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 ${
               scrolled
                 ? "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-zinc-700"

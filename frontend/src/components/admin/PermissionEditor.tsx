@@ -14,6 +14,7 @@ const RESOURCES = [
   { key: "settings", label: "ตั้งค่า (Settings)" },
   { key: "users", label: "ผู้ใช้งานและบทบาท (Users/Roles)" },
   { key: "registrations", label: "ลงทะเบียน (Registrations)" },
+  { key: "website", label: "เว็บไซต์ (Website)" },
 ];
 
 const ACTIONS = [

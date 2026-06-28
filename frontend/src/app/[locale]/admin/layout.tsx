@@ -15,7 +15,7 @@ export default function AdminRootLayout({
   const pathname = usePathname();
 
   // Login page ไม่ต้อง auth guard หรือ admin layout
-  const isLoginPage = pathname === "/admin/login";
+  const isLoginPage = pathname === "/admin/login" || pathname.endsWith("/admin/login");
 
   if (isLoginPage) {
     return (
