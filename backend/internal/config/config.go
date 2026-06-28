@@ -49,6 +49,8 @@ func MigrateModels() error {
 		&models.PasswordReset{},
 		&models.Setting{},
 		&models.Media{},
+		&models.ContentPage{},
+		&models.ContentSection{},
 		&models.AuditLog{},
 
 		// Temple-specific models

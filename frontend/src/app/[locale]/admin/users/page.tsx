@@ -12,7 +12,6 @@ import { useConfirm } from "@/components/ui/Modal";
 import { useDataTable } from "@/hooks/useDataTable";
 import { userAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
-import { ToastContainer } from "@/components/admin/Toast";
 import { useTranslations } from "next-intl";
 import type { User } from "@/types/entities";
 import { useApiError } from "@/hooks/useApiError";
@@ -27,7 +26,7 @@ export default function UsersListPage() {
       fetcher: (p) => userAdminService.getAll({ page: p.page, limit: p.limit }),
     });
   const { confirm, ConfirmDialog } = useConfirm();
-  const { toasts, toast, removeToast } = useToast();
+  const { toast } = useToast();
   const { handleApiError } = useApiError();
   const selectedIds = useRowSelection<string>();
 
@@ -188,7 +187,6 @@ export default function UsersListPage() {
         onSelectAll={(ids) => selectedIds.selectAll(ids as string[])}
       />
       <ConfirmDialog />
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }

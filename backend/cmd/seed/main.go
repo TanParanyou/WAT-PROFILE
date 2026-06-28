@@ -7,6 +7,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/watloungporsai/wat-profile-backend/internal/config"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
+	"github.com/watloungporsai/wat-profile-backend/internal/services"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
 )
 
@@ -35,6 +36,9 @@ func main() {
 	// Seed default settings
 	seedSettings()
 
+	// Seed website CMS
+	seedWebsiteCMS()
+
 	// Seed donation categories
 	seedDonationCategories()
 
@@ -49,15 +53,17 @@ func seedRoles() {
 			Name:        "admin",
 			Description: "System administrator with full access",
 			Permissions: models.PermissionsMap{
-				"events":    "all",
-				"monks":     "all",
-				"gallery":   "all",
-				"schedules": "all",
-				"donations": "all",
-				"members":   "all",
-				"contacts":  "all",
-				"settings":  "all",
-				"users":     "all",
+				"events":     "all",
+				"monks":      "all",
+				"gallery":    "all",
+				"schedules":  "all",
+				"donations":  "all",
+				"members":    "all",
+				"contacts":   "all",
+				"settings":   "all",
+				"users":      "all",
+				"website":    "all",
+				"audit_logs": "all",
 			},
 			IsActive: true,
 		},
@@ -70,6 +76,7 @@ func seedRoles() {
 				"gallery":   "all",
 				"schedules": "all",
 				"contacts":  "read",
+				"website":   "all",
 			},
 			IsActive: true,
 		},
@@ -223,5 +230,12 @@ func seedDonationCategories() {
 			config.DB.Create(&cat)
 			log.Printf("  Created category: %s", enName)
 		}
+	}
+}
+
+func seedWebsiteCMS() {
+	log.Println("Seeding website CMS...")
+	if err := services.NewContentService(config.DB).EnsureContactPageSeed(); err != nil {
+		log.Printf("  Failed to seed website CMS: %v", err)
 	}
 }

@@ -1,6 +1,6 @@
 'use client';
 
-import React, { useEffect, useCallback } from 'react';
+import React, { useEffect, useCallback, useId } from 'react';
 import { createPortal } from 'react-dom';
 import { X, AlertTriangle, CheckCircle, Info, AlertCircle } from 'lucide-react';
 import { Loading } from './Loading';
@@ -74,6 +74,8 @@ const Modal: React.FC<ModalProps> = ({
     closeOnEscape = true,
     footer,
 }) => {
+    const titleId = useId();
+    const descriptionId = useId();
     const handleEscape = useCallback(
         (e: KeyboardEvent) => {
             if (e.key === 'Escape' && closeOnEscape) onClose();
@@ -98,34 +100,43 @@ const Modal: React.FC<ModalProps> = ({
         <>
             {/* Backdrop */}
             <div
-                className="fixed inset-0 z-50 bg-black/50"
+                className="fixed inset-0 z-50 bg-zinc-950/45"
                 onClick={closeOnOverlayClick ? onClose : undefined}
             />
             {/* Modal */}
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none">
+            <div className="fixed inset-0 z-50 flex items-end justify-center p-3 pointer-events-none sm:items-center sm:p-4">
                 <div
-                    className={`w-full ${sizeClasses[size]} bg-white rounded-xl shadow-xl pointer-events-auto overflow-hidden`}
+                    role="dialog"
+                    aria-modal="true"
+                    aria-labelledby={title ? titleId : undefined}
+                    aria-describedby={description ? descriptionId : undefined}
+                    className={`max-h-[calc(100vh-1.5rem)] w-full ${sizeClasses[size]} overflow-hidden border border-zinc-200 bg-white shadow-2xl pointer-events-auto`}
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}
                     {(title || showCloseButton) && (
-                        <div className="flex items-center justify-between px-6 py-4 border-b border-gray-200">
-                            <div>
-                                {title && <h2 className="text-lg font-semibold text-gray-900">{title}</h2>}
-                                {description && <p className="mt-0.5 text-sm text-gray-500">{description}</p>}
+                        <div className="flex items-start justify-between gap-4 border-b border-zinc-200 px-4 py-3 sm:px-5">
+                            <div className="min-w-0">
+                                {title && <h2 id={titleId} className="text-base font-semibold text-zinc-950">{title}</h2>}
+                                {description && <p id={descriptionId} className="mt-1 text-sm text-zinc-500">{description}</p>}
                             </div>
                             {showCloseButton && (
-                                <button onClick={onClose} className="p-1 hover:bg-gray-100 rounded-full text-gray-400 hover:text-gray-600">
+                                <button
+                                    type="button"
+                                    aria-label="Close modal"
+                                    onClick={onClose}
+                                    className="shrink-0 border border-transparent p-1 text-zinc-400 hover:border-zinc-200 hover:bg-zinc-50 hover:text-zinc-700"
+                                >
                                     <X size={20} />
                                 </button>
                             )}
                         </div>
                     )}
                     {/* Body */}
-                    {children && <div className="px-6 py-4 max-h-[60vh] overflow-y-auto">{children}</div>}
+                    {children && <div className="max-h-[70vh] overflow-y-auto px-4 py-4 sm:px-5">{children}</div>}
                     {/* Footer */}
                     {footer && (
-                        <div className="flex items-center justify-end gap-3 px-6 py-4 border-t border-gray-200 bg-gray-50">
+                        <div className="flex flex-wrap items-center justify-end gap-3 border-t border-zinc-200 bg-zinc-50 px-4 py-3 sm:px-5">
                             {footer}
                         </div>
                     )}
@@ -154,16 +165,16 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
     return (
         <Modal isOpen={isOpen} onClose={onClose} size="sm" showCloseButton={false} closeOnOverlayClick={!isLoading} closeOnEscape={!isLoading}>
             <div className="text-center">
-                <div className={`mx-auto w-12 h-12 rounded-full bg-gray-100 flex items-center justify-center mb-4 ${config.iconColor}`}>
+                <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center border border-zinc-200 bg-zinc-50 ${config.iconColor}`}>
                     <Icon size={24} />
                 </div>
-                <h3 className="text-lg font-semibold text-gray-900 mb-2">{title}</h3>
-                <p className="text-gray-500 mb-6">{message}</p>
+                <h3 className="mb-2 text-base font-semibold text-zinc-950">{title}</h3>
+                <p className="mb-6 text-sm text-zinc-500">{message}</p>
                 <div className="flex gap-3">
-                    <button onClick={onClose} disabled={isLoading} className="flex-1 px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50">
+                    <button type="button" onClick={onClose} disabled={isLoading} className="flex-1 border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-50">
                         {cancelText}
                     </button>
-                    <button onClick={onConfirm} disabled={isLoading} className={`flex-1 px-4 py-2 rounded-lg text-white disabled:opacity-50 flex items-center justify-center gap-2 ${config.btnClass}`}>
+                    <button type="button" onClick={onConfirm} disabled={isLoading} className={`flex flex-1 items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 ${config.btnClass}`}>
                         {isLoading ? <Loading size="sm" /> : confirmText}
                     </button>
                 </div>
@@ -194,11 +205,11 @@ const FormModal: React.FC<FormModalProps> = ({
         <Modal isOpen={isOpen} onClose={onClose} title={title} size={size} closeOnOverlayClick={!isLoading} closeOnEscape={!isLoading}>
             <form onSubmit={handleSubmit}>
                 <div className="space-y-4">{children}</div>
-                <div className="flex justify-end gap-3 mt-6 pt-4 border-t border-gray-200">
-                    <button type="button" onClick={onClose} disabled={isLoading} className="px-4 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 disabled:opacity-50">
+                <div className="mt-6 flex justify-end gap-3 border-t border-zinc-200 pt-4">
+                    <button type="button" onClick={onClose} disabled={isLoading} className="border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-50">
                         {cancelText}
                     </button>
-                    <button type="submit" disabled={isLoading || submitDisabled} className="px-6 py-2 bg-amber-600 hover:bg-amber-700 rounded-lg text-white disabled:opacity-50 flex items-center gap-2">
+                    <button type="submit" disabled={isLoading || submitDisabled} className="flex items-center gap-2 bg-amber-600 px-6 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50">
                         {isLoading ? <Loading size="sm" /> : submitText}
                     </button>
                 </div>

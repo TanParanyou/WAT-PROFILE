@@ -50,7 +50,7 @@ func (h *EventHandler) CreateEvent(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to create event")
 	}
 
-	go h.auditService.LogAction(c, "create", "events", nil, map[string]interface{}{"title": event.Title})
+	go h.auditService.LogAction(c, "create", "events", "", map[string]interface{}{"title": event.Title})
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "data": event})
 }
@@ -88,7 +88,7 @@ func (h *EventHandler) DeleteEvent(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete event")
 	}
 
-	go h.auditService.LogAction(c, "delete", "events", &id, nil)
+	go h.auditService.LogAction(c, "delete", "events", fmt.Sprint(id), nil)
 
 	return utils.MessageResponse(c, "Event deleted successfully")
 }

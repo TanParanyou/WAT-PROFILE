@@ -1,7 +1,9 @@
 import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
 import { siteConfig } from '@/config/site.config';
+import { getDefaultContactSettings, siteSettingsPublicService } from '@/services/siteSettingsService';
 import { websiteCmsPublicService } from '@/services/websiteCmsService';
+import type { GlobalContactSettings } from '@/types/site-settings';
 import ContactContent from './ContactContent';
 import { getLocalizedText } from '@/utils/localizedText';
 
@@ -35,6 +37,10 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 export default async function ContactPage({ params }: { params: Promise<{ locale: string }> }) {
     const { locale } = await params;
-    const cmsPage = await websiteCmsPublicService.getPage('contact').catch(() => null);
-    return <ContactContent locale={locale} cmsPage={cmsPage} />;
+    const [cmsPage, contactSettings] = await Promise.all([
+        websiteCmsPublicService.getPage('contact').catch(() => null),
+        siteSettingsPublicService.getContactSettings().catch<GlobalContactSettings>(() => getDefaultContactSettings()),
+    ]);
+
+    return <ContactContent locale={locale} cmsPage={cmsPage} contactSettings={contactSettings} />;
 }

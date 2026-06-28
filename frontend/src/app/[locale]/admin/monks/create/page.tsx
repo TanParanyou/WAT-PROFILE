@@ -13,7 +13,6 @@ import { Button } from "@/components/ui/Button";
 import { monkAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import { useApiError } from "@/hooks/useApiError";
-import { ToastContainer } from "@/components/admin/Toast";
 import type { MultiLangText } from "@/types/api";
 import { useTranslations } from "next-intl";
 import { useForm, Controller } from "react-hook-form";
@@ -31,7 +30,7 @@ const emptyLang: MultiLangText = { th: "", en: "", de: "" };
 export default function CreateMonkPage() {
   const t = useTranslations("Admin");
   const router = useRouter();
-  const { toasts, toast, removeToast } = useToast();
+  const { toast } = useToast();
   const { handleApiError } = useApiError();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -195,7 +194,6 @@ export default function CreateMonkPage() {
           </Button>
         </div>
       </form>
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }

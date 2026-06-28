@@ -14,7 +14,6 @@ import { Checkbox } from "@/components/ui/Checkbox";
 import { donationCategoryAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import { useApiError } from "@/hooks/useApiError";
-import { ToastContainer } from "@/components/admin/Toast";
 import type { DonationCategory } from "@/types/entities";
 import type { MultiLangText } from "@/types/api";
 import { useTranslations } from "next-intl";
@@ -37,7 +36,7 @@ export default function DonationCategoriesPage() {
   const [isSaving, setIsSaving] = useState(false);
   const { isOpen, open, close } = useModal();
   const { confirm, ConfirmDialog } = useConfirm();
-  const { toasts, toast, removeToast } = useToast();
+  const { toast } = useToast();
   const { handleApiError } = useApiError();
   const selectedIds = useRowSelection();
 
@@ -355,7 +354,6 @@ export default function DonationCategoriesPage() {
       </FormModal>
 
       <ConfirmDialog />
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }

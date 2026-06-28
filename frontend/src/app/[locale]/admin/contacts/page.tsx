@@ -13,7 +13,6 @@ import { Select } from "@/components/ui/Select";
 import { useDataTable } from "@/hooks/useDataTable";
 import { contactAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
-import { ToastContainer } from "@/components/admin/Toast";
 import type { ContactInquiry } from "@/types/entities";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
@@ -37,7 +36,7 @@ export default function ContactsPage() {
 
   const { isOpen, open, close } = useModal();
   const { confirm, ConfirmDialog } = useConfirm();
-  const { toasts, toast, removeToast } = useToast();
+  const { toast } = useToast();
   const selectedIds = useRowSelection();
 
   const { data, pagination, sort, onPageChange, onSort, isLoading, fetchData } =
@@ -322,7 +321,6 @@ export default function ContactsPage() {
       </Modal>
 
       <ConfirmDialog />
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }

@@ -9,7 +9,6 @@ import { Select } from "@/components/ui/Select";
 import { useDataTable } from "@/hooks/useDataTable";
 import { registrationAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
-import { ToastContainer } from "@/components/admin/Toast";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
 import { exportToCsv } from "@/utils/exportToCsv";
@@ -27,7 +26,7 @@ export default function RegistrationsPage() {
     { value: "cancelled", label: t("registrations.cancelled") },
   ];
 
-  const { toasts, toast, removeToast } = useToast();
+  const { toast } = useToast();
   const { confirm, ConfirmDialog } = useConfirm();
   const [updatingId, setUpdatingId] = useState<number | null>(null);
   const selectedIds = useRowSelection();
@@ -231,7 +230,6 @@ export default function RegistrationsPage() {
         onSelectAll={(ids) => selectedIds.selectAll(ids)}
       />
       <ConfirmDialog />
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }

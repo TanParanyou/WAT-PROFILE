@@ -11,7 +11,6 @@ import { useConfirm } from "@/components/ui/Modal";
 import { useDataTable } from "@/hooks/useDataTable";
 import { donationAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
-import { ToastContainer } from "@/components/admin/Toast";
 import type { Donation } from "@/types/entities";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
@@ -19,7 +18,7 @@ import { exportToCsv } from "@/utils/exportToCsv";
 
 export default function DonationsPage() {
   const t = useTranslations("Admin");
-  const { toasts, toast, removeToast } = useToast();
+  const { toast } = useToast();
   const { confirm, ConfirmDialog } = useConfirm();
   const selectedIds = useRowSelection();
 
@@ -205,7 +204,6 @@ export default function DonationsPage() {
         onSelectAll={(ids) => selectedIds.selectAll(ids)}
       />
       <ConfirmDialog />
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }

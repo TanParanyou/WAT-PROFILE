@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
+import { useTranslations } from "next-intl";
 import type { ContentPage } from "@/types/website-cms";
 import { WebsiteContentTab } from "@/components/admin/website/WebsiteContentTab";
 import { WebsiteEditorTabs } from "@/components/admin/website/WebsiteEditorTabs";
@@ -12,7 +13,13 @@ import { WebsitePreviewPanel } from "@/components/admin/website/WebsitePreviewPa
 import { WebsitePublishPanel } from "@/components/admin/website/WebsitePublishPanel";
 import { WebsiteSeoTab } from "@/components/admin/website/WebsiteSeoTab";
 import { WebsiteSettingsTab } from "@/components/admin/website/WebsiteSettingsTab";
-import { getDefaultActiveSectionId, hasDraftDifference } from "@/utils/websiteCms";
+import { useConfirm } from "@/components/ui/Modal";
+import {
+  applyPageFormDraft,
+  applySectionFormDrafts,
+  getDefaultActiveSectionId,
+  hasDraftDifference,
+} from "@/utils/websiteCms";
 import type {
   WebsiteCmsEditorTab,
   WebsiteCmsLocale,
@@ -92,9 +99,39 @@ export function WebsitePageEditorShell({
   onDuplicateSection: (sectionId: string) => void;
   onDirtyChange: (dirty: boolean) => void;
 }) {
-  const canLeaveCurrentForm = () => {
-    return !hasUnsavedChanges || window.confirm("You have unsaved edits. Continue without saving?");
-  };
+  const t = useTranslations("Admin.website");
+  const [pagePreviewDraft, setPagePreviewDraft] = useState<WebsiteCmsPageFormData | null>(null);
+  const [sectionPreviewDrafts, setSectionPreviewDrafts] = useState<Record<string, WebsiteCmsSectionFormData>>({});
+  const { confirm, ConfirmDialog } = useConfirm();
+
+  const canLeaveCurrentForm = useCallback(async () => {
+    if (!hasUnsavedChanges) return true;
+    return confirm({
+      title: t("unsavedEdits"),
+      message: t("unsavedEditsMessage"),
+      confirmText: t("continue"),
+      cancelText: t("stay"),
+      variant: "warning",
+    });
+  }, [confirm, hasUnsavedChanges, t]);
+
+  const livePreviewPage = useMemo(
+    () => applySectionFormDrafts(applyPageFormDraft(page, pagePreviewDraft), sectionPreviewDrafts),
+    [page, pagePreviewDraft, sectionPreviewDrafts],
+  );
+
+  const updatePagePreviewDraft = useCallback((values: WebsiteCmsPageFormData) => {
+    const nextDraft = cloneDraft(values);
+    setPagePreviewDraft((current) => (draftsMatch(current, nextDraft) ? current : nextDraft));
+  }, []);
+
+  const updateSectionPreviewDraft = useCallback((sectionId: string, values: WebsiteCmsSectionFormData) => {
+    const nextDraft = cloneDraft(values);
+    setSectionPreviewDrafts((current) => {
+      if (draftsMatch(current[sectionId] ?? null, nextDraft)) return current;
+      return { ...current, [sectionId]: nextDraft };
+    });
+  }, []);
 
   useEffect(() => {
     if (!activeSectionId) {
@@ -102,8 +139,14 @@ export function WebsitePageEditorShell({
     }
   }, [activeSectionId, onActiveSectionChange, page]);
 
+  useEffect(() => {
+    setPagePreviewDraft(null);
+    setSectionPreviewDrafts({});
+  }, [page.id, page.updated_at]);
+
   return (
     <div className="space-y-4">
+      <ConfirmDialog />
       <WebsiteEditorToolbar
         page={page}
         locale={activeLocale}
@@ -128,8 +171,8 @@ export function WebsitePageEditorShell({
         <div className="space-y-4 border border-zinc-200 bg-white p-4">
           <WebsiteEditorTabs
             value={activeTab}
-            onChange={(tab) => {
-              if (!canLeaveCurrentForm()) return;
+            onChange={async (tab) => {
+              if (!(await canLeaveCurrentForm())) return;
               onActiveTabChange(tab);
             }}
           />
@@ -154,6 +197,7 @@ export function WebsitePageEditorShell({
               onRestoreSection={onRestoreSection}
               onDuplicateSection={onDuplicateSection}
               onDirtyChange={onDirtyChange}
+              onSectionPreviewDraftChange={updateSectionPreviewDraft}
               onBeforeLeave={canLeaveCurrentForm}
             />
           ) : null}
@@ -165,6 +209,7 @@ export function WebsitePageEditorShell({
               error={pageError}
               onSubmit={onSavePage}
               onDirtyChange={onDirtyChange}
+              onPreviewDraftChange={updatePagePreviewDraft}
             />
           ) : null}
           {activeTab === "settings" ? (
@@ -175,6 +220,7 @@ export function WebsitePageEditorShell({
               error={pageError}
               onSubmit={onSavePage}
               onDirtyChange={onDirtyChange}
+              onPreviewDraftChange={updatePagePreviewDraft}
             />
           ) : null}
           {activeTab === "advanced" ? (
@@ -189,6 +235,8 @@ export function WebsitePageEditorShell({
               onSavePage={onSavePage}
               onSaveSection={onSaveSection}
               onDirtyChange={onDirtyChange}
+              onPagePreviewDraftChange={updatePagePreviewDraft}
+              onSectionPreviewDraftChange={updateSectionPreviewDraft}
             />
           ) : null}
         </div>
@@ -200,22 +248,31 @@ export function WebsitePageEditorShell({
                 className={previewMode === "draft" ? "bg-zinc-950 px-3 py-2 text-xs font-medium text-white" : "px-3 py-2 text-xs font-medium text-zinc-600"}
                 onClick={() => onPreviewModeChange("draft")}
               >
-                Draft
+                {t("draft")}
               </button>
               <button
                 type="button"
                 className={previewMode === "published" ? "bg-zinc-950 px-3 py-2 text-xs font-medium text-white" : "px-3 py-2 text-xs font-medium text-zinc-600"}
                 onClick={() => onPreviewModeChange("published")}
               >
-                Published
+                {t("published")}
               </button>
             </div>
             <WebsitePreviewDeviceSwitch value={previewDevice} onChange={onPreviewDeviceChange} />
           </div>
-          <WebsitePreviewPanel page={page} locale={activeLocale} device={previewDevice} mode={previewMode} />
+          <WebsitePreviewPanel page={previewMode === "draft" ? livePreviewPage : page} locale={activeLocale} device={previewDevice} mode={previewMode} />
           <WebsitePublishPanel page={page} isPublishing={isPublishing} onPublish={onPublish} />
         </div>
       </div>
     </div>
   );
+}
+
+function draftsMatch(current: unknown, next: unknown) {
+  if (!current || !next) return false;
+  return JSON.stringify(current) === JSON.stringify(next);
+}
+
+function cloneDraft<T>(value: T): T {
+  return structuredClone(value);
 }

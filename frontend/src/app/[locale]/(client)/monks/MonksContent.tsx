@@ -5,20 +5,23 @@ import Image from 'next/image';
 import monks from '@/data/monks.json';
 import { Link } from '@/navigation';
 import { getLocalizedText } from '@/utils/i18n';
+import type { PublicContentPage } from '@/types/website-cms';
 
 import PageHeader from '@/components/layout/PageHeader';
 import PageContainer from '@/components/layout/PageContainer';
 import { ArrowRight } from 'lucide-react';
 
-export default function MonksContent() {
+export default function MonksContent({ cmsPage }: { cmsPage: PublicContentPage | null }) {
     const t = useTranslations('MonksPage');
     const locale = useLocale();
+    const title = cmsPage ? getLocalizedText(cmsPage.title, locale) || t('title') : t('title');
+    const subtitle = cmsPage ? getLocalizedText(cmsPage.description, locale) || t('subtitle') : t('subtitle');
 
     return (
         <div className="bg-zinc-50 dark:bg-zinc-950 min-h-screen">
             <PageHeader
-                title={t('title')}
-                subtitle={t('subtitle')}
+                title={title}
+                subtitle={subtitle}
             />
 
             <PageContainer>

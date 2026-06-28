@@ -22,6 +22,7 @@ export function SectionContentEditorBase({
   children,
   onSubmit,
   onDirtyChange,
+  onPreviewDraftChange,
 }: {
   section: ContentSection;
   activeLocale: string;
@@ -32,6 +33,7 @@ export function SectionContentEditorBase({
   children?: (form: UseFormReturn<WebsiteCmsSectionFormData>) => React.ReactNode;
   onSubmit: (values: WebsiteCmsSectionFormData) => void;
   onDirtyChange?: (dirty: boolean) => void;
+  onPreviewDraftChange?: (values: WebsiteCmsSectionFormData) => void;
 }) {
   const form = useForm<WebsiteCmsSectionFormData>({
     resolver: zodResolver(getWebsiteCmsSectionFormSchema(section.section_type)) as never,
@@ -46,6 +48,14 @@ export function SectionContentEditorBase({
     onDirtyChange?.(form.formState.isDirty);
     return () => onDirtyChange?.(false);
   }, [form.formState.isDirty, onDirtyChange]);
+
+  useEffect(() => {
+    onPreviewDraftChange?.(form.getValues());
+    const subscription = form.watch((values) => {
+      onPreviewDraftChange?.(values as WebsiteCmsSectionFormData);
+    });
+    return () => subscription.unsubscribe();
+  }, [form, onPreviewDraftChange]);
 
   const hidden = form.watch("status") === "archived";
 

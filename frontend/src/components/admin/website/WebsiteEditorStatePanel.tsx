@@ -1,6 +1,7 @@
 "use client";
 
 import { AlertCircle, CheckCircle2, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 
 export function WebsiteEditorStatePanel({
   savingPage,
@@ -23,13 +24,14 @@ export function WebsiteEditorStatePanel({
   sectionError: Error | null;
   publishError: Error | null;
 }) {
+  const t = useTranslations("Admin.website");
   const items = [
-    savingPage && { tone: "loading", text: "Saving page metadata..." },
-    savingSection && { tone: "loading", text: "Saving active section..." },
-    publishing && { tone: "loading", text: "Publishing page..." },
-    pageSaved && { tone: "success", text: "Page metadata saved." },
-    sectionSaved && { tone: "success", text: "Section saved." },
-    published && { tone: "success", text: "Page published." },
+    savingPage && { tone: "loading", text: t("savingPage") },
+    savingSection && { tone: "loading", text: t("savingSection") },
+    publishing && { tone: "loading", text: t("publishingPage") },
+    pageSaved && { tone: "success", text: t("pageSaved") },
+    sectionSaved && { tone: "success", text: t("sectionSaved") },
+    published && { tone: "success", text: t("pagePublished") },
     pageError && { tone: "error", text: pageError.message },
     sectionError && { tone: "error", text: sectionError.message },
     publishError && { tone: "error", text: publishError.message },

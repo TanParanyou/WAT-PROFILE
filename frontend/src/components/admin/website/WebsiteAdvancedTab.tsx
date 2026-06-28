@@ -5,6 +5,7 @@ import type { WebsiteCmsPageFormData, WebsiteCmsSectionFormData } from "@/schema
 import { WebsitePageMetadataEditor } from "@/components/admin/website/WebsitePageMetadataEditor";
 import { GenericSectionAdvancedEditor } from "@/components/admin/website/sections/GenericSectionAdvancedEditor";
 import { getDefaultActiveSectionId } from "@/utils/websiteCms";
+import { useTranslations } from "next-intl";
 
 export function WebsiteAdvancedTab({
   page,
@@ -17,6 +18,8 @@ export function WebsiteAdvancedTab({
   onSavePage,
   onSaveSection,
   onDirtyChange,
+  onPagePreviewDraftChange,
+  onSectionPreviewDraftChange,
 }: {
   page: ContentPage;
   activeSectionId: string | null;
@@ -28,24 +31,28 @@ export function WebsiteAdvancedTab({
   onSavePage: (values: WebsiteCmsPageFormData) => void;
   onSaveSection: (values: WebsiteCmsSectionFormData, sectionId: string) => void;
   onDirtyChange?: (dirty: boolean) => void;
+  onPagePreviewDraftChange?: (values: WebsiteCmsPageFormData) => void;
+  onSectionPreviewDraftChange?: (sectionId: string, values: WebsiteCmsSectionFormData) => void;
 }) {
+  const t = useTranslations("Admin.website");
   const section = page.sections.find((item) => item.id === (activeSectionId ?? getDefaultActiveSectionId(page))) ?? null;
 
   return (
     <div className="space-y-4">
       <div className="border border-amber-200 bg-amber-50 p-3 text-sm text-amber-800">
-        Advanced JSON can affect public rendering. Use this tab for admin/dev fixes only.
+        {t("advancedWarning")}
       </div>
       <WebsitePageMetadataEditor
         page={page}
         isSaving={isSavingPage}
         error={pageError}
         onSubmit={onSavePage}
-        heading="Advanced page JSON"
+        heading={t("saveAdvancedPage")}
         summary="Raw SEO, body, and settings payloads for admin/dev only."
         showIdentity={false}
         showLocalizedContent={false}
         onDirtyChange={onDirtyChange}
+        onPreviewDraftChange={onPagePreviewDraftChange}
       />
       {section ? (
         <GenericSectionAdvancedEditor
@@ -54,6 +61,7 @@ export function WebsiteAdvancedTab({
           isSaving={isSavingSection}
           error={sectionError}
           onDirtyChange={onDirtyChange}
+          onPreviewDraftChange={(values) => onSectionPreviewDraftChange?.(section.id, values)}
           onSubmit={(values) => onSaveSection(values, section.id)}
         />
       ) : null}

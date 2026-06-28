@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/Button";
 import { userAdminService, roleAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import { useApiError } from "@/hooks/useApiError";
-import { ToastContainer } from "@/components/admin/Toast";
 import { useTranslations } from "next-intl";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -22,7 +21,7 @@ import {
 export default function CreateUserPage() {
   const t = useTranslations("Admin");
   const router = useRouter();
-  const { toasts, toast, removeToast } = useToast();
+  const { toast } = useToast();
   const { handleApiError } = useApiError();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -141,7 +140,6 @@ export default function CreateUserPage() {
           </Button>
         </div>
       </form>
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }

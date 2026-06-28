@@ -102,6 +102,49 @@ export function websiteSectionFormToUpdatePayload(
   };
 }
 
+export function applyPageFormDraft(page: ContentPage, draft: WebsiteCmsPageFormData | null) {
+  if (!draft) return page;
+
+  return {
+    ...page,
+    page_key: draft.page_key || page.page_key,
+    slug: draft.slug || page.slug,
+    title: draft.title || page.title,
+    description: draft.description || page.description,
+    seo: draft.seo || page.seo,
+    body: draft.body || page.body,
+    settings: draft.settings || page.settings,
+    status: draft.status || page.status,
+  } satisfies ContentPage;
+}
+
+export function applySectionFormDrafts(
+  page: ContentPage,
+  drafts: Record<string, WebsiteCmsSectionFormData>,
+) {
+  if (!Object.keys(drafts).length) return page;
+
+  return {
+    ...page,
+    sections: page.sections.map((section) => {
+      const draft = drafts[section.id];
+      if (!draft) return section;
+
+      return {
+        ...section,
+        section_key: draft.section_key || section.section_key,
+        section_type: draft.section_type || section.section_type,
+        title: draft.title || section.title,
+        description: draft.description || section.description,
+        body: draft.body || section.body,
+        settings: draft.settings || section.settings,
+        sort_order: draft.sort_order ?? section.sort_order,
+        status: draft.status || section.status,
+      } satisfies ContentSection;
+    }),
+  } satisfies ContentPage;
+}
+
 export function getDefaultActiveSectionId(page: ContentPage) {
   return sortContentSections(page.sections)[0]?.id ?? null;
 }
@@ -173,6 +216,37 @@ export function getAvailableSectionTemplates(pageKey: string) {
       { type: "contact_form", key: "contact-form", label: "Contact form" },
       { type: "rich_text", key: "details", label: "Rich text" },
       { type: "map", key: "map", label: "Map" },
+    ] as const;
+  }
+
+  if (pageKey === "PAGE-HOME") {
+    return [
+      { type: "hero", key: "hero", label: "Hero" },
+      { type: "event_teaser", key: "featured-events", label: "Featured events" },
+      { type: "monk_teaser", key: "featured-monks", label: "Featured monks" },
+    ] as const;
+  }
+
+  if (pageKey === "PAGE-ABOUT") {
+    return [
+      { type: "rich_text", key: "history", label: "History" },
+      { type: "quote", key: "quote", label: "Quote" },
+      { type: "item_list", key: "items", label: "Item list" },
+      { type: "monks_grid", key: "monks", label: "Monks grid" },
+    ] as const;
+  }
+
+  if (pageKey === "PAGE-GALLERY") {
+    return [
+      { type: "hero", key: "hero", label: "Hero" },
+      { type: "gallery_intro", key: "intro", label: "Gallery intro" },
+    ] as const;
+  }
+
+  if (pageKey === "PAGE-MONKS") {
+    return [
+      { type: "hero", key: "hero", label: "Hero" },
+      { type: "monks_intro", key: "intro", label: "Monks intro" },
     ] as const;
   }
 
@@ -268,6 +342,20 @@ function getSectionTemplateBody(sectionType: string) {
       return { eyebrow: "", image: "" };
     case "contact_info":
       return { phone: "", email: "", address: "" };
+    case "event_teaser":
+      return { limit: 3 };
+    case "monk_teaser":
+      return { limit: 4 };
+    case "quote":
+      return { quote: "", author: "" };
+    case "item_list":
+      return { items: [] };
+    case "monks_grid":
+      return { limit: 6 };
+    case "gallery_intro":
+      return { markdown: "" };
+    case "monks_intro":
+      return { markdown: "" };
     case "rich_text":
       return { markdown: "" };
     case "map":
@@ -285,6 +373,20 @@ function getSectionTemplateSettings(sectionType: string) {
       return { map_url: "", show_map: true, show_social: true, show_bank: false };
     case "contact_form":
       return { enabled: true, submit_label: "", success_message: "", destination_label: "" };
+    case "event_teaser":
+      return { limit: 3 };
+    case "monk_teaser":
+      return { limit: 4 };
+    case "quote":
+      return { style: "mono" };
+    case "item_list":
+      return { columns: 1 };
+    case "monks_grid":
+      return { columns: 3 };
+    case "gallery_intro":
+      return { width: "regular" };
+    case "monks_intro":
+      return { width: "regular" };
     case "rich_text":
       return { width: "regular" };
     case "map":

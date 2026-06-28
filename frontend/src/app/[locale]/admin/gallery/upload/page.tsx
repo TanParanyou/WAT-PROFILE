@@ -16,7 +16,6 @@ import {
 } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import { useApiError } from "@/hooks/useApiError";
-import { ToastContainer } from "@/components/admin/Toast";
 import type { MultiLangText } from "@/types/api";
 import type { GalleryCategory } from "@/types/entities";
 import { useTranslations } from "next-intl";
@@ -29,7 +28,7 @@ const emptyLang: MultiLangText = { th: "", en: "", de: "" };
 export default function GalleryUploadPage() {
   const t = useTranslations("Admin");
   const router = useRouter();
-  const { toasts, toast, removeToast } = useToast();
+  const { toast } = useToast();
   const { handleApiError } = useApiError();
   const [isLoading, setIsLoading] = useState(false);
   const [isLoadingCategories, setIsLoadingCategories] = useState(true);
@@ -196,7 +195,6 @@ export default function GalleryUploadPage() {
           </Button>
         </div>
       </form>
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }

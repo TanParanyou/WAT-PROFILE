@@ -13,7 +13,6 @@ import { useConfirm } from "@/components/ui/Modal";
 import { useDataTable } from "@/hooks/useDataTable";
 import { monkAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
-import { ToastContainer } from "@/components/admin/Toast";
 import type { Monk } from "@/types/entities";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
@@ -26,7 +25,7 @@ export default function MonksListPage() {
       fetcher: (p) => monkAdminService.getAll({ page: p.page, limit: p.limit }),
     });
   const { confirm, ConfirmDialog } = useConfirm();
-  const { toasts, toast, removeToast } = useToast();
+  const { toast } = useToast();
   const selectedIds = useRowSelection();
 
   const handleDelete = async (id: number) => {
@@ -192,7 +191,6 @@ export default function MonksListPage() {
         onSelectAll={(ids) => selectedIds.selectAll(ids)}
       />
       <ConfirmDialog />
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }

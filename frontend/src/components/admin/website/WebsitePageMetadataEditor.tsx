@@ -4,6 +4,7 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Save } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
@@ -28,6 +29,7 @@ export function WebsitePageMetadataEditor({
   showBodyJson = true,
   showSettingsJson = true,
   onDirtyChange,
+  onPreviewDraftChange,
 }: {
   page: ContentPage;
   isSaving: boolean;
@@ -42,7 +44,9 @@ export function WebsitePageMetadataEditor({
   showBodyJson?: boolean;
   showSettingsJson?: boolean;
   onDirtyChange?: (dirty: boolean) => void;
+  onPreviewDraftChange?: (values: WebsiteCmsPageFormData) => void;
 }) {
+  const t = useTranslations("Admin.website");
   const form = useForm<WebsiteCmsPageFormData>({
     resolver: zodResolver(websiteCmsPageFormSchema) as never,
     defaultValues: contentPageToFormValues(page),
@@ -57,6 +61,14 @@ export function WebsitePageMetadataEditor({
     return () => onDirtyChange?.(false);
   }, [form.formState.isDirty, onDirtyChange]);
 
+  useEffect(() => {
+    onPreviewDraftChange?.(form.getValues());
+    const subscription = form.watch((values) => {
+      onPreviewDraftChange?.(values as WebsiteCmsPageFormData);
+    });
+    return () => subscription.unsubscribe();
+  }, [form, onPreviewDraftChange]);
+
   return (
     <form className="space-y-4 border border-zinc-200 bg-white p-4" onSubmit={form.handleSubmit(onSubmit)}>
       <div className="flex items-start justify-between gap-3">
@@ -65,7 +77,7 @@ export function WebsitePageMetadataEditor({
           <p className="text-xs text-zinc-500">{summary}</p>
         </div>
         <Button type="submit" size="sm" isLoading={isSaving} icon={<Save size={14} />}>
-          {saveLabel}
+          {saveLabel || t("savePage")}
         </Button>
       </div>
 
@@ -77,8 +89,8 @@ export function WebsitePageMetadataEditor({
             label="Status"
             disabled={isSaving}
             options={[
-              { value: "draft", label: "Draft" },
-              { value: "published", label: "Published" },
+              { value: "draft", label: t("draft") },
+              { value: "published", label: t("published") },
               { value: "archived", label: "Archived" },
             ]}
             {...form.register("status")}

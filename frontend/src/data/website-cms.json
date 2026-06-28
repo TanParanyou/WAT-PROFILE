@@ -479,5 +479,100 @@
         "updated_at": "2026-06-28T00:00:00Z"
       }
     ]
+  },
+  {
+    "id": "11111111-1111-4111-8111-111111111116",
+    "page_key": "PAGE-MONKS",
+    "slug": "monks",
+    "title": {
+      "th": "พระสงฆ์",
+      "en": "Monks",
+      "de": "Moenche"
+    },
+    "description": {
+      "th": "รายชื่อพระสงฆ์และข้อมูลที่เกี่ยวข้อง",
+      "en": "Monk profiles and related information.",
+      "de": "Moenchprofile und zugehoerige Informationen."
+    },
+    "seo": {
+      "canonical_url": "/th/monks",
+      "noindex": false,
+      "title": {
+        "th": "พระสงฆ์",
+        "en": "Monks",
+        "de": "Moenche"
+      },
+      "description": {
+        "th": "รายชื่อพระสงฆ์ของวัดหลวงพ่อใส",
+        "en": "Monk profiles at Wat Loung Por Sai.",
+        "de": "Moenchprofile im Wat Loung Por Sai."
+      }
+    },
+    "body": {
+      "layout": "monks"
+    },
+    "settings": {
+      "show_intro": true
+    },
+    "status": "published",
+    "published_at": "2026-06-27T00:00:00Z",
+    "created_at": "2026-06-27T00:00:00Z",
+    "updated_at": "2026-06-28T00:00:00Z",
+    "sections": [
+      {
+        "id": "22222222-2222-4222-8222-222222222251",
+        "page_id": "11111111-1111-4111-8111-111111111116",
+        "section_key": "hero",
+        "section_type": "hero",
+        "title": {
+          "th": "พระสงฆ์",
+          "en": "Monks",
+          "de": "Moenche"
+        },
+        "description": {
+          "th": "รายชื่อพระสงฆ์และข้อมูลสำคัญ",
+          "en": "Profiles of the temple monks.",
+          "de": "Profile der Tempelmoenche."
+        },
+        "body": {
+          "eyebrow": "Sangha"
+        },
+        "settings": {
+          "tone": "calm"
+        },
+        "sort_order": 0,
+        "status": "published",
+        "published_at": "2026-06-27T00:00:00Z",
+        "created_at": "2026-06-27T00:00:00Z",
+        "updated_at": "2026-06-28T00:00:00Z"
+      },
+      {
+        "id": "22222222-2222-4222-8222-222222222252",
+        "page_id": "11111111-1111-4111-8111-111111111116",
+        "section_key": "monks-intro",
+        "section_type": "monks_intro",
+        "title": {
+          "th": "ข้อมูลพระสงฆ์",
+          "en": "Monk Information",
+          "de": "Moenchinformationen"
+        },
+        "description": {
+          "th": "คัดเฉพาะข้อมูลที่ช่วยให้ผู้ใช้อ่านภาพรวมได้เร็ว",
+          "en": "Short intro text for the public page.",
+          "de": "Kurzer Einleitungstext fuer die Oeffentlichkeit."
+        },
+        "body": {
+          "markdown": "### Monks\n\nUse this page for public introductions only."
+        },
+        "settings": {
+          "width": "regular"
+        },
+        "sort_order": 1,
+        "status": "published",
+        "published_at": "2026-06-27T00:00:00Z",
+        "created_at": "2026-06-27T00:00:00Z",
+        "updated_at": "2026-06-28T00:00:00Z"
+      }
+    ]
   }
 ]

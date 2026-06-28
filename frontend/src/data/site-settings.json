@@ -1,0 +1,72 @@
+{
+  "contact": {
+    "address": {
+      "th": "Buddhistisches Meditationszentrum e.V., Am Pflaster 11, 63599 Biebergemuend",
+      "en": "Buddhistisches Meditationszentrum e.V., Am Pflaster 11, 63599 Biebergemuend",
+      "de": "Buddhistisches Meditationszentrum e.V., Am Pflaster 11, 63599 Biebergemuend"
+    },
+    "phone": "0160-1604486",
+    "email": "Watloungporsai@gmail.com",
+    "social": {
+      "facebook": "https://www.facebook.com/wat.loungporsai.9",
+      "messenger": "Wat loung por sai",
+      "instagram": "https://www.instagram.com/watloungporsai/"
+    },
+    "openingHours": {
+      "days": {
+        "th": "จันทร์ - อาทิตย์",
+        "en": "Monday - Sunday",
+        "de": "Montag - Sonntag"
+      },
+      "time": "09.00 - 21.00",
+      "remark": {
+        "th": "ปล. ยกเว้นวันที่พระมีกิจนิมนต์นอกวัด",
+        "en": "Note: Except on days when the monk has an outside engagement",
+        "de": "Hinweis: Ausser an Tagen, an denen der Moench auswaerts beschaeftigt ist"
+      }
+    },
+    "transport": {
+      "parking": {
+        "th": "มีที่จอดรถภายในวัด",
+        "en": "Parking available on-site",
+        "de": "Parkplaetze vor Ort verfuegbar"
+      },
+      "directionsUrl": "https://www.google.com/maps/search/?api=1&query=Am+Pflaster+11,+63599+Biebergem%C3%BCnd",
+      "public": [
+        {
+          "icon": "train",
+          "text": {
+            "th": "นั่งรถไฟ ลง สถานี Gelnhausen",
+            "en": "Take the train to Gelnhausen Station",
+            "de": "Fahren Sie mit der Bahn bis zum Bahnhof Gelnhausen"
+          }
+        },
+        {
+          "icon": "bus",
+          "text": {
+            "th": "ต่อรถเมล์ สาย MKK64 ลงป้าย Bieber Rathaus, Biebergemünd (วัดอยู่ตรงข้ามป้ายรถเมล์)",
+            "en": "Transfer to Bus MKK64, get off at Bieber Rathaus, Biebergemuend (Temple is opposite the bus stop)",
+            "de": "Nehmen Sie den Bus MKK64 und steigen Sie an der Haltestelle Bieber Rathaus, Biebergemuend aus"
+          }
+        }
+      ],
+      "car": {
+        "text": {
+          "th": "รถยนต์ส่วนบุคคล เปิด GPS นำทางไปที่ 'Wat Loung Por Sai' หรือ 'Am Pflaster 11, 63599 Biebergemünd'",
+          "en": "For personal car, enter 'Wat Loung Por Sai' or 'Am Pflaster 11, 63599 Biebergemuend' into your GPS",
+          "de": "Wenn Sie mit dem Auto anreisen, geben Sie 'Wat Loung Por Sai' oder 'Am Pflaster 11, 63599 Biebergemuend' in Ihr GPS ein"
+        }
+      }
+    },
+    "map": {
+      "embedUrl": "https://maps.google.com/maps?q=Am+Pflaster+11,+63599+Biebergem%C3%BCnd&t=&z=15&ie=UTF8&iwloc=&output=embed",
+      "locationName": "Wat Loung Por Sai"
+    },
+    "bank": {
+      "name": "Buddhistisches Meditationszentrum Verein e. V. / VR Bank",
+      "account": "Wat Loung Por Sai",
+      "iban": "DE05 5066 1639 0004 3138 60",
+      "bic": "GENODEF1LSR"
+    }
+  }
+}

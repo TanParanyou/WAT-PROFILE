@@ -11,12 +11,15 @@ import PageHeader from '@/components/layout/PageHeader';
 import PageContainer from '@/components/layout/PageContainer';
 import { getLocalizedText } from '@/utils/i18n';
 import categoriesData from '@/data/categories.json';
+import type { PublicContentPage } from '@/types/website-cms';
 
-export default function GalleryContent() {
+export default function GalleryContent({ cmsPage }: { cmsPage: PublicContentPage | null }) {
     const t = useTranslations('GalleryPage');
     const locale = useLocale();
     const [filter, setFilter] = useState('all');
     const [index, setIndex] = useState(-1);
+    const title = cmsPage ? getLocalizedText(cmsPage.title, locale) || t('title') : t('title');
+    const subtitle = cmsPage ? getLocalizedText(cmsPage.description, locale) || t('subtitle') : t('subtitle');
 
     const filteredImages = filter === 'all'
         ? galleryData.filter(img => img.active)
@@ -33,8 +36,8 @@ export default function GalleryContent() {
     return (
         <div className="bg-zinc-50 dark:bg-zinc-950 min-h-screen">
             <PageHeader
-                title={t('title')}
-                subtitle={t('subtitle')}
+                title={title}
+                subtitle={subtitle}
             />
 
             <PageContainer>

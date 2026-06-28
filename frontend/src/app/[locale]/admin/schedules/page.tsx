@@ -18,7 +18,6 @@ import { Checkbox } from "@/components/ui/Checkbox";
 import { useDataTable } from "@/hooks/useDataTable";
 import { scheduleAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
-import { ToastContainer } from "@/components/admin/Toast";
 import type { Schedule } from "@/types/entities";
 import type { MultiLangText } from "@/types/api";
 import { useRowSelection } from "@/hooks/useRowSelection";
@@ -34,7 +33,7 @@ const emptyLang: MultiLangText = { th: "", en: "", de: "" };
 
 export default function SchedulesPage() {
   const t = useTranslations("Admin");
-  const { toasts, toast, removeToast } = useToast();
+  const { toast } = useToast();
   const { confirm, ConfirmDialog } = useConfirm();
   const { isOpen, open, close } = useModal();
   const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
@@ -421,7 +420,6 @@ export default function SchedulesPage() {
       </FormModal>
 
       <ConfirmDialog />
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }

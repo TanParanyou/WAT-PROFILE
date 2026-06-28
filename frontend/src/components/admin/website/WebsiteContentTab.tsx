@@ -1,6 +1,7 @@
 "use client";
 
 import { Archive, ArchiveRestore, ArrowDown, ArrowUp, Copy, Plus } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { ContentPage } from "@/types/website-cms";
 import { WebsiteLocaleTabs } from "@/components/admin/website/WebsiteLocaleTabs";
 import { WebsiteSectionList } from "@/components/admin/website/WebsiteSectionList";
@@ -35,6 +36,7 @@ export function WebsiteContentTab({
   onDuplicateSection,
   hasUnsavedChanges,
   onDirtyChange,
+  onSectionPreviewDraftChange,
   onBeforeLeave,
 }: {
   page: ContentPage;
@@ -56,22 +58,24 @@ export function WebsiteContentTab({
   onDuplicateSection: (sectionId: string) => void;
   hasUnsavedChanges: boolean;
   onDirtyChange?: (dirty: boolean) => void;
-  onBeforeLeave: () => boolean;
+  onSectionPreviewDraftChange?: (sectionId: string, values: WebsiteCmsSectionFormData) => void;
+  onBeforeLeave: () => Promise<boolean>;
 }) {
+  const t = useTranslations("Admin.website");
   const sortedSections = sortContentSections(page.sections);
   const activeSection = sortedSections.find((section) => section.id === (activeSectionId ?? getDefaultActiveSectionId(page))) ?? null;
   const activeIndex = activeSection ? sortedSections.findIndex((section) => section.id === activeSection.id) : -1;
   const templates = getAvailableSectionTemplates(page.page_key);
-  const selectSection = (sectionId: string) => {
-    if (hasUnsavedChanges && !onBeforeLeave()) return;
+  const selectSection = async (sectionId: string) => {
+    if (hasUnsavedChanges && !(await onBeforeLeave())) return;
     onActiveSectionChange(sectionId);
   };
-  const confirmSectionAction = () => {
-    if (hasUnsavedChanges && !onBeforeLeave()) return false;
+  const confirmSectionAction = async () => {
+    if (hasUnsavedChanges && !(await onBeforeLeave())) return false;
     return true;
   };
-  const reorderActiveSection = (direction: "up" | "down") => {
-    if (!confirmSectionAction()) return;
+  const reorderActiveSection = async (direction: "up" | "down") => {
+    if (!(await confirmSectionAction())) return;
     if (!activeSection) return;
     const next = [...sortedSections];
     const target = direction === "up" ? activeIndex - 1 : activeIndex + 1;
@@ -85,7 +89,7 @@ export function WebsiteContentTab({
       <WebsiteLocaleTabs activeLocale={activeLocale} onChange={onActiveLocaleChange} />
       {templates.length ? (
         <div className="border border-zinc-200 bg-zinc-50 p-3">
-          <div className="mb-3 font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Add section</div>
+          <div className="mb-3 font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">{t("addSection")}</div>
           <div className="flex flex-wrap gap-2">
             {templates.map((template) => (
               <Button
@@ -95,8 +99,8 @@ export function WebsiteContentTab({
                 size="sm"
                 icon={<Plus size={14} />}
                 isLoading={isCreatingSection}
-                onClick={() => {
-                  if (!confirmSectionAction()) return;
+                onClick={async () => {
+                  if (!(await confirmSectionAction())) return;
                   onCreateSection(template.type);
                 }}
               >
@@ -119,9 +123,9 @@ export function WebsiteContentTab({
                   icon={<ArrowUp size={14} />}
                   disabled={activeIndex <= 0}
                   isLoading={isReorderingSection}
-                  onClick={() => reorderActiveSection("up")}
+                  onClick={() => void reorderActiveSection("up")}
                 >
-                  Move up
+                  {t("moveUp")}
                 </Button>
                 <Button
                   type="button"
@@ -130,9 +134,9 @@ export function WebsiteContentTab({
                   icon={<ArrowDown size={14} />}
                   disabled={activeIndex < 0 || activeIndex === sortedSections.length - 1}
                   isLoading={isReorderingSection}
-                  onClick={() => reorderActiveSection("down")}
+                  onClick={() => void reorderActiveSection("down")}
                 >
-                  Move down
+                  {t("moveDown")}
                 </Button>
                 <Button
                   type="button"
@@ -140,8 +144,8 @@ export function WebsiteContentTab({
                   size="sm"
                   icon={activeSection.status === "archived" ? <ArchiveRestore size={14} /> : <Archive size={14} />}
                   isLoading={isArchivingSection}
-                  onClick={() => {
-                    if (!confirmSectionAction()) return;
+                  onClick={async () => {
+                    if (!(await confirmSectionAction())) return;
                     if (activeSection.status === "archived") {
                       onRestoreSection(activeSection.id);
                     } else {
@@ -149,7 +153,7 @@ export function WebsiteContentTab({
                     }
                   }}
                 >
-                  {activeSection.status === "archived" ? "Restore" : "Archive"}
+                  {activeSection.status === "archived" ? t("restore") : t("archive")}
                 </Button>
                 <Button
                   type="button"
@@ -157,12 +161,12 @@ export function WebsiteContentTab({
                   size="sm"
                   icon={<Copy size={14} />}
                   isLoading={isDuplicatingSection}
-                  onClick={() => {
-                    if (!confirmSectionAction()) return;
+                  onClick={async () => {
+                    if (!(await confirmSectionAction())) return;
                     onDuplicateSection(activeSection.id);
                   }}
                 >
-                  Duplicate
+                  {t("duplicate")}
                 </Button>
               </div>
               <SectionEditor
@@ -171,6 +175,7 @@ export function WebsiteContentTab({
                 isSaving={isSavingSection}
                 error={sectionError}
                 onDirtyChange={onDirtyChange}
+                onPreviewDraftChange={(values) => onSectionPreviewDraftChange?.(activeSection.id, values)}
                 onSubmit={(values) => onSaveSection(values, activeSection.id)}
               />
             </div>

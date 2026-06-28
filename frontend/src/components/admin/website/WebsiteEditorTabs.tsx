@@ -1,6 +1,7 @@
 "use client";
 
 import { FileText, Search, Settings, SlidersHorizontal } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Button } from "@/components/ui/Button";
 import type { WebsiteCmsEditorTab } from "@/stores/website-cms-editor-store";
 
@@ -18,6 +19,7 @@ export function WebsiteEditorTabs({
   value: WebsiteCmsEditorTab;
   onChange: (tab: WebsiteCmsEditorTab) => void;
 }) {
+  const t = useTranslations("Admin.website");
   return (
     <div className="grid grid-cols-2 gap-2 border-b border-zinc-200 pb-3 md:grid-cols-4">
       {tabs.map((tab) => {
@@ -31,7 +33,7 @@ export function WebsiteEditorTabs({
             icon={<Icon size={14} />}
             onClick={() => onChange(tab.value)}
           >
-            {tab.label}
+            {tab.value === "content" ? "Content" : tab.value === "seo" ? t("seo") : tab.value === "settings" ? t("settingsTab") : t("advanced")}
           </Button>
         );
       })}

@@ -1,10 +1,22 @@
 "use client";
 
+import { getDefaultContactSettings } from "@/services/siteSettingsService";
+import type { GlobalContactSettings } from "@/types/site-settings";
 import type { PublicContentPage } from "@/types/website-cms";
 import { getLocalizedText } from "@/utils/localizedText";
 import { PublicSectionRenderer } from "@/components/public/website/PublicSectionRenderer";
 
-export function PublicPageRenderer({ page, locale }: { page: PublicContentPage; locale: string }) {
+const defaultContactSettings = getDefaultContactSettings();
+
+export function PublicPageRenderer({
+  page,
+  locale,
+  contactSettings = defaultContactSettings,
+}: {
+  page: PublicContentPage;
+  locale: string;
+  contactSettings?: GlobalContactSettings;
+}) {
   return (
     <article className="min-h-[640px] bg-white text-zinc-950">
       <header className="border-b border-zinc-200 px-5 md:px-8">
@@ -30,7 +42,7 @@ export function PublicPageRenderer({ page, locale }: { page: PublicContentPage; 
         </div>
       </section>
       {page.sections.map((section) => (
-        <PublicSectionRenderer key={section.id} section={section} locale={locale} />
+        <PublicSectionRenderer key={section.id} section={section} locale={locale} contactSettings={contactSettings} />
       ))}
       <footer className="px-5 py-6 text-sm text-zinc-500 md:px-8">
         <div className="mx-auto flex max-w-5xl flex-col gap-2 md:flex-row md:items-center md:justify-between">

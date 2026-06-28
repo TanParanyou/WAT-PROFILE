@@ -1,14 +1,17 @@
 import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
 import { siteConfig } from '@/config/site.config';
+import { websiteCmsPublicService } from '@/services/websiteCmsService';
+import { getLocalizedText } from '@/utils/localizedText';
 import MonksContent from './MonksContent';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
     const { locale } = await params;
     const t = await getTranslations({ locale, namespace: 'MonksPage' });
+    const cmsPage = await websiteCmsPublicService.getPage('monks').catch(() => null);
 
-    const title = t('title');
-    const description = t('subtitle');
+    const title = cmsPage ? getLocalizedText(cmsPage.title, locale) || t('title') : t('title');
+    const description = cmsPage ? getLocalizedText(cmsPage.description, locale) || t('subtitle') : t('subtitle');
 
     return {
         title,
@@ -29,6 +32,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     };
 }
 
-export default function MonksPage() {
-    return <MonksContent />;
+export default async function MonksPage() {
+    const cmsPage = await websiteCmsPublicService.getPage('monks').catch(() => null);
+    return <MonksContent cmsPage={cmsPage} />;
 }

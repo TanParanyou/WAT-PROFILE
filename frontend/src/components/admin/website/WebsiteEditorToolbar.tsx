@@ -1,6 +1,7 @@
 "use client";
 
 import { ArrowLeft, ExternalLink, Send } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { useRouter } from "@/navigation";
 import { Button } from "@/components/ui/Button";
 import { PageStatusPill } from "@/components/admin/website/PageStatusPill";
@@ -21,10 +22,11 @@ export function WebsiteEditorToolbar({
   isPublishing: boolean;
   hasUnpublishedChanges: boolean;
   hasUnsavedChanges: boolean;
-  onBeforeLeave: () => boolean;
+  onBeforeLeave: () => Promise<boolean>;
   onPublish: () => void;
 }) {
   const router = useRouter();
+  const t = useTranslations("Admin.website");
   const publicHref = getPublicPageHref(page, locale);
 
   return (
@@ -35,12 +37,12 @@ export function WebsiteEditorToolbar({
           variant="ghost"
           size="sm"
           icon={<ArrowLeft size={14} />}
-          onClick={() => {
-            if (!onBeforeLeave()) return;
+          onClick={async () => {
+            if (!(await onBeforeLeave())) return;
             router.push("/admin/website");
           }}
         >
-          Back
+          {t("back")}
         </Button>
         <div className="min-w-0">
           <div className="text-sm font-medium text-zinc-950">{page.page_key}</div>
@@ -54,18 +56,18 @@ export function WebsiteEditorToolbar({
               : "max-w-full border border-zinc-200 bg-zinc-50 px-2 py-1 text-[11px] font-medium uppercase tracking-[0.12em] text-zinc-500 sm:tracking-[0.16em]"
           }
         >
-          {hasUnpublishedChanges ? "Draft has changes" : "Published is current"}
+          {hasUnpublishedChanges ? t("draftWaiting") : t("publishedMatchesDraft")}
         </span>
         {hasUnsavedChanges ? (
           <span className="max-w-full border border-red-200 bg-red-50 px-2 py-1 text-[11px] font-medium uppercase tracking-[0.12em] text-red-700 sm:tracking-[0.16em]">
-            Unsaved edits
+            {t("unsavedEdits")}
           </span>
         ) : null}
       </div>
       <div className="flex flex-wrap items-center justify-end gap-3">
         <div className="text-right text-xs text-zinc-500">
-          <div>Updated {formatCmsTimestamp(page.updated_at)}</div>
-          <div>Published {formatCmsTimestamp(page.published_at)}</div>
+          <div>{`${page.updated_at ? "Updated" : ""} ${formatCmsTimestamp(page.updated_at)}`}</div>
+          <div>{`${page.published_at ? "Published" : ""} ${formatCmsTimestamp(page.published_at)}`}</div>
         </div>
         <Button
           type="button"
@@ -73,10 +75,10 @@ export function WebsiteEditorToolbar({
           icon={<ExternalLink size={14} />}
           onClick={() => window.open(publicHref, "_blank", "noopener,noreferrer")}
         >
-          View public
+          {t("viewPublic")}
         </Button>
         <Button type="button" isLoading={isPublishing} icon={<Send size={14} />} onClick={onPublish}>
-          Publish
+          {t("publish")}
         </Button>
       </div>
     </div>

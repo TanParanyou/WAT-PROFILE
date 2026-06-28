@@ -14,7 +14,6 @@ import { useDataTable } from "@/hooks/useDataTable";
 import { roleAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import { useApiError } from "@/hooks/useApiError";
-import { ToastContainer } from "@/components/admin/Toast";
 import { PermissionEditor } from "@/components/admin/PermissionEditor";
 import { useTranslations } from "next-intl";
 import type { Role } from "@/types/entities";
@@ -31,7 +30,7 @@ export default function RolesPage() {
     fetcher: () => roleAdminService.getAll(),
   });
   const { confirm, ConfirmDialog } = useConfirm();
-  const { toasts, toast, removeToast } = useToast();
+  const { toast } = useToast();
   const { handleApiError } = useApiError();
   const selectedIds = useRowSelection<string>();
 
@@ -247,7 +246,6 @@ export default function RolesPage() {
       />
 
       <ConfirmDialog />
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
 
       <FormModal
         isOpen={isModalOpen}

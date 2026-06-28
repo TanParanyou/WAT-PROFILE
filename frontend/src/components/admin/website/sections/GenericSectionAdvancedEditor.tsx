@@ -18,6 +18,7 @@ export function GenericSectionAdvancedEditor({
   error,
   onSubmit,
   onDirtyChange,
+  onPreviewDraftChange,
 }: {
   section: ContentSection;
   activeLocale: string;
@@ -25,6 +26,7 @@ export function GenericSectionAdvancedEditor({
   error: Error | null;
   onSubmit: (values: WebsiteCmsSectionFormData) => void;
   onDirtyChange?: (dirty: boolean) => void;
+  onPreviewDraftChange?: (values: WebsiteCmsSectionFormData) => void;
 }) {
   const form = useForm<WebsiteCmsSectionFormData>({
     resolver: zodResolver(getWebsiteCmsSectionFormSchema(section.section_type)) as never,
@@ -39,6 +41,14 @@ export function GenericSectionAdvancedEditor({
     onDirtyChange?.(form.formState.isDirty);
     return () => onDirtyChange?.(false);
   }, [form.formState.isDirty, onDirtyChange]);
+
+  useEffect(() => {
+    onPreviewDraftChange?.(form.getValues());
+    const subscription = form.watch((values) => {
+      onPreviewDraftChange?.(values as WebsiteCmsSectionFormData);
+    });
+    return () => subscription.unsubscribe();
+  }, [form, onPreviewDraftChange]);
 
   return (
     <form className="space-y-4 border border-zinc-200 bg-zinc-50 p-4" onSubmit={form.handleSubmit(onSubmit)}>

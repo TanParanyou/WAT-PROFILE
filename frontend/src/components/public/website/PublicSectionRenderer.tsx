@@ -1,11 +1,22 @@
 "use client";
 
 import { ArrowUpRight, Clock3, MapPin, Mail, Phone } from "lucide-react";
+import { getDefaultContactSettings } from "@/services/siteSettingsService";
+import type { GlobalContactSettings } from "@/types/site-settings";
 import type { ContentSection } from "@/types/website-cms";
 import { getLocalizedText } from "@/utils/localizedText";
-import contactData from "@/data/contact.json";
 
-export function PublicSectionRenderer({ section, locale }: { section: ContentSection; locale: string }) {
+const defaultContactSettings = getDefaultContactSettings();
+
+export function PublicSectionRenderer({
+  section,
+  locale,
+  contactSettings = defaultContactSettings,
+}: {
+  section: ContentSection;
+  locale: string;
+  contactSettings?: GlobalContactSettings;
+}) {
   const title = getLocalizedText(section.title, locale);
   const description = getLocalizedText(section.description, locale);
 
@@ -13,7 +24,7 @@ export function PublicSectionRenderer({ section, locale }: { section: ContentSec
     case "hero": {
       const eyebrow = readString(section.body.eyebrow) || section.section_key;
       const ctaLabel = readString(section.settings.cta_label) || "Get directions";
-      const ctaHref = readString(section.settings.cta_href) || contactData.transport.directionsUrl;
+      const ctaHref = readString(section.settings.cta_href) || contactSettings.transport.directionsUrl;
       const tone = readString(section.settings.tone);
 
       return (
@@ -40,9 +51,9 @@ export function PublicSectionRenderer({ section, locale }: { section: ContentSec
       );
     }
     case "contact_info": {
-      const address = readString(section.body.address) || getLocalizedText(contactData.address, locale);
-      const phone = readString(section.body.phone) || contactData.phone;
-      const email = readString(section.body.email) || contactData.email;
+      const address = readString(section.body.address) || getLocalizedText(contactSettings.address, locale);
+      const phone = readString(section.body.phone) || contactSettings.phone;
+      const email = readString(section.body.email) || contactSettings.email;
       const showMap = readBoolean(section.settings.show_map, true);
       const showSocial = readBoolean(section.settings.show_social, true);
       const showBank = readBoolean(section.settings.show_bank, false);
@@ -62,17 +73,17 @@ export function PublicSectionRenderer({ section, locale }: { section: ContentSec
                 <InfoCard
                   icon={<Clock3 size={16} />}
                   label="Opening hours"
-                  value={`${getLocalizedText(contactData.openingHours.days, locale)} · ${contactData.openingHours.time}`}
-                  detail={getLocalizedText(contactData.openingHours.remark, locale)}
+                  value={`${getLocalizedText(contactSettings.openingHours.days, locale)} · ${contactSettings.openingHours.time}`}
+                  detail={getLocalizedText(contactSettings.openingHours.remark, locale)}
                 />
               </div>
               <div className="space-y-4">
                 {showMap ? (
                   <div className="border border-zinc-200 bg-zinc-50 p-4">
                     <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Directions</div>
-                    <p className="mt-2 text-sm text-zinc-600">{getLocalizedText(contactData.transport.car.text, locale)}</p>
+                    <p className="mt-2 text-sm text-zinc-600">{getLocalizedText(contactSettings.transport.car?.text, locale)}</p>
                     <a
-                      href={readString(section.settings.map_url) || contactData.transport.directionsUrl}
+                      href={readString(section.settings.map_url) || contactSettings.transport.directionsUrl}
                       className="mt-4 inline-flex items-center gap-2 text-sm font-medium text-zinc-950"
                     >
                       Open map
@@ -84,9 +95,9 @@ export function PublicSectionRenderer({ section, locale }: { section: ContentSec
                   <div className="border border-zinc-200 bg-white p-4">
                     <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Social</div>
                     <div className="mt-3 space-y-2 text-sm text-zinc-600">
-                      <p>Facebook: {contactData.social.facebook}</p>
-                      <p>Instagram: {contactData.social.instagram}</p>
-                      <p>Messenger: {contactData.social.messenger}</p>
+                      {contactSettings.social.facebook ? <p>Facebook: {contactSettings.social.facebook}</p> : null}
+                      {contactSettings.social.instagram ? <p>Instagram: {contactSettings.social.instagram}</p> : null}
+                      {contactSettings.social.messenger ? <p>Messenger: {contactSettings.social.messenger}</p> : null}
                     </div>
                   </div>
                 ) : null}
@@ -94,9 +105,9 @@ export function PublicSectionRenderer({ section, locale }: { section: ContentSec
                   <div className="border border-zinc-200 bg-white p-4">
                     <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">Bank</div>
                     <div className="mt-3 space-y-1 text-sm text-zinc-600">
-                      <p>{contactData.bank.name}</p>
-                      <p>IBAN: {contactData.bank.iban}</p>
-                      <p>BIC: {contactData.bank.bic}</p>
+                      <p>{contactSettings.bank.name}</p>
+                      {contactSettings.bank.iban ? <p>IBAN: {contactSettings.bank.iban}</p> : null}
+                      {contactSettings.bank.bic ? <p>BIC: {contactSettings.bank.bic}</p> : null}
                     </div>
                   </div>
                 ) : null}
@@ -168,8 +179,8 @@ export function PublicSectionRenderer({ section, locale }: { section: ContentSec
       );
     }
     case "map": {
-      const address = readString(section.body.address) || getLocalizedText(contactData.address, locale);
-      const directionsUrl = readString(section.body.directions_url) || contactData.transport.directionsUrl;
+      const address = readString(section.body.address) || getLocalizedText(contactSettings.address, locale);
+      const directionsUrl = readString(section.body.directions_url) || contactSettings.transport.directionsUrl;
       const showDirections = readBoolean(section.settings.show_directions, true);
 
       return (

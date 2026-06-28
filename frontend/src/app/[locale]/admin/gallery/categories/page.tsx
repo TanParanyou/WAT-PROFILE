@@ -14,7 +14,6 @@ import { Checkbox } from "@/components/ui/Checkbox";
 import { galleryCategoryAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import { useApiError } from "@/hooks/useApiError";
-import { ToastContainer } from "@/components/admin/Toast";
 import type { MultiLangText } from "@/types/api";
 import type { GalleryCategory } from "@/types/entities";
 import { useTranslations } from "next-intl";
@@ -37,7 +36,7 @@ export default function GalleryCategoriesPage() {
   const [isSaving, setIsSaving] = useState(false);
   const { isOpen, open, close } = useModal();
   const { confirm, ConfirmDialog } = useConfirm();
-  const { toasts, toast, removeToast } = useToast();
+  const { toast } = useToast();
   const { handleApiError } = useApiError();
   const selectedIds = useRowSelection();
 
@@ -336,7 +335,6 @@ export default function GalleryCategoriesPage() {
       </FormModal>
 
       <ConfirmDialog />
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }

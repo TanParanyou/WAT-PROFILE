@@ -1,7 +1,7 @@
 "use client";
 
 import { CreditCard, Facebook, Instagram, Mail, MapPin, Phone } from "lucide-react";
-import contactData from "@/data/contact.json";
+import type { GlobalContactSettings } from "@/types/site-settings";
 import type { ContentSection, PublicContentPage } from "@/types/website-cms";
 import { getLocalizedText } from "@/utils/localizedText";
 
@@ -20,15 +20,20 @@ interface PublicContactPageLayoutProps {
     bank: string;
   };
   formSlot: React.ReactNode;
+  contactSettings: GlobalContactSettings;
 }
 
-export function PublicContactPageLayout({ page, locale, labels, formSlot }: PublicContactPageLayoutProps) {
+export function PublicContactPageLayout({ page, locale, labels, formSlot, contactSettings }: PublicContactPageLayoutProps) {
+  const heroSection = findSection(page.sections, "hero");
   const contactSection = findSection(page.sections, "contact_info");
   const formSection = findSection(page.sections, "contact_form");
 
-  const address = readString(contactSection?.body.address) || getLocalizedText(contactData.address, locale);
-  const phone = readString(contactSection?.body.phone) || contactData.phone;
-  const email = readString(contactSection?.body.email) || contactData.email;
+  const heroEyebrow = readString(heroSection?.body.eyebrow) || page.page_key;
+  const heroTitle = getLocalizedText(heroSection?.title || page.title, locale);
+  const heroDescription = getLocalizedText(heroSection?.description || page.description, locale);
+  const address = readString(contactSection?.body.address) || getLocalizedText(contactSettings.address, locale);
+  const phone = readString(contactSection?.body.phone) || contactSettings.phone;
+  const email = readString(contactSection?.body.email) || contactSettings.email;
   const showSocial = readBoolean(contactSection?.settings.show_social, true);
   const showBank = readBoolean(contactSection?.settings.show_bank, true);
 
@@ -36,10 +41,10 @@ export function PublicContactPageLayout({ page, locale, labels, formSlot }: Publ
     <div className="min-h-full bg-zinc-50 text-zinc-950">
       <section className="border-b border-zinc-200 bg-zinc-950 px-6 py-10 text-white md:px-8 md:py-14">
         <div className="mx-auto max-w-5xl">
-          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-300">{page.page_key}</p>
-          <h1 className="mt-4 text-3xl font-semibold leading-tight md:text-5xl">{getLocalizedText(page.title, locale)}</h1>
+          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-300">{heroEyebrow}</p>
+          <h1 className="mt-4 text-3xl font-semibold leading-tight md:text-5xl">{heroTitle}</h1>
           <p className="mt-4 max-w-2xl text-sm leading-7 text-zinc-300 md:text-base">
-            {getLocalizedText(page.description, locale)}
+            {heroDescription}
           </p>
         </div>
       </section>
@@ -66,16 +71,22 @@ export function PublicContactPageLayout({ page, locale, labels, formSlot }: Publ
                   title={labels.social}
                   value={
                     <div className="space-y-2">
-                      <a href={contactData.social.facebook} target="_blank" rel="noreferrer" className="block break-all text-zinc-900 underline underline-offset-4">
-                        Facebook
-                      </a>
-                      <a href={contactData.social.instagram} target="_blank" rel="noreferrer" className="block break-all text-zinc-900 underline underline-offset-4">
-                        Instagram
-                      </a>
-                      <div className="flex items-center gap-2 text-zinc-600">
-                        <Instagram size={14} />
-                        <span>{contactData.social.messenger}</span>
-                      </div>
+                      {contactSettings.social.facebook ? (
+                        <a href={contactSettings.social.facebook} target="_blank" rel="noreferrer" className="block break-all text-zinc-900 underline underline-offset-4">
+                          Facebook
+                        </a>
+                      ) : null}
+                      {contactSettings.social.instagram ? (
+                        <a href={contactSettings.social.instagram} target="_blank" rel="noreferrer" className="block break-all text-zinc-900 underline underline-offset-4">
+                          Instagram
+                        </a>
+                      ) : null}
+                      {contactSettings.social.messenger ? (
+                        <div className="flex items-center gap-2 text-zinc-600">
+                          <Instagram size={14} />
+                          <span>{contactSettings.social.messenger}</span>
+                        </div>
+                      ) : null}
                     </div>
                   }
                 />
@@ -86,10 +97,10 @@ export function PublicContactPageLayout({ page, locale, labels, formSlot }: Publ
                   title={labels.bank}
                   value={
                     <div className="space-y-1 text-sm text-zinc-600">
-                      <p className="font-medium text-zinc-900">{contactData.bank.name}</p>
-                      <p>Account: {contactData.bank.account}</p>
-                      <p className="font-mono">IBAN: {contactData.bank.iban}</p>
-                      <p className="font-mono">BIC: {contactData.bank.bic}</p>
+                      <p className="font-medium text-zinc-900">{contactSettings.bank.name}</p>
+                      {contactSettings.bank.account ? <p>Account: {contactSettings.bank.account}</p> : null}
+                      {contactSettings.bank.iban ? <p className="font-mono">IBAN: {contactSettings.bank.iban}</p> : null}
+                      {contactSettings.bank.bic ? <p className="font-mono">BIC: {contactSettings.bank.bic}</p> : null}
                     </div>
                   }
                 />

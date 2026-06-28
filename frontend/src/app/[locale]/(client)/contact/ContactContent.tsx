@@ -11,14 +11,16 @@ import { useState } from "react";
 import { PublicContactPageLayout } from "@/components/public/website/PublicContactPageLayout";
 import { getLocalizedText } from "@/utils/localizedText";
 import { sendContactEmail } from "@/services/emailService";
+import type { GlobalContactSettings } from "@/types/site-settings";
 import type { PublicContentPage } from "@/types/website-cms";
 
 interface ContactContentProps {
   locale: string;
   cmsPage: PublicContentPage | null;
+  contactSettings: GlobalContactSettings;
 }
 
-export default function ContactContent({ locale, cmsPage }: ContactContentProps) {
+export default function ContactContent({ locale, cmsPage, contactSettings }: ContactContentProps) {
   const t = useTranslations("ContactPage");
   const currentLocale = useLocale();
   const activeLocale = locale || currentLocale;
@@ -84,6 +86,7 @@ export default function ContactContent({ locale, cmsPage }: ContactContentProps)
         }
       }
       locale={activeLocale}
+      contactSettings={contactSettings}
       labels={{
         infoEyebrow: "Contact",
         infoTitle: t("infoTitle"),

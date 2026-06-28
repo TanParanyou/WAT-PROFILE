@@ -13,7 +13,6 @@ import { useConfirm } from "@/components/ui/Modal";
 import { useDataTable } from "@/hooks/useDataTable";
 import { eventAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
-import { ToastContainer } from "@/components/admin/Toast";
 import type { Event } from "@/types/entities";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
@@ -27,7 +26,7 @@ export default function EventsListPage() {
         eventAdminService.getAll({ page: p.page, limit: p.limit }),
     });
   const { confirm, ConfirmDialog } = useConfirm();
-  const { toasts, toast, removeToast } = useToast();
+  const { toast } = useToast();
   const selectedIds = useRowSelection();
 
   const handleDelete = async (id: number) => {
@@ -189,7 +188,6 @@ export default function EventsListPage() {
         onSelectAll={(ids) => selectedIds.selectAll(ids)}
       />
       <ConfirmDialog />
-      <ToastContainer toasts={toasts} onRemove={removeToast} />
     </div>
   );
 }

@@ -23,6 +23,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	registrationHandler := handlers.NewRegistrationHandler(db)
 	contactHandler := handlers.NewContactHandler(db)
 	settingsHandler := handlers.NewSettingsHandler(db)
+	contentHandler := handlers.NewContentHandler(db)
 	uploadHandler := handlers.NewUploadHandler(db, r2)
 	dashboardHandler := handlers.NewDashboardHandler(db)
 	userHandler := handlers.NewUserHandler(db)
@@ -55,6 +56,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 
 	// Settings
 	public.Get("/settings", settingsHandler.GetPublicSettings)
+	public.Get("/pages/:slug", contentHandler.GetPublicPage)
 
 	// Event Registration (public - no auth)
 	public.Post("/events/:id/register", registrationHandler.RegisterForEvent)
@@ -157,6 +159,14 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	admin.Get("/settings", middleware.PermissionRequired("settings", "read"), settingsHandler.GetAllSettings)
 	admin.Put("/settings", middleware.PermissionRequired("settings", "update"), settingsHandler.UpdateSettings)
 	admin.Post("/settings", middleware.PermissionRequired("settings", "create"), settingsHandler.UpsertSetting)
+
+	// Website CMS
+	admin.Get("/website/pages", middleware.PermissionRequired("website", "read"), contentHandler.ListPages)
+	admin.Get("/website/pages/:pageKey", middleware.PermissionRequired("website", "read"), contentHandler.GetPage)
+	admin.Put("/website/pages/:id", middleware.PermissionRequired("website", "update"), contentHandler.UpdatePageDraft)
+	admin.Post("/website/pages/:id/publish", middleware.PermissionRequired("website", "update"), contentHandler.PublishPage)
+	admin.Put("/website/pages/:pageId/sections/reorder", middleware.PermissionRequired("website", "update"), contentHandler.ReorderSections)
+	admin.Put("/website/sections/:id", middleware.PermissionRequired("website", "update"), contentHandler.UpdateSectionDraft)
 
 	// User Management
 	admin.Get("/users", middleware.PermissionRequired("users", "read"), userHandler.GetUsers)

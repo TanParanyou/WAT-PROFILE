@@ -10,7 +10,6 @@ import { Button } from '@/components/ui/Button';
 import { PageLoading } from '@/components/ui/Loading';
 import { settingsAdminService } from '@/services/adminService';
 import { useToast } from '@/hooks/useToast';
-import { ToastContainer } from '@/components/admin/Toast';
 import type { Setting } from '@/types/entities';
 
 export default function SettingsPage() {
@@ -19,7 +18,7 @@ export default function SettingsPage() {
     const [changes, setChanges] = useState<Record<string, string>>({});
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
-    const { toasts, toast, removeToast } = useToast();
+    const { toast } = useToast();
 
     const loadSettings = async () => {
         try {
@@ -99,7 +98,6 @@ export default function SettingsPage() {
                     </Button>
                 </div>
             </div>
-            <ToastContainer toasts={toasts} onRemove={removeToast} />
         </div>
     );
 }
