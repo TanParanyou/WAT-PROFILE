@@ -18,7 +18,13 @@ export const globalContactSettingsSchema = z.object({
       line: z.string().optional().default(""),
       youtube: z.string().optional().default(""),
     })
-    .default({}),
+    .default({
+      facebook: "",
+      messenger: "",
+      instagram: "",
+      line: "",
+      youtube: "",
+    }),
   openingHours: z.object({
     days: localizedTextSchema,
     time: z.string().default(""),
@@ -43,13 +49,19 @@ export const globalContactSettingsSchema = z.object({
         })
         .optional(),
     })
-    .default({}),
+    .default({
+      directionsUrl: "",
+      public: [],
+    }),
   map: z
     .object({
       embedUrl: z.string().optional().default(""),
       locationName: z.string().optional().default(""),
     })
-    .default({}),
+    .default({
+      embedUrl: "",
+      locationName: "",
+    }),
   bank: z.object({
     name: z.string().default(""),
     account: z.string().optional().default(""),
