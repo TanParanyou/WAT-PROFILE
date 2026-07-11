@@ -1,6 +1,6 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import type { FieldErrors, FieldValues, Path, UseFormRegister, UseFormSetValue, UseFormWatch } from "react-hook-form";
 import { Input } from "@/components/ui/Input";
 import { WEBSITE_CMS_LOCALES } from "@/utils/websiteCms";
@@ -41,8 +41,8 @@ export function LocalizedTextFields<T extends FieldValues>({
     }
   };
 
-  const fieldErrors = errors?.[name as keyof typeof errors] as any;
-  const groupErrorMessage = fieldErrors?.message;
+  const fieldErrors = errors?.[name as keyof typeof errors] as Record<string, { message?: string }> | undefined;
+  const groupErrorMessage = (fieldErrors as unknown as { message?: string })?.message;
 
   const hasError = (locale: string) => {
     return !!fieldErrors?.[locale]?.message;
@@ -70,7 +70,7 @@ export function LocalizedTextFields<T extends FieldValues>({
       translatedText = `[Translated] ${sourceValue}`;
     }
 
-    setValue(`${name}.${targetLocale}` as Path<T>, translatedText as any, { shouldDirty: true });
+    setValue(`${name}.${targetLocale}` as Path<T>, translatedText as unknown as never, { shouldDirty: true });
   };
 
   const handleCopyFrom = (targetLocale: "th" | "en" | "de") => {
@@ -80,7 +80,7 @@ export function LocalizedTextFields<T extends FieldValues>({
     );
     if (!sourceLocale) return;
     const sourceValue = String(watch(`${name}.${sourceLocale}` as Path<T>));
-    setValue(`${name}.${targetLocale}` as Path<T>, sourceValue as any, { shouldDirty: true });
+    setValue(`${name}.${targetLocale}` as Path<T>, sourceValue as unknown as never, { shouldDirty: true });
   };
 
   return (
@@ -125,7 +125,7 @@ export function LocalizedTextFields<T extends FieldValues>({
 
         return (
           <div key={locale} className="space-y-1.5">
-            <div className="relative flex items-center">
+            <div className="relative">
               <Input
                 disabled={disabled}
                 error={errorMsg}
@@ -134,7 +134,7 @@ export function LocalizedTextFields<T extends FieldValues>({
               />
               
               {watch && setValue && !disabled && !currentValue && hasSourceValue && (
-                <div className="absolute right-2 flex items-center gap-1">
+                <div className="absolute right-2 top-[9px] flex items-center gap-1 z-10">
                   <button
                     type="button"
                     onClick={() => handleCopyFrom(locale)}

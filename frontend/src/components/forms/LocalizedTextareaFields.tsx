@@ -1,6 +1,6 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
+import { useTranslations } from "next-intl";
 import type { FieldErrors, FieldValues, Path, UseFormRegister, UseFormSetValue, UseFormWatch } from "react-hook-form";
 import { WEBSITE_CMS_LOCALES } from "@/utils/websiteCms";
 import { useWebsiteCmsEditorStore } from "@/stores/website-cms-editor-store";
@@ -42,8 +42,8 @@ export function LocalizedTextareaFields<T extends FieldValues>({
     }
   };
 
-  const fieldErrors = errors?.[name as keyof typeof errors] as any;
-  const groupErrorMessage = fieldErrors?.message;
+  const fieldErrors = errors?.[name as keyof typeof errors] as Record<string, { message?: string }> | undefined;
+  const groupErrorMessage = (fieldErrors as unknown as { message?: string })?.message;
 
   const hasError = (locale: string) => {
     return !!fieldErrors?.[locale]?.message;
@@ -65,7 +65,7 @@ export function LocalizedTextareaFields<T extends FieldValues>({
     } else {
       translatedText = `[Translated] ${sourceValue}`;
     }
-    setValue(`${name}.${targetLocale}` as Path<T>, translatedText as any, { shouldDirty: true });
+    setValue(`${name}.${targetLocale}` as Path<T>, translatedText as unknown as never, { shouldDirty: true });
   };
 
   const handleCopyFrom = (targetLocale: "th" | "en" | "de") => {
@@ -75,7 +75,7 @@ export function LocalizedTextareaFields<T extends FieldValues>({
     );
     if (!sourceLocale) return;
     const sourceValue = String(watch(`${name}.${sourceLocale}` as Path<T>));
-    setValue(`${name}.${targetLocale}` as Path<T>, sourceValue as any, { shouldDirty: true });
+    setValue(`${name}.${targetLocale}` as Path<T>, sourceValue as unknown as never, { shouldDirty: true });
   };
 
   return (
