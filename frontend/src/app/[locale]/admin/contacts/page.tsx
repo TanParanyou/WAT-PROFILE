@@ -10,6 +10,7 @@ import { DataTable, Column } from "@/components/ui/DataTable";
 import { Modal, useModal, useConfirm } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
+import { Textarea } from "@/components/ui/Textarea";
 import { useDataTable } from "@/hooks/useDataTable";
 import { contactAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
@@ -174,21 +175,23 @@ export default function ContactsPage() {
       header: t("columns.actions"),
       cell: (_, row) => (
         <div className="flex gap-2">
-          <button
+          <Button
             onClick={() => handleViewReply(row)}
-            className="p-1.5 rounded hover:bg-gray-100 text-gray-500"
+            variant="ghost"
+            size="icon"
             title={t("contacts.viewReply")}
           >
             <Eye size={16} />
-          </button>
+          </Button>
           <PermissionGuard resource="contacts" action="delete">
-            <button
+            <Button
               onClick={() => handleDelete(row)}
-              className="p-1.5 rounded hover:bg-red-50 text-red-500"
+              variant="danger"
+              size="icon"
               title={t("common.delete")}
             >
               <Trash2 size={16} />
-            </button>
+            </Button>
           </PermissionGuard>
         </div>
       ),
@@ -283,18 +286,13 @@ export default function ContactsPage() {
                 </p>
               </div>
             </div>
-            <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
-                {t("contacts.replyMessage")}
-              </label>
-              <textarea
-                value={replyMessage}
-                onChange={(e) => setReplyMessage(e.target.value)}
-                rows={4}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
-                placeholder={t("contacts.replyPlaceholder")}
-              />
-            </div>
+            <Textarea
+              value={replyMessage}
+              onChange={(e) => setReplyMessage(e.target.value)}
+              rows={4}
+              placeholder={t("contacts.replyPlaceholder")}
+              label={t("contacts.replyMessage")}
+            />
             <Select
               id="status"
               label={t("columns.status")}

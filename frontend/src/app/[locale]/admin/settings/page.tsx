@@ -6,6 +6,7 @@ import { useTranslations } from 'next-intl';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { Input } from '@/components/ui/Input';
 import { Checkbox } from '@/components/ui/Checkbox';
+import { Textarea } from '@/components/ui/Textarea';
 import { Button } from '@/components/ui/Button';
 import { PageLoading } from '@/components/ui/Loading';
 import { settingsAdminService } from '@/services/adminService';
@@ -65,11 +66,13 @@ export default function SettingsPage() {
                 return <Input id={setting.key} label={setting.key} type="number" value={val} onChange={(e) => handleChange(setting.key, e.target.value)} />;
             case 'textarea':
                 return (
-                    <div className="space-y-1">
-                        <label htmlFor={setting.key} className="text-sm font-medium text-gray-700">{setting.key}</label>
-                        <textarea id={setting.key} value={val} onChange={(e) => handleChange(setting.key, e.target.value)} rows={4}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500 resize-vertical" />
-                    </div>
+                    <Textarea
+                        id={setting.key}
+                        label={setting.key}
+                        value={val}
+                        onChange={(e) => handleChange(setting.key, e.target.value)}
+                        rows={4}
+                    />
                 );
             default:
                 return <Input id={setting.key} label={setting.key} value={val} onChange={(e) => handleChange(setting.key, e.target.value)} />;
