@@ -45,8 +45,8 @@
 *   ปรับลักษณะเดียวกับ `LocalizedTextFields` แต่รองรับฟิลด์ textarea
 *   แสดงผลการสลับภาษา และฟังก์ชันตัวช่วยป้อนข้อมูล
 
-### Component 3: [LocalizedInputGrid](file:///Users/syaco/Documents/development/WAT-PROFILE/frontend/src/components/forms/LocalizedInputGrid.tsx)
-*   ปรับปรุง API และการแจ้งเตือน Error ให้มีความสอดคล้องกับพฤติกรรม Tabbed Input แบบใหม่
+### Component 3: [LocalizedInputGrid](file:///Users/syaco/Documents/development/WAT-PROFILE/frontend/src/components/forms/LocalizedInputGrid.tsx) [DELETE]
+- ลบไฟล์ทิ้งเนื่องจากไม่มีการเรียกใช้งานในโค้ดเบส เพื่อลดความซ้ำซ้อนของคอมโพเนนต์และลดขนาดโค้ด (Dead code cleanup)
 
 ### Translations Files
 *   เพิ่มคีย์ `"atLeastOneLanguageRequired"` สำหรับการแสดงผลความผิดพลาดที่แปลตามความเหมาะสมใน:
