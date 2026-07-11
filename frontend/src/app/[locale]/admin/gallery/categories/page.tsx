@@ -11,6 +11,7 @@ import { FormModal, useModal, useConfirm } from "@/components/ui/Modal";
 import { MultiLangInput } from "@/components/admin/MultiLangInput";
 import { Input } from "@/components/ui/Input";
 import { Checkbox } from "@/components/ui/Checkbox";
+import { Button } from "@/components/ui/Button";
 import { galleryCategoryAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import { useApiError } from "@/hooks/useApiError";
@@ -206,20 +207,22 @@ export default function GalleryCategoriesPage() {
       cell: (_, row) => (
         <div className="flex gap-2">
           <PermissionGuard resource="gallery" action="update">
-            <button
+            <Button
               onClick={() => handleOpenEdit(row)}
-              className="p-1.5 rounded hover:bg-gray-100 text-gray-500"
+              variant="ghost"
+              size="icon"
             >
               <Pencil size={16} />
-            </button>
+            </Button>
           </PermissionGuard>
           <PermissionGuard resource="gallery" action="delete">
-            <button
+            <Button
               onClick={() => handleDelete(row.id)}
-              className="p-1.5 rounded hover:bg-red-50 text-red-500"
+              variant="danger"
+              size="icon"
             >
               <Trash2 size={16} />
-            </button>
+            </Button>
           </PermissionGuard>
         </div>
       ),

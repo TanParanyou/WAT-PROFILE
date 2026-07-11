@@ -8,6 +8,7 @@ import { DataTable, Column } from "@/components/ui/DataTable";
 import { Select } from "@/components/ui/Select";
 import { useDataTable } from "@/hooks/useDataTable";
 import { registrationAdminService } from "@/services/adminService";
+import { Button } from "@/components/ui/Button";
 import { useToast } from "@/hooks/useToast";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
@@ -172,12 +173,13 @@ export default function RegistrationsPage() {
       cell: (_, row) => (
         <div className="flex gap-2">
           <PermissionGuard resource="events" action="delete">
-            <button
+            <Button
               onClick={() => handleDelete(Number(row.id))}
-              className="p-1.5 rounded hover:bg-red-50 text-red-500"
+              variant="danger"
+              size="icon"
             >
               <Trash2 size={16} />
-            </button>
+            </Button>
           </PermissionGuard>
         </div>
       ),

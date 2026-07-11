@@ -9,6 +9,7 @@ import { StatusBadge } from "@/components/admin/StatusBadge";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { useConfirm } from "@/components/ui/Modal";
 import { useDataTable } from "@/hooks/useDataTable";
+import { Button } from "@/components/ui/Button";
 import { donationAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import type { Donation } from "@/types/entities";
@@ -148,12 +149,13 @@ export default function DonationsPage() {
       header: t("columns.actions"),
       cell: (_, row) => (
         <PermissionGuard resource="donations" action="delete">
-          <button
+          <Button
             onClick={() => handleDelete(row.id)}
-            className="p-1.5 rounded hover:bg-red-50 text-red-500"
+            variant="danger"
+            size="icon"
           >
             <Trash2 size={16} />
-          </button>
+          </Button>
         </PermissionGuard>
       ),
     },

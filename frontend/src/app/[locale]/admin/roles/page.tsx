@@ -11,6 +11,7 @@ import { FormModal, useConfirm } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { useDataTable } from "@/hooks/useDataTable";
+import { Button } from "@/components/ui/Button";
 import { roleAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import { useApiError } from "@/hooks/useApiError";
@@ -167,24 +168,26 @@ export default function RolesPage() {
       cell: (_, row) => (
         <div className="flex gap-2">
           <PermissionGuard resource="users" action="update">
-            <button
+            <Button
               onClick={() => handleOpenEdit(row)}
-              className="p-1.5 rounded hover:bg-gray-100 text-gray-500"
+              variant="ghost"
+              size="icon"
             >
               <Pencil size={16} />
-            </button>
+            </Button>
           </PermissionGuard>
           <PermissionGuard resource="users" action="delete">
-            <button
+            <Button
               onClick={() => handleDelete(row.id, row.name)}
-              className="p-1.5 rounded hover:bg-red-50 text-red-500"
+              variant="danger"
+              size="icon"
               disabled={row.name === "admin"}
             >
               <Trash2
                 size={16}
                 className={row.name === "admin" ? "opacity-50" : ""}
               />
-            </button>
+            </Button>
           </PermissionGuard>
         </div>
       ),

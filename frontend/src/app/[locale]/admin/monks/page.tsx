@@ -11,6 +11,7 @@ import { StatusBadge } from "@/components/admin/StatusBadge";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { useConfirm } from "@/components/ui/Modal";
 import { useDataTable } from "@/hooks/useDataTable";
+import { Button } from "@/components/ui/Button";
 import { monkAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import type { Monk } from "@/types/entities";
@@ -124,12 +125,13 @@ export default function MonksListPage() {
             </Link>
           </PermissionGuard>
           <PermissionGuard resource="monks" action="delete">
-            <button
+            <Button
               onClick={() => handleDelete(row.id)}
-              className="p-1.5 rounded hover:bg-red-50 text-red-500"
+              variant="danger"
+              size="icon"
             >
               <Trash2 size={16} />
-            </button>
+            </Button>
           </PermissionGuard>
         </div>
       ),

@@ -10,6 +10,7 @@ import { StatusBadge } from "@/components/admin/StatusBadge";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { useConfirm } from "@/components/ui/Modal";
 import { useDataTable } from "@/hooks/useDataTable";
+import { Button } from "@/components/ui/Button";
 import { userAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import { useTranslations } from "next-intl";
@@ -121,12 +122,13 @@ export default function UsersListPage() {
             </Link>
           </PermissionGuard>
           <PermissionGuard resource="users" action="delete">
-            <button
+            <Button
               onClick={() => handleDelete(row.id)}
-              className="p-1.5 rounded hover:bg-red-50 text-red-500"
+              variant="danger"
+              size="icon"
             >
               <Trash2 size={16} />
-            </button>
+            </Button>
           </PermissionGuard>
         </div>
       ),

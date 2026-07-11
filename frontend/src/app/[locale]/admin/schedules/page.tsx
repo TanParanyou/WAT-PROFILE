@@ -13,6 +13,7 @@ import { MultiLangInput } from "@/components/admin/MultiLangInput";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { useConfirm, FormModal, useModal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { useDataTable } from "@/hooks/useDataTable";
@@ -230,20 +231,22 @@ export default function SchedulesPage() {
       cell: (_, row) => (
         <div className="flex gap-2">
           <PermissionGuard resource="schedules" action="update">
-            <button
+            <Button
               onClick={() => handleEdit(row)}
-              className="p-1.5 rounded hover:bg-gray-100 text-gray-500"
+              variant="ghost"
+              size="icon"
             >
               <Pencil size={16} />
-            </button>
+            </Button>
           </PermissionGuard>
           <PermissionGuard resource="schedules" action="delete">
-            <button
+            <Button
               onClick={() => handleDelete(row)}
-              className="p-1.5 rounded hover:bg-red-50 text-red-500"
+              variant="danger"
+              size="icon"
             >
               <Trash2 size={16} />
-            </button>
+            </Button>
           </PermissionGuard>
         </div>
       ),
