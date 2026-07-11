@@ -55,7 +55,8 @@
       "publishingPage": "Publishing page...",
       "pageSaved": "Page metadata saved",
       "sectionSaved": "Section saved",
-      "pagePublished": "Page published"
+      "pagePublished": "Page published",
+      "atLeastOneLanguageRequired": "At least one language is required"
     },
     "login": { "title": "WAT Admin", "subtitle": "Sign in to management system", "email": "Email", "password": "Password", "submit": "Sign In", "invalidCredentials": "Invalid email or password", "genericError": "An error occurred. Please try again" },
     "users": { "title": "Users", "create": "Create User", "edit": "Edit User" },

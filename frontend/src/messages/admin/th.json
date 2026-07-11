@@ -55,7 +55,8 @@
       "publishingPage": "กำลังเผยแพร่หน้า...",
       "pageSaved": "บันทึกข้อมูลหน้าแล้ว",
       "sectionSaved": "บันทึกส่วนแล้ว",
-      "pagePublished": "เผยแพร่หน้าแล้ว"
+      "pagePublished": "เผยแพร่หน้าแล้ว",
+      "atLeastOneLanguageRequired": "กรุณากรอกข้อมูลอย่างน้อย 1 ภาษา"
     },
     "login": { "title": "WAT Admin", "subtitle": "เข้าสู่ระบบจัดการ", "email": "อีเมล", "password": "รหัสผ่าน", "submit": "เข้าสู่ระบบ", "invalidCredentials": "อีเมลหรือรหัสผ่านไม่ถูกต้อง", "genericError": "เกิดข้อผิดพลาด กรุณาลองใหม่" },
     "users": { "title": "ผู้ใช้งาน", "create": "สร้างผู้ใช้", "edit": "แก้ไขผู้ใช้" },

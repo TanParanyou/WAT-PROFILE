@@ -55,7 +55,8 @@
       "publishingPage": "Seite wird veröffentlicht...",
       "pageSaved": "Seitenmetadaten gespeichert",
       "sectionSaved": "Abschnitt gespeichert",
-      "pagePublished": "Seite veröffentlicht"
+      "pagePublished": "Seite veröffentlicht",
+      "atLeastOneLanguageRequired": "Mindestens eine Sprache ist erforderlich"
     },
     "login": { "title": "WAT Admin", "subtitle": "Anmelden zur Verwaltung", "email": "E-Mail", "password": "Passwort", "submit": "Anmelden", "invalidCredentials": "Ungültige E-Mail oder Passwort", "genericError": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut" },
     "users": { "title": "Benutzer", "create": "Benutzer erstellen", "edit": "Benutzer bearbeiten" },

@@ -1,10 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import type { FieldErrors, FieldValues, Path, UseFormRegister, UseFormSetValue, UseFormWatch } from "react-hook-form";
 import { Input } from "@/components/ui/Input";
 import { WEBSITE_CMS_LOCALES } from "@/utils/websiteCms";
+import { useWebsiteCmsEditorStore } from "@/stores/website-cms-editor-store";
 
 type Props<T extends FieldValues> = {
   label: string;
@@ -30,20 +30,14 @@ export function LocalizedTextFields<T extends FieldValues>({
   onActiveLocaleChange,
 }: Props<T>) {
   const t = useTranslations("Admin.website");
-  const systemLocale = useLocale();
+  const store = useWebsiteCmsEditorStore();
 
-  const systemCmsLocale = WEBSITE_CMS_LOCALES.includes(systemLocale as any)
-    ? (systemLocale as "th" | "en" | "de")
-    : "th";
-
-  const [localActiveLocale, setLocalActiveLocale] = useState<"th" | "en" | "de">(systemCmsLocale);
-
-  const active = propActiveLocale || localActiveLocale;
+  const active = propActiveLocale || store.activeLocale;
   const setActive = (locale: "th" | "en" | "de") => {
     if (onActiveLocaleChange) {
       onActiveLocaleChange(locale);
     } else {
-      setLocalActiveLocale(locale);
+      store.setActiveLocale(locale);
     }
   };
 

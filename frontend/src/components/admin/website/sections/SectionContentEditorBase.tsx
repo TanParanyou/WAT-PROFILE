@@ -86,11 +86,21 @@ export function SectionContentEditorBase({
         error={form.formState.errors.status?.message}
       />
 
-      <LocalizedTextFields label="Title" name="title" register={form.register} errors={form.formState.errors} disabled={isSaving} />
+      <LocalizedTextFields
+        label="Title"
+        name="title"
+        register={form.register}
+        setValue={form.setValue}
+        watch={form.watch}
+        errors={form.formState.errors}
+        disabled={isSaving}
+      />
       <LocalizedTextareaFields
         label="Description"
         name="description"
         register={form.register}
+        setValue={form.setValue}
+        watch={form.watch}
         errors={form.formState.errors}
         disabled={isSaving}
       />

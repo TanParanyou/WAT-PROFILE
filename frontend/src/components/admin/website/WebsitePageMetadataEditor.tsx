@@ -101,8 +101,25 @@ export function WebsitePageMetadataEditor({
 
       {showLocalizedContent ? (
         <>
-          <LocalizedTextFields label="Page title" name="title" register={form.register} errors={form.formState.errors} disabled={isSaving} />
-          <LocalizedTextareaFields label="Page description" name="description" register={form.register} errors={form.formState.errors} disabled={isSaving} rows={3} />
+          <LocalizedTextFields
+            label="Page title"
+            name="title"
+            register={form.register}
+            setValue={form.setValue}
+            watch={form.watch}
+            errors={form.formState.errors}
+            disabled={isSaving}
+          />
+          <LocalizedTextareaFields
+            label="Page description"
+            name="description"
+            register={form.register}
+            setValue={form.setValue}
+            watch={form.watch}
+            errors={form.formState.errors}
+            disabled={isSaving}
+            rows={3}
+          />
         </>
       ) : null}
       {showSeoJson ? <JsonTextareaField label="SEO JSON" name="seo" control={form.control} disabled={isSaving} /> : null}
