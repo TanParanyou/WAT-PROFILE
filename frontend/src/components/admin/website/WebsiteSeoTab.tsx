@@ -12,6 +12,8 @@ import { SeoPreviewPanel } from "@/components/admin/website/SeoPreviewPanel";
 import { Input } from "@/components/ui/Input";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Button } from "@/components/ui/Button";
+import { LocalizedTextFields } from "@/components/forms/LocalizedTextFields";
+import { LocalizedTextareaFields } from "@/components/forms/LocalizedTextareaFields";
 
 export function WebsiteSeoTab({
   page,
@@ -84,30 +86,28 @@ export function WebsiteSeoTab({
           <Input label="Canonical URL" disabled={isSaving} {...form.register("seo.canonical_url" as never)} />
           <Input label="OG image URL" disabled={isSaving} {...form.register("seo.og_image" as never)} />
         </div>
-        <LocalizedSeoFields form={form} disabled={isSaving} />
+        <LocalizedTextFields
+          label="Meta title"
+          name="seo.title"
+          register={form.register}
+          setValue={form.setValue}
+          watch={form.watch}
+          errors={form.formState.errors}
+          disabled={isSaving}
+        />
+        <LocalizedTextareaFields
+          label="Meta description"
+          name="seo.description"
+          register={form.register}
+          setValue={form.setValue}
+          watch={form.watch}
+          errors={form.formState.errors}
+          disabled={isSaving}
+          rows={3}
+        />
         <Checkbox label="Noindex" disabled={isSaving} {...form.register("seo.noindex" as never)} />
         {error ? <p className="text-sm text-red-600">{error.message}</p> : null}
       </form>
-    </div>
-  );
-}
-
-function LocalizedSeoFields({
-  form,
-  disabled,
-}: {
-  form: ReturnType<typeof useForm<WebsiteCmsPageFormData>>;
-  disabled: boolean;
-}) {
-  return (
-    <div className="grid gap-3 md:grid-cols-3">
-      {(["th", "en", "de"] as const).map((locale) => (
-        <div key={locale} className="space-y-3 border border-zinc-200 bg-zinc-50 p-3">
-          <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">{locale}</div>
-          <Input label="Meta title" disabled={disabled} {...form.register(`seo.title.${locale}` as never)} />
-          <Input label="Meta description" disabled={disabled} {...form.register(`seo.description.${locale}` as never)} />
-        </div>
-      ))}
     </div>
   );
 }
