@@ -1,19 +1,24 @@
 "use client";
 
+import { useState } from "react";
 import { Image, Link as LinkIcon } from "lucide-react";
 import { Input } from "@/components/ui/Input";
+import { MediaPickerModal } from "@/components/admin/website/MediaPickerModal";
 
 export function MediaUrlField({
   label,
   value,
   disabled,
   inputProps,
+  onUrlChange,
 }: {
   label: string;
   value: string;
   disabled?: boolean;
   inputProps: React.InputHTMLAttributes<HTMLInputElement>;
+  onUrlChange?: (url: string) => void;
 }) {
+  const [isPickerOpen, setIsPickerOpen] = useState(false);
   const isPreviewable = /^https?:\/\//.test(value) || value.startsWith("/");
 
   return (
@@ -41,12 +46,23 @@ export function MediaUrlField({
         )}
         <button
           type="button"
-          disabled
-          className="mt-3 border border-zinc-200 bg-white px-3 py-2 text-xs font-medium uppercase tracking-[0.12em] text-zinc-400"
+          onClick={() => setIsPickerOpen(true)}
+          disabled={disabled}
+          className="mt-3 border border-zinc-200 bg-white px-3 py-2 text-xs font-medium uppercase tracking-[0.12em] text-zinc-800 hover:bg-zinc-100 disabled:opacity-50"
         >
           Choose media
         </button>
       </div>
+
+      <MediaPickerModal
+        isOpen={isPickerOpen}
+        onClose={() => setIsPickerOpen(false)}
+        onSelect={(url) => {
+          if (onUrlChange) {
+            onUrlChange(url);
+          }
+        }}
+      />
     </div>
   );
 }

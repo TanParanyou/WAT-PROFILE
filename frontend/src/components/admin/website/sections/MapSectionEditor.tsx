@@ -27,6 +27,7 @@ export function MapSectionEditor(props: ContentEditorProps) {
               value={String(form.watch("body.embed_url" as never) || "")}
               disabled={props.isSaving}
               inputProps={form.register("body.embed_url" as never)}
+              onUrlChange={(url) => form.setValue("body.embed_url" as never, url as never, { shouldDirty: true })}
             />
             <Input label="Directions URL" {...form.register("body.directions_url" as never)} disabled={props.isSaving} />
             <Input label="Fallback address" {...form.register("body.address" as never)} disabled={props.isSaving} />

@@ -39,6 +39,7 @@ export function HeroSectionEditor(props: ContentEditorProps) {
                   value={String(form.watch("body.image" as never) || "")}
                   disabled={props.isSaving}
                   inputProps={form.register("body.image" as never)}
+                  onUrlChange={(url) => form.setValue("body.image" as never, url as never, { shouldDirty: true })}
                 />
               </div>
               <Input label="CTA label" {...form.register("settings.cta_label" as never)} disabled={props.isSaving} />
