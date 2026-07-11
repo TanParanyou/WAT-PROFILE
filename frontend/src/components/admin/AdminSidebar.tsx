@@ -15,6 +15,7 @@ import {
   ClipboardList,
   Settings,
   Globe,
+  FolderOpen,
   ChevronLeft,
   ChevronRight,
   X,
@@ -47,6 +48,12 @@ const menuItems: MenuItem[] = [
     labelKey: "website",
     href: "/admin/website",
     icon: Globe,
+    resource: "website",
+  },
+  {
+    labelKey: "media",
+    href: "/admin/website/media",
+    icon: FolderOpen,
     resource: "website",
   },
   {
