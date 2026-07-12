@@ -11,9 +11,25 @@ export const eventSchema = z
     end_time: z.string().nullable().optional(),
     event_type: z.string().min(1, "Event type is required"),
     location: multiLangSchema("Location").optional(),
-    image_url: z.string().optional(),
+    image_url: z.union([z.string(), z.instanceof(File)]).optional(),
+    map_url: z.string().optional(),
     is_active: z.boolean(),
     registration_enabled: z.boolean(),
+    schedule: z
+      .array(
+        z.object({
+          day: z
+            .object({
+              th: z.string().optional(),
+              en: z.string().optional(),
+              de: z.string().optional(),
+            })
+            .optional(),
+          time: z.string().min(1, "Time is required"),
+          activity: multiLangSchema("Activity"),
+        }),
+      )
+      .optional(),
   })
   .refine(
     (data) => {

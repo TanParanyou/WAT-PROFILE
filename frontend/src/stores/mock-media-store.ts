@@ -39,14 +39,34 @@ const INITIAL_MEDIA: MockMedia[] = [
 
 interface MockMediaStore {
   mediaList: MockMedia[];
-  addMedia: (url: string, filename: string) => void;
-  updateMedia: (id: string, updates: Partial<MockMedia>) => void;
-  deleteMedia: (id: string) => void;
+  isLoading: boolean;
+  isUploading: boolean;
+  isSaving: boolean;
+  isDeleting: boolean;
+  fetchMedia: () => Promise<void>;
+  addMedia: (url: string, filename: string) => Promise<void>;
+  updateMedia: (id: string, updates: Partial<MockMedia>) => Promise<void>;
+  deleteMedia: (id: string) => Promise<void>;
 }
 
-export const useMockMediaStore = create<MockMediaStore>((set) => ({
-  mediaList: INITIAL_MEDIA,
-  addMedia: (url, filename) =>
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+export const useMockMediaStore = create<MockMediaStore>((set, get) => ({
+  mediaList: [],
+  isLoading: true,
+  isUploading: false,
+  isSaving: false,
+  isDeleting: false,
+  
+  fetchMedia: async () => {
+    set({ isLoading: true });
+    await delay(800); // Simulate network delay
+    set({ mediaList: INITIAL_MEDIA, isLoading: false });
+  },
+
+  addMedia: async (url, filename) => {
+    set({ isUploading: true });
+    await delay(1000);
     set((state) => ({
       mediaList: [
         {
@@ -62,15 +82,27 @@ export const useMockMediaStore = create<MockMediaStore>((set) => ({
         },
         ...state.mediaList,
       ],
-    })),
-  updateMedia: (id, updates) =>
+      isUploading: false,
+    }));
+  },
+
+  updateMedia: async (id, updates) => {
+    set({ isSaving: true });
+    await delay(600);
     set((state) => ({
       mediaList: state.mediaList.map((item) =>
         item.id === id ? { ...item, ...updates } : item
       ),
-    })),
-  deleteMedia: (id) =>
+      isSaving: false,
+    }));
+  },
+
+  deleteMedia: async (id) => {
+    set({ isDeleting: true });
+    await delay(800);
     set((state) => ({
       mediaList: state.mediaList.filter((item) => item.id !== id),
-    })),
+      isDeleting: false,
+    }));
+  },
 }));

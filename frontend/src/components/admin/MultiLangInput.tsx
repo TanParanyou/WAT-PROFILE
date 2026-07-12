@@ -37,8 +37,8 @@ export function MultiLangInput({
 
   return (
     <div className="space-y-1">
-      <div className="flex items-center justify-between">
-        <label className="text-sm font-medium text-gray-700">
+      <div className="flex items-center justify-between min-h-[24px]">
+        <label className="text-sm font-medium text-gray-700 flex items-center">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>

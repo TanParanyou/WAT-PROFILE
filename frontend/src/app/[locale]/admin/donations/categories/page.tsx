@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { Plus, Pencil, Trash2 } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { PermissionButton } from "@/components/admin/PermissionButton";
@@ -27,6 +26,7 @@ import {
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
 import { exportToCsv } from "@/utils/exportToCsv";
+import { Icons } from "@/components/ui/Icons";
 
 const emptyLang: MultiLangText = { th: "", en: "", de: "" };
 
@@ -212,24 +212,24 @@ export default function DonationCategoriesPage() {
     {
       header: "จัดการ",
       cell: (_, row) => (
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           <PermissionGuard resource="donations" action="update">
-            <Button
+            <button
+              type="button"
               onClick={() => handleOpenEdit(row)}
-              variant="ghost"
-              size="icon"
+              className="p-1.5 rounded hover:bg-zinc-100 text-zinc-500 transition-colors"
             >
-              <Pencil size={16} />
-            </Button>
+              <Icons.Edit size={16} />
+            </button>
           </PermissionGuard>
           <PermissionGuard resource="donations" action="delete">
-            <Button
+            <button
+              type="button"
               onClick={() => handleDelete(row.id)}
-              variant="danger"
-              size="icon"
+              className="p-1.5 rounded hover:bg-red-50 text-zinc-500 hover:text-red-600 transition-colors"
             >
-              <Trash2 size={16} />
-            </Button>
+              <Icons.Delete size={16} />
+            </button>
           </PermissionGuard>
         </div>
       ),
@@ -245,25 +245,26 @@ export default function DonationCategoriesPage() {
           { label: "หมวดหมู่" },
         ]}
         actions={
-          <PermissionButton
-            resource="donations"
-            action="create"
-            icon={<Plus size={16} />}
-            onClick={handleOpenCreate}
-          >
-            เพิ่มหมวดหมู่
-          </PermissionButton>
+          <div className="flex gap-2">
+            <Button
+              onClick={handleExportCsv}
+              variant="outline"
+              icon={<Icons.Download size={14} />}
+              className="shadow-sm"
+            >
+              Export CSV
+            </Button>
+            <PermissionButton
+              resource="donations"
+              action="create"
+              icon={<Icons.Plus size={14} />}
+              onClick={handleOpenCreate}
+            >
+              เพิ่มหมวดหมู่
+            </PermissionButton>
+          </div>
         }
       />
-      <div className="flex justify-between items-center mb-4 mt-4">
-        <div />
-        <button
-          onClick={handleExportCsv}
-          className="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
-        >
-          Export CSV
-        </button>
-      </div>
 
       <BulkActionToolbar
         selectedCount={selectedIds.selectedCount}
@@ -274,7 +275,7 @@ export default function DonationCategoriesPage() {
             onClick={handleBulkDelete}
             className="flex items-center gap-2 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors text-sm font-medium"
           >
-            <Trash2 size={16} />
+            <Icons.Delete size={16} />
             {t("common.delete")}
           </button>
         </PermissionGuard>

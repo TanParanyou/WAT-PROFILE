@@ -1,9 +1,8 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "@/navigation";
 import { useTranslations } from "next-intl";
-import { Plus, Pencil, Trash2 } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { PermissionButton } from "@/components/admin/PermissionButton";
@@ -18,6 +17,9 @@ import type { Event } from "@/types/entities";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
 import { exportToCsv } from "@/utils/exportToCsv";
+import { Drawer } from "@/components/ui/Drawer";
+import { IframePreview } from "@/components/ui/IframePreview";
+import { Icons } from "@/components/ui/Icons";
 
 export default function EventsListPage() {
   const t = useTranslations("Admin");
@@ -29,6 +31,7 @@ export default function EventsListPage() {
   const { confirm, ConfirmDialog } = useConfirm();
   const { toast } = useToast();
   const selectedIds = useRowSelection();
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const handleDelete = async (id: number) => {
     const ok = await confirm({
@@ -113,22 +116,31 @@ export default function EventsListPage() {
       header: "จัดการ",
       cell: (_, row) => (
         <div className="flex gap-2">
+          <button
+            type="button"
+            onClick={() => setPreviewUrl(`/events/${row.id}`)}
+            className="p-1.5 rounded hover:bg-zinc-100 text-zinc-500 transition-colors"
+            title={t("website.viewPublic")}
+          >
+            <Icons.View size={16} />
+          </button>
           <PermissionGuard resource="events" action="update">
             <Link
-              href={`/admin/events/${row.id}/edit`}
-              className="p-1.5 rounded hover:bg-gray-100 text-gray-500"
+              href={`/admin/events/${row.id}`}
+              className="p-1.5 rounded hover:bg-zinc-100 text-zinc-500 transition-colors"
             >
-              <Pencil size={16} />
+              <Icons.Edit size={16} />
             </Link>
           </PermissionGuard>
           <PermissionGuard resource="events" action="delete">
-            <Button
+            <button
+              type="button"
               onClick={() => handleDelete(row.id)}
-              variant="danger"
-              size="icon"
+              className="p-1.5 rounded hover:bg-red-50 text-zinc-500 hover:text-red-600 transition-colors"
+              title={t("common.delete")}
             >
-              <Trash2 size={16} />
-            </Button>
+              <Icons.Delete size={16} />
+            </button>
           </PermissionGuard>
         </div>
       ),
@@ -136,30 +148,31 @@ export default function EventsListPage() {
   ];
 
   return (
-    <div>
+    <div className="space-y-6">
       <AdminPageHeader
         title={t("events.title")}
         breadcrumbs={[{ label: t("events.title") }]}
         actions={
-          <PermissionButton
-            resource="events"
-            action="create"
-            icon={<Plus size={16} />}
-          >
-            <Link href="/admin/events/create">{t("events.create")}</Link>
-          </PermissionButton>
+          <div className="flex gap-2">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handleExportCsv}
+              icon={<Icons.Download size={14} />}
+              className="shadow-sm"
+            >
+              {t("common.exportCsv")}
+            </Button>
+            <PermissionButton
+              resource="events"
+              action="create"
+              icon={<Icons.Plus size={14} />}
+            >
+              <Link href="/admin/events/create">{t("events.create")}</Link>
+            </PermissionButton>
+          </div>
         }
       />
-
-      <div className="flex justify-between items-center mb-4">
-        <div />
-        <button
-          onClick={handleExportCsv}
-          className="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
-        >
-          Export CSV
-        </button>
-      </div>
 
       <BulkActionToolbar
         selectedCount={selectedIds.selectedCount}
@@ -170,7 +183,7 @@ export default function EventsListPage() {
             onClick={handleBulkDelete}
             className="flex items-center gap-2 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors text-sm font-medium"
           >
-            <Trash2 size={16} />
+            <Icons.Delete size={16} />
             {t("common.delete")}
           </button>
         </PermissionGuard>
@@ -190,6 +203,16 @@ export default function EventsListPage() {
         onSelectAll={(ids) => selectedIds.selectAll(ids)}
       />
       <ConfirmDialog />
+
+      {/* Drawer Preview */}
+      <Drawer
+        isOpen={!!previewUrl}
+        onClose={() => setPreviewUrl(null)}
+        title={t("website.viewPublic")}
+        size="xl"
+      >
+        {previewUrl && <IframePreview url={previewUrl} title="Event Public Preview" />}
+      </Drawer>
     </div>
   );
 }

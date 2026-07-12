@@ -7,7 +7,7 @@ export const monkSchema = z.object({
   bio: multiLangSchema("Bio").optional(),
   position: z.string().optional(),
   slug: slugSchema,
-  image_url: z.string().optional(),
+  image_url: z.union([z.string(), z.instanceof(File)]).optional(),
   ordination_date: z.string().nullable().optional(),
   is_active: z.boolean(),
 });

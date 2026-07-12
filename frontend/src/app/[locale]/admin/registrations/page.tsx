@@ -14,8 +14,8 @@ import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
 import { exportToCsv } from "@/utils/exportToCsv";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
-import { Trash2 } from "lucide-react";
 import { useConfirm } from "@/components/ui/Modal";
+import { Icons } from "@/components/ui/Icons";
 
 export default function RegistrationsPage() {
   const t = useTranslations("Admin");
@@ -171,15 +171,15 @@ export default function RegistrationsPage() {
     {
       header: t("columns.actions"),
       cell: (_, row) => (
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           <PermissionGuard resource="events" action="delete">
-            <Button
+            <button
+              type="button"
               onClick={() => handleDelete(Number(row.id))}
-              variant="danger"
-              size="icon"
+              className="p-1.5 rounded hover:bg-red-50 text-zinc-500 hover:text-red-600 transition-colors"
             >
-              <Trash2 size={16} />
-            </Button>
+              <Icons.Delete size={16} />
+            </button>
           </PermissionGuard>
         </div>
       ),
@@ -191,17 +191,17 @@ export default function RegistrationsPage() {
       <AdminPageHeader
         title={t("registrations.title")}
         breadcrumbs={[{ label: t("registrations.title") }]}
+        actions={
+          <Button
+            onClick={handleExportCsv}
+            variant="outline"
+            icon={<Icons.Download size={14} />}
+            className="shadow-sm"
+          >
+            {t("common.exportCsv")}
+          </Button>
+        }
       />
-
-      <div className="flex justify-between items-center mb-4 mt-4">
-        <div />
-        <button
-          onClick={handleExportCsv}
-          className="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
-        >
-          {t("common.exportCsv")}
-        </button>
-      </div>
 
       <BulkActionToolbar
         selectedCount={selectedIds.selectedCount}
@@ -212,7 +212,7 @@ export default function RegistrationsPage() {
             onClick={handleBulkDelete}
             className="flex items-center gap-2 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors text-sm font-medium"
           >
-            <Trash2 size={16} />
+            <Icons.Delete size={16} />
             {t("common.bulkDelete")}
           </button>
         </PermissionGuard>

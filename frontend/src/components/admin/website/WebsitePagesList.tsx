@@ -33,14 +33,24 @@ export function WebsitePagesList({
     );
   }
 
-  if (!pages.length) {
+  const activePages = pages.filter(
+    (page) =>
+      ["PAGE-HOME", "PAGE-CONTACT", "PAGE-ABOUT"].includes(page.page_key) ||
+      ["home", "contact", "about"].includes(page.slug)
+  );
+
+  if (!activePages.length) {
     return <div className="border border-dashed border-zinc-300 bg-white p-6 text-sm text-zinc-500">No pages yet.</div>;
   }
 
   return (
     <div className="divide-y divide-zinc-200 border border-zinc-200 bg-white">
-      {pages.map((page) => (
-        <LocaleLink key={page.id} href={`/admin/website/pages/${page.page_key}`} className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-zinc-50">
+      {activePages.map((page) => (
+        <LocaleLink
+          key={page.id}
+          href={`/admin/website/${page.slug.toLowerCase()}`}
+          className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-zinc-50"
+        >
           <div className="min-w-0">
             <div className="truncate font-medium text-zinc-950">{page.page_key}</div>
             <div className="truncate text-sm text-zinc-500">{page.slug}</div>

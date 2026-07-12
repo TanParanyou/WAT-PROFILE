@@ -1,7 +1,6 @@
 "use client";
 
 import React from "react";
-import { Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
@@ -16,6 +15,7 @@ import type { Donation } from "@/types/entities";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
 import { exportToCsv } from "@/utils/exportToCsv";
+import { Icons } from "@/components/ui/Icons";
 
 export default function DonationsPage() {
   const t = useTranslations("Admin");
@@ -148,15 +148,17 @@ export default function DonationsPage() {
     {
       header: t("columns.actions"),
       cell: (_, row) => (
-        <PermissionGuard resource="donations" action="delete">
-          <Button
-            onClick={() => handleDelete(row.id)}
-            variant="danger"
-            size="icon"
-          >
-            <Trash2 size={16} />
-          </Button>
-        </PermissionGuard>
+        <div className="flex gap-1.5">
+          <PermissionGuard resource="donations" action="delete">
+            <button
+              type="button"
+              onClick={() => handleDelete(row.id)}
+              className="p-1.5 rounded hover:bg-red-50 text-zinc-500 hover:text-red-600 transition-colors"
+            >
+              <Icons.Delete size={16} />
+            </button>
+          </PermissionGuard>
+        </div>
       ),
     },
   ];
@@ -166,16 +168,17 @@ export default function DonationsPage() {
       <AdminPageHeader
         title={t("donations.title")}
         breadcrumbs={[{ label: t("donations.title") }]}
+        actions={
+          <Button
+            onClick={handleExportCsv}
+            variant="outline"
+            icon={<Icons.Download size={14} />}
+            className="shadow-sm"
+          >
+            {t("common.exportCsv")}
+          </Button>
+        }
       />
-      <div className="flex justify-between items-center mb-4 mt-4">
-        <div />
-        <button
-          onClick={handleExportCsv}
-          className="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
-        >
-          {t("common.exportCsv")}
-        </button>
-      </div>
 
       <BulkActionToolbar
         selectedCount={selectedIds.selectedCount}
@@ -186,7 +189,7 @@ export default function DonationsPage() {
             onClick={handleBulkDelete}
             className="flex items-center gap-2 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors text-sm font-medium"
           >
-            <Trash2 size={16} />
+            <Icons.Delete size={16} />
             {t("common.bulkDelete")}
           </button>
         </PermissionGuard>

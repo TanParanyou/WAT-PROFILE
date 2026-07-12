@@ -15,7 +15,7 @@ import {
   Loader2,
 } from "lucide-react";
 import { cn } from "@/utils/cn";
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import { useToast } from "@/hooks/useToast";
 
 interface ToolbarProps {
@@ -176,6 +176,7 @@ export function RichTextEditor({
   placeholder,
 }: RichTextEditorProps) {
   const editor = useEditor({
+    immediatelyRender: false,
     extensions: [
       StarterKit.configure({
         heading: {
@@ -184,7 +185,7 @@ export function RichTextEditor({
       }),
       Image.configure({
         HTMLAttributes: {
-          class: "rounded-lg max-w-full h-auto my-4",
+          class: "rounded-lg max-w-full h-auto my-4 inline-block",
         },
       }),
     ],
@@ -192,13 +193,19 @@ export function RichTextEditor({
     editorProps: {
       attributes: {
         class:
-          "prose prose-sm sm:prose-base max-w-none focus:outline-none min-h-[200px] p-4",
+          "prose prose-sm sm:prose-base max-w-none focus:outline-none min-h-[200px] p-4 [&_ol]:list-decimal [&_ul]:list-disc pl-5",
       },
     },
     onUpdate: ({ editor }) => {
       onChange(editor.getHTML());
     },
   });
+
+  useEffect(() => {
+    if (editor && value !== editor.getHTML()) {
+      editor.commands.setContent(value);
+    }
+  }, [value, editor]);
 
   // Function to handle image uploads to our API
   const handleImageUpload = async (file: File): Promise<string> => {

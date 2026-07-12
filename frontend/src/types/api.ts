@@ -18,9 +18,16 @@ export interface PaginatedResponse<T> {
     };
 }
 
-// MultiLangText ตรง backend MultiLangText JSONB
 export interface MultiLangText {
     th: string;
     en: string;
     de: string;
 }
+
+export interface MultiLangError {
+    th?: { message?: string };
+    en?: { message?: string };
+    de?: { message?: string };
+    message?: string;
+}
+

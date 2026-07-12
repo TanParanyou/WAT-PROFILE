@@ -3,7 +3,7 @@
 import React from "react";
 import { Link } from "@/navigation";
 import { useTranslations } from "next-intl";
-import { Plus, Pencil, Trash2, FolderOpen } from "lucide-react";
+import { FolderOpen } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { PermissionButton } from "@/components/admin/PermissionButton";
@@ -18,6 +18,7 @@ import type { Gallery } from "@/types/entities";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
 import { exportToCsv } from "@/utils/exportToCsv";
+import { Icons } from "@/components/ui/Icons";
 
 export default function GalleryListPage() {
   const t = useTranslations("Admin");
@@ -72,17 +73,15 @@ export default function GalleryListPage() {
   const handleExportCsv = () => {
     const exportData = data.map((item) => ({
       id: item.id,
-      "caption.th": item.caption?.th || "",
-      "caption.en": item.caption?.en || "",
+      caption: item.caption?.th || "",
       category: item.category?.name?.th || "",
-      display_order: item.display_order || 0,
+      display_order: item.display_order,
       is_active: item.is_active ? "Active" : "Inactive",
     }));
 
     exportToCsv("gallery_export", exportData, [
       { label: "ID", key: "id" },
-      { label: "Caption (TH)", key: "caption.th" },
-      { label: "Caption (EN)", key: "caption.en" },
+      { label: "Caption", key: "caption" },
       { label: "Category", key: "category" },
       { label: "Display Order", key: "display_order" },
       { label: "Status", key: "is_active" },
@@ -91,14 +90,17 @@ export default function GalleryListPage() {
 
   const columns: Column<Gallery>[] = [
     {
-      header: "รูปภาพ",
-      accessorKey: "thumbnail_url",
-      cell: (v, row) => {
-        const imgUrl = v || row.image_url;
-        return imgUrl ? (
-          <img src={imgUrl} alt="" className="h-16 w-24 object-cover rounded" />
+      header: t("columns.image"),
+      accessorKey: "image_url",
+      cell: (v) => {
+        return v ? (
+          <img
+            src={v as string}
+            alt=""
+            className="h-16 w-24 rounded object-cover border border-zinc-200"
+          />
         ) : (
-          <div className="h-16 w-24 rounded bg-gray-200" />
+          <div className="h-16 w-24 rounded bg-zinc-100 border border-dashed border-zinc-200" />
         );
       },
     },
@@ -122,15 +124,15 @@ export default function GalleryListPage() {
     {
       header: "จัดการ",
       cell: (_, row) => (
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           <PermissionGuard resource="gallery" action="delete">
-            <Button
+            <button
+              type="button"
               onClick={() => handleDelete(row.id)}
-              variant="danger"
-              size="icon"
+              className="p-1.5 rounded hover:bg-red-50 text-zinc-500 hover:text-red-600 transition-colors"
             >
-              <Trash2 size={16} />
-            </Button>
+              <Icons.Delete size={16} />
+            </button>
           </PermissionGuard>
         </div>
       ),
@@ -144,6 +146,14 @@ export default function GalleryListPage() {
         breadcrumbs={[{ label: t("gallery.title") }]}
         actions={
           <div className="flex gap-2">
+            <Button
+              onClick={handleExportCsv}
+              variant="outline"
+              icon={<Icons.Download size={14} />}
+              className="shadow-sm"
+            >
+              Export CSV
+            </Button>
             <PermissionButton
               resource="gallery"
               action="create"
@@ -155,22 +165,13 @@ export default function GalleryListPage() {
             <PermissionButton
               resource="gallery"
               action="create"
-              icon={<Plus size={16} />}
+              icon={<Icons.Plus size={14} />}
             >
               <Link href="/admin/gallery/upload">{t("gallery.upload")}</Link>
             </PermissionButton>
           </div>
         }
       />
-      <div className="flex justify-between items-center mb-4 mt-4">
-        <div />
-        <button
-          onClick={handleExportCsv}
-          className="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
-        >
-          Export CSV
-        </button>
-      </div>
 
       <BulkActionToolbar
         selectedCount={selectedIds.selectedCount}
@@ -181,7 +182,7 @@ export default function GalleryListPage() {
             onClick={handleBulkDelete}
             className="flex items-center gap-2 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors text-sm font-medium"
           >
-            <Trash2 size={16} />
+            <Icons.Delete size={16} />
             {t("common.delete")}
           </button>
         </PermissionGuard>

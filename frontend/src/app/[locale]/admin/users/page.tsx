@@ -2,7 +2,6 @@
 
 import React from "react";
 import { Link } from "@/navigation";
-import { Plus, Pencil, Trash2 } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { PermissionButton } from "@/components/admin/PermissionButton";
@@ -19,6 +18,7 @@ import { useApiError } from "@/hooks/useApiError";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
 import { exportToCsv } from "@/utils/exportToCsv";
+import { Icons } from "@/components/ui/Icons";
 
 export default function UsersListPage() {
   const t = useTranslations("Admin");
@@ -112,23 +112,24 @@ export default function UsersListPage() {
     {
       header: "จัดการ",
       cell: (_, row) => (
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           <PermissionGuard resource="users" action="update">
             <Link
-              href={`/admin/users/${row.id}/edit`}
-              className="p-1.5 rounded hover:bg-gray-100 text-gray-500"
+              href={`/admin/users/${row.id}`}
+              className="p-1.5 rounded hover:bg-zinc-100 text-zinc-500 transition-colors"
             >
-              <Pencil size={16} />
+              <Icons.Edit size={16} />
             </Link>
           </PermissionGuard>
           <PermissionGuard resource="users" action="delete">
-            <Button
-              onClick={() => handleDelete(row.id)}
-              variant="danger"
-              size="icon"
+            <button
+              type="button"
+              onClick={() => handleDelete(String(row.id))}
+              className="p-1.5 rounded hover:bg-red-50 text-zinc-500 hover:text-red-600 transition-colors"
+              title={t("common.delete")}
             >
-              <Trash2 size={16} />
-            </Button>
+              <Icons.Delete size={16} />
+            </button>
           </PermissionGuard>
         </div>
       ),
@@ -141,24 +142,25 @@ export default function UsersListPage() {
         title={t("users.title")}
         breadcrumbs={[{ label: t("users.title") }]}
         actions={
-          <PermissionButton
-            resource="users"
-            action="create"
-            icon={<Plus size={16} />}
-          >
-            <Link href="/admin/users/create">{t("users.create")}</Link>
-          </PermissionButton>
+          <div className="flex gap-2">
+            <Button
+              onClick={handleExportCsv}
+              variant="outline"
+              icon={<Icons.Download size={14} />}
+              className="shadow-sm"
+            >
+              Export CSV
+            </Button>
+            <PermissionButton
+              resource="users"
+              action="create"
+              icon={<Icons.Plus size={14} />}
+            >
+              <Link href="/admin/users/create">{t("users.create")}</Link>
+            </PermissionButton>
+          </div>
         }
       />
-      <div className="flex justify-between items-center mb-4 mt-4">
-        <div />
-        <button
-          onClick={handleExportCsv}
-          className="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
-        >
-          Export CSV
-        </button>
-      </div>
 
       <BulkActionToolbar
         selectedCount={selectedIds.selectedCount}
@@ -169,25 +171,28 @@ export default function UsersListPage() {
             onClick={handleBulkDelete}
             className="flex items-center gap-2 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors text-sm font-medium"
           >
-            <Trash2 size={16} />
-            {t("common.delete")}
+            <Icons.Delete size={16} />
+            {t("common.bulkDelete")}
           </button>
         </PermissionGuard>
       </BulkActionToolbar>
 
-      <DataTable
-        columns={columns}
-        data={data}
-        pagination={pagination}
-        sorting={sort}
-        isLoading={isLoading}
-        onPageChange={onPageChange}
-        onSort={onSort}
-        selectable={true}
-        selectedIds={selectedIds.selectedIds as Set<string | number>}
-        onSelect={(id) => selectedIds.toggleSelection(id as string)}
-        onSelectAll={(ids) => selectedIds.selectAll(ids as string[])}
-      />
+      <div className="mt-6">
+        <DataTable
+          columns={columns}
+          data={data}
+          pagination={pagination}
+          sorting={sort}
+          isLoading={isLoading}
+          onPageChange={onPageChange}
+          onSort={onSort}
+          selectable={true}
+          selectedIds={selectedIds.selectedIds as Set<string | number>}
+          onSelect={(id) => selectedIds.toggleSelection(id as string)}
+          onSelectAll={(ids) => selectedIds.selectAll(ids as string[])}
+        />
+      </div>
+
       <ConfirmDialog />
     </div>
   );

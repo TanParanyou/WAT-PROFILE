@@ -1,22 +1,32 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useMockMediaStore, MockMedia } from "@/stores/mock-media-store";
 import { MediaDetailsSidebar } from "@/components/admin/website/MediaDetailsSidebar";
 import { Button } from "@/components/ui/Button";
+import { Loader2, Upload } from "lucide-react";
 
 export default function MediaLibraryPage() {
-  const mediaList = useMockMediaStore((s) => s.mediaList);
-  const addMedia = useMockMediaStore((s) => s.addMedia);
+  const { mediaList, isLoading, isUploading, fetchMedia, addMedia } = useMockMediaStore();
   const [selectedMedia, setSelectedMedia] = useState<MockMedia | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
-  const handleMockUpload = () => {
-    const mockUrls = [
-      "https://images.unsplash.com/photo-1590076275577-468b960f9a67?w=500&auto=format&fit=crop&q=60",
-      "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=500&auto=format&fit=crop&q=60",
-    ];
-    const randomUrl = mockUrls[Math.floor(Math.random() * mockUrls.length)];
-    addMedia(randomUrl, `upload-${Date.now().toString().slice(-4)}.jpg`);
+  useEffect(() => {
+    fetchMedia();
+  }, [fetchMedia]);
+
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    // Simulate uploading local file by creating a blob URL
+    const url = URL.createObjectURL(file);
+    await addMedia(url, file.name);
+    
+    // Reset input
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
   return (
@@ -27,23 +37,45 @@ export default function MediaLibraryPage() {
             <h1 className="text-xl font-semibold text-zinc-950">Media Library</h1>
             <p className="text-sm text-zinc-500">Manage public content media files</p>
           </div>
-          <Button onClick={handleMockUpload} className="text-xs uppercase tracking-wider">
-            Upload Mock Image
-          </Button>
-        </div>
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-5">
-          {mediaList.map((media) => (
-            <button
-              key={media.id}
-              onClick={() => setSelectedMedia(media)}
-              className={`group relative aspect-video overflow-hidden border bg-zinc-50 ${
-                selectedMedia?.id === media.id ? "border-zinc-950" : "border-zinc-200"
-              }`}
+          
+          <div>
+            <input 
+              type="file" 
+              accept="image/*" 
+              className="hidden" 
+              ref={fileInputRef}
+              onChange={handleFileUpload} 
+            />
+            <Button 
+              onClick={() => fileInputRef.current?.click()} 
+              disabled={isUploading} 
+              className="text-xs uppercase tracking-wider flex items-center gap-2"
             >
-              <img src={media.url} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
-            </button>
-          ))}
+              {isUploading ? <Loader2 className="w-4 h-4 animate-spin" /> : <Upload className="w-4 h-4" />}
+              {isUploading ? "Uploading..." : "Upload Image"}
+            </Button>
+          </div>
         </div>
+        
+        {isLoading ? (
+          <div className="flex h-64 items-center justify-center">
+            <Loader2 className="w-8 h-8 animate-spin text-zinc-400" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-5">
+            {mediaList.map((media) => (
+              <button
+                key={media.id}
+                onClick={() => setSelectedMedia(media)}
+                className={`group relative aspect-video overflow-hidden border bg-zinc-50 ${
+                  selectedMedia?.id === media.id ? "border-zinc-950" : "border-zinc-200"
+                }`}
+              >
+                <img src={media.url} alt="" className="h-full w-full object-cover transition group-hover:scale-105" />
+              </button>
+            ))}
+          </div>
+        )}
       </div>
       <MediaDetailsSidebar media={selectedMedia} onClose={() => setSelectedMedia(null)} />
     </div>

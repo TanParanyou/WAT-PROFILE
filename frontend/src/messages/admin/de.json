@@ -4,8 +4,53 @@
     "header": { "logout": "Abmelden", "language": "Sprache", "profile": "Profil", "th": "ไทย", "en": "English", "de": "Deutsch" },
     "common": { "create": "Erstellen", "edit": "Bearbeiten", "delete": "Löschen", "save": "Speichern", "cancel": "Abbrechen", "search": "Suchen...", "loading": "Laden...", "noData": "Keine Daten gefunden", "confirmDelete": "Sind Sie sicher, dass Sie diesen Eintrag löschen möchten?", "success": "Erfolgreich", "error": "Ein Fehler ist aufgetreten", "actions": "Aktionen", "refresh": "Aktualisieren", "selectedItems": "{count} Einträge ausgewählt", "clear": "Auswahl aufheben", "exportCsv": "CSV exportieren", "bulkDelete": "Ausgewählte löschen", "noChanges": "Keine Änderungen", "saveChanges": "Änderungen speichern" },
     "dashboard": { "welcome": "Hallo", "welcomeMessage": "Willkommen im Tempelverwaltungssystem", "events": "Veranstaltungen", "monks": "Mönche", "gallery": "Galerie", "schedules": "Zeitplan", "donations": "Spenden", "members": "Mitglieder", "contacts": "Kontaktnachrichten" },
-    "events": { "title": "Veranstaltungen", "create": "Veranstaltung erstellen", "edit": "Veranstaltung bearbeiten" },
-    "monks": { "title": "Mönche", "create": "Mönch hinzufügen", "edit": "Mönch bearbeiten" },
+    "events": {
+      "title": "Veranstaltungen",
+      "create": "Veranstaltung erstellen",
+      "edit": "Veranstaltung bearbeiten",
+      "backToList": "Zurück zur Veranstaltungsliste",
+      "createDesc": "Details und Zeitplan für die Tempelveranstaltung festlegen",
+      "editDesc": "Details und Zeitplan für die Tempelveranstaltung ändern",
+      "formError": "Bitte korrigieren Sie die Fehler im Formular vor dem Speichern",
+      "tabs": {
+        "general": "Allgemeine Info",
+        "details": "Datum & Ort",
+        "schedule": "Zeitplan"
+      },
+      "form": {
+        "title": "Veranstaltungstitel *",
+        "slug": "Slug (für URL) *",
+        "description": "Veranstaltungsbeschreibung",
+        "image": "Titelbild",
+        "date": "Veranstaltungsdatum *",
+        "type": "Veranstaltungstyp *",
+        "start": "Startzeit",
+        "end": "Endzeit",
+        "location": "Ort",
+        "map": "Google Maps Link (Embed Link)"
+      },
+      "types": {
+        "ceremony": "Zeremonie",
+        "meditation_course": "Meditationskurs",
+        "festival": "Fest",
+        "other": "Andere"
+      },
+      "schedule": {
+        "title": "Veranstaltungszeitplan & Aktivitäten",
+        "description": "Fügen Sie die Abfolge der Aktivitäten, Daten, Uhrzeiten und Beschreibungen hinzu, die auf der öffentlichen Website angezeigt werden sollen (zum Neuanordnen ziehen und ablegen).",
+        "add": "Aktivität hinzufügen",
+        "empty": "Für diese Veranstaltung wurde noch kein Zeitplan hinzugefügt",
+        "createFirst": "Klicken Sie hier, um das erste Element hinzuzufügen",
+        "itemOrder": "Nr. {index}",
+        "moveUp": "Nach oben",
+        "moveDown": "Nach unten",
+        "delete": "Löschen",
+        "timeLabel": "Zeit (z. B. 09:00 - 14:00 oder Fr. - So.) *",
+        "dayLabel": "Datum/Tag-Kopfzeile (Optional - zum Gruppieren von Aktivitäten)",
+        "activityLabel": "Aktivität/Details *"
+      }
+    },
+    "monks": { "title": "Mönche", "create": "Mönch hinzufügen", "edit": "Mönch bearbeiten", "positions": { "abbot": "Abt", "vice_abbot": "Vizeabt", "monk": "Mönch" } },
     "gallery": { "title": "Galerie", "upload": "Bilder hochladen", "categories": "Kategorien verwalten" },
     "donations": { "title": "Spenden", "receiptNumber": "Quittungsnr.", "donor": "Spender", "amount": "Betrag", "method": "Methode", "anonymous": "Anonym" },
     "schedules": { "title": "Zeitplan", "create": "Zeitplan hinzufügen", "edit": "Zeitplan bearbeiten", "type": "Typ", "day": "Tag", "time": "Zeit", "activity": "Aktivität", "location": "Ort", "onlineLink": "Online-Link", "daily": "Täglich", "weekly": "Wöchentlich", "special": "Besonders", "selectType": "Typ auswählen", "selectDay": "Tag auswählen", "timeStart": "Startzeit", "timeEnd": "Endzeit", "days": { "sun": "Sonntag", "mon": "Montag", "tue": "Dienstag", "wed": "Mittwoch", "thu": "Donnerstag", "fri": "Freitag", "sat": "Samstag" } },

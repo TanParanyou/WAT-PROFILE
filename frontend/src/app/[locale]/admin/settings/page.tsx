@@ -1,7 +1,6 @@
 'use client';
 
 import React, { useState, useEffect } from 'react';
-import { Save } from 'lucide-react';
 import { useTranslations } from 'next-intl';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { Input } from '@/components/ui/Input';
@@ -12,6 +11,7 @@ import { PageLoading } from '@/components/ui/Loading';
 import { settingsAdminService } from '@/services/adminService';
 import { useToast } from '@/hooks/useToast';
 import type { Setting } from '@/types/entities';
+import { Icons } from '@/components/ui/Icons';
 
 export default function SettingsPage() {
     const t = useTranslations('Admin');
@@ -95,11 +95,32 @@ export default function SettingsPage() {
                         </div>
                     </div>
                 ))}
-                <div className="flex justify-end">
-                    <Button onClick={handleSave} disabled={isSaving || Object.keys(changes).length === 0} isLoading={isSaving}>
-                        <Save size={16} className="mr-2" />{t('common.saveChanges')}
-                    </Button>
-                </div>
+            {/* Sticky Action Bar */}
+            <div className="sticky bottom-0 z-40 -mx-4 -mb-4 mt-8 flex items-center justify-between border-t border-zinc-200 bg-white/80 px-4 py-4 backdrop-blur-md sm:-mx-6 sm:-mb-6 sm:px-6">
+              <div className="flex items-center gap-3">
+                {Object.keys(changes).length > 0 && (
+                  <span className="flex items-center gap-1.5 text-xs font-medium text-amber-600">
+                    <span className="relative flex h-2 w-2">
+                      <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
+                      <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500"></span>
+                    </span>
+                    มีข้อมูลที่ยังไม่ได้เซฟ
+                  </span>
+                )}
+              </div>
+              <div className="flex gap-3 w-full sm:w-auto justify-end">
+                <Button
+                  onClick={handleSave}
+                  disabled={isSaving || Object.keys(changes).length === 0}
+                  isLoading={isSaving}
+                  icon={<Icons.Save size={16} />}
+                  variant="primary"
+                  className="w-full sm:w-auto shadow-sm"
+                >
+                  {t("common.saveChanges")}
+                </Button>
+              </div>
+            </div>
             </div>
         </div>
     );

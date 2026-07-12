@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import { Plus, Pencil, Trash2 } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -30,6 +29,9 @@ import {
   defaultScheduleValues,
 } from "@/schemas/schedule.schema";
 
+import { useAppOptions } from "@/hooks/useAppOptions";
+import { Icons } from "@/components/ui/Icons";
+
 const emptyLang: MultiLangText = { th: "", en: "", de: "" };
 
 export default function SchedulesPage() {
@@ -40,6 +42,16 @@ export default function SchedulesPage() {
   const [editingSchedule, setEditingSchedule] = useState<Schedule | null>(null);
   const [isSaving, setIsSaving] = useState(false);
   const selectedIds = useRowSelection();
+
+  const {
+    getScheduleTypeOptions,
+    getDayOfWeekOptions,
+    getScheduleTypeLabel,
+    getDayOfWeekLabel,
+  } = useAppOptions();
+
+  const scheduleTypeOptions = getScheduleTypeOptions(true);
+  const dayOfWeekOptions = getDayOfWeekOptions(true);
 
   const {
     control,
@@ -55,34 +67,14 @@ export default function SchedulesPage() {
 
   const scheduleType = watch("schedule_type");
 
-  const scheduleTypeOptions = [
-    { value: "", label: t("schedules.selectType") },
-    { value: "daily", label: t("schedules.daily") },
-    { value: "weekly", label: t("schedules.weekly") },
-    { value: "special", label: t("schedules.special") },
-  ];
-
-  const dayKeys = ["sun", "mon", "tue", "wed", "thu", "fri", "sat"] as const;
-  const dayOfWeekOptions = [
-    { value: "", label: t("schedules.selectDay") },
-    ...dayKeys.map((key, i) => ({
-      value: String(i),
-      label: t(`schedules.days.${key}`),
-    })),
-  ];
-
   const { data, pagination, sort, onPageChange, onSort, isLoading, fetchData } =
     useDataTable<Schedule>({
       fetcher: (p) =>
         scheduleAdminService.getAll({ page: p.page, limit: p.limit }),
     });
 
-  const getTypeLabel = (type: string) =>
-    scheduleTypeOptions.find((o) => o.value === type)?.label || type;
-  const getDayLabel = (day: number | null) =>
-    day !== null
-      ? dayOfWeekOptions.find((o) => o.value === String(day))?.label || "-"
-      : "-";
+  const getTypeLabel = (type: string) => getScheduleTypeLabel(type);
+  const getDayLabel = (day: number | null) => getDayOfWeekLabel(day);
 
   const handleCreate = () => {
     setEditingSchedule(null);
@@ -229,24 +221,24 @@ export default function SchedulesPage() {
     {
       header: t("columns.actions"),
       cell: (_, row) => (
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           <PermissionGuard resource="schedules" action="update">
-            <Button
+            <button
+              type="button"
               onClick={() => handleEdit(row)}
-              variant="ghost"
-              size="icon"
+              className="p-1.5 rounded hover:bg-zinc-100 text-zinc-500 transition-colors"
             >
-              <Pencil size={16} />
-            </Button>
+              <Icons.Edit size={16} />
+            </button>
           </PermissionGuard>
           <PermissionGuard resource="schedules" action="delete">
-            <Button
+            <button
+              type="button"
               onClick={() => handleDelete(row)}
-              variant="danger"
-              size="icon"
+              className="p-1.5 rounded hover:bg-red-50 text-zinc-500 hover:text-red-600 transition-colors"
             >
-              <Trash2 size={16} />
-            </Button>
+              <Icons.Delete size={16} />
+            </button>
           </PermissionGuard>
         </div>
       ),
@@ -259,26 +251,26 @@ export default function SchedulesPage() {
         title={t("schedules.title")}
         breadcrumbs={[{ label: t("schedules.title") }]}
         actions={
-          <PermissionButton
-            resource="schedules"
-            action="create"
-            icon={<Plus size={16} />}
-            onClick={handleCreate}
-          >
-            {t("schedules.create")}
-          </PermissionButton>
+          <div className="flex gap-2">
+            <Button
+              onClick={handleExportCsv}
+              variant="outline"
+              icon={<Icons.Download size={14} />}
+              className="shadow-sm"
+            >
+              {t("common.exportCsv")}
+            </Button>
+            <PermissionButton
+              resource="schedules"
+              action="create"
+              icon={<Icons.Plus size={14} />}
+              onClick={handleCreate}
+            >
+              {t("schedules.create")}
+            </PermissionButton>
+          </div>
         }
       />
-
-      <div className="flex justify-between items-center mb-4 mt-4">
-        <div />
-        <button
-          onClick={handleExportCsv}
-          className="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
-        >
-          {t("common.exportCsv")}
-        </button>
-      </div>
 
       <BulkActionToolbar
         selectedCount={selectedIds.selectedCount}
@@ -289,7 +281,7 @@ export default function SchedulesPage() {
             onClick={handleBulkDelete}
             className="flex items-center gap-2 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors text-sm font-medium"
           >
-            <Trash2 size={16} />
+            <Icons.Delete size={16} />
             {t("common.bulkDelete")}
           </button>
         </PermissionGuard>
