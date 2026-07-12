@@ -1,4 +1,5 @@
-import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
+import { useState, useMemo, useCallback } from 'react';
+import { useQuery } from '@tanstack/react-query';
 
 export type SortOrder = 'asc' | 'desc';
 
@@ -27,6 +28,7 @@ export interface UseDataTableOptions<T> {
     initialLimit?: number;
     initialSort?: SortState;
     fetcher?: (params: FetcherParams) => Promise<{ data: T[]; total: number }>;
+    queryKey?: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -35,47 +37,37 @@ export function useDataTable<T extends Record<string, any>>({
     initialLimit = 10,
     initialSort = { key: null, order: 'asc' },
     fetcher,
+    queryKey = 'datatable',
 }: UseDataTableOptions<T>) {
-    const [localData, setLocalData] = useState<T[]>(data);
     const [page, setPage] = useState(1);
     const [limit] = useState(initialLimit);
     const [searchQuery, setSearchQuery] = useState('');
     const [sort, setSort] = useState<SortState>(initialSort);
-    const [isLoading, setIsLoading] = useState(!!fetcher);
-    const [totalItems, setTotalItems] = useState(0);
 
-    const fetcherRef = useRef(fetcher);
-    useEffect(() => {
-        fetcherRef.current = fetcher;
-    }, [fetcher]);
-
-    // Server-side fetch
-    const fetchData = useCallback(async () => {
-        const currentFetcher = fetcherRef.current;
-        if (!currentFetcher) return;
-        setIsLoading(true);
-        try {
-            const result = await currentFetcher({
+    // Using TanStack Query for server-side fetching under the hood
+    const { 
+        data: serverDataPayload, 
+        isLoading, 
+        refetch 
+    } = useQuery({
+        queryKey: [queryKey, page, limit, searchQuery, sort],
+        queryFn: async () => {
+            if (!fetcher) return { data: [], total: 0 };
+            return fetcher({
                 page,
                 limit,
                 search: searchQuery,
                 sortKey: sort.key,
                 sortOrder: sort.order,
             });
-            setLocalData(result.data || []);
-            setTotalItems(result.total);
-        } catch (error) {
-            console.error('Failed to fetch data:', error);
-        } finally {
-            setIsLoading(false);
-        }
-    }, [page, limit, searchQuery, sort]);
+        },
+        enabled: !!fetcher,
+    });
 
-    useEffect(() => {
-        if (fetcher) fetchData();
-    }, [fetchData, fetcher]);
+    const localData = serverDataPayload?.data || [];
+    const totalItems = serverDataPayload?.total || 0;
 
-    // Client-side filtering & sorting
+    // Client-side filtering & sorting (fallback if no fetcher is provided)
     const processedData = useMemo(() => {
         if (fetcher) return localData;
 
@@ -130,6 +122,9 @@ export function useDataTable<T extends Record<string, any>>({
         }));
     }, []);
 
+    // Placeholder function for compatibility
+    const setDummyData = () => {};
+
     return {
         data: displayedData,
         pagination: { page, limit, totalPages, totalItems: finalTotalItems },
@@ -139,7 +134,7 @@ export function useDataTable<T extends Record<string, any>>({
         onPageChange: handlePageChange,
         onSearch: handleSearch,
         onSort: handleSort,
-        fetchData,
-        setData: setLocalData,
+        fetchData: refetch,
+        setData: setDummyData,
     };
 }
