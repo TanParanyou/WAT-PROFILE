@@ -82,69 +82,27 @@ const toPublicPage = (page: ContentPage): PublicContentPage => contentPageToPubl
 
 export const websiteCmsAdminService = {
   async listPages() {
-    if (useMockWebsiteCms) {
-      return pages.map((page) => normalizePage(clonePage(page)));
-    }
-
     const res = await api.get<ApiResponse<ContentPage[]>>("/admin/website/pages");
     const payload = unwrapApiResponse(res.data, "Failed to fetch content pages");
     return payload.map(normalizePage);
   },
 
   async getPage(pageKey: string) {
-    if (useMockWebsiteCms) {
-      const page = pages.find((item) => item.page_key === pageKey || item.slug === pageKey);
-      if (!page) throw new Error("Page not found");
-      return normalizePage(clonePage(page));
-    }
-
     const res = await api.get<ApiResponse<ContentPage>>(`/admin/website/pages/${pageKey}`);
     return normalizePage(unwrapApiResponse(res.data, "Page not found"));
   },
 
   async updatePage(id: string, payload: Partial<ContentPage>) {
-    if (useMockWebsiteCms) {
-      const page = pages.find((item) => item.id === id);
-      if (!page) throw new Error("Page not found");
-      Object.assign(page, payload, { updated_at: new Date().toISOString() });
-      return normalizePage(clonePage(page));
-    }
-
     const res = await api.put<ApiResponse<ContentPage>>(`/admin/website/pages/${id}`, payload);
     return normalizePage(unwrapApiResponse(res.data, "Failed to update content page"));
   },
 
   async updateSection(id: string, payload: Partial<ContentSection>) {
-    if (useMockWebsiteCms) {
-      for (const page of pages) {
-        const index = page.sections.findIndex((section) => section.id === id);
-        if (index >= 0) {
-          page.sections[index] = {
-            ...page.sections[index],
-            ...payload,
-            updated_at: new Date().toISOString(),
-          };
-          page.updated_at = new Date().toISOString();
-          return normalizeSection(cloneSection(page.sections[index]));
-        }
-      }
-      throw new Error("Section not found");
-    }
-
     const res = await api.put<ApiResponse<ContentSection>>(`/admin/website/sections/${id}`, payload);
     return normalizeSection(unwrapApiResponse(res.data, "Failed to update content section"));
   },
 
   async createSection(pageId: string, sectionType: string) {
-    if (useMockWebsiteCms) {
-      const page = pages.find((item) => item.id === pageId);
-      if (!page) throw new Error("Page not found");
-      const nextSection = createSectionTemplate(page, sectionType);
-      page.sections = [...page.sections, nextSection];
-      page.updated_at = new Date().toISOString();
-      return normalizeSection(cloneSection(nextSection));
-    }
-
     const request: CreateContentSectionRequest = {
       section_type: sectionType,
     };
@@ -153,17 +111,6 @@ export const websiteCmsAdminService = {
   },
 
   async reorderSections(pageId: string, sectionIds: string[]) {
-    if (useMockWebsiteCms) {
-      const page = pages.find((item) => item.id === pageId);
-      if (!page) throw new Error("Page not found");
-      page.sections = reorderSectionsByIds(page.sections, sectionIds).map((item) => ({
-        ...item,
-        updated_at: new Date().toISOString(),
-      }));
-      page.updated_at = new Date().toISOString();
-      return normalizePage(clonePage(page));
-    }
-
     const request: ReorderContentSectionsRequest = {
       section_ids: sectionIds,
     };
@@ -172,91 +119,23 @@ export const websiteCmsAdminService = {
   },
 
   async archiveSection(id: string) {
-    if (useMockWebsiteCms) {
-      for (const page of pages) {
-        const index = page.sections.findIndex((section) => section.id === id);
-        if (index < 0) continue;
-        page.sections[index] = {
-          ...page.sections[index],
-          status: "archived",
-          updated_at: new Date().toISOString(),
-        };
-        page.updated_at = new Date().toISOString();
-        return normalizeSection(cloneSection(page.sections[index]));
-      }
-      throw new Error("Section not found");
-    }
-
     const request: ArchiveContentSectionRequest = { archived: true };
     const res = await api.post<ApiResponse<ContentSection>>(`/admin/website/sections/${id}/archive`, request);
     return normalizeSection(unwrapApiResponse(res.data, "Failed to archive section"));
   },
 
   async restoreSection(id: string) {
-    if (useMockWebsiteCms) {
-      for (const page of pages) {
-        const index = page.sections.findIndex((section) => section.id === id);
-        if (index < 0) continue;
-        page.sections[index] = {
-          ...page.sections[index],
-          status: "draft",
-          updated_at: new Date().toISOString(),
-        };
-        page.updated_at = new Date().toISOString();
-        return normalizeSection(cloneSection(page.sections[index]));
-      }
-      throw new Error("Section not found");
-    }
-
     const request: ArchiveContentSectionRequest = { archived: false };
     const res = await api.post<ApiResponse<ContentSection>>(`/admin/website/sections/${id}/restore`, request);
     return normalizeSection(unwrapApiResponse(res.data, "Failed to restore section"));
   },
 
   async duplicateSection(id: string, payload: DuplicateContentSectionRequest = {}) {
-    if (useMockWebsiteCms) {
-      for (const page of pages) {
-        const source = page.sections.find((section) => section.id === id);
-        if (!source) continue;
-        const duplicate = duplicateSectionTemplate(page, source);
-        if (payload.section_key) {
-          duplicate.section_key = payload.section_key;
-        }
-        page.sections = [...page.sections, duplicate];
-        page.updated_at = new Date().toISOString();
-        return normalizeSection(cloneSection(duplicate));
-      }
-      throw new Error("Section not found");
-    }
-
     const res = await api.post<ApiResponse<ContentSection>>(`/admin/website/sections/${id}/duplicate`, payload);
     return normalizeSection(unwrapApiResponse(res.data, "Failed to duplicate section"));
   },
 
   async publishPage(id: string) {
-    if (useMockWebsiteCms) {
-      const page = pages.find((item) => item.id === id);
-      if (!page) throw new Error("Page not found");
-      const now = new Date().toISOString();
-      page.status = "published";
-      page.published_title = page.title;
-      page.published_description = page.description;
-      page.published_seo = page.seo;
-      page.published_body = page.body;
-      page.published_settings = page.settings;
-      page.published_at = now;
-      page.sections = page.sections.map((section) => ({
-        ...section,
-        status: "published",
-        published_title: section.title,
-        published_description: section.description,
-        published_body: section.body,
-        published_settings: section.settings,
-        published_at: now,
-      }));
-      return normalizePage(clonePage(page));
-    }
-
     const res = await api.post<ApiResponse<ContentPage>>(`/admin/website/pages/${id}/publish`);
     return normalizePage(unwrapApiResponse(res.data, "Failed to publish content page"));
   },
