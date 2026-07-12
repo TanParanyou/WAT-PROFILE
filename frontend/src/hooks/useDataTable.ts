@@ -1,4 +1,4 @@
-import { useState, useMemo, useCallback, useEffect } from 'react';
+import { useState, useMemo, useCallback, useEffect, useRef } from 'react';
 
 export type SortOrder = 'asc' | 'desc';
 
@@ -44,12 +44,18 @@ export function useDataTable<T extends Record<string, any>>({
     const [isLoading, setIsLoading] = useState(!!fetcher);
     const [totalItems, setTotalItems] = useState(0);
 
+    const fetcherRef = useRef(fetcher);
+    useEffect(() => {
+        fetcherRef.current = fetcher;
+    }, [fetcher]);
+
     // Server-side fetch
     const fetchData = useCallback(async () => {
-        if (!fetcher) return;
+        const currentFetcher = fetcherRef.current;
+        if (!currentFetcher) return;
         setIsLoading(true);
         try {
-            const result = await fetcher({
+            const result = await currentFetcher({
                 page,
                 limit,
                 search: searchQuery,
@@ -63,11 +69,11 @@ export function useDataTable<T extends Record<string, any>>({
         } finally {
             setIsLoading(false);
         }
-    }, [fetcher, page, limit, searchQuery, sort]);
+    }, [page, limit, searchQuery, sort]);
 
     useEffect(() => {
         if (fetcher) fetchData();
-    }, [fetchData]);
+    }, [fetchData, fetcher]);
 
     // Client-side filtering & sorting
     const processedData = useMemo(() => {
