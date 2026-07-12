@@ -58,20 +58,11 @@ export const siteSettingsPublicService = {
 
 export const siteSettingsAdminService = {
   async getContactSettings() {
-    if (useMockSiteSettings) {
-      return getDefaultContactSettings();
-    }
-
     const res = await api.get<ApiResponse<GlobalContactSettings>>("/admin/website/settings/contact");
     return normalizeContactSettings(unwrapApiResponse(res.data, "Failed to fetch contact settings"));
   },
 
   async updateContactSettings(payload: GlobalContactSettings) {
-    if (useMockSiteSettings) {
-      siteSettingsStore.contact = normalizeContactSettings(clone(payload));
-      return getDefaultContactSettings();
-    }
-
     const res = await api.put<ApiResponse<GlobalContactSettings>>("/admin/website/settings/contact", payload);
     return normalizeContactSettings(unwrapApiResponse(res.data, "Failed to update contact settings"));
   },
