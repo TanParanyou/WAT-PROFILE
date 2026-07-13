@@ -7,10 +7,11 @@ import { cn } from '@/utils/cn';
 interface InputProps extends React.InputHTMLAttributes<HTMLInputElement> {
     label?: string;
     error?: string;
+    required?: boolean;
 }
 
 const Input = React.forwardRef<HTMLInputElement, InputProps>(
-    ({ className, type = 'text', label, error, id, ...props }, ref) => {
+    ({ className, type = 'text', label, error, id, required, ...props }, ref) => {
         const [showPassword, setShowPassword] = useState(false);
         const isPassword = type === 'password';
         const inputType = isPassword ? (showPassword ? 'text' : 'password') : type;
@@ -20,12 +21,14 @@ const Input = React.forwardRef<HTMLInputElement, InputProps>(
                 {label && (
                     <label htmlFor={id} className="text-sm font-medium text-gray-700 flex items-center min-h-[24px]">
                         {label}
+                        {required && <span className="text-red-500 ml-1">*</span>}
                     </label>
                 )}
                 <div className="relative">
                     <input
                         type={inputType}
                         id={id}
+                        required={required}
                         className={cn(
                             'w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400',
                             'focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500',

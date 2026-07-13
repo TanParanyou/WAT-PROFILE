@@ -76,6 +76,19 @@ func (h *DonationHandler) GetDonationStats(c *fiber.Ctx) error {
 }
 
 // UpdateDonation - Admin: Update donation
+// GetDonationByID - Admin: Get single donation by ID
+func (h *DonationHandler) GetDonationByID(c *fiber.Ctx) error {
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+	item, err := h.donationService.GetByID(id)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusNotFound, "Donation not found")
+	}
+	return utils.SuccessResponse(c, item)
+}
+
 func (h *DonationHandler) UpdateDonation(c *fiber.Ctx) error {
 	id, err := utils.ParseID(c, "id")
 	if err != nil {

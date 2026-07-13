@@ -21,8 +21,11 @@ import { Drawer } from "@/components/ui/Drawer";
 import { IframePreview } from "@/components/ui/IframePreview";
 import { Icons } from "@/components/ui/Icons";
 
+import { useDateFormat } from "@/hooks/useDateFormat";
+
 export default function EventsListPage() {
   const t = useTranslations("Admin");
+  const { formatDateRange } = useDateFormat();
   const { data, pagination, sort, isLoading, onPageChange, onSort, fetchData } =
     useDataTable<Event>({
       fetcher: (p) =>
@@ -76,9 +79,7 @@ export default function EventsListPage() {
       "title.th": event.title?.th || "",
       "title.en": event.title?.en || "",
       event_type: event.event_type || "",
-      event_date: event.event_date
-        ? new Date(event.event_date).toLocaleDateString("th-TH")
-        : "",
+      event_date: formatDateRange(event.start_date, event.end_date),
       is_active: event.is_active ? "Active" : "Inactive",
     }));
 
@@ -102,9 +103,8 @@ export default function EventsListPage() {
     { header: "ประเภท", accessorKey: "event_type", sortable: true },
     {
       header: "วันที่",
-      accessorKey: "event_date",
-      cell: (v) =>
-        v ? new Date(v as string).toLocaleDateString("th-TH") : "-",
+      accessorKey: "start_date",
+      cell: (_, row) => formatDateRange(row.start_date, row.end_date),
       sortable: true,
     },
     {

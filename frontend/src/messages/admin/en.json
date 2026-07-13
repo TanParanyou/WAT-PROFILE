@@ -45,7 +45,8 @@
         "moveUp": "Move Up",
         "moveDown": "Move Down",
         "delete": "Delete",
-        "timeLabel": "Time (e.g., 09:00 - 14:00 or Fr. - So.) *",
+        "startTimeLabel": "Start Time *",
+        "endTimeLabel": "End Time *",
         "dayLabel": "Date/Day Header (Optional - to group activities)",
         "activityLabel": "Activity/Details *"
       }

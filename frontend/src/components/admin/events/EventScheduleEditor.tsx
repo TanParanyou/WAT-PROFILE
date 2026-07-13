@@ -11,8 +11,8 @@ import type { MultiLangText, MultiLangError } from "@/types/api";
 import { useTranslations } from "next-intl";
 
 interface ScheduleItemError {
-  time?: { message?: string };
-  day?: MultiLangError;
+  start_time?: { message?: string };
+  end_time?: { message?: string };
   activity?: MultiLangError;
 }
 
@@ -26,8 +26,8 @@ export function EventScheduleEditor() {
 
   const handleAdd = () => {
     append({
-      day: { th: "", en: "", de: "" },
-      time: "",
+      start_time: "",
+      end_time: "",
       activity: { th: "", en: "", de: "" },
     });
   };
@@ -127,36 +127,28 @@ export function EventScheduleEditor() {
                   </div>
                 </div>
 
-                {/* Grid layout: stacked on mobile, side-by-side on desktop */}
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                  {/* Time field */}
-                  <div className="md:col-span-1">
+                {/* Grid layout for Time */}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Start Time field */}
+                  <div className="col-span-1">
                     <Input
-                      id={`schedule.${index}.time`}
-                      label={t("events.schedule.timeLabel")}
-                      placeholder="09:00 - 14:00"
-                      {...register(`schedule.${index}.time`)}
-                      error={itemErrors?.time?.message}
+                      id={`schedule.${index}.start_time`}
+                      label={t("events.schedule.startTimeLabel")}
+                      type="time"
+                      {...register(`schedule.${index}.start_time`)}
+                      error={itemErrors?.start_time?.message}
+                      required={true}
                     />
                   </div>
-
-                  {/* Day (Multi-lang) field */}
-                  <div className="md:col-span-2">
-                    <Controller
-                      control={control}
-                      name={`schedule.${index}.day`}
-                      render={({ field: controllerField }) => (
-                        <MultiLangInput
-                          label={t("events.schedule.dayLabel")}
-                          value={(controllerField.value || { th: "", en: "", de: "" }) as MultiLangText}
-                          onChange={controllerField.onChange}
-                          error={
-                            itemErrors?.day?.th?.message ||
-                            itemErrors?.day?.en?.message ||
-                            itemErrors?.day?.de?.message
-                          }
-                        />
-                      )}
+                  {/* End Time field */}
+                  <div className="col-span-1">
+                    <Input
+                      id={`schedule.${index}.end_time`}
+                      label={t("events.schedule.endTimeLabel")}
+                      type="time"
+                      {...register(`schedule.${index}.end_time`)}
+                      error={itemErrors?.end_time?.message}
+                      required={true}
                     />
                   </div>
                 </div>

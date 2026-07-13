@@ -12,9 +12,15 @@ func SuccessResponse(c *fiber.Ctx, data interface{}) error {
 
 // ErrorResponse sends an error JSON response
 func ErrorResponse(c *fiber.Ctx, statusCode int, message string) error {
+	traceID := c.Get("X-Trace-Id")
+	if traceID == "" {
+		traceID = c.GetRespHeader("X-Trace-Id")
+	}
+
 	return c.Status(statusCode).JSON(fiber.Map{
-		"success": false,
-		"error":   message,
+		"success":  false,
+		"error":    message,
+		"trace_id": traceID,
 	})
 }
 

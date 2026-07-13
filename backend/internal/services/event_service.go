@@ -17,7 +17,7 @@ func NewEventService(db *gorm.DB) *EventService {
 func (s *EventService) ListActive() ([]models.Event, error) {
 	var events []models.Event
 	err := s.db.Where("is_active = ?", true).
-		Order("event_date DESC").
+		Order("start_date DESC").
 		Preload("Schedules").
 		Find(&events).Error
 	return events, err

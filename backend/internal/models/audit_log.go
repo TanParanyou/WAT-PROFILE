@@ -15,7 +15,7 @@ type AuditLog struct {
 	Action     string                 `gorm:"size:50;not null;index" json:"action"` // 'create', 'update', 'delete'
 	EntityType string                 `gorm:"size:100;index" json:"entity_type"`    // 'user', 'post', etc.
 	EntityID   string                 `gorm:"size:255;index" json:"entity_id"`
-	Changes    map[string]interface{} `gorm:"type:jsonb" json:"changes"` // Old/new values
+	Changes    JSONMap                `gorm:"type:jsonb" json:"changes"` // Old/new values
 	IPAddress  string                 `gorm:"size:45" json:"ip_address"`
 	UserAgent  string                 `gorm:"type:text" json:"user_agent"`
 	CreatedAt  time.Time              `gorm:"index:idx_audit_logs_created_desc" json:"created_at"`

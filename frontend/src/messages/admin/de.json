@@ -45,7 +45,8 @@
         "moveUp": "Nach oben",
         "moveDown": "Nach unten",
         "delete": "Löschen",
-        "timeLabel": "Zeit (z. B. 09:00 - 14:00 oder Fr. - So.) *",
+        "startTimeLabel": "Startzeit *",
+        "endTimeLabel": "Endzeit *",
         "dayLabel": "Datum/Tag-Kopfzeile (Optional - zum Gruppieren von Aktivitäten)",
         "activityLabel": "Aktivität/Details *"
       }

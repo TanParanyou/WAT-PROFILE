@@ -22,8 +22,11 @@ import { eventSchema, type EventFormData } from "@/schemas/event.schema";
 import { FileText, MapPin, Clock, Save, ArrowLeft } from "lucide-react";
 import { EventScheduleEditor } from "@/components/admin/events/EventScheduleEditor";
 import { useAppOptions } from "@/hooks/useAppOptions";
+import { fromZonedTime, formatInTimeZone } from "date-fns-tz";
+import { DateRangePicker } from "@/components/ui/DateRangePicker";
 
 const emptyLang: MultiLangText = { th: "", en: "", de: "" };
+const TIMEZONE = "Europe/Berlin";
 
 // Safe helper to extract error message without using 'any'
 const getFieldError = (fieldError: unknown): string | undefined => {
@@ -56,8 +59,6 @@ export function EventEditor({ id }: EventEditorProps) {
   const { handleApiError } = useApiError();
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(isEditMode);
-  const [activeTab, setActiveTab] = useState<"general" | "details" | "schedule">("general");
-
   const { getEventTypeOptions } = useAppOptions();
   const eventTypeOptions = getEventTypeOptions();
 
@@ -68,7 +69,8 @@ export function EventEditor({ id }: EventEditorProps) {
       description: { ...emptyLang },
       location: { ...emptyLang },
       slug: "",
-      event_date: "",
+      start_date: "",
+      end_date: "",
       start_time: "",
       end_time: "",
       event_type: "ceremony",
@@ -100,15 +102,20 @@ export function EventEditor({ id }: EventEditorProps) {
           description: event.description || { ...emptyLang },
           location: event.location || { ...emptyLang },
           slug: event.slug,
-          event_date: event.event_date?.split("T")[0] || "",
-          start_time: event.start_time || "",
-          end_time: event.end_time || "",
+          start_date: event.start_date ? formatInTimeZone(event.start_date, TIMEZONE, "yyyy-MM-dd") : "",
+          end_date: event.end_date ? formatInTimeZone(event.end_date, TIMEZONE, "yyyy-MM-dd") : "",
+          start_time: event.start_time ? formatInTimeZone(event.start_time, TIMEZONE, "HH:mm") : "",
+          end_time: event.end_time ? formatInTimeZone(event.end_time, TIMEZONE, "HH:mm") : "",
           event_type: event.event_type,
           image_url: event.image_url || "",
           map_url: event.map_url || "",
           is_active: event.is_active,
           registration_enabled: event.registration_enabled,
-          schedule: (event as { schedule?: EventFormData["schedule"] }).schedule || [],
+          schedule: (event.schedules || []).map(s => ({
+            start_time: s.start_time ? formatInTimeZone(s.start_time, TIMEZONE, "HH:mm") : "",
+            end_time: s.end_time ? formatInTimeZone(s.end_time, TIMEZONE, "HH:mm") : "",
+            activity: s.activity || { ...emptyLang }
+          })),
         });
       } catch (err: unknown) {
         handleApiError(err);
@@ -122,10 +129,61 @@ export function EventEditor({ id }: EventEditorProps) {
   const onSubmit = async (data: EventFormData) => {
     setIsLoading(true);
     try {
-      let finalImageUrl = data.image_url;
+      // Convert times to Europe/Berlin ISO format
+      const startDateISO = data.start_date
+        ? fromZonedTime(`${data.start_date}T00:00:00`, TIMEZONE).toISOString()
+        : undefined;
 
-      // If image_url is a newly selected File object, upload it first
-      if (data.image_url instanceof File) {
+      const endDateISO = data.end_date
+        ? fromZonedTime(`${data.end_date}T00:00:00`, TIMEZONE).toISOString()
+        : undefined;
+
+      const startTimeISO = data.start_time && data.start_date
+        ? fromZonedTime(`${data.start_date}T${data.start_time}:00`, TIMEZONE).toISOString()
+        : undefined;
+
+      const endTimeISO = data.end_time && data.start_date
+        ? fromZonedTime(`${data.start_date}T${data.end_time}:00`, TIMEZONE).toISOString()
+        : undefined;
+
+      const scheduleISO = data.schedule?.map((s) => ({
+        activity: s.activity,
+        start_time: s.start_time && data.start_date
+          ? fromZonedTime(`${data.start_date}T${s.start_time}:00`, TIMEZONE).toISOString()
+          : undefined,
+        end_time: s.end_time && data.start_date
+          ? fromZonedTime(`${data.start_date}T${s.end_time}:00`, TIMEZONE).toISOString()
+          : undefined,
+      }));
+
+      // Prepare payload WITHOUT the image if it's a File
+      const payload: Record<string, unknown> = {
+        ...data,
+        start_date: startDateISO,
+        end_date: endDateISO,
+        start_time: startTimeISO,
+        end_time: endTimeISO,
+        schedule: scheduleISO,
+      };
+
+      if (typeof data.image_url === "string") {
+        payload.image_url = data.image_url;
+      } else {
+        delete payload.image_url;
+      }
+
+      let savedEventId = id;
+
+      // 1. Create/Update the event first to validate the data
+      if (isEditMode && id) {
+        await eventAdminService.update(id, payload);
+      } else {
+        const res = await eventAdminService.create(payload);
+        savedEventId = String((res as any).id);
+      }
+
+      // 2. If we have a new image file, upload it now
+      if (data.image_url instanceof File && savedEventId) {
         const formData = new FormData();
         formData.append("file", data.image_url);
 
@@ -133,26 +191,12 @@ export function EventEditor({ id }: EventEditorProps) {
           headers: { "Content-Type": "multipart/form-data" },
         });
 
-        // Extract URL from upload response
-        finalImageUrl = uploadRes.data.data?.url || uploadRes.data.data;
+        const finalImageUrl = uploadRes.data.data?.url || uploadRes.data.data;
+
+        // 3. Update the event with the new image URL
+        await eventAdminService.update(savedEventId, { ...payload, image_url: finalImageUrl });
       }
 
-      // Prepare final payload
-      const payload = {
-        ...data,
-        image_url: finalImageUrl,
-      };
-
-      if (isEditMode && id) {
-        await eventAdminService.update(
-          id,
-          payload as unknown as Record<string, unknown>,
-        );
-      } else {
-        await eventAdminService.create(
-          payload as unknown as Record<string, unknown>,
-        );
-      }
       toast.success(t("common.success"));
       router.push("/admin/events");
     } catch (err: unknown) {
@@ -193,37 +237,6 @@ export function EventEditor({ id }: EventEditorProps) {
             </div>
           </div>
 
-          {/* Tab Selection */}
-          <div className="flex gap-2 border-b border-zinc-200 pb-3">
-            <Button
-              type="button"
-              size="sm"
-              variant={activeTab === "general" ? "primary" : "outline"}
-              icon={<FileText size={14} />}
-              onClick={() => setActiveTab("general")}
-            >
-              {t("events.tabs.general")}
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={activeTab === "details" ? "primary" : "outline"}
-              icon={<MapPin size={14} />}
-              onClick={() => setActiveTab("details")}
-            >
-              {t("events.tabs.details")}
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={activeTab === "schedule" ? "primary" : "outline"}
-              icon={<Clock size={14} />}
-              onClick={() => setActiveTab("schedule")}
-            >
-              {t("events.tabs.schedule")} ({methods.watch("schedule")?.length || 0})
-            </Button>
-          </div>
-
           {/* Form Error Alert */}
           {Object.keys(errors).length > 0 && (
             <div className="p-3 border border-red-200 bg-red-50 text-red-700 text-xs rounded-lg">
@@ -231,9 +244,14 @@ export function EventEditor({ id }: EventEditorProps) {
             </div>
           )}
 
-          {/* Form Content Tabs */}
-          <div className="bg-white rounded-xl border border-zinc-200 p-6 shadow-sm">
-            {activeTab === "general" && (
+          {/* Form Content Sections */}
+          <div className="space-y-6">
+            {/* Section 1: General Info */}
+            <div className="bg-white rounded-xl border border-zinc-200 p-6 shadow-sm space-y-4">
+              <h2 className="text-base font-semibold text-zinc-950 flex items-center gap-2 border-b border-zinc-100 pb-3">
+                <FileText size={18} className="text-amber-600" />
+                {t("events.tabs.general")}
+              </h2>
               <div className="space-y-4">
                 <Controller
                   control={control}
@@ -244,6 +262,7 @@ export function EventEditor({ id }: EventEditorProps) {
                       value={field.value as MultiLangText}
                       onChange={field.onChange}
                       error={getFieldError(errors.title)}
+                      required={true}
                     />
                   )}
                 />
@@ -253,6 +272,7 @@ export function EventEditor({ id }: EventEditorProps) {
                   placeholder="event-slug-name"
                   {...register("slug")}
                   error={errors.slug?.message}
+                  required={true}
                 />
                 <Controller
                   control={control}
@@ -287,17 +307,39 @@ export function EventEditor({ id }: EventEditorProps) {
                   )}
                 />
               </div>
-            )}
+            </div>
 
-            {activeTab === "details" && (
+            {/* Section 2: Details & Settings */}
+            <div className="bg-white rounded-xl border border-zinc-200 p-6 shadow-sm space-y-4">
+              <h2 className="text-base font-semibold text-zinc-950 flex items-center gap-2 border-b border-zinc-100 pb-3">
+                <MapPin size={18} className="text-amber-600" />
+                {t("events.tabs.details")}
+              </h2>
               <div className="space-y-4">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Input
-                    id="event_date"
-                    label={t("events.form.date")}
-                    type="date"
-                    {...register("event_date")}
-                    error={errors.event_date?.message}
+                  <Controller
+                    control={control}
+                    name="start_date"
+                    render={({ field }) => {
+                      const startDateVal = methods.watch("start_date");
+                      const endDateVal = methods.watch("end_date");
+                      
+                      const from = startDateVal ? new Date(startDateVal) : undefined;
+                      const to = endDateVal ? new Date(endDateVal) : undefined;
+                      
+                      return (
+                        <DateRangePicker
+                          label={t("events.form.date")}
+                          value={{ from, to }}
+                          onChange={(range) => {
+                            methods.setValue("start_date", range.from ? formatInTimeZone(range.from, TIMEZONE, "yyyy-MM-dd") : "", { shouldDirty: true });
+                            methods.setValue("end_date", range.to ? formatInTimeZone(range.to, TIMEZONE, "yyyy-MM-dd") : (range.from ? formatInTimeZone(range.from, TIMEZONE, "yyyy-MM-dd") : ""), { shouldDirty: true });
+                          }}
+                          error={errors.start_date?.message || errors.end_date?.message}
+                          required={true}
+                        />
+                      );
+                    }}
                   />
                   <Controller
                     control={control}
@@ -310,6 +352,7 @@ export function EventEditor({ id }: EventEditorProps) {
                         value={field.value}
                         onChange={(e) => field.onChange(e.target.value)}
                         error={errors.event_type?.message}
+                        required={true}
                       />
                     )}
                   />
@@ -378,9 +421,12 @@ export function EventEditor({ id }: EventEditorProps) {
                   />
                 </div>
               </div>
-            )}
+            </div>
 
-            {activeTab === "schedule" && <EventScheduleEditor />}
+            {/* Section 3: Schedule */}
+            <div className="bg-white rounded-xl border border-zinc-200 p-6 shadow-sm space-y-4">
+              <EventScheduleEditor />
+            </div>
           </div>
         </div>
 

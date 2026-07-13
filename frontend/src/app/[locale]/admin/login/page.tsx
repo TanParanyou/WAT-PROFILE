@@ -56,13 +56,13 @@ export default function AdminLoginPage() {
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <Input
                             id="email"
-                            type="email"
+                            type="text"
                             label={t("login.email")}
-                            placeholder="admin@example.com"
+                            placeholder="admin"
                             value={email}
                             onChange={(e) => setEmail(e.target.value)}
                             required
-                            autoComplete="email"
+                            autoComplete="username"
                         />
                         <Input
                             id="password"

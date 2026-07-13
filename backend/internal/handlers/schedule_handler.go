@@ -37,6 +37,19 @@ func (h *ScheduleHandler) CreateSchedule(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "data": schedule})
 }
 
+// GetScheduleByID - Admin: Get single schedule by ID
+func (h *ScheduleHandler) GetScheduleByID(c *fiber.Ctx) error {
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+	item, err := h.scheduleService.GetByID(id)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusNotFound, "Schedule not found")
+	}
+	return utils.SuccessResponse(c, item)
+}
+
 func (h *ScheduleHandler) UpdateSchedule(c *fiber.Ctx) error {
 	id, err := utils.ParseID(c, "id")
 	if err != nil {

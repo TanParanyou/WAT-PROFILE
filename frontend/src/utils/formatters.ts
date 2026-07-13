@@ -13,6 +13,19 @@ export function formatDate(
   });
 }
 
+export function formatDateRange(
+  startDateStr: string | Date | null | undefined,
+  endDateStr: string | Date | null | undefined,
+  locale: string = "th",
+): string {
+  if (!startDateStr) return "-";
+  const start = formatDate(startDateStr, locale);
+  const end = endDateStr ? formatDate(endDateStr, locale) : "";
+
+  if (start === end || !end || end === "-") return start;
+  return `${start} - ${end}`;
+}
+
 export function formatDateTime(
   dateStr: string | Date | null | undefined,
   locale: string = "th",

@@ -37,6 +37,19 @@ func (h *GalleryHandler) CreateGallery(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "data": gallery})
 }
 
+// GetGalleryByID - Admin: Get single gallery by ID
+func (h *GalleryHandler) GetGalleryByID(c *fiber.Ctx) error {
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+	item, err := h.galleryService.GetByID(id)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusNotFound, "Gallery not found")
+	}
+	return utils.SuccessResponse(c, item)
+}
+
 func (h *GalleryHandler) UpdateGallery(c *fiber.Ctx) error {
 	id, err := utils.ParseID(c, "id")
 	if err != nil {

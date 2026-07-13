@@ -40,6 +40,19 @@ func (h *EventHandler) GetEvent(c *fiber.Ctx) error {
 	return utils.SuccessResponse(c, event)
 }
 
+// GetEventByID - Admin: Get single event by ID
+func (h *EventHandler) GetEventByID(c *fiber.Ctx) error {
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+	event, err := h.eventService.GetByID(id)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusNotFound, "Event not found")
+	}
+	return utils.SuccessResponse(c, event)
+}
+
 // CreateEvent - Admin: Create new event
 func (h *EventHandler) CreateEvent(c *fiber.Ctx) error {
 	var event models.Event
@@ -50,9 +63,10 @@ func (h *EventHandler) CreateEvent(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to create event")
 	}
 
-	go h.auditService.LogAction(c, "create", "events", "", map[string]interface{}{"title": event.Title})
+	_ = h.auditService.LogAction(c, "create", "events", "", map[string]interface{}{"title": event.Title})
 
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "data": event})
+	c.Status(fiber.StatusCreated)
+	return utils.SuccessResponse(c, event)
 }
 
 // UpdateEvent - Admin: Update event
@@ -73,7 +87,7 @@ func (h *EventHandler) UpdateEvent(c *fiber.Ctx) error {
 	}
 
 	uid := fmt.Sprint(event.ID)
-	go h.auditService.LogAction(c, "update", "events", uid, map[string]interface{}{"title": event.Title})
+	_ = h.auditService.LogAction(c, "update", "events", uid, map[string]interface{}{"title": event.Title})
 
 	return utils.SuccessResponse(c, event)
 }
@@ -88,7 +102,7 @@ func (h *EventHandler) DeleteEvent(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete event")
 	}
 
-	go h.auditService.LogAction(c, "delete", "events", fmt.Sprint(id), nil)
+	_ = h.auditService.LogAction(c, "delete", "events", fmt.Sprint(id), nil)
 
 	return utils.MessageResponse(c, "Event deleted successfully")
 }
@@ -108,7 +122,7 @@ func (h *EventHandler) BulkDeleteEvents(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete events")
 	}
 
-	go h.auditService.LogAction(c, "bulk_delete", "events", "", map[string]interface{}{"count": len(req.IDs)})
+	_ = h.auditService.LogAction(c, "bulk_delete", "events", "", map[string]interface{}{"count": len(req.IDs)})
 
 	return utils.MessageResponse(c, "Events deleted successfully")
 }

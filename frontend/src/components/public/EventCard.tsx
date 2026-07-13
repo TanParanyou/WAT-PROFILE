@@ -2,6 +2,7 @@ import React from "react";
 import Image from "next/image";
 import { Link } from "@/navigation";
 import { Calendar, MapPin } from "lucide-react";
+import { useDateFormat } from "@/hooks/useDateFormat";
 import type { Event } from "@/types/entities";
 
 interface EventCardProps {
@@ -10,6 +11,7 @@ interface EventCardProps {
 }
 
 export function EventCard({ event, locale }: EventCardProps) {
+  const { formatDateRange } = useDateFormat();
   const getLocalizedText = (
     textObj: Record<string, string> | null | undefined | unknown,
     fallback = "",
@@ -45,15 +47,10 @@ export function EventCard({ event, locale }: EventCardProps) {
           <Calendar size={14} className="text-amber-600" />
           <time
             dateTime={
-              event.event_date ? new Date(event.event_date).toISOString() : ""
+              event.start_date ? new Date(event.start_date).toISOString() : ""
             }
           >
-            {event.event_date
-              ? new Date(event.event_date).toLocaleDateString(
-                  locale === "th" ? "th-TH" : "en-US",
-                  { day: "numeric", month: "short", year: "numeric" },
-                )
-              : ""}
+            {formatDateRange(event.start_date, event.end_date)}
           </time>
         </div>
         <h3 className="text-lg font-bold text-gray-900 mb-2 line-clamp-2 leading-tight group-hover:text-amber-700 transition-colors">

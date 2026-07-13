@@ -10,7 +10,8 @@ type Event struct {
 	Slug                 string        `gorm:"size:100;uniqueIndex;not null" json:"slug"`
 	Title                MultiLangText `gorm:"type:jsonb;not null" json:"title"`
 	Description          MultiLangText `gorm:"type:jsonb" json:"description"`
-	EventDate            time.Time     `gorm:"not null;index" json:"event_date"`
+	StartDate            time.Time     `gorm:"not null;index" json:"start_date"`
+	EndDate              time.Time     `gorm:"not null;index" json:"end_date"`
 	StartTime            *time.Time    `gorm:"type:time" json:"start_time"`
 	EndTime              *time.Time    `gorm:"type:time" json:"end_time"`
 	Location             MultiLangText `gorm:"type:jsonb" json:"location"`
@@ -36,7 +37,8 @@ type EventSchedule struct {
 	ID           int           `gorm:"primaryKey;autoIncrement" json:"id"`
 	EventID      int           `gorm:"not null;index" json:"event_id"`
 	Event        *Event        `gorm:"foreignKey:EventID;constraint:OnDelete:CASCADE" json:"-"`
-	Time         time.Time     `gorm:"type:time;not null" json:"time"`
+	StartTime    time.Time     `gorm:"type:time;not null" json:"start_time"`
+	EndTime      time.Time     `gorm:"type:time;not null" json:"end_time"`
 	Activity     MultiLangText `gorm:"type:jsonb;not null" json:"activity"`
 	DisplayOrder int           `gorm:"default:0" json:"display_order"`
 	CreatedAt    time.Time     `json:"created_at"`

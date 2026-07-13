@@ -93,6 +93,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 
 	// Events Management
 	admin.Get("/events", middleware.PermissionRequired("events", "read"), eventHandler.GetEvents)
+	admin.Get("/events/:id", middleware.PermissionRequired("events", "read"), eventHandler.GetEventByID)
 	admin.Post("/events", middleware.PermissionRequired("events", "create"), eventHandler.CreateEvent)
 	admin.Put("/events/:id", middleware.PermissionRequired("events", "update"), eventHandler.UpdateEvent)
 	admin.Delete("/events/bulk", middleware.PermissionRequired("events", "delete"), eventHandler.BulkDeleteEvents)
@@ -100,6 +101,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 
 	// Monks Management
 	admin.Get("/monks", middleware.PermissionRequired("monks", "read"), monkHandler.GetMonks)
+	admin.Get("/monks/:id", middleware.PermissionRequired("monks", "read"), monkHandler.GetMonkByID)
 	admin.Post("/monks", middleware.PermissionRequired("monks", "create"), monkHandler.CreateMonk)
 	admin.Put("/monks/:id", middleware.PermissionRequired("monks", "update"), monkHandler.UpdateMonk)
 	admin.Delete("/monks/bulk", middleware.PermissionRequired("monks", "delete"), monkHandler.BulkDeleteMonks)
@@ -107,6 +109,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 
 	// Gallery Management
 	admin.Get("/gallery", middleware.PermissionRequired("gallery", "read"), galleryHandler.GetGalleries)
+	admin.Get("/gallery/:id", middleware.PermissionRequired("gallery", "read"), galleryHandler.GetGalleryByID)
 	admin.Post("/gallery", middleware.PermissionRequired("gallery", "create"), galleryHandler.CreateGallery)
 	admin.Put("/gallery/:id", middleware.PermissionRequired("gallery", "update"), galleryHandler.UpdateGallery)
 	admin.Delete("/gallery/bulk", middleware.PermissionRequired("gallery", "delete"), galleryHandler.BulkDeleteGalleries)
@@ -121,6 +124,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 
 	// Schedule Management
 	admin.Get("/schedules", middleware.PermissionRequired("schedules", "read"), scheduleHandler.GetSchedules)
+	admin.Get("/schedules/:id", middleware.PermissionRequired("schedules", "read"), scheduleHandler.GetScheduleByID)
 	admin.Post("/schedules", middleware.PermissionRequired("schedules", "create"), scheduleHandler.CreateSchedule)
 	admin.Put("/schedules/:id", middleware.PermissionRequired("schedules", "update"), scheduleHandler.UpdateSchedule)
 	admin.Delete("/schedules/bulk", middleware.PermissionRequired("schedules", "delete"), scheduleHandler.BulkDeleteSchedules)
@@ -128,6 +132,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 
 	// Donation Management
 	admin.Get("/donations", middleware.PermissionRequired("donations", "read"), donationHandler.GetDonations)
+	admin.Get("/donations/:id", middleware.PermissionRequired("donations", "read"), donationHandler.GetDonationByID)
 	admin.Get("/donations/stats", middleware.PermissionRequired("donations", "read"), donationHandler.GetDonationStats)
 	admin.Put("/donations/:id", middleware.PermissionRequired("donations", "update"), donationHandler.UpdateDonation)
 	admin.Delete("/donations/bulk", middleware.PermissionRequired("donations", "delete"), donationHandler.BulkDeleteDonations)

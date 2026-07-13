@@ -30,7 +30,8 @@ export interface Event {
   slug: string;
   title: MultiLangText;
   description: MultiLangText;
-  event_date: string;
+  start_date: string;
+  end_date: string;
   start_time: string | null;
   end_time: string | null;
   location: MultiLangText;
@@ -52,7 +53,8 @@ export interface Event {
 export interface EventSchedule {
   id: number;
   event_id: number;
-  time: string;
+  start_time: string;
+  end_time: string;
   activity: MultiLangText;
   display_order: number;
   created_at: string;

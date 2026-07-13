@@ -13,20 +13,23 @@ interface SelectProps extends Omit<React.SelectHTMLAttributes<HTMLSelectElement>
     error?: string;
     options: SelectOption[];
     placeholder?: string;
+    required?: boolean;
 }
 
 const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
-    ({ className, label, error, options, placeholder, id, ...props }, ref) => {
+    ({ className, label, error, options, placeholder, id, required, ...props }, ref) => {
         return (
             <div className="space-y-1">
                 {label && (
-                    <label htmlFor={id} className="text-sm font-medium text-gray-700">
+                    <label htmlFor={id} className="text-sm font-medium text-gray-700 flex items-center min-h-[24px]">
                         {label}
+                        {required && <span className="text-red-500 ml-1">*</span>}
                     </label>
                 )}
                 <select
                     id={id}
                     ref={ref}
+                    required={required}
                     className={cn(
                         'w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900',
                         'focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500',
