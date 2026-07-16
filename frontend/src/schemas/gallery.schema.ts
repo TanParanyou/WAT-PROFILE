@@ -11,7 +11,11 @@ export const galleryCategorySchema = z.object({
 export type GalleryCategoryFormData = z.infer<typeof galleryCategorySchema>;
 
 export const gallerySchema = z.object({
-  image_url: z.string().min(1, "Please select an image"),
+  image_url: z
+    .union([z.string().min(1, "Please select an image"), z.instanceof(File)])
+    .refine((value) => value instanceof File || value.length > 0, {
+      message: "Please select an image",
+    }),
   caption: multiLangSchema("Caption").optional(),
   category_id: z.number().nullable().optional(),
   display_order: z.number(),
