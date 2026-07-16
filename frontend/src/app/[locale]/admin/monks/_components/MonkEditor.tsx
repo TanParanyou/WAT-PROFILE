@@ -6,6 +6,7 @@ import { MultiLangInput } from "@/components/admin/MultiLangInput";
 import { MultiLangRichText } from "@/components/admin/MultiLangRichText";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { Input } from "@/components/ui/Input";
+import { DatePicker } from "@/components/ui/DatePicker";
 import { Select } from "@/components/ui/Select";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Button } from "@/components/ui/Button";
@@ -212,12 +213,18 @@ export function MonkEditor({ id }: MonkEditorProps) {
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input
-                id="ordination_date"
-                label="วันที่อุปสมบท"
-                type="date"
-                {...register("ordination_date")}
-                error={errors.ordination_date?.message}
+              <Controller
+                control={control}
+                name="ordination_date"
+                render={({ field }) => (
+                  <DatePicker
+                    id="ordination_date"
+                    label="วันที่อุปสมบท"
+                    value={field.value}
+                    onChange={field.onChange}
+                    error={errors.ordination_date?.message}
+                  />
+                )}
               />
               <Controller
                 control={control}

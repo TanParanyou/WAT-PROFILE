@@ -1,9 +1,62 @@
 {
   "Admin": {
-    "sidebar": { "dashboard": "Dashboard", "events": "Veranstaltungen", "monks": "Mönche", "gallery": "Galerie", "schedules": "Zeitplan", "donations": "Spenden", "members": "Mitglieder", "contacts": "Kontakte", "settings": "Einstellungen", "website": "Website", "media": "Medien", "users": "Benutzer", "roles": "Rollen", "registrations": "Anmeldungen", "audit_logs": "Audit-Logs" },
-    "header": { "logout": "Abmelden", "language": "Sprache", "profile": "Profil", "th": "ไทย", "en": "English", "de": "Deutsch" },
-    "common": { "create": "Erstellen", "edit": "Bearbeiten", "delete": "Löschen", "save": "Speichern", "cancel": "Abbrechen", "search": "Suchen...", "loading": "Laden...", "noData": "Keine Daten gefunden", "confirmDelete": "Sind Sie sicher, dass Sie diesen Eintrag löschen möchten?", "success": "Erfolgreich", "error": "Ein Fehler ist aufgetreten", "actions": "Aktionen", "refresh": "Aktualisieren", "selectedItems": "{count} Einträge ausgewählt", "clear": "Auswahl aufheben", "exportCsv": "CSV exportieren", "bulkDelete": "Ausgewählte löschen", "noChanges": "Keine Änderungen", "saveChanges": "Änderungen speichern" },
-    "dashboard": { "welcome": "Hallo", "welcomeMessage": "Willkommen im Tempelverwaltungssystem", "events": "Veranstaltungen", "monks": "Mönche", "gallery": "Galerie", "schedules": "Zeitplan", "donations": "Spenden", "members": "Mitglieder", "contacts": "Kontaktnachrichten" },
+    "sidebar": {
+      "dashboard": "Dashboard",
+      "events": "Veranstaltungen",
+      "monks": "Mönche",
+      "gallery": "Galerie",
+      "schedules": "Zeitplan",
+      "donations": "Spenden",
+      "members": "Mitglieder",
+      "contacts": "Kontakte",
+      "settings": "Einstellungen",
+      "website": "Website",
+      "media": "Medien",
+      "users": "Benutzer",
+      "roles": "Rollen",
+      "registrations": "Anmeldungen",
+      "audit_logs": "Audit-Logs"
+    },
+    "header": {
+      "logout": "Abmelden",
+      "language": "Sprache",
+      "profile": "Profil",
+      "th": "ไทย",
+      "en": "English",
+      "de": "Deutsch"
+    },
+    "common": {
+      "create": "Erstellen",
+      "edit": "Bearbeiten",
+      "delete": "Löschen",
+      "save": "Speichern",
+      "cancel": "Abbrechen",
+      "search": "Suchen...",
+      "loading": "Laden...",
+      "noData": "Keine Daten gefunden",
+      "confirmDelete": "Sind Sie sicher, dass Sie diesen Eintrag löschen möchten?",
+      "success": "Erfolgreich",
+      "error": "Ein Fehler ist aufgetreten",
+      "actions": "Aktionen",
+      "refresh": "Aktualisieren",
+      "selectedItems": "{count} Einträge ausgewählt",
+      "clear": "Auswahl aufheben",
+      "exportCsv": "CSV exportieren",
+      "bulkDelete": "Ausgewählte löschen",
+      "noChanges": "Keine Änderungen",
+      "saveChanges": "Änderungen speichern"
+    },
+    "dashboard": {
+      "welcome": "Hallo",
+      "welcomeMessage": "Willkommen im Tempelverwaltungssystem",
+      "events": "Veranstaltungen",
+      "monks": "Mönche",
+      "gallery": "Galerie",
+      "schedules": "Zeitplan",
+      "donations": "Spenden",
+      "members": "Mitglieder",
+      "contacts": "Kontaktnachrichten"
+    },
     "events": {
       "title": "Veranstaltungen",
       "create": "Veranstaltung erstellen",
@@ -18,12 +71,12 @@
         "schedule": "Zeitplan"
       },
       "form": {
-        "title": "Veranstaltungstitel *",
-        "slug": "Slug (für URL) *",
+        "title": "Veranstaltungstitel",
+        "slug": "Slug (für URL)",
         "description": "Veranstaltungsbeschreibung",
         "image": "Titelbild",
-        "date": "Veranstaltungsdatum *",
-        "type": "Veranstaltungstyp *",
+        "date": "Veranstaltungsdatum",
+        "type": "Veranstaltungstyp",
         "start": "Startzeit",
         "end": "Endzeit",
         "location": "Ort",
@@ -45,20 +98,97 @@
         "moveUp": "Nach oben",
         "moveDown": "Nach unten",
         "delete": "Löschen",
-        "startTimeLabel": "Startzeit *",
-        "endTimeLabel": "Endzeit *",
+        "startTimeLabel": "Startzeit",
+        "endTimeLabel": "Endzeit",
         "dayLabel": "Datum/Tag-Kopfzeile (Optional - zum Gruppieren von Aktivitäten)",
-        "activityLabel": "Aktivität/Details *"
+        "activityLabel": "Aktivität/Details"
       }
     },
-    "monks": { "title": "Mönche", "create": "Mönch hinzufügen", "edit": "Mönch bearbeiten", "positions": { "abbot": "Abt", "vice_abbot": "Vizeabt", "monk": "Mönch" } },
-    "gallery": { "title": "Galerie", "upload": "Bilder hochladen", "categories": "Kategorien verwalten" },
-    "donations": { "title": "Spenden", "receiptNumber": "Quittungsnr.", "donor": "Spender", "amount": "Betrag", "method": "Methode", "anonymous": "Anonym" },
-    "schedules": { "title": "Zeitplan", "create": "Zeitplan hinzufügen", "edit": "Zeitplan bearbeiten", "type": "Typ", "day": "Tag", "time": "Zeit", "activity": "Aktivität", "location": "Ort", "onlineLink": "Online-Link", "daily": "Täglich", "weekly": "Wöchentlich", "special": "Besonders", "selectType": "Typ auswählen", "selectDay": "Tag auswählen", "timeStart": "Startzeit", "timeEnd": "Endzeit", "days": { "sun": "Sonntag", "mon": "Montag", "tue": "Dienstag", "wed": "Mittwoch", "thu": "Donnerstag", "fri": "Freitag", "sat": "Samstag" } },
-    "members": { "title": "Mitglieder", "memberCode": "Mitgliedscode", "fullName": "Vollständiger Name (TH)", "phone": "Telefon", "type": "Typ", "joinDate": "Beitrittsdatum" },
-    "contacts": { "title": "Kontaktnachrichten", "viewReply": "Details anzeigen & antworten", "reply": "Antworten", "replyMessage": "Antwortnachricht", "replyPlaceholder": "Antwort eingeben...", "repliedAt": "Geantwortet am", "pending": "Ausstehend", "replied": "Beantwortet", "closed": "Geschlossen", "subject": "Betreff", "message": "Nachricht", "inquiryType": "Typ", "phone": "Telefon" },
-    "registrations": { "title": "Anmeldungen", "updateStatus": "Status aktualisieren", "pending": "Ausstehend", "approved": "Genehmigt", "rejected": "Abgelehnt", "cancelled": "Storniert" },
-    "settings": { "title": "Einstellungen", "loadError": "Einstellungen konnten nicht geladen werden" },
+    "monks": {
+      "title": "Mönche",
+      "create": "Mönch hinzufügen",
+      "edit": "Mönch bearbeiten",
+      "positions": {
+        "abbot": "Abt",
+        "vice_abbot": "Vizeabt",
+        "monk": "Mönch"
+      }
+    },
+    "gallery": {
+      "title": "Galerie",
+      "upload": "Bilder hochladen",
+      "categories": "Kategorien verwalten"
+    },
+    "donations": {
+      "title": "Spenden",
+      "receiptNumber": "Quittungsnr.",
+      "donor": "Spender",
+      "amount": "Betrag",
+      "method": "Methode",
+      "anonymous": "Anonym"
+    },
+    "schedules": {
+      "title": "Zeitplan",
+      "create": "Zeitplan hinzufügen",
+      "edit": "Zeitplan bearbeiten",
+      "type": "Typ",
+      "day": "Tag",
+      "time": "Zeit",
+      "activity": "Aktivität",
+      "location": "Ort",
+      "onlineLink": "Online-Link",
+      "daily": "Täglich",
+      "weekly": "Wöchentlich",
+      "special": "Besonders",
+      "selectType": "Typ auswählen",
+      "selectDay": "Tag auswählen",
+      "timeStart": "Startzeit",
+      "timeEnd": "Endzeit",
+      "days": {
+        "sun": "Sonntag",
+        "mon": "Montag",
+        "tue": "Dienstag",
+        "wed": "Mittwoch",
+        "thu": "Donnerstag",
+        "fri": "Freitag",
+        "sat": "Samstag"
+      }
+    },
+    "members": {
+      "title": "Mitglieder",
+      "memberCode": "Mitgliedscode",
+      "fullName": "Vollständiger Name (TH)",
+      "phone": "Telefon",
+      "type": "Typ",
+      "joinDate": "Beitrittsdatum"
+    },
+    "contacts": {
+      "title": "Kontaktnachrichten",
+      "viewReply": "Details anzeigen & antworten",
+      "reply": "Antworten",
+      "replyMessage": "Antwortnachricht",
+      "replyPlaceholder": "Antwort eingeben...",
+      "repliedAt": "Geantwortet am",
+      "pending": "Ausstehend",
+      "replied": "Beantwortet",
+      "closed": "Geschlossen",
+      "subject": "Betreff",
+      "message": "Nachricht",
+      "inquiryType": "Typ",
+      "phone": "Telefon"
+    },
+    "registrations": {
+      "title": "Anmeldungen",
+      "updateStatus": "Status aktualisieren",
+      "pending": "Ausstehend",
+      "approved": "Genehmigt",
+      "rejected": "Abgelehnt",
+      "cancelled": "Storniert"
+    },
+    "settings": {
+      "title": "Einstellungen",
+      "loadError": "Einstellungen konnten nicht geladen werden"
+    },
     "website": {
       "back": "Zurück",
       "viewPublic": "Öffentlich ansehen",
@@ -104,10 +234,50 @@
       "pagePublished": "Seite veröffentlicht",
       "atLeastOneLanguageRequired": "Mindestens eine Sprache ist erforderlich"
     },
-    "login": { "title": "WAT Admin", "subtitle": "Anmelden zur Verwaltung", "email": "E-Mail", "password": "Passwort", "submit": "Anmelden", "invalidCredentials": "Ungültige E-Mail oder Passwort", "genericError": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut" },
-    "users": { "title": "Benutzer", "create": "Benutzer erstellen", "edit": "Benutzer bearbeiten" },
-    "roles": { "title": "Rollen", "create": "Rolle erstellen", "edit": "Rolle bearbeiten" },
-    "columns": { "image": "Bild", "name": "Name", "nameTh": "Name (TH)", "status": "Status", "actions": "Aktionen", "position": "Position", "type": "Typ", "date": "Datum", "order": "Reihenfolge", "description": "Beschreibung", "category": "Kategorie", "amount": "Betrag", "email": "E-Mail", "subject": "Betreff", "message": "Nachricht", "role": "Rolle", "event": "Veranstaltung", "phone": "Telefon", "caption": "Beschreibung (TH)" },
-    "form": { "active": "Aktiv", "enableRegistration": "Anmeldung aktivieren", "selectOption": "Auswählen..." }
+    "login": {
+      "title": "WAT Admin",
+      "subtitle": "Anmelden zur Verwaltung",
+      "email": "E-Mail",
+      "password": "Passwort",
+      "submit": "Anmelden",
+      "invalidCredentials": "Ungültige E-Mail oder Passwort",
+      "genericError": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut"
+    },
+    "users": {
+      "title": "Benutzer",
+      "create": "Benutzer erstellen",
+      "edit": "Benutzer bearbeiten"
+    },
+    "roles": {
+      "title": "Rollen",
+      "create": "Rolle erstellen",
+      "edit": "Rolle bearbeiten"
+    },
+    "columns": {
+      "image": "Bild",
+      "name": "Name",
+      "nameTh": "Name (TH)",
+      "status": "Status",
+      "actions": "Aktionen",
+      "position": "Position",
+      "type": "Typ",
+      "date": "Datum",
+      "order": "Reihenfolge",
+      "description": "Beschreibung",
+      "category": "Kategorie",
+      "amount": "Betrag",
+      "email": "E-Mail",
+      "subject": "Betreff",
+      "message": "Nachricht",
+      "role": "Rolle",
+      "event": "Veranstaltung",
+      "phone": "Telefon",
+      "caption": "Beschreibung (TH)"
+    },
+    "form": {
+      "active": "Aktiv",
+      "enableRegistration": "Anmeldung aktivieren",
+      "selectOption": "Auswählen..."
+    }
   }
 }

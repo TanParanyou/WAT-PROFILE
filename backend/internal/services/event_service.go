@@ -43,7 +43,7 @@ func (s *EventService) Create(event *models.Event) error {
 // GetByID returns an event by ID
 func (s *EventService) GetByID(id int) (*models.Event, error) {
 	var event models.Event
-	err := s.db.First(&event, id).Error
+	err := s.db.Preload("Schedules").First(&event, id).Error
 	if err != nil {
 		return nil, err
 	}
@@ -52,7 +52,15 @@ func (s *EventService) GetByID(id int) (*models.Event, error) {
 
 // Update saves changes to an event
 func (s *EventService) Update(event *models.Event) error {
-	return s.db.Save(event).Error
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Session(&gorm.Session{FullSaveAssociations: true}).Save(event).Error; err != nil {
+			return err
+		}
+		if err := tx.Model(event).Association("Schedules").Replace(event.Schedules); err != nil {
+			return err
+		}
+		return nil
+	})
 }
 
 // Delete removes an event by ID

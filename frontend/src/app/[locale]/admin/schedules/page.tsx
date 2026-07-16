@@ -14,6 +14,7 @@ import { useConfirm, FormModal, useModal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
+import { TimePicker } from "@/components/ui/TimePicker";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { useDataTable } from "@/hooks/useDataTable";
 import { scheduleAdminService } from "@/services/adminService";
@@ -348,19 +349,31 @@ export default function SchedulesPage() {
             />
           )}
           <div className="grid grid-cols-2 gap-4">
-            <Input
-              id="time_start"
-              label={t("schedules.timeStart")}
-              type="time"
-              {...register("time_start")}
-              error={errors.time_start?.message}
+            <Controller
+              control={control}
+              name="time_start"
+              render={({ field }) => (
+                <TimePicker
+                  id="time_start"
+                  label={t("schedules.timeStart")}
+                  value={field.value}
+                  onChange={field.onChange}
+                  error={errors.time_start?.message}
+                />
+              )}
             />
-            <Input
-              id="time_end"
-              label={t("schedules.timeEnd")}
-              type="time"
-              {...register("time_end")}
-              error={errors.time_end?.message}
+            <Controller
+              control={control}
+              name="time_end"
+              render={({ field }) => (
+                <TimePicker
+                  id="time_end"
+                  label={t("schedules.timeEnd")}
+                  value={field.value}
+                  onChange={field.onChange}
+                  error={errors.time_end?.message}
+                />
+              )}
             />
           </div>
           <Controller

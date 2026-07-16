@@ -5,6 +5,7 @@ import { useFieldArray, useFormContext, Controller } from "react-hook-form";
 import { Plus, Trash2, Clock, ArrowUp, ArrowDown, GripVertical } from "lucide-react";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
+import { TimePicker } from "@/components/ui/TimePicker";
 import { MultiLangInput } from "@/components/admin/MultiLangInput";
 import { SortableList } from "@/components/admin/SortableList";
 import type { MultiLangText, MultiLangError } from "@/types/api";
@@ -131,24 +132,36 @@ export function EventScheduleEditor() {
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                   {/* Start Time field */}
                   <div className="col-span-1">
-                    <Input
-                      id={`schedule.${index}.start_time`}
-                      label={t("events.schedule.startTimeLabel")}
-                      type="time"
-                      {...register(`schedule.${index}.start_time`)}
-                      error={itemErrors?.start_time?.message}
-                      required={true}
+                    <Controller
+                      control={control}
+                      name={`schedule.${index}.start_time`}
+                      render={({ field: controllerField }) => (
+                        <TimePicker
+                          id={`schedule.${index}.start_time`}
+                          label={t("events.schedule.startTimeLabel")}
+                          value={controllerField.value}
+                          onChange={controllerField.onChange}
+                          error={itemErrors?.start_time?.message}
+                          required={true}
+                        />
+                      )}
                     />
                   </div>
                   {/* End Time field */}
                   <div className="col-span-1">
-                    <Input
-                      id={`schedule.${index}.end_time`}
-                      label={t("events.schedule.endTimeLabel")}
-                      type="time"
-                      {...register(`schedule.${index}.end_time`)}
-                      error={itemErrors?.end_time?.message}
-                      required={true}
+                    <Controller
+                      control={control}
+                      name={`schedule.${index}.end_time`}
+                      render={({ field: controllerField }) => (
+                        <TimePicker
+                          id={`schedule.${index}.end_time`}
+                          label={t("events.schedule.endTimeLabel")}
+                          value={controllerField.value}
+                          onChange={controllerField.onChange}
+                          error={itemErrors?.end_time?.message}
+                          required={true}
+                        />
+                      )}
                     />
                   </div>
                 </div>

@@ -83,7 +83,7 @@ func (h *EventHandler) UpdateEvent(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
 	}
 	if err := h.eventService.Update(event); err != nil {
-		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to update event")
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, err.Error())
 	}
 
 	uid := fmt.Sprint(event.ID)

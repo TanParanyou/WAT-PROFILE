@@ -1,58 +1,64 @@
 'use client';
 
 import React from 'react';
-import DatePicker from 'react-datepicker';
+import ReactDatePicker from 'react-datepicker';
 import { cn } from '@/utils/cn';
 import 'react-datepicker/dist/react-datepicker.css';
 
-interface DateRangePickerProps {
-  value: { from: Date | undefined; to: Date | undefined };
-  onChange: (range: { from: Date | undefined; to: Date | undefined }) => void;
+import { format, parse } from 'date-fns';
+
+interface DatePickerProps {
+  value?: string | null;
+  onChange?: (value: string) => void;
   label?: string;
   error?: string;
   required?: boolean;
   className?: string;
+  id?: string;
 }
 
-export function DateRangePicker({
+export function DatePicker({
   value,
   onChange,
   label,
   error,
   required,
   className,
-}: DateRangePickerProps) {
-  const handleChange = (dates: [Date | null, Date | null]) => {
-    const [start, end] = dates;
-    onChange({
-      from: start || undefined,
-      to: end || undefined,
-    });
+  id,
+}: DatePickerProps) {
+  const parseDateString = (dateStr?: string | null): Date | null => {
+    if (!dateStr) return null;
+    const d = parse(dateStr, "yyyy-MM-dd", new Date());
+    return isNaN(d.getTime()) ? null : d;
+  };
+
+  const formatDateToStr = (date: Date | null): string => {
+    if (!date) return '';
+    return format(date, 'yyyy-MM-dd');
   };
 
   return (
     <div className={cn('space-y-1 w-full', className)}>
       {label && (
-        <label className="text-sm font-medium text-gray-700 flex items-center min-h-[24px]">
+        <label htmlFor={id} className="text-sm font-medium text-gray-700 flex items-center min-h-[24px]">
           {label}
           {required && <span className="text-red-500 ml-1">*</span>}
         </label>
       )}
       <div className="relative">
-        <DatePicker
-          selectsRange={true}
-          selected={value.from || undefined}
-          startDate={value.from || undefined}
-          endDate={value.to || undefined}
-          onChange={handleChange}
+        <ReactDatePicker
+          id={id}
+          selected={parseDateString(value)}
+          onChange={(date: Date | null) => onChange?.(formatDateToStr(date))}
           dateFormat="dd/MM/yyyy"
-          placeholderText="เลือกช่วงเวลา"
+          placeholderText="เลือกวันที่"
           isClearable={true}
           className={cn(
             'w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400',
             'focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500',
             'disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed',
-            error && 'border-red-500 focus:ring-red-500/50 focus:border-red-500'
+            error && 'border-red-500 focus:ring-red-500/50 focus:border-red-500',
+            className
           )}
           wrapperClassName="w-full"
           showMonthDropdown

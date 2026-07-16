@@ -49,6 +49,11 @@ func InitDatabase() error {
 
 // MigrateModels runs auto-migration for all models
 func MigrateModels() error {
+	if os.Getenv("DB_AUTO_MIGRATE") == "false" {
+		log.Println("Database auto-migration skipped (DB_AUTO_MIGRATE is set to false)")
+		return nil
+	}
+
 	log.Println("Running database migrations...")
 
 	err := DB.AutoMigrate(
