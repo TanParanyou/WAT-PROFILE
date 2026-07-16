@@ -43,6 +43,35 @@ export const TimePicker = React.forwardRef<HTMLDivElement, TimePickerProps>(
             }
         };
 
+        const handleChangeRaw = (e: React.FocusEvent<HTMLInputElement>) => {
+            const rawVal = e.target.value;
+            // Clean characters: keep only digits and colon/dot
+            const cleaned = rawVal.replace(/[^0-9:.]/g, '').replace('.', ':');
+            
+            let hours = NaN;
+            let minutes = 0;
+
+            if (cleaned.includes(':')) {
+                const parts = cleaned.split(':');
+                hours = parseInt(parts[0], 10);
+                minutes = parseInt(parts[1] || '0', 10);
+            } else if (cleaned.length === 4) {
+                hours = parseInt(cleaned.slice(0, 2), 10);
+                minutes = parseInt(cleaned.slice(2, 4), 10);
+            } else if (cleaned.length === 3) {
+                hours = parseInt(cleaned.slice(0, 1), 10);
+                minutes = parseInt(cleaned.slice(1, 3), 10);
+            } else if (cleaned.length > 0) {
+                hours = parseInt(cleaned, 10);
+            }
+
+            if (!isNaN(hours) && hours >= 0 && hours < 24 && !isNaN(minutes) && minutes >= 0 && minutes < 60) {
+                const d = new Date();
+                d.setHours(hours, minutes, 0, 0);
+                handleChange(d);
+            }
+        };
+
         return (
             <div className="space-y-1 w-full" ref={ref}>
                 {label && (
@@ -56,6 +85,7 @@ export const TimePicker = React.forwardRef<HTMLDivElement, TimePickerProps>(
                         id={id}
                         selected={selectedDate}
                         onChange={handleChange}
+                        onChangeRaw={handleChangeRaw}
                         showTimeSelect
                         showTimeSelectOnly
                         timeIntervals={15}
