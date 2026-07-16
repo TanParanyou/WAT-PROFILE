@@ -1,14 +1,15 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm, FormProvider, useFieldArray } from "react-hook-form";
-import { Save, Plus, Trash2, Globe, FileText, Search } from "lucide-react";
+import { useForm, FormProvider, useFieldArray, Controller } from "react-hook-form";
+import { Save, Plus, Trash2, Globe, FileText, Search, ArrowUp, ArrowDown } from "lucide-react";
 import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/Loading";
 import { Input } from "@/components/ui/Input";
 import { MultiLangInput } from "@/components/admin/MultiLangInput";
+import { MultiLangRichText } from "@/components/admin/MultiLangRichText";
 import { SeoEditorTab } from "../shared/SeoEditorTab";
 import { usePrivacyPageQuery, useUpdatePrivacyPageMutation, usePublishPrivacyPageMutation } from "@/hooks/website-page-master";
 import { useWebsiteCmsEditorStore } from "@/stores/website-cms-editor-store";
@@ -70,7 +71,7 @@ export function PrivacyPageEditor() {
 
   const { reset, handleSubmit, control, formState: { isDirty, errors } } = methods;
 
-  const { fields, append, remove } = useFieldArray({
+  const { fields, append, remove, swap } = useFieldArray({
     control,
     name: "body.sections",
   });
@@ -150,16 +151,6 @@ export function PrivacyPageEditor() {
               Manage website privacy policy sections and translations.
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handlePublish}
-              isLoading={publishMutation.isPending}
-            >
-              Publish
-            </Button>
-          </div>
         </div>
 
         <div className="flex flex-col gap-4 border-b border-zinc-200 pb-3 sm:flex-row sm:items-center sm:justify-between">
@@ -206,10 +197,17 @@ export function PrivacyPageEditor() {
                   label="Last Updated Date"
                   {...methods.register("body.last_updated")}
                 />
-                <MultiLangInput
-                  label="Page Title Override"
+                <Controller
                   name="title"
-                  required
+                  control={methods.control}
+                  render={({ field: { value, onChange } }) => (
+                    <MultiLangInput
+                      label="Page Title (Optional)"
+                      value={value}
+                      onChange={onChange}
+                      required
+                    />
+                  )}
                 />
               </div>
 
@@ -230,26 +228,57 @@ export function PrivacyPageEditor() {
                 <div className="space-y-6">
                   {fields.map((field, index) => (
                     <div key={field.id} className="relative border border-zinc-200 rounded-xl p-6 bg-zinc-50/50">
-                      <button
-                        type="button"
-                        onClick={() => remove(index)}
-                        className="absolute top-4 right-4 text-zinc-400 hover:text-red-600 transition-colors"
-                      >
-                        <Trash2 size={16} />
-                      </button>
+                      <div className="absolute top-4 right-4 flex items-center gap-1">
+                        <button
+                          type="button"
+                          onClick={() => index > 0 && swap(index, index - 1)}
+                          disabled={index === 0}
+                          className="p-1 text-zinc-400 hover:text-zinc-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        >
+                          <ArrowUp size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => index < fields.length - 1 && swap(index, index + 1)}
+                          disabled={index === fields.length - 1}
+                          className="p-1 text-zinc-400 hover:text-zinc-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                        >
+                          <ArrowDown size={16} />
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => remove(index)}
+                          className="p-1 ml-2 text-zinc-400 hover:text-red-600 transition-colors"
+                        >
+                          <Trash2 size={16} />
+                        </button>
+                      </div>
 
-                      <div className="space-y-4 pr-8">
+                      <div className="space-y-4 pr-24">
                         <div className="font-mono text-xs text-zinc-400">Section #{index + 1}</div>
-                        <MultiLangInput
-                          label="Section Title"
+                        <Controller
                           name={`body.sections.${index}.title`}
-                          required
+                          control={methods.control}
+                          render={({ field: { value, onChange } }) => (
+                            <MultiLangInput
+                              label="Section Title"
+                              value={value}
+                              onChange={onChange}
+                              required
+                            />
+                          )}
                         />
-                        <MultiLangInput
-                          label="Section Content"
+                        <Controller
                           name={`body.sections.${index}.content`}
-                          type="textarea"
-                          required
+                          control={methods.control}
+                          render={({ field: { value, onChange } }) => (
+                            <MultiLangRichText
+                              label="Section Content"
+                              value={value}
+                              onChange={onChange}
+                              required
+                            />
+                          )}
                         />
                       </div>
                     </div>
@@ -280,15 +309,26 @@ export function PrivacyPageEditor() {
               </span>
             )}
           </div>
-          <Button
-            type="submit"
-            variant="primary"
-            isLoading={updateMutation.isPending}
-            icon={<Save size={16} />}
-            className="w-full sm:w-auto shadow-sm"
-          >
-            Save Changes
-          </Button>
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handlePublish}
+              isLoading={publishMutation.isPending}
+              className="flex-1 sm:flex-none shadow-sm"
+            >
+              Publish
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              isLoading={updateMutation.isPending}
+              icon={<Save size={16} />}
+              className="flex-1 sm:flex-none shadow-sm"
+            >
+              Save Changes
+            </Button>
+          </div>
         </div>
       </form>
     </FormProvider>

@@ -17,7 +17,10 @@ import {
   useWebsitePageQuery,
 } from "@/hooks/website-cms";
 import { useWebsiteCmsEditorStore } from "@/stores/website-cms-editor-store";
-import { websitePageFormToUpdatePayload, websiteSectionFormToUpdatePayload } from "@/utils/websiteCms";
+import {
+  websitePageFormToUpdatePayload,
+  websiteSectionFormToUpdatePayload,
+} from "@/utils/websiteCms";
 
 export default function WebsitePageEditor() {
   const { id } = useParams<{ id: string }>();
@@ -66,7 +69,11 @@ export default function WebsitePageEditor() {
   }
 
   if (pageQuery.isError || !pageQuery.data) {
-    return <div className="border border-zinc-200 bg-white p-4 text-sm text-red-600">Page not found.</div>;
+    return (
+      <div className="border border-zinc-200 bg-white p-4 text-sm text-red-600">
+        Page not found.
+      </div>
+    );
   }
 
   return (
@@ -94,7 +101,10 @@ export default function WebsitePageEditor() {
       publishError={publishMutation.error}
       onSavePage={(values) =>
         pageMutation.mutate(
-          { id: pageQuery.data.id, payload: websitePageFormToUpdatePayload(values) },
+          {
+            id: pageQuery.data.id,
+            payload: websitePageFormToUpdatePayload(values),
+          },
           { onSuccess: () => setHasUnsavedChanges(false) },
         )
       }
@@ -127,10 +137,14 @@ export default function WebsitePageEditor() {
         )
       }
       onArchiveSection={(sectionId) =>
-        archiveSectionMutation.mutate(sectionId, { onSuccess: () => setHasUnsavedChanges(false) })
+        archiveSectionMutation.mutate(sectionId, {
+          onSuccess: () => setHasUnsavedChanges(false),
+        })
       }
       onRestoreSection={(sectionId) =>
-        restoreSectionMutation.mutate(sectionId, { onSuccess: () => setHasUnsavedChanges(false) })
+        restoreSectionMutation.mutate(sectionId, {
+          onSuccess: () => setHasUnsavedChanges(false),
+        })
       }
       onDuplicateSection={(sectionId) =>
         duplicateSectionMutation.mutate(

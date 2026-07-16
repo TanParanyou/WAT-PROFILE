@@ -1,6 +1,6 @@
 "use client";
 
-import { Checkbox } from "@/components/ui/Checkbox";
+import { Switch } from "@/components/ui/Switch";
 import { Input } from "@/components/ui/Input";
 import { SectionContentEditorBase } from "@/components/admin/website/sections/SectionContentEditorBase";
 
@@ -26,9 +26,9 @@ export function ContactInfoSectionEditor(props: ContentEditorProps) {
               <Input label="Email override" {...form.register("body.email" as never)} disabled={props.isSaving} />
               <Input label="Address override" {...form.register("body.address" as never)} disabled={props.isSaving} className="md:col-span-2" />
               <Input label="Map URL" {...form.register("settings.map_url" as never)} disabled={props.isSaving} className="md:col-span-2" />
-              <Checkbox label="Show map card" {...form.register("settings.show_map" as never)} disabled={props.isSaving} />
-              <Checkbox label="Show social links" {...form.register("settings.show_social" as never)} disabled={props.isSaving} />
-              <Checkbox label="Show bank info" {...form.register("settings.show_bank" as never)} disabled={props.isSaving} />
+              <Switch label="Show map card" {...form.register("settings.show_map" as never)} disabled={props.isSaving} />
+              <Switch label="Show social links" {...form.register("settings.show_social" as never)} disabled={props.isSaving} />
+              <Switch label="Show bank info" {...form.register("settings.show_bank" as never)} disabled={props.isSaving} />
             </div>
           </div>
         );

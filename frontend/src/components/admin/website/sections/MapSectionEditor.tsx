@@ -1,6 +1,6 @@
 "use client";
 
-import { Checkbox } from "@/components/ui/Checkbox";
+import { Switch } from "@/components/ui/Switch";
 import { Input } from "@/components/ui/Input";
 import { SectionContentEditorBase } from "@/components/admin/website/sections/SectionContentEditorBase";
 import { MediaUrlField } from "@/components/admin/website/MediaUrlField";
@@ -31,7 +31,7 @@ export function MapSectionEditor(props: ContentEditorProps) {
             />
             <Input label="Directions URL" {...form.register("body.directions_url" as never)} disabled={props.isSaving} />
             <Input label="Fallback address" {...form.register("body.address" as never)} disabled={props.isSaving} />
-            <Checkbox label="Show directions button" {...form.register("settings.show_directions" as never)} disabled={props.isSaving} />
+            <Switch label="Show directions button" {...form.register("settings.show_directions" as never)} disabled={props.isSaving} />
           </div>
         );
       }}

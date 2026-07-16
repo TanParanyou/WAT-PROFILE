@@ -1,6 +1,6 @@
 "use client";
 
-import { Checkbox } from "@/components/ui/Checkbox";
+import { Switch } from "@/components/ui/Switch";
 import { Input } from "@/components/ui/Input";
 import { SectionContentEditorBase } from "@/components/admin/website/sections/SectionContentEditorBase";
 
@@ -20,7 +20,7 @@ export function ContactFormSectionEditor(props: ContentEditorProps) {
               </div>
             ) : null}
             <div className="grid gap-3 md:grid-cols-2">
-              <Checkbox label="Enable contact form" {...form.register("settings.enabled" as never)} disabled={props.isSaving} className="md:col-span-2" />
+              <Switch label="Enable contact form" {...form.register("settings.enabled" as never)} disabled={props.isSaving} className="md:col-span-2" />
               <Input label="Submit label" {...form.register("settings.submit_label" as never)} disabled={props.isSaving} />
               <Input label="Success message" {...form.register("settings.success_message" as never)} disabled={props.isSaving} />
               <Input label="Form destination label" {...form.register("settings.destination_label" as never)} disabled={props.isSaving} className="md:col-span-2" />

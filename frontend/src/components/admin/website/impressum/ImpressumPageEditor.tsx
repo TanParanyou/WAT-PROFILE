@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, Controller } from "react-hook-form";
 import { Save, FileText, Search } from "lucide-react";
 import { useTranslations } from "next-intl";
 
@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/Loading";
 import { Input } from "@/components/ui/Input";
 import { MultiLangInput } from "@/components/admin/MultiLangInput";
+import { MultiLangRichText } from "@/components/admin/MultiLangRichText";
 import { SeoEditorTab } from "../shared/SeoEditorTab";
 import { useImpressumPageQuery, useUpdateImpressumPageMutation, usePublishImpressumPageMutation } from "@/hooks/website-page-master";
 import { useWebsiteCmsEditorStore } from "@/stores/website-cms-editor-store";
@@ -148,16 +149,6 @@ export function ImpressumPageEditor() {
               Manage legal information and provider disclosure settings.
             </p>
           </div>
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handlePublish}
-              isLoading={publishMutation.isPending}
-            >
-              Publish
-            </Button>
-          </div>
         </div>
 
         <div className="flex flex-col gap-4 border-b border-zinc-200 pb-3 sm:flex-row sm:items-center sm:justify-between">
@@ -198,24 +189,44 @@ export function ImpressumPageEditor() {
         <div className="space-y-4">
           {activeTab === "content" && (
             <div className="bg-white rounded-xl border border-zinc-200 p-6 space-y-6">
-              <MultiLangInput
-                label="Page Title Override"
+              <Controller
                 name="title"
-                required
+                control={methods.control}
+                render={({ field: { value, onChange } }) => (
+                  <MultiLangInput
+                    label="Page Title (Optional)"
+                    value={value}
+                    onChange={onChange}
+                    required
+                  />
+                )}
               />
 
               <div className="border-t border-zinc-100 pt-6 space-y-6">
-                <MultiLangInput
-                  label="Organization Name"
+                <Controller
                   name="body.organization_name"
-                  required
+                  control={methods.control}
+                  render={({ field: { value, onChange } }) => (
+                    <MultiLangInput
+                      label="Organization Name"
+                      value={value}
+                      onChange={onChange}
+                      required
+                    />
+                  )}
                 />
                 
-                <MultiLangInput
-                  label="Address"
+                <Controller
                   name="body.address"
-                  type="textarea"
-                  required
+                  control={methods.control}
+                  render={({ field: { value, onChange } }) => (
+                    <MultiLangRichText
+                      label="Address"
+                      value={value}
+                      onChange={onChange}
+                      required
+                    />
+                  )}
                 />
 
                 <div className="grid gap-6 md:grid-cols-2">
@@ -249,15 +260,26 @@ export function ImpressumPageEditor() {
               </span>
             )}
           </div>
-          <Button
-            type="submit"
-            variant="primary"
-            isLoading={updateMutation.isPending}
-            icon={<Save size={16} />}
-            className="w-full sm:w-auto shadow-sm"
-          >
-            Save Changes
-          </Button>
+          <div className="flex items-center gap-3 w-full sm:w-auto">
+            <Button
+              type="button"
+              variant="outline"
+              onClick={handlePublish}
+              isLoading={publishMutation.isPending}
+              className="flex-1 sm:flex-none shadow-sm"
+            >
+              Publish
+            </Button>
+            <Button
+              type="submit"
+              variant="primary"
+              isLoading={updateMutation.isPending}
+              icon={<Save size={16} />}
+              className="flex-1 sm:flex-none shadow-sm"
+            >
+              Save Changes
+            </Button>
+          </div>
         </div>
       </form>
     </FormProvider>

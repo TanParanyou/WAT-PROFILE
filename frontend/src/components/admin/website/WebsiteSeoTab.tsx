@@ -10,7 +10,7 @@ import { websiteCmsPageFormSchema } from "@/schemas/website-cms.schema";
 import { contentPageToFormValues, getSeoHealth } from "@/utils/websiteCms";
 import { SeoPreviewPanel } from "@/components/admin/website/SeoPreviewPanel";
 import { Input } from "@/components/ui/Input";
-import { Checkbox } from "@/components/ui/Checkbox";
+import { Switch } from "@/components/ui/Switch";
 import { Button } from "@/components/ui/Button";
 import { LocalizedTextFields } from "@/components/forms/LocalizedTextFields";
 import { LocalizedTextareaFields } from "@/components/forms/LocalizedTextareaFields";
@@ -105,7 +105,7 @@ export function WebsiteSeoTab({
           disabled={isSaving}
           rows={3}
         />
-        <Checkbox label="Noindex" disabled={isSaving} {...form.register("seo.noindex" as never)} />
+        <Switch label="Noindex" disabled={isSaving} {...form.register("seo.noindex" as never)} />
         {error ? <p className="text-sm text-red-600">{error.message}</p> : null}
       </form>
     </div>
