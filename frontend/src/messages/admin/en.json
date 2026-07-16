@@ -44,7 +44,10 @@
       "exportCsv": "Export CSV",
       "bulkDelete": "Delete selected",
       "noChanges": "No changes",
-      "saveChanges": "Save changes"
+      "saveChanges": "Save changes",
+      "forbiddenTitle": "Access Denied",
+      "forbiddenDesc": "You do not have permission to access this section. Please contact your system administrator if you need access.",
+      "backToDashboard": "Back to Dashboard"
     },
     "dashboard": {
       "welcome": "Hello",

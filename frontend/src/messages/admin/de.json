@@ -44,7 +44,10 @@
       "exportCsv": "CSV exportieren",
       "bulkDelete": "Ausgewählte löschen",
       "noChanges": "Keine Änderungen",
-      "saveChanges": "Änderungen speichern"
+      "saveChanges": "Änderungen speichern",
+      "forbiddenTitle": "Zugriff verweigert",
+      "forbiddenDesc": "Sie haben keine Berechtigung, auf diesen Bereich zuzugreifen. Bitte kontaktieren Sie den Systemadministrator, wenn Sie Zugriff benötigen.",
+      "backToDashboard": "Zurück zum Dashboard"
     },
     "dashboard": {
       "welcome": "Hallo",
