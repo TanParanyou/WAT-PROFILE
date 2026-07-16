@@ -273,3 +273,129 @@ func (s *ContentService) EnsureContactPageSeed() error {
 		return tx.Create(&sections).Error
 	})
 }
+
+func (s *ContentService) EnsurePrivacyPageSeed() error {
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		var page models.ContentPage
+		err := tx.Where("page_key = ?", "PAGE-PRIVACY").First(&page).Error
+		if err == nil {
+			return nil
+		}
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
+		}
+
+		page = models.ContentPage{
+			PageKey: "PAGE-PRIVACY",
+			Slug:    "privacy",
+			Title: models.MultiLangText{
+				"th": "นโยบายความเป็นส่วนตัว",
+				"en": "Privacy Policy",
+				"de": "Datenschutzerklärung",
+			},
+			Description: models.MultiLangText{
+				"th": "นโยบายความเป็นส่วนตัวและการคุ้มครองข้อมูลของวัดหลวงพ่อใส",
+				"en": "Privacy Policy and Data Protection of Wat Loung Por Sai",
+				"de": "Datenschutzerklärung und Datenschutz von Wat Loung Por Sai",
+			},
+			Status: models.ContentStatusPublished,
+			Seo: models.JSONMap{
+				"canonical_url": "/th/privacy",
+				"noindex":       false,
+			},
+			Body: models.JSONMap{
+				"last_updated": "2026-07-16",
+				"sections": []interface{}{
+					map[string]interface{}{
+						"title": map[string]interface{}{
+							"th": "การเก็บรวบรวมข้อมูลและการใช้งาน",
+							"en": "Information Collection and Use",
+							"de": "Datenerfassung und -verwendung",
+						},
+						"content": map[string]interface{}{
+							"th": "เราเก็บรวบรวมข้อมูลประเภทต่างๆ เพื่อวัตถุประสงค์ในการให้บริการและปรับปรุงหน้าเว็บไซต์ให้กับท่าน",
+							"en": "We collect several different types of information for various purposes to provide and improve our Service to you.",
+							"de": "Wir erfassen verschiedene Arten von Informationen für verschiedene Zwecke, um unseren Dienst für Sie bereitzustellen und zu verbessern.",
+						},
+					},
+				},
+			},
+			Settings: models.JSONMap{
+				"layout": "default",
+			},
+		}
+
+		// Also set published fields directly
+		now := time.Now()
+		page.PublishedTitle = page.Title
+		page.PublishedDescription = page.Description
+		page.PublishedSeo = page.Seo.Clone()
+		page.PublishedBody = page.Body.Clone()
+		page.PublishedSettings = page.Settings.Clone()
+		page.PublishedAt = &now
+
+		return tx.Create(&page).Error
+	})
+}
+
+func (s *ContentService) EnsureImpressumPageSeed() error {
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		var page models.ContentPage
+		err := tx.Where("page_key = ?", "PAGE-IMPRESSUM").First(&page).Error
+		if err == nil {
+			return nil
+		}
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
+		}
+
+		page = models.ContentPage{
+			PageKey: "PAGE-IMPRESSUM",
+			Slug:    "impressum",
+			Title: models.MultiLangText{
+				"th": "ข้อมูลทางกฎหมาย",
+				"en": "Impressum",
+				"de": "Impressum",
+			},
+			Description: models.MultiLangText{
+				"th": "ข้อมูลทางกฎหมายและผู้รับผิดชอบเว็บไซต์",
+				"en": "Legal disclosure and website responsibility",
+				"de": "Impressum und rechtliche Hinweise",
+			},
+			Status: models.ContentStatusPublished,
+			Seo: models.JSONMap{
+				"canonical_url": "/th/impressum",
+				"noindex":       false,
+			},
+			Body: models.JSONMap{
+				"organization_name": map[string]interface{}{
+					"th": "สมาคมศูนย์สมาธิพระพุทธศาสนา",
+					"en": "Buddhistisches Meditationszentrum e.V.",
+					"de": "Buddhistisches Meditationszentrum e.V.",
+				},
+				"address": map[string]interface{}{
+					"th": "Am Pflaster 11, 63599 Biebergemünd",
+					"en": "Am Pflaster 11, 63599 Biebergemünd",
+					"de": "Am Pflaster 11, 63599 Biebergemünd",
+				},
+				"phone": "+49 160-1604486",
+				"email": "Watloungporsai@gmail.com",
+			},
+			Settings: models.JSONMap{
+				"layout": "default",
+			},
+		}
+
+		// Also set published fields directly
+		now := time.Now()
+		page.PublishedTitle = page.Title
+		page.PublishedDescription = page.Description
+		page.PublishedSeo = page.Seo.Clone()
+		page.PublishedBody = page.Body.Clone()
+		page.PublishedSettings = page.Settings.Clone()
+		page.PublishedAt = &now
+
+		return tx.Create(&page).Error
+	})
+}
+
