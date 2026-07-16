@@ -30,42 +30,44 @@ export default function DonationsPage() {
     });
 
   const handleDelete = async (id: number) => {
-    if (
-      await confirm({
-        title: t("common.delete"),
-        message: t("common.confirmDelete"),
-        variant: "danger",
-      })
-    ) {
-      try {
-        await donationAdminService.delete(id);
-        toast.success(t("common.success"));
-        selectedIds.clearSelection();
-        fetchData();
-      } catch {
-        toast.error(t("common.error"));
-      }
-    }
+    await confirm({
+      title: t("common.delete"),
+      message: t("common.confirmDelete"),
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          await donationAdminService.delete(id);
+          toast.success(t("common.success"));
+          selectedIds.clearSelection();
+          fetchData();
+        } catch (err) {
+          toast.error(t("common.error"));
+
+          throw err;
+        }
+      },
+    });
   };
 
   const handleBulkDelete = async () => {
     if (selectedIds.selectedCount === 0) return;
-    if (
-      await confirm({
-        title: t("common.delete"),
-        message: t("common.confirmDelete"),
-        variant: "danger",
-      })
-    ) {
-      try {
-        await donationAdminService.bulkDelete(selectedIds.selectedArray);
-        toast.success(t("common.success"));
-        selectedIds.clearSelection();
-        fetchData();
-      } catch {
-        toast.error(t("common.error"));
-      }
-    }
+    await confirm({
+      title: t("common.delete"),
+      message: t("common.confirmDelete"),
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          await donationAdminService.bulkDelete(selectedIds.selectedArray);
+          toast.success(t("common.success"));
+          selectedIds.clearSelection();
+          fetchData();
+        } catch (err) {
+          toast.error(t("common.error"));
+
+          throw err;
+        }
+      },
+    });
   };
 
   const handleExportCsv = () => {
@@ -97,7 +99,11 @@ export default function DonationsPage() {
   };
 
   const columns: Column<Donation>[] = [
-    { header: t("donations.receiptNumber"), accessorKey: "receipt_number", sortable: true },
+    {
+      header: t("donations.receiptNumber"),
+      accessorKey: "receipt_number",
+      sortable: true,
+    },
     {
       header: t("donations.donor"),
       accessorKey: "donor_name",
@@ -106,7 +112,9 @@ export default function DonationsPage() {
         <div>
           <span className="font-medium">{v}</span>
           {row.is_anonymous && (
-            <span className="ml-1 text-xs text-gray-500">{t("donations.anonymous")}</span>
+            <span className="ml-1 text-xs text-gray-500">
+              {t("donations.anonymous")}
+            </span>
           )}
         </div>
       ),
@@ -122,7 +130,11 @@ export default function DonationsPage() {
         </span>
       ),
     },
-    { header: t("donations.method"), accessorKey: "donation_method", sortable: true },
+    {
+      header: t("donations.method"),
+      accessorKey: "donation_method",
+      sortable: true,
+    },
     {
       header: t("columns.category"),
       accessorKey: "category",

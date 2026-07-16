@@ -73,42 +73,44 @@ export default function ContactsPage() {
   };
 
   const handleDelete = async (contact: ContactInquiry) => {
-    if (
-      await confirm({
-        title: t("common.delete"),
-        message: t("common.confirmDelete"),
-        variant: "danger",
-      })
-    ) {
-      try {
-        await contactAdminService.delete(contact.id);
-        toast.success(t("common.success"));
-        selectedIds.clearSelection();
-        fetchData();
-      } catch {
-        toast.error(t("common.error"));
-      }
-    }
+    await confirm({
+      title: t("common.delete"),
+      message: t("common.confirmDelete"),
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          await contactAdminService.delete(contact.id);
+          toast.success(t("common.success"));
+          selectedIds.clearSelection();
+          fetchData();
+        } catch (err) {
+          toast.error(t("common.error"));
+
+          throw err;
+        }
+      },
+    });
   };
 
   const handleBulkDelete = async () => {
     if (selectedIds.selectedCount === 0) return;
-    if (
-      await confirm({
-        title: t("common.delete"),
-        message: t("common.confirmDelete"),
-        variant: "danger",
-      })
-    ) {
-      try {
-        await contactAdminService.bulkDelete(selectedIds.selectedArray);
-        toast.success(t("common.success"));
-        selectedIds.clearSelection();
-        fetchData();
-      } catch {
-        toast.error(t("common.error"));
-      }
-    }
+    await confirm({
+      title: t("common.delete"),
+      message: t("common.confirmDelete"),
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          await contactAdminService.bulkDelete(selectedIds.selectedArray);
+          toast.success(t("common.success"));
+          selectedIds.clearSelection();
+          fetchData();
+        } catch (err) {
+          toast.error(t("common.error"));
+
+          throw err;
+        }
+      },
+    });
   };
 
   const handleExportCsv = () => {
@@ -254,19 +256,27 @@ export default function ContactsPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="font-medium text-gray-700">{t("columns.name")}:</span>{" "}
+                <span className="font-medium text-gray-700">
+                  {t("columns.name")}:
+                </span>{" "}
                 {selectedContact.name}
               </div>
               <div>
-                <span className="font-medium text-gray-700">{t("columns.email")}:</span>{" "}
+                <span className="font-medium text-gray-700">
+                  {t("columns.email")}:
+                </span>{" "}
                 {selectedContact.email}
               </div>
               <div>
-                <span className="font-medium text-gray-700">{t("contacts.phone")}:</span>{" "}
+                <span className="font-medium text-gray-700">
+                  {t("contacts.phone")}:
+                </span>{" "}
                 {selectedContact.phone || "-"}
               </div>
               <div>
-                <span className="font-medium text-gray-700">{t("columns.type")}:</span>{" "}
+                <span className="font-medium text-gray-700">
+                  {t("columns.type")}:
+                </span>{" "}
                 {selectedContact.inquiry_type}
               </div>
             </div>

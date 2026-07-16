@@ -15,7 +15,7 @@ import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
 import { TimePicker } from "@/components/ui/TimePicker";
-import { Checkbox } from "@/components/ui/Checkbox";
+import { Switch } from "@/components/ui/Switch";
 import { useDataTable } from "@/hooks/useDataTable";
 import { scheduleAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
@@ -110,10 +110,15 @@ export default function SchedulesPage() {
           formData.schedule_type === "weekly" ? formData.day_of_week : null,
       };
       if (editingSchedule) {
-        await scheduleAdminService.update(editingSchedule.id, submitData as unknown as Record<string, unknown>);
+        await scheduleAdminService.update(
+          editingSchedule.id,
+          submitData as unknown as Record<string, unknown>,
+        );
         toast.success(t("common.success"));
       } else {
-        await scheduleAdminService.create(submitData as unknown as Record<string, unknown>);
+        await scheduleAdminService.create(
+          submitData as unknown as Record<string, unknown>,
+        );
         toast.success(t("common.success"));
       }
       close();
@@ -126,42 +131,44 @@ export default function SchedulesPage() {
   };
 
   const handleDelete = async (schedule: Schedule) => {
-    if (
-      await confirm({
-        title: t("common.delete"),
-        message: t("common.confirmDelete"),
-        variant: "danger",
-      })
-    ) {
-      try {
-        await scheduleAdminService.delete(schedule.id);
-        toast.success(t("common.success"));
-        selectedIds.clearSelection();
-        fetchData();
-      } catch {
-        toast.error(t("common.error"));
-      }
-    }
+    await confirm({
+      title: t("common.delete"),
+      message: t("common.confirmDelete"),
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          await scheduleAdminService.delete(schedule.id);
+          toast.success(t("common.success"));
+          selectedIds.clearSelection();
+          fetchData();
+        } catch (err) {
+          toast.error(t("common.error"));
+
+          throw err;
+        }
+      },
+    });
   };
 
   const handleBulkDelete = async () => {
     if (selectedIds.selectedCount === 0) return;
-    if (
-      await confirm({
-        title: t("common.delete"),
-        message: t("common.confirmDelete"),
-        variant: "danger",
-      })
-    ) {
-      try {
-        await scheduleAdminService.bulkDelete(selectedIds.selectedArray);
-        toast.success(t("common.success"));
-        selectedIds.clearSelection();
-        fetchData();
-      } catch {
-        toast.error(t("common.error"));
-      }
-    }
+    await confirm({
+      title: t("common.delete"),
+      message: t("common.confirmDelete"),
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          await scheduleAdminService.bulkDelete(selectedIds.selectedArray);
+          toast.success(t("common.success"));
+          selectedIds.clearSelection();
+          fetchData();
+        } catch (err) {
+          toast.error(t("common.error"));
+
+          throw err;
+        }
+      },
+    });
   };
 
   const handleExportCsv = () => {
@@ -334,12 +341,10 @@ export default function SchedulesPage() {
                   id="day_of_week"
                   label={t("schedules.day")}
                   options={dayOfWeekOptions}
-                  value={
-                    field.value !== null ? String(field.value) : ""
-                  }
+                  value={field.value !== null ? String(field.value) : ""}
                   onChange={(e) =>
                     field.onChange(
-                      e.target.value ? Number(e.target.value) : null
+                      e.target.value ? Number(e.target.value) : null,
                     )
                   }
                   error={errors.day_of_week?.message}
@@ -417,7 +422,7 @@ export default function SchedulesPage() {
             control={control}
             name="is_active"
             render={({ field }) => (
-              <Checkbox
+              <Switch
                 label={t("form.active")}
                 checked={field.value}
                 onChange={(e) => field.onChange(e.target.checked)}

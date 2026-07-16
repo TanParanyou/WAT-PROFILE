@@ -7,7 +7,7 @@ import { MultiLangInput } from "@/components/admin/MultiLangInput";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
-import { Checkbox } from "@/components/ui/Checkbox";
+import { Switch } from "@/components/ui/Switch";
 import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/Loading";
 import {
@@ -175,7 +175,7 @@ export default function GalleryUploadPage() {
           control={control}
           name="is_active"
           render={({ field }) => (
-            <Checkbox
+            <Switch
               label="เปิดใช้งาน"
               checked={field.value}
               onChange={(e) => field.onChange(e.target.checked)}

@@ -10,7 +10,7 @@ import { DataTable, Column } from "@/components/ui/DataTable";
 import { FormModal, useModal, useConfirm } from "@/components/ui/Modal";
 import { MultiLangInput } from "@/components/admin/MultiLangInput";
 import { Input } from "@/components/ui/Input";
-import { Checkbox } from "@/components/ui/Checkbox";
+import { Switch } from "@/components/ui/Switch";
 import { Button } from "@/components/ui/Button";
 import { galleryCategoryAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
@@ -45,42 +45,46 @@ export default function GalleryCategoriesPage() {
     useState<GalleryCategory | null>(null);
 
   const handleDelete = async (id: number) => {
-    if (
-      await confirm({
-        title: t("common.delete"),
-        message: t("common.confirmDelete"),
-        variant: "danger",
-      })
-    ) {
-      try {
-        await galleryCategoryAdminService.delete(id);
-        toast.success(t("common.success"));
-        selectedIds.clearSelection();
-        loadCategories();
-      } catch {
-        toast.error(t("common.error"));
-      }
-    }
+    await confirm({
+      title: t("common.delete"),
+      message: t("common.confirmDelete"),
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          await galleryCategoryAdminService.delete(id);
+          toast.success(t("common.success"));
+          selectedIds.clearSelection();
+          loadCategories();
+        } catch (err) {
+          toast.error(t("common.error"));
+
+          throw err;
+        }
+      },
+    });
   };
 
   const handleBulkDelete = async () => {
     if (selectedIds.selectedCount === 0) return;
-    if (
-      await confirm({
-        title: t("common.delete"),
-        message: t("common.confirmDelete"),
-        variant: "danger",
-      })
-    ) {
-      try {
-        await galleryCategoryAdminService.bulkDelete(selectedIds.selectedArray);
-        toast.success(t("common.success"));
-        selectedIds.clearSelection();
-        loadCategories();
-      } catch {
-        toast.error(t("common.error"));
-      }
-    }
+    await confirm({
+      title: t("common.delete"),
+      message: t("common.confirmDelete"),
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          await galleryCategoryAdminService.bulkDelete(
+            selectedIds.selectedArray,
+          );
+          toast.success(t("common.success"));
+          selectedIds.clearSelection();
+          loadCategories();
+        } catch (err) {
+          toast.error(t("common.error"));
+
+          throw err;
+        }
+      },
+    });
   };
 
   const handleExportCsv = () => {
@@ -327,7 +331,7 @@ export default function GalleryCategoriesPage() {
             control={control}
             name="is_active"
             render={({ field }) => (
-              <Checkbox
+              <Switch
                 label="เปิดใช้งาน"
                 checked={field.value}
                 onChange={(e) => field.onChange(e.target.checked)}

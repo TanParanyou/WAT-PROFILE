@@ -9,7 +9,7 @@ import { DataTable, Column } from "@/components/ui/DataTable";
 import { FormModal, useModal, useConfirm } from "@/components/ui/Modal";
 import { MultiLangInput } from "@/components/admin/MultiLangInput";
 import { Input } from "@/components/ui/Input";
-import { Checkbox } from "@/components/ui/Checkbox";
+import { Switch } from "@/components/ui/Switch";
 import { Button } from "@/components/ui/Button";
 import { donationCategoryAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
@@ -124,44 +124,46 @@ export default function DonationCategoriesPage() {
   };
 
   const handleDelete = async (id: number) => {
-    if (
-      await confirm({
-        title: "ลบหมวดหมู่",
-        message: "ยืนยันการลบ?",
-        variant: "danger",
-      })
-    ) {
-      try {
-        await donationCategoryAdminService.delete(id);
-        toast.success(t("common.success"));
-        selectedIds.clearSelection();
-        loadCategories();
-      } catch (err: unknown) {
-        handleApiError(err);
-      }
-    }
+    await confirm({
+      title: "ลบหมวดหมู่",
+      message: "ยืนยันการลบ?",
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          await donationCategoryAdminService.delete(id);
+          toast.success(t("common.success"));
+          selectedIds.clearSelection();
+          loadCategories();
+        } catch (err: unknown) {
+          handleApiError(err);
+
+          throw err;
+        }
+      },
+    });
   };
 
   const handleBulkDelete = async () => {
     if (selectedIds.selectedCount === 0) return;
-    if (
-      await confirm({
-        title: "ลบหมวดหมู่",
-        message: "ยืนยันการลบที่เลือก?",
-        variant: "danger",
-      })
-    ) {
-      try {
-        await donationCategoryAdminService.bulkDelete(
-          selectedIds.selectedArray,
-        );
-        toast.success(t("common.success"));
-        selectedIds.clearSelection();
-        loadCategories();
-      } catch (err: unknown) {
-        handleApiError(err);
-      }
-    }
+    await confirm({
+      title: "ลบหมวดหมู่",
+      message: "ยืนยันการลบที่เลือก?",
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          await donationCategoryAdminService.bulkDelete(
+            selectedIds.selectedArray,
+          );
+          toast.success(t("common.success"));
+          selectedIds.clearSelection();
+          loadCategories();
+        } catch (err: unknown) {
+          handleApiError(err);
+
+          throw err;
+        }
+      },
+    });
   };
 
   const handleExportCsv = () => {
@@ -347,7 +349,7 @@ export default function DonationCategoriesPage() {
             control={control}
             name="is_active"
             render={({ field }) => (
-              <Checkbox
+              <Switch
                 label="เปิดใช้งาน"
                 checked={field.value}
                 onChange={(e) => field.onChange(e.target.checked)}
