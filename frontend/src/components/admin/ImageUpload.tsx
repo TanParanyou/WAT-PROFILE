@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useRef, useState, useEffect } from "react";
-import { Upload, X, Database, Loader2, Eye } from "lucide-react";
-import { galleryAdminService } from "@/services/adminService";
+import { Upload, X, Loader2, Eye } from "lucide-react";
+import { mediaService } from "@/services/mediaService";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { useTranslations } from "next-intl";
@@ -68,12 +68,11 @@ export function ImageUpload({
     setIsModalOpen(true);
     setIsLoadingGallery(true);
     try {
-      const res = await galleryAdminService.getAll({ limit: 100 });
-      // Extract unique non-empty image URLs
+      const media = await mediaService.list();
       const urls = Array.from(
         new Set(
-          res.data
-            .map((item) => item.image_url)
+          media
+            .map((item) => item.url)
             .filter((url): url is string => typeof url === "string" && url !== ""),
         ),
       );

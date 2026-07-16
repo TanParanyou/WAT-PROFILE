@@ -103,11 +103,16 @@ func (h *UploadHandler) UploadFile(c *fiber.Ctx) error {
 
 	if err := h.db.Create(&media).Error; err != nil {
 		log.Error().Err(err).Msg("Failed to save media record")
+		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+			"success": false,
+			"error":   "Failed to save media record",
+		})
 	}
 
 	return c.JSON(fiber.Map{
 		"data": fiber.Map{
-			"url": url,
+			"url":   url,
+			"media": media,
 		},
 	})
 }

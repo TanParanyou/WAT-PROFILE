@@ -101,6 +101,30 @@ export interface Gallery {
   updated_at: string;
 }
 
+export interface MediaMetadata {
+  alt?: MultiLangText;
+  caption?: string;
+  credit?: string;
+  [key: string]: unknown;
+}
+
+export interface Media {
+  id: string;
+  filename: string;
+  original_filename: string;
+  mime_type: string;
+  size: number;
+  url: string;
+  path: string;
+  uploaded_by_id: string | null;
+  uploaded_by?: User;
+  alt_text: string;
+  category: string;
+  metadata: MediaMetadata | null;
+  created_at: string;
+  updated_at: string;
+}
+
 // Schedule
 export interface Schedule {
   id: number;

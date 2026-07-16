@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Modal } from "@/components/ui/Modal";
-import { useMockMediaStore } from "@/stores/mock-media-store";
+import { useMediaStore } from "@/stores/media-store";
 
 export function MediaPickerModal({
   isOpen,
@@ -11,8 +11,16 @@ export function MediaPickerModal({
   onClose: () => void;
   onSelect: (url: string) => void;
 }) {
-  const mediaList = useMockMediaStore((s) => s.mediaList);
+  const mediaList = useMediaStore((s) => s.mediaList);
+  const hasLoaded = useMediaStore((s) => s.hasLoaded);
+  const fetchMedia = useMediaStore((s) => s.fetchMedia);
   const [selectedId, setSelectedId] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (isOpen && !hasLoaded) {
+      void fetchMedia();
+    }
+  }, [fetchMedia, hasLoaded, isOpen]);
 
   const handleConfirm = () => {
     const selected = mediaList.find((m) => m.id === selectedId);
@@ -32,7 +40,9 @@ export function MediaPickerModal({
               type="button"
               onClick={() => setSelectedId(media.id)}
               className={`relative aspect-video overflow-hidden border bg-zinc-50 ${
-                selectedId === media.id ? "border-zinc-950 ring-1 ring-zinc-950" : "border-zinc-200"
+                selectedId === media.id
+                  ? "border-zinc-950 ring-1 ring-zinc-950"
+                  : "border-zinc-200"
               }`}
             >
               <img src={media.url} alt="" className="h-full w-full object-cover" />

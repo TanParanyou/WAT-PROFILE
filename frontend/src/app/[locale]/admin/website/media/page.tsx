@@ -1,30 +1,38 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
-import { useMockMediaStore, MockMedia } from "@/stores/mock-media-store";
+import { useEffect, useRef, useState } from "react";
+import { Loader2, Upload } from "lucide-react";
+import { useToast } from "@/hooks/useToast";
+import { useMediaStore } from "@/stores/media-store";
+import type { Media } from "@/types/entities";
 import { MediaDetailsSidebar } from "@/components/admin/website/MediaDetailsSidebar";
 import { Button } from "@/components/ui/Button";
-import { Loader2, Upload } from "lucide-react";
 
 export default function MediaLibraryPage() {
-  const { mediaList, isLoading, isUploading, fetchMedia, addMedia } =
-    useMockMediaStore();
-  const [selectedMedia, setSelectedMedia] = useState<MockMedia | null>(null);
+  const { mediaList, isLoading, isUploading, fetchMedia, uploadMedia } =
+    useMediaStore();
+  const { toast } = useToast();
+  const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
-    fetchMedia();
-  }, [fetchMedia]);
+    void fetchMedia().catch(() => {
+      toast.error("ไม่สามารถโหลดคลังสื่อได้");
+    });
+  }, [fetchMedia, toast]);
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
-    // Simulate uploading local file by creating a blob URL
-    const url = URL.createObjectURL(file);
-    await addMedia(url, file.name);
+    try {
+      const media = await uploadMedia(file);
+      setSelectedMedia(media);
+      toast.success("อัปโหลดรูปภาพเรียบร้อยแล้ว");
+    } catch {
+      toast.error("อัปโหลดรูปภาพไม่สำเร็จ");
+    }
 
-    // Reset input
     if (fileInputRef.current) {
       fileInputRef.current.value = "";
     }
@@ -93,8 +101,11 @@ export default function MediaLibraryPage() {
         )}
       </div>
       <MediaDetailsSidebar
+        key={selectedMedia?.id || "empty"}
         media={selectedMedia}
         onClose={() => setSelectedMedia(null)}
+        onUpdated={setSelectedMedia}
+        onDeleted={() => setSelectedMedia(null)}
       />
     </div>
   );

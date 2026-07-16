@@ -25,6 +25,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	settingsHandler := handlers.NewSettingsHandler(db)
 	contentHandler := handlers.NewContentHandler(db)
 	uploadHandler := handlers.NewUploadHandler(db, r2)
+	mediaHandler := handlers.NewMediaHandler(db)
 	dashboardHandler := handlers.NewDashboardHandler(db)
 	userHandler := handlers.NewUserHandler(db)
 	roleHandler := handlers.NewRoleHandler(db)
@@ -121,6 +122,9 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 
 	// Upload Management
 	admin.Post("/upload", middleware.PermissionRequired("gallery", "create"), uploadHandler.UploadFile)
+	admin.Get("/media", middleware.PermissionRequired("gallery", "read"), mediaHandler.GetMedia)
+	admin.Put("/media/:id", middleware.PermissionRequired("gallery", "update"), mediaHandler.UpdateMedia)
+	admin.Delete("/media/:id", middleware.PermissionRequired("gallery", "delete"), mediaHandler.DeleteMedia)
 
 	// Schedule Management
 	admin.Get("/schedules", middleware.PermissionRequired("schedules", "read"), scheduleHandler.GetSchedules)

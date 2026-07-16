@@ -46,6 +46,8 @@ tags:
     description: Monks management (Admin only)
   - name: Admin - Gallery
     description: Gallery management (Admin only)
+  - name: Admin - Media
+    description: Media library management (Admin only)
   - name: Admin - Schedules
     description: Schedules management (Admin only)
   - name: Admin - Donations
@@ -595,6 +597,100 @@ paths:
         '200':
           description: Category updated
 
+  # ==================== ADMIN - Media ====================
+  /admin/upload:
+    post:
+      tags: [Admin - Media]
+      summary: Upload an image to object storage and persist a Media record
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+      responses:
+        '200':
+          description: Upload result
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/MediaUploadResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
+  /admin/media:
+    get:
+      tags: [Admin - Media]
+      summary: List uploaded media
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Media list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Media'
+
+  /admin/media/{id}:
+    put:
+      tags: [Admin - Media]
+      summary: Update media metadata
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/MediaIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MediaUpdateInput'
+      responses:
+        '200':
+          description: Media updated
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/Media'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    delete:
+      tags: [Admin - Media]
+      summary: Delete media record
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/MediaIdParam'
+      responses:
+        '200':
+          description: Media deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   # ==================== ADMIN - Schedules ====================
   /admin/schedules:
     get:
@@ -1023,6 +1119,13 @@ components:
       required: true
       schema:
         type: integer
+    MediaIdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: string
+        format: uuid
 
   responses:
     BadRequest:
@@ -1154,6 +1257,67 @@ components:
           type: string
         is_active:
           type: boolean
+
+    MediaMetadata:
+      type: object
+      properties:
+        alt:
+          $ref: '#/components/schemas/MultiLangText'
+        caption:
+          type: string
+        credit:
+          type: string
+
+    Media:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        filename:
+          type: string
+        original_filename:
+          type: string
+        mime_type:
+          type: string
+        size:
+          type: integer
+          format: int64
+        url:
+          type: string
+        path:
+          type: string
+        uploaded_by_id:
+          type: string
+          format: uuid
+          nullable: true
+        alt_text:
+          type: string
+        category:
+          type: string
+        metadata:
+          $ref: '#/components/schemas/MediaMetadata'
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
+    MediaUpdateInput:
+      type: object
+      required: [metadata]
+      properties:
+        metadata:
+          $ref: '#/components/schemas/MediaMetadata'
+
+    MediaUploadResponse:
+      type: object
+      properties:
+        url:
+          type: string
+        media:
+          $ref: '#/components/schemas/Media'
 
     # ===== Event =====
     Event:
