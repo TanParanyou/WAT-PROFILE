@@ -10,13 +10,14 @@ import { Select } from "@/components/ui/Select";
 import { Switch } from "@/components/ui/Switch";
 import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/Loading";
+import api from "@/services/api";
 import {
   galleryAdminService,
   galleryCategoryAdminService,
 } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import { useApiError } from "@/hooks/useApiError";
-import type { MultiLangText } from "@/types/api";
+import type { ApiResponse, MultiLangText } from "@/types/api";
 import type { GalleryCategory } from "@/types/entities";
 import { useTranslations } from "next-intl";
 import { useForm, Controller } from "react-hook-form";
@@ -24,6 +25,24 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { gallerySchema, type GalleryFormData } from "@/schemas/gallery.schema";
 
 const emptyLang: MultiLangText = { th: "", en: "", de: "" };
+
+async function uploadGalleryImage(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append("file", file);
+
+  const response = await api.post<ApiResponse<{ url: string }>>(
+    "/admin/upload",
+    formData,
+    { headers: { "Content-Type": "multipart/form-data" } },
+  );
+
+  const imageUrl = response.data.data?.url;
+  if (!imageUrl) {
+    throw new Error("Upload response did not include an image URL");
+  }
+
+  return imageUrl;
+}
 
 export default function GalleryUploadPage() {
   const t = useTranslations("Admin");
@@ -75,9 +94,25 @@ export default function GalleryUploadPage() {
 
     setIsLoading(true);
     try {
-      await galleryAdminService.create(
-        data as unknown as Record<string, unknown>,
-      );
+      const imageUrl =
+        data.image_url instanceof File
+          ? await uploadGalleryImage(data.image_url)
+          : data.image_url;
+      const caption = data.caption
+        ? {
+            th: data.caption.th ?? "",
+            en: data.caption.en ?? "",
+            de: data.caption.de ?? "",
+          }
+        : undefined;
+
+      await galleryAdminService.create({
+        image_url: imageUrl,
+        caption,
+        category_id: data.category_id,
+        display_order: data.display_order,
+        is_active: data.is_active,
+      });
       toast.success("อัปโหลดรูปภาพสำเร็จ");
       router.push("/admin/gallery");
     } catch (err: unknown) {
