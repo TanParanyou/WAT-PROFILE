@@ -26,49 +26,77 @@ const parseTimeString = (timeStr?: string | null): Date | null => {
     return d;
 };
 
-const formatTimeToStr = (date: Date | null): string => {
-    if (!date) return '';
-    const hours = date.getHours().toString().padStart(2, '0');
-    const minutes = date.getMinutes().toString().padStart(2, '0');
-    return `${hours}:${minutes}`;
+const formatAsTimeMask = (val: string, prevVal: string): string => {
+    if (prevVal && prevVal.length > val.length) {
+        return val;
+    }
+    const digits = val.replace(/[^0-9]/g, '');
+    if (digits.length <= 2) {
+        return digits;
+    }
+    const hh = digits.slice(0, 2);
+    const mm = digits.slice(2, 4);
+    
+    let validHH = hh;
+    if (parseInt(hh, 10) > 23) {
+        validHH = '23';
+    }
+    let validMM = mm;
+    if (mm && parseInt(mm, 10) > 59) {
+        validMM = '59';
+    }
+    
+    return `${validHH}:${validMM}`;
 };
+
+const CustomTimeInput = React.forwardRef<HTMLInputElement, any>(
+    ({ value, onClick, onChange, onKeyDown, className, ...rest }, ref) => {
+        const [displayVal, setDisplayVal] = React.useState(value || '');
+
+        React.useEffect(() => {
+            setDisplayVal(value || '');
+        }, [value]);
+
+        const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+            const rawVal = e.target.value;
+            const formatted = formatAsTimeMask(rawVal, displayVal);
+            setDisplayVal(formatted);
+            
+            if (onChange) {
+                e.target.value = formatted;
+                onChange(e);
+            }
+        };
+
+        return (
+            <input
+                {...rest}
+                ref={ref}
+                value={displayVal}
+                onChange={handleChange}
+                onClick={onClick}
+                onKeyDown={onKeyDown}
+                className={className}
+            />
+        );
+    }
+);
+CustomTimeInput.displayName = 'CustomTimeInput';
 
 export const TimePicker = React.forwardRef<HTMLDivElement, TimePickerProps>(
     ({ value, onChange, label, error, id, required, disabled, placeholder = 'เลือกเวลา', className }, ref) => {
         const selectedDate = useMemo(() => parseTimeString(value), [value]);
 
+        const formatTimeToStr = (date: Date | null): string => {
+            if (!date) return '';
+            const hours = date.getHours().toString().padStart(2, '0');
+            const minutes = date.getMinutes().toString().padStart(2, '0');
+            return `${hours}:${minutes}`;
+        };
+
         const handleChange = (date: Date | null) => {
             if (onChange) {
                 onChange(formatTimeToStr(date));
-            }
-        };
-
-        const handleChangeRaw = (e: React.FocusEvent<HTMLInputElement>) => {
-            const rawVal = e.target.value;
-            // Clean characters: keep only digits and colon/dot
-            const cleaned = rawVal.replace(/[^0-9:.]/g, '').replace('.', ':');
-            
-            let hours = NaN;
-            let minutes = 0;
-
-            if (cleaned.includes(':')) {
-                const parts = cleaned.split(':');
-                hours = parseInt(parts[0], 10);
-                minutes = parseInt(parts[1] || '0', 10);
-            } else if (cleaned.length === 4) {
-                hours = parseInt(cleaned.slice(0, 2), 10);
-                minutes = parseInt(cleaned.slice(2, 4), 10);
-            } else if (cleaned.length === 3) {
-                hours = parseInt(cleaned.slice(0, 1), 10);
-                minutes = parseInt(cleaned.slice(1, 3), 10);
-            } else if (cleaned.length > 0) {
-                hours = parseInt(cleaned, 10);
-            }
-
-            if (!isNaN(hours) && hours >= 0 && hours < 24 && !isNaN(minutes) && minutes >= 0 && minutes < 60) {
-                const d = new Date();
-                d.setHours(hours, minutes, 0, 0);
-                handleChange(d);
             }
         };
 
@@ -85,7 +113,6 @@ export const TimePicker = React.forwardRef<HTMLDivElement, TimePickerProps>(
                         id={id}
                         selected={selectedDate}
                         onChange={handleChange}
-                        onChangeRaw={handleChangeRaw}
                         showTimeSelect
                         showTimeSelectOnly
                         timeIntervals={15}
@@ -94,6 +121,7 @@ export const TimePicker = React.forwardRef<HTMLDivElement, TimePickerProps>(
                         dateFormat="HH:mm"
                         disabled={disabled}
                         placeholderText={placeholder}
+                        customInput={<CustomTimeInput />}
                         className={cn(
                             'w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400',
                             'focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500',

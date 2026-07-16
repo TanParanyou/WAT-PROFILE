@@ -76,6 +76,7 @@
       "form": {
         "title": "Veranstaltungstitel",
         "slug": "Slug (für URL)",
+        "autoGen": "Auto Gen",
         "description": "Veranstaltungsbeschreibung",
         "image": "Titelbild",
         "date": "Veranstaltungsdatum",

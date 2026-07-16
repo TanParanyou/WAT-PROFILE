@@ -90,6 +90,8 @@ export function EventEditor({ id }: EventEditorProps) {
     handleSubmit,
     reset,
     setError,
+    setValue,
+    getValues,
     formState: { errors, isDirty },
   } = methods;
 
@@ -139,6 +141,25 @@ export function EventEditor({ id }: EventEditorProps) {
     };
     load();
   }, [id, reset, handleApiError]);
+
+  const handleAutoGenerateSlug = () => {
+    const title = getValues("title");
+    if (!title) return;
+
+    // Fallback: English -> Thai -> German
+    const sourceText = title.en || title.th || title.de || "";
+    if (!sourceText) return;
+
+    const generatedSlug = sourceText
+      .toLowerCase()
+      .trim()
+      .replace(/[\s_\/]+/g, "-") // Replace spaces, underscores, and slashes with hyphens
+      .replace(/[^a-z0-9\u0e00-\u0e7f-]/g, "") // Keep English, Thai, numbers, and hyphens
+      .replace(/-+/g, "-") // Collapse multiple hyphens
+      .replace(/^-+|-+$/g, ""); // Trim leading/trailing hyphens
+
+    setValue("slug", generatedSlug, { shouldDirty: true, shouldValidate: true });
+  };
 
   const onSubmit = async (data: EventFormData) => {
     setIsLoading(true);
@@ -301,14 +322,27 @@ export function EventEditor({ id }: EventEditorProps) {
                     />
                   )}
                 />
-                <Input
-                  id="slug"
-                  label={t("events.form.slug")}
-                  placeholder="event-slug-name"
-                  {...register("slug")}
-                  error={errors.slug?.message}
-                  required={true}
-                />
+                <div>
+                  <div className="flex items-center justify-between mb-1">
+                    <label htmlFor="slug" className="text-sm font-medium text-gray-700 flex items-center">
+                      {t("events.form.slug")}
+                      <span className="text-red-500 ml-1">*</span>
+                    </label>
+                    <button
+                      type="button"
+                      onClick={handleAutoGenerateSlug}
+                      className="text-xs text-amber-600 hover:text-amber-700 font-semibold focus:outline-none transition-colors"
+                    >
+                      {t("events.form.autoGen")}
+                    </button>
+                  </div>
+                  <Input
+                    id="slug"
+                    placeholder="event-slug-name"
+                    {...register("slug")}
+                    error={errors.slug?.message}
+                  />
+                </div>
                 <Controller
                   control={control}
                   name="description"

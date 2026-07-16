@@ -76,6 +76,7 @@
       "form": {
         "title": "Event Title",
         "slug": "Slug (for URL)",
+        "autoGen": "Auto Gen",
         "description": "Event Description",
         "image": "Cover Image",
         "date": "Event Date",
