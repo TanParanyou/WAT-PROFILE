@@ -8,7 +8,7 @@ import { ImageUpload } from "@/components/admin/ImageUpload";
 import { Input } from "@/components/ui/Input";
 import { TimePicker } from "@/components/ui/TimePicker";
 import { Select } from "@/components/ui/Select";
-import { Checkbox } from "@/components/ui/Checkbox";
+import { Switch } from "@/components/ui/Switch";
 import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/Loading";
 import { eventAdminService } from "@/services/adminService";
@@ -36,12 +36,12 @@ const getFieldError = (fieldError: unknown): string | undefined => {
   if (typeof fieldError === "object") {
     const err = fieldError as Record<string, unknown>;
     if (typeof err.message === "string") return err.message;
-    
+
     // Check nested multi-lang fields
     const th = err.th as Record<string, unknown> | undefined;
     const en = err.en as Record<string, unknown> | undefined;
     const de = err.de as Record<string, unknown> | undefined;
-    
+
     if (th && typeof th.message === "string") return th.message;
     if (en && typeof en.message === "string") return en.message;
     if (de && typeof de.message === "string") return de.message;
@@ -104,19 +104,31 @@ export function EventEditor({ id }: EventEditorProps) {
           description: event.description || { ...emptyLang },
           location: event.location || { ...emptyLang },
           slug: event.slug,
-          start_date: event.start_date ? formatInTimeZone(event.start_date, TIMEZONE, "yyyy-MM-dd") : "",
-          end_date: event.end_date ? formatInTimeZone(event.end_date, TIMEZONE, "yyyy-MM-dd") : "",
-          start_time: event.start_time ? formatInTimeZone(event.start_time, TIMEZONE, "HH:mm") : "",
-          end_time: event.end_time ? formatInTimeZone(event.end_time, TIMEZONE, "HH:mm") : "",
+          start_date: event.start_date
+            ? formatInTimeZone(event.start_date, TIMEZONE, "yyyy-MM-dd")
+            : "",
+          end_date: event.end_date
+            ? formatInTimeZone(event.end_date, TIMEZONE, "yyyy-MM-dd")
+            : "",
+          start_time: event.start_time
+            ? formatInTimeZone(event.start_time, TIMEZONE, "HH:mm")
+            : "",
+          end_time: event.end_time
+            ? formatInTimeZone(event.end_time, TIMEZONE, "HH:mm")
+            : "",
           event_type: event.event_type,
           image_url: event.image_url || "",
           map_url: event.map_url || "",
           is_active: event.is_active,
           registration_enabled: event.registration_enabled,
-          schedule: (event.schedules || []).map(s => ({
-            start_time: s.start_time ? formatInTimeZone(s.start_time, TIMEZONE, "HH:mm") : "",
-            end_time: s.end_time ? formatInTimeZone(s.end_time, TIMEZONE, "HH:mm") : "",
-            activity: s.activity || { ...emptyLang }
+          schedule: (event.schedules || []).map((s) => ({
+            start_time: s.start_time
+              ? formatInTimeZone(s.start_time, TIMEZONE, "HH:mm")
+              : "",
+            end_time: s.end_time
+              ? formatInTimeZone(s.end_time, TIMEZONE, "HH:mm")
+              : "",
+            activity: s.activity || { ...emptyLang },
           })),
         });
       } catch (err: unknown) {
@@ -140,22 +152,38 @@ export function EventEditor({ id }: EventEditorProps) {
         ? fromZonedTime(`${data.end_date}T00:00:00`, TIMEZONE).toISOString()
         : undefined;
 
-      const startTimeISO = data.start_time && data.start_date
-        ? fromZonedTime(`${data.start_date}T${data.start_time}:00`, TIMEZONE).toISOString()
-        : undefined;
+      const startTimeISO =
+        data.start_time && data.start_date
+          ? fromZonedTime(
+              `${data.start_date}T${data.start_time}:00`,
+              TIMEZONE,
+            ).toISOString()
+          : undefined;
 
-      const endTimeISO = data.end_time && data.start_date
-        ? fromZonedTime(`${data.start_date}T${data.end_time}:00`, TIMEZONE).toISOString()
-        : undefined;
+      const endTimeISO =
+        data.end_time && data.start_date
+          ? fromZonedTime(
+              `${data.start_date}T${data.end_time}:00`,
+              TIMEZONE,
+            ).toISOString()
+          : undefined;
 
       const scheduleISO = data.schedule?.map((s) => ({
         activity: s.activity,
-        start_time: s.start_time && data.start_date
-          ? fromZonedTime(`${data.start_date}T${s.start_time}:00`, TIMEZONE).toISOString()
-          : undefined,
-        end_time: s.end_time && data.start_date
-          ? fromZonedTime(`${data.start_date}T${s.end_time}:00`, TIMEZONE).toISOString()
-          : undefined,
+        start_time:
+          s.start_time && data.start_date
+            ? fromZonedTime(
+                `${data.start_date}T${s.start_time}:00`,
+                TIMEZONE,
+              ).toISOString()
+            : undefined,
+        end_time:
+          s.end_time && data.start_date
+            ? fromZonedTime(
+                `${data.start_date}T${s.end_time}:00`,
+                TIMEZONE,
+              ).toISOString()
+            : undefined,
       }));
 
       // Prepare payload WITHOUT the image if it's a File
@@ -167,7 +195,7 @@ export function EventEditor({ id }: EventEditorProps) {
         end_time: endTimeISO,
         schedules: scheduleISO,
       };
-      
+
       delete payload.schedule;
 
       if (typeof data.image_url === "string") {
@@ -198,7 +226,10 @@ export function EventEditor({ id }: EventEditorProps) {
         const finalImageUrl = uploadRes.data.data?.url || uploadRes.data.data;
 
         // 3. Update the event with the new image URL
-        await eventAdminService.update(savedEventId, { ...payload, image_url: finalImageUrl });
+        await eventAdminService.update(savedEventId, {
+          ...payload,
+          image_url: finalImageUrl,
+        });
       }
 
       toast.success(t("common.success"));
@@ -285,7 +316,11 @@ export function EventEditor({ id }: EventEditorProps) {
                     <MultiLangRichText
                       label={t("events.form.description")}
                       value={
-                        (field.value || { th: "", en: "", de: "" }) as MultiLangText
+                        (field.value || {
+                          th: "",
+                          en: "",
+                          de: "",
+                        }) as MultiLangText
                       }
                       onChange={field.onChange}
                       error={getFieldError(errors.description)}
@@ -327,19 +362,36 @@ export function EventEditor({ id }: EventEditorProps) {
                     render={({ field }) => {
                       const startDateVal = methods.watch("start_date");
                       const endDateVal = methods.watch("end_date");
-                      
-                      const from = startDateVal ? parse(startDateVal, "yyyy-MM-dd", new Date()) : undefined;
-                      const to = endDateVal ? parse(endDateVal, "yyyy-MM-dd", new Date()) : undefined;
-                      
+
+                      const from = startDateVal
+                        ? parse(startDateVal, "yyyy-MM-dd", new Date())
+                        : undefined;
+                      const to = endDateVal
+                        ? parse(endDateVal, "yyyy-MM-dd", new Date())
+                        : undefined;
+
                       return (
                         <DateRangePicker
                           label={t("events.form.date")}
                           value={{ from, to }}
                           onChange={(range) => {
-                            methods.setValue("start_date", range.from ? format(range.from, "yyyy-MM-dd") : "", { shouldDirty: true });
-                            methods.setValue("end_date", range.to ? format(range.to, "yyyy-MM-dd") : "", { shouldDirty: true });
+                            methods.setValue(
+                              "start_date",
+                              range.from
+                                ? format(range.from, "yyyy-MM-dd")
+                                : "",
+                              { shouldDirty: true },
+                            );
+                            methods.setValue(
+                              "end_date",
+                              range.to ? format(range.to, "yyyy-MM-dd") : "",
+                              { shouldDirty: true },
+                            );
                           }}
-                          error={errors.start_date?.message || errors.end_date?.message}
+                          error={
+                            errors.start_date?.message ||
+                            errors.end_date?.message
+                          }
                           required={true}
                         />
                       );
@@ -396,7 +448,11 @@ export function EventEditor({ id }: EventEditorProps) {
                     <MultiLangInput
                       label={t("events.form.location")}
                       value={
-                        (field.value || { th: "", en: "", de: "" }) as MultiLangText
+                        (field.value || {
+                          th: "",
+                          en: "",
+                          de: "",
+                        }) as MultiLangText
                       }
                       onChange={field.onChange}
                       error={getFieldError(errors.location)}
@@ -415,7 +471,7 @@ export function EventEditor({ id }: EventEditorProps) {
                     control={control}
                     name="is_active"
                     render={({ field }) => (
-                      <Checkbox
+                      <Switch
                         id="is_active"
                         label={t("form.active")}
                         checked={field.value}
@@ -427,7 +483,7 @@ export function EventEditor({ id }: EventEditorProps) {
                     control={control}
                     name="registration_enabled"
                     render={({ field }) => (
-                      <Checkbox
+                      <Switch
                         id="registration_enabled"
                         label={t("form.enableRegistration")}
                         checked={field.value}

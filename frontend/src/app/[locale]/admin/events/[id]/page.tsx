@@ -9,7 +9,7 @@ export default function EventDynamicPage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = use(params);
-  
+
   const isCreate = id === "create";
 
   return <EventEditor id={isCreate ? undefined : id} />;

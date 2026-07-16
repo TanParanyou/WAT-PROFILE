@@ -37,40 +37,44 @@ export default function EventsListPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const handleDelete = async (id: number) => {
-    const ok = await confirm({
+    await confirm({
       title: t("common.delete"),
       message: t("common.confirmDelete"),
       variant: "danger",
+      onConfirm: async () => {
+        try {
+          await eventAdminService.delete(id);
+          toast.success(t("common.success"));
+          selectedIds.clearSelection();
+          fetchData();
+        } catch (err) {
+          toast.error(t("common.error"));
+
+          throw err;
+        }
+      },
     });
-    if (ok) {
-      try {
-        await eventAdminService.delete(id);
-        toast.success(t("common.success"));
-        selectedIds.clearSelection();
-        fetchData();
-      } catch {
-        toast.error(t("common.error"));
-      }
-    }
   };
 
   const handleBulkDelete = async () => {
     if (selectedIds.selectedCount === 0) return;
-    const ok = await confirm({
+    await confirm({
       title: t("common.delete"),
       message: t("common.confirmDelete"),
       variant: "danger",
+      onConfirm: async () => {
+        try {
+          await eventAdminService.bulkDelete(selectedIds.selectedArray);
+          toast.success(t("common.success"));
+          selectedIds.clearSelection();
+          fetchData();
+        } catch (err) {
+          toast.error(t("common.error"));
+
+          throw err;
+        }
+      },
     });
-    if (ok) {
-      try {
-        await eventAdminService.bulkDelete(selectedIds.selectedArray);
-        toast.success(t("common.success"));
-        selectedIds.clearSelection();
-        fetchData();
-      } catch {
-        toast.error(t("common.error"));
-      }
-    }
   };
 
   const handleExportCsv = () => {
@@ -211,7 +215,9 @@ export default function EventsListPage() {
         title={t("website.viewPublic")}
         size="xl"
       >
-        {previewUrl && <IframePreview url={previewUrl} title="Event Public Preview" />}
+        {previewUrl && (
+          <IframePreview url={previewUrl} title="Event Public Preview" />
+        )}
       </Drawer>
     </div>
   );

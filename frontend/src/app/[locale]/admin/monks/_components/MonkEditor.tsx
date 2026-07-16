@@ -8,7 +8,7 @@ import { ImageUpload } from "@/components/admin/ImageUpload";
 import { Input } from "@/components/ui/Input";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { Select } from "@/components/ui/Select";
-import { Checkbox } from "@/components/ui/Checkbox";
+import { Switch } from "@/components/ui/Switch";
 import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/Loading";
 import { monkAdminService } from "@/services/adminService";
@@ -30,11 +30,11 @@ const getFieldError = (fieldError: unknown): string | undefined => {
   if (typeof fieldError === "object") {
     const err = fieldError as Record<string, unknown>;
     if (typeof err.message === "string") return err.message;
-    
+
     const th = err.th as Record<string, unknown> | undefined;
     const en = err.en as Record<string, unknown> | undefined;
     const de = err.de as Record<string, unknown> | undefined;
-    
+
     if (th && typeof th.message === "string") return th.message;
     if (en && typeof en.message === "string") return en.message;
     if (de && typeof de.message === "string") return de.message;
@@ -187,7 +187,7 @@ export function MonkEditor({ id }: MonkEditorProps) {
                 />
               )}
             />
-            
+
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 id="slug"
@@ -276,7 +276,7 @@ export function MonkEditor({ id }: MonkEditorProps) {
               control={control}
               name="is_active"
               render={({ field }) => (
-                <Checkbox
+                <Switch
                   id="is_active"
                   label="เปิดใช้งานแสดงบนเว็บไซต์"
                   checked={field.value}

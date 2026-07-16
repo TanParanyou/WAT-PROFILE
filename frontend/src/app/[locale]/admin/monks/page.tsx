@@ -35,42 +35,44 @@ export default function MonksListPage() {
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   const handleDelete = async (id: number) => {
-    if (
-      await confirm({
-        title: t("common.delete"),
-        message: t("common.confirmDelete"),
-        variant: "danger",
-      })
-    ) {
-      try {
-        await monkAdminService.delete(id);
-        toast.success(t("common.success"));
-        selectedIds.clearSelection();
-        fetchData();
-      } catch {
-        toast.error(t("common.error"));
-      }
-    }
+    await confirm({
+      title: t("common.delete"),
+      message: t("common.confirmDelete"),
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          await monkAdminService.delete(id);
+          toast.success(t("common.success"));
+          selectedIds.clearSelection();
+          fetchData();
+        } catch (err) {
+          toast.error(t("common.error"));
+
+          throw err;
+        }
+      },
+    });
   };
 
   const handleBulkDelete = async () => {
     if (selectedIds.selectedCount === 0) return;
-    if (
-      await confirm({
-        title: t("common.delete"),
-        message: t("common.confirmDelete"),
-        variant: "danger",
-      })
-    ) {
-      try {
-        await monkAdminService.bulkDelete(selectedIds.selectedArray);
-        toast.success(t("common.success"));
-        selectedIds.clearSelection();
-        fetchData();
-      } catch {
-        toast.error(t("common.error"));
-      }
-    }
+    await confirm({
+      title: t("common.delete"),
+      message: t("common.confirmDelete"),
+      variant: "danger",
+      onConfirm: async () => {
+        try {
+          await monkAdminService.bulkDelete(selectedIds.selectedArray);
+          toast.success(t("common.success"));
+          selectedIds.clearSelection();
+          fetchData();
+        } catch (err) {
+          toast.error(t("common.error"));
+
+          throw err;
+        }
+      },
+    });
   };
 
   const handleExportCsv = () => {
