@@ -233,6 +233,7 @@ interface UseConfirmOptions {
     confirmText?: string;
     cancelText?: string;
     variant?: ModalVariant;
+    onConfirm?: () => Promise<void> | void;
 }
 
 const useConfirm = () => {
@@ -240,22 +241,38 @@ const useConfirm = () => {
         isOpen: boolean;
         options: UseConfirmOptions | null;
         resolve: ((value: boolean) => void) | null;
-    }>({ isOpen: false, options: null, resolve: null });
+        isLoading: boolean;
+    }>({ isOpen: false, options: null, resolve: null, isLoading: false });
 
     const confirm = useCallback((options: UseConfirmOptions): Promise<boolean> => {
         return new Promise((resolve) => {
-            setState({ isOpen: true, options, resolve });
+            setState({ isOpen: true, options, resolve, isLoading: false });
         });
     }, []);
 
-    const handleConfirm = useCallback(() => {
-        state.resolve?.(true);
-        setState({ isOpen: false, options: null, resolve: null });
+    const handleConfirm = useCallback(async () => {
+        if (!state.options) return;
+
+        if (state.options.onConfirm) {
+            setState((prev) => ({ ...prev, isLoading: true }));
+            try {
+                await state.options.onConfirm();
+                state.resolve?.(true);
+                setState({ isOpen: false, options: null, resolve: null, isLoading: false });
+            } catch (error) {
+                setState((prev) => ({ ...prev, isLoading: false }));
+                // Allow the caller to handle the error in their onConfirm
+            }
+        } else {
+            state.resolve?.(true);
+            setState({ isOpen: false, options: null, resolve: null, isLoading: false });
+        }
     }, [state]);
 
     const handleClose = useCallback(() => {
+        if (state.isLoading) return; // Prevent closing while loading
         state.resolve?.(false);
-        setState({ isOpen: false, options: null, resolve: null });
+        setState({ isOpen: false, options: null, resolve: null, isLoading: false });
     }, [state]);
 
     const ConfirmDialog: React.FC = useCallback(() => {
@@ -270,6 +287,7 @@ const useConfirm = () => {
                 confirmText={state.options.confirmText}
                 cancelText={state.options.cancelText}
                 variant={state.options.variant}
+                isLoading={state.isLoading}
             />
         );
     }, [state, handleClose, handleConfirm]);

@@ -33,7 +33,8 @@ const statusVariantMap: Record<string, BadgeVariant> = {
 };
 
 export function StatusBadge({ label, variant, className }: StatusBadgeProps) {
-    const resolvedVariant = variant || statusVariantMap[label.toLowerCase()] || 'default';
+    const safeLabel = label || '';
+    const resolvedVariant = variant || statusVariantMap[safeLabel.toLowerCase()] || 'default';
 
     return (
         <span
@@ -43,7 +44,7 @@ export function StatusBadge({ label, variant, className }: StatusBadgeProps) {
                 className
             )}
         >
-            {label}
+            {label || 'Unknown'}
         </span>
     );
 }
