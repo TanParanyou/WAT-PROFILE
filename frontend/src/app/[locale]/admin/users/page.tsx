@@ -32,40 +32,42 @@ export default function UsersListPage() {
   const selectedIds = useRowSelection<string>();
 
   const handleDelete = async (id: string) => {
-    const ok = await confirm({
+    await confirm({
       title: t("common.delete"),
       message: t("common.confirmDelete"),
       variant: "danger",
+      onConfirm: async () => {
+        try {
+          await userAdminService.delete(id);
+          toast.success(t("common.success"));
+          selectedIds.clearSelection();
+          fetchData();
+        } catch (err: unknown) {
+          handleApiError(err);
+          throw err;
+        }
+      },
     });
-    if (ok) {
-      try {
-        await userAdminService.delete(id);
-        toast.success(t("common.success"));
-        selectedIds.clearSelection();
-        fetchData();
-      } catch (err: unknown) {
-        handleApiError(err);
-      }
-    }
   };
 
   const handleBulkDelete = async () => {
     if (selectedIds.selectedCount === 0) return;
-    const ok = await confirm({
+    await confirm({
       title: t("common.delete"),
       message: t("common.confirmDelete"),
       variant: "danger",
+      onConfirm: async () => {
+        try {
+          await userAdminService.bulkDelete(selectedIds.selectedArray);
+          toast.success(t("common.success"));
+          selectedIds.clearSelection();
+          fetchData();
+        } catch (err: unknown) {
+          handleApiError(err);
+          throw err;
+        }
+      },
     });
-    if (ok) {
-      try {
-        await userAdminService.bulkDelete(selectedIds.selectedArray);
-        toast.success(t("common.success"));
-        selectedIds.clearSelection();
-        fetchData();
-      } catch (err: unknown) {
-        handleApiError(err);
-      }
-    }
   };
 
   const handleExportCsv = () => {

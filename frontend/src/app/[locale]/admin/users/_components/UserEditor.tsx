@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "@/navigation";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
-import { Checkbox } from "@/components/ui/Checkbox";
+import { Switch } from "@/components/ui/Switch";
 import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/Loading";
 import { userAdminService, roleAdminService } from "@/services/adminService";
@@ -177,9 +177,15 @@ export function UserEditor({ id }: UserEditorProps) {
 
             <Input
               id="password"
-              label={isEditMode ? "รหัสผ่านใหม่ (เว้นว่างหากไม่ต้องการเปลี่ยน)" : "รหัสผ่าน *"}
+              label={
+                isEditMode
+                  ? "รหัสผ่านใหม่ (เว้นว่างหากไม่ต้องการเปลี่ยน)"
+                  : "รหัสผ่าน *"
+              }
               type="password"
-              placeholder={isEditMode ? "••••••••" : "กรอกรหัสผ่านอย่างน้อย 8 ตัวอักษร"}
+              placeholder={
+                isEditMode ? "••••••••" : "กรอกรหัสผ่านอย่างน้อย 8 ตัวอักษร"
+              }
               {...register("password")}
               error={errors.password?.message}
             />
@@ -188,9 +194,9 @@ export function UserEditor({ id }: UserEditorProps) {
               control={control}
               name="is_active"
               render={({ field }) => (
-                <Checkbox
-                  id="is_active"
-                  label="เปิดใช้งานผู้ใช้งานรายนี้"
+                <Switch
+                  id="user-is-active"
+                  label="เปิดใช้งานผู้ใช้งาน"
                   checked={field.value}
                   onChange={(e) => field.onChange(e.target.checked)}
                 />

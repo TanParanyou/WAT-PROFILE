@@ -8,7 +8,7 @@ import { StatusBadge } from "@/components/admin/StatusBadge";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { FormModal, useConfirm } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
-import { Checkbox } from "@/components/ui/Checkbox";
+import { Switch } from "@/components/ui/Switch";
 import { useDataTable } from "@/hooks/useDataTable";
 import { Button } from "@/components/ui/Button";
 import { roleAdminService } from "@/services/adminService";
@@ -84,40 +84,44 @@ export default function RolesPage() {
       return;
     }
 
-    const ok = await confirm({
+    await confirm({
       title: t("common.delete"),
       message: t("common.confirmDelete"),
       variant: "danger",
+      onConfirm: async () => {
+        try {
+          await roleAdminService.delete(id);
+          toast.success(t("common.success"));
+          selectedIds.clearSelection();
+          fetchData();
+        } catch (err: unknown) {
+          handleApiError(err);
+
+          throw err;
+        }
+      },
     });
-    if (ok) {
-      try {
-        await roleAdminService.delete(id);
-        toast.success(t("common.success"));
-        selectedIds.clearSelection();
-        fetchData();
-      } catch (err: unknown) {
-        handleApiError(err);
-      }
-    }
   };
 
   const handleBulkDelete = async () => {
     if (selectedIds.selectedCount === 0) return;
-    const ok = await confirm({
+    await confirm({
       title: t("common.delete"),
       message: t("common.confirmDelete"),
       variant: "danger",
+      onConfirm: async () => {
+        try {
+          await roleAdminService.bulkDelete(selectedIds.selectedArray);
+          toast.success(t("common.success"));
+          selectedIds.clearSelection();
+          fetchData();
+        } catch (err: unknown) {
+          handleApiError(err);
+
+          throw err;
+        }
+      },
     });
-    if (ok) {
-      try {
-        await roleAdminService.bulkDelete(selectedIds.selectedArray);
-        toast.success(t("common.success"));
-        selectedIds.clearSelection();
-        fetchData();
-      } catch (err: unknown) {
-        handleApiError(err);
-      }
-    }
   };
 
   const handleExportCsv = () => {
@@ -304,7 +308,7 @@ export default function RolesPage() {
                 control={control}
                 name="is_active"
                 render={({ field }) => (
-                  <Checkbox
+                  <Switch
                     id="role-is-active"
                     label="เปิดใช้งานบทบาท"
                     checked={field.value}
