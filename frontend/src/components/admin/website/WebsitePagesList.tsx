@@ -35,8 +35,8 @@ export function WebsitePagesList({
 
   const activePages = pages.filter(
     (page) =>
-      ["PAGE-HOME", "PAGE-CONTACT", "PAGE-ABOUT"].includes(page.page_key) ||
-      ["home", "contact", "about"].includes(page.slug)
+      ["PAGE-HOME", "PAGE-CONTACT", "PAGE-ABOUT", "PAGE-PRIVACY", "PAGE-IMPRESSUM"].includes(page.page_key) ||
+      ["home", "contact", "about", "privacy", "impressum"].includes(page.slug)
   );
 
   if (!activePages.length) {

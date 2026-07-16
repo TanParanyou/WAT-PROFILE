@@ -1,4 +1,6 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
+import { websiteCmsAdminService } from "@/services/websiteCmsService";
+import type { ContentPage } from "@/types/website-cms";
 import type { 
   HomePageMasterFormData, 
   ContactPageMasterFormData, 
@@ -476,3 +478,70 @@ export function useUpdateAboutPageMutation() {
     },
   });
 }
+
+// Live-API backed hooks for Privacy Policy page
+export function usePrivacyPageQuery() {
+  return useQuery({
+    queryKey: ["website-page-master", "privacy"],
+    queryFn: () => websiteCmsAdminService.getPage("PAGE-PRIVACY"),
+  });
+}
+
+export function useUpdatePrivacyPageMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: Partial<ContentPage> }) =>
+      websiteCmsAdminService.updatePage(id, payload),
+    onSuccess: (page) => {
+      queryClient.setQueryData(["website-page-master", "privacy"], page);
+      queryClient.invalidateQueries({ queryKey: ["website-cms"] });
+    },
+  });
+}
+
+export function usePublishPrivacyPageMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => websiteCmsAdminService.publishPage(id),
+    onSuccess: (page) => {
+      queryClient.setQueryData(["website-page-master", "privacy"], page);
+      queryClient.invalidateQueries({ queryKey: ["website-cms"] });
+    },
+  });
+}
+
+// Live-API backed hooks for Impressum page
+export function useImpressumPageQuery() {
+  return useQuery({
+    queryKey: ["website-page-master", "impressum"],
+    queryFn: () => websiteCmsAdminService.getPage("PAGE-IMPRESSUM"),
+  });
+}
+
+export function useUpdateImpressumPageMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: ({ id, payload }: { id: string; payload: Partial<ContentPage> }) =>
+      websiteCmsAdminService.updatePage(id, payload),
+    onSuccess: (page) => {
+      queryClient.setQueryData(["website-page-master", "impressum"], page);
+      queryClient.invalidateQueries({ queryKey: ["website-cms"] });
+    },
+  });
+}
+
+export function usePublishImpressumPageMutation() {
+  const queryClient = useQueryClient();
+
+  return useMutation({
+    mutationFn: (id: string) => websiteCmsAdminService.publishPage(id),
+    onSuccess: (page) => {
+      queryClient.setQueryData(["website-page-master", "impressum"], page);
+      queryClient.invalidateQueries({ queryKey: ["website-cms"] });
+    },
+  });
+}
+
