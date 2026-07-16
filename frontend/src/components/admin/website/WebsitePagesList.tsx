@@ -24,9 +24,9 @@ export function WebsitePagesList({
 
   if (error) {
     return (
-      <div className="space-y-3 border border-zinc-200 bg-white p-4">
-        <p className="text-sm text-red-600">{error.message}</p>
-        <Button type="button" variant="outline" onClick={onRetry}>
+      <div className="flex flex-col items-center gap-4 border border-red-200 bg-red-50 p-8 text-center">
+        <p className="text-red-600">Error loading pages: {error.message}</p>
+        <Button onClick={onRetry} variant="secondary">
           Retry
         </Button>
       </div>
