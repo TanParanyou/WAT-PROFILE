@@ -15,21 +15,13 @@ import { SeoEditorTab } from "../shared/SeoEditorTab";
 import { aboutPageMasterSchema, type AboutPageMasterFormData } from "@/schemas/website-page.schema";
 import { useAboutPageQuery, useUpdateAboutPageMutation } from "@/hooks/website-page-master";
 import { useWebsiteCmsEditorStore } from "@/stores/website-cms-editor-store";
-import { normalizeLocalizedRichText } from "@/lib/rich-text/document";
-
-const richTextLocales = ["th", "en", "de"] as const;
-
-function normalizeAboutPageData(pageData: AboutPageMasterFormData): AboutPageMasterFormData {
-  return {
-    ...pageData,
-    content: {
-      ...pageData.content,
-      objective_content: normalizeLocalizedRichText(pageData.content.objective_content, [...richTextLocales], "th"),
-      administration_content: normalizeLocalizedRichText(pageData.content.administration_content, [...richTextLocales], "th"),
-      history_content: normalizeLocalizedRichText(pageData.content.history_content, [...richTextLocales], "th"),
-    },
-  };
-}
+import { useToast } from "@/hooks/useToast";
+import { richTextMigrationService } from "@/services/richTextMigrationService";
+import {
+  contentPageToAboutFormData,
+  aboutFormDataToContentPagePayload,
+  hasLegacyAboutRichTextBody,
+} from "@/utils/websiteCms";
 
 export function AboutPageEditor() {
   const { data: pageData, isLoading } = useAboutPageQuery();
@@ -37,6 +29,7 @@ export function AboutPageEditor() {
   const [activeTab, setActiveTab] = useState<"intro" | "history" | "buildings" | "sangha" | "seo">("intro");
   
   const store = useWebsiteCmsEditorStore();
+  const { toast } = useToast();
 
   const methods = useForm<AboutPageMasterFormData>({
     resolver: zodResolver(aboutPageMasterSchema) as Resolver<AboutPageMasterFormData>,
@@ -58,12 +51,12 @@ export function AboutPageEditor() {
         intro_founded: { th: "", en: "", de: "" },
         intro_location: { th: "", en: "", de: "" },
         objective_title: { th: "", en: "", de: "" },
+        objective_content: { th: { type: "doc", content: [] }, en: { type: "doc", content: [] }, de: { type: "doc", content: [] } },
         objective_subtitle: { th: "", en: "", de: "" },
-        objective_content: normalizeLocalizedRichText({}, [...richTextLocales], "th"),
         administration_title: { th: "", en: "", de: "" },
-        administration_content: normalizeLocalizedRichText({}, [...richTextLocales], "th"),
+        administration_content: { th: { type: "doc", content: [] }, en: { type: "doc", content: [] }, de: { type: "doc", content: [] } },
         history_title: { th: "", en: "", de: "" },
-        history_content: normalizeLocalizedRichText({}, [...richTextLocales], "th"),
+        history_content: { th: { type: "doc", content: [] }, en: { type: "doc", content: [] }, de: { type: "doc", content: [] } },
         buildings_title: { th: "", en: "", de: "" },
         buildings_items: [],
         sangha_title: { th: "", en: "", de: "" },
@@ -77,7 +70,18 @@ export function AboutPageEditor() {
 
   useEffect(() => {
     if (pageData) {
-      reset(normalizeAboutPageData(pageData));
+      const formData = contentPageToAboutFormData(pageData);
+      reset(formData);
+
+      if (hasLegacyAboutRichTextBody(pageData.body)) {
+        void richTextMigrationService.migrate({
+          resource: "content_page",
+          id: pageData.id,
+          updated_at: pageData.updated_at,
+          field: "body",
+          value: aboutFormDataToContentPagePayload(formData).body,
+        }).catch(() => undefined);
+      }
     }
   }, [pageData, reset]);
 
@@ -92,11 +96,20 @@ export function AboutPageEditor() {
   }
 
   const onSubmit = (values: AboutPageMasterFormData) => {
-    updateMutation.mutate(values, {
-      onSuccess: () => {
-        reset(values); // clear isDirty state
+    if (!pageData?.id) return;
+    
+    updateMutation.mutate(
+      { id: pageData.id, payload: aboutFormDataToContentPagePayload(values) },
+      {
+        onSuccess: (updatedPage) => {
+          toast.success("Saved successfully");
+          reset(contentPageToAboutFormData(updatedPage));
+        },
+        onError: () => {
+          toast.error("Failed to save data");
+        },
       },
-    });
+    );
   };
 
   return (
