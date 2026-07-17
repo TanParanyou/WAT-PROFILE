@@ -416,3 +416,94 @@ function getSectionTemplateSettings(sectionType: string) {
       return {};
   }
 }
+
+import type { AboutPageMasterFormData } from "@/schemas/website-page.schema";
+import { hasLegacyLocalizedRichText, normalizeLocalizedRichText } from "@/lib/rich-text/document";
+
+function asRecord(value: unknown): Record<string, unknown> {
+  if (value && typeof value === "object" && !Array.isArray(value)) {
+    return value as Record<string, unknown>;
+  }
+  return {};
+}
+
+function normalizeSeoMetadata(seo: unknown): {
+  title: Record<string, string>;
+  description: Record<string, string>;
+  canonical_url: string;
+  noindex: boolean;
+} {
+  const s = asRecord(seo);
+  return {
+    title: withAllLocales(s.title as Record<string, string> | undefined),
+    description: withAllLocales(s.description as Record<string, string> | undefined),
+    canonical_url: typeof s.canonical_url === "string" ? s.canonical_url : "",
+    noindex: typeof s.noindex === "boolean" ? s.noindex : false,
+  };
+}
+
+export function contentPageToAboutFormData(page: ContentPage): AboutPageMasterFormData {
+  const body = asRecord(page.body);
+  return {
+    id: page.id,
+    slug: page.slug,
+    status: page.status === "archived" ? "draft" : page.status, // Form status only allows "draft" | "published"
+    seo: normalizeSeoMetadata(page.seo),
+    content: {
+      hero_title: withAllLocales(page.title),
+      hero_subtitle: withAllLocales(page.description),
+      
+      intro_title: withAllLocales(body.intro_title as Record<string, string> | undefined),
+      intro_description: withAllLocales(body.intro_description as Record<string, string> | undefined),
+      intro_founded: withAllLocales(body.intro_founded as Record<string, string> | undefined),
+      intro_location: withAllLocales(body.intro_location as Record<string, string> | undefined),
+      
+      objective_title: withAllLocales(body.objective_title as Record<string, string> | undefined),
+      objective_subtitle: withAllLocales(body.objective_subtitle as Record<string, string> | undefined),
+      objective_content: normalizeLocalizedRichText(body.objective_content, [...WEBSITE_CMS_LOCALES], "th"),
+      
+      administration_title: withAllLocales(body.administration_title as Record<string, string> | undefined),
+      administration_content: normalizeLocalizedRichText(body.administration_content, [...WEBSITE_CMS_LOCALES], "th"),
+      
+      history_title: withAllLocales(body.history_title as Record<string, string> | undefined),
+      history_content: normalizeLocalizedRichText(body.history_content, [...WEBSITE_CMS_LOCALES], "th"),
+      
+      buildings_title: withAllLocales(body.buildings_title as Record<string, string> | undefined),
+      buildings_items: Array.isArray(body.buildings_items)
+        ? body.buildings_items.map((item) => {
+            const i = asRecord(item);
+            return {
+              name: withAllLocales(i.name as Record<string, string> | undefined),
+              description: withAllLocales(i.description as Record<string, string> | undefined),
+            };
+          })
+        : [],
+      
+      sangha_title: withAllLocales(body.sangha_title as Record<string, string> | undefined),
+      sangha_mission: withAllLocales(body.sangha_mission as Record<string, string> | undefined),
+      sangha_current_work: withAllLocales(body.sangha_current_work as Record<string, string> | undefined),
+    },
+  };
+}
+
+export function aboutFormDataToContentPagePayload(values: AboutPageMasterFormData): Partial<ContentPage> {
+  const { hero_title, hero_subtitle, ...body } = values.content;
+  return {
+    slug: values.slug,
+    title: hero_title,
+    description: hero_subtitle,
+    seo: values.seo,
+    body: body,
+    status: values.status,
+  };
+}
+
+export function hasLegacyAboutRichTextBody(body: unknown): boolean {
+  const b = asRecord(body);
+  return (
+    hasLegacyLocalizedRichText(b.objective_content) ||
+    hasLegacyLocalizedRichText(b.administration_content) ||
+    hasLegacyLocalizedRichText(b.history_content)
+  );
+}
+
