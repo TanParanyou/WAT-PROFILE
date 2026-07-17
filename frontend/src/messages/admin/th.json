@@ -1,5 +1,39 @@
 {
   "Admin": {
+    "richText": {
+      "placeholder": "เขียนคำอธิบาย...",
+      "toolbar": {
+        "undo": "เลิกทำ",
+        "redo": "ทำซ้ำ",
+        "paragraph": "ย่อหน้า",
+        "heading2": "หัวข้อ 2",
+        "heading3": "หัวข้อ 3",
+        "bold": "ตัวหนา",
+        "italic": "ตัวเอียง",
+        "strike": "ขีดฆ่า",
+        "bulletList": "รายการหัวข้อย่อย",
+        "orderedList": "รายการลำดับเลข",
+        "blockquote": "ข้อความอ้างอิง",
+        "divider": "เส้นคั่น",
+        "link": "ลิงก์",
+        "image": "รูปภาพ",
+        "clearFormat": "ล้างรูปแบบ",
+        "unavailable": "ไม่สามารถใช้งานได้ในสถานะปัจจุบัน"
+      },
+      "blockType": {
+        "paragraph": "ย่อหน้า",
+        "heading2": "หัวข้อ 2",
+        "heading3": "หัวข้อ 3"
+      },
+      "linkDialog": {
+        "title": "แทรก/แก้ไขลิงก์",
+        "urlLabel": "URL",
+        "urlPlaceholder": "https://example.com",
+        "save": "บันทึก",
+        "remove": "ลบออก",
+        "invalidUrl": "รูปแบบ URL ไม่ถูกต้อง"
+      }
+    },
     "sidebar": {
       "dashboard": "แดชบอร์ด",
       "events": "กิจกรรม",

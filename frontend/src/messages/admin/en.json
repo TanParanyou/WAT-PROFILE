@@ -1,5 +1,39 @@
 {
   "Admin": {
+    "richText": {
+      "placeholder": "Write description...",
+      "toolbar": {
+        "undo": "Undo",
+        "redo": "Redo",
+        "paragraph": "Paragraph",
+        "heading2": "Heading 2",
+        "heading3": "Heading 3",
+        "bold": "Bold",
+        "italic": "Italic",
+        "strike": "Strikethrough",
+        "bulletList": "Bullet list",
+        "orderedList": "Numbered list",
+        "blockquote": "Blockquote",
+        "divider": "Horizontal rule",
+        "link": "Link",
+        "image": "Image",
+        "clearFormat": "Clear formatting",
+        "unavailable": "Unavailable in current state"
+      },
+      "blockType": {
+        "paragraph": "Paragraph",
+        "heading2": "Heading 2",
+        "heading3": "Heading 3"
+      },
+      "linkDialog": {
+        "title": "Insert/Edit Link",
+        "urlLabel": "URL",
+        "urlPlaceholder": "https://example.com",
+        "save": "Save",
+        "remove": "Remove",
+        "invalidUrl": "Invalid URL format"
+      }
+    },
     "sidebar": {
       "dashboard": "Dashboard",
       "events": "Events",

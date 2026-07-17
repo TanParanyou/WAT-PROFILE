@@ -1,5 +1,39 @@
 {
   "Admin": {
+    "richText": {
+      "placeholder": "Beschreibung schreiben...",
+      "toolbar": {
+        "undo": "Rückgängig",
+        "redo": "Wiederholen",
+        "paragraph": "Absatz",
+        "heading2": "Überschrift 2",
+        "heading3": "Überschrift 3",
+        "bold": "Fett",
+        "italic": "Kursiv",
+        "strike": "Durchgestrichen",
+        "bulletList": "Aufzählung",
+        "orderedList": "Nummerierte Liste",
+        "blockquote": "Blockzitat",
+        "divider": "Horizontaler Trenner",
+        "link": "Link",
+        "image": "Bild",
+        "clearFormat": "Formatierung löschen",
+        "unavailable": "Im aktuellen Zustand nicht verfügbar"
+      },
+      "blockType": {
+        "paragraph": "Absatz",
+        "heading2": "Überschrift 2",
+        "heading3": "Überschrift 3"
+      },
+      "linkDialog": {
+        "title": "Link einfügen/bearbeiten",
+        "urlLabel": "URL",
+        "urlPlaceholder": "https://example.com",
+        "save": "Speichern",
+        "remove": "Entfernen",
+        "invalidUrl": "Ungültiges URL-Format"
+      }
+    },
     "sidebar": {
       "dashboard": "Dashboard",
       "events": "Veranstaltungen",
