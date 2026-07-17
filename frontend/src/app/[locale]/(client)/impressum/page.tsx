@@ -1,42 +1,29 @@
 import { getTranslations } from "next-intl/server";
 import PageHeader from "@/components/layout/PageHeader";
 import PageContainer from "@/components/layout/PageContainer";
-import { Building2, MapPin, Phone } from "lucide-react";
-import { websiteCmsPublicService } from "@/services/websiteCmsService";
+import { Building2, MapPin, Phone, Scale, UserCheck, ShieldCheck } from "lucide-react";
+import { publicContentService } from "@/services/publicContentService";
 import { getLocalizedText } from "@/utils/localizedText";
-import type { LocalizedText } from "@/types/common";
-
-type ImpressumPageBody = {
-  organization_name?: LocalizedText;
-  address?: LocalizedText;
-  phone?: string;
-  email?: string;
-};
-
-function readImpressumBody(value: Record<string, unknown>): ImpressumPageBody {
-  return {
-    organization_name:
-      typeof value.organization_name === "object" && value.organization_name !== null
-        ? (value.organization_name as LocalizedText)
-        : undefined,
-    address:
-      typeof value.address === "object" && value.address !== null
-        ? (value.address as LocalizedText)
-        : undefined,
-    phone: typeof value.phone === "string" ? value.phone : undefined,
-    email: typeof value.email === "string" ? value.email : undefined,
-  };
-}
 
 export default async function ImpressumPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "ImpressumPage" });
   const tSite = await getTranslations({ locale, namespace: "Site" });
-  const cmsPage = await websiteCmsPublicService.getPage("impressum").catch(() => null);
-  const body = cmsPage ? readImpressumBody(cmsPage.body) : {};
-  const pageTitle = cmsPage ? getLocalizedText(cmsPage.title, locale) || t("title") : t("title");
-  const organizationName = getLocalizedText(body.organization_name, locale);
-  const address = getLocalizedText(body.address, locale);
+  const pageData = await publicContentService.getPublicImpressum().catch(() => null);
+
+  const pageTitle = pageData ? getLocalizedText(pageData.title, locale) || t("title") : t("title");
+  
+  // Fallback default values
+  const organizationName = pageData ? getLocalizedText(pageData.body.organization_name, locale) : "วัดพุทธวิหารหลวงพ่อสายน์ (สมาคมจดทะเบียน e.V.)";
+  const legalForm = pageData ? getLocalizedText(pageData.body.legal_form, locale) : "e.V. (Eingetragener Verein)";
+  const address = pageData ? getLocalizedText(pageData.body.address, locale) : "Dorfstr. 10, 12345 Berlin, Germany";
+  const phone = pageData ? pageData.body.phone : "+49 160-1604486";
+  const email = pageData ? pageData.body.email : "info@watloungporsai.de";
+  const representative = pageData ? getLocalizedText(pageData.body.representative, locale) : "";
+  const registryCourt = pageData ? getLocalizedText(pageData.body.registry_court, locale) : "";
+  const registryNumber = pageData ? pageData.body.registry_number : "";
+  const vatId = pageData ? pageData.body.vat_id : "";
+  const contentResponsibility = pageData ? getLocalizedText(pageData.body.content_responsibility, locale) : "";
 
   return (
     <div className="bg-zinc-50 dark:bg-zinc-950 min-h-screen">
@@ -44,28 +31,78 @@ export default async function ImpressumPage({ params }: { params: Promise<{ loca
 
       <PageContainer>
         <div className="max-w-3xl mx-auto">
-          <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-800 p-8 md:p-12">
-            {/* Company Section */}
-            <div className="mb-10">
+          <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-800 p-8 md:p-12 space-y-10">
+            {/* Company / Organization Section */}
+            <div>
               <h2 className="flex items-center gap-3 text-xl font-heading font-bold text-gray-900 dark:text-white mb-6 pb-4 border-b border-gray-100 dark:border-gray-800">
                 <Building2 className="text-primary" size={24} />
-                {t("companyName")}
+                ข้อมูลสมาคม / สมาคมผู้จัดตั้ง
               </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 ml-9">
-                {organizationName}
-              </p>
+              <div className="ml-9 space-y-1">
+                <p className="text-lg font-semibold text-gray-900 dark:text-white">
+                  {organizationName}
+                </p>
+                {legalForm && (
+                  <p className="text-sm text-zinc-500">
+                    รูปแบบทางกฎหมาย: {legalForm}
+                  </p>
+                )}
+              </div>
             </div>
 
             {/* Address Section */}
-            <div className="mb-10">
+            <div>
               <h2 className="flex items-center gap-3 text-xl font-heading font-bold text-gray-900 dark:text-white mb-6 pb-4 border-b border-gray-100 dark:border-gray-800">
                 <MapPin className="text-primary" size={24} />
-                {t("address")}
+                ที่ตั้งสมาคม
               </h2>
-              <p className="text-lg text-gray-600 dark:text-gray-300 ml-9 whitespace-pre-line">
+              <p className="text-lg text-gray-600 dark:text-gray-300 ml-9 whitespace-pre-line leading-relaxed">
                 {address}
               </p>
             </div>
+
+            {/* Representative Section */}
+            {representative && (
+              <div>
+                <h2 className="flex items-center gap-3 text-xl font-heading font-bold text-gray-900 dark:text-white mb-6 pb-4 border-b border-gray-100 dark:border-gray-800">
+                  <UserCheck className="text-primary" size={24} />
+                  ผู้แทนทางกฎหมาย (Vertreten durch)
+                </h2>
+                <p className="text-lg text-gray-600 dark:text-gray-300 ml-9">
+                  {representative}
+                </p>
+              </div>
+            )}
+
+            {/* Registration Details */}
+            {(registryCourt || registryNumber || vatId) && (
+              <div>
+                <h2 className="flex items-center gap-3 text-xl font-heading font-bold text-gray-900 dark:text-white mb-6 pb-4 border-b border-gray-100 dark:border-gray-800">
+                  <Scale className="text-primary" size={24} />
+                  ข้อมูลจดทะเบียน (Registereintragung)
+                </h2>
+                <div className="ml-9 space-y-3 text-base text-gray-600 dark:text-gray-400">
+                  {registryCourt && (
+                    <div className="flex gap-2">
+                      <span className="font-semibold text-gray-900 dark:text-white min-w-28">จดทะเบียนศาล:</span>
+                      <span>{registryCourt}</span>
+                    </div>
+                  )}
+                  {registryNumber && (
+                    <div className="flex gap-2">
+                      <span className="font-semibold text-gray-900 dark:text-white min-w-28">เลขที่ทะเบียน:</span>
+                      <span className="font-mono">{registryNumber}</span>
+                    </div>
+                  )}
+                  {vatId && (
+                    <div className="flex gap-2">
+                      <span className="font-semibold text-gray-900 dark:text-white min-w-28">เลขผู้เสียภาษี (USt-IdNr.):</span>
+                      <span className="font-mono">{vatId}</span>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Contact Section */}
             <div>
@@ -74,24 +111,41 @@ export default async function ImpressumPage({ params }: { params: Promise<{ loca
                 {t("contact")}
               </h2>
               <div className="ml-9 space-y-4">
-                <div className="flex items-center gap-4">
-                  <span className="font-medium text-gray-900 dark:text-white min-w-20">
-                    {t("phone")}:
-                  </span>
-                  <span className="text-gray-600 dark:text-gray-400">
-                    {body.phone}
-                  </span>
-                </div>
-                <div className="flex items-center gap-4">
-                  <span className="font-medium text-gray-900 dark:text-white min-w-20">
-                    {t("email")}:
-                  </span>
-                  <span className="text-gray-600 dark:text-gray-400">
-                    {body.email}
-                  </span>
-                </div>
+                {phone && (
+                  <div className="flex items-center gap-4">
+                    <span className="font-medium text-gray-900 dark:text-white min-w-20">
+                      {t("phone")}:
+                    </span>
+                    <span className="text-gray-600 dark:text-gray-400 font-mono">
+                      {phone}
+                    </span>
+                  </div>
+                )}
+                {email && (
+                  <div className="flex items-center gap-4">
+                    <span className="font-medium text-gray-900 dark:text-white min-w-20">
+                      {t("email")}:
+                    </span>
+                    <span className="text-gray-600 dark:text-gray-400 font-mono">
+                      {email}
+                    </span>
+                  </div>
+                )}
               </div>
             </div>
+
+            {/* Responsibility for content */}
+            {contentResponsibility && (
+              <div>
+                <h2 className="flex items-center gap-3 text-xl font-heading font-bold text-gray-900 dark:text-white mb-6 pb-4 border-b border-gray-100 dark:border-gray-800">
+                  <ShieldCheck className="text-primary" size={24} />
+                  ผู้รับผิดชอบเนื้อหา (Verantwortlich für den Inhalt)
+                </h2>
+                <p className="text-lg text-gray-600 dark:text-gray-300 ml-9 leading-relaxed">
+                  {contentResponsibility}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       </PageContainer>

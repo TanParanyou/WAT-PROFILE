@@ -1,16 +1,16 @@
 import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
 import { siteConfig } from '@/config/site.config';
-import { websiteCmsPublicService } from '@/services/websiteCmsService';
+import { publicContentService } from '@/services/publicContentService';
 import { getLocalizedText } from '@/utils/localizedText';
 import { PublicAboutPageLayout } from '@/components/public/website/PublicAboutPageLayout';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
     const { locale } = await params;
     const t = await getTranslations({ locale, namespace: 'AboutPage' });
-    const cmsPage = await websiteCmsPublicService.getPage('about').catch(() => null);
-    const title = cmsPage ? getLocalizedText(cmsPage.title, locale) || t('title') : t('title');
-    const description = cmsPage ? getLocalizedText(cmsPage.description, locale) || t('missionDesc') : t('missionDesc');
+    const pageData = await publicContentService.getPublicAbout().catch(() => null);
+    const title = pageData ? getLocalizedText(pageData.title, locale) || t('title') : t('title');
+    const description = pageData ? getLocalizedText(pageData.description, locale) || t('missionDesc') : t('missionDesc');
 
     return {
         title,
@@ -32,6 +32,6 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 }
 
 export default async function AboutPage() {
-    const cmsPage = await websiteCmsPublicService.getPage('about').catch(() => null);
-    return <PublicAboutPageLayout page={cmsPage} />;
+    const pageData = await publicContentService.getPublicAbout().catch(() => null);
+    return <PublicAboutPageLayout page={pageData} />;
 }

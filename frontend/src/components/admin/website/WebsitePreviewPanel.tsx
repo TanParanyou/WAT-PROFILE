@@ -37,13 +37,12 @@ export function WebsitePreviewPanel({
           labels={getPreviewHomeLabels(locale)}
         />
       ) : previewPage.slug === "about" || previewPage.page_key === "PAGE-ABOUT" ? (
-        <PublicAboutPageLayout page={previewPage} />
+        <PublicAboutPageLayout page={previewPage as any} />
       ) : isContactPage ? (
         <PublicContactPageLayout
-          page={previewPage}
+          page={previewPage as any}
           locale={locale}
           labels={getPreviewContactLabels(locale)}
-          contactSettings={previewContactSettings}
           formSlot={<PreviewContactForm locale={locale} />}
         />
       ) : (

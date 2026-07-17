@@ -1,41 +1,21 @@
 import { getTranslations } from "next-intl/server";
 import PageHeader from "@/components/layout/PageHeader";
 import PageContainer from "@/components/layout/PageContainer";
-import { websiteCmsPublicService } from "@/services/websiteCmsService";
+import { publicContentService } from "@/services/publicContentService";
 import { getLocalizedText } from "@/utils/localizedText";
 import { RichTextContent } from "@/components/admin/rich-text/RichTextContent";
-import type { LocalizedText } from "@/types/common";
-
-type PrivacySection = {
-  title?: LocalizedText;
-  content?: unknown;
-};
-
-type PrivacyPageBody = {
-  last_updated?: string;
-  sections?: PrivacySection[];
-};
-
-function readPrivacyBody(value: Record<string, unknown>): PrivacyPageBody {
-  const sections = Array.isArray(value.sections) ? value.sections : [];
-  return {
-    last_updated:
-      typeof value.last_updated === "string" && value.last_updated.trim()
-        ? value.last_updated
-        : undefined,
-    sections: sections.filter((section): section is PrivacySection => typeof section === "object" && section !== null),
-  };
-}
 
 export default async function PrivacyPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "PrivacyPage" });
-  const cmsPage = await websiteCmsPublicService.getPage("privacy").catch(() => null);
-  const body = cmsPage ? readPrivacyBody(cmsPage.body) : { sections: [] };
-  const title = cmsPage ? getLocalizedText(cmsPage.title, locale) || t("title") : t("title");
-  const subtitle = body.last_updated
-    ? `${t("lastUpdated")}: ${body.last_updated}`
-    : `${t("lastUpdated")}: 2025-01-01`;
+  const pageData = await publicContentService.getPublicPrivacy().catch(() => null);
+  
+  const title = pageData ? getLocalizedText(pageData.title, locale) || t("title") : t("title");
+  
+  const lastUpdatedStr = pageData?.body.last_updated || pageData?.updated_at;
+  const subtitle = lastUpdatedStr
+    ? `${t("lastUpdated")}: ${new Date(lastUpdatedStr).toLocaleDateString(locale === "th" ? "th-TH" : locale === "de" ? "de-DE" : "en-US")}`
+    : `${t("lastUpdated")}: 2026-07-17`;
 
   return (
     <div className="bg-zinc-50 dark:bg-zinc-950 min-h-screen">
@@ -44,15 +24,8 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
       <PageContainer>
         <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-800 p-8 md:p-16">
           <div className="max-w-3xl mx-auto prose prose-lg dark:prose-invert">
-            {body.sections?.length ? (
-              body.sections.map((section, index) => (
-                <section key={`${index}-${getLocalizedText(section.title, locale)}`} className="not-prose mb-10 last:mb-0">
-                  <h2 className="font-heading text-2xl font-bold text-gray-900 dark:text-white mt-12 mb-6">
-                    {getLocalizedText(section.title, locale)}
-                  </h2>
-                  <RichTextContent value={section.content} locale={locale} defaultLocale="th" className="text-gray-600 dark:text-gray-300" />
-                </section>
-              ))
+            {pageData && pageData.body.content ? (
+              <RichTextContent value={pageData.body.content} locale={locale} defaultLocale="th" className="text-gray-600 dark:text-gray-300" />
             ) : (
               <>
                 <p className="lead text-gray-600 dark:text-gray-300">

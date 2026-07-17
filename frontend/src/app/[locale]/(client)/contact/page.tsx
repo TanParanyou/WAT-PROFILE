@@ -1,20 +1,18 @@
 import { getTranslations } from 'next-intl/server';
 import { Metadata } from 'next';
 import { siteConfig } from '@/config/site.config';
-import { getDefaultContactSettings, siteSettingsPublicService } from '@/services/siteSettingsService';
-import { websiteCmsPublicService } from '@/services/websiteCmsService';
-import type { GlobalContactSettings } from '@/types/site-settings';
+import { publicContentService } from '@/services/publicContentService';
 import ContactContent from './ContactContent';
 import { getLocalizedText } from '@/utils/localizedText';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
     const { locale } = await params;
     const t = await getTranslations({ locale, namespace: 'ContactPage' });
-    const cmsPage = await websiteCmsPublicService.getPage('contact').catch(() => null);
+    const pageData = await publicContentService.getPublicContact().catch(() => null);
 
-    const title = cmsPage ? getLocalizedText(cmsPage.title, locale) || t('title') : t('title');
-    const description = cmsPage ? getLocalizedText(cmsPage.description, locale) || t('subtitle') : t('subtitle');
-    const canonical = cmsPage?.seo?.canonical_url || `/${locale}/contact`;
+    const title = pageData ? getLocalizedText(pageData.title, locale) || t('title') : t('title');
+    const description = pageData ? getLocalizedText(pageData.description, locale) || t('subtitle') : t('subtitle');
+    const canonical = pageData?.seo?.canonical_url || `/${locale}/contact`;
 
     return {
         title,
@@ -37,10 +35,25 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 export default async function ContactPage({ params }: { params: Promise<{ locale: string }> }) {
     const { locale } = await params;
-    const [cmsPage, contactSettings] = await Promise.all([
-        websiteCmsPublicService.getPage('contact').catch(() => null),
-        siteSettingsPublicService.getContactSettings().catch<GlobalContactSettings>(() => getDefaultContactSettings()),
-    ]);
+    const pageData = await publicContentService.getPublicContact().catch(() => null);
 
-    return <ContactContent locale={locale} cmsPage={cmsPage} contactSettings={contactSettings} />;
+    // Fallback if data is completely empty
+    const fallbackPage = pageData || {
+        title: { th: 'ติดต่อเรา', en: 'Contact Us', de: 'Kontakt' },
+        description: { th: 'ติดต่อและแผนที่การเดินทาง', en: 'Contact details and directions', de: 'Kontaktdaten und Anfahrt' },
+        seo: { title: { th: '', en: '', de: '' }, description: { th: '', en: '', de: '' }, keywords: { th: '', en: '', de: '' } },
+        body: {
+            address: { th: '', en: '', de: '' },
+            phone: '',
+            email: '',
+            opening_hours: { days: { th: '', en: '', de: '' }, time: { th: '', en: '', de: '' }, notice: { th: '', en: '', de: '' } },
+            map: { name: { th: '', en: '', de: '' }, embed_url: '', directions_url: '' },
+            transport: { parking: { th: '', en: '', de: '' }, public_transport: [], driving: { th: '', en: '', de: '' } },
+            socials: { facebook: '', instagram: '', messenger: '', line: '', youtube: '' },
+            bank: { bank_name: { th: '', en: '', de: '' }, account_name: { th: '', en: '', de: '' }, account_number: '', iban: '', bic: '' },
+            contact_form: { enabled: true, success_message: { th: '', en: '', de: '' }, privacy_page_link: '/privacy' }
+        }
+    };
+
+    return <ContactContent locale={locale} cmsPage={fallbackPage as any} />;
 }

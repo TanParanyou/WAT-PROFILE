@@ -11,16 +11,14 @@ import { useState } from "react";
 import { PublicContactPageLayout } from "@/components/public/website/PublicContactPageLayout";
 import { getLocalizedText } from "@/utils/localizedText";
 import { sendContactEmail } from "@/services/emailService";
-import type { GlobalContactSettings } from "@/types/site-settings";
-import type { PublicContentPage } from "@/types/website-cms";
+import type { ContactContentFormData } from "@/types/public-content";
 
 interface ContactContentProps {
   locale: string;
-  cmsPage: PublicContentPage | null;
-  contactSettings: GlobalContactSettings;
+  cmsPage: ContactContentFormData | null;
 }
 
-export default function ContactContent({ locale, cmsPage, contactSettings }: ContactContentProps) {
+export default function ContactContent({ locale, cmsPage }: ContactContentProps) {
   const t = useTranslations("ContactPage");
   const currentLocale = useLocale();
   const activeLocale = locale || currentLocale;
@@ -72,21 +70,57 @@ export default function ContactContent({ locale, cmsPage, contactSettings }: Con
     <PublicContactPageLayout
       page={
         cmsPage || {
-          id: "fallback-contact",
-          page_key: "PAGE-CONTACT",
-          slug: "contact",
           title: { th: pageTitle, en: pageTitle, de: pageTitle },
           description: { th: pageSubtitle, en: pageSubtitle, de: pageSubtitle },
-          seo: {},
-          body: {},
-          settings: {},
-          status: "published",
-          sections: [],
-          published_at: null,
+          seo: {
+            title: { th: "", en: "", de: "" },
+            description: { th: "", en: "", de: "" },
+            keywords: { th: "", en: "", de: "" },
+            og_image: "",
+            canonical_url: "",
+          },
+          body: {
+            address: { th: "", en: "", de: "" },
+            phone: "",
+            email: "",
+            opening_hours: {
+              days: { th: "", en: "", de: "" },
+              time: { th: "", en: "", de: "" },
+              notice: { th: "", en: "", de: "" },
+            },
+            map: {
+              name: { th: "", en: "", de: "" },
+              embed_url: "",
+              directions_url: "",
+            },
+            transport: {
+              parking: { th: "", en: "", de: "" },
+              public_transport: [],
+              driving: { th: "", en: "", de: "" },
+            },
+            socials: {
+              facebook: "",
+              instagram: "",
+              messenger: "",
+              line: "",
+              youtube: "",
+            },
+            bank: {
+              bank_name: { th: "", en: "", de: "" },
+              account_name: { th: "", en: "", de: "" },
+              account_number: "",
+              iban: "",
+              bic: "",
+            },
+            contact_form: {
+              enabled: true,
+              success_message: { th: "", en: "", de: "" },
+              privacy_page_link: "/privacy",
+            },
+          },
         }
       }
       locale={activeLocale}
-      contactSettings={contactSettings}
       labels={{
         infoEyebrow: "Contact",
         infoTitle: t("infoTitle"),
