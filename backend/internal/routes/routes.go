@@ -31,9 +31,16 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	roleHandler := handlers.NewRoleHandler(db)
 	auditHandler := handlers.NewAuditLogHandler(db)
 	richTextMigrationHandler := handlers.NewRichTextMigrationHandler(db)
+	publicContentHandler := handlers.NewPublicContentHandler(db)
 
 	// ============ PUBLIC ROUTES (No Auth Required) ============
 	public := api.Group("/public")
+
+	// Public Content Pages
+	public.Get("/about", publicContentHandler.GetPublicAbout)
+	public.Get("/contact", publicContentHandler.GetPublicContact)
+	public.Get("/privacy", publicContentHandler.GetPublicPrivacy)
+	public.Get("/impressum", publicContentHandler.GetPublicImpressum)
 
 	// Events
 	public.Get("/events", eventHandler.GetEvents)
@@ -169,6 +176,16 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	admin.Get("/settings", middleware.PermissionRequired("settings", "read"), settingsHandler.GetAllSettings)
 	admin.Put("/settings", middleware.PermissionRequired("settings", "update"), settingsHandler.UpdateSettings)
 	admin.Post("/settings", middleware.PermissionRequired("settings", "create"), settingsHandler.UpsertSetting)
+
+	// Public Content Pages Management
+	admin.Get("/about", middleware.PermissionRequired("website", "read"), publicContentHandler.GetAbout)
+	admin.Put("/about", middleware.PermissionRequired("website", "update"), publicContentHandler.SaveAbout)
+	admin.Get("/contact", middleware.PermissionRequired("website", "read"), publicContentHandler.GetContact)
+	admin.Put("/contact", middleware.PermissionRequired("website", "update"), publicContentHandler.SaveContact)
+	admin.Get("/privacy", middleware.PermissionRequired("website", "read"), publicContentHandler.GetPrivacy)
+	admin.Put("/privacy", middleware.PermissionRequired("website", "update"), publicContentHandler.SavePrivacy)
+	admin.Get("/impressum", middleware.PermissionRequired("website", "read"), publicContentHandler.GetImpressum)
+	admin.Put("/impressum", middleware.PermissionRequired("website", "update"), publicContentHandler.SaveImpressum)
 
 	// Website CMS
 	admin.Get("/website/pages", middleware.PermissionRequired("website", "read"), contentHandler.ListPages)
