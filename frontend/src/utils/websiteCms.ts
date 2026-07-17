@@ -46,6 +46,27 @@ export function contentPageToPublishedPreview(page: ContentPage): PublicContentP
 }
 
 export function contentSectionToFormValues(section: ContentSection): WebsiteCmsSectionFormData {
+  const body = { ...(section.body || {}) };
+  
+  if (section.section_type === "rich_text") {
+    // If it's a rich_text section and lacks body.richText but has legacy body.markdown
+    if (!body.richText && typeof body.markdown === "string") {
+      const { normalizeLegacyRichText } = require("@/lib/rich-text/document");
+      // Map legacy single string markdown to richText locale objects.
+      // Website CMS richText stores a record of LocalizedRichText. Since legacy markdown string
+      // might not have been localized itself (it was just body.markdown = string), we seed it 
+      // under "th" and others as normalized empty or same. Wait, actually, let's see:
+      // Typically, since website sections are localized by the template, if markdown is a string,
+      // it means it's a single language or same string. We normalize it and put it in 'th', 'en', 'de'
+      const doc = normalizeLegacyRichText(body.markdown);
+      body.richText = {
+        th: doc,
+        en: doc,
+        de: doc,
+      };
+    }
+  }
+
   return {
     id: section.id,
     page_id: section.page_id,
@@ -53,7 +74,7 @@ export function contentSectionToFormValues(section: ContentSection): WebsiteCmsS
     section_type: section.section_type,
     title: withAllLocales(section.title),
     description: withAllLocales(section.description),
-    body: section.body || {},
+    body: body,
     settings: section.settings || {},
     sort_order: section.sort_order,
     status: section.status,
@@ -357,7 +378,7 @@ function getSectionTemplateBody(sectionType: string) {
     case "monks_intro":
       return { markdown: "" };
     case "rich_text":
-      return { markdown: "" };
+      return { richText: {} };
     case "map":
       return { embed_url: "", directions_url: "", address: "" };
     default:

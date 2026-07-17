@@ -53,7 +53,7 @@ const contactFormSettingsSchema = z.object({
 });
 
 const richTextBodySchema = z.object({
-  markdown: z.string().optional().default(""),
+  richText: z.record(z.string(), z.unknown()).optional().default({}),
 });
 
 const richTextSettingsSchema = z.object({

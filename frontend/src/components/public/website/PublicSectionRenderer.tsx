@@ -5,6 +5,7 @@ import { getDefaultContactSettings } from "@/services/siteSettingsService";
 import type { GlobalContactSettings } from "@/types/site-settings";
 import type { ContentSection } from "@/types/website-cms";
 import { getLocalizedText } from "@/utils/localizedText";
+import { RichTextContent } from "@/components/admin/rich-text/RichTextContent";
 
 const defaultContactSettings = getDefaultContactSettings();
 
@@ -160,7 +161,7 @@ export function PublicSectionRenderer({
       );
     }
     case "rich_text": {
-      const markdown = readString(section.body.markdown) || description;
+      const richText = (section.body.richText || {}) as any;
       const width = readString(section.settings.width) || "regular";
       const widthClass =
         width === "narrow" ? "max-w-2xl" : width === "wide" ? "max-w-5xl" : "max-w-3xl";
@@ -168,12 +169,8 @@ export function PublicSectionRenderer({
       return (
         <section className="border-b border-zinc-200 px-6 py-8 md:px-8 md:py-10">
           <div className={`mx-auto ${widthClass}`}>
-            <h2 className="text-2xl font-semibold text-zinc-950">{title}</h2>
-            <div className="mt-4 space-y-4 text-sm leading-7 text-zinc-600 md:text-base">
-              {markdown.split(/\n{2,}/).map((paragraph, index) => (
-                <p key={`${section.id}-${index}`}>{paragraph.trim()}</p>
-              ))}
-            </div>
+            <h2 className="text-2xl font-semibold text-zinc-950 mb-4">{title}</h2>
+            <RichTextContent value={richText} locale={locale} defaultLocale="th" />
           </div>
         </section>
       );

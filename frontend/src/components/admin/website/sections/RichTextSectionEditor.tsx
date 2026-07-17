@@ -1,20 +1,33 @@
 "use client";
 
+import { Controller } from "react-hook-form";
 import { Select } from "@/components/ui/Select";
 import { SectionContentEditorBase } from "@/components/admin/website/sections/SectionContentEditorBase";
+import { MultiLangRichText } from "@/components/admin/rich-text/MultiLangRichText";
+import { WEBSITE_CMS_LOCALES } from "@/utils/websiteCms";
 
 type ContentEditorProps = Omit<React.ComponentProps<typeof SectionContentEditorBase>, "heading" | "summary" | "children">;
+
+const websiteLocales = WEBSITE_CMS_LOCALES.map(lang => ({ code: lang, label: lang }));
 
 export function RichTextSectionEditor(props: ContentEditorProps) {
   return (
     <SectionContentEditorBase heading="Rich text" summary="Readable narrative content for public pages" {...props}>
       {(form) => (
-        <div className="space-y-3">
-          <textarea
-            rows={8}
-            className="w-full border border-zinc-300 bg-white px-3 py-2 text-sm text-zinc-900 outline-none focus:border-zinc-950"
-            disabled={props.isSaving}
-            {...form.register("body.markdown" as never)}
+        <div className="space-y-4">
+          <Controller
+            control={form.control}
+            name="body.richText"
+            render={({ field }) => (
+              <MultiLangRichText
+                label="Content"
+                locales={websiteLocales}
+                defaultLocale="th"
+                value={field.value || {}}
+                onChange={field.onChange}
+                disabled={props.isSaving}
+              />
+            )}
           />
           <Select
             label="Content width"
