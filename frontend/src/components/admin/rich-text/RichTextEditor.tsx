@@ -34,13 +34,16 @@ export function RichTextEditor({
     },
   });
 
-  const { isEmpty, isFocused } = useEditorState({
+  const editorState = useEditorState({
     editor,
     selector: (ctx) => ({
       isEmpty: ctx.editor ? ctx.editor.isEmpty : true,
       isFocused: ctx.editor ? ctx.editor.isFocused : false,
     }),
   });
+
+  const isEmpty = editorState?.isEmpty ?? true;
+  const isFocused = editorState?.isFocused ?? false;
 
   useEffect(() => {
     if (!editor) return;
