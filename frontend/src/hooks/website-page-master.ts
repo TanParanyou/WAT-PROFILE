@@ -10,7 +10,6 @@ import type {
 
 const LOCAL_STORAGE_KEY = "mock_home_page_master_data";
 const CONTACT_LOCAL_STORAGE_KEY = "mock_contact_page_master_data";
-const ABOUT_LOCAL_STORAGE_KEY = "mock_about_page_master_data";
 
 function localizedRichTextFromStrings(value: Record<string, string>) {
   return Object.fromEntries(
@@ -224,137 +223,7 @@ const defaultContactMockData: ContactPageMasterFormData = {
   },
 };
 
-const defaultAboutMockData: AboutPageMasterFormData = {
-  id: "about-page-id",
-  slug: "about",
-  status: "published",
-  seo: {
-    title: {
-      th: "เกี่ยวกับเรา - วัดโปรไฟล์",
-      en: "About Us - Wat Profile",
-      de: "Über uns - Wat Profile",
-    },
-    description: {
-      th: "ประวัติความเป็นมา วิสัยทัศน์ และคณะผู้จัดตั้งวัดโปรไฟล์",
-      en: "History, vision, and the founders of Wat Profile.",
-      de: "Geschichte, Vision und die Gründer von Wat Profile.",
-    },
-    keywords: {
-      th: "ประวัติวัด, เกี่ยวกับ, วิสัยทัศน์",
-      en: "history, about, vision",
-      de: "geschichte, über uns, vision",
-    },
-    og_image: "https://images.unsplash.com/photo-1590076247563-7ee7b3726591?q=80&w=1000",
-    canonical_url: "https://watprofile.org/th/about",
-  },
-  content: {
-    hero_title: {
-      th: "เกี่ยวกับเรา",
-      en: "About Us",
-      de: "Über uns",
-    },
-    hero_subtitle: {
-      th: "เรียนรู้ประวัติ ความเป็นมา และวิสัยทัศน์ของวัดโปรไฟล์",
-      en: "Learn the history, background, and vision of Wat Profile.",
-      de: "Lernen Sie die Geschichte, den Hintergrund und die Vision von Wat Profile kennen.",
-    },
-    intro_title: {
-      th: "แนะนำวัดหลวงพ่อใส",
-      en: "Introduction to Wat Loung Por Sai",
-      de: "Einführung in Wat Loung Por Sai",
-    },
-    intro_description: {
-      th: "วัดหลวงพ่อใสเยอรมนี เป็นสถานที่ส่งเสริมการปฏิบัติธรรมและจัดพิธีกรรมทางศาสนา...",
-      en: "Wat Loung Por Sai Germany is a center for meditation and Buddhist practices...",
-      de: "Wat Loung Por Sai Deutschland ist ein Ort für Meditation und buddhistische Zeremonien...",
-    },
-    intro_founded: {
-      th: "ปีที่ตั้งวัด: พ.ศ. 2569",
-      en: "Founded in: 2026",
-      de: "Gegründet im Jahr: 2026",
-    },
-    intro_location: {
-      th: "สถานที่ตั้ง: Biebergemünd, Germany",
-      en: "Location: Biebergemünd, Germany",
-      de: "Ort: Biebergemünd, Deutschland",
-    },
-    objective_title: {
-      th: "วิสัยทัศน์และปณิธาน",
-      en: "Vision & Objectives",
-      de: "Vision & Ziele",
-    },
-    objective_subtitle: {
-      th: "เพื่อการเผยแผ่พระพุทธศาสนาและพัฒนาจิตใจ",
-      en: "For the propagation of Buddhism and mental development",
-      de: "Für die Verbreitung des Buddhismus und die geistige Entwicklung",
-    },
-    objective_content: {
-      ...localizedRichTextFromStrings({
-        th: "ตั้งใจสนับสนุนชุมชน เสริมสร้างสันติภาพและความสุขภายในจิตใจของทุกๆ คน",
-        en: "Dedicated to supporting the community and fostering inner peace and happiness for all.",
-        de: "Unterstützung der Gemeinschaft und Förderung des inneren Friedens und des Glücks für alle.",
-      }),
-    },
-    administration_title: {
-      th: "คณะกรรมการดำเนินงาน",
-      en: "Executive Board",
-      de: "Vorstand",
-    },
-    administration_content: {
-      ...localizedRichTextFromStrings({
-        th: "วัดดำเนินกิจกรรมต่างๆ ภายใต้สมาคมจดทะเบียนไม่แสวงหาผลกำไร...",
-        en: "The temple operates under a registered non-profit association...",
-        de: "Der Tempel wird im Rahmen eines eingetragenen gemeinnützigen Vereins betrieben...",
-      }),
-    },
-    history_title: {
-      th: "ประวัติความเป็นมา",
-      en: "Our History",
-      de: "Unsere Geschichte",
-    },
-    history_content: {
-      ...localizedRichTextFromStrings({
-        th: "วัดโปรไฟล์ก่อตั้งขึ้นโดยมีวัตถุประสงค์เพื่อเป็นสถานที่ยึดเหนี่ยวจิตใจและเผยแผ่หลักธรรมคำสอนในพุทธศาสนา ผ่านกระบวนการและเครื่องมือสมัยใหม่...",
-        en: "Wat Profile was founded to be a spiritual anchor and spread Buddhist teachings through modern tools...",
-        de: "Wat Profile wurde gegründet, um ein spiritueller Anker zu sein und buddhistische Lehren durch moderne Werkzeuge zu verbreiten...",
-      }),
-    },
-    buildings_title: {
-      th: "เสนาสนะและอาคารภายในวัด",
-      en: "Temple Buildings",
-      de: "Tempelgebäude",
-    },
-    buildings_items: [
-      {
-        name: {
-          th: "ศาลาปฏิบัติธรรม",
-          en: "Meditation Hall",
-          de: "Meditationshalle",
-        },
-        description: {
-          th: "อาคารหลักสำหรับใช้สวดมนต์ ทำบุญ และปฏิบัติสมาธิวิปัสสนา",
-          en: "Main hall used for chanting, merit-making, and insight meditation.",
-          de: "Die Haupthalle dient dem Chanting, dem Verdienstsammeln und der Meditation.",
-        },
-      },
-    ],
-    sangha_title: {
-      th: "พระธรรมทูตและคณะสงฆ์",
-      en: "The Sangha & Missionary Monks",
-      de: "Die Sangha & Moenche",
-    },
-    sangha_mission: {
-      th: "คณะสงฆ์มีหน้าที่ในการให้ธรรมะบรรยาย จัดอบรม และดูแลกิจกรรมของชาวพุทธ",
-      en: "The Sangha is responsible for delivering Dharma talks, organizing training, and Buddhist activities.",
-      de: "Die Sangha ist verantwortlich für Dharma-Vorträge, Schulungen und buddhistische Aktivitäten.",
-    },
-    sangha_current_work: {
-      th: "ปัจจุบัน มีการจัดประชุมพระธรรมทูตไทยในยุโรป และสร้างเครือข่ายเป็นประจำทุกปี",
-      en: "Currently organizing annual meetings of Thai missionary monks in Europe.",
-      de: "Derzeit werden jährliche Treffen thailändischer Missionarsmönche in Europa organisiert.",
-    },
-  },
-};
+
 
 // Helper to load from LocalStorage or default
 const loadMockData = (): HomePageMasterFormData => {
@@ -385,20 +254,6 @@ const loadContactMockData = (): ContactPageMasterFormData => {
   }
 };
 
-const loadAboutMockData = (): AboutPageMasterFormData => {
-  if (typeof window === "undefined") return defaultAboutMockData;
-  const raw = localStorage.getItem(ABOUT_LOCAL_STORAGE_KEY);
-  if (!raw) {
-    localStorage.setItem(ABOUT_LOCAL_STORAGE_KEY, JSON.stringify(defaultAboutMockData));
-    return defaultAboutMockData;
-  }
-  try {
-    return JSON.parse(raw);
-  } catch {
-    return defaultAboutMockData;
-  }
-};
-
 // Helpers to save to LocalStorage
 const saveMockData = (data: HomePageMasterFormData) => {
   if (typeof window === "undefined") return;
@@ -408,11 +263,6 @@ const saveMockData = (data: HomePageMasterFormData) => {
 const saveContactMockData = (data: ContactPageMasterFormData) => {
   if (typeof window === "undefined") return;
   localStorage.setItem(CONTACT_LOCAL_STORAGE_KEY, JSON.stringify(data));
-};
-
-const saveAboutMockData = (data: AboutPageMasterFormData) => {
-  if (typeof window === "undefined") return;
-  localStorage.setItem(ABOUT_LOCAL_STORAGE_KEY, JSON.stringify(data));
 };
 
 export function useHomePageQuery() {
@@ -470,10 +320,7 @@ export function useUpdateContactPageMutation() {
 export function useAboutPageQuery() {
   return useQuery({
     queryKey: ["website-page-master", "about"],
-    queryFn: async () => {
-      await new Promise((resolve) => setTimeout(resolve, 500));
-      return loadAboutMockData();
-    },
+    queryFn: () => websiteCmsAdminService.getPage("PAGE-ABOUT"),
   });
 }
 
@@ -481,13 +328,11 @@ export function useUpdateAboutPageMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: async (updatedData: AboutPageMasterFormData) => {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      saveAboutMockData(updatedData);
-      return updatedData;
-    },
-    onSuccess: (data) => {
-      queryClient.setQueryData(["website-page-master", "about"], data);
+    mutationFn: ({ id, payload }: { id: string; payload: Partial<ContentPage> }) =>
+      websiteCmsAdminService.updatePage(id, payload),
+    onSuccess: (page) => {
+      queryClient.setQueryData(["website-page-master", "about"], page);
+      queryClient.invalidateQueries({ queryKey: ["website-cms"] });
     },
   });
 }
