@@ -63,12 +63,14 @@ export default function SettingsPage() {
     }
   };
 
-  // จัดกลุ่มตาม category
-  const grouped = settings.reduce<Record<string, Setting[]>>((acc, s) => {
-    const cat = s.category || "General";
-    (acc[cat] ||= []).push(s);
-    return acc;
-  }, {});
+  // จัดกลุ่มตาม category และกรองข้อมูลติดต่อ โซเชียล และบัญชีสมาคมออก (ย้ายไปอยู่ในข้อมูลเว็บไซต์แล้ว)
+  const grouped = settings
+    .filter((s) => s.category !== "contact" && s.category !== "social" && s.category !== "donation")
+    .reduce<Record<string, Setting[]>>((acc, s) => {
+      const cat = s.category || "General";
+      (acc[cat] ||= []).push(s);
+      return acc;
+    }, {});
 
   const renderInput = (setting: Setting) => {
     const val = getValue(setting);

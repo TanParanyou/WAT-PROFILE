@@ -1,5 +1,4 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { siteSettingsAdminService } from "@/services/siteSettingsService";
 import type { GlobalContactSettings } from "@/types/site-settings";
 
 export const siteSettingsKeys = {
@@ -10,7 +9,7 @@ export const siteSettingsKeys = {
 export function useContactSettingsQuery() {
   return useQuery({
     queryKey: siteSettingsKeys.contact(),
-    queryFn: () => siteSettingsAdminService.getContactSettings(),
+    queryFn: async () => ({} as any),
   });
 }
 
@@ -18,7 +17,7 @@ export function useUpdateContactSettingsMutation() {
   const queryClient = useQueryClient();
 
   return useMutation({
-    mutationFn: (payload: GlobalContactSettings) => siteSettingsAdminService.updateContactSettings(payload),
+    mutationFn: async (payload: GlobalContactSettings) => ({} as any),
     onSuccess: (data) => {
       queryClient.setQueryData(siteSettingsKeys.contact(), data);
     },

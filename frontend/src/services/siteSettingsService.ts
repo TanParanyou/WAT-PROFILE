@@ -36,34 +36,3 @@ export function getDefaultContactSettings() {
   return normalizeContactSettings(clone(siteSettingsStore.contact));
 }
 
-export const siteSettingsPublicService = {
-  async getSettings() {
-    if (useMockSiteSettings) {
-      return getDefaultSiteSettings();
-    }
-
-    const res = await publicApi.get<ApiResponse<SiteSettings>>("/settings");
-    return normalizeSiteSettings(unwrapApiResponse(res.data, "Failed to fetch site settings"));
-  },
-
-  async getContactSettings() {
-    if (useMockSiteSettings) {
-      return getDefaultContactSettings();
-    }
-
-    const res = await publicApi.get<ApiResponse<GlobalContactSettings>>("/settings/contact");
-    return normalizeContactSettings(unwrapApiResponse(res.data, "Failed to fetch contact settings"));
-  },
-};
-
-export const siteSettingsAdminService = {
-  async getContactSettings() {
-    const res = await api.get<ApiResponse<GlobalContactSettings>>("/admin/website/settings/contact");
-    return normalizeContactSettings(unwrapApiResponse(res.data, "Failed to fetch contact settings"));
-  },
-
-  async updateContactSettings(payload: GlobalContactSettings) {
-    const res = await api.put<ApiResponse<GlobalContactSettings>>("/admin/website/settings/contact", payload);
-    return normalizeContactSettings(unwrapApiResponse(res.data, "Failed to update contact settings"));
-  },
-};
