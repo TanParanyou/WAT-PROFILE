@@ -7,15 +7,9 @@ import DOMPurify from 'isomorphic-dompurify';
 export function sanitizeHtml(dirty: string): string {
     return DOMPurify.sanitize(dirty, {
         ALLOWED_TAGS: [
-            'h1', 'h2', 'h3', 'h4', 'h5', 'h6',
-            'p', 'br', 'hr',
-            'strong', 'b', 'em', 'i', 'u', 's',
-            'ul', 'ol', 'li',
-            'a', 'img',
-            'blockquote', 'pre', 'code',
-            'table', 'thead', 'tbody', 'tr', 'th', 'td',
-            'div', 'span',
+            'h2', 'h3', 'p', 'br', 'strong', 'em', 's',
+            'ul', 'ol', 'li', 'blockquote', 'hr', 'a', 'img'
         ],
-        ALLOWED_ATTR: ['href', 'src', 'alt', 'title', 'class', 'target', 'rel'],
+        ALLOWED_ATTR: ['href', 'src', 'alt', 'target', 'rel', 'class'],
     });
 }
