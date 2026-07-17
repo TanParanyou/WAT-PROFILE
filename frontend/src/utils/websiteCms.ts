@@ -428,17 +428,19 @@ function asRecord(value: unknown): Record<string, unknown> {
 }
 
 function normalizeSeoMetadata(seo: unknown): {
-  title: Record<string, string>;
-  description: Record<string, string>;
+  title: { th: string; en: string; de: string; };
+  description: { th: string; en: string; de: string; };
+  keywords: { th: string; en: string; de: string; };
+  og_image: string;
   canonical_url: string;
-  noindex: boolean;
 } {
   const s = asRecord(seo);
   return {
     title: withAllLocales(s.title as Record<string, string> | undefined),
     description: withAllLocales(s.description as Record<string, string> | undefined),
+    keywords: withAllLocales(s.keywords as Record<string, string> | undefined),
+    og_image: typeof s.og_image === "string" ? s.og_image : "",
     canonical_url: typeof s.canonical_url === "string" ? s.canonical_url : "",
-    noindex: typeof s.noindex === "boolean" ? s.noindex : false,
   };
 }
 
