@@ -6,12 +6,15 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
+	"github.com/watloungporsai/wat-profile-backend/internal/richtext"
 	"gorm.io/gorm"
 )
 
 type ContentService struct {
 	db *gorm.DB
 }
+
+var ErrInvalidContentBody = errors.New("invalid content body")
 
 type PublishedSectionPayload struct {
 	ID          string               `json:"id"`
@@ -65,6 +68,13 @@ func (s *ContentService) UpdatePageDraft(id uuid.UUID, input models.ContentPage)
 	if err := s.db.First(&page, "id = ?", id.String()).Error; err != nil {
 		return nil, err
 	}
+	pageKey := input.PageKey
+	if pageKey == "" {
+		pageKey = page.PageKey
+	}
+	if err := richtext.ValidateContentPageBody(pageKey, input.Body); err != nil {
+		return nil, errors.Join(ErrInvalidContentBody, err)
+	}
 	page.PageKey = input.PageKey
 	page.Slug = input.Slug
 	page.Title = input.Title
@@ -85,6 +95,13 @@ func (s *ContentService) UpdateSectionDraft(id uuid.UUID, input models.ContentSe
 	var section models.ContentSection
 	if err := s.db.First(&section, "id = ?", id.String()).Error; err != nil {
 		return nil, err
+	}
+	sectionType := input.SectionType
+	if sectionType == "" {
+		sectionType = section.SectionType
+	}
+	if err := richtext.ValidateContentSectionBody(sectionType, input.Body); err != nil {
+		return nil, errors.Join(ErrInvalidContentBody, err)
 	}
 	section.SectionKey = input.SectionKey
 	section.SectionType = input.SectionType
@@ -398,4 +415,3 @@ func (s *ContentService) EnsureImpressumPageSeed() error {
 		return tx.Create(&page).Error
 	})
 }
-

@@ -36,7 +36,7 @@ export function RichTextEditor({
     const currentJSONStr = JSON.stringify(editor.getJSON());
     const incomingJSONStr = JSON.stringify(value);
     if (currentJSONStr !== incomingJSONStr) {
-      (editor.commands.setContent as any)(value, false);
+      editor.commands.setContent(value, { emitUpdate: false });
     }
   }, [value, editor]);
 

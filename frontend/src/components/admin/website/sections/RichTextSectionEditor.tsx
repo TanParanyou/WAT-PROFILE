@@ -4,6 +4,7 @@ import { Controller } from "react-hook-form";
 import { Select } from "@/components/ui/Select";
 import { SectionContentEditorBase } from "@/components/admin/website/sections/SectionContentEditorBase";
 import { MultiLangRichText } from "@/components/admin/rich-text/MultiLangRichText";
+import type { LocalizedRichText } from "@/lib/rich-text/document";
 import { WEBSITE_CMS_LOCALES } from "@/utils/websiteCms";
 
 type ContentEditorProps = Omit<React.ComponentProps<typeof SectionContentEditorBase>, "heading" | "summary" | "children">;
@@ -23,7 +24,7 @@ export function RichTextSectionEditor(props: ContentEditorProps) {
                 label="Content"
                 locales={websiteLocales}
                 defaultLocale="th"
-                value={(field.value || {}) as any}
+                value={(field.value || {}) as LocalizedRichText}
                 onChange={field.onChange}
                 disabled={props.isSaving}
               />

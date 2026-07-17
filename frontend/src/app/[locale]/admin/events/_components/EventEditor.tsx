@@ -20,14 +20,17 @@ import { useTranslations } from "next-intl";
 import { useForm, Controller, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { eventSchema, type EventFormData } from "@/schemas/event.schema";
-import { FileText, MapPin, Clock, Save, ArrowLeft } from "lucide-react";
+import { FileText, MapPin, Save, ArrowLeft } from "lucide-react";
 import { EventScheduleEditor } from "@/components/admin/events/EventScheduleEditor";
 import { useAppOptions } from "@/hooks/useAppOptions";
 import { fromZonedTime, formatInTimeZone } from "date-fns-tz";
 import { format, parse } from "date-fns";
 import { DateRangePicker } from "@/components/ui/DateRangePicker";
+import { hasLegacyLocalizedRichText, normalizeLocalizedRichText } from "@/lib/rich-text/document";
+import { richTextMigrationService } from "@/services/richTextMigrationService";
 
 const emptyLang: MultiLangText = { th: "", en: "", de: "" };
+const richTextLocales = ["th", "en", "de"] as const;
 const TIMEZONE = "Europe/Berlin";
 
 // Safe helper to extract error message without using 'any'
@@ -101,9 +104,15 @@ export function EventEditor({ id }: EventEditorProps) {
     const load = async () => {
       try {
         const event = await eventAdminService.getById(id);
+        const normalizedDescription = normalizeLocalizedRichText(
+          event.description,
+          [...richTextLocales],
+          "th",
+        );
+
         reset({
           title: event.title || { ...emptyLang },
-          description: event.description || { ...emptyLang },
+          description: normalizedDescription,
           location: event.location || { ...emptyLang },
           slug: event.slug,
           start_date: event.start_date
@@ -133,6 +142,16 @@ export function EventEditor({ id }: EventEditorProps) {
             activity: s.activity || { ...emptyLang },
           })),
         });
+
+        if (hasLegacyLocalizedRichText(event.description)) {
+          void richTextMigrationService.migrate({
+            resource: "event",
+            id: String(event.id),
+            updated_at: event.updated_at,
+            field: "description",
+            value: normalizedDescription,
+          }).catch(() => undefined);
+        }
       } catch (err: unknown) {
         handleApiError(err);
       } finally {
@@ -232,7 +251,7 @@ export function EventEditor({ id }: EventEditorProps) {
         await eventAdminService.update(id, payload);
       } else {
         const res = await eventAdminService.create(payload);
-        savedEventId = String((res as any).id);
+        savedEventId = String(res.id);
       }
 
       // 2. If we have a new image file, upload it now
@@ -355,7 +374,7 @@ export function EventEditor({ id }: EventEditorProps) {
                         { code: "de", label: "DE" }
                       ]}
                       defaultLocale="th"
-                      value={(field.value || {}) as any}
+                      value={normalizeLocalizedRichText(field.value, [...richTextLocales], "th")}
                       onChange={field.onChange}
                       error={getFieldError(errors.description)}
                     />

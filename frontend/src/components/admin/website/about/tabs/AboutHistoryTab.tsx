@@ -1,15 +1,23 @@
 "use client";
 
-import { useFormContext } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import { LocalizedTextFields } from "@/components/forms/LocalizedTextFields";
-import { LocalizedTextareaFields } from "@/components/forms/LocalizedTextareaFields";
+import { MultiLangRichText } from "@/components/admin/rich-text/MultiLangRichText";
+import type { AboutPageMasterFormData } from "@/schemas/website-page.schema";
+import { normalizeLocalizedRichText } from "@/lib/rich-text/document";
+
+const richTextLocales = [
+  { code: "th", label: "TH" },
+  { code: "en", label: "EN" },
+  { code: "de", label: "DE" },
+] as const;
 
 interface AboutHistoryTabProps {
   disabled?: boolean;
 }
 
 export function AboutHistoryTab({ disabled = false }: AboutHistoryTabProps) {
-  const { register, setValue, watch, formState: { errors } } = useFormContext();
+  const { register, setValue, watch, control, formState: { errors } } = useFormContext<AboutPageMasterFormData>();
 
   return (
     <div className="space-y-6">
@@ -23,22 +31,26 @@ export function AboutHistoryTab({ disabled = false }: AboutHistoryTabProps) {
         <LocalizedTextFields
           label="Administration Title"
           name="content.administration_title"
-          register={register as any}
-          setValue={setValue as any}
-          watch={watch as any}
-          errors={errors as any}
+          register={register}
+          setValue={setValue}
+          watch={watch}
+          errors={errors}
           disabled={disabled}
         />
 
-        <LocalizedTextareaFields
-          label="Administration Content"
+        <Controller
+          control={control}
           name="content.administration_content"
-          register={register as any}
-          setValue={setValue as any}
-          watch={watch as any}
-          errors={errors as any}
-          disabled={disabled}
-          rows={5}
+          render={({ field }) => (
+            <MultiLangRichText
+              label="Administration Content"
+              locales={[...richTextLocales]}
+              defaultLocale="th"
+              value={normalizeLocalizedRichText(field.value, richTextLocales.map((locale) => locale.code), "th")}
+              onChange={field.onChange}
+              disabled={disabled}
+            />
+          )}
         />
       </div>
 
@@ -52,22 +64,26 @@ export function AboutHistoryTab({ disabled = false }: AboutHistoryTabProps) {
         <LocalizedTextFields
           label="History Title"
           name="content.history_title"
-          register={register as any}
-          setValue={setValue as any}
-          watch={watch as any}
-          errors={errors as any}
+          register={register}
+          setValue={setValue}
+          watch={watch}
+          errors={errors}
           disabled={disabled}
         />
 
-        <LocalizedTextareaFields
-          label="History Content"
+        <Controller
+          control={control}
           name="content.history_content"
-          register={register as any}
-          setValue={setValue as any}
-          watch={watch as any}
-          errors={errors as any}
-          disabled={disabled}
-          rows={6}
+          render={({ field }) => (
+            <MultiLangRichText
+              label="History Content"
+              locales={[...richTextLocales]}
+              defaultLocale="th"
+              value={normalizeLocalizedRichText(field.value, richTextLocales.map((locale) => locale.code), "th")}
+              onChange={field.onChange}
+              disabled={disabled}
+            />
+          )}
         />
       </div>
     </div>

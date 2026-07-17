@@ -4,10 +4,14 @@ import { richTextExtensions } from "./extensions";
 
 export type RichTextDocument = JSONContent;
 export type LocalizedRichText = Record<string, RichTextDocument>;
+type LocalizedRichTextSource = Record<string, unknown>;
 
 export const emptyRichTextDocument = (): RichTextDocument => ({ type: "doc", content: [{ type: "paragraph" }] });
 export const isRichTextDocument = (value: unknown): value is RichTextDocument =>
   typeof value === "object" && value !== null && (value as { type?: unknown }).type === "doc";
+
+export const isLocalizedRichTextSource = (value: unknown): value is LocalizedRichTextSource =>
+  typeof value === "object" && value !== null && !Array.isArray(value);
 
 export function normalizeLegacyRichText(value: unknown): RichTextDocument {
   if (isRichTextDocument(value)) return value;
@@ -17,6 +21,32 @@ export function normalizeLegacyRichText(value: unknown): RichTextDocument {
   return { type: "doc", content: text.split(/\n{2,}/).map((paragraph) => ({ type: "paragraph", content: paragraph ? [{ type: "text", text: paragraph }] : [] })) };
 }
 
-export function getLocalizedRichText(value: LocalizedRichText, locale: string, defaultLocale: string): RichTextDocument {
-  return value[locale] ?? value[defaultLocale] ?? Object.values(value).find(isRichTextDocument) ?? emptyRichTextDocument();
+export function hasLegacyLocalizedRichText(value: unknown): boolean {
+  if (!isLocalizedRichTextSource(value)) return false;
+  return Object.values(value).some((entry) => typeof entry === "string");
+}
+
+export function normalizeLocalizedRichText(value: unknown, locales: string[], defaultLocale: string): LocalizedRichText {
+  const source = isLocalizedRichTextSource(value) ? value : {};
+  const localeSet = new Set<string>([defaultLocale, ...locales, ...Object.keys(source)]);
+  const normalized: LocalizedRichText = {};
+
+  for (const locale of localeSet) {
+    normalized[locale] = normalizeLegacyRichText(source[locale]);
+  }
+
+  return normalized;
+}
+
+export function getLocalizedRichText(value: unknown, locale: string, defaultLocale: string): RichTextDocument {
+  if (!isLocalizedRichTextSource(value)) {
+    return normalizeLegacyRichText(value);
+  }
+
+  const selectedValue =
+    value[locale] ??
+    value[defaultLocale] ??
+    Object.values(value).find((entry) => typeof entry === "string" || isRichTextDocument(entry));
+
+  return normalizeLegacyRichText(selectedValue);
 }

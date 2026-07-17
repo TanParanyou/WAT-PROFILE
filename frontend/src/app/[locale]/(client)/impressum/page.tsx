@@ -1,18 +1,46 @@
-"use client";
-
-import { siteConfig } from "@/config/site.config";
-import { useTranslations } from "next-intl";
+import { getTranslations } from "next-intl/server";
 import PageHeader from "@/components/layout/PageHeader";
 import PageContainer from "@/components/layout/PageContainer";
 import { Building2, MapPin, Phone } from "lucide-react";
+import { websiteCmsPublicService } from "@/services/websiteCmsService";
+import { getLocalizedText } from "@/utils/localizedText";
+import type { LocalizedText } from "@/types/common";
 
-export default function ImpressumPage() {
-  const t = useTranslations("ImpressumPage");
-  const tSite = useTranslations("Site");
+type ImpressumPageBody = {
+  organization_name?: LocalizedText;
+  address?: LocalizedText;
+  phone?: string;
+  email?: string;
+};
+
+function readImpressumBody(value: Record<string, unknown>): ImpressumPageBody {
+  return {
+    organization_name:
+      typeof value.organization_name === "object" && value.organization_name !== null
+        ? (value.organization_name as LocalizedText)
+        : undefined,
+    address:
+      typeof value.address === "object" && value.address !== null
+        ? (value.address as LocalizedText)
+        : undefined,
+    phone: typeof value.phone === "string" ? value.phone : undefined,
+    email: typeof value.email === "string" ? value.email : undefined,
+  };
+}
+
+export default async function ImpressumPage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "ImpressumPage" });
+  const tSite = await getTranslations({ locale, namespace: "Site" });
+  const cmsPage = await websiteCmsPublicService.getPage("impressum").catch(() => null);
+  const body = cmsPage ? readImpressumBody(cmsPage.body) : {};
+  const pageTitle = cmsPage ? getLocalizedText(cmsPage.title, locale) || t("title") : t("title");
+  const organizationName = getLocalizedText(body.organization_name, locale);
+  const address = getLocalizedText(body.address, locale);
 
   return (
     <div className="bg-zinc-50 dark:bg-zinc-950 min-h-screen">
-      <PageHeader title={t("title")} subtitle={tSite("location")} />
+      <PageHeader title={pageTitle} subtitle={tSite("location")} />
 
       <PageContainer>
         <div className="max-w-3xl mx-auto">
@@ -24,7 +52,7 @@ export default function ImpressumPage() {
                 {t("companyName")}
               </h2>
               <p className="text-lg text-gray-600 dark:text-gray-300 ml-9">
-                {siteConfig.siteName.en}
+                {organizationName}
               </p>
             </div>
 
@@ -35,7 +63,7 @@ export default function ImpressumPage() {
                 {t("address")}
               </h2>
               <p className="text-lg text-gray-600 dark:text-gray-300 ml-9 whitespace-pre-line">
-                {siteConfig.contact.address?.en}
+                {address}
               </p>
             </div>
 
@@ -51,7 +79,7 @@ export default function ImpressumPage() {
                     {t("phone")}:
                   </span>
                   <span className="text-gray-600 dark:text-gray-400">
-                    {siteConfig.contact.phone}
+                    {body.phone}
                   </span>
                 </div>
                 <div className="flex items-center gap-4">
@@ -59,7 +87,7 @@ export default function ImpressumPage() {
                     {t("email")}:
                   </span>
                   <span className="text-gray-600 dark:text-gray-400">
-                    {siteConfig.contact.email}
+                    {body.email}
                   </span>
                 </div>
               </div>

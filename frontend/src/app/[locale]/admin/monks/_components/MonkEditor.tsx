@@ -22,8 +22,11 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { monkSchema, type MonkFormData } from "@/schemas/monk.schema";
 import { Save, ArrowLeft } from "lucide-react";
 import { useAppOptions } from "@/hooks/useAppOptions";
+import { hasLegacyLocalizedRichText, normalizeLocalizedRichText } from "@/lib/rich-text/document";
+import { richTextMigrationService } from "@/services/richTextMigrationService";
 
 const emptyLang: MultiLangText = { th: "", en: "", de: "" };
+const richTextLocales = ["th", "en", "de"] as const;
 
 const getFieldError = (fieldError: unknown): string | undefined => {
   if (!fieldError) return undefined;
@@ -87,16 +90,32 @@ export function MonkEditor({ id }: MonkEditorProps) {
     const load = async () => {
       try {
         const monk = await monkAdminService.getById(id);
+        const normalizedBio = normalizeLocalizedRichText(
+          monk.bio,
+          [...richTextLocales],
+          "th",
+        );
+
         reset({
           name: monk.name || { ...emptyLang },
           title: monk.title || { ...emptyLang },
-          bio: monk.bio || { ...emptyLang },
+          bio: normalizedBio,
           slug: monk.slug,
           position: monk.position || "monk",
           image_url: monk.image_url || "",
           ordination_date: monk.ordination_date?.split("T")[0] || "",
           is_active: monk.is_active,
         });
+
+        if (hasLegacyLocalizedRichText(monk.bio)) {
+          void richTextMigrationService.migrate({
+            resource: "monk",
+            id: String(monk.id),
+            updated_at: monk.updated_at,
+            field: "bio",
+            value: normalizedBio,
+          }).catch(() => undefined);
+        }
       } catch (err: unknown) {
         handleApiError(err);
       } finally {
@@ -252,7 +271,7 @@ export function MonkEditor({ id }: MonkEditorProps) {
                     { code: "de", label: "DE" }
                   ]}
                   defaultLocale="th"
-                  value={(field.value || {}) as any}
+                  value={normalizeLocalizedRichText(field.value, [...richTextLocales], "th")}
                   onChange={field.onChange}
                   error={getFieldError(errors.bio)}
                 />

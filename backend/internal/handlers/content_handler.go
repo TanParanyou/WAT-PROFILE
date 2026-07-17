@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"errors"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
@@ -62,6 +63,9 @@ func (h *ContentHandler) UpdatePageDraft(c *fiber.Ctx) error {
 
 	page, err := h.contentService.UpdatePageDraft(id, input)
 	if err != nil {
+		if errors.Is(err, services.ErrInvalidContentBody) {
+			return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+		}
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to update content page")
 	}
 
@@ -82,6 +86,9 @@ func (h *ContentHandler) UpdateSectionDraft(c *fiber.Ctx) error {
 
 	section, err := h.contentService.UpdateSectionDraft(id, input)
 	if err != nil {
+		if errors.Is(err, services.ErrInvalidContentBody) {
+			return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+		}
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to update content section")
 	}
 

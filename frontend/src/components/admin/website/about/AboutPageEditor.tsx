@@ -1,10 +1,9 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useForm, FormProvider } from "react-hook-form";
+import { useForm, FormProvider, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { FileText, Compass, Home, Users, Search, Save } from "lucide-react";
-import { useTranslations } from "next-intl";
 
 import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/Loading";
@@ -16,9 +15,23 @@ import { SeoEditorTab } from "../shared/SeoEditorTab";
 import { aboutPageMasterSchema, type AboutPageMasterFormData } from "@/schemas/website-page.schema";
 import { useAboutPageQuery, useUpdateAboutPageMutation } from "@/hooks/website-page-master";
 import { useWebsiteCmsEditorStore } from "@/stores/website-cms-editor-store";
+import { normalizeLocalizedRichText } from "@/lib/rich-text/document";
+
+const richTextLocales = ["th", "en", "de"] as const;
+
+function normalizeAboutPageData(pageData: AboutPageMasterFormData): AboutPageMasterFormData {
+  return {
+    ...pageData,
+    content: {
+      ...pageData.content,
+      objective_content: normalizeLocalizedRichText(pageData.content.objective_content, [...richTextLocales], "th"),
+      administration_content: normalizeLocalizedRichText(pageData.content.administration_content, [...richTextLocales], "th"),
+      history_content: normalizeLocalizedRichText(pageData.content.history_content, [...richTextLocales], "th"),
+    },
+  };
+}
 
 export function AboutPageEditor() {
-  const t = useTranslations("Admin");
   const { data: pageData, isLoading } = useAboutPageQuery();
   const updateMutation = useUpdateAboutPageMutation();
   const [activeTab, setActiveTab] = useState<"intro" | "history" | "buildings" | "sangha" | "seo">("intro");
@@ -26,7 +39,7 @@ export function AboutPageEditor() {
   const store = useWebsiteCmsEditorStore();
 
   const methods = useForm<AboutPageMasterFormData>({
-    resolver: zodResolver(aboutPageMasterSchema) as any,
+    resolver: zodResolver(aboutPageMasterSchema) as Resolver<AboutPageMasterFormData>,
     defaultValues: {
       slug: "about",
       status: "published",
@@ -46,11 +59,11 @@ export function AboutPageEditor() {
         intro_location: { th: "", en: "", de: "" },
         objective_title: { th: "", en: "", de: "" },
         objective_subtitle: { th: "", en: "", de: "" },
-        objective_content: { th: "", en: "", de: "" },
+        objective_content: normalizeLocalizedRichText({}, [...richTextLocales], "th"),
         administration_title: { th: "", en: "", de: "" },
-        administration_content: { th: "", en: "", de: "" },
+        administration_content: normalizeLocalizedRichText({}, [...richTextLocales], "th"),
         history_title: { th: "", en: "", de: "" },
-        history_content: { th: "", en: "", de: "" },
+        history_content: normalizeLocalizedRichText({}, [...richTextLocales], "th"),
         buildings_title: { th: "", en: "", de: "" },
         buildings_items: [],
         sangha_title: { th: "", en: "", de: "" },
@@ -64,7 +77,7 @@ export function AboutPageEditor() {
 
   useEffect(() => {
     if (pageData) {
-      reset(pageData);
+      reset(normalizeAboutPageData(pageData));
     }
   }, [pageData, reset]);
 

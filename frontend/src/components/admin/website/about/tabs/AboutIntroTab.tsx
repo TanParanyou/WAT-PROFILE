@@ -1,15 +1,24 @@
 "use client";
 
-import { useFormContext } from "react-hook-form";
+import { Controller, useFormContext } from "react-hook-form";
 import { LocalizedTextFields } from "@/components/forms/LocalizedTextFields";
 import { LocalizedTextareaFields } from "@/components/forms/LocalizedTextareaFields";
+import { MultiLangRichText } from "@/components/admin/rich-text/MultiLangRichText";
+import type { AboutPageMasterFormData } from "@/schemas/website-page.schema";
+import { normalizeLocalizedRichText } from "@/lib/rich-text/document";
+
+const richTextLocales = [
+  { code: "th", label: "TH" },
+  { code: "en", label: "EN" },
+  { code: "de", label: "DE" },
+] as const;
 
 interface AboutIntroTabProps {
   disabled?: boolean;
 }
 
 export function AboutIntroTab({ disabled = false }: AboutIntroTabProps) {
-  const { register, setValue, watch, formState: { errors } } = useFormContext();
+  const { register, setValue, watch, control, formState: { errors } } = useFormContext<AboutPageMasterFormData>();
 
   return (
     <div className="space-y-6">
@@ -23,20 +32,20 @@ export function AboutIntroTab({ disabled = false }: AboutIntroTabProps) {
         <LocalizedTextFields
           label="Hero Title"
           name="content.hero_title"
-          register={register as any}
-          setValue={setValue as any}
-          watch={watch as any}
-          errors={errors as any}
+          register={register}
+          setValue={setValue}
+          watch={watch}
+          errors={errors}
           disabled={disabled}
         />
 
         <LocalizedTextareaFields
           label="Hero Subtitle"
           name="content.hero_subtitle"
-          register={register as any}
-          setValue={setValue as any}
-          watch={watch as any}
-          errors={errors as any}
+          register={register}
+          setValue={setValue}
+          watch={watch}
+          errors={errors}
           disabled={disabled}
           rows={2}
         />
@@ -52,20 +61,20 @@ export function AboutIntroTab({ disabled = false }: AboutIntroTabProps) {
         <LocalizedTextFields
           label="Intro Title"
           name="content.intro_title"
-          register={register as any}
-          setValue={setValue as any}
-          watch={watch as any}
-          errors={errors as any}
+          register={register}
+          setValue={setValue}
+          watch={watch}
+          errors={errors}
           disabled={disabled}
         />
 
         <LocalizedTextareaFields
           label="Intro Description"
           name="content.intro_description"
-          register={register as any}
-          setValue={setValue as any}
-          watch={watch as any}
-          errors={errors as any}
+          register={register}
+          setValue={setValue}
+          watch={watch}
+          errors={errors}
           disabled={disabled}
           rows={4}
         />
@@ -74,19 +83,19 @@ export function AboutIntroTab({ disabled = false }: AboutIntroTabProps) {
           <LocalizedTextFields
             label="Founded Info (e.g. Founded in 2026)"
             name="content.intro_founded"
-            register={register as any}
-            setValue={setValue as any}
-            watch={watch as any}
-            errors={errors as any}
+            register={register}
+            setValue={setValue}
+            watch={watch}
+            errors={errors}
             disabled={disabled}
           />
           <LocalizedTextFields
             label="Location Info (e.g. Germany)"
             name="content.intro_location"
-            register={register as any}
-            setValue={setValue as any}
-            watch={watch as any}
-            errors={errors as any}
+            register={register}
+            setValue={setValue}
+            watch={watch}
+            errors={errors}
             disabled={disabled}
           />
         </div>
@@ -102,32 +111,36 @@ export function AboutIntroTab({ disabled = false }: AboutIntroTabProps) {
         <LocalizedTextFields
           label="Vision Section Title"
           name="content.objective_title"
-          register={register as any}
-          setValue={setValue as any}
-          watch={watch as any}
-          errors={errors as any}
+          register={register}
+          setValue={setValue}
+          watch={watch}
+          errors={errors}
           disabled={disabled}
         />
 
         <LocalizedTextFields
           label="Vision Subtitle"
           name="content.objective_subtitle"
-          register={register as any}
-          setValue={setValue as any}
-          watch={watch as any}
-          errors={errors as any}
+          register={register}
+          setValue={setValue}
+          watch={watch}
+          errors={errors}
           disabled={disabled}
         />
 
-        <LocalizedTextareaFields
-          label="Quote / core statement"
+        <Controller
+          control={control}
           name="content.objective_content"
-          register={register as any}
-          setValue={setValue as any}
-          watch={watch as any}
-          errors={errors as any}
-          disabled={disabled}
-          rows={3}
+          render={({ field }) => (
+            <MultiLangRichText
+              label="Quote / core statement"
+              locales={[...richTextLocales]}
+              defaultLocale="th"
+              value={normalizeLocalizedRichText(field.value, richTextLocales.map((locale) => locale.code), "th")}
+              onChange={field.onChange}
+              disabled={disabled}
+            />
+          )}
         />
       </div>
     </div>

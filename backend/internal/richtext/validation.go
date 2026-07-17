@@ -155,3 +155,56 @@ func validateURL(rawURL string, path string) error {
 	}
 	return nil
 }
+
+func ValidateContentPageBody(pageKey string, body models.JSONMap) error {
+	switch pageKey {
+	case "PAGE-PRIVACY":
+		sections, ok := body["sections"].([]interface{})
+		if !ok {
+			return nil
+		}
+
+		for index, sectionValue := range sections {
+			section, ok := sectionValue.(map[string]interface{})
+			if !ok {
+				continue
+			}
+
+			if err := validateLocalizedUnknown(section["content"], fmt.Sprintf("body.sections[%d].content", index)); err != nil {
+				return err
+			}
+		}
+	}
+
+	return nil
+}
+
+func ValidateContentSectionBody(sectionType string, body models.JSONMap) error {
+	if sectionType != "rich_text" {
+		return nil
+	}
+
+	return validateLocalizedUnknown(body["richText"], "body.richText")
+}
+
+func validateLocalizedUnknown(value interface{}, path string) error {
+	if value == nil {
+		return nil
+	}
+
+	raw, err := json.Marshal(value)
+	if err != nil {
+		return fmt.Errorf("%s: invalid rich text payload: %w", path, err)
+	}
+
+	var localized models.LocalizedRichText
+	if err := json.Unmarshal(raw, &localized); err != nil {
+		return fmt.Errorf("%s: invalid rich text payload: %w", path, err)
+	}
+
+	if err := ValidateLocalized(localized); err != nil {
+		return fmt.Errorf("%s: %w", path, err)
+	}
+
+	return nil
+}

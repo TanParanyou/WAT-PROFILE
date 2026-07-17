@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import type { LocalizedRichText } from "@/lib/rich-text/document";
-import { normalizeLegacyRichText, emptyRichTextDocument } from "@/lib/rich-text/document";
+import React, { useEffect, useMemo, useState } from "react";
+import type { LocalizedRichText, RichTextDocument } from "@/lib/rich-text/document";
+import { getLocalizedRichText } from "@/lib/rich-text/document";
 import { RichTextEditor } from "./RichTextEditor";
 
 type RichTextLocale = { code: string; label: string };
@@ -28,16 +28,22 @@ export function MultiLangRichText({
 }: MultiLangRichTextProps) {
   const [activeLocale, setActiveLocale] = useState(defaultLocale);
 
-  const handleEditorChange = (doc: any) => {
+  useEffect(() => {
+    if (!locales.some((locale) => locale.code === activeLocale)) {
+      setActiveLocale(defaultLocale);
+    }
+  }, [activeLocale, defaultLocale, locales]);
+
+  const activeDocument = useMemo(
+    () => getLocalizedRichText(value, activeLocale, defaultLocale),
+    [activeLocale, defaultLocale, value],
+  );
+
+  const handleEditorChange = (doc: RichTextDocument) => {
     onChange({
       ...value,
       [activeLocale]: doc,
     });
-  };
-
-  const getLocaleDocument = (locale: string) => {
-    const rawVal = value?.[locale];
-    return normalizeLegacyRichText(rawVal);
   };
 
   return (
@@ -63,8 +69,7 @@ export function MultiLangRichText({
       </div>
 
       <RichTextEditor
-        key={activeLocale} // Using key to force editor remount when switching languages is safe and ensures proper initial content seeding
-        value={getLocaleDocument(activeLocale)}
+        value={activeDocument}
         onChange={handleEditorChange}
         disabled={disabled}
         error={error}

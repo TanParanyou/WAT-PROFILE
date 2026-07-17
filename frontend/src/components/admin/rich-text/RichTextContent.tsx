@@ -2,11 +2,10 @@ import React from "react";
 import { generateHTML } from "@tiptap/html";
 import { richTextExtensions } from "@/lib/rich-text/extensions";
 import { getLocalizedRichText } from "@/lib/rich-text/document";
-import type { LocalizedRichText } from "@/lib/rich-text/document";
 import { sanitizeHtml } from "@/utils/sanitize";
 
 type RichTextContentProps = {
-  value: LocalizedRichText;
+  value: unknown;
   locale: string;
   defaultLocale: string;
   className?: string;
@@ -18,8 +17,7 @@ export function RichTextContent({
   defaultLocale,
   className = "",
 }: RichTextContentProps) {
-  // Safe normalization of value inside getLocalizedRichText
-  const document = getLocalizedRichText(value || {}, locale, defaultLocale);
+  const document = getLocalizedRichText(value, locale, defaultLocale);
   const html = sanitizeHtml(generateHTML(document, richTextExtensions));
 
   return (

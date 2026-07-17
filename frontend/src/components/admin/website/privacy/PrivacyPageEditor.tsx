@@ -1,47 +1,99 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useForm, FormProvider, useFieldArray, Controller } from "react-hook-form";
-import { Save, Plus, Trash2, Globe, FileText, Search, ArrowUp, ArrowDown } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { Controller, FormProvider, useFieldArray, useForm } from "react-hook-form";
+import { ArrowDown, ArrowUp, FileText, Plus, Save, Search, Trash2 } from "lucide-react";
 
+import { MultiLangInput } from "@/components/admin/MultiLangInput";
+import { MultiLangRichText } from "@/components/admin/rich-text/MultiLangRichText";
 import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/Loading";
 import { Input } from "@/components/ui/Input";
-import { MultiLangInput } from "@/components/admin/MultiLangInput";
-import { MultiLangRichText } from "@/components/admin/rich-text/MultiLangRichText";
-import { SeoEditorTab } from "../shared/SeoEditorTab";
-import { usePrivacyPageQuery, useUpdatePrivacyPageMutation, usePublishPrivacyPageMutation } from "@/hooks/website-page-master";
-import { useWebsiteCmsEditorStore } from "@/stores/website-cms-editor-store";
+import { usePrivacyPageQuery, usePublishPrivacyPageMutation, useUpdatePrivacyPageMutation } from "@/hooks/website-page-master";
 import { useToast } from "@/hooks/useToast";
+import { hasLegacyLocalizedRichText, normalizeLocalizedRichText } from "@/lib/rich-text/document";
+import type { PrivacyPageBodyFormData, PrivacyPageFormData, PrivacySectionFormData } from "@/schemas/website-page.schema";
+import { richTextMigrationService } from "@/services/richTextMigrationService";
+import { useWebsiteCmsEditorStore } from "@/stores/website-cms-editor-store";
+import type { ContentPage } from "@/types/website-cms";
+import { SeoEditorTab } from "../shared/SeoEditorTab";
 
-interface PrivacySection {
-  title: { th: string; en: string; de: string };
-  content: { th: string; en: string; de: string };
+const richTextLocales = [
+  { code: "th", label: "TH" },
+  { code: "en", label: "EN" },
+  { code: "de", label: "DE" },
+] as const;
+
+function normalizePrivacySections(value: unknown): PrivacySectionFormData[] {
+  if (!Array.isArray(value)) {
+    return [];
+  }
+
+  return value
+    .filter((item): item is Record<string, unknown> => typeof item === "object" && item !== null)
+    .map((item) => ({
+      title:
+        typeof item.title === "object" && item.title !== null
+          ? (item.title as PrivacySectionFormData["title"])
+          : { th: "", en: "", de: "" },
+      content: normalizeLocalizedRichText(item.content, richTextLocales.map((locale) => locale.code), "th"),
+    }));
 }
 
-interface PrivacyPageFormData {
-  id: string;
-  page_key: string;
-  slug: string;
-  status: string;
-  title: { th: string; en: string; de: string };
-  description: { th: string; en: string; de: string };
-  seo: {
-    title: { th: string; en: string; de: string };
-    description: { th: string; en: string; de: string };
-    keywords: { th: string; en: string; de: string };
-    og_image: string;
-    canonical_url: string;
+function normalizePrivacyBody(value: unknown): PrivacyPageBodyFormData {
+  const body = typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {};
+
+  return {
+    last_updated:
+      typeof body.last_updated === "string" && body.last_updated.trim()
+        ? body.last_updated
+        : new Date().toISOString().split("T")[0],
+    sections: normalizePrivacySections(body.sections),
   };
-  body: {
-    last_updated: string;
-    sections: PrivacySection[];
+}
+
+function normalizePrivacyPage(value: ContentPage): PrivacyPageFormData {
+  return {
+    id: value.id,
+    page_key: value.page_key,
+    slug: value.slug,
+    status: value.status,
+    title: value.title,
+    description: value.description,
+    seo: {
+      title: value.seo.title || { th: "", en: "", de: "" },
+      description: value.seo.description || { th: "", en: "", de: "" },
+      keywords: "keywords" in value.seo && value.seo.keywords ? (value.seo.keywords as PrivacyPageFormData["seo"]["keywords"]) : { th: "", en: "", de: "" },
+      og_image: typeof value.seo.og_image === "string" ? value.seo.og_image : "",
+      canonical_url: typeof value.seo.canonical_url === "string" ? value.seo.canonical_url : "",
+    },
+    body: normalizePrivacyBody(value.body),
+  };
+}
+
+function hasLegacyPrivacyBody(value: unknown): boolean {
+  const body = typeof value === "object" && value !== null ? (value as Record<string, unknown>) : {};
+  if (!Array.isArray(body.sections)) {
+    return false;
+  }
+
+  return body.sections.some((section) => {
+    if (typeof section !== "object" || section === null) {
+      return false;
+    }
+
+    return hasLegacyLocalizedRichText((section as Record<string, unknown>).content);
+  });
+}
+
+function createEmptyPrivacySection(): PrivacySectionFormData {
+  return {
+    title: { th: "", en: "", de: "" },
+    content: normalizeLocalizedRichText({}, richTextLocales.map((locale) => locale.code), "th"),
   };
 }
 
 export function PrivacyPageEditor() {
-  const t = useTranslations("Admin");
   const { toast } = useToast();
   const { data: pageData, isLoading } = usePrivacyPageQuery();
   const updateMutation = useUpdatePrivacyPageMutation();
@@ -51,6 +103,7 @@ export function PrivacyPageEditor() {
 
   const methods = useForm<PrivacyPageFormData>({
     defaultValues: {
+      page_key: "PAGE-PRIVACY",
       slug: "privacy",
       status: "published",
       title: { th: "นโยบายความเป็นส่วนตัว", en: "Privacy Policy", de: "Datenschutzerklärung" },
@@ -69,63 +122,67 @@ export function PrivacyPageEditor() {
     },
   });
 
-  const { reset, handleSubmit, control, formState: { isDirty, errors } } = methods;
+  const {
+    control,
+    formState: { errors, isDirty },
+    handleSubmit,
+    reset,
+  } = methods;
 
-  const { fields, append, remove, swap } = useFieldArray({
+  const { append, fields, remove, swap } = useFieldArray({
     control,
     name: "body.sections",
   });
 
   useEffect(() => {
     if (pageData) {
-      const normalizedData = {
-        ...pageData,
-        body: {
-          last_updated: (pageData.body as any)?.last_updated || new Date().toISOString().split("T")[0],
-          sections: (pageData.body as any)?.sections || [],
-        },
-      } as unknown as PrivacyPageFormData;
-      reset(normalizedData);
+      const normalizedPage = normalizePrivacyPage(pageData);
+      reset(normalizedPage);
+
+      if (hasLegacyPrivacyBody(pageData.body)) {
+        void richTextMigrationService.migrate({
+          resource: "content_page",
+          id: pageData.id,
+          updated_at: pageData.updated_at,
+          field: "body",
+          value: normalizedPage.body,
+        }).catch(() => undefined);
+      }
     }
   }, [pageData, reset]);
 
   useEffect(() => {
     store.setHasUnsavedChanges(isDirty);
     return () => store.setHasUnsavedChanges(false);
-  }, [isDirty]);
+  }, [isDirty, store]);
 
   if (isLoading) {
     return <PageLoading text="Loading Privacy Policy..." />;
   }
 
   const onSubmit = (values: PrivacyPageFormData) => {
+    if (!pageData?.id) return;
+
     updateMutation.mutate(
       {
-        id: pageData!.id,
+        id: pageData.id,
         payload: {
           title: values.title,
           description: values.description,
-          seo: values.seo as any,
-          body: values.body as any,
-          status: values.status as any,
+          seo: values.seo,
+          body: values.body,
+          status: values.status,
         },
       },
       {
         onSuccess: (updated) => {
           toast.success("Saved successfully");
-          const normalizedData = {
-            ...updated,
-            body: {
-              last_updated: (updated.body as any)?.last_updated || new Date().toISOString().split("T")[0],
-              sections: (updated.body as any)?.sections || [],
-            },
-          } as unknown as PrivacyPageFormData;
-          reset(normalizedData);
+          reset(normalizePrivacyPage(updated));
         },
         onError: () => {
           toast.error("Failed to save data");
         },
-      }
+      },
     );
   };
 
@@ -147,9 +204,7 @@ export function PrivacyPageEditor() {
         <div className="flex flex-col gap-4 border-b border-zinc-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
             <h1 className="text-xl font-semibold text-zinc-950">Privacy Policy Editor</h1>
-            <p className="text-sm text-zinc-500">
-              Manage website privacy policy sections and translations.
-            </p>
+            <p className="text-sm text-zinc-500">Manage website privacy policy sections and translations.</p>
           </div>
         </div>
 
@@ -175,51 +230,42 @@ export function PrivacyPageEditor() {
             </Button>
           </div>
           <div className="flex items-center gap-3 text-xs text-zinc-500">
-            <span>Status: </span>
-            <span className="font-mono bg-emerald-50 text-emerald-700 px-2 py-0.5 border border-emerald-200 rounded font-medium uppercase tracking-wider">
+            <span>Status:</span>
+            <span className="rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-mono font-medium uppercase tracking-wider text-emerald-700">
               {pageData?.status || "published"}
             </span>
           </div>
         </div>
 
-        {Object.keys(errors).length > 0 && (
-          <div className="p-3 border border-red-200 bg-red-50 text-red-700 text-xs rounded">
+        {Object.keys(errors).length > 0 ? (
+          <div className="rounded border border-red-200 bg-red-50 p-3 text-xs text-red-700">
             Please fix the validation errors before saving.
           </div>
-        )}
+        ) : null}
 
         <div className="space-y-4">
-          {activeTab === "content" && (
-            <div className="bg-white rounded-xl border border-zinc-200 p-6 space-y-6">
+          {activeTab === "content" ? (
+            <div className="space-y-6 rounded-xl border border-zinc-200 bg-white p-6">
               <div className="grid gap-6 md:grid-cols-2">
-                <Input
-                  type="date"
-                  label="Last Updated Date"
-                  {...methods.register("body.last_updated")}
-                />
+                <Input type="date" label="Last Updated Date" {...methods.register("body.last_updated")} />
                 <Controller
                   name="title"
-                  control={methods.control}
-                  render={({ field: { value, onChange } }) => (
-                    <MultiLangInput
-                      label="Page Title (Optional)"
-                      value={value}
-                      onChange={onChange}
-                      required
-                    />
+                  control={control}
+                  render={({ field: { onChange, value } }) => (
+                    <MultiLangInput label="Page Title (Optional)" value={value} onChange={onChange} required />
                   )}
                 />
               </div>
 
               <div className="border-t border-zinc-100 pt-6">
-                <div className="flex items-center justify-between mb-4">
+                <div className="mb-4 flex items-center justify-between">
                   <h2 className="text-base font-semibold text-zinc-950">Policy Sections</h2>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
                     icon={<Plus size={14} />}
-                    onClick={() => append({ title: { th: "", en: "", de: "" }, content: { th: "", en: "", de: "" } })}
+                    onClick={() => append(createEmptyPrivacySection())}
                   >
                     Add Section
                   </Button>
@@ -227,13 +273,13 @@ export function PrivacyPageEditor() {
 
                 <div className="space-y-6">
                   {fields.map((field, index) => (
-                    <div key={field.id} className="relative border border-zinc-200 rounded-xl p-6 bg-zinc-50/50">
-                      <div className="absolute top-4 right-4 flex items-center gap-1">
+                    <div key={field.id} className="relative rounded-xl border border-zinc-200 bg-zinc-50/50 p-6">
+                      <div className="absolute right-4 top-4 flex items-center gap-1">
                         <button
                           type="button"
                           onClick={() => index > 0 && swap(index, index - 1)}
                           disabled={index === 0}
-                          className="p-1 text-zinc-400 hover:text-zinc-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                          className="p-1 text-zinc-400 transition-colors hover:text-zinc-600 disabled:cursor-not-allowed disabled:opacity-30"
                         >
                           <ArrowUp size={16} />
                         </button>
@@ -241,14 +287,14 @@ export function PrivacyPageEditor() {
                           type="button"
                           onClick={() => index < fields.length - 1 && swap(index, index + 1)}
                           disabled={index === fields.length - 1}
-                          className="p-1 text-zinc-400 hover:text-zinc-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+                          className="p-1 text-zinc-400 transition-colors hover:text-zinc-600 disabled:cursor-not-allowed disabled:opacity-30"
                         >
                           <ArrowDown size={16} />
                         </button>
                         <button
                           type="button"
                           onClick={() => remove(index)}
-                          className="p-1 ml-2 text-zinc-400 hover:text-red-600 transition-colors"
+                          className="ml-2 p-1 text-zinc-400 transition-colors hover:text-red-600"
                         >
                           <Trash2 size={16} />
                         </button>
@@ -258,29 +304,20 @@ export function PrivacyPageEditor() {
                         <div className="font-mono text-xs text-zinc-400">Section #{index + 1}</div>
                         <Controller
                           name={`body.sections.${index}.title`}
-                          control={methods.control}
-                          render={({ field: { value, onChange } }) => (
-                            <MultiLangInput
-                              label="Section Title"
-                              value={value}
-                              onChange={onChange}
-                              required
-                            />
+                          control={control}
+                          render={({ field: { onChange, value } }) => (
+                            <MultiLangInput label="Section Title" value={value} onChange={onChange} required />
                           )}
                         />
                         <Controller
                           name={`body.sections.${index}.content`}
-                          control={methods.control}
-                          render={({ field: { value, onChange } }) => (
+                          control={control}
+                          render={({ field: { onChange, value } }) => (
                             <MultiLangRichText
                               label="Section Content"
-                              locales={[
-                                { code: "th", label: "TH" },
-                                { code: "en", label: "EN" },
-                                { code: "de", label: "DE" }
-                              ]}
+                              locales={[...richTextLocales]}
                               defaultLocale="th"
-                              value={value as any}
+                              value={normalizeLocalizedRichText(value, richTextLocales.map((locale) => locale.code), "th")}
                               onChange={onChange}
                             />
                           )}
@@ -288,23 +325,23 @@ export function PrivacyPageEditor() {
                       </div>
                     </div>
                   ))}
-                  {fields.length === 0 && (
-                    <div className="text-center py-8 text-sm text-zinc-500 border border-dashed border-zinc-300 rounded-xl">
+
+                  {fields.length === 0 ? (
+                    <div className="rounded-xl border border-dashed border-zinc-300 py-8 text-center text-sm text-zinc-500">
                       No policy sections added yet. Click "Add Section" to begin.
                     </div>
-                  )}
+                  ) : null}
                 </div>
               </div>
             </div>
-          )}
-          {activeTab === "seo" && (
+          ) : (
             <SeoEditorTab disabled={updateMutation.isPending} />
           )}
         </div>
 
         <div className="sticky bottom-0 z-40 -mx-4 -mb-4 mt-8 flex items-center justify-between border-t border-zinc-200 bg-white/80 px-4 py-4 backdrop-blur-md sm:-mx-6 sm:-mb-6 sm:px-6">
           <div className="flex items-center gap-3">
-            {isDirty && (
+            {isDirty ? (
               <span className="flex items-center gap-1.5 text-xs font-medium text-amber-600">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
@@ -312,15 +349,15 @@ export function PrivacyPageEditor() {
                 </span>
                 Unsaved changes
               </span>
-            )}
+            ) : null}
           </div>
-          <div className="flex items-center gap-3 w-full sm:w-auto">
+          <div className="flex w-full items-center gap-3 sm:w-auto">
             <Button
               type="button"
               variant="outline"
               onClick={handlePublish}
               isLoading={publishMutation.isPending}
-              className="flex-1 sm:flex-none shadow-sm"
+              className="flex-1 shadow-sm sm:flex-none"
             >
               Publish
             </Button>
@@ -329,7 +366,7 @@ export function PrivacyPageEditor() {
               variant="primary"
               isLoading={updateMutation.isPending}
               icon={<Save size={16} />}
-              className="flex-1 sm:flex-none shadow-sm"
+              className="flex-1 shadow-sm sm:flex-none"
             >
               Save Changes
             </Button>

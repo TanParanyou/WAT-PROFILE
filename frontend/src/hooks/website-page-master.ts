@@ -1,6 +1,7 @@
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { websiteCmsAdminService } from "@/services/websiteCmsService";
 import type { ContentPage } from "@/types/website-cms";
+import { normalizeLegacyRichText } from "@/lib/rich-text/document";
 import type { 
   HomePageMasterFormData, 
   ContactPageMasterFormData, 
@@ -10,6 +11,12 @@ import type {
 const LOCAL_STORAGE_KEY = "mock_home_page_master_data";
 const CONTACT_LOCAL_STORAGE_KEY = "mock_contact_page_master_data";
 const ABOUT_LOCAL_STORAGE_KEY = "mock_about_page_master_data";
+
+function localizedRichTextFromStrings(value: Record<string, string>) {
+  return Object.fromEntries(
+    Object.entries(value).map(([locale, content]) => [locale, normalizeLegacyRichText(content)]),
+  );
+}
 
 const defaultMockData: HomePageMasterFormData = {
   id: "home-page-id",
@@ -282,9 +289,11 @@ const defaultAboutMockData: AboutPageMasterFormData = {
       de: "Für die Verbreitung des Buddhismus und die geistige Entwicklung",
     },
     objective_content: {
-      th: "ตั้งใจสนับสนุนชุมชน เสริมสร้างสันติภาพและความสุขภายในจิตใจของทุกๆ คน",
-      en: "Dedicated to supporting the community and fostering inner peace and happiness for all.",
-      de: "Unterstützung der Gemeinschaft und Förderung des inneren Friedens und des Glücks für alle.",
+      ...localizedRichTextFromStrings({
+        th: "ตั้งใจสนับสนุนชุมชน เสริมสร้างสันติภาพและความสุขภายในจิตใจของทุกๆ คน",
+        en: "Dedicated to supporting the community and fostering inner peace and happiness for all.",
+        de: "Unterstützung der Gemeinschaft und Förderung des inneren Friedens und des Glücks für alle.",
+      }),
     },
     administration_title: {
       th: "คณะกรรมการดำเนินงาน",
@@ -292,9 +301,11 @@ const defaultAboutMockData: AboutPageMasterFormData = {
       de: "Vorstand",
     },
     administration_content: {
-      th: "วัดดำเนินกิจกรรมต่างๆ ภายใต้สมาคมจดทะเบียนไม่แสวงหาผลกำไร...",
-      en: "The temple operates under a registered non-profit association...",
-      de: "Der Tempel wird im Rahmen eines eingetragenen gemeinnützigen Vereins betrieben...",
+      ...localizedRichTextFromStrings({
+        th: "วัดดำเนินกิจกรรมต่างๆ ภายใต้สมาคมจดทะเบียนไม่แสวงหาผลกำไร...",
+        en: "The temple operates under a registered non-profit association...",
+        de: "Der Tempel wird im Rahmen eines eingetragenen gemeinnützigen Vereins betrieben...",
+      }),
     },
     history_title: {
       th: "ประวัติความเป็นมา",
@@ -302,9 +313,11 @@ const defaultAboutMockData: AboutPageMasterFormData = {
       de: "Unsere Geschichte",
     },
     history_content: {
-      th: "วัดโปรไฟล์ก่อตั้งขึ้นโดยมีวัตถุประสงค์เพื่อเป็นสถานที่ยึดเหนี่ยวจิตใจและเผยแผ่หลักธรรมคำสอนในพุทธศาสนา ผ่านกระบวนการและเครื่องมือสมัยใหม่...",
-      en: "Wat Profile was founded to be a spiritual anchor and spread Buddhist teachings through modern tools...",
-      de: "Wat Profile wurde gegründet, um ein spiritueller Anker zu sein und buddhistische Lehren durch moderne Werkzeuge zu verbreiten...",
+      ...localizedRichTextFromStrings({
+        th: "วัดโปรไฟล์ก่อตั้งขึ้นโดยมีวัตถุประสงค์เพื่อเป็นสถานที่ยึดเหนี่ยวจิตใจและเผยแผ่หลักธรรมคำสอนในพุทธศาสนา ผ่านกระบวนการและเครื่องมือสมัยใหม่...",
+        en: "Wat Profile was founded to be a spiritual anchor and spread Buddhist teachings through modern tools...",
+        de: "Wat Profile wurde gegründet, um ein spiritueller Anker zu sein und buddhistische Lehren durch moderne Werkzeuge zu verbreiten...",
+      }),
     },
     buildings_title: {
       th: "เสนาสนะและอาคารภายในวัด",
@@ -544,4 +557,3 @@ export function usePublishImpressumPageMutation() {
     },
   });
 }
-

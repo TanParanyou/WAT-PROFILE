@@ -161,7 +161,15 @@ export function PublicSectionRenderer({
       );
     }
     case "rich_text": {
-      const richText = (section.body.richText || {}) as any;
+      const richText =
+        section.body.richText ||
+        (typeof section.body.markdown === "string"
+          ? {
+              th: section.body.markdown,
+              en: section.body.markdown,
+              de: section.body.markdown,
+            }
+          : {});
       const width = readString(section.settings.width) || "regular";
       const widthClass =
         width === "narrow" ? "max-w-2xl" : width === "wide" ? "max-w-5xl" : "max-w-3xl";
