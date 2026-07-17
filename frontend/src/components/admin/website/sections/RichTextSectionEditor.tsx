@@ -23,7 +23,7 @@ export function RichTextSectionEditor(props: ContentEditorProps) {
                 label="Content"
                 locales={websiteLocales}
                 defaultLocale="th"
-                value={field.value || {}}
+                value={(field.value || {}) as any}
                 onChange={field.onChange}
                 disabled={props.isSaving}
               />

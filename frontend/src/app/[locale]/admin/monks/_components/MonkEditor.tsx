@@ -252,7 +252,7 @@ export function MonkEditor({ id }: MonkEditorProps) {
                     { code: "de", label: "DE" }
                   ]}
                   defaultLocale="th"
-                  value={field.value || {}}
+                  value={(field.value || {}) as any}
                   onChange={field.onChange}
                   error={getFieldError(errors.bio)}
                 />

@@ -4,7 +4,7 @@ import { multiLangSchema, slugSchema } from "./common";
 export const eventSchema = z
   .object({
     title: multiLangSchema("Title"),
-    description: multiLangSchema("Description").optional(),
+    description: z.record(z.string(), z.unknown()).optional(),
     slug: slugSchema,
     start_date: z.string().min(1, "Start date is required"),
     end_date: z.string().min(1, "End date is required"),

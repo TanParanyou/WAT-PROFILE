@@ -128,7 +128,7 @@ export default async function MonkDetailPage({ params }: Props) {
               </div>
 
               <RichTextContent
-                value={monk.bio as any}
+                value={(monk as any).bio || (monk as any).content || {}}
                 locale={locale}
                 defaultLocale="th"
               />

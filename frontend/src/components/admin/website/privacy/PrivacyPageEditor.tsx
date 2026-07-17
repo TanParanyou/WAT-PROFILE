@@ -280,9 +280,8 @@ export function PrivacyPageEditor() {
                                 { code: "de", label: "DE" }
                               ]}
                               defaultLocale="th"
-                              value={value}
+                              value={value as any}
                               onChange={onChange}
-                              required
                             />
                           )}
                         />

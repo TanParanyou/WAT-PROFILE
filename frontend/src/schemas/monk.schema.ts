@@ -4,7 +4,7 @@ import { multiLangSchema, slugSchema } from "./common";
 export const monkSchema = z.object({
   name: multiLangSchema("Name"),
   title: multiLangSchema("Title").optional(),
-  bio: multiLangSchema("Bio").optional(),
+  bio: z.record(z.string(), z.unknown()).optional(),
   position: z.string().optional(),
   slug: slugSchema,
   image_url: z.union([z.string(), z.instanceof(File)]).optional(),

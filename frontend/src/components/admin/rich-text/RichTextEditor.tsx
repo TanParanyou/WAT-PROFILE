@@ -31,13 +31,12 @@ export function RichTextEditor({
     },
   });
 
-  // Watch for external value changes to sync without feedback loop
   useEffect(() => {
     if (!editor) return;
     const currentJSONStr = JSON.stringify(editor.getJSON());
     const incomingJSONStr = JSON.stringify(value);
     if (currentJSONStr !== incomingJSONStr) {
-      editor.commands.setContent(value, false);
+      (editor.commands.setContent as any)(value, false);
     }
   }, [value, editor]);
 
