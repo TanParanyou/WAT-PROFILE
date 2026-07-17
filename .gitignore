@@ -45,6 +45,9 @@ yarn-error.log*
 # agents
 .agents
 
+# graphify knowledge graph output
+graphify-out/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

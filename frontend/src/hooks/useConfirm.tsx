@@ -55,7 +55,7 @@ export const useConfirm = () => {
             try {
                 await state.options.onConfirm();
                 settle(true);
-            } catch (error) {
+            } catch {
                 // Keep the dialog open, only reset the loading state
                 setState((prev) => ({ ...prev, isLoading: false }));
             }
