@@ -428,55 +428,70 @@ func (s *ContentService) EnsureContactPageSeed() error {
 				"en": "Contact details and message form",
 				"de": "Kontaktdaten und Nachrichtenformular",
 			},
-			Status: models.ContentStatusDraft,
+			Status: models.ContentStatusPublished,
 			Seo: models.JSONMap{
 				"canonical_url": "/th/contact",
 				"noindex":       false,
 			},
 			Body: models.JSONMap{
-				"intro": "contact",
+				"address": models.MultiLangText{
+					"th": "Am Pflaster 11, 63599 Biebergemünd",
+					"en": "Am Pflaster 11, 63599 Biebergemünd",
+					"de": "Am Pflaster 11, 63599 Biebergemünd",
+				},
+				"phone": "+49 160-1604486",
+				"email": "Watloungporsai@gmail.com",
+				"opening_hours": models.JSONMap{
+					"days":   models.MultiLangText{"th": "วันอังคาร - วันอาทิตย์", "en": "Tuesday - Sunday", "de": "Dienstag - Sonntag"},
+					"time":   models.MultiLangText{"th": "09:00 - 18:00 น.", "en": "09:00 AM - 06:00 PM", "de": "09:00 - 18:00 Uhr"},
+					"notice": models.MultiLangText{"th": "ปิดทุกวันจันทร์", "en": "Closed on Mondays", "de": "Montags geschlossen"},
+				},
+				"map": models.JSONMap{
+					"name":           models.MultiLangText{"th": "วัดหลวงพ่อใส", "en": "Wat Loung Por Sai", "de": "Wat Loung Por Sai"},
+					"embed_url":      "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2524.3168212154483!2d9.2970717!3d50.1925345!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47b407bc4fbe61d7%3A0xe2128cebf9331899!2sWat%20Loung%20Por%20Sai!5e0!3m2!1sth!2sde!4v1700000000000",
+					"directions_url": "https://maps.app.goo.gl/watloungporsai",
+				},
+				"transport": models.JSONMap{
+					"parking": models.MultiLangText{"th": "มีที่จอดรถบริเวณหน้าวัด", "en": "Parking space available in front of the temple", "de": "Parkplatz vor dem Tempel vorhanden"},
+					"public_transport": []interface{}{
+						models.MultiLangText{"th": "รถไฟลงสถานี Gelnhausen ต่อรถบัสสาย 82", "en": "Train to Gelnhausen Station, then Bus 82", "de": "Zug zum Bahnhof Gelnhausen, dann Bus 82"},
+					},
+					"driving": models.MultiLangText{"th": "ทางหลวง A66 ออกทาง Biebergemünd", "en": "Highway A66, exit Biebergemünd", "de": "Autobahn A66, Ausfahrt Biebergemünd"},
+				},
+				"socials": models.JSONMap{
+					"facebook":  "https://facebook.com/watloungporsai",
+					"instagram": "",
+					"messenger": "",
+					"line":      "",
+					"youtube":   "",
+				},
+				"bank": models.JSONMap{
+					"bank_name":      models.MultiLangText{"th": "Sparkasse Gelnhausen", "en": "Sparkasse Gelnhausen", "de": "Sparkasse Gelnhausen"},
+					"account_name":   models.MultiLangText{"th": "สมาคมศูนย์สมาธิพระพุทธศาสนา", "en": "Buddhistisches Meditationszentrum e.V.", "de": "Buddhistisches Meditationszentrum e.V."},
+					"account_number": "",
+					"iban":           "DE12345678901234567890",
+					"bic":            "WELADEDDFXX",
+				},
+				"contact_form": models.JSONMap{
+					"enabled":           true,
+					"success_message":   models.MultiLangText{"th": "ส่งข้อความสำเร็จ ขอบคุณที่ติดต่อเรา", "en": "Message sent successfully. Thank you for contacting us.", "de": "Nachricht erfolgreich gesendet. Vielen Dank für Ihre Kontaktaufnahme."},
+					"privacy_page_link": "/privacy",
+				},
 			},
 			Settings: models.JSONMap{
 				"layout": "contact",
 			},
 		}
-		if err := tx.Create(&page).Error; err != nil {
-			return err
-		}
 
-		sections := []models.ContentSection{
-			{
-				PageID:      page.ID,
-				SectionKey:  "hero",
-				SectionType: "hero",
-				Title: models.MultiLangText{
-					"th": "ติดต่อเรา",
-					"en": "Contact Us",
-					"de": "Kontakt",
-				},
-				Description: models.MultiLangText{
-					"th": "สอบถามเส้นทาง เวลาทำการ และข้อมูลติดต่อ",
-					"en": "Ask about directions, opening hours, and contact details",
-					"de": "Fragen zu Anfahrt, Öffnungszeiten und Kontaktdaten",
-				},
-				SortOrder: 0,
-			},
-			{
-				PageID:      page.ID,
-				SectionKey:  "contact-info",
-				SectionType: "contact_info",
-				Title:       models.MultiLangText{"th": "ข้อมูลติดต่อ", "en": "Contact Details", "de": "Kontaktdaten"},
-				SortOrder:   1,
-			},
-			{
-				PageID:      page.ID,
-				SectionKey:  "contact-form",
-				SectionType: "contact_form",
-				Title:       models.MultiLangText{"th": "ส่งข้อความถึงเรา", "en": "Send us a message", "de": "Senden Sie uns eine Nachricht"},
-				SortOrder:   2,
-			},
-		}
-		return tx.Create(&sections).Error
+		now := time.Now()
+		page.PublishedTitle = page.Title
+		page.PublishedDescription = page.Description
+		page.PublishedSeo = page.Seo.Clone()
+		page.PublishedBody = page.Body.Clone()
+		page.PublishedSettings = page.Settings.Clone()
+		page.PublishedAt = &now
+
+		return tx.Create(&page).Error
 	})
 }
 
@@ -510,21 +525,12 @@ func (s *ContentService) EnsurePrivacyPageSeed() error {
 				"noindex":       false,
 			},
 			Body: models.JSONMap{
-				"last_updated": "2026-07-16",
-				"sections": []interface{}{
-					map[string]interface{}{
-						"title": map[string]interface{}{
-							"th": "การเก็บรวบรวมข้อมูลและการใช้งาน",
-							"en": "Information Collection and Use",
-							"de": "Datenerfassung und -verwendung",
-						},
-						"content": map[string]interface{}{
-							"th": "เราเก็บรวบรวมข้อมูลประเภทต่างๆ เพื่อวัตถุประสงค์ในการให้บริการและปรับปรุงหน้าเว็บไซต์ให้กับท่าน",
-							"en": "We collect several different types of information for various purposes to provide and improve our Service to you.",
-							"de": "Wir erfassen verschiedene Arten von Informationen für verschiedene Zwecke, um unseren Dienst für Sie bereitzustellen und zu verbessern.",
-						},
-					},
+				"content": models.LocalizedRichText{
+					"th": []byte(`{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"เราเก็บรวบรวมข้อมูลประเภทต่างๆ เพื่อวัตถุประสงค์ในการให้บริการและปรับปรุงหน้าเว็บไซต์ให้กับท่าน"}]}]}`),
+					"en": []byte(`{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"We collect several different types of information for various purposes to provide and improve our Service to you."}]}]}`),
+					"de": []byte(`{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Wir erfassen various types of information for several purposes to provide and improve our Service to you."}]}]}`),
 				},
+				"last_updated": time.Now().Format(time.RFC3339),
 			},
 			Settings: models.JSONMap{
 				"layout": "default",
@@ -574,18 +580,36 @@ func (s *ContentService) EnsureImpressumPageSeed() error {
 				"noindex":       false,
 			},
 			Body: models.JSONMap{
-				"organization_name": map[string]interface{}{
+				"organization_name": models.MultiLangText{
 					"th": "สมาคมศูนย์สมาธิพระพุทธศาสนา",
 					"en": "Buddhistisches Meditationszentrum e.V.",
 					"de": "Buddhistisches Meditationszentrum e.V.",
 				},
-				"address": map[string]interface{}{
+				"legal_form": models.MultiLangText{
+					"th": "สมาคมจดทะเบียน",
+					"en": "Eingetragener Verein (e.V.)",
+					"de": "Eingetragener Verein (e.V.)",
+				},
+				"address": models.MultiLangText{
 					"th": "Am Pflaster 11, 63599 Biebergemünd",
 					"en": "Am Pflaster 11, 63599 Biebergemünd",
 					"de": "Am Pflaster 11, 63599 Biebergemünd",
 				},
 				"phone": "+49 160-1604486",
 				"email": "Watloungporsai@gmail.com",
+				"representative": models.MultiLangText{
+					"th": "พระครูวินัยธร",
+					"en": "Phrakhru Winaithon",
+					"de": "Phrakhru Winaithon",
+				},
+				"registry_court": models.MultiLangText{
+					"th": "ศาล Hanau",
+					"en": "Amtsgericht Hanau",
+					"de": "Amtsgericht Hanau",
+				},
+				"registry_number":        "VR 20123",
+				"vat_id":                 "",
+				"content_responsibility": models.MultiLangText{"th": "พระครูวินัยธร", "en": "Phrakhru Winaithon", "de": "Phrakhru Winaithon"},
 			},
 			Settings: models.JSONMap{
 				"layout": "default",
@@ -635,20 +659,54 @@ func (s *ContentService) EnsureAboutPageSeed() error {
 				"noindex":       false,
 			},
 			Body: models.JSONMap{
-				"objective_content": models.MultiLangText{
-					"th": "ตั้งใจสนับสนุนชุมชน เสริมสร้างสันติภาพและความสุขภายในจิตใจของทุกๆ คน",
-					"en": "Dedicated to supporting the community and fostering inner peace and happiness for all.",
-					"de": "Unterstützung der Gemeinschaft und Förderung des inneren Friedens und des Glücks für alle.",
+				"intro": models.JSONMap{
+					"heading":     models.MultiLangText{"th": "ยินดีต้อนรับสู่วัดหลวงพ่อใส", "en": "Welcome to Wat Loung Por Sai", "de": "Willkommen im Wat Loung Por Sai"},
+					"description": models.MultiLangText{"th": "วัดโปรไฟล์เป็นศูนย์สมาธิและการเรียนรู้หลักธรรมเพื่อความสุขสงบในจิตใจ", "en": "Wat Profile is a meditation center and learning sanctuary for inner peace.", "de": "Wat Profile ist ein Meditationszentrum und eine Bildungsstätte für inneren Frieden."},
+					"founded":     models.MultiLangText{"th": "2566", "en": "2023", "de": "2023"},
+					"location":    models.MultiLangText{"th": "Biebergemünd, เยอรมนี", "en": "Biebergemünd, Germany", "de": "Biebergemünd, Deutschland"},
 				},
-				"administration_content": models.MultiLangText{
-					"th": "วัดดำเนินกิจกรรมต่างๆ ภายใต้สมาคมจดทะเบียนไม่แสวงหาผลกำไร",
-					"en": "The temple operates under a registered non-profit association.",
-					"de": "Der Tempel wird im Rahmen eines eingetragenen gemeinnützigen Vereins betrieben.",
+				"objective": models.JSONMap{
+					"heading":  models.MultiLangText{"th": "วัตถุประสงค์", "en": "Objective", "de": "Zielsetzung"},
+					"subtitle": models.MultiLangText{"th": "การสร้างความสงบสุขในชุมชน", "en": "Building peace in the community", "de": "Friedensförderung in der Gemeinschaft"},
+					"content": models.LocalizedRichText{
+						"th": []byte(`{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"ตั้งใจสนับสนุนชุมชน เสริมสร้างสันติภาพและความสุขภายในจิตใจของทุกๆ คน"}]}]}`),
+						"en": []byte(`{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Dedicated to supporting the community and fostering inner peace and happiness for all."}]}]}`),
+						"de": []byte(`{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Unterstützung der Gemeinschaft und Förderung des inneren Friedens und des Glücks für alle."}]}]}`),
+					},
 				},
-				"history_content": models.MultiLangText{
-					"th": "วัดโปรไฟล์ก่อตั้งขึ้นเพื่อเป็นสถานที่ยึดเหนี่ยวจิตใจและเผยแผ่หลักธรรมคำสอนในพุทธศาสนา ผ่านกระบวนการและเครื่องมือสมัยใหม่",
-					"en": "Wat Profile was founded to be a spiritual anchor and spread Buddhist teachings through modern tools.",
-					"de": "Wat Profile wurde gegründet, um ein spiritueller Anker zu sein und buddhistische Lehren durch moderne Werkzeuge zu verbreiten.",
+				"administration": models.JSONMap{
+					"heading": models.MultiLangText{"th": "การบริหารจัดการ", "en": "Administration", "de": "Verwaltung"},
+					"content": models.LocalizedRichText{
+						"th": []byte(`{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"วัดดำเนินกิจกรรมต่างๆ ภายใต้สมาคมจดทะเบียนไม่แสวงหาผลกำไร"}]}]}`),
+						"en": []byte(`{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"The temple operates under a registered non-profit association."}]}]}`),
+						"de": []byte(`{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Der Tempel wird im Rahmen eines eingetragenen gemeinnützigen Vereins betrieben."}]}]}`),
+					},
+				},
+				"history": models.JSONMap{
+					"heading": models.MultiLangText{"th": "ประวัติความเป็นมา", "en": "History", "de": "Geschichte"},
+					"content": models.LocalizedRichText{
+						"th": []byte(`{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"วัดโปรไฟล์ก่อตั้งขึ้นเพื่อเป็นสถานที่ยึดเหนี่ยวจิตใจและเผยแผ่หลักธรรมคำสอนในพุทธศาสนา ผ่านกระบวนการและเครื่องมือสมัยใหม่"}]}]}`),
+						"en": []byte(`{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Wat Profile was founded to be a spiritual anchor and spread Buddhist teachings through modern tools."}]}]}`),
+						"de": []byte(`{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Wat Profile wurde gegründet, um ein spiritueller Anker zu sein und buddhistische Lehren durch moderne Werkzeuge zu verbreiten."}]}]}`),
+					},
+				},
+				"buildings": models.JSONMap{
+					"heading": models.MultiLangText{"th": "ศาสนสถาน", "en": "Buildings", "de": "Gebäude"},
+					"items": []interface{}{
+						models.JSONMap{
+							"name":        models.MultiLangText{"th": "ศาลาปฏิบัติธรรม", "en": "Meditation Hall", "de": "Meditationshalle"},
+							"description": models.MultiLangText{"th": "สถานที่รวบรวมกิจกรรมสวดมนต์และเจริญจิตภาวนา", "en": "A place gathering chanting and meditation activities", "de": "Ein Ort für Gesangs- und Meditationsaktivitäten"},
+						},
+					},
+				},
+				"sangha": models.JSONMap{
+					"heading": models.MultiLangText{"th": "คณะสงฆ์", "en": "Sangha", "de": "Sangha"},
+					"mission": models.MultiLangText{"th": "เผยแผ่ธรรมปฏิบัติและช่วยเหลือชุมชน", "en": "Spreading Dharma practice and supporting the community", "de": "Dharma-Praxis verbreiten und die Gemeinschaft unterstützen"},
+					"content": models.LocalizedRichText{
+						"th": []byte(`{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"คณะพระภิกษุสงฆ์เป็นผู้สืบทอดหลักธรรมคำสอนและนำการปฏิบัติธรรม"}]}]}`),
+						"en": []byte(`{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"The Sangha members inherit the teachings and guide meditation."}]}]}`),
+						"de": []byte(`{"type":"doc","content":[{"type":"paragraph","content":[{"type":"text","text":"Die Sangha-Mitglieder erben die Lehren und leiten die Meditation."}]}]}`),
+					},
 				},
 			},
 			Settings: models.JSONMap{
