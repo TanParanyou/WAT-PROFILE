@@ -52,7 +52,7 @@ const menuItems: MenuItem[] = [
   },
   {
     labelKey: "media",
-    href: "/admin/website/media",
+    href: "/admin/media",
     icon: FolderOpen,
     resource: "website",
   },
