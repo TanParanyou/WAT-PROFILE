@@ -32,8 +32,16 @@ export default function AdminLoginPage() {
       await login({ email, password });
       router.push("/admin");
     } catch (err) {
-      if (err instanceof Error) {
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      const axiosError = err as any;
+      const status = axiosError?.response?.status;
+      const errData = axiosError?.response?.data;
+      const message = errData?.message || errData?.error;
+
+      if (status === 401) {
         setError(t("login.invalidCredentials"));
+      } else if (message) {
+        setError(message);
       } else {
         setError(t("login.genericError"));
       }
