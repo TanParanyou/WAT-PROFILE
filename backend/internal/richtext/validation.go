@@ -174,6 +174,16 @@ func ValidateContentPageBody(pageKey string, body models.JSONMap) error {
 				return err
 			}
 		}
+	case "PAGE-ABOUT":
+		for _, field := range []string{
+			"objective_content",
+			"administration_content",
+			"history_content",
+		} {
+			if err := validateLocalizedUnknown(body[field], "body."+field); err != nil {
+				return err
+			}
+		}
 	}
 
 	return nil

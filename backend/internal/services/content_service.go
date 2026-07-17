@@ -415,3 +415,68 @@ func (s *ContentService) EnsureImpressumPageSeed() error {
 		return tx.Create(&page).Error
 	})
 }
+
+func (s *ContentService) EnsureAboutPageSeed() error {
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		var page models.ContentPage
+		err := tx.Where("page_key = ?", "PAGE-ABOUT").First(&page).Error
+		if err == nil {
+			return nil
+		}
+		if !errors.Is(err, gorm.ErrRecordNotFound) {
+			return err
+		}
+
+		page = models.ContentPage{
+			PageKey: "PAGE-ABOUT",
+			Slug:    "about",
+			Title: models.MultiLangText{
+				"th": "เกี่ยวกับเรา",
+				"en": "About Us",
+				"de": "Über uns",
+			},
+			Description: models.MultiLangText{
+				"th": "เรียนรู้ประวัติ ความเป็นมา และวิสัยทัศน์ของวัดโปรไฟล์",
+				"en": "Learn the history, background, and vision of Wat Profile.",
+				"de": "Lernen Sie die Geschichte, den Hintergrund und die Vision von Wat Profile kennen.",
+			},
+			Status: models.ContentStatusPublished,
+			Seo: models.JSONMap{
+				"canonical_url": "/th/about",
+				"noindex":       false,
+			},
+			Body: models.JSONMap{
+				"objective_content": models.MultiLangText{
+					"th": "ตั้งใจสนับสนุนชุมชน เสริมสร้างสันติภาพและความสุขภายในจิตใจของทุกๆ คน",
+					"en": "Dedicated to supporting the community and fostering inner peace and happiness for all.",
+					"de": "Unterstützung der Gemeinschaft und Förderung des inneren Friedens und des Glücks für alle.",
+				},
+				"administration_content": models.MultiLangText{
+					"th": "วัดดำเนินกิจกรรมต่างๆ ภายใต้สมาคมจดทะเบียนไม่แสวงหาผลกำไร",
+					"en": "The temple operates under a registered non-profit association.",
+					"de": "Der Tempel wird im Rahmen eines eingetragenen gemeinnützigen Vereins betrieben.",
+				},
+				"history_content": models.MultiLangText{
+					"th": "วัดโปรไฟล์ก่อตั้งขึ้นเพื่อเป็นสถานที่ยึดเหนี่ยวจิตใจและเผยแผ่หลักธรรมคำสอนในพุทธศาสนา ผ่านกระบวนการและเครื่องมือสมัยใหม่",
+					"en": "Wat Profile was founded to be a spiritual anchor and spread Buddhist teachings through modern tools.",
+					"de": "Wat Profile wurde gegründet, um ein spiritueller Anker zu sein und buddhistische Lehren durch moderne Werkzeuge zu verbreiten.",
+				},
+			},
+			Settings: models.JSONMap{
+				"layout": "default",
+			},
+		}
+
+		// Also set published fields directly
+		now := time.Now()
+		page.PublishedTitle = page.Title
+		page.PublishedDescription = page.Description
+		page.PublishedSeo = page.Seo.Clone()
+		page.PublishedBody = page.Body.Clone()
+		page.PublishedSettings = page.Settings.Clone()
+		page.PublishedAt = &now
+
+		return tx.Create(&page).Error
+	})
+}
+

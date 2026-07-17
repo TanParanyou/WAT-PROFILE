@@ -245,4 +245,7 @@ func seedWebsiteCMS() {
 	if err := contentService.EnsureImpressumPageSeed(); err != nil {
 		log.Printf("  Failed to seed impressum page: %v", err)
 	}
+	if err := contentService.EnsureAboutPageSeed(); err != nil {
+		log.Printf("  Failed to seed about page: %v", err)
+	}
 }
