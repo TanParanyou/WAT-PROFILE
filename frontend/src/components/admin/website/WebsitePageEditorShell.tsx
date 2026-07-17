@@ -13,7 +13,7 @@ import { WebsitePreviewPanel } from "@/components/admin/website/WebsitePreviewPa
 import { WebsitePublishPanel } from "@/components/admin/website/WebsitePublishPanel";
 import { WebsiteSeoTab } from "@/components/admin/website/WebsiteSeoTab";
 import { WebsiteSettingsTab } from "@/components/admin/website/WebsiteSettingsTab";
-import { useConfirm } from "@/components/ui/Modal";
+import { useConfirm } from "@/hooks/useConfirm";
 import {
   applyPageFormDraft,
   applySectionFormDrafts,

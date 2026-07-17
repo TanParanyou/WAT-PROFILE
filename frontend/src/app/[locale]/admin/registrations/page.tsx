@@ -14,7 +14,7 @@ import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
 import { exportToCsv } from "@/utils/exportToCsv";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
-import { useConfirm } from "@/components/ui/Modal";
+import { useConfirm } from "@/hooks/useConfirm";
 import { Icons } from "@/components/ui/Icons";
 
 export default function RegistrationsPage() {

@@ -3,7 +3,7 @@ import { X, Loader2, Save } from "lucide-react";
 import { MultiLangInput } from "@/components/admin/MultiLangInput";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
-import { useConfirm } from "@/components/ui/Modal";
+import { useConfirm } from "@/hooks/useConfirm";
 import { useToast } from "@/hooks/useToast";
 import { useMediaStore } from "@/stores/media-store";
 import type { Media, MediaMetadata } from "@/types/entities";

@@ -8,7 +8,7 @@ import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { PermissionButton } from "@/components/admin/PermissionButton";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { DataTable, Column } from "@/components/ui/DataTable";
-import { useConfirm } from "@/components/ui/Modal";
+import { useConfirm } from "@/hooks/useConfirm";
 import { useDataTable } from "@/hooks/useDataTable";
 import { Button } from "@/components/ui/Button";
 import { eventAdminService } from "@/services/adminService";
