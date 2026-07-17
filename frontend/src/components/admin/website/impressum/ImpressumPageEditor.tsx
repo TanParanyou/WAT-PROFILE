@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/Loading";
 import { Input } from "@/components/ui/Input";
 import { MultiLangInput } from "@/components/admin/MultiLangInput";
-import { MultiLangRichText } from "@/components/admin/MultiLangRichText";
+import { MultiLangRichText } from "@/components/admin/rich-text/MultiLangRichText";
 import { SeoEditorTab } from "../shared/SeoEditorTab";
 import { useImpressumPageQuery, useUpdateImpressumPageMutation, usePublishImpressumPageMutation } from "@/hooks/website-page-master";
 import { useWebsiteCmsEditorStore } from "@/stores/website-cms-editor-store";
@@ -222,6 +222,12 @@ export function ImpressumPageEditor() {
                   render={({ field: { value, onChange } }) => (
                     <MultiLangRichText
                       label="Address"
+                      locales={[
+                        { code: "th", label: "TH" },
+                        { code: "en", label: "EN" },
+                        { code: "de", label: "DE" }
+                      ]}
+                      defaultLocale="th"
                       value={value}
                       onChange={onChange}
                       required
