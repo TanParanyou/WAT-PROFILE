@@ -1,12 +1,5 @@
-"use client";
+import { AboutPageEditor } from "@/components/admin/website/about/AboutPageEditor";
 
-import { useEffect } from "react";
-import { useRouter } from "@/navigation";
-
-export default function AboutRedirectPage() {
-  const router = useRouter();
-  useEffect(() => {
-    router.replace("/admin/about");
-  }, [router]);
-  return null;
+export default function AboutPageEditorRoute() {
+  return <AboutPageEditor />;
 }

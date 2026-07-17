@@ -1,12 +1,10 @@
-"use client";
+import { redirect } from "@/navigation";
 
-import { useEffect } from "react";
-import { useRouter } from "@/navigation";
-
-export default function ContactRedirectPage() {
-  const router = useRouter();
-  useEffect(() => {
-    router.replace("/admin/contact");
-  }, [router]);
-  return null;
+export default async function ContactPageEditorRoute({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params;
+  redirect({ href: "/admin/website/pages/PAGE-CONTACT", locale });
 }

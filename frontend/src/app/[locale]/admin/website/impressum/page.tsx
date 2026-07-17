@@ -1,12 +1,5 @@
-"use client";
+import { ImpressumPageEditor } from "@/components/admin/website/impressum/ImpressumPageEditor";
 
-import { useEffect } from "react";
-import { useRouter } from "@/navigation";
-
-export default function ImpressumRedirectPage() {
-  const router = useRouter();
-  useEffect(() => {
-    router.replace("/admin/impressum");
-  }, [router]);
-  return null;
+export default function ImpressumPageEditorRoute() {
+  return <ImpressumPageEditor />;
 }

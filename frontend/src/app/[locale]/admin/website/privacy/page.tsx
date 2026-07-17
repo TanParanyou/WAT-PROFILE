@@ -1,12 +1,5 @@
-"use client";
+import { PrivacyPageEditor } from "@/components/admin/website/privacy/PrivacyPageEditor";
 
-import { useEffect } from "react";
-import { useRouter } from "@/navigation";
-
-export default function PrivacyRedirectPage() {
-  const router = useRouter();
-  useEffect(() => {
-    router.replace("/admin/privacy");
-  }, [router]);
-  return null;
+export default function PrivacyPageEditorRoute() {
+  return <PrivacyPageEditor />;
 }

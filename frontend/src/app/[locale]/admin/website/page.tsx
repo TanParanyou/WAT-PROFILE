@@ -1,12 +1,5 @@
-"use client";
+import { WebsitePagesManager } from "@/components/admin/website/WebsitePagesManager";
 
-import { useEffect } from "react";
-import { useRouter } from "@/navigation";
-
-export default function WebsiteRedirectPage() {
-  const router = useRouter();
-  useEffect(() => {
-    router.replace("/admin/about");
-  }, [router]);
-  return null;
+export default function WebsiteAdminRootPage() {
+  return <WebsitePagesManager />;
 }
