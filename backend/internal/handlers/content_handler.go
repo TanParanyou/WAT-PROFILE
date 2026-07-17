@@ -96,6 +96,19 @@ func (h *ContentHandler) UpdateSectionDraft(c *fiber.Ctx) error {
 	return utils.SuccessResponse(c, section)
 }
 
+type createSectionRequest struct {
+	SectionType string `json:"section_type"`
+	SectionKey  string `json:"section_key"`
+}
+
+type archiveSectionRequest struct {
+	Archived bool `json:"archived"`
+}
+
+type duplicateSectionRequest struct {
+	SectionKey string `json:"section_key"`
+}
+
 func (h *ContentHandler) ReorderSections(c *fiber.Ctx) error {
 	pageID, err := uuid.Parse(c.Params("pageId"))
 	if err != nil {
@@ -109,6 +122,14 @@ func (h *ContentHandler) ReorderSections(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
 	}
 
+	seen := make(map[string]bool)
+	for _, id := range body.SectionIDs {
+		if seen[id] {
+			return utils.ErrorResponse(c, fiber.StatusBadRequest, "Duplicate section IDs are not allowed")
+		}
+		seen[id] = true
+	}
+
 	ids := make([]uuid.UUID, 0, len(body.SectionIDs))
 	for _, id := range body.SectionIDs {
 		parsed, err := uuid.Parse(id)
@@ -118,12 +139,122 @@ func (h *ContentHandler) ReorderSections(c *fiber.Ctx) error {
 		ids = append(ids, parsed)
 	}
 
-	if err := h.contentService.ReorderSections(pageID, ids); err != nil {
-		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to reorder sections")
+	page, err := h.contentService.ReorderSections(pageID, ids)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return utils.ErrorResponse(c, fiber.StatusNotFound, "Content page not found")
+		}
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
 
 	_ = h.auditService.LogAction(c, "reorder", "content_sections", pageID.String(), map[string]interface{}{"count": len(ids)})
-	return utils.MessageResponse(c, "Sections reordered successfully")
+	return utils.SuccessResponse(c, page)
+}
+
+func (h *ContentHandler) CreateSection(c *fiber.Ctx) error {
+	pageID, err := uuid.Parse(c.Params("pageId"))
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid page id")
+	}
+
+	var req createSectionRequest
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	if req.SectionType == "" {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Section type is required")
+	}
+
+	section, err := h.contentService.CreateSection(pageID, req.SectionType, req.SectionKey)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return utils.ErrorResponse(c, fiber.StatusNotFound, "Content page not found")
+		}
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to create section")
+	}
+
+	_ = h.auditService.LogAction(c, "create", "content_sections", section.ID, map[string]interface{}{
+		"page_id":      pageID.String(),
+		"section_key":  section.SectionKey,
+		"section_type": section.SectionType,
+	})
+	return utils.SuccessResponse(c, section)
+}
+
+func (h *ContentHandler) ArchiveSection(c *fiber.Ctx) error {
+	id, err := uuid.Parse(c.Params("id"))
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid section id")
+	}
+
+	var req archiveSectionRequest
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	section, err := h.contentService.SetSectionArchived(id, true)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return utils.ErrorResponse(c, fiber.StatusNotFound, "Section not found")
+		}
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to archive section")
+	}
+
+	_ = h.auditService.LogAction(c, "archive", "content_sections", id.String(), map[string]interface{}{
+		"section_key": section.SectionKey,
+	})
+	return utils.SuccessResponse(c, section)
+}
+
+func (h *ContentHandler) RestoreSection(c *fiber.Ctx) error {
+	id, err := uuid.Parse(c.Params("id"))
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid section id")
+	}
+
+	var req archiveSectionRequest
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	section, err := h.contentService.SetSectionArchived(id, false)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return utils.ErrorResponse(c, fiber.StatusNotFound, "Section not found")
+		}
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to restore section")
+	}
+
+	_ = h.auditService.LogAction(c, "restore", "content_sections", id.String(), map[string]interface{}{
+		"section_key": section.SectionKey,
+	})
+	return utils.SuccessResponse(c, section)
+}
+
+func (h *ContentHandler) DuplicateSection(c *fiber.Ctx) error {
+	id, err := uuid.Parse(c.Params("id"))
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid section id")
+	}
+
+	var req duplicateSectionRequest
+	if err := c.BodyParser(&req); err != nil {
+		req = duplicateSectionRequest{}
+	}
+
+	section, err := h.contentService.DuplicateSection(id, req.SectionKey)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return utils.ErrorResponse(c, fiber.StatusNotFound, "Section or associated page not found")
+		}
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to duplicate section")
+	}
+
+	_ = h.auditService.LogAction(c, "duplicate", "content_sections", section.ID, map[string]interface{}{
+		"section_key": section.SectionKey,
+	})
+	return utils.SuccessResponse(c, section)
 }
 
 func (h *ContentHandler) PublishPage(c *fiber.Ctx) error {

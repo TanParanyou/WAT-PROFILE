@@ -176,7 +176,11 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	admin.Put("/website/pages/:id", middleware.PermissionRequired("website", "update"), contentHandler.UpdatePageDraft)
 	admin.Post("/website/pages/:id/publish", middleware.PermissionRequired("website", "update"), contentHandler.PublishPage)
 	admin.Put("/website/pages/:pageId/sections/reorder", middleware.PermissionRequired("website", "update"), contentHandler.ReorderSections)
+	admin.Post("/website/pages/:pageId/sections", middleware.PermissionRequired("website", "update"), contentHandler.CreateSection)
 	admin.Put("/website/sections/:id", middleware.PermissionRequired("website", "update"), contentHandler.UpdateSectionDraft)
+	admin.Post("/website/sections/:id/archive", middleware.PermissionRequired("website", "update"), contentHandler.ArchiveSection)
+	admin.Post("/website/sections/:id/restore", middleware.PermissionRequired("website", "update"), contentHandler.RestoreSection)
+	admin.Post("/website/sections/:id/duplicate", middleware.PermissionRequired("website", "update"), contentHandler.DuplicateSection)
 
 	// RichText Migrations
 	admin.Post("/rich-text/migrations", middleware.PermissionRequired("website", "update"), richTextMigrationHandler.Migrate)
