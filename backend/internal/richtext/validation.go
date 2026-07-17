@@ -159,6 +159,15 @@ func validateURL(rawURL string, path string) error {
 func ValidateContentPageBody(pageKey string, body models.JSONMap) error {
 	switch pageKey {
 	case "PAGE-PRIVACY":
+		// New content shape
+		if content, exists := body["content"]; exists {
+			if err := validateLocalizedUnknown(content, "body.content"); err != nil {
+				return err
+			}
+			return nil
+		}
+
+		// Legacy sections shape
 		sections, ok := body["sections"].([]interface{})
 		if !ok {
 			return nil
@@ -175,13 +184,31 @@ func ValidateContentPageBody(pageKey string, body models.JSONMap) error {
 			}
 		}
 	case "PAGE-ABOUT":
-		for _, field := range []string{
-			"objective_content",
-			"administration_content",
-			"history_content",
-		} {
-			if err := validateLocalizedUnknown(body[field], "body."+field); err != nil {
-				return err
+		// Check for the new structured layout
+		hasNewLayout := false
+		for _, key := range []string{"objective", "administration", "history", "sangha"} {
+			if val, exists := body[key]; exists {
+				if m, ok := val.(map[string]interface{}); ok {
+					hasNewLayout = true
+					if content, hasContent := m["content"]; hasContent {
+						if err := validateLocalizedUnknown(content, "body."+key+".content"); err != nil {
+							return err
+						}
+					}
+				}
+			}
+		}
+
+		if !hasNewLayout {
+			// Legacy fields validation
+			for _, field := range []string{
+				"objective_content",
+				"administration_content",
+				"history_content",
+			} {
+				if err := validateLocalizedUnknown(body[field], "body."+field); err != nil {
+					return err
+				}
 			}
 		}
 	}
