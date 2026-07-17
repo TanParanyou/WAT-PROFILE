@@ -21,7 +21,7 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const skipAdminAuth = process.env.NEXT_PUBLIC_SKIP_ADMIN_AUTH !== "false";
+const skipAdminAuth = process.env.NEXT_PUBLIC_SKIP_ADMIN_AUTH === "true";
 
 const mockAdminUser: User = {
   id: "mock-admin",
