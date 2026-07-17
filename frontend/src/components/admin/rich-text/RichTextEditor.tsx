@@ -4,6 +4,7 @@ import React, { useEffect } from "react";
 import { useEditor, EditorContent, useEditorState } from "@tiptap/react";
 import { richTextExtensions } from "@/lib/rich-text/extensions";
 import type { RichTextDocument } from "@/lib/rich-text/document";
+import { setEditorContentWithoutHistory } from "@/lib/rich-text/editor-commands";
 import { RichTextToolbar } from "./RichTextToolbar";
 import { useTranslations } from "next-intl";
 
@@ -50,7 +51,7 @@ export function RichTextEditor({
     const currentJSONStr = JSON.stringify(editor.getJSON());
     const incomingJSONStr = JSON.stringify(value);
     if (currentJSONStr !== incomingJSONStr) {
-      editor.commands.setContent(value, { emitUpdate: false });
+      setEditorContentWithoutHistory(editor, value);
     }
   }, [value, editor]);
 
@@ -71,7 +72,7 @@ export function RichTextEditor({
       {editor && <RichTextToolbar editor={editor} disabled={disabled} />}
       
       <div
-        className="relative min-h-[180px] cursor-text p-4 [&_.ProseMirror]:min-h-[148px] [&_.ProseMirror]:outline-none max-h-[500px] overflow-y-auto prose max-w-none font-sans text-sm text-zinc-900"
+        className="relative min-h-[180px] cursor-text p-4 max-h-[500px] overflow-y-auto font-sans text-sm text-zinc-900 [&_.ProseMirror]:min-h-[148px] [&_.ProseMirror]:outline-none [&_.ProseMirror_ul]:my-2 [&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ul]:pl-6 [&_.ProseMirror_ol]:my-2 [&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_ol]:pl-6 [&_.ProseMirror_li]:my-1 [&_.ProseMirror_blockquote]:my-3 [&_.ProseMirror_blockquote]:border-l-4 [&_.ProseMirror_blockquote]:border-amber-500 [&_.ProseMirror_blockquote]:bg-amber-50 [&_.ProseMirror_blockquote]:px-4 [&_.ProseMirror_blockquote]:py-2 [&_.ProseMirror_blockquote]:text-zinc-700 [&_.ProseMirror_hr]:my-4 [&_.ProseMirror_hr]:border-zinc-300 [&_.ProseMirror_a]:font-medium [&_.ProseMirror_a]:text-amber-700 [&_.ProseMirror_a]:underline [&_.ProseMirror_a]:underline-offset-2"
         onMouseDown={(event) => {
           if (disabled || event.target !== event.currentTarget) return;
           event.preventDefault();

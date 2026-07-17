@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { type Editor } from "@tiptap/react";
+import { type Editor, useEditorState } from "@tiptap/react";
 import { useTranslations } from "next-intl";
 import {
   Undo,
@@ -15,10 +15,11 @@ import {
   Quote,
   Minus,
   Link,
-  Image,
+  Image as ImageIcon,
 } from "lucide-react";
 import { MediaPickerDialog } from "../media/MediaPickerDialog";
 import { RichTextLinkDialog } from "./RichTextLinkDialog";
+import { getRichTextToolbarState } from "@/lib/rich-text/editor-commands";
 
 type RichTextToolbarProps = {
   editor: Editor;
@@ -35,6 +36,11 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
   const [isMediaOpen, setIsMediaOpen] = useState(false);
   const [isLinkOpen, setIsLinkOpen] = useState(false);
   const [pendingSelection, setPendingSelection] = useState<SavedSelection | null>(null);
+  const toolbarState = useEditorState({
+    editor,
+    selector: ({ editor: currentEditor }) =>
+      currentEditor ? getRichTextToolbarState(currentEditor) : null,
+  });
 
   const snapshotSelection = (): SavedSelection => ({
     from: editor.state.selection.from,
@@ -99,9 +105,7 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
   };
 
   const getBlockType = () => {
-    if (editor.isActive("heading", { level: 2 })) return "heading2";
-    if (editor.isActive("heading", { level: 3 })) return "heading3";
-    return "paragraph";
+    return toolbarState?.blockType ?? "paragraph";
   };
 
   const handleBlockTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
@@ -125,9 +129,9 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
     ${isActive ? "bg-zinc-200 font-bold" : "hover:bg-zinc-200"}
   `.trim();
 
-  const getTitle = (key: string, commandCheck?: () => boolean) => {
+  const getTitle = (key: string, isAvailable = true) => {
     if (disabled) return t("toolbar.unavailable");
-    if (commandCheck && !commandCheck()) {
+    if (!isAvailable) {
       return `${t(`toolbar.${key}`)} (${t("toolbar.unavailable")})`;
     }
     return t(`toolbar.${key}`);
@@ -139,9 +143,9 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
         type="button"
         onMouseDown={keepEditorSelection}
         onClick={() => !disabled && editor.chain().focus().undo().run()}
-        disabled={disabled || !editor.can().undo()}
+        disabled={disabled || !toolbarState?.canUndo}
         className={toolbarButtonClass()}
-        title={getTitle("undo", () => editor.can().undo())}
+        title={getTitle("undo", toolbarState?.canUndo)}
         aria-label={t("toolbar.undo")}
       >
         <Undo size={16} />
@@ -150,9 +154,9 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
         type="button"
         onMouseDown={keepEditorSelection}
         onClick={() => !disabled && editor.chain().focus().redo().run()}
-        disabled={disabled || !editor.can().redo()}
+        disabled={disabled || !toolbarState?.canRedo}
         className={toolbarButtonClass()}
-        title={getTitle("redo", () => editor.can().redo())}
+        title={getTitle("redo", toolbarState?.canRedo)}
         aria-label={t("toolbar.redo")}
       >
         <Redo size={16} />
@@ -180,8 +184,8 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
         onMouseDown={keepEditorSelection}
         onClick={() => !disabled && editor.chain().focus().toggleBold().run()}
         disabled={disabled || !editor.can().toggleBold()}
-        className={toolbarButtonClass(editor.isActive("bold"))}
-        title={getTitle("bold", () => editor.can().toggleBold())}
+        className={toolbarButtonClass(toolbarState?.bold)}
+        title={getTitle("bold", editor.can().toggleBold())}
         aria-label={t("toolbar.bold")}
       >
         <Bold size={16} />
@@ -191,8 +195,8 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
         onMouseDown={keepEditorSelection}
         onClick={() => !disabled && editor.chain().focus().toggleItalic().run()}
         disabled={disabled || !editor.can().toggleItalic()}
-        className={toolbarButtonClass(editor.isActive("italic"))}
-        title={getTitle("italic", () => editor.can().toggleItalic())}
+        className={toolbarButtonClass(toolbarState?.italic)}
+        title={getTitle("italic", editor.can().toggleItalic())}
         aria-label={t("toolbar.italic")}
       >
         <Italic size={16} />
@@ -202,8 +206,8 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
         onMouseDown={keepEditorSelection}
         onClick={() => !disabled && editor.chain().focus().toggleStrike().run()}
         disabled={disabled || !editor.can().toggleStrike()}
-        className={toolbarButtonClass(editor.isActive("strike"))}
-        title={getTitle("strike", () => editor.can().toggleStrike())}
+        className={toolbarButtonClass(toolbarState?.strike)}
+        title={getTitle("strike", editor.can().toggleStrike())}
         aria-label={t("toolbar.strike")}
       >
         <Strikethrough size={16} />
@@ -216,8 +220,8 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
         onMouseDown={keepEditorSelection}
         onClick={() => !disabled && editor.chain().focus().toggleBulletList().run()}
         disabled={disabled || !editor.can().toggleBulletList()}
-        className={toolbarButtonClass(editor.isActive("bulletList"))}
-        title={getTitle("bulletList", () => editor.can().toggleBulletList())}
+        className={toolbarButtonClass(toolbarState?.bulletList)}
+        title={getTitle("bulletList", editor.can().toggleBulletList())}
         aria-label={t("toolbar.bulletList")}
       >
         <List size={16} />
@@ -227,8 +231,8 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
         onMouseDown={keepEditorSelection}
         onClick={() => !disabled && editor.chain().focus().toggleOrderedList().run()}
         disabled={disabled || !editor.can().toggleOrderedList()}
-        className={toolbarButtonClass(editor.isActive("orderedList"))}
-        title={getTitle("orderedList", () => editor.can().toggleOrderedList())}
+        className={toolbarButtonClass(toolbarState?.orderedList)}
+        title={getTitle("orderedList", editor.can().toggleOrderedList())}
         aria-label={t("toolbar.orderedList")}
       >
         <ListOrdered size={16} />
@@ -238,8 +242,8 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
         onMouseDown={keepEditorSelection}
         onClick={() => !disabled && editor.chain().focus().toggleBlockquote().run()}
         disabled={disabled || !editor.can().toggleBlockquote()}
-        className={toolbarButtonClass(editor.isActive("blockquote"))}
-        title={getTitle("blockquote", () => editor.can().toggleBlockquote())}
+        className={toolbarButtonClass(toolbarState?.blockquote)}
+        title={getTitle("blockquote", editor.can().toggleBlockquote())}
         aria-label={t("toolbar.blockquote")}
       >
         <Quote size={16} />
@@ -250,7 +254,7 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
         onClick={() => !disabled && editor.chain().focus().setHorizontalRule().run()}
         disabled={disabled || !editor.can().setHorizontalRule()}
         className={toolbarButtonClass()}
-        title={getTitle("divider", () => editor.can().setHorizontalRule())}
+        title={getTitle("divider", editor.can().setHorizontalRule())}
         aria-label={t("toolbar.divider")}
       >
         <Minus size={16} />
@@ -263,7 +267,7 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
         onMouseDown={keepEditorSelection}
         onClick={handleLinkClick}
         disabled={disabled}
-        className={toolbarButtonClass(editor.isActive("link"))}
+        className={toolbarButtonClass(toolbarState?.link)}
         title={getTitle("link")}
         aria-label={t("toolbar.link")}
       >
@@ -278,7 +282,7 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
         title={getTitle("image")}
         aria-label={t("toolbar.image")}
       >
-        <Image size={16} />
+        <ImageIcon size={16} />
       </button>
       <button
         type="button"

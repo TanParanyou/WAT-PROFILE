@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -31,21 +31,35 @@ export function RichTextLinkDialog({
   onClose,
   onSave,
   onRemove,
-}: RichTextLinkDialogProps): React.JSX.Element {
+}: RichTextLinkDialogProps): React.JSX.Element | null {
+  if (!isOpen) return null;
+
+  return (
+    <RichTextLinkDialogContent
+      key={initialUrl}
+      initialUrl={initialUrl}
+      onClose={onClose}
+      onSave={onSave}
+      onRemove={onRemove}
+    />
+  );
+}
+
+function RichTextLinkDialogContent({
+  isOpen,
+  initialUrl,
+  onClose,
+  onSave,
+  onRemove,
+}: Omit<RichTextLinkDialogProps, "isOpen"> & { isOpen?: boolean }): React.JSX.Element {
   const t = useTranslations("Admin.richText");
+  const tCommon = useTranslations("Admin.common");
   const [url, setUrl] = useState(initialUrl);
   const [error, setError] = useState("");
 
-  // Reset state when modal is opened or initialUrl changes
-  useEffect(() => {
-    if (isOpen) {
-      setUrl(initialUrl);
-      setError("");
-    }
-  }, [isOpen, initialUrl]);
-
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+    e.stopPropagation();
     const trimmed = url.trim();
     if (!isValidRichTextLink(trimmed)) {
       setError(t("linkDialog.invalidUrl"));
@@ -74,7 +88,7 @@ export function RichTextLinkDialog({
           variant="secondary"
           onClick={onClose}
         >
-          {t("common.cancel")}
+          {tCommon("cancel")}
         </Button>
         <Button
           type="submit"
@@ -88,7 +102,7 @@ export function RichTextLinkDialog({
 
   return (
     <Modal
-      isOpen={isOpen}
+      isOpen={isOpen ?? true}
       onClose={onClose}
       title={t("linkDialog.title")}
       footer={
