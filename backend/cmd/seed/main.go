@@ -236,6 +236,9 @@ func seedDonationCategories() {
 func seedWebsiteCMS() {
 	log.Println("Seeding website CMS...")
 	contentService := services.NewContentService(config.DB)
+	if err := contentService.EnsureHomePageSeed(); err != nil {
+		log.Printf("  Failed to seed home page: %v", err)
+	}
 	if err := contentService.EnsureContactPageSeed(); err != nil {
 		log.Printf("  Failed to seed contact page: %v", err)
 	}
