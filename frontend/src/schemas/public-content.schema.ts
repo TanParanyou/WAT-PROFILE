@@ -43,6 +43,7 @@ export const aboutContentFormSchema = z.object({
   description: localizedTextSchema,
   seo: seoMetadataSchema,
   body: aboutBodySchema,
+  updated_at: z.string().optional(),
 });
 
 // 2. Contact
@@ -103,6 +104,7 @@ export const contactContentFormSchema = z.object({
   description: localizedTextSchema,
   seo: seoMetadataSchema,
   body: contactBodySchema,
+  updated_at: z.string().optional(),
 });
 
 // 3. Privacy
@@ -115,6 +117,7 @@ export const privacyContentFormSchema = z.object({
   title: localizedTextSchema,
   seo: seoMetadataSchema,
   body: privacyBodySchema,
+  updated_at: z.string().optional(),
 });
 
 // 4. Impressum
@@ -136,4 +139,5 @@ export const impressumContentFormSchema = z.object({
   description: localizedTextSchema,
   seo: seoMetadataSchema,
   body: impressumBodySchema,
+  updated_at: z.string().optional(),
 });

@@ -44,7 +44,7 @@ export function PublicContentSaveBar({
 
         <button
           type="submit"
-          disabled={isPending}
+          disabled={isPending || !isDirty}
           className="flex items-center gap-2 px-6 py-2 bg-amber-700 hover:bg-amber-800 disabled:bg-amber-700/50 text-white rounded-lg text-sm font-medium transition-colors shadow-sm disabled:cursor-not-allowed"
         >
           {isPending ? (

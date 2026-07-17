@@ -12,18 +12,28 @@ export default async function ImpressumPage({ params }: { params: Promise<{ loca
   const pageData = await publicContentService.getPublicImpressum().catch(() => null);
 
   const pageTitle = pageData ? getLocalizedText(pageData.title, locale) || t("title") : t("title");
-  
-  // Fallback default values
-  const organizationName = pageData ? getLocalizedText(pageData.body.organization_name, locale) : "วัดพุทธวิหารหลวงพ่อสายน์ (สมาคมจดทะเบียน e.V.)";
-  const legalForm = pageData ? getLocalizedText(pageData.body.legal_form, locale) : "e.V. (Eingetragener Verein)";
-  const address = pageData ? getLocalizedText(pageData.body.address, locale) : "Dorfstr. 10, 12345 Berlin, Germany";
-  const phone = pageData ? pageData.body.phone : "+49 160-1604486";
-  const email = pageData ? pageData.body.email : "info@watloungporsai.de";
+  const organizationName = pageData ? getLocalizedText(pageData.body.organization_name, locale) : "";
+  const legalForm = pageData ? getLocalizedText(pageData.body.legal_form, locale) : "";
+  const address = pageData ? getLocalizedText(pageData.body.address, locale) : "";
+  const phone = pageData ? pageData.body.phone : "";
+  const email = pageData ? pageData.body.email : "";
   const representative = pageData ? getLocalizedText(pageData.body.representative, locale) : "";
   const registryCourt = pageData ? getLocalizedText(pageData.body.registry_court, locale) : "";
   const registryNumber = pageData ? pageData.body.registry_number : "";
   const vatId = pageData ? pageData.body.vat_id : "";
   const contentResponsibility = pageData ? getLocalizedText(pageData.body.content_responsibility, locale) : "";
+  const hasContent = !!(
+    organizationName ||
+    legalForm ||
+    address ||
+    phone ||
+    email ||
+    representative ||
+    registryCourt ||
+    registryNumber ||
+    vatId ||
+    contentResponsibility
+  );
 
   return (
     <div className="bg-zinc-50 dark:bg-zinc-950 min-h-screen">
@@ -31,7 +41,12 @@ export default async function ImpressumPage({ params }: { params: Promise<{ loca
 
       <PageContainer>
         <div className="max-w-3xl mx-auto">
-          <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-800 p-8 md:p-12 space-y-10">
+          {!pageData || !hasContent ? (
+            <div className="rounded-3xl border border-dashed border-gray-200 bg-white p-8 text-sm text-gray-500 shadow-sm dark:border-gray-800 dark:bg-zinc-900 dark:text-gray-400">
+              {t("noData")}
+            </div>
+          ) : (
+            <div className="bg-white dark:bg-zinc-900 rounded-3xl shadow-xl overflow-hidden border border-gray-100 dark:border-gray-800 p-8 md:p-12 space-y-10">
             {/* Company / Organization Section */}
             <div>
               <h2 className="flex items-center gap-3 text-xl font-heading font-bold text-gray-900 dark:text-white mb-6 pb-4 border-b border-gray-100 dark:border-gray-800">
@@ -147,6 +162,7 @@ export default async function ImpressumPage({ params }: { params: Promise<{ loca
               </div>
             )}
           </div>
+          )}
         </div>
       </PageContainer>
     </div>

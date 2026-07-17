@@ -25,6 +25,15 @@ func (s *PublicContentService) GetAbout() (*publiccontent.AboutContent, error) {
 	return publiccontent.AboutFromPage(&page), nil
 }
 
+// GetPublicAbout loads the published snapshot for PAGE-ABOUT.
+func (s *PublicContentService) GetPublicAbout() (*publiccontent.AboutContent, error) {
+	var page models.ContentPage
+	if err := s.db.Where("page_key = ? AND status = ?", "PAGE-ABOUT", models.ContentStatusPublished).First(&page).Error; err != nil {
+		return nil, err
+	}
+	return publiccontent.AboutFromPublishedPage(&page), nil
+}
+
 // SaveAbout updates and immediately publishes PAGE-ABOUT.
 func (s *PublicContentService) SaveAbout(req *publiccontent.AboutContent) (*publiccontent.AboutContent, error) {
 	var page models.ContentPage
@@ -61,6 +70,15 @@ func (s *PublicContentService) GetContact() (*publiccontent.ContactContent, erro
 		return nil, err
 	}
 	return publiccontent.ContactFromPage(&page), nil
+}
+
+// GetPublicContact loads the published snapshot for PAGE-CONTACT.
+func (s *PublicContentService) GetPublicContact() (*publiccontent.ContactContent, error) {
+	var page models.ContentPage
+	if err := s.db.Where("page_key = ? AND status = ?", "PAGE-CONTACT", models.ContentStatusPublished).First(&page).Error; err != nil {
+		return nil, err
+	}
+	return publiccontent.ContactFromPublishedPage(&page), nil
 }
 
 // SaveContact updates and immediately publishes PAGE-CONTACT.
@@ -101,6 +119,15 @@ func (s *PublicContentService) GetPrivacy() (*publiccontent.PrivacyContent, erro
 	return publiccontent.PrivacyFromPage(&page), nil
 }
 
+// GetPublicPrivacy loads the published snapshot for PAGE-PRIVACY.
+func (s *PublicContentService) GetPublicPrivacy() (*publiccontent.PrivacyContent, error) {
+	var page models.ContentPage
+	if err := s.db.Where("page_key = ? AND status = ?", "PAGE-PRIVACY", models.ContentStatusPublished).First(&page).Error; err != nil {
+		return nil, err
+	}
+	return publiccontent.PrivacyFromPublishedPage(&page), nil
+}
+
 // SavePrivacy updates and immediately publishes PAGE-PRIVACY.
 func (s *PublicContentService) SavePrivacy(req *publiccontent.PrivacyContent) (*publiccontent.PrivacyContent, error) {
 	var page models.ContentPage
@@ -138,6 +165,15 @@ func (s *PublicContentService) GetImpressum() (*publiccontent.ImpressumContent, 
 		return nil, err
 	}
 	return publiccontent.ImpressumFromPage(&page), nil
+}
+
+// GetPublicImpressum loads the published snapshot for PAGE-IMPRESSUM.
+func (s *PublicContentService) GetPublicImpressum() (*publiccontent.ImpressumContent, error) {
+	var page models.ContentPage
+	if err := s.db.Where("page_key = ? AND status = ?", "PAGE-IMPRESSUM", models.ContentStatusPublished).First(&page).Error; err != nil {
+		return nil, err
+	}
+	return publiccontent.ImpressumFromPublishedPage(&page), nil
 }
 
 // SaveImpressum updates and immediately publishes PAGE-IMPRESSUM.

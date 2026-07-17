@@ -15,6 +15,9 @@
 - Thai is required for visitor-visible text; English and German are optional and visibly marked incomplete when empty.
 - Saving any of the four forms makes the change public immediately.
 - Preserve unrelated worktree changes; do not alter the current admin list-page edits.
+- Add the new **ข้อมูลเว็บไซต์** menu as a peer to the existing **Website** menu. Do not redirect, remove, hide, edit, or delete any Website CMS route, navigation item, component, API, or data.
+- Public reads must use only `PublishedTitle`, `PublishedDescription`, `PublishedSEO`, and `PublishedBody`; editable fields are admin-only.
+- Server-side validation is mandatory for all required Thai text, email, and URL fields. Frontend Zod validation is not a trust boundary.
 
 ---
 
@@ -49,13 +52,17 @@
 
 - [ ] **Step 2: Implement mapping and validation boundaries**
 
-  In `mapper.go`, implement `AboutFromPage`, `ApplyAbout`, `ContactFromPage`, `ApplyContact`, `PrivacyFromPage`, `ApplyPrivacy`, `ImpressumFromPage`, and `ApplyImpressum`. Mappers must normalize missing optional locale values to empty strings/empty rich-text documents, preserve unknown legacy data until migration completes, and never return database-only columns to handlers.
+  In `mapper.go`, implement editable `AboutFromPage`, `ContactFromPage`, `PrivacyFromPage`, and `ImpressumFromPage`, plus public `AboutFromPublishedPage`, `ContactFromPublishedPage`, `PrivacyFromPublishedPage`, and `ImpressumFromPublishedPage`. Implement `ApplyAbout`, `ApplyContact`, `ApplyPrivacy`, and `ApplyImpressum`. Mappers must normalize missing optional locale values to empty strings/empty rich-text documents, preserve unknown legacy data until migration completes, and never return database-only columns to handlers.
 
 - [ ] **Step 3: Accept the simplified Privacy rich-text shape**
 
   Extend `ValidateContentPageBody` so `PAGE-PRIVACY` validates `body.content` as localized Tiptap JSON. Continue accepting legacy `body.sections[*].content` only for reads/migrations; new writes use `body.content` exclusively.
 
-- [ ] **Step 4: Commit the contract boundary**
+- [ ] **Step 4: Add server-owned DTO validation**
+
+  Add validators for each typed request before it reaches the mapper: Thai values required by the public layout must be non-empty; public email fields must parse as email addresses; external URLs (social, map embed, directions, privacy link, and OG image) must be `https` URLs; and optional legal identifiers remain strings. Reject invalid requests with `400`. Rich-text validation remains in `richtext` and is called by the page validator.
+
+- [ ] **Step 5: Commit the contract boundary**
 
   ```bash
   git add backend/internal/publiccontent backend/internal/models/content.go backend/internal/richtext/validation.go
@@ -77,7 +84,7 @@
 
 - [ ] **Step 1: Implement fixed-key read methods**
 
-  Add a `PublicContentService` that loads one `ContentPage` by its fixed key and calls the appropriate `…FromPage` mapper. Return a typed not-found error when a seeded record is absent; do not fall back to mock JSON.
+  Add separate admin and public fixed-key reads. Admin reads call the editable `…FromPage` mapper. Public reads require `Status == published`, call the `…FromPublishedPage` mapper, and return a typed not-found error for missing or unpublished records. Do not fall back to mock JSON.
 
 - [ ] **Step 2: Implement atomic immediate-save methods**
 
@@ -116,7 +123,7 @@
 
 - [ ] **Step 1: Create typed handlers**
 
-  Add one handler pair per resource. `GET` calls the typed service method and returns `utils.SuccessResponse`. `PUT` parses only the matching DTO, rejects malformed payloads with `400`, maps service not-found to `404`, maps rich-text/URL validation errors to `400`, and returns the saved DTO.
+  Add one handler pair per resource. Admin `GET` calls the editable service read; public `GET` calls the published-only read. `PUT` parses only the matching DTO, rejects malformed payloads with `400`, maps service not-found to `404`, maps typed/rich-text/URL validation errors to `400`, and returns the saved DTO.
 
 - [ ] **Step 2: Audit each write**
 
@@ -175,7 +182,6 @@
 - Create: `frontend/src/app/[locale]/admin/impressum/page.tsx`
 - Create: `frontend/src/components/admin/public-content/` with `AboutContentForm.tsx`, `ContactContentForm.tsx`, `PrivacyContentForm.tsx`, `ImpressumContentForm.tsx`, `LocalizedFieldGroup.tsx`, and `PublicContentSaveBar.tsx`
 - Modify: `frontend/src/components/admin/AdminSidebar.tsx:27-97`
-- Modify: `frontend/src/app/[locale]/admin/website/layout.tsx`
 
 **Interfaces:**
 - Each route fetches one typed DTO, initializes a React Hook Form with its Zod resolver, and saves through its matching mutation.
@@ -183,7 +189,7 @@
 
 - [ ] **Step 1: Add a grouped sidebar surface**
 
-  Replace the Website CMS sidebar entry with a **ข้อมูลเว็บไซต์** group containing About, Contact, Privacy, and Impressum. Retain permission filtering with the existing `website` resource. Remove the standalone `/admin/website` navigation entry; retain the route temporarily only for redirects during rollout.
+  Add a **ข้อมูลเว็บไซต์** group containing About, Contact, Privacy, and Impressum, each protected by the existing `website` resource. Keep the existing Website CMS sidebar item and its routes unchanged; this group is additional navigation, not a replacement.
 
 - [ ] **Step 2: Build common form behavior**
 
@@ -197,11 +203,7 @@
 
   Privacy has one localized rich-text editor and a read-only last-updated label—no item array, visibility toggles, or ordering UI. Impressum has Organization, Contact, Registry & tax, and Responsible content panels. Legal IDs are optional; their labels explain that the operator must supply legally correct information.
 
-- [ ] **Step 5: Retire Website CMS entry points from active navigation**
-
-  Convert `/admin/website`, `/admin/website/about`, `/admin/website/contact`, `/admin/website/privacy`, and `/admin/website/impressum` into redirects to their new direct routes. Do not delete the generic CMS implementation in this task; keep it unreachable until the public cutover is complete.
-
-- [ ] **Step 6: Commit admin UX**
+- [ ] **Step 5: Commit admin UX**
 
   ```bash
   git add frontend/src/app/'[locale]'/admin frontend/src/components/admin/AdminSidebar.tsx frontend/src/components/admin/public-content
@@ -229,7 +231,7 @@
 
 - [ ] **Step 2: Render the direct data shapes**
 
-  Update About and Contact layouts to consume their named fields directly. Keep monks supplied by the existing Monk data flow. Render Privacy from the single localized rich-text document; read legacy `sections` only as a one-release fallback. Render Impressum legal fields only when populated.
+  Update About and Contact layouts to consume their named fields directly. Keep monks supplied by the existing Monk data flow. Render the Contact opening hours, travel instructions, configured success message, and privacy link when those fields are present; otherwise remove the corresponding field from the DTO/form rather than persisting inert data. Render Privacy from the single localized rich-text document; read legacy `sections` only as a one-release fallback. Render Impressum legal fields only when populated, never with invented legal fallback values.
 
 - [ ] **Step 3: Remove duplicated contact sources**
 
@@ -242,17 +244,16 @@
   git commit -m "refactor: render public pages from dedicated content api"
   ```
 
-## Task 7: Remove inactive CMS-only UI and constrain Settings
+## Task 7: Constrain Settings without changing Website CMS
 
 **Files:**
 - Modify: `frontend/src/app/[locale]/admin/settings/page.tsx`
 - Modify: `backend/cmd/seed/main.go:171-191`
 - Modify: `backend/internal/handlers/settings_handler.go`
 - Modify: `backend/internal/services/settings_service.go`
-- Delete after cutover: legacy imports/components under `frontend/src/app/[locale]/admin/website/` and `frontend/src/components/admin/website/` used solely by the retired generic CMS
 
 **Interfaces:**
-- Generic Settings exposes only explicitly supported system configuration categories.
+- The Website CMS remains intact and unchanged.
 - Public content APIs are the sole owner of public About/Contact/Privacy/Impressum data.
 
 - [ ] **Step 1: Whitelist true system settings**
@@ -263,19 +264,15 @@
 
   Stop seeding new `contact`, `social`, and `donation` keys. Retain existing database rows for rollback, but exclude them from Settings responses and writes once the migration marker confirms `PAGE-CONTACT.body` is populated.
 
-- [ ] **Step 3: Delete only unreachable generic CMS code**
-
-  Use repository references to identify components and services used exclusively by the retired `/admin/website` surface. Delete them only after direct admin and public routes no longer import them. Preserve shared rich-text, media, localization, and permission components.
-
-- [ ] **Step 4: Commit retirement work**
+- [ ] **Step 3: Commit Settings isolation**
 
   ```bash
-  git add frontend/src/app/'[locale]'/admin/settings/page.tsx frontend/src/app/'[locale]'/admin/website backend/cmd/seed/main.go backend/internal/handlers/settings_handler.go backend/internal/services/settings_service.go frontend/src/components/admin/website
-  git commit -m "refactor: retire website cms settings paths"
+  git add frontend/src/app/'[locale]'/admin/settings/page.tsx backend/cmd/seed/main.go backend/internal/handlers/settings_handler.go backend/internal/services/settings_service.go
+  git commit -m "refactor: isolate settings from public content"
   ```
 
 ## Plan review
 
-- Covers backend storage, mappings, validation, migration, dedicated API, audit logs, frontend DTOs/services/hooks, direct admin pages/navigation, public rendering, and retirement of duplicate Settings/CMS paths.
+- Covers backend storage, published-vs-editable reads, server validation, migration, dedicated API, audit logs, frontend DTOs/services/hooks, direct admin pages/navigation, public rendering, and Settings isolation without modifying Website CMS.
 - Uses `content_pages` rather than adding a second public-content database table; this preserves existing records and lowers migration risk.
 - Excludes all automated test creation and test commands as requested.

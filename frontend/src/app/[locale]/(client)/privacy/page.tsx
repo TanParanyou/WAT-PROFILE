@@ -15,7 +15,7 @@ export default async function PrivacyPage({ params }: { params: Promise<{ locale
   const lastUpdatedStr = pageData?.body.last_updated || pageData?.updated_at;
   const subtitle = lastUpdatedStr
     ? `${t("lastUpdated")}: ${new Date(lastUpdatedStr).toLocaleDateString(locale === "th" ? "th-TH" : locale === "de" ? "de-DE" : "en-US")}`
-    : `${t("lastUpdated")}: 2026-07-17`;
+    : "";
 
   return (
     <div className="bg-zinc-50 dark:bg-zinc-950 min-h-screen">

@@ -23,7 +23,7 @@ The contact-form delivery recipient is **not** public content and is not editabl
 
 ## Admin information architecture
 
-The sidebar has a labelled group, **ข้อมูลเว็บไซต์**, containing the four direct routes. It is separate from the retired Website CMS navigation. Public contact, social, and donation content is removed from `/admin/settings`. The generic Settings menu is hidden in this release because its current key-value UI has no remaining approved system configuration to expose; its backend records are retained untouched for rollback.
+The sidebar has a labelled group, **ข้อมูลเว็บไซต์**, containing the four direct routes. It is a new peer menu to **Website**: the existing Website/CMS menu, routes, components, APIs, and data remain unchanged in this scope. Public contact, social, and donation content is removed from `/admin/settings`. The generic Settings menu is hidden in this release because its current key-value UI has no remaining approved system configuration to expose; its backend records are retained untouched for rollback.
 
 ## Forms
 
@@ -85,7 +85,7 @@ GET /api/v1/public/privacy
 GET /api/v1/public/impressum
 ```
 
-Handlers convert between dedicated DTOs and the fixed `ContentPage` records. They never accept `page_key`, `slug`, `status`, or arbitrary section data from the client. A save validates localized content and allowed URLs, updates both draft and published columns inside one database transaction, sets `published_at`/`last_updated`, and creates an audit-log record.
+Handlers convert between dedicated DTOs and the fixed `ContentPage` records. They never accept `page_key`, `slug`, `status`, or arbitrary section data from the client. A save validates required Thai fields plus email and allowed URL fields on the server, updates both draft and published columns inside one database transaction, sets `published_at`/`last_updated`, and creates an audit-log record. Admin reads use editable fields; public reads require `published` status and map only the `Published*` snapshot.
 
 ## Migration and compatibility
 
@@ -93,9 +93,9 @@ Handlers convert between dedicated DTOs and the fixed `ContentPage` records. The
 - Map existing About, Privacy, and Impressum bodies into the new dedicated shapes.
 - Compose `PAGE-CONTACT` from existing contact page values plus the existing global contact settings record; after cutover, remove the contact/social/donation keys from the editable generic Settings UI.
 - Run the data migration as an idempotent deployment migration, not only through the development seed command. Keep legacy settings rows and old content shapes for one release as rollback inputs.
-- Public client readers support legacy data only during this release. Once all records are migrated, remove mock fallbacks and old Website CMS imports.
+- Public client readers support legacy data only during this release. Once all records are migrated, remove only the mock/settings fallbacks used by the four direct public pages; do not remove Website CMS imports or implementation.
 
 ## Non-goals
 
-- No Website CMS page list, arbitrary page creation, sections, reorder, clone, archive, preview mode, or publishing workflow.
+- No changes to Website CMS page list, arbitrary page creation, sections, reorder, clone, archive, preview mode, publishing workflow, routes, navigation, components, APIs, or data.
 - No automated tests in this work, per the user’s explicit instruction.

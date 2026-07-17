@@ -1,12 +1,10 @@
 package handlers
 
 import (
-	"encoding/json"
 	"errors"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/watloungporsai/wat-profile-backend/internal/publiccontent"
-	"github.com/watloungporsai/wat-profile-backend/internal/richtext"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
 	"gorm.io/gorm"
@@ -43,11 +41,7 @@ func (h *PublicContentHandler) SaveAbout(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid payload")
 	}
 
-	bodyRaw, _ := json.Marshal(input.Body)
-	var bodyMap map[string]interface{}
-	_ = json.Unmarshal(bodyRaw, &bodyMap)
-
-	if err := richtext.ValidateContentPageBody("PAGE-ABOUT", bodyMap); err != nil {
+	if err := publiccontent.ValidateAboutContent(&input); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
 
@@ -83,11 +77,7 @@ func (h *PublicContentHandler) SaveContact(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid payload")
 	}
 
-	bodyRaw, _ := json.Marshal(input.Body)
-	var bodyMap map[string]interface{}
-	_ = json.Unmarshal(bodyRaw, &bodyMap)
-
-	if err := richtext.ValidateContentPageBody("PAGE-CONTACT", bodyMap); err != nil {
+	if err := publiccontent.ValidateContactContent(&input); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
 
@@ -123,11 +113,7 @@ func (h *PublicContentHandler) SavePrivacy(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid payload")
 	}
 
-	bodyRaw, _ := json.Marshal(input.Body)
-	var bodyMap map[string]interface{}
-	_ = json.Unmarshal(bodyRaw, &bodyMap)
-
-	if err := richtext.ValidateContentPageBody("PAGE-PRIVACY", bodyMap); err != nil {
+	if err := publiccontent.ValidatePrivacyContent(&input); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
 
@@ -163,11 +149,7 @@ func (h *PublicContentHandler) SaveImpressum(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid payload")
 	}
 
-	bodyRaw, _ := json.Marshal(input.Body)
-	var bodyMap map[string]interface{}
-	_ = json.Unmarshal(bodyRaw, &bodyMap)
-
-	if err := richtext.ValidateContentPageBody("PAGE-IMPRESSUM", bodyMap); err != nil {
+	if err := publiccontent.ValidateImpressumContent(&input); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
 
@@ -188,7 +170,7 @@ func (h *PublicContentHandler) SaveImpressum(c *fiber.Ctx) error {
 
 // GET /api/v1/public/about
 func (h *PublicContentHandler) GetPublicAbout(c *fiber.Ctx) error {
-	res, err := h.publicContentService.GetAbout()
+	res, err := h.publicContentService.GetPublicAbout()
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusNotFound, "About page not found")
 	}
@@ -197,7 +179,7 @@ func (h *PublicContentHandler) GetPublicAbout(c *fiber.Ctx) error {
 
 // GET /api/v1/public/contact
 func (h *PublicContentHandler) GetPublicContact(c *fiber.Ctx) error {
-	res, err := h.publicContentService.GetContact()
+	res, err := h.publicContentService.GetPublicContact()
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusNotFound, "Contact page not found")
 	}
@@ -206,7 +188,7 @@ func (h *PublicContentHandler) GetPublicContact(c *fiber.Ctx) error {
 
 // GET /api/v1/public/privacy
 func (h *PublicContentHandler) GetPublicPrivacy(c *fiber.Ctx) error {
-	res, err := h.publicContentService.GetPrivacy()
+	res, err := h.publicContentService.GetPublicPrivacy()
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusNotFound, "Privacy page not found")
 	}
@@ -215,7 +197,7 @@ func (h *PublicContentHandler) GetPublicPrivacy(c *fiber.Ctx) error {
 
 // GET /api/v1/public/impressum
 func (h *PublicContentHandler) GetPublicImpressum(c *fiber.Ctx) error {
-	res, err := h.publicContentService.GetImpressum()
+	res, err := h.publicContentService.GetPublicImpressum()
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusNotFound, "Impressum page not found")
 	}

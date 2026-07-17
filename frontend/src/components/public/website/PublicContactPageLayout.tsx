@@ -1,6 +1,7 @@
 "use client";
 
-import { CreditCard, Facebook, Instagram, Mail, MapPin, Phone, Youtube } from "lucide-react";
+import { Clock3, CreditCard, Facebook, Mail, MapPin, Navigation, Phone } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { ContactContentFormData } from "@/types/public-content";
 import { getLocalizedText } from "@/utils/localizedText";
 
@@ -22,13 +23,28 @@ interface PublicContactPageLayoutProps {
 }
 
 export function PublicContactPageLayout({ page, locale, labels, formSlot }: PublicContactPageLayoutProps) {
+  const t = useTranslations("ContactPage");
   const heroEyebrow = labels.infoEyebrow;
   const heroTitle = getLocalizedText(page.title, locale);
   const heroDescription = getLocalizedText(page.description, locale);
   const address = getLocalizedText(page.body.address, locale);
   const phone = page.body.phone;
   const email = page.body.email;
+  const openingHours = page.body.opening_hours;
+  const transport = page.body.transport;
   
+  const hasOpeningHours = !!(
+    getLocalizedText(openingHours.days, locale) ||
+    getLocalizedText(openingHours.time, locale) ||
+    getLocalizedText(openingHours.notice, locale)
+  );
+
+  const hasTransport = !!(
+    getLocalizedText(transport.parking, locale) ||
+    transport.public_transport.length > 0 ||
+    getLocalizedText(transport.driving, locale)
+  );
+
   const hasSocials = !!(
     page.body.socials.facebook ||
     page.body.socials.instagram ||
@@ -68,6 +84,52 @@ export function PublicContactPageLayout({ page, locale, labels, formSlot }: Publ
               {address && <InfoRow icon={<MapPin size={20} />} title={labels.address} value={address} />}
               {phone && <InfoRow icon={<Phone size={20} />} title={labels.phone} value={phone} mono />}
               {email && <InfoRow icon={<Mail size={20} />} title={labels.email} value={email} mono />}
+              {hasOpeningHours && (
+                <InfoRow
+                  icon={<Clock3 size={20} />}
+                  title={t("openingHours")}
+                  value={
+                    <div className="space-y-1">
+                      {getLocalizedText(openingHours.days, locale) && <p>{getLocalizedText(openingHours.days, locale)}</p>}
+                      {getLocalizedText(openingHours.time, locale) && <p>{getLocalizedText(openingHours.time, locale)}</p>}
+                      {getLocalizedText(openingHours.notice, locale) && <p className="text-xs text-zinc-500">{getLocalizedText(openingHours.notice, locale)}</p>}
+                    </div>
+                  }
+                />
+              )}
+              {hasTransport && (
+                <InfoRow
+                  icon={<Navigation size={20} />}
+                  title={t("transport")}
+                  value={
+                    <div className="space-y-3">
+                      {getLocalizedText(transport.parking, locale) && (
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">{t("parking")}</p>
+                          <p className="mt-1">{getLocalizedText(transport.parking, locale)}</p>
+                        </div>
+                      )}
+                      {transport.public_transport.length > 0 && (
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">{t("publicTransport")}</p>
+                          <ul className="mt-1 list-disc space-y-1 pl-5">
+                            {transport.public_transport.map((item, index) => {
+                              const text = getLocalizedText(item, locale);
+                              return text ? <li key={`${text}-${index}`}>{text}</li> : null;
+                            })}
+                          </ul>
+                        </div>
+                      )}
+                      {getLocalizedText(transport.driving, locale) && (
+                        <div>
+                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">{t("driving")}</p>
+                          <p className="mt-1">{getLocalizedText(transport.driving, locale)}</p>
+                        </div>
+                      )}
+                    </div>
+                  }
+                />
+              )}
               
               {hasSocials && (
                 <InfoRow
@@ -125,7 +187,10 @@ export function PublicContactPageLayout({ page, locale, labels, formSlot }: Publ
 
             {/* Google Map Embed Iframe */}
             {page.body.map.embed_url && (
-              <div className="mt-8 border border-zinc-200 rounded overflow-hidden">
+              <div className="mt-8 rounded border border-zinc-200">
+                <div className="border-b border-zinc-200 px-4 py-3">
+                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">{t("map")}</p>
+                </div>
                 <iframe
                   src={page.body.map.embed_url}
                   width="100%"
@@ -143,7 +208,7 @@ export function PublicContactPageLayout({ page, locale, labels, formSlot }: Publ
                     rel="noreferrer"
                     className="block text-center bg-zinc-900 text-white py-2 text-xs font-semibold hover:bg-zinc-800 transition-colors"
                   >
-                    ดูเส้นทางบน Google Maps
+                    {t("directions")}
                   </a>
                 )}
               </div>
@@ -159,7 +224,7 @@ export function PublicContactPageLayout({ page, locale, labels, formSlot }: Publ
             </div>
             {page.body.contact_form.enabled ? formSlot : (
               <div className="text-center py-12 text-zinc-400 border border-dashed border-zinc-200 rounded">
-                แบบฟอร์มส่งข้อความถูกปิดใช้งานโดยผู้ดูแลระบบ
+                {t("formDisabled")}
               </div>
             )}
           </div>
@@ -192,4 +257,3 @@ function InfoRow({
     </div>
   );
 }
-

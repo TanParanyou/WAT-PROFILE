@@ -3,7 +3,7 @@ import { generateJSON } from "@tiptap/html";
 import { richTextExtensions } from "./extensions";
 
 export type RichTextDocument = JSONContent;
-export type LocalizedRichText = Record<string, RichTextDocument>;
+export type LocalizedRichText = Record<string, RichTextDocument | null | undefined>;
 type LocalizedRichTextSource = Record<string, unknown>;
 
 export const emptyRichTextDocument = (): RichTextDocument => ({ type: "doc", content: [{ type: "paragraph" }] });

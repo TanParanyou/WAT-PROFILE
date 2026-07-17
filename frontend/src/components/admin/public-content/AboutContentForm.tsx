@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { FormProvider, useForm, Controller, useFieldArray } from "react-hook-form";
-import type { Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Info, Target, Landmark, History, Home, Users, Search, Plus, Trash } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
@@ -15,7 +14,6 @@ import { PublicContentSaveBar } from "./PublicContentSaveBar";
 import { aboutContentFormSchema } from "@/schemas/public-content.schema";
 import { useAboutContentQuery, useUpdateAboutContentMutation } from "@/hooks/public-content";
 import type { AboutContentFormData } from "@/types/public-content";
-import type { LocalizedRichText } from "@/lib/rich-text/document";
 
 const locales = [
   { code: "th", label: "TH" },
@@ -32,7 +30,7 @@ export function AboutContentForm() {
   const [activeLocale, setActiveLocale] = useState<"th" | "en" | "de">("th");
 
   const methods = useForm<AboutContentFormData>({
-    resolver: zodResolver(aboutContentFormSchema) as unknown as Resolver<AboutContentFormData>,
+    resolver: zodResolver(aboutContentFormSchema),
     defaultValues: {
       title: { th: "", en: "", de: "" },
       description: { th: "", en: "", de: "" },
@@ -76,7 +74,7 @@ export function AboutContentForm() {
     },
   });
 
-  const { control, handleSubmit, reset, watch, formState: { isDirty, errors } } = methods;
+  const { control, handleSubmit, reset, watch, formState: { isDirty } } = methods;
 
   const { fields: buildingFields, append: appendBuilding, remove: removeBuilding } = useFieldArray({
     control,
@@ -342,7 +340,7 @@ export function AboutContentForm() {
                       label="เนื้อหาวัตถุประสงค์ (แบบ Rich Text)"
                       locales={locales}
                       defaultLocale="th"
-                      value={field.value as unknown as LocalizedRichText}
+                      value={field.value}
                       onChange={field.onChange}
                       error={fieldState.error?.message}
                     />
@@ -377,7 +375,7 @@ export function AboutContentForm() {
                       label="ข้อมูลบริหารจัดการ (แบบ Rich Text)"
                       locales={locales}
                       defaultLocale="th"
-                      value={field.value as unknown as LocalizedRichText}
+                      value={field.value}
                       onChange={field.onChange}
                       error={fieldState.error?.message}
                     />
@@ -412,7 +410,7 @@ export function AboutContentForm() {
                       label="ข้อมูลประวัติความเป็นมา (แบบ Rich Text)"
                       locales={locales}
                       defaultLocale="th"
-                      value={field.value as unknown as LocalizedRichText}
+                      value={field.value}
                       onChange={field.onChange}
                       error={fieldState.error?.message}
                     />
@@ -549,7 +547,7 @@ export function AboutContentForm() {
                       label="ข้อมูลคณะสงฆ์ (แบบ Rich Text)"
                       locales={locales}
                       defaultLocale="th"
-                      value={field.value as unknown as LocalizedRichText}
+                      value={field.value}
                       onChange={field.onChange}
                       error={fieldState.error?.message}
                     />

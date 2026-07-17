@@ -1,4 +1,4 @@
-import type { JSONContent } from "@tiptap/core";
+import type { LocalizedRichText } from "@/lib/rich-text/document";
 import type { LocalizedText } from "./common";
 
 export interface SeoMetadata {
@@ -8,13 +8,6 @@ export interface SeoMetadata {
   og_image?: string;
   canonical_url?: string;
   noindex?: boolean;
-}
-
-export interface LocalizedRichText {
-  th: JSONContent | null;
-  en: JSONContent | null;
-  de: JSONContent | null;
-  [key: string]: JSONContent | null | undefined;
 }
 
 // About
@@ -33,24 +26,24 @@ export interface AboutBody {
   objective: {
     heading: LocalizedText;
     subtitle: LocalizedText;
-    content: LocalizedRichText;
+    content?: LocalizedRichText;
   };
   administration: {
     heading: LocalizedText;
-    content: LocalizedRichText;
+    content?: LocalizedRichText;
   };
   history: {
     heading: LocalizedText;
-    content: LocalizedRichText;
+    content?: LocalizedRichText;
   };
   buildings: {
     heading: LocalizedText;
-    items: BuildingItem[];
+    items?: BuildingItem[];
   };
   sangha: {
     heading: LocalizedText;
     mission: LocalizedText;
-    content: LocalizedRichText;
+    content?: LocalizedRichText;
   };
 }
 
@@ -125,8 +118,8 @@ export interface ContactContentFormData {
 
 // Privacy
 export interface PrivacyBody {
-  content: LocalizedRichText;
-  last_updated: string;
+  content?: LocalizedRichText;
+  last_updated?: string;
 }
 
 export interface PrivacyContentFormData {

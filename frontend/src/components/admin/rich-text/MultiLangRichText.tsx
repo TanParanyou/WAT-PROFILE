@@ -11,7 +11,7 @@ type MultiLangRichTextProps = {
   label: string;
   locales: RichTextLocale[];
   defaultLocale: string;
-  value: LocalizedRichText;
+  value?: LocalizedRichText;
   onChange: (value: LocalizedRichText) => void;
   disabled?: boolean;
   error?: string;
@@ -27,6 +27,7 @@ export function MultiLangRichText({
   error,
 }: MultiLangRichTextProps) {
   const [activeLocale, setActiveLocale] = useState(defaultLocale);
+  const safeValue = useMemo(() => value || {}, [value]);
 
   useEffect(() => {
     if (!locales.some((locale) => locale.code === activeLocale)) {
@@ -35,13 +36,13 @@ export function MultiLangRichText({
   }, [activeLocale, defaultLocale, locales]);
 
   const activeDocument = useMemo(
-    () => getLocalizedRichText(value, activeLocale, defaultLocale),
-    [activeLocale, defaultLocale, value],
+    () => getLocalizedRichText(safeValue, activeLocale, defaultLocale),
+    [activeLocale, defaultLocale, safeValue],
   );
 
   const handleEditorChange = (doc: RichTextDocument) => {
     onChange({
-      ...value,
+      ...safeValue,
       [activeLocale]: doc,
     });
   };

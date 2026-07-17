@@ -13,12 +13,9 @@ import {
   UserCheck,
   Mail,
   ClipboardList,
-  Settings,
-  Globe,
   FolderOpen,
   ChevronLeft,
   ChevronRight,
-  ChevronRight as ChevronRightIcon,
   X,
   UserCog,
   Shield,
@@ -105,12 +102,6 @@ const menuItems: MenuItem[] = [
     href: "/admin/audit-logs",
     icon: Activity,
     resource: "audit_logs",
-  },
-  {
-    labelKey: "settings",
-    href: "/admin/settings",
-    icon: Settings,
-    resource: "settings",
   },
 ];
 

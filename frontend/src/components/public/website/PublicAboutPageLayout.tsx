@@ -42,7 +42,7 @@ export function PublicAboutPageLayout({ page }: { page: AboutContentFormData | n
   const historyTitle = page ? getLocalizedText(page.body.history.heading, locale) : getLocalizedText(aboutData.buddhaHistory.title, locale);
 
   const buildingsTitle = page ? getLocalizedText(page.body.buildings.heading, locale) : getLocalizedText(aboutData.buildings.title, locale);
-  const buildingsItems = page ? page.body.buildings.items : aboutData.buildings.items;
+  const buildingsItems = page ? page.body.buildings.items || [] : aboutData.buildings.items;
 
   const sanghaTitle = page ? getLocalizedText(page.body.sangha.heading, locale) : getLocalizedText(aboutData.sangha.title, locale);
   const sanghaMission = page ? getLocalizedText(page.body.sangha.mission, locale) : getLocalizedText(aboutData.sangha.mission, locale);

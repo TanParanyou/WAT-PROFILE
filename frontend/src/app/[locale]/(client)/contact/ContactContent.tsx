@@ -8,6 +8,7 @@ import {
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
+import { Link } from "@/navigation";
 import { PublicContactPageLayout } from "@/components/public/website/PublicContactPageLayout";
 import { getLocalizedText } from "@/utils/localizedText";
 import { sendContactEmail } from "@/services/emailService";
@@ -22,6 +23,10 @@ export default function ContactContent({ locale, cmsPage }: ContactContentProps)
   const t = useTranslations("ContactPage");
   const currentLocale = useLocale();
   const activeLocale = locale || currentLocale;
+  const successMessage = cmsPage
+    ? getLocalizedText(cmsPage.body.contact_form.success_message, activeLocale) || t("messageSent")
+    : t("messageSent");
+  const privacyLink = cmsPage?.body.contact_form.privacy_page_link || "/privacy";
   const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
@@ -122,15 +127,15 @@ export default function ContactContent({ locale, cmsPage }: ContactContentProps)
       }
       locale={activeLocale}
       labels={{
-        infoEyebrow: "Contact",
+        infoEyebrow: t("subtitle"),
         infoTitle: t("infoTitle"),
-        messageEyebrow: "Message",
+        messageEyebrow: t("subtitle"),
         formTitle: t("formTitle"),
         address: t("address"),
         phone: t("phone"),
         email: t("email"),
-        social: "Social",
-        bank: "Bank Donation",
+        social: t("social"),
+        bank: t("bank"),
       }}
       formSlot={
         <form className="space-y-5" onSubmit={handleSubmit}>
@@ -149,9 +154,15 @@ export default function ContactContent({ locale, cmsPage }: ContactContentProps)
           {status === "success" && (
             <div className="flex items-center gap-2 border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
               <CheckCircle size={16} />
-              <span>Message sent successfully</span>
+              <span>{successMessage}</span>
             </div>
           )}
+          <p className="text-xs leading-6 text-zinc-500">
+            {t("privacyNotice")}{" "}
+            <Link href={privacyLink} className="font-medium text-zinc-900 underline underline-offset-4">
+              {t("privacyLink")}
+            </Link>
+          </p>
           <button
             type="submit"
             disabled={status === "loading"}

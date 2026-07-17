@@ -3,8 +3,8 @@ import type { LocalizedRichText } from "@/lib/rich-text/document";
 
 export const localizedTextSchema = z.object({
   th: z.string().min(1, "ภาษาไทยจำเป็นต้องระบุ"),
-  en: z.string().optional().default(""),
-  de: z.string().optional().default(""),
+  en: z.string(),
+  de: z.string(),
 });
 
 export const localizedRichTextSchema = z
@@ -17,8 +17,8 @@ export const seoMetadataSchema = z.object({
   title: localizedTextSchema,
   description: localizedTextSchema,
   keywords: localizedTextSchema,
-  og_image: z.string().optional().default(""),
-  canonical_url: z.string().optional().default(""),
+  og_image: z.string().optional(),
+  canonical_url: z.string().optional(),
 });
 
 

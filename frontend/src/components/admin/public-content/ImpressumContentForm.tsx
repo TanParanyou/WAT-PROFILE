@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { FormProvider, useForm, Controller } from "react-hook-form";
-import type { Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Scale, FileText, UserCheck, Search } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
@@ -14,7 +13,6 @@ import { PublicContentSaveBar } from "./PublicContentSaveBar";
 import { impressumContentFormSchema } from "@/schemas/public-content.schema";
 import { useImpressumContentQuery, useUpdateImpressumContentMutation } from "@/hooks/public-content";
 import type { ImpressumContentFormData } from "@/types/public-content";
-import type { LocalizedRichText } from "@/lib/rich-text/document";
 import type { MultiLangText } from "@/types/api";
 
 export function ImpressumContentForm() {
@@ -26,7 +24,7 @@ export function ImpressumContentForm() {
   const [activeLocale, setActiveLocale] = useState<"th" | "en" | "de">("th");
 
   const methods = useForm<ImpressumContentFormData>({
-    resolver: zodResolver(impressumContentFormSchema) as Resolver<ImpressumContentFormData>,
+    resolver: zodResolver(impressumContentFormSchema),
     defaultValues: {
       title: { th: "", en: "", de: "" },
       description: { th: "", en: "", de: "" },

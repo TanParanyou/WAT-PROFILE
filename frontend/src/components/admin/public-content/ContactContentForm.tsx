@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { FormProvider, useForm, Controller, useFieldArray } from "react-hook-form";
-import type { Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, Clock, MapPin, Navigation, Share2, Landmark, ToggleLeft, Search, Plus, Trash } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
@@ -14,7 +13,6 @@ import { PublicContentSaveBar } from "./PublicContentSaveBar";
 import { contactContentFormSchema } from "@/schemas/public-content.schema";
 import { useContactContentQuery, useUpdateContactContentMutation } from "@/hooks/public-content";
 import type { ContactContentFormData } from "@/types/public-content";
-import type { LocalizedRichText } from "@/lib/rich-text/document";
 import type { MultiLangText } from "@/types/api";
 
 export function ContactContentForm() {
@@ -26,7 +24,7 @@ export function ContactContentForm() {
   const [activeLocale, setActiveLocale] = useState<"th" | "en" | "de">("th");
 
   const methods = useForm<ContactContentFormData>({
-    resolver: zodResolver(contactContentFormSchema) as Resolver<ContactContentFormData>,
+    resolver: zodResolver(contactContentFormSchema),
     defaultValues: {
       title: { th: "", en: "", de: "" },
       description: { th: "", en: "", de: "" },

@@ -2,7 +2,6 @@
 
 import React, { useState, useEffect } from "react";
 import { FormProvider, useForm, Controller } from "react-hook-form";
-import type { Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Shield, Search } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
@@ -15,7 +14,6 @@ import { PublicContentSaveBar } from "./PublicContentSaveBar";
 import { privacyContentFormSchema } from "@/schemas/public-content.schema";
 import { usePrivacyContentQuery, useUpdatePrivacyContentMutation } from "@/hooks/public-content";
 import type { PrivacyContentFormData } from "@/types/public-content";
-import type { LocalizedRichText } from "@/lib/rich-text/document";
 import type { MultiLangText } from "@/types/api";
 
 const locales = [
@@ -33,7 +31,7 @@ export function PrivacyContentForm() {
   const [activeLocale, setActiveLocale] = useState<"th" | "en" | "de">("th");
 
   const methods = useForm<PrivacyContentFormData>({
-    resolver: zodResolver(privacyContentFormSchema) as unknown as Resolver<PrivacyContentFormData>,
+    resolver: zodResolver(privacyContentFormSchema),
     defaultValues: {
       title: { th: "", en: "", de: "" },
       seo: {
@@ -50,7 +48,7 @@ export function PrivacyContentForm() {
     },
   });
 
-  const { control, handleSubmit, reset, watch, formState: { isDirty, errors } } = methods;
+  const { control, handleSubmit, reset, watch, formState: { isDirty } } = methods;
 
   useEffect(() => {
     if (privacyData) {
@@ -164,7 +162,7 @@ export function PrivacyContentForm() {
                       label="เนื้อหานโยบายฉบับสมบูรณ์ (แบบ Rich Text)"
                       locales={locales}
                       defaultLocale="th"
-                      value={field.value as unknown as LocalizedRichText}
+                      value={field.value}
                       onChange={field.onChange}
                       error={fieldState.error?.message}
                     />
