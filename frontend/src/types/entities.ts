@@ -1,4 +1,5 @@
 import type { MultiLangText } from "./api";
+import type { LocalizedRichText } from "@/lib/rich-text/document";
 
 // User & Role
 export interface Role {
@@ -29,7 +30,7 @@ export interface Event {
   id: number;
   slug: string;
   title: MultiLangText;
-  description: MultiLangText;
+  description: LocalizedRichText;
   start_date: string;
   end_date: string;
   start_time: string | null;
@@ -67,7 +68,7 @@ export interface Monk {
   image_url: string;
   name: MultiLangText;
   title: MultiLangText;
-  bio: MultiLangText;
+  bio: LocalizedRichText;
   ordination_date: string | null;
   position: string;
   display_order: number;

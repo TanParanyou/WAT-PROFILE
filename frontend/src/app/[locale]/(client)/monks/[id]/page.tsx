@@ -1,7 +1,7 @@
 import monks from "@/data/monks.json";
 import { notFound } from "next/navigation";
 import { getLocalizedText } from "@/utils/i18n";
-import { sanitizeHtml } from "@/utils/sanitize";
+import { RichTextContent } from "@/components/admin/rich-text/RichTextContent";
 import PageHeader from "@/components/layout/PageHeader";
 import PageContainer from "@/components/layout/PageContainer";
 import DetailNavigation from "@/components/common/DetailNavigation";
@@ -127,16 +127,10 @@ export default async function MonkDetailPage({ params }: Props) {
                 <div className="w-20 h-1.5 bg-primary rounded-full"></div>
               </div>
 
-              <div
-                className="prose prose-lg dark:prose-invert max-w-none 
-                                    prose-headings:font-heading prose-headings:font-bold prose-headings:text-gray-900 dark:prose-headings:text-white
-                                    prose-p:text-gray-600 dark:prose-p:text-gray-300 prose-p:leading-relaxed
-                                    prose-a:text-primary prose-a:no-underline hover:prose-a:underline
-                                    prose-strong:text-gray-900 dark:prose-strong:text-white
-                                    prose-img:rounded-2xl prose-img:shadow-md"
-                dangerouslySetInnerHTML={{
-                  __html: sanitizeHtml(getLocalizedText(monk.content, locale)),
-                }}
+              <RichTextContent
+                value={monk.bio as any}
+                locale={locale}
+                defaultLocale="th"
               />
             </div>
           </div>

@@ -15,6 +15,7 @@ import { notFound } from "next/navigation";
 import Script from "next/script";
 import Image from "next/image";
 import { getTranslations, getFormatter } from "next-intl/server";
+import { RichTextContent } from "@/components/admin/rich-text/RichTextContent";
 
 // Define Props for Server Component in Next.js 15
 interface Props {
@@ -162,14 +163,11 @@ export default async function EventDetailPage({ params }: Props) {
                 />
               </div>
 
-              <div className="p-8 md:p-10">
-                <h2 className="text-2xl font-heading font-bold mb-6 flex items-center gap-3 text-primary">
-                  About this Event
-                </h2>
-                <p className="whitespace-pre-wrap leading-relaxed text-gray-600 dark:text-gray-300 text-lg">
-                  {getLocalizedText(event.description, locale)}
-                </p>
-              </div>
+                <RichTextContent
+                  value={event.description as any}
+                  locale={locale}
+                  defaultLocale="th"
+                />
             </div>
 
             {/* Schedule Table */}

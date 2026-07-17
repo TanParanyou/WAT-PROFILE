@@ -3,7 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useRouter } from "@/navigation";
 import { MultiLangInput } from "@/components/admin/MultiLangInput";
-import { MultiLangRichText } from "@/components/admin/MultiLangRichText";
+import { MultiLangRichText } from "@/components/admin/rich-text/MultiLangRichText";
 import { ImageUpload } from "@/components/admin/ImageUpload";
 import { Input } from "@/components/ui/Input";
 import { TimePicker } from "@/components/ui/TimePicker";
@@ -349,13 +349,13 @@ export function EventEditor({ id }: EventEditorProps) {
                   render={({ field }) => (
                     <MultiLangRichText
                       label={t("events.form.description")}
-                      value={
-                        (field.value || {
-                          th: "",
-                          en: "",
-                          de: "",
-                        }) as MultiLangText
-                      }
+                      locales={[
+                        { code: "th", label: "TH" },
+                        { code: "en", label: "EN" },
+                        { code: "de", label: "DE" }
+                      ]}
+                      defaultLocale="th"
+                      value={field.value || {}}
                       onChange={field.onChange}
                       error={getFieldError(errors.description)}
                     />
