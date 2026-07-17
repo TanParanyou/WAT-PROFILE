@@ -1,13 +1,11 @@
 "use client";
 
-import React, { useRef, useState, useEffect } from "react";
-import { Upload, X, Loader2, Eye } from "lucide-react";
-import { mediaService } from "@/services/mediaService";
-import { Modal } from "@/components/ui/Modal";
-import { Button } from "@/components/ui/Button";
+import React, { useState } from "react";
+import { Upload, X, Eye } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
+import { MediaPickerDialog } from "./media/MediaPickerDialog";
 
 interface ImageUploadProps {
   label?: string;
@@ -23,77 +21,18 @@ export function ImageUpload({
   className = "",
 }: ImageUploadProps) {
   const t = useTranslations("Admin");
-  const fileRef = useRef<HTMLInputElement>(null);
-  const [error, setError] = useState("");
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
-  const [galleryImages, setGalleryImages] = useState<string[]>([]);
-  const [isLoadingGallery, setIsLoadingGallery] = useState(false);
-  const [localPreview, setLocalPreview] = useState<string | null>(null);
 
-  // Handle local preview for newly selected File objects
-  useEffect(() => {
-    if (value instanceof File) {
-      const objectUrl = URL.createObjectURL(value);
-      setLocalPreview(objectUrl);
-      return () => URL.revokeObjectURL(objectUrl);
-    } else {
-      setLocalPreview(null);
-    }
-  }, [value]);
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-
-    // Check file type
-    if (!file.type.startsWith("image/")) {
-      setError(t("common.error") + ": กรุณาเลือกไฟล์รูปภาพเท่านั้น");
-      return;
-    }
-
-    // Check file size (5MB)
-    if (file.size > 5 * 1024 * 1024) {
-      setError(t("common.error") + ": ไฟล์ต้องมีขนาดไม่เกิน 5MB");
-      return;
-    }
-
-    setError("");
-    onChange(file); // Pass the File object up
-    setIsModalOpen(false); // Close the modal since a file was chosen
-    if (fileRef.current) fileRef.current.value = "";
-  };
-
-  const handleOpenLibrary = async () => {
-    setIsModalOpen(true);
-    setIsLoadingGallery(true);
-    try {
-      const media = await mediaService.list();
-      const urls = Array.from(
-        new Set(
-          media
-            .map((item) => item.url)
-            .filter((url): url is string => typeof url === "string" && url !== ""),
-        ),
-      );
-      setGalleryImages(urls);
-    } catch {
-      setError("ไม่สามารถดึงรูปภาพจากคลังได้");
-    } finally {
-      setIsLoadingGallery(false);
-    }
-  };
-
-  const handleSelectFromLibrary = (url: string) => {
+  const handleSelect = (url: string) => {
     onChange(url);
-    setIsModalOpen(false);
   };
 
   const handleRemove = () => {
     onChange("");
   };
 
-  const previewSrc = value instanceof File ? localPreview : value;
+  const previewSrc = value instanceof File ? "" : value; // Since MediaPickerDialog handles upload, we'll only see URLs now (Files are handled directly to URL inside MediaPickerDialog)
 
   return (
     <div className={`space-y-2 ${className}`}>
@@ -110,7 +49,6 @@ export function ImageUpload({
             alt="Preview"
             className="h-36 w-36 object-cover rounded-lg border border-zinc-200 shadow-sm"
           />
-          {/* Hover View Lightbox Button */}
           <button
             type="button"
             onClick={() => setIsLightboxOpen(true)}
@@ -119,7 +57,6 @@ export function ImageUpload({
           >
             <Eye size={20} strokeWidth={1.5} />
           </button>
-          {/* Delete Button */}
           <button
             type="button"
             onClick={handleRemove}
@@ -130,10 +67,9 @@ export function ImageUpload({
           </button>
         </div>
       ) : (
-        /* Single Upload/Add Button */
         <button
           type="button"
-          onClick={handleOpenLibrary}
+          onClick={() => setIsModalOpen(true)}
           className="flex flex-col items-center justify-center w-36 h-36 border-2 border-dashed border-zinc-300 rounded-lg hover:border-amber-500 hover:bg-amber-50/50 transition-all shadow-sm group"
         >
           <Upload size={20} className="text-zinc-400 group-hover:text-amber-600 mb-1 transition-colors" />
@@ -141,72 +77,12 @@ export function ImageUpload({
         </button>
       )}
 
-      <input
-        ref={fileRef}
-        type="file"
-        accept="image/*"
-        onChange={handleFileChange}
-        className="hidden"
-      />
-
-      {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
-
-      {/* Media Library Modal */}
-      <Modal
+      <MediaPickerDialog
         isOpen={isModalOpen}
         onClose={() => setIsModalOpen(false)}
-        title="คลังสื่อ (Media Library)"
-        size="lg"
-      >
-        <div className="space-y-4">
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-zinc-100 pb-3">
-            <p className="text-xs text-zinc-500">
-              เลือกรูปภาพที่เคยอัปโหลดไว้แล้วในระบบแกลเลอรี หรือคลิกอัปโหลดรูปภาพใหม่จากคอมพิวเตอร์ของคุณ
-            </p>
-            <Button
-              type="button"
-              size="sm"
-              variant="primary"
-              onClick={() => fileRef.current?.click()}
-              icon={<Upload size={14} />}
-              className="shrink-0"
-            >
-              อัปโหลดรูปใหม่
-            </Button>
-          </div>
+        onSelect={handleSelect}
+      />
 
-          {isLoadingGallery ? (
-            <div className="flex flex-col items-center justify-center py-12">
-              <Loader2 className="animate-spin text-zinc-400 mb-2" size={32} />
-              <span className="text-sm text-zinc-500">กำลังโหลดรูปภาพ...</span>
-            </div>
-          ) : galleryImages.length === 0 ? (
-            <div className="text-center py-12 border-2 border-dashed border-zinc-200 rounded-xl bg-zinc-50/50">
-              <span className="text-sm text-zinc-400">ไม่พบรูปภาพในคลังสื่อ</span>
-            </div>
-          ) : (
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-[360px] overflow-y-auto pr-1">
-              {galleryImages.map((url, idx) => (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={() => handleSelectFromLibrary(url)}
-                  className="group aspect-square border border-zinc-200 rounded-lg overflow-hidden bg-zinc-50 hover:border-amber-500 transition-all relative shadow-sm"
-                >
-                  <img
-                    src={url}
-                    alt="Gallery item"
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform"
-                    loading="lazy"
-                  />
-                </button>
-              ))}
-            </div>
-          )}
-        </div>
-      </Modal>
-
-      {/* Library Lightbox Preview */}
       {previewSrc && (
         <Lightbox
           open={isLightboxOpen}

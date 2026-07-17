@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { Image, Link as LinkIcon } from "lucide-react";
 import { Input } from "@/components/ui/Input";
-import { MediaPickerModal } from "@/components/admin/website/MediaPickerModal";
+import { MediaPickerDialog } from "@/components/admin/media/MediaPickerDialog";
 
 export function MediaUrlField({
   label,
@@ -54,7 +54,7 @@ export function MediaUrlField({
         </button>
       </div>
 
-      <MediaPickerModal
+      <MediaPickerDialog
         isOpen={isPickerOpen}
         onClose={() => setIsPickerOpen(false)}
         onSelect={(url) => {
