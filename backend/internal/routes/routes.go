@@ -30,6 +30,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	userHandler := handlers.NewUserHandler(db)
 	roleHandler := handlers.NewRoleHandler(db)
 	auditHandler := handlers.NewAuditLogHandler(db)
+	richTextMigrationHandler := handlers.NewRichTextMigrationHandler(db)
 
 	// ============ PUBLIC ROUTES (No Auth Required) ============
 	public := api.Group("/public")
@@ -176,6 +177,9 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	admin.Post("/website/pages/:id/publish", middleware.PermissionRequired("website", "update"), contentHandler.PublishPage)
 	admin.Put("/website/pages/:pageId/sections/reorder", middleware.PermissionRequired("website", "update"), contentHandler.ReorderSections)
 	admin.Put("/website/sections/:id", middleware.PermissionRequired("website", "update"), contentHandler.UpdateSectionDraft)
+
+	// RichText Migrations
+	admin.Post("/rich-text/migrations", middleware.PermissionRequired("website", "update"), richTextMigrationHandler.Migrate)
 
 	// User Management
 	admin.Get("/users", middleware.PermissionRequired("users", "read"), userHandler.GetUsers)

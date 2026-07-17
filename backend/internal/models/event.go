@@ -9,7 +9,7 @@ type Event struct {
 	ID                   int           `gorm:"primaryKey;autoIncrement" json:"id"`
 	Slug                 string        `gorm:"size:100;uniqueIndex;not null" json:"slug"`
 	Title                MultiLangText `gorm:"type:jsonb;not null" json:"title"`
-	Description          MultiLangText `gorm:"type:jsonb" json:"description"`
+	Description          LocalizedRichText `gorm:"type:jsonb" json:"description"`
 	StartDate            time.Time     `gorm:"not null;index" json:"start_date"`
 	EndDate              time.Time     `gorm:"not null;index" json:"end_date"`
 	StartTime            *time.Time    `gorm:"type:time" json:"start_time"`

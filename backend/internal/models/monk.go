@@ -9,7 +9,7 @@ type Monk struct {
 	ImageURL       string        `gorm:"size:255" json:"image_url"`
 	Name           MultiLangText `gorm:"type:jsonb;not null" json:"name"`
 	Title          MultiLangText `gorm:"type:jsonb" json:"title"` // ตำแหน่ง: "พระอาจารย์", "Venerable"
-	Bio            MultiLangText `gorm:"type:jsonb" json:"bio"`   // ประวัติ
+	Bio            LocalizedRichText `gorm:"type:jsonb" json:"bio"`   // ประวัติ
 	OrdinationDate *time.Time    `gorm:"type:date" json:"ordination_date"`
 	Position       string        `gorm:"size:100" json:"position"` // 'abbot', 'vice_abbot', 'monk'
 	DisplayOrder   int           `gorm:"default:0" json:"display_order"`

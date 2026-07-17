@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
+	"github.com/watloungporsai/wat-profile-backend/internal/richtext"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
 	"gorm.io/gorm"
@@ -59,6 +60,9 @@ func (h *EventHandler) CreateEvent(c *fiber.Ctx) error {
 	if err := c.BodyParser(&event); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
 	}
+	if err := richtext.ValidateLocalized(event.Description); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 	if err := h.eventService.Create(&event); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to create event")
 	}
@@ -81,6 +85,9 @@ func (h *EventHandler) UpdateEvent(c *fiber.Ctx) error {
 	}
 	if err := c.BodyParser(event); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+	if err := richtext.ValidateLocalized(event.Description); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
 	if err := h.eventService.Update(event); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, err.Error())

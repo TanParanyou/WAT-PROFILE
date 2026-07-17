@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
+	"github.com/watloungporsai/wat-profile-backend/internal/richtext"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
 	"gorm.io/gorm"
@@ -43,6 +44,9 @@ func (h *MonkHandler) CreateMonk(c *fiber.Ctx) error {
 	if err := c.BodyParser(&monk); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request")
 	}
+	if err := richtext.ValidateLocalized(monk.Bio); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 	if err := h.monkService.Create(&monk); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to create")
 	}
@@ -77,6 +81,9 @@ func (h *MonkHandler) UpdateMonk(c *fiber.Ctx) error {
 	}
 	if err := c.BodyParser(monk); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request")
+	}
+	if err := richtext.ValidateLocalized(monk.Bio); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
 	if err := h.monkService.Update(monk); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to update")
