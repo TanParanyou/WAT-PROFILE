@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { FormProvider, useForm, Controller } from "react-hook-form";
+import type { Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Shield, Search } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
@@ -15,6 +16,7 @@ import { privacyContentFormSchema } from "@/schemas/public-content.schema";
 import { usePrivacyContentQuery, useUpdatePrivacyContentMutation } from "@/hooks/public-content";
 import type { PrivacyContentFormData } from "@/types/public-content";
 import type { LocalizedRichText } from "@/lib/rich-text/document";
+import type { MultiLangText } from "@/types/api";
 
 const locales = [
   { code: "th", label: "TH" },
@@ -31,7 +33,7 @@ export function PrivacyContentForm() {
   const [activeLocale, setActiveLocale] = useState<"th" | "en" | "de">("th");
 
   const methods = useForm<PrivacyContentFormData>({
-    resolver: zodResolver(privacyContentFormSchema) as any,
+    resolver: zodResolver(privacyContentFormSchema) as unknown as Resolver<PrivacyContentFormData>,
     defaultValues: {
       title: { th: "", en: "", de: "" },
       seo: {
@@ -162,7 +164,7 @@ export function PrivacyContentForm() {
                       label="เนื้อหานโยบายฉบับสมบูรณ์ (แบบ Rich Text)"
                       locales={locales}
                       defaultLocale="th"
-                      value={field.value}
+                      value={field.value as unknown as LocalizedRichText}
                       onChange={field.onChange}
                       error={fieldState.error?.message}
                     />
@@ -182,7 +184,7 @@ export function PrivacyContentForm() {
                     render={({ field, fieldState }) => (
                       <MultiLangInput
                         label="SEO Title (ถ้าเว้นว่างจะใช้ชื่อหัวข้อเพจ)"
-                        value={field.value as any}
+                        value={field.value as MultiLangText}
                         onChange={field.onChange}
                         error={fieldState.error?.message}
                       />
@@ -194,7 +196,7 @@ export function PrivacyContentForm() {
                     render={({ field, fieldState }) => (
                       <MultiLangInput
                         label="SEO Description (คำอธิบายสำหรับ Google)"
-                        value={field.value as any}
+                        value={field.value as MultiLangText}
                         onChange={field.onChange}
                         type="textarea"
                         error={fieldState.error?.message}

@@ -1,3 +1,4 @@
+import type { JSONContent } from "@tiptap/core";
 import type { LocalizedText } from "./common";
 
 export interface SeoMetadata {
@@ -10,10 +11,10 @@ export interface SeoMetadata {
 }
 
 export interface LocalizedRichText {
-  th: any;
-  en: any;
-  de: any;
-  [key: string]: any;
+  th: JSONContent | null;
+  en: JSONContent | null;
+  de: JSONContent | null;
+  [key: string]: JSONContent | null | undefined;
 }
 
 // About

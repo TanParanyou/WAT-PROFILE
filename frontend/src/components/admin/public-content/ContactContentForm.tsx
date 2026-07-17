@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import { FormProvider, useForm, Controller, useFieldArray } from "react-hook-form";
+import type { Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, Clock, MapPin, Navigation, Share2, Landmark, ToggleLeft, Search, Plus, Trash } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
@@ -14,6 +15,7 @@ import { contactContentFormSchema } from "@/schemas/public-content.schema";
 import { useContactContentQuery, useUpdateContactContentMutation } from "@/hooks/public-content";
 import type { ContactContentFormData } from "@/types/public-content";
 import type { LocalizedRichText } from "@/lib/rich-text/document";
+import type { MultiLangText } from "@/types/api";
 
 export function ContactContentForm() {
   const { data: contactData, isLoading } = useContactContentQuery();
@@ -24,7 +26,7 @@ export function ContactContentForm() {
   const [activeLocale, setActiveLocale] = useState<"th" | "en" | "de">("th");
 
   const methods = useForm<ContactContentFormData>({
-    resolver: zodResolver(contactContentFormSchema) as any,
+    resolver: zodResolver(contactContentFormSchema) as Resolver<ContactContentFormData>,
     defaultValues: {
       title: { th: "", en: "", de: "" },
       description: { th: "", en: "", de: "" },
@@ -641,7 +643,7 @@ export function ContactContentForm() {
                     render={({ field, fieldState }) => (
                       <MultiLangInput
                         label="SEO Title (ถ้าเว้นว่างจะใช้ชื่อหัวข้อเพจ)"
-                        value={field.value as any}
+                        value={field.value as MultiLangText}
                         onChange={field.onChange}
                         error={fieldState.error?.message}
                       />
@@ -653,7 +655,7 @@ export function ContactContentForm() {
                     render={({ field, fieldState }) => (
                       <MultiLangInput
                         label="SEO Description (คำอธิบายสำหรับ Google)"
-                        value={field.value as any}
+                        value={field.value as MultiLangText}
                         onChange={field.onChange}
                         type="textarea"
                         error={fieldState.error?.message}
