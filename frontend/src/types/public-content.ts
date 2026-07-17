@@ -1,10 +1,19 @@
 import type { LocalizedText } from "./common";
-import type { SeoMetadata } from "./website-cms";
+
+export interface SeoMetadata {
+  title: LocalizedText;
+  description: LocalizedText;
+  keywords: LocalizedText;
+  og_image?: string;
+  canonical_url?: string;
+  noindex?: boolean;
+}
 
 export interface LocalizedRichText {
   th: any;
   en: any;
   de: any;
+  [key: string]: any;
 }
 
 // About
@@ -49,6 +58,7 @@ export interface AboutContentFormData {
   description: LocalizedText;
   seo: SeoMetadata;
   body: AboutBody;
+  updated_at?: string;
 }
 
 // Contact
@@ -109,6 +119,7 @@ export interface ContactContentFormData {
   description: LocalizedText;
   seo: SeoMetadata;
   body: ContactBody;
+  updated_at?: string;
 }
 
 // Privacy
@@ -121,6 +132,7 @@ export interface PrivacyContentFormData {
   title: LocalizedText;
   seo: SeoMetadata;
   body: PrivacyBody;
+  updated_at?: string;
 }
 
 // Impressum
@@ -142,4 +154,5 @@ export interface ImpressumContentFormData {
   description: LocalizedText;
   seo: SeoMetadata;
   body: ImpressumBody;
+  updated_at?: string;
 }

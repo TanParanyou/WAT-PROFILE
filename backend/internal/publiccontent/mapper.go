@@ -68,6 +68,7 @@ func AboutFromPage(page *models.ContentPage) *AboutContent {
 		Description: normalizeMultiLang(page.Description),
 		SEO:         page.Seo,
 		Body:        body,
+		UpdatedAt:   page.UpdatedAt,
 	}
 }
 
@@ -124,6 +125,7 @@ func ContactFromPage(page *models.ContentPage) *ContactContent {
 		Description: normalizeMultiLang(page.Description),
 		SEO:         page.Seo,
 		Body:        body,
+		UpdatedAt:   page.UpdatedAt,
 	}
 }
 
@@ -162,9 +164,10 @@ func PrivacyFromPage(page *models.ContentPage) *PrivacyContent {
 	body.Content = normalizeRichText(body.Content)
 
 	return &PrivacyContent{
-		Title: normalizeMultiLang(page.Title),
-		SEO:   page.Seo,
-		Body:  body,
+		Title:     normalizeMultiLang(page.Title),
+		SEO:       page.Seo,
+		Body:      body,
+		UpdatedAt: page.UpdatedAt,
 	}
 }
 
@@ -211,6 +214,7 @@ func ImpressumFromPage(page *models.ContentPage) *ImpressumContent {
 		Description: normalizeMultiLang(page.Description),
 		SEO:         page.Seo,
 		Body:        body,
+		UpdatedAt:   page.UpdatedAt,
 	}
 }
 

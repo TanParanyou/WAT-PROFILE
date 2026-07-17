@@ -12,6 +12,7 @@ type AboutContent struct {
 	Description models.MultiLangText `json:"description"`
 	SEO         models.JSONMap       `json:"seo"`
 	Body        AboutBody            `json:"body"`
+	UpdatedAt   time.Time            `json:"updated_at"`
 }
 
 type AboutBody struct {
@@ -68,6 +69,7 @@ type ContactContent struct {
 	Description models.MultiLangText `json:"description"`
 	SEO         models.JSONMap       `json:"seo"`
 	Body        ContactBody          `json:"body"`
+	UpdatedAt   time.Time            `json:"updated_at"`
 }
 
 type ContactBody struct {
@@ -124,9 +126,10 @@ type ContactFormSettings struct {
 
 // PrivacyContent defines the DTO for the Privacy page.
 type PrivacyContent struct {
-	Title models.MultiLangText `json:"title"`
-	SEO   models.JSONMap       `json:"seo"`
-	Body  PrivacyBody          `json:"body"`
+	Title     models.MultiLangText `json:"title"`
+	SEO       models.JSONMap       `json:"seo"`
+	Body      PrivacyBody          `json:"body"`
+	UpdatedAt time.Time            `json:"updated_at"`
 }
 
 type PrivacyBody struct {
@@ -140,6 +143,7 @@ type ImpressumContent struct {
 	Description models.MultiLangText `json:"description"`
 	SEO         models.JSONMap       `json:"seo"`
 	Body        ImpressumBody        `json:"body"`
+	UpdatedAt   time.Time            `json:"updated_at"`
 }
 
 type ImpressumBody struct {

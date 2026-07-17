@@ -18,10 +18,15 @@ import {
   FolderOpen,
   ChevronLeft,
   ChevronRight,
+  ChevronRight as ChevronRightIcon,
   X,
   UserCog,
   Shield,
   Activity,
+  BookOpen,
+  Phone,
+  Lock,
+  FileText,
 } from "lucide-react";
 import { usePermission } from "@/hooks/usePermission";
 import { cn } from "@/utils/cn";
@@ -43,12 +48,6 @@ const menuItems: MenuItem[] = [
     href: "/admin",
     icon: LayoutDashboard,
     alwaysShow: true,
-  },
-  {
-    labelKey: "website",
-    href: "/admin/website",
-    icon: Globe,
-    resource: "website",
   },
   {
     labelKey: "media",
@@ -113,6 +112,13 @@ const menuItems: MenuItem[] = [
     icon: Settings,
     resource: "settings",
   },
+];
+
+const publicContentItems = [
+  { labelKey: "about", href: "/admin/about", icon: BookOpen },
+  { labelKey: "contact", href: "/admin/contact", icon: Phone },
+  { labelKey: "privacy", href: "/admin/privacy", icon: Lock },
+  { labelKey: "impressum", href: "/admin/impressum", icon: FileText },
 ];
 
 interface AdminSidebarProps {
@@ -181,29 +187,94 @@ export function AdminSidebar({
 
       {/* Navigation */}
       <nav className="p-2 space-y-1 overflow-y-auto h-[calc(100%-4rem)]">
-        {visibleItems.map((item) => {
-          const Icon = item.icon;
-          const active = isActive(item.href);
-          const showLabel = !collapsed || mobileOpen;
+        {/* Dashboard */}
+        {visibleItems
+          .filter((item) => item.href === "/admin")
+          .map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item.href);
+            const showLabel = !collapsed || mobileOpen;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={onMobileClose}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors",
+                  active
+                    ? "bg-amber-50 text-amber-700 font-medium"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+                )}
+                title={!showLabel ? t(item.labelKey) : undefined}
+              >
+                <Icon size={20} className={cn(active && "text-amber-600")} />
+                {showLabel && <span>{t(item.labelKey)}</span>}
+              </Link>
+            );
+          })}
 
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              onClick={onMobileClose}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors",
-                active
-                  ? "bg-amber-50 text-amber-700 font-medium"
-                  : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
-              )}
-              title={!showLabel ? t(item.labelKey) : undefined}
-            >
-              <Icon size={20} className={cn(active && "text-amber-600")} />
-              {showLabel && <span>{t(item.labelKey)}</span>}
-            </Link>
-          );
-        })}
+        {/* ข้อมูลเว็บไซต์ Group */}
+        {can("website", "read") && (
+          <div className="mt-4 mb-2">
+            {!collapsed || mobileOpen ? (
+              <div className="px-3 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                {t("websiteGroup")}
+              </div>
+            ) : (
+              <div className="h-px bg-gray-200 my-2" />
+            )}
+            <div className="space-y-1">
+              {publicContentItems.map((item) => {
+                const Icon = item.icon;
+                const active = isActive(item.href);
+                const showLabel = !collapsed || mobileOpen;
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    onClick={onMobileClose}
+                    className={cn(
+                      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
+                      active
+                        ? "bg-amber-50 text-amber-700 font-medium"
+                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+                    )}
+                    title={!showLabel ? t(item.labelKey) : undefined}
+                  >
+                    <Icon size={18} className={cn(active && "text-amber-600")} />
+                    {showLabel && <span>{t(item.labelKey)}</span>}
+                  </Link>
+                );
+              })}
+            </div>
+          </div>
+        )}
+
+        {/* Other Items */}
+        {visibleItems
+          .filter((item) => item.href !== "/admin")
+          .map((item) => {
+            const Icon = item.icon;
+            const active = isActive(item.href);
+            const showLabel = !collapsed || mobileOpen;
+            return (
+              <Link
+                key={item.href}
+                href={item.href}
+                onClick={onMobileClose}
+                className={cn(
+                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors",
+                  active
+                    ? "bg-amber-50 text-amber-700 font-medium"
+                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+                )}
+                title={!showLabel ? t(item.labelKey) : undefined}
+              >
+                <Icon size={20} className={cn(active && "text-amber-600")} />
+                {showLabel && <span>{t(item.labelKey)}</span>}
+              </Link>
+            );
+          })}
       </nav>
     </aside>
   );
