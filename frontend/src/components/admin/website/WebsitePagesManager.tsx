@@ -49,7 +49,7 @@ export function WebsitePagesManager() {
         <Metric label="Sections" value={sectionCount} />
       </div>
       <div className="flex flex-col gap-3 border border-zinc-200 bg-white p-3 md:flex-row md:items-end md:justify-between">
-        <div className="min-w-0 flex-1">
+        <div className="relative min-w-0 flex-1">
           <Input
             label="Search pages"
             value={search}
@@ -57,7 +57,7 @@ export function WebsitePagesManager() {
             placeholder="PAGE-CONTACT, contact, title..."
             className="pl-9"
           />
-          <Search size={15} className="-mt-7 ml-3 text-zinc-400" />
+          <Search size={15} className="absolute left-3 bottom-[11px] text-zinc-400 pointer-events-none" />
         </div>
         <div className="flex gap-2">
           {(["all", "published", "draft", "archived"] as const).map((item) => (
