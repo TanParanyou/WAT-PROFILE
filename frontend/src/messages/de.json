@@ -176,5 +176,15 @@
         "footerTitle": "Wat Loung Por Sai - Deutschland",
         "printedOn": "Gedruckt am",
         "printButton": "PDF drucken"
+    },
+    "ErrorPage": {
+        "title": "Ein Fehler ist aufgetreten",
+        "description": "Es tut uns leid, es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
+        "retry": "Erneut versuchen"
+    },
+    "NotFoundPage": {
+        "title": "Seite nicht gefunden",
+        "description": "Die von Ihnen gesuchte Seite wurde möglicherweise verschoben, gelöscht oder existiert nicht.",
+        "backToHome": "Zurück zur Startseite"
     }
 }

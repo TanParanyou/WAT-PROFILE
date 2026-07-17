@@ -2,6 +2,7 @@
 
 import { useEffect } from 'react';
 import { AlertCircle, RefreshCw } from 'lucide-react';
+import { useTranslations } from 'next-intl';
 
 export default function Error({
     error,
@@ -10,6 +11,8 @@ export default function Error({
     error: Error & { digest?: string };
     reset: () => void;
 }) {
+    const t = useTranslations('ErrorPage');
+
     useEffect(() => {
         console.error('Page error:', error);
     }, [error]);
@@ -21,17 +24,17 @@ export default function Error({
                     <AlertCircle size={40} />
                 </div>
                 <h2 className="text-2xl font-heading font-bold text-gray-900 dark:text-white mb-3">
-                    เกิดข้อผิดพลาด
+                    {t('title')}
                 </h2>
                 <p className="text-gray-600 dark:text-gray-400 mb-8">
-                    ขออภัย เกิดข้อผิดพลาดบางอย่าง กรุณาลองใหม่อีกครั้ง
+                    {t('description')}
                 </p>
                 <button
                     onClick={reset}
                     className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-primary/90 transition-colors"
                 >
                     <RefreshCw size={18} />
-                    ลองใหม่อีกครั้ง
+                    {t('retry')}
                 </button>
             </div>
         </div>

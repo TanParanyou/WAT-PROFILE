@@ -176,5 +176,15 @@
         "footerTitle": "Wat Loung Por Sai - Germany",
         "printedOn": "Printed on",
         "printButton": "Print PDF"
+    },
+    "ErrorPage": {
+        "title": "An error occurred",
+        "description": "Sorry, something went wrong. Please try again.",
+        "retry": "Try again"
+    },
+    "NotFoundPage": {
+        "title": "Page Not Found",
+        "description": "The page you are looking for might have been removed, had its name changed or is temporarily unavailable.",
+        "backToHome": "Go to Homepage"
     }
 }
