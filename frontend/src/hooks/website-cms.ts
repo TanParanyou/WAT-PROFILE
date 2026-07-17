@@ -168,3 +168,37 @@ export function toWebsiteSectionUpdatePayload(
 ) {
   return websiteSectionFormToUpdatePayload(values);
 }
+
+// Special page hooks wrapping the generic CMS implementations
+export function useAboutPageQuery() {
+  return useWebsitePageQuery("PAGE-ABOUT");
+}
+
+export function useUpdateAboutPageMutation() {
+  return useUpdateWebsitePageMutation("PAGE-ABOUT");
+}
+
+export function usePrivacyPageQuery() {
+  return useWebsitePageQuery("PAGE-PRIVACY");
+}
+
+export function useUpdatePrivacyPageMutation() {
+  return useUpdateWebsitePageMutation("PAGE-PRIVACY");
+}
+
+export function usePublishPrivacyPageMutation() {
+  return usePublishWebsitePageMutation("PAGE-PRIVACY");
+}
+
+export function useImpressumPageQuery() {
+  return useWebsitePageQuery("PAGE-IMPRESSUM");
+}
+
+export function useUpdateImpressumPageMutation() {
+  return useUpdateWebsitePageMutation("PAGE-IMPRESSUM");
+}
+
+export function usePublishImpressumPageMutation() {
+  return usePublishWebsitePageMutation("PAGE-IMPRESSUM");
+}
+

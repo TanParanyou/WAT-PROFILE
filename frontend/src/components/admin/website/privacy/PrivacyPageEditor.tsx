@@ -9,7 +9,7 @@ import { MultiLangRichText } from "@/components/admin/rich-text/MultiLangRichTex
 import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/Loading";
 import { Input } from "@/components/ui/Input";
-import { usePrivacyPageQuery, usePublishPrivacyPageMutation, useUpdatePrivacyPageMutation } from "@/hooks/website-page-master";
+import { usePrivacyPageQuery, usePublishPrivacyPageMutation, useUpdatePrivacyPageMutation } from "@/hooks/website-cms";
 import { useToast } from "@/hooks/useToast";
 import { hasLegacyLocalizedRichText, normalizeLocalizedRichText } from "@/lib/rich-text/document";
 import type { PrivacyPageBodyFormData, PrivacyPageFormData, PrivacySectionFormData } from "@/schemas/website-page.schema";

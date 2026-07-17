@@ -1,5 +1,5 @@
-import { HomePageEditor } from "@/components/admin/website/home/HomePageEditor";
+import { redirect } from "@/navigation";
 
 export default function HomePageEditorRoute() {
-  return <HomePageEditor />;
+  redirect("/admin/website/pages/PAGE-HOME");
 }

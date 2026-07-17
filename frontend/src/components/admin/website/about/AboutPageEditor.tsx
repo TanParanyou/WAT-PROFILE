@@ -13,7 +13,7 @@ import { AboutBuildingsTab } from "./tabs/AboutBuildingsTab";
 import { AboutSanghaTab } from "./tabs/AboutSanghaTab";
 import { SeoEditorTab } from "../shared/SeoEditorTab";
 import { aboutPageMasterSchema, type AboutPageMasterFormData } from "@/schemas/website-page.schema";
-import { useAboutPageQuery, useUpdateAboutPageMutation } from "@/hooks/website-page-master";
+import { useAboutPageQuery, useUpdateAboutPageMutation } from "@/hooks/website-cms";
 import { useWebsiteCmsEditorStore } from "@/stores/website-cms-editor-store";
 import { useToast } from "@/hooks/useToast";
 import { richTextMigrationService } from "@/services/richTextMigrationService";

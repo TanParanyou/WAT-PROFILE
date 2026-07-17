@@ -1,5 +1,5 @@
-import { ContactPageEditor } from "@/components/admin/website/contact/ContactPageEditor";
+import { redirect } from "@/navigation";
 
 export default function ContactPageEditorRoute() {
-  return <ContactPageEditor />;
+  redirect("/admin/website/pages/PAGE-CONTACT");
 }

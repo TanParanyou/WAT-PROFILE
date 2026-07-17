@@ -48,7 +48,7 @@ export function WebsitePagesList({
       {activePages.map((page) => (
         <LocaleLink
           key={page.id}
-          href={`/admin/website/${page.slug.toLowerCase()}`}
+          href={`/admin/website/pages/${page.page_key}`}
           className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-zinc-50"
         >
           <div className="min-w-0">

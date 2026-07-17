@@ -8,7 +8,7 @@ import { MultiLangInput } from "@/components/admin/MultiLangInput";
 import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/Loading";
 import { Input } from "@/components/ui/Input";
-import { useImpressumPageQuery, usePublishImpressumPageMutation, useUpdateImpressumPageMutation } from "@/hooks/website-page-master";
+import { useImpressumPageQuery, usePublishImpressumPageMutation, useUpdateImpressumPageMutation } from "@/hooks/website-cms";
 import { useToast } from "@/hooks/useToast";
 import type { ImpressumPageBodyFormData, ImpressumPageFormData } from "@/schemas/website-page.schema";
 import { useWebsiteCmsEditorStore } from "@/stores/website-cms-editor-store";
