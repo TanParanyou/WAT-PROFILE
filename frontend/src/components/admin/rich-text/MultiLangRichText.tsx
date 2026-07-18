@@ -14,6 +14,7 @@ type MultiLangRichTextProps = {
   value?: LocalizedRichText;
   onChange: (value: LocalizedRichText) => void;
   disabled?: boolean;
+  required?: boolean;
   error?: string;
 };
 
@@ -24,6 +25,7 @@ export function MultiLangRichText({
   value,
   onChange,
   disabled = false,
+  required = false,
   error,
 }: MultiLangRichTextProps) {
   const [activeLocale, setActiveLocale] = useState(defaultLocale);
@@ -50,7 +52,10 @@ export function MultiLangRichText({
   return (
     <div className="space-y-2 font-sans">
       <div className="flex items-center justify-between">
-        <label className="text-sm font-semibold text-zinc-800">{label}</label>
+        <label className="text-sm font-semibold text-zinc-800 flex items-center">
+          {label}
+          {required && <span className="text-red-500 ml-1">*</span>}
+        </label>
         <div className="flex border border-zinc-200 rounded overflow-hidden">
           {locales.map((loc) => (
             <button

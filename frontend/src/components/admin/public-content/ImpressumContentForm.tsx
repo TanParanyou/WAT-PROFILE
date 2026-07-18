@@ -8,23 +8,25 @@ import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/Loading";
 import { MultiLangInput } from "@/components/admin/MultiLangInput";
-import { LocalizedFieldGroup } from "./LocalizedFieldGroup";
+import { FormTabs, TabConfig } from "@/components/admin/FormTabs";
 import { PublicContentSaveBar } from "./PublicContentSaveBar";
 import { impressumContentFormSchema } from "@/schemas/public-content.schema";
 import { useImpressumContentQuery, useUpdateImpressumContentMutation } from "@/hooks/public-content";
 import type { ImpressumContentFormData } from "@/types/public-content";
 import type { MultiLangText } from "@/types/api";
+import { useTranslations } from "next-intl";
 
 export function ImpressumContentForm() {
+  const t = useTranslations("Admin.publicContent");
   const { data: impressumData, isLoading } = useImpressumContentQuery();
   const updateMutation = useUpdateImpressumContentMutation();
   const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState<"details" | "legal" | "responsibility" | "seo">("details");
-  const [activeLocale, setActiveLocale] = useState<"th" | "en" | "de">("th");
 
   const methods = useForm<ImpressumContentFormData>({
     resolver: zodResolver(impressumContentFormSchema),
+    mode: "all",
     defaultValues: {
       title: { th: "", en: "", de: "" },
       description: { th: "", en: "", de: "" },
@@ -55,99 +57,89 @@ export function ImpressumContentForm() {
   useEffect(() => {
     if (impressumData) {
       reset(impressumData);
+      methods.trigger();
     }
-  }, [impressumData, reset]);
+  }, [impressumData, reset, methods]);
 
   if (isLoading) {
-    return <PageLoading text="กำลังโหลดข้อมูลหน้าข้อมูลทางกฎหมาย..." />;
+    return <PageLoading text={t("loading")} />;
   }
 
   const onSubmit = (values: ImpressumContentFormData) => {
     updateMutation.mutate(values, {
       onSuccess: () => {
-        toast.success("บันทึกข้อมูลหน้าข้อมูลทางกฎหมายสำเร็จแล้ว");
+        toast.success(t("saveSuccess"));
       },
       onError: (err) => {
-        toast.error(`บันทึกข้อมูลล้มเหลว: ${err.message}`);
+        toast.error(t("saveError", { error: err.message }));
       },
     });
   };
 
-  const checkCompleteness = () => {
-    const values = watch();
-    const hasLang = (lang: "en" | "de") => {
-      return !!(values.body?.organization_name?.[lang] && values.body?.address?.[lang]);
-    };
-    return {
-      th: true,
-      en: hasLang("en"),
-      de: hasLang("de"),
-    };
+  const onInvalid = (errs: typeof errors) => {
+    if (
+      errs.body?.organization_name ||
+      errs.body?.legal_form ||
+      errs.body?.address ||
+      errs.body?.phone ||
+      errs.body?.email ||
+      errs.body?.representative ||
+      errs.title ||
+      errs.description
+    ) {
+      setActiveTab("details");
+    } else if (errs.body?.registry_court || errs.body?.registry_number || errs.body?.vat_id) {
+      setActiveTab("legal");
+    } else if (errs.body?.content_responsibility) {
+      setActiveTab("responsibility");
+    } else if (errs.seo) {
+      setActiveTab("seo");
+    }
+
+    toast.error(t("validationError"));
   };
+
+  // Section error flags
+  const hasDetailsError = !!(
+    errors.body?.organization_name ||
+    errors.body?.legal_form ||
+    errors.body?.address ||
+    errors.body?.phone ||
+    errors.body?.email ||
+    errors.body?.representative ||
+    errors.title ||
+    errors.description
+  );
+  const hasLegalError = !!(errors.body?.registry_court || errors.body?.registry_number || errors.body?.vat_id);
+  const hasResponsibilityError = !!errors.body?.content_responsibility;
+  const hasSeoError = !!errors.seo;
+
+  const sectionTabs: TabConfig<"details" | "legal" | "responsibility" | "seo">[] = [
+    { id: "details", label: t("impressum.orgTab"), icon: <FileText size={14} />, hasError: hasDetailsError },
+    { id: "legal", label: t("impressum.regTab"), icon: <Scale size={14} />, hasError: hasLegalError },
+    { id: "responsibility", label: t("impressum.respTab"), icon: <UserCheck size={14} />, hasError: hasResponsibilityError },
+    { id: "seo", label: t("impressum.seoTab"), icon: <Search size={14} />, hasError: hasSeoError },
+  ];
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(onSubmit)} className="min-h-[calc(100vh-7rem)] flex flex-col justify-between space-y-6">
+      <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="min-h-[calc(100vh-7rem)] flex flex-col justify-between space-y-6">
         <div className="flex-1 space-y-6">
           <div className="flex flex-col gap-4 border-b border-zinc-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-xl font-semibold text-zinc-950">ข้อมูลทางกฎหมาย (Impressum)</h1>
-              <p className="text-sm text-zinc-500">จัดการข้อมูลผู้จัดตั้งสมาคม ผู้แทนนิติบัญญัติ และข้อมูลจดทะเบียนตามกฎหมายเยอรมัน</p>
+              <h1 className="text-xl font-semibold text-zinc-950">{t("impressum.pageTitle")}</h1>
+              <p className="text-sm text-zinc-500">{t("impressum.pageDesc")}</p>
             </div>
           </div>
 
-          <LocalizedFieldGroup
-            activeLocale={activeLocale}
-            onLocaleChange={setActiveLocale}
-            completeness={checkCompleteness()}
-          />
-
-          {/* Tabs header */}
-          <div className="flex gap-2 border-b border-zinc-200 pb-3">
-            <Button
-              type="button"
-              size="sm"
-              variant={activeTab === "details" ? "primary" : "outline"}
-              icon={<FileText size={14} />}
-              onClick={() => setActiveTab("details")}
-            >
-              ข้อมูลสมาคม & ที่อยู่
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={activeTab === "legal" ? "primary" : "outline"}
-              icon={<Scale size={14} />}
-              onClick={() => setActiveTab("legal")}
-            >
-              ข้อมูลลงทะเบียน
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={activeTab === "responsibility" ? "primary" : "outline"}
-              icon={<UserCheck size={14} />}
-              onClick={() => setActiveTab("responsibility")}
-            >
-              ผู้รับผิดชอบเนื้อหา
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={activeTab === "seo" ? "primary" : "outline"}
-              icon={<Search size={14} />}
-              onClick={() => setActiveTab("seo")}
-            >
-              SEO & ค้นหา
-            </Button>
-          </div>
+          <FormTabs tabs={sectionTabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
           {/* Form Content per tab */}
           <div className="bg-white p-6 rounded-lg border border-zinc-200 shadow-sm space-y-6">
             
             {activeTab === "details" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">ข้อมูลสมาคมและที่อยู่จัดตั้ง</h3>
+                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("impressum.orgHeading")}</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -155,7 +147,7 @@ export function ImpressumContentForm() {
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="ชื่อหัวข้อหน้าเพจ"
+                        label={t("impressum.fields.title")}
                         value={field.value}
                         onChange={field.onChange}
                         required
@@ -168,10 +160,11 @@ export function ImpressumContentForm() {
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="คำอธิบายหน้าเพจย่อ"
+                        label={t("impressum.fields.description")}
                         value={field.value}
                         onChange={field.onChange}
                         type="textarea"
+                        required
                         error={fieldState.error?.message}
                       />
                     )}
@@ -184,7 +177,7 @@ export function ImpressumContentForm() {
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="ชื่อองค์กร/สมาคมตามกฎหมาย"
+                        label={t("impressum.fields.orgName")}
                         value={field.value}
                         onChange={field.onChange}
                         required
@@ -197,10 +190,9 @@ export function ImpressumContentForm() {
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="รูปแบบการจดทะเบียนตามกฎหมาย (เช่น สมาคมจดทะเบียน e.V.)"
+                        label={t("impressum.fields.legalForm")}
                         value={field.value}
                         onChange={field.onChange}
-                        required
                         error={fieldState.error?.message}
                       />
                     )}
@@ -212,7 +204,7 @@ export function ImpressumContentForm() {
                   control={control}
                   render={({ field, fieldState }) => (
                     <MultiLangInput
-                      label="ที่อยู่จดตั้งสมาคม (Address)"
+                      label={t("impressum.fields.address")}
                       value={field.value}
                       onChange={field.onChange}
                       type="textarea"
@@ -224,7 +216,7 @@ export function ImpressumContentForm() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-gray-700">เบอร์โทรศัพท์ (Phone)</label>
+                    <label className="text-sm font-medium text-gray-700">{t("impressum.fields.phone")}</label>
                     <input
                       type="text"
                       {...methods.register("body.phone")}
@@ -233,7 +225,7 @@ export function ImpressumContentForm() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-gray-700">อีเมลทางการของสมาคม (Official Email)</label>
+                    <label className="text-sm font-medium text-gray-700">{t("impressum.fields.email")}</label>
                     <input
                       type="text"
                       {...methods.register("body.email")}
@@ -248,14 +240,14 @@ export function ImpressumContentForm() {
 
             {activeTab === "legal" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">ข้อมูลตัวแทนและข้อมูลการจดทะเบียนศาล</h3>
+                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("impressum.regHeading")}</h3>
                 
                 <Controller
                   name="body.representative"
                   control={control}
                   render={({ field, fieldState }) => (
                     <MultiLangInput
-                      label="ผู้แทนสมาคมตามกฎหมาย (Legal Representative)"
+                      label={t("impressum.fields.representative")}
                       value={field.value}
                       onChange={field.onChange}
                       required
@@ -270,16 +262,15 @@ export function ImpressumContentForm() {
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="ศาลที่จดทะเบียนจัดตั้งสมาคม (Registry Court)"
+                        label={t("impressum.fields.court")}
                         value={field.value}
                         onChange={field.onChange}
-                        required
                         error={fieldState.error?.message}
                       />
                     )}
                   />
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-gray-700">เลขทะเบียนการจดทะเบียน (Registry Number)</label>
+                    <label className="text-sm font-medium text-gray-700">{t("impressum.fields.regNumber")}</label>
                     <input
                       type="text"
                       {...methods.register("body.registry_number")}
@@ -290,7 +281,7 @@ export function ImpressumContentForm() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-700">เลขประจำตัวผู้เสียภาษีอากร / VAT ID (ถ้ามี)</label>
+                  <label className="text-sm font-medium text-gray-700">{t("impressum.fields.vatId")}</label>
                   <input
                     type="text"
                     {...methods.register("body.vat_id")}
@@ -302,17 +293,16 @@ export function ImpressumContentForm() {
 
             {activeTab === "responsibility" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">ผู้รับผิดชอบเนื้อหาเว็บไซต์</h3>
+                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("impressum.respHeading")}</h3>
                 
                 <Controller
                   name="body.content_responsibility"
                   control={control}
                   render={({ field, fieldState }) => (
                     <MultiLangInput
-                      label="ผู้รับผิดชอบการเผยแพร่เนื้อหาตามมาตรา § 55 Abs. 2 RStV (Content Responsibility)"
+                      label={t("impressum.fields.responsibility")}
                       value={field.value}
                       onChange={field.onChange}
-                      required
                       error={fieldState.error?.message}
                     />
                   )}
@@ -322,7 +312,7 @@ export function ImpressumContentForm() {
 
             {activeTab === "seo" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">การตั้งค่าค้นหา (SEO Settings)</h3>
+                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("seo.title")}</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -330,9 +320,10 @@ export function ImpressumContentForm() {
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="SEO Title (ถ้าเว้นว่างจะใช้ชื่อหัวข้อเพจ)"
+                        label={t("seo.titleLabel")}
                         value={field.value as MultiLangText}
                         onChange={field.onChange}
+                        required
                         error={fieldState.error?.message}
                       />
                     )}
@@ -342,10 +333,11 @@ export function ImpressumContentForm() {
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="SEO Description (คำอธิบายสำหรับ Google)"
+                        label={t("seo.descLabel")}
                         value={field.value as MultiLangText}
                         onChange={field.onChange}
                         type="textarea"
+                        required
                         error={fieldState.error?.message}
                       />
                     )}
@@ -370,13 +362,13 @@ export function ImpressumContentForm() {
                       className="rounded text-amber-600 focus:ring-amber-500 border-gray-300 w-4 h-4"
                     />
                     <label htmlFor="seo_noindex" className="text-sm font-medium text-gray-700 select-none">
-                      No Index (ไม่ให้แสดงผลบน Google)
+                      {t("seo.noIndex")}
                     </label>
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-700">OG Image URL (ภาพตัวอย่างเมื่อแชร์ลิงก์)</label>
+                  <label className="text-sm font-medium text-gray-700">{t("seo.ogImage")}</label>
                   <input
                     type="text"
                     {...methods.register("seo.og_image")}

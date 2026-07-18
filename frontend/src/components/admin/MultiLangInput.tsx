@@ -6,7 +6,7 @@ import type { MultiLangText } from "@/types/api";
 
 interface MultiLangInputProps {
   label: string;
-  value: MultiLangText;
+  value?: MultiLangText;
   onChange: (value: MultiLangText) => void;
   type?: "input" | "textarea";
   required?: boolean;
@@ -31,8 +31,10 @@ export function MultiLangInput({
 }: MultiLangInputProps) {
   const [activeLang, setActiveLang] = useState<"th" | "en" | "de">("th");
 
+  const safeValue = value || { th: "", en: "", de: "" };
+
   const handleChange = (text: string) => {
-    onChange({ ...value, [activeLang]: text });
+    onChange({ ...safeValue, [activeLang]: text });
   };
 
   return (
@@ -63,7 +65,7 @@ export function MultiLangInput({
 
       {type === "textarea" ? (
         <textarea
-          value={value[activeLang] || ""}
+          value={safeValue[activeLang] || ""}
           onChange={(e) => handleChange(e.target.value)}
           placeholder={placeholder || `${label} (${activeLang.toUpperCase()})`}
           required={required && activeLang === "th"}
@@ -78,7 +80,7 @@ export function MultiLangInput({
       ) : (
         <input
           type="text"
-          value={value[activeLang] || ""}
+          value={safeValue[activeLang] || ""}
           onChange={(e) => handleChange(e.target.value)}
           placeholder={placeholder || `${label} (${activeLang.toUpperCase()})`}
           required={required && activeLang === "th"}

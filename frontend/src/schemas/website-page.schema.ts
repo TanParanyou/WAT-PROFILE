@@ -1,25 +1,57 @@
 import { z } from "zod";
 import type { LocalizedRichText } from "@/lib/rich-text/document";
 
-export const localizedTextSchema = z.object({
-  th: z.string().min(1, "ภาษาไทยจำเป็นต้องระบุ"),
-  en: z.string(),
-  de: z.string(),
-});
+export const localizedTextSchema = z.preprocess(
+  (val: any) => ({
+    th: val?.th ?? "",
+    en: val?.en ?? "",
+    de: val?.de ?? "",
+  }),
+  z.object({
+    th: z.string().min(1, "กรุณากรอกข้อมูลภาษาไทย"),
+    en: z.string(),
+    de: z.string(),
+  })
+);
 
 export const localizedRichTextSchema = z
-  .custom<LocalizedRichText>((value) => typeof value === "object" && value !== null && !Array.isArray(value), {
-    message: "Invalid rich text content",
-  })
+  .custom<LocalizedRichText>(
+    (value) => typeof value === "object" && value !== null && !Array.isArray(value),
+    {
+      message: "รูปแบบข้อมูลเนื้อหาไม่ถูกต้อง (ต้องเป็น Object)",
+    }
+  )
   .default({});
 
-export const seoMetadataSchema = z.object({
-  title: localizedTextSchema,
-  description: localizedTextSchema,
-  keywords: localizedTextSchema,
-  og_image: z.string().optional(),
-  canonical_url: z.string().optional(),
-});
+export const localizedOptionalTextSchema = z.preprocess(
+  (val: any) => ({
+    th: val?.th ?? "",
+    en: val?.en ?? "",
+    de: val?.de ?? "",
+  }),
+  z.object({
+    th: z.string(),
+    en: z.string(),
+    de: z.string(),
+  })
+);
+
+export const seoMetadataSchema = z.preprocess(
+  (val: any) => ({
+    title: val?.title ?? { th: "", en: "", de: "" },
+    description: val?.description ?? { th: "", en: "", de: "" },
+    keywords: val?.keywords ?? { th: "", en: "", de: "" },
+    og_image: val?.og_image ?? "",
+    canonical_url: val?.canonical_url ?? "",
+  }),
+  z.object({
+    title: localizedTextSchema,
+    description: localizedTextSchema,
+    keywords: localizedOptionalTextSchema,
+    og_image: z.string().optional(),
+    canonical_url: z.string().optional(),
+  })
+);
 
 
 

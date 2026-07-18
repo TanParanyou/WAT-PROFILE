@@ -8,23 +8,25 @@ import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/Loading";
 import { MultiLangInput } from "@/components/admin/MultiLangInput";
-import { LocalizedFieldGroup } from "./LocalizedFieldGroup";
+import { FormTabs, TabConfig } from "@/components/admin/FormTabs";
 import { PublicContentSaveBar } from "./PublicContentSaveBar";
 import { contactContentFormSchema } from "@/schemas/public-content.schema";
 import { useContactContentQuery, useUpdateContactContentMutation } from "@/hooks/public-content";
 import type { ContactContentFormData } from "@/types/public-content";
 import type { MultiLangText } from "@/types/api";
+import { useTranslations } from "next-intl";
 
 export function ContactContentForm() {
+  const t = useTranslations("Admin.publicContent");
   const { data: contactData, isLoading } = useContactContentQuery();
   const updateMutation = useUpdateContactContentMutation();
   const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState<"details" | "opening" | "map" | "travel" | "socials" | "bank" | "form" | "seo">("details");
-  const [activeLocale, setActiveLocale] = useState<"th" | "en" | "de">("th");
 
   const methods = useForm<ContactContentFormData>({
     resolver: zodResolver(contactContentFormSchema),
+    mode: "all",
     defaultValues: {
       title: { th: "", en: "", de: "" },
       description: { th: "", en: "", de: "" },
@@ -87,135 +89,87 @@ export function ContactContentForm() {
   useEffect(() => {
     if (contactData) {
       reset(contactData);
+      methods.trigger();
     }
-  }, [contactData, reset]);
+  }, [contactData, reset, methods]);
 
   if (isLoading) {
-    return <PageLoading text="กำลังโหลดข้อมูลหน้าติดต่อวัด..." />;
+    return <PageLoading text={t("loading")} />;
   }
 
   const onSubmit = (values: ContactContentFormData) => {
     updateMutation.mutate(values, {
       onSuccess: () => {
-        toast.success("บันทึกข้อมูลหน้าติดต่อสำเร็จแล้ว");
+        toast.success(t("saveSuccess"));
       },
       onError: (err) => {
-        toast.error(`บันทึกข้อมูลล้มเหลว: ${err.message}`);
+        toast.error(t("saveError", { error: err.message }));
       },
     });
   };
 
-  const checkCompleteness = () => {
-    const values = watch();
-    const hasLang = (lang: "en" | "de") => {
-      return !!(values.body?.address?.[lang] && values.body?.opening_hours?.days?.[lang] && values.body?.map?.name?.[lang]);
-    };
-    return {
-      th: true,
-      en: hasLang("en"),
-      de: hasLang("de"),
-    };
+  const onInvalid = (errs: typeof errors) => {
+    if (errs.body?.address || errs.body?.phone || errs.body?.email || errs.title || errs.description) {
+      setActiveTab("details");
+    } else if (errs.body?.opening_hours) {
+      setActiveTab("opening");
+    } else if (errs.body?.map) {
+      setActiveTab("map");
+    } else if (errs.body?.transport) {
+      setActiveTab("travel");
+    } else if (errs.body?.socials) {
+      setActiveTab("socials");
+    } else if (errs.body?.bank) {
+      setActiveTab("bank");
+    } else if (errs.body?.contact_form) {
+      setActiveTab("form");
+    } else if (errs.seo) {
+      setActiveTab("seo");
+    }
+
+    toast.error(t("validationError"));
   };
+
+  // Section error flags
+  const hasDetailsError = !!(errors.body?.address || errors.body?.phone || errors.body?.email || errors.title || errors.description);
+  const hasOpeningError = !!errors.body?.opening_hours;
+  const hasMapError = !!errors.body?.map;
+  const hasTravelError = !!errors.body?.transport;
+  const hasSocialsError = !!errors.body?.socials;
+  const hasBankError = !!errors.body?.bank;
+  const hasFormError = !!errors.body?.contact_form;
+  const hasSeoError = !!errors.seo;
+
+  const sectionTabs: TabConfig<"details" | "opening" | "map" | "travel" | "socials" | "bank" | "form" | "seo">[] = [
+    { id: "details", label: t("contact.detailsHeading"), icon: <Mail size={14} />, hasError: hasDetailsError },
+    { id: "opening", label: t("contact.hoursTab"), icon: <Clock size={14} />, hasError: hasOpeningError },
+    { id: "map", label: t("contact.mapTab"), icon: <MapPin size={14} />, hasError: hasMapError },
+    { id: "travel", label: t("contact.travelTab"), icon: <Navigation size={14} />, hasError: hasTravelError },
+    { id: "socials", label: t("contact.socialTab"), icon: <Share2 size={14} />, hasError: hasSocialsError },
+    { id: "bank", label: t("contact.bankTab"), icon: <Landmark size={14} />, hasError: hasBankError },
+    { id: "form", label: t("contact.formTab"), icon: <ToggleLeft size={14} />, hasError: hasFormError },
+    { id: "seo", label: t("contact.seoTab"), icon: <Search size={14} />, hasError: hasSeoError },
+  ];
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(onSubmit)} className="min-h-[calc(100vh-7rem)] flex flex-col justify-between space-y-6">
+      <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="min-h-[calc(100vh-7rem)] flex flex-col justify-between space-y-6">
         <div className="flex-1 space-y-6">
           <div className="flex flex-col gap-4 border-b border-zinc-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-xl font-semibold text-zinc-950">ข้อมูลหน้าติดต่อเรา (Contact Page)</h1>
-              <p className="text-sm text-zinc-500">จัดการข้อมูลที่อยู่ เบอร์โทรศัพท์ แผนที่ โซเชียล และบัญชีรับบริจาค</p>
+              <h1 className="text-xl font-semibold text-zinc-950">{t("contact.pageTitle")}</h1>
+              <p className="text-sm text-zinc-500">{t("contact.pageDesc")}</p>
             </div>
           </div>
 
-          <LocalizedFieldGroup
-            activeLocale={activeLocale}
-            onLocaleChange={setActiveLocale}
-            completeness={checkCompleteness()}
-          />
-
-          {/* Tabs header */}
-          <div className="flex flex-wrap gap-2 border-b border-zinc-200 pb-3">
-            <Button
-              type="button"
-              size="sm"
-              variant={activeTab === "details" ? "primary" : "outline"}
-              icon={<Mail size={14} />}
-              onClick={() => setActiveTab("details")}
-            >
-              ข้อมูลติดต่อทั่วไป
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={activeTab === "opening" ? "primary" : "outline"}
-              icon={<Clock size={14} />}
-              onClick={() => setActiveTab("opening")}
-            >
-              เวลาทำการ
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={activeTab === "map" ? "primary" : "outline"}
-              icon={<MapPin size={14} />}
-              onClick={() => setActiveTab("map")}
-            >
-              แผนที่ & พิกัด
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={activeTab === "travel" ? "primary" : "outline"}
-              icon={<Navigation size={14} />}
-              onClick={() => setActiveTab("travel")}
-            >
-              การเดินทาง
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={activeTab === "socials" ? "primary" : "outline"}
-              icon={<Share2 size={14} />}
-              onClick={() => setActiveTab("socials")}
-            >
-              ลิงก์โซเชียล
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={activeTab === "bank" ? "primary" : "outline"}
-              icon={<Landmark size={14} />}
-              onClick={() => setActiveTab("bank")}
-            >
-              บัญชีรับบริจาค
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={activeTab === "form" ? "primary" : "outline"}
-              icon={<ToggleLeft size={14} />}
-              onClick={() => setActiveTab("form")}
-            >
-              แบบฟอร์มผู้ติดต่อ
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={activeTab === "seo" ? "primary" : "outline"}
-              icon={<Search size={14} />}
-              onClick={() => setActiveTab("seo")}
-            >
-              SEO & ค้นหา
-            </Button>
-          </div>
+          <FormTabs tabs={sectionTabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
           {/* Form Content per tab */}
           <div className="bg-white p-6 rounded-lg border border-zinc-200 shadow-sm space-y-6">
             
             {activeTab === "details" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">ข้อมูลติดต่อทั่วไป</h3>
+                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("contact.detailsHeading")}</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -223,7 +177,7 @@ export function ContactContentForm() {
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="ชื่อหัวข้อหน้าเพจ"
+                        label={t("contact.fields.title")}
                         value={field.value}
                         onChange={field.onChange}
                         required
@@ -236,10 +190,11 @@ export function ContactContentForm() {
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="คำอธิบายหน้าเพจย่อ"
+                        label={t("contact.fields.description")}
                         value={field.value}
                         onChange={field.onChange}
                         type="textarea"
+                        required
                         error={fieldState.error?.message}
                       />
                     )}
@@ -251,7 +206,7 @@ export function ContactContentForm() {
                   control={control}
                   render={({ field, fieldState }) => (
                     <MultiLangInput
-                      label="ที่อยู่ (Address)"
+                      label={t("contact.address")}
                       value={field.value}
                       onChange={field.onChange}
                       type="textarea"
@@ -263,7 +218,7 @@ export function ContactContentForm() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-gray-700">เบอร์โทรศัพท์ (Phone)</label>
+                    <label className="text-sm font-medium text-gray-700">{t("contact.phone")}</label>
                     <input
                       type="text"
                       {...methods.register("body.phone")}
@@ -272,7 +227,7 @@ export function ContactContentForm() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-gray-700">อีเมลส่วนกลางสำหรับผู้เข้าชม (Public Email)</label>
+                    <label className="text-sm font-medium text-gray-700">{t("contact.email")}</label>
                     <input
                       type="text"
                       {...methods.register("body.email")}
@@ -287,7 +242,7 @@ export function ContactContentForm() {
 
             {activeTab === "opening" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">เวลาทำการและประกาศ</h3>
+                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("contact.hoursHeadingDesc")}</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -295,7 +250,7 @@ export function ContactContentForm() {
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="วันเปิดทำการ"
+                        label={t("contact.hoursDays")}
                         value={field.value}
                         onChange={field.onChange}
                         required
@@ -308,7 +263,7 @@ export function ContactContentForm() {
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="เวลาทำการ"
+                        label={t("contact.hoursHeading")}
                         value={field.value}
                         onChange={field.onChange}
                         required
@@ -323,7 +278,7 @@ export function ContactContentForm() {
                   control={control}
                   render={({ field, fieldState }) => (
                     <MultiLangInput
-                      label="หมายเหตุ/ประกาศเกี่ยวกับเวลาเปิดทำการ"
+                      label={t("contact.hoursNotice")}
                       value={field.value}
                       onChange={field.onChange}
                       error={fieldState.error?.message}
@@ -335,14 +290,14 @@ export function ContactContentForm() {
 
             {activeTab === "map" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">แผนที่ & พิกัดสถานที่ตั้ง</h3>
+                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("contact.mapHeadingDesc")}</h3>
                 
                 <Controller
                   name="body.map.name"
                   control={control}
                   render={({ field, fieldState }) => (
                     <MultiLangInput
-                      label="ชื่อพิกัดสถานที่ในแผนที่"
+                      label={t("contact.mapHeading")}
                       value={field.value}
                       onChange={field.onChange}
                       required
@@ -352,7 +307,7 @@ export function ContactContentForm() {
                 />
 
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-700">Google Maps Embed URL (Iframe Source)</label>
+                  <label className="text-sm font-medium text-gray-700">{t("contact.mapEmbed")}</label>
                   <input
                     type="text"
                     {...methods.register("body.map.embed_url")}
@@ -363,7 +318,7 @@ export function ContactContentForm() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-700">Directions URL (ลิงก์นำทาง Google Maps)</label>
+                  <label className="text-sm font-medium text-gray-700">{t("contact.mapDirections")}</label>
                   <input
                     type="text"
                     {...methods.register("body.map.directions_url")}
@@ -377,7 +332,7 @@ export function ContactContentForm() {
 
             {activeTab === "travel" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">คำอธิบายการเดินทาง</h3>
+                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("contact.travelHeadingDesc")}</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -385,7 +340,7 @@ export function ContactContentForm() {
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="ข้อมูลที่จอดรถ"
+                        label={t("contact.parking")}
                         value={field.value}
                         onChange={field.onChange}
                         error={fieldState.error?.message}
@@ -397,7 +352,7 @@ export function ContactContentForm() {
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="การเดินทางโดยรถยนต์ส่วนบุคคล"
+                        label={t("contact.driving")}
                         value={field.value}
                         onChange={field.onChange}
                         type="textarea"
@@ -409,7 +364,7 @@ export function ContactContentForm() {
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <label className="text-sm font-semibold text-zinc-800">การเดินทางโดยระบบขนส่งสาธารณะ (Public Transport)</label>
+                    <label className="text-sm font-semibold text-zinc-800">{t("contact.publicTransport")}</label>
                     <Button
                       type="button"
                       size="sm"
@@ -417,7 +372,7 @@ export function ContactContentForm() {
                       icon={<Plus size={14} />}
                       onClick={() => appendTransport({ th: "", en: "", de: "" })}
                     >
-                      เพิ่มขั้นตอนการเดินทาง
+                      {t("contact.addTravelStep")}
                     </Button>
                   </div>
 
@@ -430,7 +385,7 @@ export function ContactContentForm() {
                             control={control}
                             render={({ field: f, fieldState: fs }) => (
                               <MultiLangInput
-                                label={`ขั้นตอนการเดินทางที่ ${index + 1}`}
+                                label={t("contact.travelStep", { number: index + 1 })}
                                 value={f.value || { th: "", en: "", de: "" }}
                                 onChange={f.onChange}
                                 required
@@ -443,7 +398,7 @@ export function ContactContentForm() {
                           type="button"
                           onClick={() => removeTransport(index)}
                           className="mt-8 p-2 rounded-lg text-zinc-400 hover:text-red-600 hover:bg-zinc-100 transition-colors"
-                          title="ลบขั้นตอนนี้"
+                          title={t("contact.deleteTravelStep")}
                         >
                           <Trash size={16} />
                         </button>
@@ -452,7 +407,7 @@ export function ContactContentForm() {
 
                     {transportFields.length === 0 && (
                       <div className="text-center py-6 text-zinc-400 border border-dashed border-zinc-200 rounded-lg">
-                        ยังไม่มีข้อมูลการเดินทางโดยระบบขนส่งสาธารณะ
+                        {t("contact.noTravelSteps")}
                       </div>
                     )}
                   </div>
@@ -462,7 +417,7 @@ export function ContactContentForm() {
 
             {activeTab === "socials" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">ลิงก์โซเชียลมีเดีย</h3>
+                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("contact.socialsHeading")}</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-1">
@@ -526,7 +481,7 @@ export function ContactContentForm() {
 
             {activeTab === "bank" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">ข้อมูลบัญชีเงินฝากธนาคารสำหรับรับเงินบริจาค</h3>
+                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("contact.bankHeadingDesc")}</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -534,10 +489,9 @@ export function ContactContentForm() {
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="ชื่อธนาคาร"
+                        label={t("contact.bankName")}
                         value={field.value}
                         onChange={field.onChange}
-                        required
                         error={fieldState.error?.message}
                       />
                     )}
@@ -547,10 +501,9 @@ export function ContactContentForm() {
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="ชื่อบัญชีธนาคาร"
+                        label={t("contact.bankAccount")}
                         value={field.value}
                         onChange={field.onChange}
-                        required
                         error={fieldState.error?.message}
                       />
                     )}
@@ -589,7 +542,7 @@ export function ContactContentForm() {
 
             {activeTab === "form" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">การตั้งค่าแบบฟอร์มส่งข้อความ (Contact Form)</h3>
+                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("contact.formHeading")}</h3>
                 
                 <div className="flex items-center gap-2">
                   <input
@@ -599,7 +552,7 @@ export function ContactContentForm() {
                     className="rounded text-amber-600 focus:ring-amber-500 border-gray-300 w-4 h-4"
                   />
                   <label htmlFor="form_enabled" className="text-sm font-medium text-gray-700 select-none">
-                    เปิดใช้งานแบบฟอร์มส่งข้อความ (Enable Form)
+                    {t("contact.formEnabledLabel")}
                   </label>
                 </div>
 
@@ -608,7 +561,7 @@ export function ContactContentForm() {
                   control={control}
                   render={({ field, fieldState }) => (
                     <MultiLangInput
-                      label="ข้อความเมื่อส่งฟอร์มสำเร็จ (Success Copy)"
+                      label={t("contact.formSuccess")}
                       value={field.value}
                       onChange={field.onChange}
                       type="textarea"
@@ -632,7 +585,7 @@ export function ContactContentForm() {
 
             {activeTab === "seo" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">การตั้งค่าค้นหา (SEO Settings)</h3>
+                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("seo.title")}</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -640,9 +593,10 @@ export function ContactContentForm() {
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="SEO Title (ถ้าเว้นว่างจะใช้ชื่อหัวข้อเพจ)"
+                        label={t("seo.titleLabel")}
                         value={field.value as MultiLangText}
                         onChange={field.onChange}
+                        required
                         error={fieldState.error?.message}
                       />
                     )}
@@ -652,10 +606,11 @@ export function ContactContentForm() {
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="SEO Description (คำอธิบายสำหรับ Google)"
+                        label={t("seo.descLabel")}
                         value={field.value as MultiLangText}
                         onChange={field.onChange}
                         type="textarea"
+                        required
                         error={fieldState.error?.message}
                       />
                     )}
@@ -680,13 +635,13 @@ export function ContactContentForm() {
                       className="rounded text-amber-600 focus:ring-amber-500 border-gray-300 w-4 h-4"
                     />
                     <label htmlFor="seo_noindex" className="text-sm font-medium text-gray-700 select-none">
-                      No Index (ไม่ให้แสดงผลบน Google)
+                      {t("seo.noIndex")}
                     </label>
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-700">OG Image URL (ภาพตัวอย่างเมื่อแชร์ลิงก์)</label>
+                  <label className="text-sm font-medium text-gray-700">{t("seo.ogImage")}</label>
                   <input
                     type="text"
                     {...methods.register("seo.og_image")}

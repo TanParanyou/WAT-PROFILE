@@ -1,22 +1,22 @@
 import { z } from "zod";
-import { localizedTextSchema, localizedRichTextSchema, seoMetadataSchema } from "./website-page.schema";
+import { localizedTextSchema, localizedRichTextSchema, seoMetadataSchema, localizedOptionalTextSchema } from "./website-page.schema";
 
 // 1. About
 export const buildingItemSchema = z.object({
   name: localizedTextSchema,
-  description: localizedTextSchema,
+  description: localizedOptionalTextSchema,
 });
 
 export const aboutBodySchema = z.object({
   intro: z.object({
     heading: localizedTextSchema,
     description: localizedTextSchema,
-    founded: localizedTextSchema,
-    location: localizedTextSchema,
+    founded: localizedOptionalTextSchema,
+    location: localizedOptionalTextSchema,
   }),
   objective: z.object({
     heading: localizedTextSchema,
-    subtitle: localizedTextSchema,
+    subtitle: localizedOptionalTextSchema,
     content: localizedRichTextSchema,
   }),
   administration: z.object({
@@ -33,7 +33,7 @@ export const aboutBodySchema = z.object({
   }),
   sangha: z.object({
     heading: localizedTextSchema,
-    mission: localizedTextSchema,
+    mission: localizedOptionalTextSchema,
     content: localizedRichTextSchema,
   }),
 });
@@ -50,7 +50,7 @@ export const aboutContentFormSchema = z.object({
 export const contactOpeningHoursSchema = z.object({
   days: localizedTextSchema,
   time: localizedTextSchema,
-  notice: localizedTextSchema,
+  notice: localizedOptionalTextSchema,
 });
 
 export const contactMapSchema = z.object({
@@ -60,9 +60,9 @@ export const contactMapSchema = z.object({
 });
 
 export const contactTransportSchema = z.object({
-  parking: localizedTextSchema,
+  parking: localizedOptionalTextSchema,
   public_transport: z.array(localizedTextSchema).default([]),
-  driving: localizedTextSchema,
+  driving: localizedOptionalTextSchema,
 });
 
 export const contactSocialsSchema = z.object({
@@ -74,8 +74,8 @@ export const contactSocialsSchema = z.object({
 });
 
 export const contactBankSchema = z.object({
-  bank_name: localizedTextSchema,
-  account_name: localizedTextSchema,
+  bank_name: localizedOptionalTextSchema,
+  account_name: localizedOptionalTextSchema,
   account_number: z.string().default(""),
   iban: z.string().default(""),
   bic: z.string().default(""),
@@ -83,7 +83,7 @@ export const contactBankSchema = z.object({
 
 export const contactFormSettingsSchema = z.object({
   enabled: z.boolean().default(true),
-  success_message: localizedTextSchema,
+  success_message: localizedOptionalTextSchema,
   privacy_page_link: z.string().default("/privacy"),
 });
 
@@ -123,15 +123,15 @@ export const privacyContentFormSchema = z.object({
 // 4. Impressum
 export const impressumBodySchema = z.object({
   organization_name: localizedTextSchema,
-  legal_form: localizedTextSchema,
+  legal_form: localizedOptionalTextSchema,
   address: localizedTextSchema,
   phone: z.string().default(""),
   email: z.string().email("Must be a valid email").or(z.string().length(0)),
   representative: localizedTextSchema,
-  registry_court: localizedTextSchema,
+  registry_court: localizedOptionalTextSchema,
   registry_number: z.string().default(""),
   vat_id: z.string().default(""),
-  content_responsibility: localizedTextSchema,
+  content_responsibility: localizedOptionalTextSchema,
 });
 
 export const impressumContentFormSchema = z.object({

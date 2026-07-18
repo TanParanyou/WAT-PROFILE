@@ -9,28 +9,31 @@ import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/Loading";
 import { MultiLangInput } from "@/components/admin/MultiLangInput";
 import { MultiLangRichText } from "@/components/admin/rich-text/MultiLangRichText";
-import { LocalizedFieldGroup } from "./LocalizedFieldGroup";
+import { FormTabs, TabConfig } from "@/components/admin/FormTabs";
 import { PublicContentSaveBar } from "./PublicContentSaveBar";
 import { aboutContentFormSchema } from "@/schemas/public-content.schema";
 import { useAboutContentQuery, useUpdateAboutContentMutation } from "@/hooks/public-content";
 import type { AboutContentFormData } from "@/types/public-content";
+import { useTranslations } from "next-intl";
+import { findErrorLanguage } from "@/utils/form-errors";
 
 const locales = [
-  { code: "th", label: "TH" },
-  { code: "en", label: "EN" },
-  { code: "de", label: "DE" },
+  { code: "th" as const, label: "TH" },
+  { code: "en" as const, label: "EN" },
+  { code: "de" as const, label: "DE" },
 ];
 
 export function AboutContentForm() {
+  const t = useTranslations("Admin.publicContent");
   const { data: aboutData, isLoading } = useAboutContentQuery();
   const updateMutation = useUpdateAboutContentMutation();
   const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState<"intro" | "objective" | "administration" | "history" | "buildings" | "sangha" | "seo">("intro");
-  const [activeLocale, setActiveLocale] = useState<"th" | "en" | "de">("th");
 
   const methods = useForm<AboutContentFormData>({
     resolver: zodResolver(aboutContentFormSchema),
+    mode: "all",
     defaultValues: {
       title: { th: "", en: "", de: "" },
       description: { th: "", en: "", de: "" },
@@ -74,7 +77,7 @@ export function AboutContentForm() {
     },
   });
 
-  const { control, handleSubmit, reset, watch, formState: { isDirty } } = methods;
+  const { control, handleSubmit, reset, watch, formState: { isDirty, errors } } = methods;
 
   const { fields: buildingFields, append: appendBuilding, remove: removeBuilding } = useFieldArray({
     control,
@@ -84,141 +87,91 @@ export function AboutContentForm() {
   useEffect(() => {
     if (aboutData) {
       reset(aboutData);
+      methods.trigger();
     }
-  }, [aboutData, reset]);
+  }, [aboutData, reset, methods]);
 
   if (isLoading) {
-    return <PageLoading text="กำลังโหลดข้อมูลหน้าเกี่ยวกับวัด..." />;
+    return <PageLoading text={t("loading")} />;
   }
 
   const onSubmit = (values: AboutContentFormData) => {
     updateMutation.mutate(values, {
       onSuccess: () => {
-        toast.success("บันทึกข้อมูลหน้าเกี่ยวกับวัดสำเร็จแล้ว");
+        toast.success(t("saveSuccess"));
       },
       onError: (err) => {
-        toast.error(`บันทึกข้อมูลล้มเหลว: ${err.message}`);
+        toast.error(t("saveError", { error: err.message }));
       },
     });
   };
 
-  // Check completeness helper for current section locale
-  const checkCompleteness = () => {
-    const values = watch();
-    // We can evaluate if basic EN/DE fields have any content
-    const hasLang = (lang: "en" | "de") => {
-      const introHeading = values.body?.intro?.heading?.[lang] || "";
-      const objHeading = values.body?.objective?.heading?.[lang] || "";
-      const adminHeading = values.body?.administration?.heading?.[lang] || "";
-      const histHeading = values.body?.history?.heading?.[lang] || "";
-      return !!(introHeading && objHeading && adminHeading && histHeading);
-    };
+  const onInvalid = (errs: typeof errors) => {
+    if (errs.body?.intro || errs.title || errs.description) {
+      setActiveTab("intro");
+    } else if (errs.body?.objective) {
+      setActiveTab("objective");
+    } else if (errs.body?.administration) {
+      setActiveTab("administration");
+    } else if (errs.body?.history) {
+      setActiveTab("history");
+    } else if (errs.body?.buildings) {
+      setActiveTab("buildings");
+    } else if (errs.body?.sangha) {
+      setActiveTab("sangha");
+    } else if (errs.seo) {
+      setActiveTab("seo");
+    }
 
-    return {
-      th: true,
-      en: hasLang("en"),
-      de: hasLang("de"),
-    };
+    toast.error(t("validationError"));
   };
+
+  // Section error helpers for UI indicators
+  const hasIntroError = !!(errors.body?.intro || errors.title || errors.description);
+  const hasObjectiveError = !!errors.body?.objective;
+  const hasAdminError = !!errors.body?.administration;
+  const hasHistoryError = !!errors.body?.history;
+  const hasBuildingsError = !!errors.body?.buildings;
+  const hasSanghaError = !!errors.body?.sangha;
+  const hasSeoError = !!errors.seo;
+
+  const sectionTabs: TabConfig<"intro" | "objective" | "administration" | "history" | "buildings" | "sangha" | "seo">[] = [
+    { id: "intro", label: t("about.intro"), icon: <Info size={14} />, hasError: hasIntroError },
+    { id: "objective", label: t("about.objective"), icon: <Target size={14} />, hasError: hasObjectiveError },
+    { id: "administration", label: t("about.administration"), icon: <Landmark size={14} />, hasError: hasAdminError },
+    { id: "history", label: t("about.history"), icon: <History size={14} />, hasError: hasHistoryError },
+    { id: "buildings", label: t("about.buildings"), icon: <Home size={14} />, hasError: hasBuildingsError },
+    { id: "sangha", label: t("about.sangha"), icon: <Users size={14} />, hasError: hasSanghaError },
+    { id: "seo", label: t("about.seo"), icon: <Search size={14} />, hasError: hasSeoError },
+  ];
 
   return (
     <FormProvider {...methods}>
-      <form onSubmit={handleSubmit(onSubmit)} className="min-h-[calc(100vh-7rem)] flex flex-col justify-between space-y-6">
+      <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="min-h-[calc(100vh-7rem)] flex flex-col justify-between space-y-6">
         <div className="flex-1 space-y-6">
           <div className="flex flex-col gap-4 border-b border-zinc-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-xl font-semibold text-zinc-950">ข้อมูลหน้าเกี่ยวกับวัด (About Page)</h1>
-              <p className="text-sm text-zinc-500">จัดการเนื้อหา ข้อมูลความเป็นมา วัตถุประสงค์ และข้อมูลอาคารศาสนสถาน</p>
+              <h1 className="text-xl font-semibold text-zinc-950">{t("about.pageTitle")}</h1>
+              <p className="text-sm text-zinc-500">{t("about.pageDesc")}</p>
             </div>
           </div>
 
-          <LocalizedFieldGroup
-            activeLocale={activeLocale}
-            onLocaleChange={setActiveLocale}
-            completeness={checkCompleteness()}
-          />
-
-          {/* Tabs header */}
-          <div className="flex flex-wrap gap-2 border-b border-zinc-200 pb-3">
-            <Button
-              type="button"
-              size="sm"
-              variant={activeTab === "intro" ? "primary" : "outline"}
-              icon={<Info size={14} />}
-              onClick={() => setActiveTab("intro")}
-            >
-              แนะนำ & วิสัยทัศน์
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={activeTab === "objective" ? "primary" : "outline"}
-              icon={<Target size={14} />}
-              onClick={() => setActiveTab("objective")}
-            >
-              วัตถุประสงค์
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={activeTab === "administration" ? "primary" : "outline"}
-              icon={<Landmark size={14} />}
-              onClick={() => setActiveTab("administration")}
-            >
-              การบริหารจัดการ
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={activeTab === "history" ? "primary" : "outline"}
-              icon={<History size={14} />}
-              onClick={() => setActiveTab("history")}
-            >
-              ความเป็นมา
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={activeTab === "buildings" ? "primary" : "outline"}
-              icon={<Home size={14} />}
-              onClick={() => setActiveTab("buildings")}
-            >
-              อาคารศาสนสถาน
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={activeTab === "sangha" ? "primary" : "outline"}
-              icon={<Users size={14} />}
-              onClick={() => setActiveTab("sangha")}
-            >
-              คณะสงฆ์
-            </Button>
-            <Button
-              type="button"
-              size="sm"
-              variant={activeTab === "seo" ? "primary" : "outline"}
-              icon={<Search size={14} />}
-              onClick={() => setActiveTab("seo")}
-            >
-              SEO & ค้นหา
-            </Button>
-          </div>
+          <FormTabs tabs={sectionTabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
           {/* Form Content per tab */}
           <div className="bg-white p-6 rounded-lg border border-zinc-200 shadow-sm space-y-6">
-            
+
             {activeTab === "intro" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">แนะนำและวิสัยทัศน์</h3>
-                
+                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("about.introHeading")}</h3>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
                     name="title"
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="ชื่อหัวข้อหน้าเพจ"
+                        label={t("about.fields.title")}
                         value={field.value}
                         onChange={field.onChange}
                         required
@@ -231,10 +184,11 @@ export function AboutContentForm() {
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="คำอธิบายหน้าเพจย่อ"
+                        label={t("about.fields.description")}
                         value={field.value}
                         onChange={field.onChange}
                         type="textarea"
+                        required
                         error={fieldState.error?.message}
                       />
                     )}
@@ -247,7 +201,7 @@ export function AboutContentForm() {
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="หัวข้อการแนะนำ (Intro Heading)"
+                        label={t("about.fields.introHeading")}
                         value={field.value}
                         onChange={field.onChange}
                         required
@@ -260,7 +214,7 @@ export function AboutContentForm() {
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="รายละเอียดการแนะนำ (Intro Description)"
+                        label={t("about.fields.introDesc")}
                         value={field.value}
                         onChange={field.onChange}
                         type="textarea"
@@ -277,7 +231,7 @@ export function AboutContentForm() {
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="ปีที่ก่อตั้ง (Founded Text/Date)"
+                        label={t("about.fields.founded")}
                         value={field.value}
                         onChange={field.onChange}
                         error={fieldState.error?.message}
@@ -289,7 +243,7 @@ export function AboutContentForm() {
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="สถานที่ตั้งวัด (Location Text)"
+                        label={t("about.fields.location")}
                         value={field.value}
                         onChange={field.onChange}
                         error={fieldState.error?.message}
@@ -302,15 +256,15 @@ export function AboutContentForm() {
 
             {activeTab === "objective" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">วัตถุประสงค์</h3>
-                
+                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("about.objective")}</h3>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
                     name="body.objective.heading"
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="หัวข้อวัตถุประสงค์"
+                        label={t("about.fields.objectiveHeading")}
                         value={field.value}
                         onChange={field.onChange}
                         required
@@ -323,7 +277,7 @@ export function AboutContentForm() {
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="หัวข้อย่อยวัตถุประสงค์"
+                        label={t("about.fields.objectiveSubtitle")}
                         value={field.value}
                         onChange={field.onChange}
                         error={fieldState.error?.message}
@@ -337,7 +291,7 @@ export function AboutContentForm() {
                   control={control}
                   render={({ field, fieldState }) => (
                     <MultiLangRichText
-                      label="เนื้อหาวัตถุประสงค์ (แบบ Rich Text)"
+                      label={t("about.fields.objectiveContent")}
                       locales={locales}
                       defaultLocale="th"
                       value={field.value}
@@ -351,14 +305,14 @@ export function AboutContentForm() {
 
             {activeTab === "administration" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">การบริหารจัดการ</h3>
-                
+                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("about.administration")}</h3>
+
                 <Controller
                   name="body.administration.heading"
                   control={control}
                   render={({ field, fieldState }) => (
                     <MultiLangInput
-                      label="หัวข้อการบริหารจัดการ"
+                      label={t("about.fields.adminHeading")}
                       value={field.value}
                       onChange={field.onChange}
                       required
@@ -372,7 +326,7 @@ export function AboutContentForm() {
                   control={control}
                   render={({ field, fieldState }) => (
                     <MultiLangRichText
-                      label="ข้อมูลบริหารจัดการ (แบบ Rich Text)"
+                      label={t("about.fields.adminContent")}
                       locales={locales}
                       defaultLocale="th"
                       value={field.value}
@@ -386,14 +340,14 @@ export function AboutContentForm() {
 
             {activeTab === "history" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">ความเป็นมาและประวัติ</h3>
-                
+                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("about.history")}</h3>
+
                 <Controller
                   name="body.history.heading"
                   control={control}
                   render={({ field, fieldState }) => (
                     <MultiLangInput
-                      label="หัวข้อประวัติความเป็นมา"
+                      label={t("about.fields.historyHeading")}
                       value={field.value}
                       onChange={field.onChange}
                       required
@@ -407,7 +361,7 @@ export function AboutContentForm() {
                   control={control}
                   render={({ field, fieldState }) => (
                     <MultiLangRichText
-                      label="ข้อมูลประวัติความเป็นมา (แบบ Rich Text)"
+                      label={t("about.fields.historyContent")}
                       locales={locales}
                       defaultLocale="th"
                       value={field.value}
@@ -421,14 +375,14 @@ export function AboutContentForm() {
 
             {activeTab === "buildings" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">อาคารศาสนสถาน</h3>
-                
+                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("about.buildings")}</h3>
+
                 <Controller
                   name="body.buildings.heading"
                   control={control}
                   render={({ field, fieldState }) => (
                     <MultiLangInput
-                      label="หัวข้อหลักศาสนสถาน"
+                      label={t("about.fields.buildingsHeading")}
                       value={field.value}
                       onChange={field.onChange}
                       required
@@ -439,7 +393,9 @@ export function AboutContentForm() {
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <label className="text-sm font-semibold text-zinc-800">รายการศาสนสถานภายในวัด</label>
+                    <label className="text-sm font-semibold text-zinc-800">{t("about.fields.buildingsList")}
+                      <span className="text-red-500 ml-1">*</span>
+                    </label>
                     <Button
                       type="button"
                       size="sm"
@@ -447,7 +403,7 @@ export function AboutContentForm() {
                       icon={<Plus size={14} />}
                       onClick={() => appendBuilding({ name: { th: "", en: "", de: "" }, description: { th: "", en: "", de: "" } })}
                     >
-                      เพิ่มอาคาร
+                      {t("about.addBuilding")}
                     </Button>
                   </div>
 
@@ -458,12 +414,12 @@ export function AboutContentForm() {
                           type="button"
                           onClick={() => removeBuilding(index)}
                           className="absolute top-4 right-4 p-1.5 rounded-lg text-zinc-400 hover:text-red-600 hover:bg-zinc-100 transition-colors"
-                          title="ลบอาคารนี้"
+                          title={t("about.deleteBuilding")}
                         >
                           <Trash size={16} />
                         </button>
-                        
-                        <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">อาคารลำดับที่ {index + 1}</span>
+
+                        <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">{t("about.buildingNumber", { number: index + 1 })}</span>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <Controller
@@ -471,7 +427,7 @@ export function AboutContentForm() {
                             control={control}
                             render={({ field: f, fieldState: fs }) => (
                               <MultiLangInput
-                                label="ชื่ออาคาร"
+                                label={t("about.buildingName")}
                                 value={f.value || { th: "", en: "", de: "" }}
                                 onChange={f.onChange}
                                 required
@@ -484,7 +440,7 @@ export function AboutContentForm() {
                             control={control}
                             render={({ field: f, fieldState: fs }) => (
                               <MultiLangInput
-                                label="คำอธิบาย/รายละเอียดอาคาร"
+                                label={t("about.buildingDesc")}
                                 value={f.value || { th: "", en: "", de: "" }}
                                 onChange={f.onChange}
                                 type="textarea"
@@ -498,7 +454,7 @@ export function AboutContentForm() {
 
                     {buildingFields.length === 0 && (
                       <div className="text-center py-8 text-zinc-400 border border-dashed border-zinc-200 rounded-lg">
-                        ยังไม่มีข้อมูลอาคารศาสนสถาน คลิกปุ่มเพิ่มอาคารเพื่อเริ่มต้น
+                        {t("about.fields.noBuildings")}
                       </div>
                     )}
                   </div>
@@ -508,15 +464,15 @@ export function AboutContentForm() {
 
             {activeTab === "sangha" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">คณะสงฆ์</h3>
-                
+                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("about.sangha")}</h3>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
                     name="body.sangha.heading"
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="หัวข้อคณะสงฆ์"
+                        label={t("about.fields.sanghaHeading")}
                         value={field.value}
                         onChange={field.onChange}
                         required
@@ -529,7 +485,8 @@ export function AboutContentForm() {
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="พันธกิจคณะสงฆ์"
+                        label={t("about.fields.sanghaMission")}
+                        required
                         value={field.value}
                         onChange={field.onChange}
                         type="textarea"
@@ -544,7 +501,7 @@ export function AboutContentForm() {
                   control={control}
                   render={({ field, fieldState }) => (
                     <MultiLangRichText
-                      label="ข้อมูลคณะสงฆ์ (แบบ Rich Text)"
+                      label={t("about.fields.sanghaContent")}
                       locales={locales}
                       defaultLocale="th"
                       value={field.value}
@@ -558,17 +515,18 @@ export function AboutContentForm() {
 
             {activeTab === "seo" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">การตั้งค่าค้นหา (SEO Settings)</h3>
-                
+                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("seo.title")}</h3>
+
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
                     name="seo.title"
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="SEO Title (ถ้าเว้นว่างจะใช้ชื่อหัวข้อเพจ)"
+                        label={t("seo.titleLabel")}
                         value={field.value}
                         onChange={field.onChange}
+                        required
                         error={fieldState.error?.message}
                       />
                     )}
@@ -578,10 +536,11 @@ export function AboutContentForm() {
                     control={control}
                     render={({ field, fieldState }) => (
                       <MultiLangInput
-                        label="SEO Description (คำอธิบายสำหรับ Google)"
+                        label={t("seo.descLabel")}
                         value={field.value}
                         onChange={field.onChange}
                         type="textarea"
+                        required
                         error={fieldState.error?.message}
                       />
                     )}
@@ -606,13 +565,13 @@ export function AboutContentForm() {
                       className="rounded text-amber-600 focus:ring-amber-500 border-gray-300 w-4 h-4"
                     />
                     <label htmlFor="seo_noindex" className="text-sm font-medium text-gray-700 select-none">
-                      No Index (ไม่ให้แสดงผลบน Google)
+                      {t("seo.noIndex")}
                     </label>
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-700">OG Image URL (ภาพตัวอย่างเมื่อแชร์ลิงก์)</label>
+                  <label className="text-sm font-medium text-gray-700">{t("seo.ogImage")}</label>
                   <input
                     type="text"
                     {...methods.register("seo.og_image")}
