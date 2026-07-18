@@ -71,7 +71,8 @@
         "vision2": "Preserve Thai culture and traditions",
         "vision3": "Center for learning and meditation practice",
         "missionTitle": "Mission",
-        "missionDesc": "We strive to create a peaceful, happy, and wise society through religious activities, education, and social service."
+        "missionDesc": "We strive to create a peaceful, happy, and wise society through religious activities, education, and social service.",
+        "sections": {"intro": "Introduction", "objective": "Objective", "administration": "Administration", "history": "History", "buildings": "Buildings", "sangha": "Sangha"}
     },
     "ContactPage": {
         "title": "Contact Us",
@@ -94,6 +95,9 @@
         "sendMessage": "Send Message",
         "social": "Social",
         "bank": "Donation Account",
+        "contentErrorTitle": "Contact information is temporarily unavailable",
+        "contentErrorDescription": "The contact form is still available. Please try loading the contact details again.",
+        "retryContent": "Retry contact details",
         "privacyNotice": "Read how we handle personal data in our",
         "privacyLink": "Privacy Policy",
         "messageSent": "Message sent successfully. Thank you for contacting us.",
@@ -166,6 +170,10 @@
     },
     "ImpressumPage": {
         "title": "Impressum",
+        "legalForm": "Legal form",
+        "representative": "Legal representative",
+        "registration": "Registration",
+        "contentResponsibility": "Content responsibility",
         "companyName": "Organization Name",
         "address": "Address",
         "contact": "Contact",

@@ -71,7 +71,8 @@
         "vision2": "Bewahrung der thailändischen Kultur und Traditionen",
         "vision3": "Zentrum für Lernen und Meditationspraxis",
         "missionTitle": "Mission",
-        "missionDesc": "Wir streben danach, durch religiöse Aktivitäten, Bildung und sozialen Dienst eine friedliche, glückliche und weise Gesellschaft zu schaffen."
+        "missionDesc": "Wir streben danach, durch religiöse Aktivitäten, Bildung und sozialen Dienst eine friedliche, glückliche und weise Gesellschaft zu schaffen.",
+        "sections": {"intro": "Einleitung", "objective": "Ziel", "administration": "Verwaltung", "history": "Geschichte", "buildings": "Gebäude", "sangha": "Sangha"}
     },
     "ContactPage": {
         "title": "Kontaktieren Sie uns",
@@ -94,6 +95,9 @@
         "sendMessage": "Nachricht senden",
         "social": "Soziale Medien",
         "bank": "Spendenkonto",
+        "contentErrorTitle": "Kontaktdaten sind vorübergehend nicht verfügbar",
+        "contentErrorDescription": "Das Kontaktformular ist weiterhin verfügbar. Bitte laden Sie die Kontaktdaten erneut.",
+        "retryContent": "Kontaktdaten erneut laden",
         "privacyNotice": "Wie wir personenbezogene Daten behandeln, lesen Sie in unserer",
         "privacyLink": "Datenschutzerklärung",
         "messageSent": "Nachricht erfolgreich gesendet. Vielen Dank für Ihre Kontaktaufnahme.",
@@ -166,6 +170,10 @@
     },
     "ImpressumPage": {
         "title": "Impressum",
+        "legalForm": "Rechtsform",
+        "representative": "Gesetzliche Vertretung",
+        "registration": "Registereintragung",
+        "contentResponsibility": "Inhaltlich verantwortlich",
         "companyName": "Organisationsname",
         "address": "Adresse",
         "contact": "Kontakt",

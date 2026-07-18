@@ -2,7 +2,8 @@
 
 import { ChevronRight } from 'lucide-react';
 import { Link } from '@/navigation';
-import type { Event, Monk } from '@/types/entities';
+import type { PublicEventDto } from '@/features/public/events/types';
+import type { PublicMonkDto } from '@/features/public/monks/types';
 import type { PublicContentPage } from '@/types/website-cms';
 import { getLocalizedText } from '@/utils/localizedText';
 import { SectionLayout } from '@/components/public/SectionLayout';
@@ -18,8 +19,8 @@ export function PublicHomePageLayout({
 }: {
   page: PublicContentPage | null;
   locale: string;
-  latestEvents: Event[];
-  monks: Monk[];
+  latestEvents: PublicEventDto[];
+  monks: PublicMonkDto[];
   labels: {
     exploreEvents: string;
     latestEvents: string;
@@ -82,7 +83,7 @@ export function PublicHomePageLayout({
       >
         <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
           {latestEvents.map((event) => (
-            <EventCard key={event.id} event={event} locale={locale} />
+            <EventCard key={event.slug} event={event} locale={locale} />
           ))}
         </div>
       </SectionLayout>
@@ -100,7 +101,7 @@ export function PublicHomePageLayout({
       >
         <div className="grid grid-cols-2 gap-6 md:grid-cols-4">
           {monks.map((monk) => (
-            <MonkCard key={monk.id} monk={monk} locale={locale} />
+            <MonkCard key={monk.slug} monk={monk} locale={locale} />
           ))}
         </div>
       </SectionLayout>

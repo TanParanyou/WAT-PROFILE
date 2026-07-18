@@ -13,26 +13,30 @@ import { PublicContactPageLayout } from "@/components/public/website/PublicConta
 import { getLocalizedText } from "@/utils/localizedText";
 import { sendContactEmail } from "@/services/emailService";
 import type { ContactContentFormData } from "@/types/public-content";
+import { usePublicContactQuery } from "@/features/public/content/queries";
+import { QueryErrorState } from "@/components/public/states/QueryErrorState";
 
 interface ContactContentProps {
   locale: string;
-  cmsPage: ContactContentFormData | null;
+  cmsPage?: ContactContentFormData | null;
 }
 
 export default function ContactContent({ locale, cmsPage }: ContactContentProps) {
   const t = useTranslations("ContactPage");
   const currentLocale = useLocale();
   const activeLocale = locale || currentLocale;
-  const successMessage = cmsPage
-    ? getLocalizedText(cmsPage.body.contact_form.success_message, activeLocale) || t("messageSent")
+  const query = usePublicContactQuery();
+  const resolvedPage = query.data ?? cmsPage;
+  const successMessage = resolvedPage
+    ? getLocalizedText(resolvedPage.body.contact_form.success_message, activeLocale) || t("messageSent")
     : t("messageSent");
-  const privacyLink = cmsPage?.body.contact_form.privacy_page_link || "/privacy";
+  const privacyLink = resolvedPage?.body.contact_form.privacy_page_link || "/privacy";
   const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
   const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
   const [errorMsg, setErrorMsg] = useState("");
 
-  const pageTitle = cmsPage ? getLocalizedText(cmsPage.title, activeLocale) || t("title") : t("title");
-  const pageSubtitle = cmsPage ? getLocalizedText(cmsPage.description, activeLocale) || t("subtitle") : t("subtitle");
+  const pageTitle = resolvedPage ? getLocalizedText(resolvedPage.title, activeLocale) || t("title") : t("title");
+  const pageSubtitle = resolvedPage ? getLocalizedText(resolvedPage.description, activeLocale) || t("subtitle") : t("subtitle");
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     const { id, value } = e.target;
@@ -74,7 +78,7 @@ export default function ContactContent({ locale, cmsPage }: ContactContentProps)
   return (
     <PublicContactPageLayout
       page={
-        cmsPage || {
+        resolvedPage || {
           title: { th: pageTitle, en: pageTitle, de: pageTitle },
           description: { th: pageSubtitle, en: pageSubtitle, de: pageSubtitle },
           seo: {
@@ -139,6 +143,7 @@ export default function ContactContent({ locale, cmsPage }: ContactContentProps)
       }}
       formSlot={
         <form className="space-y-5" onSubmit={handleSubmit}>
+          {query.isError ? <QueryErrorState title={t("contentErrorTitle")} description={t("contentErrorDescription")} retryLabel={t("retryContent")} onRetry={() => query.refetch()} isRetrying={query.isFetching} /> : null}
           <div className="grid gap-4 md:grid-cols-2">
             <Field id="name" label={t("fullName")} value={formData.name} onChange={handleChange} />
             <Field id="email" label={t("email")} value={formData.email} onChange={handleChange} type="email" />

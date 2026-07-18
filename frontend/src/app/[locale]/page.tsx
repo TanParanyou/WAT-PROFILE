@@ -1,8 +1,7 @@
-import { getLocale, getTranslations } from "next-intl/server";
+import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
-import { publicService } from "@/services/publicService";
 import { websiteCmsPublicService } from "@/services/websiteCmsService";
-import { PublicHomePageLayout } from "@/components/public/website/PublicHomePageLayout";
+import HomeContent from "./(client)/HomeContent";
 import { siteConfig } from "@/config/site.config";
 import { getLocalizedText } from "@/utils/localizedText";
 
@@ -33,24 +32,12 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 }
 
 export default async function PublicHomePage() {
-  const locale = await getLocale();
   const t = await getTranslations("Public.home");
   const cmsPage = await websiteCmsPublicService.getPage("home").catch(() => null);
 
-  const [eventsRes, monksRes] = await Promise.all([
-    publicService.getLatestEvents(3),
-    publicService.getMonks(),
-  ]);
-
-  const latestEvents = eventsRes?.data || [];
-  const monks = monksRes?.data?.slice(0, 4) || [];
-
   return (
-    <PublicHomePageLayout
+    <HomeContent
       page={cmsPage}
-      locale={locale}
-      latestEvents={latestEvents}
-      monks={monks}
       labels={{
         exploreEvents: t("exploreEvents"),
         latestEvents: t("latestEvents"),

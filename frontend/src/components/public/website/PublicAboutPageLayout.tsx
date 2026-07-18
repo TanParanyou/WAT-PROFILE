@@ -1,51 +1,53 @@
 'use client';
 
-import Image from 'next/image';
 import { Quote } from 'lucide-react';
 import { useLocale, useTranslations } from 'next-intl';
-import aboutData from '@/data/about.json';
-import monksData from '@/data/monks.json';
 import type { AboutContentFormData } from '@/types/public-content';
 import { getLocalizedText } from '@/utils/localizedText';
 import PageHeader from '@/components/layout/PageHeader';
 import PageContainer from '@/components/layout/PageContainer';
 import PageNavigation from '@/components/layout/PageNavigation';
 import { RichTextContent } from '@/components/admin/rich-text/RichTextContent';
+import { usePublicMonksQuery } from '@/features/public/monks/queries';
+import { toMonkListItem } from '@/features/public/monks/mappers';
+import { MonksGrid } from '@/features/public/monks/components/MonksGrid';
 
 export function PublicAboutPageLayout({ page }: { page: AboutContentFormData | null }) {
   const t = useTranslations('AboutPage');
   const locale = useLocale();
-  const activeMonks = monksData.filter((m) => m.id !== '1');
+  const monksQuery = usePublicMonksQuery();
+  const activeMonks = monksQuery.data?.map(toMonkListItem) ?? [];
+  const emptyText = { th: '', en: '', de: '' };
 
   const navItems = [
-    { id: 'intro', label: getLocalizedText(aboutData.intro.navTitle, locale) },
-    { id: 'objective', label: getLocalizedText(aboutData.objective.navTitle, locale) },
-    { id: 'administration', label: getLocalizedText(aboutData.administration.navTitle, locale) },
-    { id: 'history', label: getLocalizedText(aboutData.buddhaHistory.navTitle, locale) },
-    { id: 'buildings', label: getLocalizedText(aboutData.buildings.title, locale) },
-    { id: 'sangha', label: getLocalizedText(aboutData.sangha.navTitle, locale) },
+    { id: 'intro', label: t('sections.intro') },
+    { id: 'objective', label: t('sections.objective') },
+    { id: 'administration', label: t('sections.administration') },
+    { id: 'history', label: t('sections.history') },
+    { id: 'buildings', label: t('sections.buildings') },
+    { id: 'sangha', label: t('sections.sangha') },
   ];
 
   const pageTitle = page ? getLocalizedText(page.title, locale) || t('title') : t('title');
   const pageSubtitle = page ? getLocalizedText(page.description, locale) || t('subtitle') : t('subtitle');
 
-  const introTitle = page ? getLocalizedText(page.body.intro.heading, locale) : getLocalizedText(aboutData.intro.title, locale);
-  const introDescription = page ? getLocalizedText(page.body.intro.description, locale) : getLocalizedText(aboutData.intro.description, locale);
-  const introFounded = page ? getLocalizedText(page.body.intro.founded, locale) : getLocalizedText(aboutData.intro.founded, locale);
-  const introLocation = page ? getLocalizedText(page.body.intro.location, locale) : getLocalizedText(aboutData.intro.location, locale);
+  const introTitle = page ? getLocalizedText(page.body.intro.heading, locale) : getLocalizedText(emptyText, locale);
+  const introDescription = page ? getLocalizedText(page.body.intro.description, locale) : getLocalizedText(emptyText, locale);
+  const introFounded = page ? getLocalizedText(page.body.intro.founded, locale) : getLocalizedText(emptyText, locale);
+  const introLocation = page ? getLocalizedText(page.body.intro.location, locale) : getLocalizedText(emptyText, locale);
 
-  const objectiveTitle = page ? getLocalizedText(page.body.objective.heading, locale) : getLocalizedText(aboutData.objective.title, locale);
-  const objectiveSubtitle = page ? getLocalizedText(page.body.objective.subtitle, locale) : getLocalizedText(aboutData.objective.subtitle, locale);
+  const objectiveTitle = page ? getLocalizedText(page.body.objective.heading, locale) : getLocalizedText(emptyText, locale);
+  const objectiveSubtitle = page ? getLocalizedText(page.body.objective.subtitle, locale) : getLocalizedText(emptyText, locale);
 
-  const administrationTitle = page ? getLocalizedText(page.body.administration.heading, locale) : getLocalizedText(aboutData.administration.title, locale);
+  const administrationTitle = page ? getLocalizedText(page.body.administration.heading, locale) : getLocalizedText(emptyText, locale);
 
-  const historyTitle = page ? getLocalizedText(page.body.history.heading, locale) : getLocalizedText(aboutData.buddhaHistory.title, locale);
+  const historyTitle = page ? getLocalizedText(page.body.history.heading, locale) : getLocalizedText(emptyText, locale);
 
-  const buildingsTitle = page ? getLocalizedText(page.body.buildings.heading, locale) : getLocalizedText(aboutData.buildings.title, locale);
-  const buildingsItems = page ? page.body.buildings.items || [] : aboutData.buildings.items;
+  const buildingsTitle = page ? getLocalizedText(page.body.buildings.heading, locale) : getLocalizedText(emptyText, locale);
+  const buildingsItems = page ? page.body.buildings.items || [] : [];
 
-  const sanghaTitle = page ? getLocalizedText(page.body.sangha.heading, locale) : getLocalizedText(aboutData.sangha.title, locale);
-  const sanghaMission = page ? getLocalizedText(page.body.sangha.mission, locale) : getLocalizedText(aboutData.sangha.mission, locale);
+  const sanghaTitle = page ? getLocalizedText(page.body.sangha.heading, locale) : getLocalizedText(emptyText, locale);
+  const sanghaMission = page ? getLocalizedText(page.body.sangha.mission, locale) : getLocalizedText(emptyText, locale);
 
   return (
     <div className="min-h-screen bg-zinc-50 pb-20 dark:bg-zinc-950">
@@ -88,7 +90,7 @@ export function PublicAboutPageLayout({ page }: { page: AboutContentFormData | n
                     <RichTextContent value={page.body.objective.content} locale={locale} defaultLocale="th" />
                   ) : (
                     <div className="whitespace-pre-wrap text-lg font-medium leading-loose italic text-gray-700 dark:text-gray-200">
-                      {getLocalizedText(aboutData.objective.content, locale)}
+                      {getLocalizedText(emptyText, locale)}
                     </div>
                   )}
                 </article>
@@ -103,7 +105,7 @@ export function PublicAboutPageLayout({ page }: { page: AboutContentFormData | n
                     <RichTextContent value={page.body.administration.content} locale={locale} defaultLocale="th" />
                   ) : (
                     <div className="whitespace-pre-wrap leading-relaxed text-gray-600 dark:text-gray-300">
-                      {getLocalizedText(aboutData.administration.content, locale)}
+                      {getLocalizedText(emptyText, locale)}
                     </div>
                   )}
                 </article>
@@ -118,7 +120,7 @@ export function PublicAboutPageLayout({ page }: { page: AboutContentFormData | n
                     <RichTextContent value={page.body.history.content} locale={locale} defaultLocale="th" />
                   ) : (
                     <div className="whitespace-pre-wrap leading-relaxed text-gray-600 dark:text-gray-300">
-                      {getLocalizedText(aboutData.buddhaHistory.content, locale)}
+                      {getLocalizedText(emptyText, locale)}
                     </div>
                   )}
                 </article>
@@ -136,10 +138,10 @@ export function PublicAboutPageLayout({ page }: { page: AboutContentFormData | n
                       </div>
                       <div>
                         <h3 className="mb-3 font-heading text-xl font-bold text-gray-900 transition-colors group-hover:text-primary dark:text-white">
-                          {localizedItemText(building.name, locale)}
+                          {getLocalizedText(building.name, locale)}
                         </h3>
                         <p className="text-lg leading-relaxed text-gray-600 dark:text-gray-300">
-                          {localizedItemText(building.description, locale)}
+                          {getLocalizedText(building.description, locale)}
                         </p>
                       </div>
                     </div>
@@ -159,36 +161,12 @@ export function PublicAboutPageLayout({ page }: { page: AboutContentFormData | n
                     <RichTextContent value={page.body.sangha.content} locale={locale} defaultLocale="th" />
                   ) : (
                     <div className="whitespace-pre-wrap border-l-4 border-gray-200 pl-6 leading-relaxed text-gray-600 dark:border-gray-700 dark:text-gray-300">
-                      {getLocalizedText(aboutData.sangha.currentWork, locale)}
+                    {getLocalizedText(emptyText, locale)}
                     </div>
                   )}
                 </article>
 
-                <div className="not-prose mt-12 grid grid-cols-1 gap-6 border-t border-gray-100 pt-12 sm:grid-cols-2 md:grid-cols-3 dark:border-gray-800">
-                  {activeMonks.map((monk) => (
-                    <div
-                      key={monk.id}
-                      className="group overflow-hidden rounded-2xl border border-gray-100 bg-zinc-50 transition-all duration-300 hover:-translate-y-1 hover:shadow-[0_8px_30px_rgb(0,0,0,0.04)] dark:border-gray-800 dark:bg-zinc-800/50 dark:hover:shadow-black/20"
-                    >
-                      <div className="relative aspect-[3/4] overflow-hidden">
-                        <Image
-                          src={monk.image}
-                          alt={localizedItemText(monk.name, locale)}
-                          fill
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-                          className="object-cover transition-transform duration-700 group-hover:scale-105"
-                        />
-                        <div className="absolute inset-0 bg-linear-to-t from-black/80 via-transparent to-transparent opacity-60" />
-                        <div className="absolute bottom-0 left-0 w-full p-5 text-white">
-                          <p className="mb-1 text-xs font-bold uppercase tracking-wider text-primary-200 opacity-90">
-                            {localizedItemText(monk.title, locale)}
-                          </p>
-                          <h3 className="text-base font-bold leading-tight">{localizedItemText(monk.name, locale)}</h3>
-                        </div>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                {activeMonks.length > 0 ? <div className="not-prose mt-12 border-t border-gray-100 pt-12 dark:border-gray-800"><MonksGrid monks={activeMonks} /></div> : null}
               </div>
             </section>
           </div>
@@ -197,9 +175,3 @@ export function PublicAboutPageLayout({ page }: { page: AboutContentFormData | n
     </div>
   );
 }
-
-function localizedItemText(value: unknown, locale: string) {
-  if (!value || typeof value !== 'object') return '';
-  return getLocalizedText(value as Record<string, string>, locale);
-}
-
