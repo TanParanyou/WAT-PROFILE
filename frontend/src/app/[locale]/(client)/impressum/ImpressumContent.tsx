@@ -7,6 +7,7 @@ import PageContainer from "@/components/layout/PageContainer";
 import { PublicContentStateBoundary } from "@/features/public/content/components/PublicContentStateBoundary";
 import { usePublicImpressumQuery } from "@/features/public/content/queries";
 import { getLocalizedText } from "@/utils/localizedText";
+import { toPublicQueryError } from "@/features/public/shared/query-error";
 
 export default function ImpressumContent() {
   const locale = useLocale();
@@ -23,7 +24,7 @@ export default function ImpressumContent() {
       <PageHeader title={title} />
       <PageContainer>
         <div className="mx-auto max-w-3xl rounded-3xl border border-gray-100 bg-white p-8 shadow-xl dark:border-gray-800 dark:bg-zinc-900 md:p-12">
-          <PublicContentStateBoundary isLoading={query.isLoading} isError={query.isError} isFetching={query.isFetching} hasData={hasData} onRetry={() => query.refetch()} loading={<div className="h-96 animate-pulse rounded-2xl bg-zinc-100 dark:bg-zinc-800" />}>
+          <PublicContentStateBoundary isLoading={query.isLoading} isError={query.isError} isFetching={query.isFetching} hasData={hasData} isNotFound={query.error ? toPublicQueryError(query.error).kind === "not-found" : false} onRetry={() => query.refetch()} loading={<div className="h-96 animate-pulse rounded-2xl bg-zinc-100 dark:bg-zinc-800" />}>
             <div className="space-y-10 text-gray-700 dark:text-gray-300">
               {body?.organization_name ? <Info icon={<Building2 />} label={t("companyName")} value={text(body.organization_name)} /> : null}
               {body?.legal_form ? <Info icon={<Scale />} label={t("legalForm")} value={text(body.legal_form)} /> : null}

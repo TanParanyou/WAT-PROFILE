@@ -8,14 +8,16 @@ interface PublicContentStateBoundaryProps {
   isError: boolean;
   isFetching: boolean;
   hasData: boolean;
+  isNotFound?: boolean;
   onRetry: () => void;
   loading: ReactNode;
   children: ReactNode;
 }
 
-export function PublicContentStateBoundary({ isLoading, isError, isFetching, hasData, onRetry, loading, children }: PublicContentStateBoundaryProps) {
+export function PublicContentStateBoundary({ isLoading, isError, isFetching, hasData, isNotFound = false, onRetry, loading, children }: PublicContentStateBoundaryProps) {
   const t = useTranslations("PublicState");
   if (isLoading) return <>{loading}</>;
+  if (isNotFound) return <EmptyState title={t("emptyContent")} description={t("emptyContent")} />;
   if (isError) return <QueryErrorState title={t("errorTitle")} description={t("errorDescription")} retryLabel={t("retry")} onRetry={onRetry} isRetrying={isFetching} />;
   if (!hasData) return <EmptyState title={t("emptyContent")} description={t("emptyContent")} />;
   return <>{children}</>;

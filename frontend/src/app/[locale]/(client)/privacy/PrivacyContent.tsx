@@ -7,6 +7,7 @@ import { RichTextContent } from "@/components/admin/rich-text/RichTextContent";
 import { PublicContentStateBoundary } from "@/features/public/content/components/PublicContentStateBoundary";
 import { usePublicPrivacyQuery } from "@/features/public/content/queries";
 import { getLocalizedText } from "@/utils/localizedText";
+import { toPublicQueryError } from "@/features/public/shared/query-error";
 
 export default function PrivacyContent() {
   const locale = useLocale();
@@ -28,6 +29,7 @@ export default function PrivacyContent() {
               isError={query.isError}
               isFetching={query.isFetching}
               hasData={Boolean(page?.body.content)}
+              isNotFound={query.error ? toPublicQueryError(query.error).kind === "not-found" : false}
               onRetry={() => query.refetch()}
               loading={<div className="h-96 animate-pulse rounded-2xl bg-zinc-100 dark:bg-zinc-800" />}
             >
