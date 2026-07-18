@@ -1,14 +1,16 @@
 "use client";
 
-import { useRef, Fragment } from "react";
+import { useRef } from "react";
 import { useReactToPrint } from "react-to-print";
 import { Printer } from "lucide-react";
 import { useTranslations } from "next-intl";
-import { Event } from "@/types/common";
-import { getLocalizedText } from "@/utils/i18n";
+import type { PublicEventDto } from "@/features/public/events/types";
+import { getLocalizedText } from "@/features/public/events/mappers";
+import { getLocalizedPlainText } from "@/features/public/shared/rich-text";
+import { formatDate, formatTimeRange } from "@/utils/formatters";
 
 interface EventPrinterProps {
-  event: Event;
+  event: PublicEventDto;
   locale: string;
 }
 
@@ -55,18 +57,18 @@ export default function EventPrinter({ event, locale }: EventPrinterProps) {
                 </p>
               </div>
               <div className="text-right">
-                <p className="font-bold text-lg">{event.date}</p>
-                <p className="text-gray-600">{event.time}</p>
+                <p className="font-bold text-lg">{formatDate(event.start_date, locale)}</p>
+                <p className="text-gray-600">{formatTimeRange(event.start_time, event.end_time, locale)}</p>
               </div>
             </div>
 
             <div className="bg-gray-50 p-6 border border-gray-200 rounded-lg mb-8 text-sm leading-relaxed text-gray-800 text-justify">
-              {getLocalizedText(event.description, locale)}
+              {event.description ? getLocalizedPlainText(event.description, locale) || "-" : "-"}
             </div>
           </div>
 
           {/* Schedule Table */}
-          {event.schedule && event.schedule.length > 0 && (
+          {event.schedules && event.schedules.length > 0 && (
             <div className="mb-8">
               <h3 className="text-lg font-bold uppercase border-b border-black mb-4 pb-2">
                 {t("scheduleTitle")}
@@ -79,40 +81,16 @@ export default function EventPrinter({ event, locale }: EventPrinterProps) {
                   </tr>
                 </thead>
                 <tbody>
-                  {event.schedule.map((item, idx) => {
-                    const currentDay = item.day
-                      ? getLocalizedText(item.day, locale)
-                      : null;
-                    const previousDay =
-                      idx > 0 && event.schedule[idx - 1].day
-                        ? getLocalizedText(event.schedule[idx - 1].day!, locale)
-                        : null;
-                    const showDayHeader =
-                      currentDay && currentDay !== previousDay;
-
-                    return (
-                      <Fragment key={idx}>
-                        {showDayHeader && (
-                          <tr className="bg-gray-100 print:bg-gray-100">
-                            <td
-                              colSpan={2}
-                              className="py-2 px-2 font-bold border-b border-gray-300"
-                            >
-                              {currentDay}
-                            </td>
-                          </tr>
-                        )}
-                        <tr className="border-b border-gray-100">
-                          <td className="py-3 px-2 font-mono align-top">
-                            {item.time}
-                          </td>
-                          <td className="py-3 px-2">
-                            {getLocalizedText(item.activity, locale)}
-                          </td>
-                        </tr>
-                      </Fragment>
-                    );
-                  })}
+                  {event.schedules.map((item) => (
+                    <tr key={item.id} className="border-b border-gray-100">
+                      <td className="py-3 px-2 font-mono align-top">
+                        {formatTimeRange(item.start_time, item.end_time, locale)}
+                      </td>
+                      <td className="py-3 px-2">
+                        {getLocalizedText(item.activity, locale)}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>

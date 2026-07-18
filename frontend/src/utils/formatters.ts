@@ -6,7 +6,7 @@ export function formatDate(
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return "-";
 
-  return date.toLocaleDateString(locale === "th" ? "th-TH" : "en-US", {
+  return date.toLocaleDateString(locale === "th" ? "th-TH" : locale === "de" ? "de-DE" : "en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
@@ -34,13 +34,55 @@ export function formatDateTime(
   const date = new Date(dateStr);
   if (isNaN(date.getTime())) return "-";
 
-  return date.toLocaleString(locale === "th" ? "th-TH" : "en-US", {
+  return date.toLocaleString(locale === "th" ? "th-TH" : locale === "de" ? "de-DE" : "en-US", {
     year: "numeric",
     month: "short",
     day: "numeric",
     hour: "2-digit",
     minute: "2-digit",
   });
+}
+
+export function formatTime(
+  timeStr: string | Date | null | undefined,
+  locale: string = "th",
+): string {
+  if (!timeStr) return "-";
+
+  if (timeStr instanceof Date) {
+    return timeStr.toLocaleTimeString(locale === "th" ? "th-TH" : locale === "de" ? "de-DE" : "en-US", {
+      hour: "2-digit",
+      minute: "2-digit",
+    });
+  }
+
+  const date = parseFlexibleDate(timeStr);
+  if (!date) return "-";
+
+  const localeTag = locale === "th" ? "th-TH" : locale === "de" ? "de-DE" : "en-US";
+  const formatOptions: Intl.DateTimeFormatOptions = {
+    hour: "2-digit",
+    minute: "2-digit",
+  };
+
+  if (isTimeOnlyValue(timeStr)) {
+    formatOptions.timeZone = "UTC";
+  }
+
+  return date.toLocaleTimeString(localeTag, formatOptions);
+}
+
+export function formatTimeRange(
+  startTime: string | Date | null | undefined,
+  endTime: string | Date | null | undefined,
+  locale: string = "th",
+): string {
+  const start = formatTime(startTime, locale);
+  const end = formatTime(endTime, locale);
+
+  if (start === "-" && end === "-") return "-";
+  if (start !== "-" && end !== "-" && start !== end) return `${start} - ${end}`;
+  return start !== "-" ? start : end;
 }
 
 export function formatNumber(num: number | string | null | undefined): string {
@@ -66,4 +108,34 @@ export function formatCurrency(
     style: "currency",
     currency: currency,
   }).format(parsed);
+}
+
+function parseFlexibleDate(value: string): Date | null {
+  const direct = new Date(value);
+  if (!Number.isNaN(direct.getTime())) {
+    return direct;
+  }
+
+  if (!isTimeOnlyValue(value)) {
+    return null;
+  }
+
+  const [hours = "0", minutes = "0", seconds = "0"] = value.split(":");
+  const parsedHours = Number(hours);
+  const parsedMinutes = Number(minutes);
+  const parsedSeconds = Number(seconds);
+
+  if (
+    Number.isNaN(parsedHours) ||
+    Number.isNaN(parsedMinutes) ||
+    Number.isNaN(parsedSeconds)
+  ) {
+    return null;
+  }
+
+  return new Date(Date.UTC(1970, 0, 1, parsedHours, parsedMinutes, parsedSeconds));
+}
+
+function isTimeOnlyValue(value: string): boolean {
+  return /^\d{2}:\d{2}(:\d{2})?(?:\.\d+)?$/.test(value);
 }
