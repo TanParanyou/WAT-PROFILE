@@ -47,6 +47,8 @@ While Contact data is loading or errors, the donation copy/layout remains usable
 
 Values remain strings in transport. The frontend maps this record through one typed, total mapper into `PublicSiteSettings`; malformed, absent, or unsupported values fall back to `siteConfig`. No UI component reads raw setting keys.
 
+The admin Settings screen currently hides the `contact`, `social`, and `donation` categories. Public-shell records use the separate `public-shell` category so they remain editable without reintroducing duplicate Contact-page bank/contact ownership into that screen.
+
 `features/public/settings/api.ts` fetches the record. `features/public/settings/queries.ts` supplies one `usePublicSiteSettingsQuery()` query key. A `PublicSiteSettingsProvider` resolves API data plus the `siteConfig` fallback and exposes a typed `usePublicSiteSettings()` hook. Navbar, Footer, StickySocials, and JsonLd consume this resolved hook. The provider is mounted inside the existing public client shell so it does not change route ownership or duplicate navigation.
 
 The shell never disappears while settings load or fail. It renders the fallback configuration, then updates in place when valid API data arrives. An optional small non-blocking error boundary may be used only where it does not alter the existing header/footer layout.
@@ -61,7 +63,7 @@ Every user-visible error, empty state, retry label, image alt fallback, and unav
 
 The gallery routes require no new endpoint. Backend work is limited to confirming the public gallery response includes the URLs and localized fields consumed by the public DTOs.
 
-For settings, document/seed the public keys above and ensure only intended records have `is_public = true`. A missing key is valid and triggers frontend fallback. The endpoint must continue returning a successful empty object when no public settings are configured, not a server error.
+For settings, add an idempotent migration that seeds the public-shell keys above from safe existing configuration where available, marks only them `is_public = true`, and keeps them in the `public-shell` category. The admin Settings screen must render this category. A missing key is valid and triggers frontend fallback. The endpoint must continue returning a successful empty object when no public settings are configured, not a server error.
 
 For donation QR rendering, add an explicit optional field to the public Contact content contract only if an admin-managed QR/media URL is required. The frontend must not infer it from a bank account string.
 
