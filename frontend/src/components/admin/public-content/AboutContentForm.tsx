@@ -472,7 +472,7 @@ export function AboutContentForm() {
                             render={({ field: f, fieldState: fs }) => (
                               <MultiLangInput
                                 label="ชื่ออาคาร"
-                                value={f.value}
+                                value={f.value || { th: "", en: "", de: "" }}
                                 onChange={f.onChange}
                                 required
                                 error={fs.error?.message}
@@ -485,7 +485,7 @@ export function AboutContentForm() {
                             render={({ field: f, fieldState: fs }) => (
                               <MultiLangInput
                                 label="คำอธิบาย/รายละเอียดอาคาร"
-                                value={f.value}
+                                value={f.value || { th: "", en: "", de: "" }}
                                 onChange={f.onChange}
                                 type="textarea"
                                 error={fs.error?.message}

@@ -133,11 +133,14 @@ export function PrivacyContentForm() {
               <div className="space-y-6">
                 <div className="flex justify-between items-center border-b pb-2">
                   <h3 className="text-lg font-medium text-zinc-900">เนื้อหานโยบายความเป็นส่วนตัว</h3>
-                  {watch("body.last_updated") && (
-                    <span className="text-xs text-zinc-500 bg-zinc-100 px-2.5 py-1 rounded">
-                      อัปเดตล่าสุดโดยระบบ: {new Date(watch("body.last_updated")).toLocaleString("th-TH")}
-                    </span>
-                  )}
+                  {(() => {
+                    const lu = watch("body.last_updated");
+                    return lu ? (
+                      <span className="text-xs text-zinc-500 bg-zinc-100 px-2.5 py-1 rounded">
+                        อัปเดตล่าสุดโดยระบบ: {new Date(lu).toLocaleString("th-TH")}
+                      </span>
+                    ) : null;
+                  })()}
                 </div>
 
                 <Controller

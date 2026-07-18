@@ -431,7 +431,7 @@ export function ContactContentForm() {
                             render={({ field: f, fieldState: fs }) => (
                               <MultiLangInput
                                 label={`ขั้นตอนการเดินทางที่ ${index + 1}`}
-                                value={f.value}
+                                value={f.value || { th: "", en: "", de: "" }}
                                 onChange={f.onChange}
                                 required
                                 error={fs.error?.message}

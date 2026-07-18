@@ -41,7 +41,7 @@ export function PublicContactPageLayout({ page, locale, labels, formSlot }: Publ
 
   const hasTransport = !!(
     getLocalizedText(transport.parking, locale) ||
-    transport.public_transport.length > 0 ||
+    (transport.public_transport || []).length > 0 ||
     getLocalizedText(transport.driving, locale)
   );
 
@@ -109,11 +109,11 @@ export function PublicContactPageLayout({ page, locale, labels, formSlot }: Publ
                           <p className="mt-1">{getLocalizedText(transport.parking, locale)}</p>
                         </div>
                       )}
-                      {transport.public_transport.length > 0 && (
+                      {(transport.public_transport || []).length > 0 && (
                         <div>
                           <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">{t("publicTransport")}</p>
                           <ul className="mt-1 list-disc space-y-1 pl-5">
-                            {transport.public_transport.map((item, index) => {
+                            {(transport.public_transport || []).map((item, index) => {
                               const text = getLocalizedText(item, locale);
                               return text ? <li key={`${text}-${index}`}>{text}</li> : null;
                             })}

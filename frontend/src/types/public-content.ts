@@ -70,7 +70,7 @@ export interface ContactMap {
 
 export interface ContactTransport {
   parking: LocalizedText;
-  public_transport: LocalizedText[];
+  public_transport?: LocalizedText[];
   driving: LocalizedText;
 }
 
@@ -78,27 +78,27 @@ export interface ContactSocials {
   facebook: string;
   instagram: string;
   messenger: string;
-  line: string;
+  line?: string;
   youtube: string;
 }
 
 export interface ContactBank {
   bank_name: LocalizedText;
   account_name: LocalizedText;
-  account_number: string;
-  iban: string;
-  bic: string;
+  account_number?: string;
+  iban?: string;
+  bic?: string;
 }
 
 export interface ContactFormSettings {
-  enabled: boolean;
+  enabled?: boolean;
   success_message: LocalizedText;
-  privacy_page_link: string;
+  privacy_page_link?: string;
 }
 
 export interface ContactBody {
   address: LocalizedText;
-  phone: string;
+  phone?: string;
   email: string;
   opening_hours: ContactOpeningHours;
   map: ContactMap;
@@ -134,12 +134,12 @@ export interface ImpressumBody {
   organization_name: LocalizedText;
   legal_form: LocalizedText;
   address: LocalizedText;
-  phone: string;
+  phone?: string;
   email: string;
   representative: LocalizedText;
   registry_court: LocalizedText;
-  registry_number: string;
-  vat_id: string;
+  registry_number?: string;
+  vat_id?: string;
   content_responsibility: LocalizedText;
 }
 
