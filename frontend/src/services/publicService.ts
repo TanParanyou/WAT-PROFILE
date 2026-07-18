@@ -1,5 +1,8 @@
 import axios from "axios";
 import { API_BASE } from "./api";
+import type { ApiSuccess } from "@/features/public/shared/api-types";
+import type { PublicEventDto } from "@/features/public/events/types";
+import type { PublicMonkDto } from "@/features/public/monks/types";
 
 // Create a separate public API instance (No Auth headers required normally)
 export const publicApi = axios.create({
@@ -10,28 +13,13 @@ export const publicApi = axios.create({
 });
 
 export const publicService = {
-  getLatestEvents: async (limit: number = 3) => {
-    const res = await publicApi.get("/events", { params: { limit } });
-    return res.data;
+  async getLatestEvents(limit = 3): Promise<ApiSuccess<PublicEventDto[]>> {
+    const response = await publicApi.get<ApiSuccess<PublicEventDto[]>>("/events", { params: { limit } });
+    return response.data;
   },
 
-  getEventBySlug: async (slug: string) => {
-    const res = await publicApi.get(`/events/${slug}`);
-    return res.data;
-  },
-
-  getMonks: async () => {
-    const res = await publicApi.get("/monks");
-    return res.data;
-  },
-
-  getSchedules: async () => {
-    const res = await publicApi.get("/schedules");
-    return res.data;
-  },
-
-  getPublicPage: async (slug: string) => {
-    const res = await publicApi.get(`/pages/${slug}`);
-    return res.data;
+  async getMonks(): Promise<ApiSuccess<PublicMonkDto[]>> {
+    const response = await publicApi.get<ApiSuccess<PublicMonkDto[]>>("/monks");
+    return response.data;
   },
 };
