@@ -31,7 +31,7 @@ import { useTranslations } from "next-intl";
 import type { PermissionResource } from "@/types/auth";
 import type { LucideIcon } from "lucide-react";
 
-interface MenuItem {
+interface SidebarItem {
   labelKey: string;
   href: string;
   icon: LucideIcon;
@@ -39,77 +39,50 @@ interface MenuItem {
   alwaysShow?: boolean;
 }
 
-const menuItems: MenuItem[] = [
-  {
-    labelKey: "dashboard",
-    href: "/admin",
-    icon: LayoutDashboard,
-    alwaysShow: true,
-  },
-  {
-    labelKey: "media",
-    href: "/admin/media",
-    icon: FolderOpen,
-    resource: "website",
-  },
-  {
-    labelKey: "events",
-    href: "/admin/events",
-    icon: Calendar,
-    resource: "events",
-  },
-  { labelKey: "monks", href: "/admin/monks", icon: Users, resource: "monks" },
-  {
-    labelKey: "gallery",
-    href: "/admin/gallery",
-    icon: Image,
-    resource: "gallery",
-  },
-  {
-    labelKey: "schedules",
-    href: "/admin/schedules",
-    icon: Clock,
-    resource: "schedules",
-  },
-  {
-    labelKey: "donations",
-    href: "/admin/donations",
-    icon: Heart,
-    resource: "donations",
-  },
-  {
-    labelKey: "members",
-    href: "/admin/members",
-    icon: UserCheck,
-    resource: "members",
-  },
-  {
-    labelKey: "registrations",
-    href: "/admin/registrations",
-    icon: ClipboardList,
-    resource: "events",
-  },
-  {
-    labelKey: "contacts",
-    href: "/admin/contacts",
-    icon: Mail,
-    resource: "contacts",
-  },
-  { labelKey: "users", href: "/admin/users", icon: UserCog, resource: "users" },
-  { labelKey: "roles", href: "/admin/roles", icon: Shield, resource: "users" },
-  {
-    labelKey: "audit_logs",
-    href: "/admin/audit-logs",
-    icon: Activity,
-    resource: "audit_logs",
-  },
-];
+interface SidebarGroup {
+  titleKey: string;
+  items: SidebarItem[];
+  resource?: PermissionResource;
+}
 
-const publicContentItems = [
-  { labelKey: "about", href: "/admin/about", icon: BookOpen },
-  { labelKey: "contact", href: "/admin/contact", icon: Phone },
-  { labelKey: "privacy", href: "/admin/privacy", icon: Lock },
-  { labelKey: "impressum", href: "/admin/impressum", icon: FileText },
+const sidebarGroups: SidebarGroup[] = [
+  {
+    titleKey: "websiteGroup",
+    resource: "website",
+    items: [
+      { labelKey: "about", href: "/admin/about", icon: BookOpen },
+      { labelKey: "contact", href: "/admin/contact", icon: Phone },
+      { labelKey: "impressum", href: "/admin/impressum", icon: FileText },
+      { labelKey: "privacy", href: "/admin/privacy", icon: Lock },
+      { labelKey: "media", href: "/admin/media", icon: FolderOpen, resource: "website" },
+    ],
+  },
+  {
+    titleKey: "operationsGroup",
+    items: [
+      { labelKey: "events", href: "/admin/events", icon: Calendar, resource: "events" },
+      { labelKey: "registrations", href: "/admin/registrations", icon: ClipboardList, resource: "events" },
+      { labelKey: "schedules", href: "/admin/schedules", icon: Clock, resource: "schedules" },
+      { labelKey: "gallery", href: "/admin/gallery", icon: Image, resource: "gallery" },
+      { labelKey: "monks", href: "/admin/monks", icon: Users, resource: "monks" },
+    ],
+  },
+  {
+    titleKey: "financeGroup",
+    items: [
+      { labelKey: "members", href: "/admin/members", icon: UserCheck, resource: "members" },
+      { labelKey: "donations", href: "/admin/donations", icon: Heart, resource: "donations" },
+      { labelKey: "contacts", href: "/admin/contacts", icon: Mail, resource: "contacts" },
+    ],
+  },
+  {
+    titleKey: "systemGroup",
+    items: [
+      { labelKey: "users", href: "/admin/users", icon: UserCog, resource: "users" },
+      { labelKey: "roles", href: "/admin/roles", icon: Shield, resource: "users" },
+      { labelKey: "audit_logs", href: "/admin/audit-logs", icon: Activity, resource: "audit_logs" },
+    ],
+  },
 ];
 
 interface AdminSidebarProps {
@@ -129,11 +102,6 @@ export function AdminSidebar({
   const { can } = usePermission();
   const t = useTranslations("Admin.sidebar");
   const normalizedPathname = normalizeAdminPath(pathname);
-
-  // กรองเมนูตาม permission
-  const visibleItems = menuItems.filter(
-    (item) => item.alwaysShow || (item.resource && can(item.resource, "read")),
-  );
 
   const isActive = (href: string) => {
     if (href === "/admin") return normalizedPathname === "/admin";
@@ -179,93 +147,69 @@ export function AdminSidebar({
       {/* Navigation */}
       <nav className="p-2 space-y-1 overflow-y-auto h-[calc(100%-4rem)]">
         {/* Dashboard */}
-        {visibleItems
-          .filter((item) => item.href === "/admin")
-          .map((item) => {
-            const Icon = item.icon;
-            const active = isActive(item.href);
-            const showLabel = !collapsed || mobileOpen;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={onMobileClose}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors",
-                  active
-                    ? "bg-amber-50 text-amber-700 font-medium"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
-                )}
-                title={!showLabel ? t(item.labelKey) : undefined}
-              >
-                <Icon size={20} className={cn(active && "text-amber-600")} />
-                {showLabel && <span>{t(item.labelKey)}</span>}
-              </Link>
-            );
-          })}
+        <Link
+          href="/admin"
+          onClick={onMobileClose}
+          className={cn(
+            "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors",
+            isActive("/admin")
+              ? "bg-amber-50 text-amber-700 font-medium"
+              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+          )}
+          title={collapsed && !mobileOpen ? t("dashboard") : undefined}
+        >
+          <LayoutDashboard size={20} className={cn(isActive("/admin") && "text-amber-600")} />
+          {(!collapsed || mobileOpen) && <span>{t("dashboard")}</span>}
+        </Link>
 
-        {/* ข้อมูลเว็บไซต์ Group */}
-        {can("website", "read") && (
-          <div className="mt-4 mb-2">
-            {!collapsed || mobileOpen ? (
-              <div className="px-3 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">
-                {t("websiteGroup")}
+        {/* Groups */}
+        {sidebarGroups.map((group) => {
+          // If group requires a resource permission, check it
+          if (group.resource && !can(group.resource, "read")) return null;
+
+          // Filter visible items in the group
+          const visibleItems = group.items.filter(
+            (item) => item.alwaysShow || (item.resource ? can(item.resource, "read") : true)
+          );
+
+          if (visibleItems.length === 0) return null;
+
+          return (
+            <div key={group.titleKey} className="mt-4 mb-2">
+              {!collapsed || mobileOpen ? (
+                <div className="px-3 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                  {t(group.titleKey)}
+                </div>
+              ) : (
+                <div className="h-px bg-gray-200 my-2" />
+              )}
+              <div className="space-y-1">
+                {visibleItems.map((item) => {
+                  const Icon = item.icon;
+                  const active = isActive(item.href);
+                  const showLabel = !collapsed || mobileOpen;
+                  return (
+                    <Link
+                      key={item.href}
+                      href={item.href}
+                      onClick={onMobileClose}
+                      className={cn(
+                        "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
+                        active
+                          ? "bg-amber-50 text-amber-700 font-medium"
+                          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+                      )}
+                      title={!showLabel ? t(item.labelKey) : undefined}
+                    >
+                      <Icon size={18} className={cn(active && "text-amber-600")} />
+                      {showLabel && <span>{t(item.labelKey)}</span>}
+                    </Link>
+                  );
+                })}
               </div>
-            ) : (
-              <div className="h-px bg-gray-200 my-2" />
-            )}
-            <div className="space-y-1">
-              {publicContentItems.map((item) => {
-                const Icon = item.icon;
-                const active = isActive(item.href);
-                const showLabel = !collapsed || mobileOpen;
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    onClick={onMobileClose}
-                    className={cn(
-                      "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
-                      active
-                        ? "bg-amber-50 text-amber-700 font-medium"
-                        : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
-                    )}
-                    title={!showLabel ? t(item.labelKey) : undefined}
-                  >
-                    <Icon size={18} className={cn(active && "text-amber-600")} />
-                    {showLabel && <span>{t(item.labelKey)}</span>}
-                  </Link>
-                );
-              })}
             </div>
-          </div>
-        )}
-
-        {/* Other Items */}
-        {visibleItems
-          .filter((item) => item.href !== "/admin")
-          .map((item) => {
-            const Icon = item.icon;
-            const active = isActive(item.href);
-            const showLabel = !collapsed || mobileOpen;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                onClick={onMobileClose}
-                className={cn(
-                  "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors",
-                  active
-                    ? "bg-amber-50 text-amber-700 font-medium"
-                    : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
-                )}
-                title={!showLabel ? t(item.labelKey) : undefined}
-              >
-                <Icon size={20} className={cn(active && "text-amber-600")} />
-                {showLabel && <span>{t(item.labelKey)}</span>}
-              </Link>
-            );
-          })}
+          );
+        })}
       </nav>
     </aside>
   );
