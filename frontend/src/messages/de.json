@@ -110,10 +110,35 @@
         "calendarView": "Kalenderansicht",
         "listView": "Listenansicht",
         "regularSchedule": "Regelmäßiger Terminplan",
+        "dailySchedule": "Tagesplan",
+        "weeklySchedule": "Wochenplan",
+        "onlineSchedule": "Online-Plan",
+        "schedule": "Zeitplan",
+        "joinOnline": "Online teilnehmen",
         "upcomingEvents": "Kommende Veranstaltungen",
         "time": "Zeit",
         "activity": "Aktivität",
-        "day": "Tag"
+        "day": "Tag",
+        "dayNames": {
+            "sunday": "Sonntag",
+            "monday": "Montag",
+            "tuesday": "Dienstag",
+            "wednesday": "Mittwoch",
+            "thursday": "Donnerstag",
+            "friday": "Freitag",
+            "saturday": "Samstag"
+        }
+    },
+    "PublicState": {
+        "loading": "Daten werden geladen...",
+        "refreshing": "Aktuelle Daten werden aktualisiert...",
+        "errorTitle": "Etwas ist schiefgelaufen",
+        "errorDescription": "Die Daten konnten gerade nicht geladen werden. Bitte versuchen Sie es erneut.",
+        "retry": "Erneut versuchen",
+        "emptyEvents": "Noch keine veröffentlichten Veranstaltungen",
+        "emptySchedules": "Noch keine veröffentlichten Zeitpläne",
+        "emptyMonks": "Noch keine veröffentlichten Mönchsprofile",
+        "emptyContent": "Noch keine veröffentlichten Inhalte"
     },
     "VisitPage": {
         "title": "Besuchen Sie uns",
@@ -171,10 +196,16 @@
     "MonksPage": {
         "title": "Mönchschronik",
         "subtitle": "Biografien unserer ehrwürdigen Mönche",
-        "backButton": "Zurück zur Mönchschronik"
+        "backButton": "Zurück zur Mönchschronik",
+        "role": "Rolle",
+        "biography": "Biografie"
     },
     "EventDetailPage": {
         "relatedEvents": "Ähnliche Veranstaltungen",
+        "backToEvents": "Zurück zu Veranstaltungen",
+        "schedule": "Zeitplan",
+        "openMap": "Karte öffnen",
+        "addToCalendar": "Zum Kalender hinzufügen",
         "breadcrumbs": {
             "home": "Startseite",
             "events": "Veranstaltungen"

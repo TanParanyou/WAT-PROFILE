@@ -1,64 +1,44 @@
-'use client';
+"use client";
 
-import { useTranslations, useLocale } from 'next-intl';
-import Image from 'next/image';
-import monks from '@/data/monks.json';
-import { Link } from '@/navigation';
-import { getLocalizedText } from '@/utils/i18n';
-import type { PublicContentPage } from '@/types/website-cms';
+import { useTranslations } from "next-intl";
+import PageHeader from "@/components/layout/PageHeader";
+import PageContainer from "@/components/layout/PageContainer";
+import { EmptyState } from "@/components/public/states/EmptyState";
+import { QueryErrorState } from "@/components/public/states/QueryErrorState";
+import { MonksGrid } from "@/features/public/monks/components/MonksGrid";
+import { MonksGridSkeleton } from "@/features/public/monks/components/MonksGridSkeleton";
+import { usePublicMonksQuery } from "@/features/public/monks/queries";
+import { toMonkListItem } from "@/features/public/monks/mappers";
 
-import PageHeader from '@/components/layout/PageHeader';
-import PageContainer from '@/components/layout/PageContainer';
-import { ArrowRight } from 'lucide-react';
+export default function MonksContent() {
+  const t = useTranslations("MonksPage");
+  const tState = useTranslations("PublicState");
+  const monksQuery = usePublicMonksQuery();
+  const monks = monksQuery.data?.map(toMonkListItem) ?? [];
 
-export default function MonksContent({ cmsPage }: { cmsPage: PublicContentPage | null }) {
-    const t = useTranslations('MonksPage');
-    const locale = useLocale();
-    const title = cmsPage ? getLocalizedText(cmsPage.title, locale) || t('title') : t('title');
-    const subtitle = cmsPage ? getLocalizedText(cmsPage.description, locale) || t('subtitle') : t('subtitle');
-
-    return (
-        <div className="bg-zinc-50 dark:bg-zinc-950 min-h-screen">
-            <PageHeader
-                title={title}
-                subtitle={subtitle}
-            />
-
-            <PageContainer>
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-6xl mx-auto">
-                    {monks.map((monk) => (
-                        <Link
-                            key={monk.id}
-                            href={`/monks/${monk.id}`}
-                            className="group block bg-white dark:bg-zinc-900 rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 border border-gray-100 dark:border-gray-800"
-                        >
-                            <div className="aspect-[3/4] overflow-hidden relative">
-                                <Image
-                                    src={monk.image}
-                                    alt={getLocalizedText(monk.name, locale)}
-                                    fill
-                                    sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                                    className="object-cover transition-transform duration-500 group-hover:scale-105"
-                                    loading="lazy"
-                                />
-                                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
-
-                                <div className="absolute bottom-0 left-0 w-full p-6 text-white translate-y-2 group-hover:translate-y-0 transition-transform">
-                                    <p className="text-sm font-medium text-primary-200 mb-1 opacity-90">
-                                        {getLocalizedText(monk.title, locale)}
-                                    </p>
-                                    <h3 className="text-xl font-heading font-bold leading-tight">
-                                        {getLocalizedText(monk.name, locale)}
-                                    </h3>
-                                    <div className="flex items-center gap-2 mt-3 text-sm font-medium opacity-0 group-hover:opacity-100 transition-opacity delay-100 text-primary-200">
-                                        Read Bio <ArrowRight size={16} />
-                                    </div>
-                                </div>
-                            </div>
-                        </Link>
-                    ))}
-                </div>
-            </PageContainer>
-        </div>
-    );
+  return (
+    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
+      <PageHeader title={t("title")} subtitle={t("subtitle")} />
+      <PageContainer>
+        {monksQuery.isLoading ? (
+          <MonksGridSkeleton />
+        ) : monksQuery.isError ? (
+          <QueryErrorState
+            title={tState("errorTitle")}
+            description={tState("errorDescription")}
+            retryLabel={tState("retry")}
+            onRetry={() => monksQuery.refetch()}
+            isRetrying={monksQuery.isFetching}
+          />
+        ) : monks.length === 0 ? (
+          <EmptyState
+            title={tState("emptyMonks")}
+            description={tState("emptyContent")}
+          />
+        ) : (
+          <MonksGrid monks={monks} />
+        )}
+      </PageContainer>
+    </div>
+  );
 }

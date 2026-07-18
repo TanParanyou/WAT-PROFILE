@@ -110,10 +110,35 @@
         "calendarView": "มุมมองปฏิทิน",
         "listView": "มุมมองรายการ",
         "regularSchedule": "ตารางประจำวัน",
+        "dailySchedule": "ตารางประจำวัน",
+        "weeklySchedule": "ตารางรายสัปดาห์",
+        "onlineSchedule": "ตารางออนไลน์",
+        "schedule": "กำหนดการ",
+        "joinOnline": "เข้าร่วมออนไลน์",
         "upcomingEvents": "กิจกรรมที่กำลังจะมาถึง",
         "time": "เวลา",
         "activity": "กิจกรรม",
-        "day": "วัน"
+        "day": "วัน",
+        "dayNames": {
+            "sunday": "อาทิตย์",
+            "monday": "จันทร์",
+            "tuesday": "อังคาร",
+            "wednesday": "พุธ",
+            "thursday": "พฤหัสบดี",
+            "friday": "ศุกร์",
+            "saturday": "เสาร์"
+        }
+    },
+    "PublicState": {
+        "loading": "กำลังโหลดข้อมูล...",
+        "refreshing": "กำลังอัปเดตข้อมูลล่าสุด...",
+        "errorTitle": "เกิดข้อผิดพลาด",
+        "errorDescription": "ไม่สามารถโหลดข้อมูลได้ในขณะนี้ กรุณาลองใหม่อีกครั้ง",
+        "retry": "ลองใหม่อีกครั้ง",
+        "emptyEvents": "ยังไม่มีกิจกรรมที่เผยแพร่",
+        "emptySchedules": "ยังไม่มีตารางกิจกรรมที่เผยแพร่",
+        "emptyMonks": "ยังไม่มีข้อมูลพระสงฆ์ที่เผยแพร่",
+        "emptyContent": "ยังไม่มีเนื้อหาที่เผยแพร่"
     },
     "VisitPage": {
         "title": "การเยี่ยมชมวัด",
@@ -171,10 +196,16 @@
     "MonksPage": {
         "title": "ทำเนียบพระสงฆ์",
         "subtitle": "ประวัติพระสงฆ์วัดหลวงพ่อใส",
-        "backButton": "กลับไปทำเนียบพระสงฆ์"
+        "backButton": "กลับไปทำเนียบพระสงฆ์",
+        "role": "ตำแหน่ง",
+        "biography": "ประวัติ"
     },
     "EventDetailPage": {
         "relatedEvents": "กิจกรรมที่น่าสนใจ",
+        "backToEvents": "กลับไปหน้ากิจกรรม",
+        "schedule": "กำหนดการ",
+        "openMap": "เปิดแผนที่",
+        "addToCalendar": "เพิ่มลงปฏิทิน",
         "breadcrumbs": {
             "home": "หน้าแรก",
             "events": "กิจกรรม"

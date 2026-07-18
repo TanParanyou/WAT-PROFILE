@@ -110,10 +110,35 @@
         "calendarView": "Calendar View",
         "listView": "List View",
         "regularSchedule": "Regular Schedule",
+        "dailySchedule": "Daily Schedule",
+        "weeklySchedule": "Weekly Schedule",
+        "onlineSchedule": "Online Schedule",
+        "schedule": "Schedule",
+        "joinOnline": "Join Online",
         "upcomingEvents": "Upcoming Events",
         "time": "Time",
         "activity": "Activity",
-        "day": "Day"
+        "day": "Day",
+        "dayNames": {
+            "sunday": "Sunday",
+            "monday": "Monday",
+            "tuesday": "Tuesday",
+            "wednesday": "Wednesday",
+            "thursday": "Thursday",
+            "friday": "Friday",
+            "saturday": "Saturday"
+        }
+    },
+    "PublicState": {
+        "loading": "Loading data...",
+        "refreshing": "Refreshing latest data...",
+        "errorTitle": "Something went wrong",
+        "errorDescription": "We could not load the data right now. Please try again.",
+        "retry": "Try again",
+        "emptyEvents": "No published events yet",
+        "emptySchedules": "No published schedules yet",
+        "emptyMonks": "No published monk profiles yet",
+        "emptyContent": "No published content yet"
     },
     "VisitPage": {
         "title": "Visit Us",
@@ -171,10 +196,16 @@
     "MonksPage": {
         "title": "Monks History",
         "subtitle": "Biographies of our Venerable Monks",
-        "backButton": "Back to Monks History"
+        "backButton": "Back to Monks History",
+        "role": "Role",
+        "biography": "Biography"
     },
     "EventDetailPage": {
         "relatedEvents": "Related Events",
+        "backToEvents": "Back to Events",
+        "schedule": "Schedule",
+        "openMap": "Open Map",
+        "addToCalendar": "Add to Calendar",
         "breadcrumbs": {
             "home": "Home",
             "events": "Events"
