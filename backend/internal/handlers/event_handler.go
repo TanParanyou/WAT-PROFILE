@@ -1,7 +1,9 @@
 package handlers
 
 import (
+	"errors"
 	"fmt"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
@@ -25,7 +27,16 @@ func NewEventHandler(db *gorm.DB) *EventHandler {
 
 // GetEvents - Public: List all active events
 func (h *EventHandler) GetEvents(c *fiber.Ctx) error {
-	events, err := h.eventService.ListActive()
+	limit := 0
+	if rawLimit := c.Query("limit"); rawLimit != "" {
+		parsedLimit, err := strconv.Atoi(rawLimit)
+		if err != nil || parsedLimit <= 0 {
+			return utils.ErrorResponse(c, fiber.StatusBadRequest, "limit must be a positive integer")
+		}
+		limit = parsedLimit
+	}
+
+	events, err := h.eventService.ListActive(limit)
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch events")
 	}
@@ -36,7 +47,10 @@ func (h *EventHandler) GetEvents(c *fiber.Ctx) error {
 func (h *EventHandler) GetEvent(c *fiber.Ctx) error {
 	event, err := h.eventService.GetBySlug(c.Params("slug"))
 	if err != nil {
-		return utils.ErrorResponse(c, fiber.StatusNotFound, "Event not found")
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return utils.ErrorResponse(c, fiber.StatusNotFound, "Event not found")
+		}
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch event")
 	}
 	return utils.SuccessResponse(c, event)
 }

@@ -14,20 +14,29 @@ func NewEventService(db *gorm.DB) *EventService {
 }
 
 // ListActive returns all active events with schedules
-func (s *EventService) ListActive() ([]models.Event, error) {
+func (s *EventService) ListActive(limit int) ([]models.Event, error) {
 	var events []models.Event
-	err := s.db.Where("is_active = ?", true).
+	preloadSchedules := func(db *gorm.DB) *gorm.DB {
+		return db.Order("display_order ASC")
+	}
+	query := s.db.Where("is_active = ?", true).
 		Order("start_date DESC").
-		Preload("Schedules").
-		Find(&events).Error
+		Preload("Schedules", preloadSchedules)
+	if limit > 0 {
+		query = query.Limit(limit)
+	}
+	err := query.Find(&events).Error
 	return events, err
 }
 
 // GetBySlug returns a single active event by slug
 func (s *EventService) GetBySlug(slug string) (*models.Event, error) {
 	var event models.Event
+	preloadSchedules := func(db *gorm.DB) *gorm.DB {
+		return db.Order("display_order ASC")
+	}
 	err := s.db.Where("slug = ? AND is_active = ?", slug, true).
-		Preload("Schedules").
+		Preload("Schedules", preloadSchedules).
 		First(&event).Error
 	if err != nil {
 		return nil, err
