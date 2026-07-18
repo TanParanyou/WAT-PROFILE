@@ -100,6 +100,9 @@ func ValidateContactContent(req *ContactContent) error {
 	if err := validateOptionalURL(req.Body.ContactForm.PrivacyPageLink, "body.contact_form.privacy_page_link"); err != nil {
 		return err
 	}
+	if err := validateOptionalURL(req.Body.Bank.QRImageURL, "body.bank.qr_image_url"); err != nil {
+		return err
+	}
 	for i, value := range req.Body.Transport.PublicTransport {
 		if err := requireThaiText(value, fmt.Sprintf("body.transport.public_transport[%d]", i)); err != nil {
 			return err

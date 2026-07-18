@@ -1,13 +1,16 @@
 'use client';
 
-import { siteConfig } from '@/config/site.config';
 import { Facebook, Mail, MapPin, Phone } from 'lucide-react';
 import { Link } from '@/navigation';
-import { useTranslations } from 'next-intl';
+import { useLocale, useTranslations } from 'next-intl';
+import { usePublicSiteSettings } from '@/features/public/settings/PublicSiteSettingsProvider';
+import { getLocalizedText } from '@/utils/localizedText';
 
 export default function Footer() {
     const t = useTranslations('Footer');
     const tSite = useTranslations('Site');
+    const locale = useLocale();
+    const settings = usePublicSiteSettings();
 
     const menuItems = [
         { name: t('aboutUs'), href: '/about' },
@@ -30,11 +33,11 @@ export default function Footer() {
                             </span>
                         </div>
                         <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
-                            {siteConfig.seo.defaultDescription}
+                            {getLocalizedText(settings.description, locale)}
                         </p>
                         <div className="flex gap-4">
                             <a
-                                href={siteConfig.social.facebook}
+                                href={settings.social.facebook}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="w-10 h-10 rounded-full bg-white dark:bg-zinc-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-primary hover:scale-110 transition-all shadow-sm border border-gray-100 dark:border-gray-700"
@@ -42,7 +45,7 @@ export default function Footer() {
                                 <Facebook size={20} />
                             </a>
                             <a
-                                href={`mailto:${siteConfig.social.email}`}
+                                href={`mailto:${settings.email}`}
                                 className="w-10 h-10 rounded-full bg-white dark:bg-zinc-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-primary hover:scale-110 transition-all shadow-sm border border-gray-100 dark:border-gray-700"
                             >
                                 <Mail size={20} />
@@ -75,21 +78,19 @@ export default function Footer() {
                             <li className="flex items-start gap-3">
                                 <MapPin className="text-primary mt-1 shrink-0" size={20} />
                                 <span className="text-gray-600 dark:text-gray-400">
-                                    {siteConfig.contact.address?.th}
-                                    <br />
-                                    {siteConfig.contact.address?.en}
+                                    {getLocalizedText(settings.address, locale)}
                                 </span>
                             </li>
                             <li className="flex items-center gap-3">
                                 <Phone className="text-primary shrink-0" size={20} />
                                 <span className="text-gray-600 dark:text-gray-400">
-                                    {siteConfig.contact.phone}
+                                    {settings.phone}
                                 </span>
                             </li>
                             <li className="flex items-center gap-3">
                                 <Mail className="text-primary shrink-0" size={20} />
                                 <span className="text-gray-600 dark:text-gray-400">
-                                    {siteConfig.contact.email}
+                                    {settings.email}
                                 </span>
                             </li>
                         </ul>
@@ -109,4 +110,3 @@ export default function Footer() {
         </footer>
     );
 }
-

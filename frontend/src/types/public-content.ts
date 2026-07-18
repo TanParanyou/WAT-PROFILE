@@ -88,6 +88,7 @@ export interface ContactBank {
   account_number?: string;
   iban?: string;
   bic?: string;
+  qr_image_url?: string;
 }
 
 export interface ContactFormSettings {

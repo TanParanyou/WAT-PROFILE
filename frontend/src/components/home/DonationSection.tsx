@@ -2,159 +2,89 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { useTranslations } from "next-intl";
-import contactData from "@/data/contact.json";
+import { useLocale, useTranslations } from "next-intl";
 import { QrCode, Building2 } from "lucide-react";
+import { usePublicContactQuery } from "@/features/public/content/queries";
+import { getLocalizedText } from "@/utils/localizedText";
+import { PublicImage } from "@/components/public/media/PublicImage";
+import { QueryErrorState } from "@/components/public/states/QueryErrorState";
+import { EmptyState } from "@/components/public/states/EmptyState";
+
+const donationFallbackImage = "/images/og-image.jpg";
 
 export default function DonationSection() {
   const t = useTranslations("DonationSection");
+  const locale = useLocale();
+  const contactQuery = usePublicContactQuery();
   const [showQrModal, setShowQrModal] = useState(false);
+  const bank = contactQuery.data?.body.bank;
+  const hasBankTransfer = Boolean(bank && (bank.bank_name || bank.account_name || bank.account_number || bank.iban || bank.bic));
+  const hasQr = Boolean(bank?.qr_image_url);
+  const hasPaymentData = hasBankTransfer || hasQr;
 
   return (
-    <section className="py-20 bg-zinc-50 dark:bg-zinc-900">
+    <section className="bg-zinc-50 py-20 dark:bg-zinc-900">
       <div className="container mx-auto px-4 md:px-6">
-        <div className="max-w-4xl mx-auto text-center mb-12">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-secondary font-sans font-medium tracking-wider mb-4 uppercase">
-              {t("subtitle")}
-            </h2>
-            <h1 className="text-3xl md:text-5xl font-heading font-bold text-primary mb-6 leading-relaxed">
-              {t("title")}
-            </h1>
-            <p className="text-lg text-gray-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed font-light">
-              {t("description")}
-            </p>
+        <div className="mx-auto mb-12 max-w-4xl text-center">
+          <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} viewport={{ once: true }}>
+            <h2 className="mb-4 font-sans font-medium tracking-wider text-secondary uppercase">{t("subtitle")}</h2>
+            <h1 className="mb-6 font-heading text-3xl font-bold leading-relaxed text-primary md:text-5xl">{t("title")}</h1>
+            <p className="mx-auto max-w-2xl text-lg font-light leading-relaxed text-gray-600 dark:text-gray-400">{t("description")}</p>
           </motion.div>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-          {/* Thai Bank / QR Code */}
-          <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="bg-white dark:bg-zinc-950 p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col items-center text-center"
-          >
-            <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-6">
-              <QrCode size={32} />
-            </div>
-            <h3 className="text-xl font-bold mb-2">{t("scanQr")}</h3>
-            <p className="text-gray-500 mb-6 text-sm">{t("createQrDesc")}</p>
+        {contactQuery.isLoading ? (
+          <div className="mx-auto grid max-w-4xl grid-cols-1 gap-8 md:grid-cols-2" aria-label={t("loading")}>
+            <div className="h-96 animate-pulse rounded-3xl bg-white dark:bg-zinc-950" />
+            <div className="h-96 animate-pulse rounded-3xl bg-white dark:bg-zinc-950" />
+          </div>
+        ) : contactQuery.isError ? (
+          <div className="mx-auto max-w-4xl"><QueryErrorState title={t("loadErrorTitle")} description={t("loadErrorDescription")} retryLabel={t("retry")} onRetry={() => contactQuery.refetch()} isRetrying={contactQuery.isFetching} /></div>
+        ) : !hasPaymentData ? (
+          <div className="mx-auto max-w-4xl"><EmptyState title={t("emptyTitle")} description={t("emptyDescription")} /></div>
+        ) : (
+          <div className={`mx-auto grid max-w-4xl grid-cols-1 gap-8 ${hasQr && hasBankTransfer ? "md:grid-cols-2" : "md:grid-cols-1"}`}>
+            {hasQr && bank?.qr_image_url ? (
+              <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.2 }} viewport={{ once: true }} className="flex flex-col items-center rounded-3xl border border-gray-100 bg-white p-8 text-center shadow-sm dark:border-gray-800 dark:bg-zinc-950">
+                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary"><QrCode size={32} /></div>
+                <h3 className="mb-2 text-xl font-bold">{t("scanQr")}</h3>
+                <p className="mb-6 text-sm text-gray-500">{t("createQrDesc")}</p>
+                <button type="button" onClick={() => setShowQrModal(true)} className="relative mb-6 h-64 w-full max-w-xs overflow-hidden rounded-xl border-2 border-dashed border-gray-300 bg-white p-4 transition-colors hover:border-primary">
+                  <PublicImage src={bank.qr_image_url} alt={t("qrAlt")} fill fallbackSrc={donationFallbackImage} className="object-contain p-4" />
+                  <span className="absolute inset-x-4 bottom-4 rounded-full bg-white/90 px-3 py-1 text-xs font-semibold shadow-sm">{t("clickToView")}</span>
+                </button>
+                <button type="button" onClick={() => setShowQrModal(true)} className="rounded-lg bg-primary px-6 py-2.5 text-sm font-medium text-white shadow-lg shadow-primary/20 transition-all hover:bg-primary/90">{t("scanQr")}</button>
+              </motion.div>
+            ) : null}
 
-            {/* QR Code Placeholder/Generator */}
-            <div
-              className="bg-white p-4 border-2 border-dashed border-gray-300 rounded-xl flex items-center justify-center h-64 mb-6 relative hover:border-primary transition-colors cursor-pointer group"
-              onClick={() => setShowQrModal(true)}
-            >
-              <div className="text-xs text-gray-400">{t("qrImage")}</div>
-              <div className="absolute inset-0 flex items-center justify-center bg-black/5 opacity-0 group-hover:opacity-100 transition-opacity rounded-xl">
-                <span className="text-xs font-semibold bg-white px-3 py-1 rounded-full shadow-sm">
-                  {t("clickToView")}
-                </span>
-              </div>
-            </div>
-
-            <div className="flex gap-3">
-              <button
-                onClick={() => setShowQrModal(true)}
-                className="flex-1 bg-primary text-white py-2.5 rounded-lg active:scale-95 transition-all text-sm font-medium shadow-lg shadow-primary/20 hover:bg-primary/90"
-              >
-                {t("scanQr")}
-              </button>
-            </div>
-          </motion.div>
-
-          {/* German Bank Account */}
-          <motion.div
-            initial={{ opacity: 0, x: 20 }}
-            whileInView={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            viewport={{ once: true }}
-            className="bg-white dark:bg-zinc-950 p-8 rounded-3xl shadow-sm border border-gray-100 dark:border-gray-800 flex flex-col items-center text-center"
-          >
-            <div className="w-16 h-16 bg-primary/10 rounded-2xl flex items-center justify-center text-primary mb-6">
-              <Building2 size={32} />
-            </div>
-            <h3 className="text-xl font-bold mb-4">{t("bankTransfer")}</h3>
-
-            <div className="w-full space-y-4 text-left bg-gray-50 dark:bg-zinc-900/50 p-6 rounded-2xl">
-              <div>
-                <p className="text-xs text-gray-500 uppercase font-semibold mb-1">
-                  {t("bankLabel")}
-                </p>
-                <p className="font-medium text-gray-900 dark:text-gray-100">
-                  {contactData.bank.name}
-                </p>
-              </div>
-              <div>
-                <p className="text-xs text-gray-500 uppercase font-semibold mb-1">
-                  {t("accountNameLabel")}
-                </p>
-                <p className="font-medium text-gray-900 dark:text-gray-100">
-                  {contactData.bank.account}
-                </p>
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div>
-                  <p className="text-xs text-gray-500 uppercase font-semibold mb-1">
-                    {t("ibanLabel")}
-                  </p>
-                  <p className="font-mono font-medium text-gray-900 dark:text-gray-100 break-all">
-                    {contactData.bank.iban}
-                  </p>
+            {hasBankTransfer && bank ? (
+              <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 0.6, delay: 0.4 }} viewport={{ once: true }} className="flex flex-col items-center rounded-3xl border border-gray-100 bg-white p-8 text-center shadow-sm dark:border-gray-800 dark:bg-zinc-950">
+                <div className="mb-6 flex h-16 w-16 items-center justify-center rounded-2xl bg-primary/10 text-primary"><Building2 size={32} /></div>
+                <h3 className="mb-4 text-xl font-bold">{t("bankTransfer")}</h3>
+                <div className="w-full space-y-4 rounded-2xl bg-gray-50 p-6 text-left dark:bg-zinc-900/50">
+                  {bank.bank_name ? <div><p className="mb-1 text-xs font-semibold uppercase text-gray-500">{t("bankLabel")}</p><p className="font-medium text-gray-900 dark:text-gray-100">{getLocalizedText(bank.bank_name, locale)}</p></div> : null}
+                  {bank.account_name ? <div><p className="mb-1 text-xs font-semibold uppercase text-gray-500">{t("accountNameLabel")}</p><p className="font-medium text-gray-900 dark:text-gray-100">{getLocalizedText(bank.account_name, locale)}</p></div> : null}
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2">
+                    {bank.iban ? <div><p className="mb-1 text-xs font-semibold uppercase text-gray-500">{t("ibanLabel")}</p><p className="break-all font-mono font-medium text-gray-900 dark:text-gray-100">{bank.iban}</p></div> : null}
+                    {bank.bic ? <div><p className="mb-1 text-xs font-semibold uppercase text-gray-500">{t("bicLabel")}</p><p className="font-mono font-medium text-gray-900 dark:text-gray-100">{bank.bic}</p></div> : null}
+                  </div>
+                  {bank.account_number ? <div><p className="mb-1 text-xs font-semibold uppercase text-gray-500">{t("accountNumberLabel")}</p><p className="font-medium text-gray-900 dark:text-gray-100">{bank.account_number}</p></div> : null}
                 </div>
-                <div>
-                  <p className="text-xs text-gray-500 uppercase font-semibold mb-1">
-                    {t("bicLabel")}
-                  </p>
-                  <p className="font-mono font-medium text-gray-900 dark:text-gray-100">
-                    {contactData.bank.bic}
-                  </p>
-                </div>
-              </div>
-            </div>
-          </motion.div>
-        </div>
+              </motion.div>
+            ) : null}
+          </div>
+        )}
       </div>
 
-      {/* QR Modal */}
-      {showQrModal && (
-        <div
-          className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-sm"
-          onClick={() => setShowQrModal(false)}
-        >
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.9 }}
-            onClick={(e) => e.stopPropagation()}
-            className="bg-white dark:bg-zinc-900 p-6 rounded-2xl max-w-sm w-full relative"
-          >
-            <h3 className="text-xl font-bold mb-4 text-center">
-              {t("scanQr")}
-            </h3>
-            <div className="aspect-square bg-white border-2 border-gray-100 rounded-xl flex items-center justify-center overflow-hidden mb-4">
-              {/* Replace with actual QR Code image */}
-              <div className="text-gray-400 text-sm">QR Code Image</div>
-            </div>
-            <p className="text-center text-sm text-gray-500 mb-6">
-              {contactData.bank.name} - {contactData.bank.account}
-            </p>
-            <button
-              onClick={() => setShowQrModal(false)}
-              className="w-full bg-gray-100 dark:bg-zinc-800 hover:bg-gray-200 dark:hover:bg-zinc-700 text-gray-900 dark:text-white py-3 rounded-xl font-medium transition-colors"
-            >
-              Close
-            </button>
+      {showQrModal && bank?.qr_image_url ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/80 p-4 backdrop-blur-sm" onClick={() => setShowQrModal(false)}>
+          <motion.div initial={{ opacity: 0, scale: 0.9 }} animate={{ opacity: 1, scale: 1 }} onClick={(event) => event.stopPropagation()} className="relative w-full max-w-sm rounded-2xl bg-white p-6 dark:bg-zinc-900">
+            <h3 className="mb-4 text-center text-xl font-bold">{t("scanQr")}</h3>
+            <div className="relative aspect-square overflow-hidden rounded-xl border-2 border-gray-100 bg-white"><PublicImage src={bank.qr_image_url} alt={t("qrAlt")} fill fallbackSrc={donationFallbackImage} className="object-contain p-4" /></div>
+            <button type="button" onClick={() => setShowQrModal(false)} className="mt-4 w-full rounded-xl bg-gray-100 py-3 font-medium text-gray-900 transition-colors hover:bg-gray-200 dark:bg-zinc-800 dark:text-white dark:hover:bg-zinc-700">{t("close")}</button>
           </motion.div>
         </div>
-      )}
+      ) : null}
     </section>
   );
 }

@@ -54,13 +54,23 @@
         "accountNameLabel": "Account Name",
         "ibanLabel": "IBAN",
         "bicLabel": "BIC",
-        "clickToView": "Click to view QR Code"
+        "clickToView": "Click to view QR Code",
+        "loading": "Loading donation information...",
+        "loadErrorTitle": "Donation information unavailable",
+        "loadErrorDescription": "We could not load the donation information right now.",
+        "retry": "Try again",
+        "emptyTitle": "Donation information is not available",
+        "emptyDescription": "Please check back later for payment details.",
+        "qrAlt": "Donation QR code",
+        "accountNumberLabel": "Account number",
+        "close": "Close"
     },
     "EventsSection": {
         "title": "Upcoming Events",
         "subtitle": "Upcoming Events & Ceremonies",
         "viewAll": "View All",
-        "readMore": "More Details"
+        "readMore": "More Details",
+        "close": "Close"
     },
     "AboutPage": {
         "title": "About Wat Loung Por Sai",
@@ -133,6 +143,27 @@
             "saturday": "Saturday"
         }
     },
+    "PublicHome": {
+        "heroFallbackTitle": "Wat Loung Por Sai",
+        "heroFallbackDescription": "A sanctuary for Dharma practice and mindfulness.",
+        "heroFallbackCta": "Explore events",
+        "heroUnavailableTitle": "Welcome content is temporarily unavailable",
+        "heroUnavailableDescription": "Please try loading the welcome section again.",
+        "eventsTitle": "Upcoming Events",
+        "eventsDescription": "Upcoming events and ceremonies",
+        "eventsErrorTitle": "Events are temporarily unavailable",
+        "eventsErrorDescription": "Please try loading events again.",
+        "eventsEmptyTitle": "No upcoming events",
+        "eventsEmptyDescription": "There are no published events yet.",
+        "monksTitle": "Monks History",
+        "monksDescription": "Biographies of our venerable monks",
+        "monksErrorTitle": "Monk profiles are temporarily unavailable",
+        "monksErrorDescription": "Please try loading monk profiles again.",
+        "monksEmptyTitle": "No monk profiles",
+        "monksEmptyDescription": "There are no published monk profiles yet.",
+        "viewAll": "View all",
+        "retry": "Try again"
+    },
     "PublicState": {
         "loading": "Loading data...",
         "refreshing": "Refreshing latest data...",
@@ -192,7 +223,15 @@
         "ceremony": "Ceremonies",
         "festival": "Festivals",
         "education": "Education",
-        "daily": "Daily Routine"
+        "daily": "Daily Routine",
+        "allCategories": "All",
+        "loading": "Loading gallery...",
+        "errorTitle": "Gallery unavailable",
+        "errorDescription": "We could not load the gallery right now.",
+        "retry": "Try again",
+        "emptyTitle": "No gallery images yet",
+        "emptyDescription": "Published gallery images will appear here.",
+        "imageUnavailable": "Image unavailable"
     },
     "CookieConsent": {
         "title": "We value your privacy",

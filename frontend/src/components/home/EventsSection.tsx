@@ -1,6 +1,6 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { usePublicEventsQuery } from "@/features/public/events/queries";
 import { EventCard } from "@/components/public/EventCard";
 import { EventsListSkeleton } from "@/features/public/events/components/EventsListSkeleton";
@@ -16,6 +16,7 @@ export type ScheduleItem = {
 export default function EventsSection() {
   const t = useTranslations("EventsSection");
   const state = useTranslations("PublicState");
+  const locale = useLocale();
   const query = usePublicEventsQuery(3);
 
   return (
@@ -23,7 +24,7 @@ export default function EventsSection() {
       <div className="container mx-auto px-4 md:px-6">
         <h2 className="mb-2 text-3xl font-bold text-primary md:text-4xl">{t("title")}</h2>
         <p className="mb-12 text-gray-600 dark:text-gray-400">{t("subtitle")}</p>
-        {query.isLoading ? <EventsListSkeleton /> : query.isError ? <QueryErrorState title={state("errorTitle")} description={state("errorDescription")} retryLabel={state("retry")} onRetry={() => query.refetch()} isRetrying={query.isFetching} /> : query.data?.length ? <div className="grid grid-cols-1 gap-8 md:grid-cols-3">{query.data.slice(0, 3).map((event) => <EventCard key={event.slug} event={event} locale="th" />)}</div> : <EmptyState title={state("emptyEvents")} description={state("emptyContent")} />}
+        {query.isLoading ? <EventsListSkeleton /> : query.isError ? <QueryErrorState title={state("errorTitle")} description={state("errorDescription")} retryLabel={state("retry")} onRetry={() => query.refetch()} isRetrying={query.isFetching} /> : query.data?.length ? <div className="grid grid-cols-1 gap-8 md:grid-cols-3">{query.data.slice(0, 3).map((event) => <EventCard key={event.slug} event={event} locale={locale} />)}</div> : <EmptyState title={state("emptyEvents")} description={state("emptyContent")} />}
       </div>
     </section>
   );

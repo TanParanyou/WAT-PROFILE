@@ -54,13 +54,23 @@
         "accountNameLabel": "ชื่อบัญชี",
         "ibanLabel": "IBAN",
         "bicLabel": "BIC",
-        "clickToView": "กดเพื่อดู QR Code"
+        "clickToView": "กดเพื่อดู QR Code",
+        "loading": "กำลังโหลดข้อมูลการทำบุญ...",
+        "loadErrorTitle": "ไม่สามารถโหลดข้อมูลการทำบุญได้",
+        "loadErrorDescription": "ไม่สามารถโหลดข้อมูลการทำบุญได้ในขณะนี้",
+        "retry": "ลองใหม่",
+        "emptyTitle": "ยังไม่มีข้อมูลการทำบุญ",
+        "emptyDescription": "กรุณากลับมาตรวจสอบข้อมูลช่องทางการทำบุญอีกครั้ง",
+        "qrAlt": "คิวอาร์โค้ดสำหรับทำบุญ",
+        "accountNumberLabel": "เลขที่บัญชี",
+        "close": "ปิด"
     },
     "EventsSection": {
         "title": "กิจกรรมที่กำลังจะมาถึง",
         "subtitle": "Upcoming Events & Ceremonies",
         "viewAll": "ดูทั้งหมด",
-        "readMore": "รายละเอียดเพิ่มเติม"
+        "readMore": "รายละเอียดเพิ่มเติม",
+        "close": "ปิด"
     },
     "AboutPage": {
         "title": "เกี่ยวกับวัด",
@@ -133,6 +143,27 @@
             "saturday": "เสาร์"
         }
     },
+    "PublicHome": {
+        "heroFallbackTitle": "วัดหลวงพ่อใส",
+        "heroFallbackDescription": "สถานที่สำหรับปฏิบัติธรรมและเจริญสติ",
+        "heroFallbackCta": "ดูกิจกรรม",
+        "heroUnavailableTitle": "ไม่สามารถโหลดเนื้อหาต้อนรับได้ชั่วคราว",
+        "heroUnavailableDescription": "กรุณาลองโหลดส่วนต้อนรับอีกครั้ง",
+        "eventsTitle": "กิจกรรมที่กำลังจะมาถึง",
+        "eventsDescription": "กิจกรรมและพิธีกรรมที่กำลังจะมาถึง",
+        "eventsErrorTitle": "ไม่สามารถโหลดกิจกรรมได้ชั่วคราว",
+        "eventsErrorDescription": "กรุณาลองโหลดกิจกรรมอีกครั้ง",
+        "eventsEmptyTitle": "ไม่มีกิจกรรมที่กำลังจะมาถึง",
+        "eventsEmptyDescription": "ยังไม่มีกิจกรรมที่เผยแพร่",
+        "monksTitle": "ทำเนียบพระสงฆ์",
+        "monksDescription": "ประวัติพระสงฆ์ผู้ทรงคุณวุฒิ",
+        "monksErrorTitle": "ไม่สามารถโหลดข้อมูลพระสงฆ์ได้ชั่วคราว",
+        "monksErrorDescription": "กรุณาลองโหลดข้อมูลพระสงฆ์อีกครั้ง",
+        "monksEmptyTitle": "ยังไม่มีข้อมูลพระสงฆ์",
+        "monksEmptyDescription": "ยังไม่มีข้อมูลพระสงฆ์ที่เผยแพร่",
+        "viewAll": "ดูทั้งหมด",
+        "retry": "ลองใหม่"
+    },
     "PublicState": {
         "loading": "กำลังโหลดข้อมูล...",
         "refreshing": "กำลังอัปเดตข้อมูลล่าสุด...",
@@ -192,7 +223,15 @@
         "ceremony": "พิธีกรรม",
         "festival": "งานเทศกาล",
         "education": "การศึกษา",
-        "daily": "กิจวัตรสงฆ์"
+        "daily": "กิจวัตรสงฆ์",
+        "allCategories": "ทั้งหมด",
+        "loading": "กำลังโหลดคลังภาพ...",
+        "errorTitle": "ไม่สามารถโหลดคลังภาพได้",
+        "errorDescription": "ไม่สามารถโหลดข้อมูลคลังภาพได้ในขณะนี้",
+        "retry": "ลองใหม่",
+        "emptyTitle": "ยังไม่มีภาพในคลังภาพ",
+        "emptyDescription": "ภาพที่เผยแพร่แล้วจะแสดงที่นี่",
+        "imageUnavailable": "ไม่พบรูปภาพ"
     },
     "CookieConsent": {
         "title": "เราให้ความสำคัญกับความเป็นส่วนตัวของคุณ",

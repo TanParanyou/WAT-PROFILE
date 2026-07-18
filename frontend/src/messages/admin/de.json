@@ -388,6 +388,7 @@
         "travelTab": "Anreise",
         "socialTab": "Social Media",
         "bankTab": "Bankverbindung",
+        "qrImageUrl": "QR-Bild-URL",
         "formTab": "Website-Kontaktformular",
         "seoTab": "SEO & Suche",
         "phone": "Haupttelefonnummer",

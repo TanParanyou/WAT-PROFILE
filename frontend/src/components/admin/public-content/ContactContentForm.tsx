@@ -69,6 +69,7 @@ export function ContactContentForm() {
           account_number: "",
           iban: "",
           bic: "",
+          qr_image_url: "",
         },
         contact_form: {
           enabled: true,
@@ -536,6 +537,11 @@ export function ContactContentForm() {
                       className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
                     />
                   </div>
+                </div>
+                <div className="space-y-1">
+                  <label className="text-sm font-medium text-gray-700">{t("contact.qrImageUrl")}</label>
+                  <input type="url" {...methods.register("body.bank.qr_image_url")} placeholder="https://..." className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50" />
+                  {errors.body?.bank?.qr_image_url && <p className="mt-1 text-sm text-red-600">{errors.body.bank.qr_image_url.message}</p>}
                 </div>
               </div>
             )}

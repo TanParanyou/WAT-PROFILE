@@ -1,0 +1,17 @@
+import type { LocalizedText } from "@/types/common";
+
+export interface PublicSiteSettings {
+  siteName: LocalizedText;
+  description: LocalizedText;
+  address: LocalizedText;
+  phone: string;
+  email: string;
+  social: {
+    facebook: string;
+    youtube: string;
+    instagram: string;
+    line: string;
+  };
+  logoUrl: string;
+  socialSidebarPosition: "left" | "right";
+}

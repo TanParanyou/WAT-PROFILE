@@ -54,13 +54,23 @@
         "accountNameLabel": "Kontoinhaber",
         "ibanLabel": "IBAN",
         "bicLabel": "BIC",
-        "clickToView": "Klicken zum Anzeigen des QR-Codes"
+        "clickToView": "Klicken zum Anzeigen des QR-Codes",
+        "loading": "Spendeninformationen werden geladen...",
+        "loadErrorTitle": "Spendeninformationen nicht verfügbar",
+        "loadErrorDescription": "Die Spendeninformationen konnten derzeit nicht geladen werden.",
+        "retry": "Erneut versuchen",
+        "emptyTitle": "Keine Spendeninformationen verfügbar",
+        "emptyDescription": "Bitte prüfen Sie später erneut die Zahlungsinformationen.",
+        "qrAlt": "Spenden-QR-Code",
+        "accountNumberLabel": "Kontonummer",
+        "close": "Schließen"
     },
     "EventsSection": {
         "title": "Kommende Veranstaltungen",
         "subtitle": "Kommende Veranstaltungen & Zeremonien",
         "viewAll": "Alle ansehen",
-        "readMore": "Mehr Details"
+        "readMore": "Mehr Details",
+        "close": "Schließen"
     },
     "AboutPage": {
         "title": "Über Wat Loung Por Sai",
@@ -133,6 +143,27 @@
             "saturday": "Samstag"
         }
     },
+    "PublicHome": {
+        "heroFallbackTitle": "Wat Loung Por Sai",
+        "heroFallbackDescription": "Ein Ort für Dharma-Praxis und Achtsamkeit.",
+        "heroFallbackCta": "Veranstaltungen ansehen",
+        "heroUnavailableTitle": "Willkommensinhalt ist vorübergehend nicht verfügbar",
+        "heroUnavailableDescription": "Bitte laden Sie den Willkommensbereich erneut.",
+        "eventsTitle": "Kommende Veranstaltungen",
+        "eventsDescription": "Kommende Veranstaltungen und Zeremonien",
+        "eventsErrorTitle": "Veranstaltungen sind vorübergehend nicht verfügbar",
+        "eventsErrorDescription": "Bitte laden Sie die Veranstaltungen erneut.",
+        "eventsEmptyTitle": "Keine kommenden Veranstaltungen",
+        "eventsEmptyDescription": "Es wurden noch keine Veranstaltungen veröffentlicht.",
+        "monksTitle": "Mönchschronik",
+        "monksDescription": "Biografien unserer ehrwürdigen Mönche",
+        "monksErrorTitle": "Mönchsprofile sind vorübergehend nicht verfügbar",
+        "monksErrorDescription": "Bitte laden Sie die Mönchsprofile erneut.",
+        "monksEmptyTitle": "Keine Mönchsprofile",
+        "monksEmptyDescription": "Es wurden noch keine Mönchsprofile veröffentlicht.",
+        "viewAll": "Alle ansehen",
+        "retry": "Erneut versuchen"
+    },
     "PublicState": {
         "loading": "Daten werden geladen...",
         "refreshing": "Aktuelle Daten werden aktualisiert...",
@@ -192,7 +223,15 @@
         "ceremony": "Zeremonien",
         "festival": "Feste",
         "education": "Bildung",
-        "daily": "Tagesablauf"
+        "daily": "Tagesablauf",
+        "allCategories": "Alle",
+        "loading": "Galerie wird geladen...",
+        "errorTitle": "Galerie nicht verfügbar",
+        "errorDescription": "Die Galerie konnte derzeit nicht geladen werden.",
+        "retry": "Erneut versuchen",
+        "emptyTitle": "Noch keine Galeriebilder",
+        "emptyDescription": "Veröffentlichte Galeriebilder werden hier angezeigt.",
+        "imageUnavailable": "Bild nicht verfügbar"
     },
     "CookieConsent": {
         "title": "Wir schätzen Ihre Privatsphäre",

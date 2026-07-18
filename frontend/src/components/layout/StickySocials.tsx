@@ -1,35 +1,36 @@
 "use client";
 
-import { siteConfig } from "@/config/site.config";
 import { Facebook, Mail, Youtube } from "lucide-react";
 import { motion } from "framer-motion";
+import { usePublicSiteSettings } from "@/features/public/settings/PublicSiteSettingsProvider";
 
 export default function StickySocials() {
+  const settings = usePublicSiteSettings();
   const socials = [
     {
       name: "Facebook",
       icon: Facebook,
-      href: siteConfig.social.facebook,
+      href: settings.social.facebook,
       color: "bg-[#1877F2]",
     },
     {
       name: "YouTube",
       icon: Youtube,
-      href: siteConfig.social.youtube,
+      href: settings.social.youtube,
       color: "bg-[#FF0000]",
     },
     {
       name: "Email",
       icon: Mail,
-      href: siteConfig.social.email
-        ? `mailto:${siteConfig.social.email}`
+      href: settings.email
+        ? `mailto:${settings.email}`
         : null,
       color: "bg-green-600",
     },
   ].filter((item) => item.href);
 
   const positionClass =
-    siteConfig.layout.socialSidebarPosition === "right" ? "right-6" : "left-6";
+    settings.socialSidebarPosition === "right" ? "right-6" : "left-6";
 
   return (
     <div className={`fixed bottom-6 ${positionClass} z-40 flex flex-col gap-3`}>

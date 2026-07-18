@@ -116,6 +116,7 @@ type ContactBank struct {
 	AccountNumber string               `json:"account_number"`
 	IBAN          string               `json:"iban"`
 	BIC           string               `json:"bic"`
+	QRImageURL    string               `json:"qr_image_url"`
 }
 
 type ContactFormSettings struct {

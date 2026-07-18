@@ -2,6 +2,7 @@ import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { websiteCmsPublicService } from "@/services/websiteCmsService";
 import HomeContent from "./(client)/HomeContent";
+import ClientLayout from "./(client)/layout";
 import { siteConfig } from "@/config/site.config";
 import { getLocalizedText } from "@/utils/localizedText";
 
@@ -32,20 +33,9 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 }
 
 export default async function PublicHomePage() {
-  const t = await getTranslations("Public.home");
-  const cmsPage = await websiteCmsPublicService.getPage("home").catch(() => null);
-
   return (
-    <HomeContent
-      page={cmsPage}
-      labels={{
-        exploreEvents: t("exploreEvents"),
-        latestEvents: t("latestEvents"),
-        eventsSubtitle: t("eventsSubtitle"),
-        monks: t("monks"),
-        monksSubtitle: t("monksSubtitle"),
-        viewAll: t("viewAll"),
-      }}
-    />
+    <ClientLayout>
+      <HomeContent />
+    </ClientLayout>
   );
 }

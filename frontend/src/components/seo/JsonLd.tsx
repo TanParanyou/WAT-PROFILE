@@ -1,23 +1,27 @@
+"use client";
+
 import { siteConfig } from '@/config/site.config';
+import { useLocale } from 'next-intl';
+import { getLocalizedText } from '@/utils/localizedText';
+import { usePublicSiteSettings } from '@/features/public/settings/PublicSiteSettingsProvider';
 
 export default function JsonLd() {
+    const locale = useLocale();
+    const settings = usePublicSiteSettings();
     const jsonLd = {
         '@context': 'https://schema.org',
         '@type': 'BuddhistTemple', // More specific than Organization
-        name: siteConfig.siteName.th,
-        alternateName: [siteConfig.siteName.en, siteConfig.siteName.de],
+        name: getLocalizedText(settings.siteName, locale),
+        alternateName: [settings.siteName.en, settings.siteName.de],
         url: siteConfig.domain,
         logo: `${siteConfig.domain}${siteConfig.logo.light}`,
         image: `${siteConfig.domain}${siteConfig.seo.defaultOgImage}`,
-        description: siteConfig.seo.defaultDescription,
-        telephone: siteConfig.contact.phone,
-        email: siteConfig.contact.email,
+        description: getLocalizedText(settings.description, locale),
+        telephone: settings.phone,
+        email: settings.email,
         address: {
             '@type': 'PostalAddress',
-            streetAddress: siteConfig.contact.addressDetails?.streetAddress,
-            addressLocality: siteConfig.contact.addressDetails?.addressLocality,
-            postalCode: siteConfig.contact.addressDetails?.postalCode,
-            addressCountry: siteConfig.contact.addressDetails?.addressCountry,
+            streetAddress: getLocalizedText(settings.address, locale),
         },
         geo: {
             '@type': 'GeoCoordinates',

@@ -79,6 +79,7 @@ export const contactBankSchema = z.object({
   account_number: z.string().default(""),
   iban: z.string().default(""),
   bic: z.string().default(""),
+  qr_image_url: z.string().url("Must be a valid QR image URL").or(z.string().length(0)).default(""),
 });
 
 export const contactFormSettingsSchema = z.object({

@@ -9,6 +9,7 @@ import { Link, usePathname, useRouter } from "@/navigation";
 import { routing } from "@/routing";
 import { getLocalizedText } from "@/utils/i18n";
 import Image from "next/image";
+import { usePublicSiteSettings } from "@/features/public/settings/PublicSiteSettingsProvider";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -18,6 +19,7 @@ export default function Navbar() {
   const t = useTranslations("Navbar");
   const tSite = useTranslations("Site");
   const locale = useLocale();
+  const settings = usePublicSiteSettings();
 
   const pathname = usePathname();
   const router = useRouter();
@@ -105,7 +107,7 @@ export default function Navbar() {
             }`}
           >
             <Image
-              src="/images/icon/logo.png"
+              src={settings.logoUrl || "/images/icon/logo.png"}
               alt={getLocalizedText(siteConfig.siteName, locale)}
               width={40}
               height={40}

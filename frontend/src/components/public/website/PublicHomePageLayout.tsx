@@ -119,13 +119,18 @@ function sectionText(section: ReturnType<typeof pickSection>, path: string, loca
   const value = getPathValue(section, path);
   if (!value) return '';
   if (typeof value === 'string') return value;
-  if (typeof value === 'object') return getLocalizedText(value as Record<string, string>, locale);
+  if (isRecord(value)) return getLocalizedText(value, locale);
   return '';
 }
 
 function getPathValue(source: unknown, path: string): unknown {
   return path.split('.').reduce<unknown>((acc, key) => {
-    if (!acc || typeof acc !== 'object') return undefined;
-    return (acc as Record<string, unknown>)[key];
+    if (!isRecord(acc)) return undefined;
+    return acc[key];
   }, source);
+}
+
+function isRecord(value: unknown): value is Record<string, string> {
+  return typeof value === 'object' && value !== null &&
+    Object.values(value).every((item) => typeof item === 'string');
 }

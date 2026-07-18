@@ -35,9 +35,9 @@ export default function EventAlertModal() {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
-      <button aria-label="Close" className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={close} />
+      <button aria-label={t("close")} className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={close} />
       <div role="dialog" aria-modal="true" className="relative w-full max-w-lg overflow-hidden rounded-3xl bg-white shadow-2xl dark:bg-zinc-900">
-        <button aria-label="Close" onClick={close} className="absolute right-4 top-4 z-10 rounded-full bg-black/30 p-2 text-white"><X size={18} /></button>
+        <button aria-label={t("close")} onClick={close} className="absolute right-4 top-4 z-10 rounded-full bg-black/30 p-2 text-white"><X size={18} /></button>
         <div className="relative h-56 bg-zinc-200">
           <PublicImage src={event.image_url} alt={getLocalizedText(event.title, locale)} fill fallbackSrc={publicEventFallbackImage} className="object-cover" />
         </div>

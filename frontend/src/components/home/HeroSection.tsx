@@ -3,11 +3,21 @@
 import { ArrowRight } from "lucide-react";
 import { Link } from "@/navigation";
 import { motion } from "framer-motion";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
+import { usePublicHomePageQuery } from "@/features/public/content/home";
+import { toHomeHeroModel } from "@/features/public/content/home-section";
+import { getLocalizedText } from "@/utils/localizedText";
 
 export default function HeroSection() {
+  const locale = useLocale();
   const t = useTranslations("HeroSection");
   const tSite = useTranslations("Site");
+  const homeQuery = usePublicHomePageQuery();
+  const hero = toHomeHeroModel(homeQuery.data ?? null);
+  const title = hero.title ? getLocalizedText(hero.title, locale) : tSite("name");
+  const description = hero.description ? getLocalizedText(hero.description, locale) : t("inLocation");
+  const ctaLabel = hero.ctaLabel ? getLocalizedText(hero.ctaLabel, locale) : t("viewEvents");
+  const ctaHref = hero.ctaHref ?? "/events";
 
   return (
     <section className="relative h-screen w-full overflow-hidden flex items-center justify-center">
@@ -33,20 +43,20 @@ export default function HeroSection() {
             {t("welcomeTo")}
           </h2>
           <h1 className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold text-white mb-6 leading-tight">
-            {tSite("name")}
+            {title}
           </h1>
           <p className="text-lg md:text-xl text-gray-200 mb-10 max-w-2xl mx-auto font-light">
-            {tSite("name")}
+            {title}
             <br className="hidden md:block" />
-            {t("inLocation")}
+            {description}
           </p>
 
           <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
             <Link
-              href="/events"
+              href={ctaHref}
               className="px-8 py-3 bg-primary hover:bg-primary/90 text-white rounded-full font-medium transition-all flex items-center gap-2"
             >
-              {t("viewEvents")} <ArrowRight size={18} />
+              {ctaLabel} <ArrowRight size={18} />
             </Link>
           </div>
         </motion.div>
