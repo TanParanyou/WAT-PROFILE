@@ -474,7 +474,13 @@ git commit -m "feat: load public monks with typed queries"
 
 **Produces:** Client-facing public-content query keys separate from admin edit query keys, with published-data state behavior.
 
-- [ ] **Step 1: Separate visitor query keys from Admin edit keys**
+- [ ] **Step 1: Audit the published-content contract before wiring UI state**
+
+For `/about`, `/contact`, `/privacy`, and `/impressum`, record the exact success envelope, nullable body fields, and missing-publication response. A missing or unpublished page must be an HTTP 404; database and serialization failures must remain 5xx so `toPublicQueryError` can expose Retry. Do not turn every service error into 404.
+
+Define the DTOs in `features/public/content/types.ts` from the actual payload. Keep nullable fields nullable in the DTO; do not use `as`, `as Record`, or default objects that hide an API mismatch. Verify each endpoint with a published page, no published page, and a forced server failure before building components.
+
+- [ ] **Step 2: Separate visitor query keys from Admin edit keys**
 
 ```ts
 export const publicContentKeys = {
@@ -485,21 +491,25 @@ export const publicContentKeys = {
 };
 ```
 
-Do not reuse admin form mutation hooks for visitor reads. Visitor query functions call the published public endpoints only.
+Do not reuse admin form mutation hooks for visitor reads. Visitor query functions call the published public endpoints only, use `shouldRetryPublicQuery`, and set `staleTime: 60_000`. Keep `publicContentService` only as a temporary typed adapter for non-migrated server consumers; remove an adapter only after `rg` confirms it has no consumers.
 
-- [ ] **Step 2: Reconcile About layout with the new admin body contract**
+- [ ] **Step 3: Reconcile About layout with the new admin body contract**
 
-Map the published About API body to the layout sections already represented by `PublicAboutPageLayout`. Replace `aboutData` and the local monk fixture in `AboutContent` with the published content query and `useMonksQuery` only if the Sangha grid remains part of the intended page. Keep failures isolated: About body failure does not hide a separately fetched monk grid.
+Map the published About API body to the layout sections already represented by `PublicAboutPageLayout`. Replace `aboutData` and the local monk fixture in `AboutContent` with the published content query and `usePublicMonksQuery` only if the Sangha grid remains part of the intended page. Keep failures isolated: About body failure does not hide a separately fetched monk grid.
 
-- [ ] **Step 3: Apply one state boundary pattern to Contact, Privacy, and Impressum**
+The server route may fetch only for metadata and confirmed `notFound()`. `AboutContent` owns the body query's skeleton, retryable error, empty state, and success layout; the monk grid owns its own equivalent boundary. Seed client queries with `initialData` only when the server fetch succeeded. For a transient server failure, render the shell with no initial data and let the client retry.
+
+- [ ] **Step 4: Apply one state boundary pattern to Contact, Privacy, and Impressum**
 
 Contact retains a usable contact-form state even when optional CMS body fields are absent. Privacy and Impressum render a localized empty-public-content state when no published document exists; they never show hard-coded legal copy. All failures show retry UI and preserve the page shell.
 
-- [ ] **Step 4: Verify and commit**
+Each route becomes a thin server shell for metadata and confirmed 404 decisions. Its client content component owns `usePublicContentQuery`, loading skeleton, `QueryErrorState`, `EmptyState`, and the published-content renderer. Never catch an API error and silently substitute legal copy; use a locale key for intentional empty state instead. If content has an optional image, use `PublicImage` and omit any absent image field from structured data.
+
+- [ ] **Step 5: Verify and commit**
 
 Run: `cd frontend && npm run lint -- src/features/public/content 'src/app/[locale]/(client)/about' 'src/app/[locale]/(client)/contact' 'src/app/[locale]/(client)/privacy' 'src/app/[locale]/(client)/impressum'`
 
-Manually verify each page with published content, absent published content, and a simulated public API failure in TH/EN/DE.
+Manually verify each page with published content, absent published content (404 or empty response as defined by the endpoint), and a simulated 5xx public API failure in TH/EN/DE. Verify that a contact-form interaction remains usable while optional CMS content is loading or failed.
 
 ```bash
 git add frontend/src/features/public/content frontend/src/hooks/public-content.ts 'frontend/src/app/[locale]/(client)/about' 'frontend/src/app/[locale]/(client)/contact' 'frontend/src/app/[locale]/(client)/privacy' 'frontend/src/app/[locale]/(client)/impressum' frontend/src/messages/{th,en,de}.json
@@ -521,23 +531,31 @@ git commit -m "feat: query published public content pages"
 
 **Produces:** Home as a composition layer with isolated sections and no duplicate public API wrappers.
 
-- [ ] **Step 1: Replace each fixture consumer with its owning domain query**
+- [ ] **Step 1: Remove Home's server-side data orchestration before replacing fixture consumers**
 
-`EventsSection` uses `useEventsQuery` and slices the mapped list; `EventAlertModal` derives its next event from the same event model; welcome/donation sections use the published content query that owns their data. Do not introduce a Home-specific endpoint for data already returned by a domain endpoint.
+Move runtime visitor data ownership out of `app/[locale]/(client)/page.tsx`. The server route retains only metadata and static shell concerns; it must not call `publicService`, fetch Events/Monks, or use `Promise.all` for independent visitor data.
 
-- [ ] **Step 2: Preserve independent Home boundaries**
+Create a client composition boundary for Home if the existing `PublicHomePageLayout` cannot host query hooks. Pass only static labels, locale-independent page configuration, and successfully fetched metadata-derived initial data into it. On a transient server metadata failure, render the client boundary without initial data so its own query state can retry.
 
-Each Home section renders its own skeleton, error/retry state, empty state, or content. A failed events request must not remove hero/welcome/donation content. Avoid a page-level `Promise.all` for these independent resources.
+- [ ] **Step 2: Replace each fixture consumer with its owning domain query**
 
-- [ ] **Step 3: Remove only unused fixtures and legacy common types**
+`EventsSection` uses `usePublicEventsQuery` and slices mapped list data; `EventAlertModal` derives its next event from the same event query model; welcome/donation sections use the published content query that owns their data. Do not introduce a Home-specific endpoint for data already returned by a domain endpoint.
 
-Use `rg "@/data/(events|schedule|monks|about)" frontend/src` before deleting each JSON file. If an obsolete `frontend/src/types/common.ts` type is no longer imported, delete or narrow it in the same commit; do not leave a second event model in the codebase.
+Every query uses the existing domain key, retry classifier, and 60-second stale time. Event and monk cards use `PublicImage`; absence or failure of both source and fallback must render the visual placeholder rather than a blank frame. JSON-LD/metadata must conditionally include optional images rather than emitting `null` values.
 
-- [ ] **Step 4: Verify and commit**
+- [ ] **Step 3: Preserve independent Home boundaries**
+
+Each Home section renders its own skeleton, error/retry state, empty state, or content. A failed events request must not remove hero/welcome/donation content. Do not share a page-level loading or error branch across independently requested sections.
+
+- [ ] **Step 4: Remove only unused fixtures, temporary adapters, and legacy common types**
+
+Use `rg "@/data/(events|schedule|monks|about)" frontend/src` before deleting each JSON file. Then run `rg "publicService\." frontend/src` before deleting the temporary Home adapters in `publicService.ts`. If an obsolete `frontend/src/types/common.ts` type is no longer imported, delete or narrow it in the same commit; do not leave a second event model in the codebase.
+
+- [ ] **Step 5: Verify and commit**
 
 Run: `cd frontend && npm run lint -- src/components/home 'src/app/[locale]/(client)/page.tsx && rg "@/data/(events|schedule|monks|about)" frontend/src`
 
-Expected: lint passes and the `rg` command returns no matches before deleting fixtures.
+Expected: lint passes and both fixture and `publicService.` audits return no matches before deleting their implementations.
 
 Manually verify that each Home section continues to work independently when another source is loading, empty, or failed.
 
@@ -560,10 +578,11 @@ git commit -m "feat: compose home from public query domains"
 
 ```bash
 rg -n "@/data/(events|schedule|monks|about)|\bas any\b|unknown as" frontend/src/app/'[locale]'/'(client)' frontend/src/components/home frontend/src/features/public
-rg -n "useEffect\(|publicService\.get" frontend/src/app/'[locale]'/'(client)' frontend/src/components/home frontend/src/features/public
+rg -n "\bas Record<|useEffect\(|publicService\." frontend/src/app/'[locale]'/'(client)' frontend/src/components/home frontend/src/features/public
+rg -n "generateStaticParams|Promise\.all" frontend/src/app/'[locale]'/'(client)' frontend/src/components/home
 ```
 
-Expected: no fixture imports, no banned type escapes, no direct component fetches. Review any legitimate `useEffect` unrelated to fetching rather than removing it blindly.
+Expected: no fixture imports, no banned type escapes, no direct component fetches, no remaining temporary `publicService` consumers, no runtime static generation, and no Home-level aggregation of independent requests. Review any legitimate `useEffect` unrelated to fetching rather than removing it blindly.
 
 - [ ] **Step 2: Run focused static verification**
 
@@ -573,7 +592,7 @@ Expected: no errors. Resolve any errors without adding `any` or unsafe assertion
 
 - [ ] **Step 3: Perform manual visitor state review**
 
-For Events, Monks, About, Contact, Privacy, Impressum, and Home, confirm normal content, initial skeleton, empty response, request failure/retry, 404 detail, and three locale copies. Confirm a failure in a page subsection does not erase unrelated loaded content.
+For Events, Monks, About, Contact, Privacy, Impressum, and Home, confirm normal content, initial skeleton, empty response, retryable 5xx failure, confirmed 404 detail, absent image fallback, and three locale copies. Confirm a failure in a page subsection does not erase unrelated loaded content. For every server shell, confirm a transient server fetch still leaves a client retry boundary rather than a blank page or a false 404.
 
 - [ ] **Step 4: Commit any audit corrections**
 
