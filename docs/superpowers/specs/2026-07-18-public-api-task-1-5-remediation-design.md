@@ -14,7 +14,7 @@ The event detail handler returns HTTP 404 only when GORM reports `ErrRecordNotFo
 
 ## Typed client API boundary
 
-`publicService.ts` exports only the configured `publicApi` Axios instance. Endpoint functions and response DTOs live in their owning domain feature directories. No component imports endpoint-specific convenience methods from `publicService`.
+Endpoint functions and response DTOs live in their owning domain feature directories. `publicService.ts` remains the configured `publicApi` Axios host. Its two temporary Home adapters remain until Task 7 because the Home route still consumes them, but they receive explicit response types and must not be used by Events or Monks routes. Task 7 removes the adapters after Home moves to the domain APIs.
 
 Events, schedules, monks, and monk detail use the existing public retry classifier and set `staleTime` to 60 seconds. Query keys remain domain-specific and parameterized only by values that change the response.
 
