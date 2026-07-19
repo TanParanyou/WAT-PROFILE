@@ -71,6 +71,7 @@ export default function SchedulesPage() {
 
   const { data, pagination, sort, onPageChange, onSort, isLoading, fetchData } =
     useDataTable<Schedule>({
+      queryKey: "schedules",
       fetcher: (p) =>
         scheduleAdminService.getAll({ page: p.page, limit: p.limit }),
     });

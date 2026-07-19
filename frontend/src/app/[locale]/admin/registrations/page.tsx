@@ -34,6 +34,7 @@ export default function RegistrationsPage() {
 
   const { data, pagination, sort, onPageChange, onSort, isLoading, fetchData } =
     useDataTable<Record<string, unknown>>({
+      queryKey: "registrations",
       fetcher: (p) =>
         registrationAdminService.getAll({ page: p.page, limit: p.limit }),
     });

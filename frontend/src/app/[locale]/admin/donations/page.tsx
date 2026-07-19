@@ -25,6 +25,7 @@ export default function DonationsPage() {
 
   const { data, pagination, sort, onPageChange, onSort, isLoading, fetchData } =
     useDataTable<Donation>({
+      queryKey: "donations",
       fetcher: (p) =>
         donationAdminService.getAll({ page: p.page, limit: p.limit }),
     });

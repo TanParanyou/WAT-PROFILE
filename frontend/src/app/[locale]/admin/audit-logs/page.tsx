@@ -10,6 +10,7 @@ import type { AuditLog } from "@/types/auditLog";
 export default function AuditLogsPage() {
   const { data, pagination, sort, isLoading, onPageChange, onSort } =
     useDataTable<AuditLog>({
+      queryKey: "audit-logs",
       fetcher: (p) =>
         auditLogAdminService.getList({ page: p.page, limit: p.limit }),
     });

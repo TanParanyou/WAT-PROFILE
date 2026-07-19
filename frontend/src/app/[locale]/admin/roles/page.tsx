@@ -29,6 +29,7 @@ import { Icons } from "@/components/ui/Icons";
 export default function RolesPage() {
   const t = useTranslations("Admin");
   const { data, isLoading, fetchData } = useDataTable<Role>({
+      queryKey: "roles",
     fetcher: () => roleAdminService.getAll(),
   });
   const { confirm, ConfirmDialog } = useConfirm();

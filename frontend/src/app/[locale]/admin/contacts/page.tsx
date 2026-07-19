@@ -43,6 +43,7 @@ export default function ContactsPage() {
 
   const { data, pagination, sort, onPageChange, onSort, isLoading, fetchData } =
     useDataTable<ContactInquiry>({
+      queryKey: "contacts",
       fetcher: (p) =>
         contactAdminService.getAll({ page: p.page, limit: p.limit }),
     });

@@ -24,6 +24,7 @@ export default function GalleryListPage() {
   const t = useTranslations("Admin");
   const { data, pagination, sort, isLoading, onPageChange, onSort, fetchData } =
     useDataTable<Gallery>({
+      queryKey: "gallery",
       fetcher: (p) =>
         galleryAdminService.getAll({ page: p.page, limit: p.limit }),
     });

@@ -24,6 +24,7 @@ export default function UsersListPage() {
   const t = useTranslations("Admin");
   const { data, pagination, sort, isLoading, onPageChange, onSort, fetchData } =
     useDataTable<User>({
+      queryKey: "users",
       fetcher: (p) => userAdminService.getAll({ page: p.page, limit: p.limit }),
     });
   const { confirm, ConfirmDialog } = useConfirm();

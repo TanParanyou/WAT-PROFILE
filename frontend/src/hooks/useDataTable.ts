@@ -28,7 +28,7 @@ export interface UseDataTableOptions<T> {
     initialLimit?: number;
     initialSort?: SortState;
     fetcher?: (params: FetcherParams) => Promise<{ data: T[]; total: number }>;
-    queryKey?: string;
+    queryKey: string;
 }
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
@@ -37,7 +37,7 @@ export function useDataTable<T extends Record<string, any>>({
     initialLimit = 10,
     initialSort = { key: null, order: 'asc' },
     fetcher,
-    queryKey = 'datatable',
+    queryKey,
 }: UseDataTableOptions<T>) {
     const [page, setPage] = useState(1);
     const [limit] = useState(initialLimit);

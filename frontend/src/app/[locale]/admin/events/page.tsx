@@ -28,6 +28,7 @@ export default function EventsListPage() {
   const { formatDateRange } = useDateFormat();
   const { data, pagination, sort, isLoading, onPageChange, onSort, fetchData } =
     useDataTable<Event>({
+      queryKey: "events",
       fetcher: (p) =>
         eventAdminService.getAll({ page: p.page, limit: p.limit }),
     });

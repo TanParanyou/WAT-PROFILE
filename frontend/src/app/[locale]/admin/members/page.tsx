@@ -25,6 +25,7 @@ export default function MembersPage() {
 
   const { data, pagination, sort, onPageChange, onSort, isLoading, fetchData } =
     useDataTable<Member>({
+      queryKey: "members",
       fetcher: (p) =>
         memberAdminService.getAll({ page: p.page, limit: p.limit }),
     });

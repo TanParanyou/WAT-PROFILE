@@ -27,6 +27,7 @@ export default function MonksListPage() {
   const { getMonkPositionLabel } = useAppOptions();
   const { data, pagination, sort, isLoading, onPageChange, onSort, fetchData } =
     useDataTable<Monk>({
+      queryKey: "monks",
       fetcher: (p) => monkAdminService.getAll({ page: p.page, limit: p.limit }),
     });
   const { confirm, ConfirmDialog } = useConfirm();

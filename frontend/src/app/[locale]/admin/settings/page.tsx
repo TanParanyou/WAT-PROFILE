@@ -24,8 +24,10 @@ export default function SettingsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [alert, setAlert] = useState<EventAlertSettings>({ enabled: false, event_id: 0, delay_seconds: 2, dismiss_hours: 24 });
+  const [initialAlert, setInitialAlert] = useState<EventAlertSettings>({ enabled: false, event_id: 0, delay_seconds: 2, dismiss_hours: 24 });
   const [events, setEvents] = useState<Event[]>([]);
   const [shell, setShell] = useState({ logo_url: "", social_sidebar_position: "left", youtube_url: "" });
+  const [initialShell, setInitialShell] = useState({ logo_url: "", social_sidebar_position: "left", youtube_url: "" });
   const { toast } = useToast();
 
   const loadSettings = async () => {
@@ -34,9 +36,12 @@ export default function SettingsPage() {
       const data = await settingsAdminService.getAll();
       setSettings(data);
       const byKey = Object.fromEntries(data.map((item) => [item.key, item.value]));
-      setShell({ logo_url: byKey.logo_url ?? "", social_sidebar_position: byKey.social_sidebar_position === "right" ? "right" : "left", youtube_url: byKey.youtube_url ?? "" });
+      const shellVal = { logo_url: byKey.logo_url ?? "", social_sidebar_position: byKey.social_sidebar_position === "right" ? "right" : "left", youtube_url: byKey.youtube_url ?? "" };
+      setShell(shellVal);
+      setInitialShell(shellVal);
       const [alertSettings, eventResult] = await Promise.all([fetchAdminEventAlertSettings(), eventAdminService.getAll({ is_active: "true" })]);
       setAlert(alertSettings);
+      setInitialAlert(alertSettings);
       setEvents(eventResult.data);
     } catch {
       toast.error(t("settings.loadError"));
@@ -55,21 +60,31 @@ export default function SettingsPage() {
 
   const getValue = (setting: Setting) => changes[setting.key] ?? setting.value;
 
+  const isAlertChanged = JSON.stringify(alert) !== JSON.stringify(initialAlert);
+  const isShellChanged = JSON.stringify(shell) !== JSON.stringify(initialShell);
+  const hasChanges = Object.keys(changes).length > 0 || isAlertChanged || isShellChanged;
+
   const handleSave = async () => {
-    if (Object.keys(changes).length === 0) {
-      try { await saveAdminEventAlertSettings(eventAlertSettingsSchema.parse(alert)); await settingsAdminService.update([{ key: "logo_url", value: shell.logo_url }, { key: "social_sidebar_position", value: shell.social_sidebar_position }, { key: "youtube_url", value: shell.youtube_url }]); toast.success(t("common.success")); } catch { toast.error(t("common.error")); }
-      return;
-    }
     setIsSaving(true);
     try {
-      await settingsAdminService.update(
-        Object.entries(changes).map(([key, value]) => ({ key, value })),
-      );
+      if (Object.keys(changes).length > 0) {
+        await settingsAdminService.update(
+          Object.entries(changes).map(([key, value]) => ({ key, value })),
+        );
+      }
+      if (isAlertChanged) {
+        await saveAdminEventAlertSettings(eventAlertSettingsSchema.parse(alert));
+      }
+      if (isShellChanged) {
+        await settingsAdminService.update([
+          { key: "logo_url", value: shell.logo_url },
+          { key: "social_sidebar_position", value: shell.social_sidebar_position },
+          { key: "youtube_url", value: shell.youtube_url }
+        ]);
+      }
       toast.success(t("common.success"));
       setChanges({});
-      await saveAdminEventAlertSettings(eventAlertSettingsSchema.parse(alert));
-      await settingsAdminService.update([{ key: "logo_url", value: shell.logo_url }, { key: "social_sidebar_position", value: shell.social_sidebar_position }, { key: "youtube_url", value: shell.youtube_url }]);
-      loadSettings();
+      await loadSettings();
     } catch {
       toast.error(t("common.error"));
     } finally {
@@ -189,7 +204,7 @@ export default function SettingsPage() {
         {/* Sticky Action Bar */}
         <div className="sticky bottom-0 z-40 -mx-4 -mb-4 mt-8 flex items-center justify-between border-t border-zinc-200 bg-white/80 px-4 py-4 backdrop-blur-md sm:-mx-6 sm:-mb-6 sm:px-6">
           <div className="flex items-center gap-3">
-            {Object.keys(changes).length > 0 && (
+            {hasChanges && (
               <span className="flex items-center gap-1.5 text-xs font-medium text-amber-600">
                 <span className="relative flex h-2 w-2">
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
@@ -202,7 +217,7 @@ export default function SettingsPage() {
           <div className="flex gap-3 w-full sm:w-auto justify-end">
             <Button
               onClick={handleSave}
-              disabled={isSaving}
+              disabled={isSaving || !hasChanges}
               isLoading={isSaving}
               icon={<Icons.Save size={16} />}
               variant="primary"
