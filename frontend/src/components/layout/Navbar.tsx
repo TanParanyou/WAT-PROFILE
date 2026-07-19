@@ -200,6 +200,7 @@ export default function Navbar() {
         {/* Actions (Desktop) */}
         <div className="hidden md:flex items-center gap-4">
           <button
+            type="button"
             onClick={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
             aria-label={t("switchTheme")}
             className={`w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 ${
@@ -298,6 +299,7 @@ export default function Navbar() {
               className="mt-auto mb-12 space-y-6"
             >
               <button
+                type="button"
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                 className="w-full py-4 rounded-2xl bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white font-bold text-lg shadow-sm flex items-center justify-center gap-2"
               >
@@ -310,14 +312,16 @@ export default function Navbar() {
               </button>
 
               <button
+                type="button"
                 onClick={() => {
                   toggleLanguage();
                   setIsOpen(false);
                 }}
+                aria-label={t("switchLanguage")}
                 className="w-full py-4 rounded-2xl bg-primary text-white font-bold text-lg shadow-lg shadow-primary/30 flex items-center justify-center gap-2"
               >
                 <Globe aria-hidden="true" size={20} />
-                Switch Language ({locale.toUpperCase()})
+                {t("switchLanguage")} ({locale.toUpperCase()})
               </button>
             </motion.div>
           </motion.div>

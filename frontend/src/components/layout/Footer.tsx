@@ -40,15 +40,17 @@ export default function Footer() {
                                 href={settings.social.facebook}
                                 target="_blank"
                                 rel="noopener noreferrer"
+                                aria-label={t('facebook')}
                                 className="w-10 h-10 rounded-full bg-white dark:bg-zinc-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-primary hover:scale-110 transition-all shadow-sm border border-gray-100 dark:border-gray-700"
                             >
-                                <Facebook size={20} />
+                                <Facebook aria-hidden="true" size={20} />
                             </a>
                             <a
                                 href={`mailto:${settings.email}`}
+                                aria-label={t('email')}
                                 className="w-10 h-10 rounded-full bg-white dark:bg-zinc-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-primary hover:scale-110 transition-all shadow-sm border border-gray-100 dark:border-gray-700"
                             >
-                                <Mail size={20} />
+                                <Mail aria-hidden="true" size={20} />
                             </a>
                         </div>
                     </div>
@@ -77,19 +79,19 @@ export default function Footer() {
                         <ul className="space-y-4">
                             <li className="flex items-start gap-3">
                                 <MapPin className="text-primary mt-1 shrink-0" size={20} />
-                                <span className="text-gray-600 dark:text-gray-400">
+                                <span className="min-w-0 break-words text-gray-600 dark:text-gray-400">
                                     {getLocalizedText(settings.address, locale)}
                                 </span>
                             </li>
                             <li className="flex items-center gap-3">
                                 <Phone className="text-primary shrink-0" size={20} />
-                                <span className="text-gray-600 dark:text-gray-400">
+                                <span className="min-w-0 break-words text-gray-600 dark:text-gray-400">
                                     {settings.phone}
                                 </span>
                             </li>
                             <li className="flex items-center gap-3">
                                 <Mail className="text-primary shrink-0" size={20} />
-                                <span className="text-gray-600 dark:text-gray-400">
+                                <span className="min-w-0 break-all text-gray-600 dark:text-gray-400">
                                     {settings.email}
                                 </span>
                             </li>

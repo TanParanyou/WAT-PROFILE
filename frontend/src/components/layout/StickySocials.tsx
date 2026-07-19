@@ -1,11 +1,12 @@
 "use client";
 
 import { Facebook, Mail, Youtube } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { usePublicSiteSettings } from "@/features/public/settings/PublicSiteSettingsProvider";
 
 export default function StickySocials() {
   const settings = usePublicSiteSettings();
+  const shouldReduceMotion = useReducedMotion();
   const socials = [
     {
       name: "Facebook",
@@ -40,13 +41,14 @@ export default function StickySocials() {
           href={social.href || "#"}
           target="_blank"
           rel="noopener noreferrer"
-          initial={{ opacity: 0, x: -20 }}
+          aria-label={social.name}
+          initial={shouldReduceMotion ? false : { opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
-          transition={{ delay: 0.5 + index * 0.1 }}
+          transition={shouldReduceMotion ? { duration: 0 } : { delay: 0.5 + index * 0.1, duration: 0.35, ease: "easeOut" }}
           className={`w-12 h-12 rounded-full flex items-center justify-center text-white shadow-lg hover:scale-110 hover:-translate-y-1 transition-all duration-300 ${social.color}`}
           title={social.name}
         >
-          <social.icon size={24} />
+          <social.icon aria-hidden="true" size={24} />
         </motion.a>
       ))}
     </div>
