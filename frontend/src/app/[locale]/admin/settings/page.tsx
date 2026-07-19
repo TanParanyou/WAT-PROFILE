@@ -202,7 +202,7 @@ export default function SettingsPage() {
           <div className="flex gap-3 w-full sm:w-auto justify-end">
             <Button
               onClick={handleSave}
-              disabled={isSaving || Object.keys(changes).length === 0}
+              disabled={isSaving}
               isLoading={isSaving}
               icon={<Icons.Save size={16} />}
               variant="primary"
