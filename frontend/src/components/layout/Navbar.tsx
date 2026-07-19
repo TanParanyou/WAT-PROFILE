@@ -11,6 +11,25 @@ import { getLocalizedText } from "@/utils/i18n";
 import Image from "next/image";
 import { usePublicSiteSettings } from "@/features/public/settings/PublicSiteSettingsProvider";
 
+const fallbackLogo = "/images/icon/logo.png";
+
+function ResilientLogo({ src, alt }: { src: string; alt: string }) {
+  const [logoSrc, setLogoSrc] = useState(src || fallbackLogo);
+
+  return (
+    <Image
+      src={logoSrc}
+      alt={alt}
+      width={40}
+      height={40}
+      onError={() => {
+        if (logoSrc !== fallbackLogo) setLogoSrc(fallbackLogo);
+      }}
+      className="object-cover"
+    />
+  );
+}
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
@@ -106,12 +125,10 @@ export default function Navbar() {
                 : "bg-white text-primary"
             }`}
           >
-            <Image
-              src={settings.logoUrl || "/images/icon/logo.png"}
+            <ResilientLogo
+              key={settings.logoUrl || fallbackLogo}
+              src={settings.logoUrl || fallbackLogo}
               alt={getLocalizedText(siteConfig.siteName, locale)}
-              width={40}
-              height={40}
-              className="object-cover"
             />
           </div>
           <div className="flex flex-col">

@@ -6,7 +6,11 @@
         "visit": "Visit",
         "gallery": "Gallery",
         "contact": "Contact",
-        "monks": "Monks History"
+        "monks": "Monks History",
+        "openMenu": "Open menu",
+        "closeMenu": "Close menu",
+        "switchTheme": "Switch color theme",
+        "switchLanguage": "Change language"
     },
     "Footer": {
         "aboutUs": "About Us",
@@ -26,11 +30,13 @@
         "welcomeTo": "Welcome to",
         "inLocation": "in Germany",
         "viewEvents": "View Events",
-        "donate": "Donate"
+        "donate": "Donate",
+        "promise": "A place of practice for genuine peace and lasting well-being.",
+        "planVisit": "Plan your visit"
     },
     "WelcomeSection": {
         "welcome": "Welcome",
-        "description": "Wat Loung Por Sai is a sanctuary for Dharma practice and mindfulness meditation in Germany. Established to be a center for Buddhist learning and to encourage practitioners to cultivate their minds according to the Four Foundations of Mindfulness.",
+        "description": "Wat Loung Por Sai is a Theravada forest-tradition practice center in Biebergemünd, Germany. We welcome experienced practitioners and people who are beginning to explore Buddhist practice.",
         "meditation": "Meditation",
         "meditationDesc": "Mindfulness Practice",
         "sundaySchool": "Sunday School",
@@ -40,7 +46,7 @@
     },
     "DonationSection": {
         "title": "Support Wat Loung Por Sai",
-        "subtitle": "Make a Donation",
+        "subtitle": "Support the temple's work",
         "description": "Your donations help support the temple's utilities, maintenance, Buddhist activities, and youth education programs.",
         "donateOnline": "Donate Online",
         "contactUs": "Contact Us",
@@ -63,11 +69,12 @@
         "emptyDescription": "Please check back later for payment details.",
         "qrAlt": "Donation QR code",
         "accountNumberLabel": "Account number",
-        "close": "Close"
+        "close": "Close",
+        "channelHint": "Choose the channel that suits your country and bank."
     },
     "EventsSection": {
         "title": "Upcoming Events",
-        "subtitle": "Upcoming Events & Ceremonies",
+        "subtitle": "Find an activity that suits you and begin practicing with the temple community.",
         "viewAll": "View All",
         "readMore": "More Details",
         "close": "Close"

@@ -139,8 +139,8 @@ export const siteConfig: SiteConfig = {
     locales: ['th', 'en', 'de'],
 
     logo: {
-        light: '/images/logo-light.svg', // Placeholder
-        dark: '/images/logo-dark.svg',   // Placeholder
+        light: '/images/icon/logo.png',
+        dark: '/images/icon/logo.png',
     },
 
     theme: {

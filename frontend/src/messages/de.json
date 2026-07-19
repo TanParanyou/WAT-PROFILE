@@ -6,7 +6,11 @@
         "visit": "Besuch",
         "gallery": "Galerie",
         "contact": "Kontakt",
-        "monks": "Mönchschronik"
+        "monks": "Mönchschronik",
+        "openMenu": "Menü öffnen",
+        "closeMenu": "Menü schließen",
+        "switchTheme": "Farbschema wechseln",
+        "switchLanguage": "Sprache ändern"
     },
     "Footer": {
         "aboutUs": "Über Uns",
@@ -26,11 +30,13 @@
         "welcomeTo": "Willkommen bei",
         "inLocation": "in Deutschland",
         "viewEvents": "Veranstaltungen ansehen",
-        "donate": "Spenden"
+        "donate": "Spenden",
+        "promise": "Ein Ort der Praxis für echten Frieden und nachhaltiges Wohlbefinden.",
+        "planVisit": "Besuch planen"
     },
     "WelcomeSection": {
         "welcome": "Willkommen",
-        "description": "Wat Loung Por Sai dient als spirituelles Zentrum für die thailändische buddhistische Gemeinschaft in Deutschland. Unsere Mission ist es, die Lehren Buddhas (Dhamma) zu verbreiten und das thailändische Kulturerbe für zukünftige Generationen zu bewahren.",
+        "description": "Wat Loung Por Sai ist ein Praxiszentrum der Theravada-Waldtradition in Biebergemünd. Willkommen sind erfahrene Praktizierende ebenso wie Menschen, die buddhistische Praxis neu kennenlernen.",
         "meditation": "Meditation",
         "meditationDesc": "Achtsamkeitsübung",
         "sundaySchool": "Sonntagsschule",
@@ -40,7 +46,7 @@
     },
     "DonationSection": {
         "title": "Unterstützen Sie Wat Loung Por Sai",
-        "subtitle": "Spende tätigen",
+        "subtitle": "Die Arbeit des Tempels unterstützen",
         "description": "Ihre Spenden unterstützen die Instandhaltung des Tempels, buddhistische Aktivitäten und Bildungsprogramme für Jugendliche.",
         "donateOnline": "Online spenden",
         "contactUs": "Kontaktieren Sie uns",
@@ -63,11 +69,12 @@
         "emptyDescription": "Bitte prüfen Sie später erneut die Zahlungsinformationen.",
         "qrAlt": "Spenden-QR-Code",
         "accountNumberLabel": "Kontonummer",
-        "close": "Schließen"
+        "close": "Schließen",
+        "channelHint": "Wählen Sie den Zahlungsweg, der zu Ihrem Land und Ihrer Bank passt."
     },
     "EventsSection": {
         "title": "Kommende Veranstaltungen",
-        "subtitle": "Kommende Veranstaltungen & Zeremonien",
+        "subtitle": "Finden Sie eine passende Veranstaltung und praktizieren Sie gemeinsam mit der Tempelgemeinschaft.",
         "viewAll": "Alle ansehen",
         "readMore": "Mehr Details",
         "close": "Schließen"
