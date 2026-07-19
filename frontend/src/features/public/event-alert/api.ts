@@ -1,6 +1,7 @@
 import { z } from "zod";
 import { publicApi } from "@/services/publicService";
 import api from "@/services/api";
+import { useQuery } from "@tanstack/react-query";
 import { unwrapApiData, type ApiSuccess } from "../shared/api-types";
 
 export const eventAlertSettingsSchema = z.object({
@@ -19,4 +20,16 @@ export async function saveAdminEventAlertSettings(value: EventAlertSettings): Pr
   const payload = eventAlertSettingsSchema.parse(value);
   const response = await api.put<{ data: EventAlertSettings }>("/admin/event-alert", payload);
   return eventAlertSettingsSchema.parse(response.data.data);
+}
+
+export const eventAlertKeys = { settings: ["public", "event-alert", "settings"] as const };
+export function useEventAlertSettingsQuery() {
+  return useQuery({
+    queryKey: eventAlertKeys.settings,
+    queryFn: fetchEventAlertSettings,
+    staleTime: 5 * 60_000,
+    gcTime: 10 * 60_000,
+    refetchOnWindowFocus: false,
+    retry: false,
+  });
 }

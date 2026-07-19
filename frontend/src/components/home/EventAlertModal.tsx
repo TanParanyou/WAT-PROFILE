@@ -10,17 +10,16 @@ import { getLocalizedPlainText } from "@/features/public/shared/rich-text";
 import { formatDateRange, formatTimeRange } from "@/utils/formatters";
 import { PublicImage } from "@/components/public/media/PublicImage";
 import { publicEventFallbackImage } from "@/components/public/media/publicImageFallbacks";
-import { fetchEventAlertSettings, type EventAlertSettings } from "@/features/public/event-alert/api";
+import { useEventAlertSettingsQuery } from "@/features/public/event-alert/api";
 
 export default function EventAlertModal() {
   const locale = useLocale();
   const t = useTranslations("EventsSection");
   const query = usePublicEventsQuery(3);
-  const [settings, setSettings] = useState<EventAlertSettings | null>(null);
+  const settingsQuery = useEventAlertSettingsQuery();
+  const settings = settingsQuery.data;
   const [isOpen, setIsOpen] = useState(false);
   const event = settings?.event_id ? query.data?.find((item) => item.id === settings.event_id) : undefined;
-
-  useEffect(() => { void fetchEventAlertSettings().then(setSettings).catch(() => setSettings(null)); }, []);
 
   useEffect(() => {
     if (!settings?.enabled || !event || typeof window === "undefined") return;
