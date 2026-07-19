@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { siteConfig } from "@/config/site.config";
 import { Menu, X, Sun, Moon, Globe } from "lucide-react";
-import { AnimatePresence, motion, Variants } from "framer-motion";
+import { AnimatePresence, motion, useReducedMotion, Variants } from "framer-motion";
 import { useTranslations, useLocale } from "next-intl";
 import { Link, usePathname, useRouter } from "@/navigation";
 import { routing } from "@/routing";
@@ -39,6 +39,7 @@ export default function Navbar() {
   const tSite = useTranslations("Site");
   const locale = useLocale();
   const settings = usePublicSiteSettings();
+  const shouldReduceMotion = useReducedMotion();
 
   const pathname = usePathname();
   const router = useRouter();
@@ -96,15 +97,15 @@ export default function Navbar() {
 
   const navVariants: Variants = {
     hidden: { opacity: 0, y: -20 },
-    visible: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      transition: {
-        delay: i * 0.1,
-        duration: 0.5,
-        ease: "easeInOut",
-      },
-    }),
+      visible: (i: number) => ({
+        opacity: 1,
+        y: 0,
+        transition: {
+          delay: shouldReduceMotion ? 0 : i * 0.08,
+          duration: shouldReduceMotion ? 0 : 0.35,
+          ease: "easeOut",
+        },
+      }),
   };
 
   return (
@@ -200,37 +201,42 @@ export default function Navbar() {
         <div className="hidden md:flex items-center gap-4">
           <button
             onClick={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
+            aria-label={t("switchTheme")}
             className={`w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 ${
               scrolled
                 ? "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-zinc-700"
                 : "bg-white/10 text-white hover:bg-white/20 backdrop-blur-md"
             }`}
-            aria-label="Toggle Theme"
           >
             {!mounted ? (
-              <div className="w-5 h-5" /> // Placeholder to prevent layout shift
+              <div className="h-5 w-5" aria-hidden="true" />
             ) : theme === "dark" ? (
-              <Sun size={20} />
+              <Sun aria-hidden="true" size={20} />
             ) : (
-              <Moon size={20} />
+              <Moon aria-hidden="true" size={20} />
             )}
           </button>
 
           <button
             onClick={toggleLanguage}
+            aria-label={t("switchLanguage")}
             className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all duration-300 ${
               scrolled
                 ? "bg-gray-900 text-white hover:bg-black dark:bg-white dark:text-black dark:hover:bg-gray-200"
                 : "bg-white text-primary hover:bg-white/90 shadow-lg"
             }`}
           >
-            <Globe size={16} />
+            <Globe aria-hidden="true" size={16} />
             {locale.toUpperCase()}
           </button>
         </div>
 
         {/* Mobile Menu Toggle */}
         <button
+          type="button"
+          aria-label={isOpen ? t("closeMenu") : t("openMenu")}
+          aria-expanded={isOpen}
+          aria-controls="mobile-menu"
           className={`md:hidden relative z-50 p-2 rounded-full transition-colors ${
             scrolled || isOpen
               ? "text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-zinc-800"
@@ -239,7 +245,7 @@ export default function Navbar() {
           onClick={() => setIsOpen(!isOpen)}
         >
           <div className="w-6 h-6 flex items-center justify-center">
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
+            {isOpen ? <X aria-hidden="true" size={24} /> : <Menu aria-hidden="true" size={24} />}
           </div>
         </button>
       </div>
@@ -248,18 +254,19 @@ export default function Navbar() {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0 }}
+            initial={shouldReduceMotion ? false : { opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-40 bg-white dark:bg-zinc-950 backdrop-blur-2xl md:hidden flex flex-col pt-32 px-6"
+            transition={{ duration: shouldReduceMotion ? 0 : 0.2 }}
+            id="mobile-menu"
+            className="fixed inset-0 z-40 flex flex-col bg-white px-6 pt-32 dark:bg-zinc-950 md:hidden"
           >
             <div className="flex flex-col gap-6">
               {navLinks.map((link, i) => (
                 <motion.div
                   custom={i}
                   variants={navVariants}
-                  initial="hidden"
+                  initial={shouldReduceMotion ? false : "hidden"}
                   animate="visible"
                   key={link.href}
                 >
@@ -274,7 +281,7 @@ export default function Navbar() {
                   >
                     {link.name}
                     {pathname === link.href && (
-                      <motion.div
+                        <motion.div
                         layoutId="active-dot"
                         className="w-2 h-2 rounded-full bg-primary"
                       />
@@ -294,11 +301,11 @@ export default function Navbar() {
                 onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
                 className="w-full py-4 rounded-2xl bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white font-bold text-lg shadow-sm flex items-center justify-center gap-2"
               >
-                {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+                {theme === "dark" ? <Sun aria-hidden="true" size={20} /> : <Moon aria-hidden="true" size={20} />}
                 <span>
                   {theme === "dark"
-                    ? "Switch to Light Mode"
-                    : "Switch to Dark Mode"}
+                    ? t("switchToLight")
+                    : t("switchToDark")}
                 </span>
               </button>
 
@@ -309,7 +316,7 @@ export default function Navbar() {
                 }}
                 className="w-full py-4 rounded-2xl bg-primary text-white font-bold text-lg shadow-lg shadow-primary/30 flex items-center justify-center gap-2"
               >
-                <Globe size={20} />
+                <Globe aria-hidden="true" size={20} />
                 Switch Language ({locale.toUpperCase()})
               </button>
             </motion.div>

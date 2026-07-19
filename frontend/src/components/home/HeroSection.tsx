@@ -2,7 +2,7 @@
 
 import { ArrowRight, MapPinned } from "lucide-react";
 import { Link } from "@/navigation";
-import { motion } from "framer-motion";
+import { motion, useReducedMotion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
 import { usePublicHomePageQuery } from "@/features/public/content/home";
 import { toHomeHeroModel } from "@/features/public/content/home-section";
@@ -12,6 +12,7 @@ export default function HeroSection() {
   const locale = useLocale();
   const t = useTranslations("HeroSection");
   const tSite = useTranslations("Site");
+  const shouldReduceMotion = useReducedMotion();
   const homeQuery = usePublicHomePageQuery();
   const hero = toHomeHeroModel(homeQuery.data ?? null);
   const title = hero.title ? getLocalizedText(hero.title, locale) : tSite("name");
@@ -35,9 +36,9 @@ export default function HeroSection() {
       {/* Content */}
       <div className="relative z-20 mx-auto max-w-5xl px-4 text-center">
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={shouldReduceMotion ? false : { opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8 }}
+          transition={shouldReduceMotion ? { duration: 0 } : { duration: 0.6, ease: "easeOut" }}
         >
           <p className="mb-4 font-sans text-lg font-medium text-white/90 md:text-xl">
             {t("welcomeTo")}
@@ -70,8 +71,9 @@ export default function HeroSection() {
       {/* Scroll Indicator */}
       <motion.div
         className="absolute bottom-10 left-1/2 -translate-x-1/2 z-20 text-white/50"
-        animate={{ y: [0, 10, 0] }}
-        transition={{ duration: 1.5, repeat: Infinity }}
+        animate={shouldReduceMotion ? undefined : { y: [0, 10, 0] }}
+        transition={shouldReduceMotion ? undefined : { duration: 1.5, repeat: Infinity }}
+        aria-hidden="true"
       >
         <div className="w-6 h-10 border-2 border-white/30 rounded-full flex justify-center p-1">
           <div className="w-1 h-2 bg-white/50 rounded-full" />

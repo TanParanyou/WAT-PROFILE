@@ -10,7 +10,9 @@
         "openMenu": "เปิดเมนู",
         "closeMenu": "ปิดเมนู",
         "switchTheme": "สลับโหมดสี",
-        "switchLanguage": "เปลี่ยนภาษา"
+        "switchLanguage": "เปลี่ยนภาษา",
+        "switchToLight": "เปลี่ยนเป็นโหมดสว่าง",
+        "switchToDark": "เปลี่ยนเป็นโหมดมืด"
     },
     "Footer": {
         "aboutUs": "เกี่ยวกับวัด",

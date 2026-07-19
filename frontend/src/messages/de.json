@@ -10,7 +10,9 @@
         "openMenu": "Menü öffnen",
         "closeMenu": "Menü schließen",
         "switchTheme": "Farbschema wechseln",
-        "switchLanguage": "Sprache ändern"
+        "switchLanguage": "Sprache ändern",
+        "switchToLight": "Helles Farbschema wählen",
+        "switchToDark": "Dunkles Farbschema wählen"
     },
     "Footer": {
         "aboutUs": "Über Uns",

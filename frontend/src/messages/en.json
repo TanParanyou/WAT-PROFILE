@@ -10,7 +10,9 @@
         "openMenu": "Open menu",
         "closeMenu": "Close menu",
         "switchTheme": "Switch color theme",
-        "switchLanguage": "Change language"
+        "switchLanguage": "Change language",
+        "switchToLight": "Switch to light mode",
+        "switchToDark": "Switch to dark mode"
     },
     "Footer": {
         "aboutUs": "About Us",
