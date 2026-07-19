@@ -24,6 +24,7 @@ export default function SettingsPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [alert, setAlert] = useState<EventAlertSettings>({ enabled: false, event_id: 0, delay_seconds: 2, dismiss_hours: 24 });
   const [events, setEvents] = useState<Event[]>([]);
+  const [shell, setShell] = useState({ logo_url: "", social_sidebar_position: "left", youtube_url: "" });
   const { toast } = useToast();
 
   const loadSettings = async () => {
@@ -31,6 +32,8 @@ export default function SettingsPage() {
       setIsLoading(true);
       const data = await settingsAdminService.getAll();
       setSettings(data);
+      const byKey = Object.fromEntries(data.map((item) => [item.key, item.value]));
+      setShell({ logo_url: byKey.logo_url ?? "", social_sidebar_position: byKey.social_sidebar_position === "right" ? "right" : "left", youtube_url: byKey.youtube_url ?? "" });
       const [alertSettings, eventResult] = await Promise.all([fetchAdminEventAlertSettings(), eventAdminService.getAll({ is_active: "true" })]);
       setAlert(alertSettings);
       setEvents(eventResult.data);
@@ -53,7 +56,7 @@ export default function SettingsPage() {
 
   const handleSave = async () => {
     if (Object.keys(changes).length === 0) {
-      try { await saveAdminEventAlertSettings(eventAlertSettingsSchema.parse(alert)); toast.success(t("common.success")); } catch { toast.error(t("common.error")); }
+      try { await saveAdminEventAlertSettings(eventAlertSettingsSchema.parse(alert)); await settingsAdminService.update([{ key: "logo_url", value: shell.logo_url }, { key: "social_sidebar_position", value: shell.social_sidebar_position }, { key: "youtube_url", value: shell.youtube_url }]); toast.success(t("common.success")); } catch { toast.error(t("common.error")); }
       return;
     }
     setIsSaving(true);
@@ -64,6 +67,7 @@ export default function SettingsPage() {
       toast.success(t("common.success"));
       setChanges({});
       await saveAdminEventAlertSettings(eventAlertSettingsSchema.parse(alert));
+      await settingsAdminService.update([{ key: "logo_url", value: shell.logo_url }, { key: "social_sidebar_position", value: shell.social_sidebar_position }, { key: "youtube_url", value: shell.youtube_url }]);
       loadSettings();
     } catch {
       toast.error(t("common.error"));
@@ -74,21 +78,34 @@ export default function SettingsPage() {
 
   // จัดกลุ่มตาม category และกรองข้อมูลติดต่อ โซเชียล และบัญชีสมาคมออก (ย้ายไปอยู่ในข้อมูลเว็บไซต์แล้ว)
   const grouped = settings
-    .filter((s) => s.category !== "contact" && s.category !== "social" && s.category !== "donation")
+    .filter((s) => s.category !== "contact" && s.category !== "social" && s.category !== "donation" && !["logo_url", "social_sidebar_position", "youtube_url", "event_alert_settings"].includes(s.key))
     .reduce<Record<string, Setting[]>>((acc, s) => {
       const cat = s.category || "General";
       (acc[cat] ||= []).push(s);
       return acc;
     }, {});
 
+  const formatKeyToLabel = (key: string) => {
+    return key
+      .split("_")
+      .map((word) => word.charAt(0).toUpperCase() + word.slice(1))
+      .join(" ");
+  };
+
+  const getSettingLabel = (key: string) => {
+    const translationKey = `settings.keys.${key}`;
+    return t.has(translationKey) ? t(translationKey) : formatKeyToLabel(key);
+  };
+
   const renderInput = (setting: Setting) => {
     const val = getValue(setting);
+    const label = getSettingLabel(setting.key);
     switch (setting.type) {
       case "boolean":
         return (
           <Switch
             id={setting.key}
-            label={setting.key}
+            label={label}
             checked={val === "true"}
             onChange={(e) => handleChange(setting.key, e.target.checked)}
           />
@@ -97,7 +114,7 @@ export default function SettingsPage() {
         return (
           <Input
             id={setting.key}
-            label={setting.key}
+            label={label}
             type="number"
             value={val}
             onChange={(e) => handleChange(setting.key, e.target.value)}
@@ -107,7 +124,7 @@ export default function SettingsPage() {
         return (
           <Textarea
             id={setting.key}
-            label={setting.key}
+            label={label}
             value={val}
             onChange={(e) => handleChange(setting.key, e.target.value)}
             rows={4}
@@ -117,7 +134,7 @@ export default function SettingsPage() {
         return (
           <Input
             id={setting.key}
-            label={setting.key}
+            label={label}
             value={val}
             onChange={(e) => handleChange(setting.key, e.target.value)}
           />
@@ -135,15 +152,22 @@ export default function SettingsPage() {
       />
       <div className="space-y-6 max-w-3xl">
         <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Event Alert</h2>
-          <Switch id="event-alert-enabled" label="เปิดการแจ้งเตือนกิจกรรม" checked={alert.enabled} onChange={(e) => setAlert({ ...alert, enabled: e.target.checked })} />
-          <label className="block text-sm font-medium">กิจกรรมที่จะแสดง
+          <h2 className="text-lg font-semibold text-gray-900">{t("settings.eventAlert")}</h2>
+          <Switch id="event-alert-enabled" label={t("settings.eventAlertEnabled")} checked={alert.enabled} onChange={(e) => setAlert({ ...alert, enabled: e.target.checked })} />
+          <label className="block text-sm font-medium">{t("settings.eventToDisplay")}
             <select className="mt-1 w-full rounded-lg border p-2" value={alert.event_id} onChange={(e) => setAlert({ ...alert, event_id: Number(e.target.value) })}>
-              <option value={0}>เลือกกิจกรรม</option>{events.map((event) => <option key={event.id} value={event.id}>{event.title.th || event.title.en}</option>)}
+              <option value={0}>{t("settings.selectEvent")}</option>{events.map((event) => <option key={event.id} value={event.id}>{event.title.th || event.title.en}</option>)}
             </select>
           </label>
-          <Input id="alert-delay" label="หน่วงเวลาก่อนแสดง (วินาที)" type="number" min={0} max={30} value={alert.delay_seconds} onChange={(e) => setAlert({ ...alert, delay_seconds: Number(e.target.value) })} />
-          <Input id="alert-dismiss" label="ระยะเวลาหลังปิด (ชั่วโมง)" type="number" min={1} max={720} value={alert.dismiss_hours} onChange={(e) => setAlert({ ...alert, dismiss_hours: Number(e.target.value) })} />
+          <Input id="alert-delay" label={t("settings.delaySeconds")} type="number" min={0} max={30} value={alert.delay_seconds} onChange={(e) => setAlert({ ...alert, delay_seconds: Number(e.target.value) })} />
+          <Input id="alert-dismiss" label={t("settings.dismissHours")} type="number" min={1} max={720} value={alert.dismiss_hours} onChange={(e) => setAlert({ ...alert, dismiss_hours: Number(e.target.value) })} />
+        </div>
+        <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
+          <h2 className="text-lg font-semibold text-gray-900">Public Website</h2>
+          <Input id="logo-url" label="ลิงก์รูปภาพโลโก้เว็บไซต์" type="url" placeholder="https://.../logo.svg" value={shell.logo_url} onChange={(e) => setShell({ ...shell, logo_url: e.target.value })} />
+          {shell.logo_url && <img src={shell.logo_url} alt="Logo preview" className="h-16 max-w-xs rounded border object-contain p-2" />}
+          <label className="block text-sm font-medium">ตำแหน่งแถบโซเชียลมีเดียด้านข้าง<select className="mt-1 w-full rounded-lg border p-2" value={shell.social_sidebar_position} onChange={(e) => setShell({ ...shell, social_sidebar_position: e.target.value })}><option value="left">ซ้าย</option><option value="right">ขวา</option></select></label>
+          <Input id="youtube-url" label="ลิงก์ช่อง YouTube" type="url" placeholder="https://youtube.com/@channel" value={shell.youtube_url} onChange={(e) => setShell({ ...shell, youtube_url: e.target.value })} />
         </div>
         {Object.entries(grouped).map(([category, items]) => (
           <div
@@ -171,7 +195,7 @@ export default function SettingsPage() {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500"></span>
                 </span>
-                มีข้อมูลที่ยังไม่ได้เซฟ
+                {t("settings.unsavedChanges")}
               </span>
             )}
           </div>
