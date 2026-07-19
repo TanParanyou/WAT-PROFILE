@@ -13,6 +13,8 @@ import { toPublicQueryError } from "@/features/public/shared/query-error";
 import { getLocalizedPlainText } from "@/features/public/shared/rich-text";
 import { formatDateRange } from "@/utils/formatters";
 import { siteConfig } from "@/config/site.config";
+import { buildPublicMetadata } from "@/features/public/seo/metadata";
+import { emptySeoMetadata } from "@/features/public/seo/schema";
 
 interface Props {
   params: Promise<{ slug: string; locale: string }>;
@@ -21,7 +23,7 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, locale } = await params;
   const tEvents = await getTranslations({ locale, namespace: "EventsPage" });
-  const titleFallback = `${tEvents("title")} - ${siteConfig.siteName.th}`;
+    const titleFallback = tEvents("title");
   const descriptionFallback = tEvents("subtitle");
 
   try {
@@ -29,24 +31,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const title = getLocalizedText(event.title, locale);
     const description = event.description ? getLocalizedPlainText(event.description, locale) : descriptionFallback;
 
-    return {
-      title: `${title} - ${siteConfig.siteName.th}`,
-      description,
-      openGraph: {
-        title,
-        description,
-        images: event.image_url ? [event.image_url] : undefined,
-        type: "article",
-      },
-      alternates: {
-        canonical: `/${locale}/events/${slug}`,
-        languages: {
-          th: `/th/events/${slug}`,
-          en: `/en/events/${slug}`,
-          de: `/de/events/${slug}`,
-        },
-      },
-    };
+    return buildPublicMetadata({ locale, pathname: `/${locale}/events/${slug}`, seo: emptySeoMetadata, content: { title, description, image: event.image_url ?? undefined }, messages: { title: titleFallback, description: descriptionFallback }, site: { name: siteConfig.siteName.th, description: siteConfig.seo.defaultDescription, image: siteConfig.seo.defaultOgImage } });
   } catch (error) {
     const queryError = toPublicQueryError(error);
     if (queryError.kind === "not-found") {

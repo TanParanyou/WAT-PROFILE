@@ -9,6 +9,9 @@ import { getLocalizedText } from "@/features/public/monks/mappers";
 import { MonkDetailContent } from "@/features/public/monks/components/MonkDetailContent";
 import { toPublicQueryError } from "@/features/public/shared/query-error";
 import type { PublicMonkDto } from "@/features/public/monks/types";
+import { buildPublicMetadata } from "@/features/public/seo/metadata";
+import { emptySeoMetadata } from "@/features/public/seo/schema";
+import { siteConfig } from "@/config/site.config";
 
 interface Props {
   params: Promise<{ slug: string; locale: string }>;
@@ -22,18 +25,11 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     const name = getLocalizedText(monk.name, locale);
     const title = monk.title ? getLocalizedText(monk.title, locale) : "";
 
-    return {
-      title: `${name} - Wat Loung Por Sai`,
-      description: title ? `${name}, ${title}` : name,
-      openGraph: {
-        title: name,
-        description: title ? `${name}, ${title}` : name,
-        images: monk.image_url ? [monk.image_url] : undefined,
-      },
-    };
+    const description = title ? `${name}, ${title}` : name;
+    return buildPublicMetadata({ locale, pathname: `/${locale}/monks/${slug}`, seo: emptySeoMetadata, content: { title: name, description, image: monk.image_url ?? undefined }, messages: { title: name, description }, site: { name: siteConfig.siteName.th, description: siteConfig.seo.defaultDescription, image: siteConfig.seo.defaultOgImage } });
   } catch (error) {
     const queryError = toPublicQueryError(error);
-    return queryError.kind === "not-found" ? { title: "Monk Not Found" } : { title: "Monk" };
+    return queryError.kind === "not-found" ? { title: "Monk Not Found" } : { title: siteConfig.siteName.th };
   }
 }
 

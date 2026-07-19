@@ -12,6 +12,9 @@ import { settingsAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import type { Setting } from "@/types/entities";
 import { Icons } from "@/components/ui/Icons";
+import { eventAlertSettingsSchema, fetchAdminEventAlertSettings, saveAdminEventAlertSettings, type EventAlertSettings } from "@/features/public/event-alert/api";
+import { eventAdminService } from "@/services/adminService";
+import type { Event } from "@/types/entities";
 
 export default function SettingsPage() {
   const t = useTranslations("Admin");
@@ -19,6 +22,8 @@ export default function SettingsPage() {
   const [changes, setChanges] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
+  const [alert, setAlert] = useState<EventAlertSettings>({ enabled: false, event_id: 0, delay_seconds: 2, dismiss_hours: 24 });
+  const [events, setEvents] = useState<Event[]>([]);
   const { toast } = useToast();
 
   const loadSettings = async () => {
@@ -26,6 +31,9 @@ export default function SettingsPage() {
       setIsLoading(true);
       const data = await settingsAdminService.getAll();
       setSettings(data);
+      const [alertSettings, eventResult] = await Promise.all([fetchAdminEventAlertSettings(), eventAdminService.getAll({ is_active: "true" })]);
+      setAlert(alertSettings);
+      setEvents(eventResult.data);
     } catch {
       toast.error(t("settings.loadError"));
     } finally {
@@ -45,7 +53,7 @@ export default function SettingsPage() {
 
   const handleSave = async () => {
     if (Object.keys(changes).length === 0) {
-      toast.info(t("common.noChanges"));
+      try { await saveAdminEventAlertSettings(eventAlertSettingsSchema.parse(alert)); toast.success(t("common.success")); } catch { toast.error(t("common.error")); }
       return;
     }
     setIsSaving(true);
@@ -55,6 +63,7 @@ export default function SettingsPage() {
       );
       toast.success(t("common.success"));
       setChanges({});
+      await saveAdminEventAlertSettings(eventAlertSettingsSchema.parse(alert));
       loadSettings();
     } catch {
       toast.error(t("common.error"));
@@ -125,6 +134,17 @@ export default function SettingsPage() {
         breadcrumbs={[{ label: t("settings.title") }]}
       />
       <div className="space-y-6 max-w-3xl">
+        <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
+          <h2 className="text-lg font-semibold text-gray-900">Event Alert</h2>
+          <Switch id="event-alert-enabled" label="เปิดการแจ้งเตือนกิจกรรม" checked={alert.enabled} onChange={(e) => setAlert({ ...alert, enabled: e.target.checked })} />
+          <label className="block text-sm font-medium">กิจกรรมที่จะแสดง
+            <select className="mt-1 w-full rounded-lg border p-2" value={alert.event_id} onChange={(e) => setAlert({ ...alert, event_id: Number(e.target.value) })}>
+              <option value={0}>เลือกกิจกรรม</option>{events.map((event) => <option key={event.id} value={event.id}>{event.title.th || event.title.en}</option>)}
+            </select>
+          </label>
+          <Input id="alert-delay" label="หน่วงเวลาก่อนแสดง (วินาที)" type="number" min={0} max={30} value={alert.delay_seconds} onChange={(e) => setAlert({ ...alert, delay_seconds: Number(e.target.value) })} />
+          <Input id="alert-dismiss" label="ระยะเวลาหลังปิด (ชั่วโมง)" type="number" min={1} max={720} value={alert.dismiss_hours} onChange={(e) => setAlert({ ...alert, dismiss_hours: Number(e.target.value) })} />
+        </div>
         {Object.entries(grouped).map(([category, items]) => (
           <div
             key={category}
