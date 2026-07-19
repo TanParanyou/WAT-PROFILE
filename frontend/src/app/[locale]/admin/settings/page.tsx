@@ -15,6 +15,7 @@ import { Icons } from "@/components/ui/Icons";
 import { eventAlertSettingsSchema, fetchAdminEventAlertSettings, saveAdminEventAlertSettings, type EventAlertSettings } from "@/features/public/event-alert/api";
 import { eventAdminService } from "@/services/adminService";
 import type { Event } from "@/types/entities";
+import { ImageUpload } from "@/components/admin/ImageUpload";
 
 export default function SettingsPage() {
   const t = useTranslations("Admin");
@@ -164,8 +165,7 @@ export default function SettingsPage() {
         </div>
         <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
           <h2 className="text-lg font-semibold text-gray-900">Public Website</h2>
-          <Input id="logo-url" label="ลิงก์รูปภาพโลโก้เว็บไซต์" type="url" placeholder="https://.../logo.svg" value={shell.logo_url} onChange={(e) => setShell({ ...shell, logo_url: e.target.value })} />
-          {shell.logo_url && <img src={shell.logo_url} alt="Logo preview" className="h-16 max-w-xs rounded border object-contain p-2" />}
+          <ImageUpload label="โลโก้เว็บไซต์" value={shell.logo_url} onChange={(value) => setShell({ ...shell, logo_url: typeof value === "string" ? value : "" })} />
           <label className="block text-sm font-medium">ตำแหน่งแถบโซเชียลมีเดียด้านข้าง<select className="mt-1 w-full rounded-lg border p-2" value={shell.social_sidebar_position} onChange={(e) => setShell({ ...shell, social_sidebar_position: e.target.value })}><option value="left">ซ้าย</option><option value="right">ขวา</option></select></label>
           <Input id="youtube-url" label="ลิงก์ช่อง YouTube" type="url" placeholder="https://youtube.com/@channel" value={shell.youtube_url} onChange={(e) => setShell({ ...shell, youtube_url: e.target.value })} />
         </div>
