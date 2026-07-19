@@ -55,7 +55,7 @@ The generated SQL is committed. Production requires neither Go generation nor ac
 The up migration replaces active records for:
 
 - gallery images;
-- gallery categories represented by the fixtures;
+- all gallery categories, followed by the real categories represented by the fixtures;
 - event schedules belonging to replaceable events;
 - events that are not protected by registrations;
 - monks;
@@ -100,7 +100,7 @@ This exception takes priority over the general replace-all behavior for Events.
 - Map localized title, location, and description into JSONB values with `th`, `en`, and `de` keys.
 - Convert description strings to the canonical localized rich-text document rather than storing an object that React cannot render directly.
 - Parse ISO fixture dates into `start_date` and `end_date`.
-- Parse only valid `HH:mm` or `HH:mm - HH:mm` time values. Human labels such as `Fr. - So.` remain display content and must not be cast to PostgreSQL `time`.
+- Parse only valid `HH:mm` or `HH:mm - HH:mm` time values. Human labels such as `Fr. - So.` must not be cast to PostgreSQL `time`; because the current Event contract has no time-label field, these values produce null start/end times and the public UI displays the date without a misleading time.
 - Insert valid nested event schedule rows after the owning event is upserted.
 - Keep registration-related fields disabled unless the fixture explicitly provides valid values.
 
@@ -173,7 +173,7 @@ No permissive `map[string]interface{}`, Go `any`, TypeScript `any`, or unchecked
 
 The up migration uses an explicit transaction and performs operations in foreign-key-safe order:
 
-1. remove gallery rows and the fixture-owned gallery categories;
+1. remove all gallery rows and gallery categories;
 2. remove schedules of replaceable events;
 3. delete only unregistered events absent from the fixture;
 4. upsert fixture events by slug and recreate their schedules;
