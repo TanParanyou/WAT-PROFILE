@@ -57,7 +57,8 @@
       "users": "Users",
       "roles": "Roles",
       "registrations": "Registrations",
-      "audit_logs": "Audit Logs"
+      "audit_logs": "Audit Logs",
+      "settings": "Settings"
     },
     "header": {
       "logout": "Logout",
@@ -233,7 +234,38 @@
     },
     "settings": {
       "title": "Settings",
-      "loadError": "Failed to load settings"
+      "loadError": "Failed to load settings",
+      "eventAlert": "Event Alert",
+      "eventAlertEnabled": "Enable event alert",
+      "eventToDisplay": "Event to display",
+      "selectEvent": "Select Event",
+      "delaySeconds": "Delay before showing (seconds)",
+      "dismissHours": "Dismiss duration (hours)",
+      "unsavedChanges": "You have unsaved changes",
+      "keys": {
+        "address": "Temple Address",
+        "bank_account_info": "Bank Account Info (Donation)",
+        "paypal_email": "Paypal Email (Donation)",
+        "site_name": "Website Name (Default)",
+        "contact_address_de": "Contact Address (German)",
+        "contact_address_en": "Contact Address (English)",
+        "contact_address_th": "Contact Address (Thai)",
+        "contact_email": "Contact Email",
+        "contact_phone": "Contact Phone Number",
+        "facebook_url": "Facebook Page URL",
+        "instagram_url": "Instagram URL",
+        "line_url": "Line URL",
+        "logo_url": "Website Logo Image URL",
+        "site_description_de": "Website Description (German)",
+        "site_description_en": "Website Description (English)",
+        "site_description_th": "Website Description (Thai)",
+        "site_name_de": "Website Name (German)",
+        "site_name_en": "Website Name (English)",
+        "site_name_th": "Website Name (Thai)",
+        "social_sidebar_position": "Social Sidebar Position",
+        "youtube_url": "YouTube Channel URL",
+        "line_id": "Line ID"
+      }
     },
     "website": {
       "back": "Back",

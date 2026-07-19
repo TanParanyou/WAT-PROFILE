@@ -57,7 +57,8 @@
       "users": "Benutzer",
       "roles": "Rollen",
       "registrations": "Anmeldungen",
-      "audit_logs": "Audit-Logs"
+      "audit_logs": "Audit-Logs",
+      "settings": "Einstellungen"
     },
     "header": {
       "logout": "Abmelden",
@@ -233,7 +234,38 @@
     },
     "settings": {
       "title": "Einstellungen",
-      "loadError": "Einstellungen konnten nicht geladen werden"
+      "loadError": "Einstellungen konnten nicht geladen werden",
+      "eventAlert": "Veranstaltungsbenachrichtigung",
+      "eventAlertEnabled": "Veranstaltungsbenachrichtigung aktivieren",
+      "eventToDisplay": "Anzuzeigende Veranstaltung",
+      "selectEvent": "Veranstaltung auswählen",
+      "delaySeconds": "Verzögerung vor Anzeige (Sekunden)",
+      "dismissHours": "Ausblendedauer (Stunden)",
+      "unsavedChanges": "Sie haben ungespeicherte Änderungen",
+      "keys": {
+        "address": "Tempeladresse",
+        "bank_account_info": "Bankkontoinformationen (Spende)",
+        "paypal_email": "Paypal-E-Mail (Spende)",
+        "site_name": "Website-Name (Standard)",
+        "contact_address_de": "Kontaktadresse (Deutsch)",
+        "contact_address_en": "Kontaktadresse (Englisch)",
+        "contact_address_th": "Kontaktadresse (Thailändisch)",
+        "contact_email": "Kontakt-E-Mail",
+        "contact_phone": "Kontakt-Telefonnummer",
+        "facebook_url": "Facebook-Seite-URL",
+        "instagram_url": "Instagram-URL",
+        "line_url": "Line-URL",
+        "logo_url": "Website-Logo-Bild-URL",
+        "site_description_de": "Website-Beschreibung (Deutsch)",
+        "site_description_en": "Website-Beschreibung (Englisch)",
+        "site_description_th": "Website-Beschreibung (Thailändisch)",
+        "site_name_de": "Website-Name (Deutsch)",
+        "site_name_en": "Website-Name (Englisch)",
+        "site_name_th": "Website-Name (Thailändisch)",
+        "social_sidebar_position": "Position der Social-Sidebar",
+        "youtube_url": "YouTube-Kanal-URL",
+        "line_id": "Line-ID"
+      }
     },
     "website": {
       "back": "Zurück",

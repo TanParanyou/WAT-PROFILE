@@ -57,7 +57,8 @@
       "users": "ผู้ใช้งาน",
       "roles": "บทบาท",
       "registrations": "ลงทะเบียน",
-      "audit_logs": "บันทึกการใช้งาน"
+      "audit_logs": "บันทึกการใช้งาน",
+      "settings": "ตั้งค่า"
     },
     "header": {
       "logout": "ออกจากระบบ",
@@ -233,7 +234,38 @@
     },
     "settings": {
       "title": "การตั้งค่า",
-      "loadError": "โหลดการตั้งค่าไม่สำเร็จ"
+      "loadError": "โหลดการตั้งค่าไม่สำเร็จ",
+      "eventAlert": "การแจ้งเตือนกิจกรรม",
+      "eventAlertEnabled": "เปิดการแจ้งเตือนกิจกรรม",
+      "eventToDisplay": "กิจกรรมที่จะแสดง",
+      "selectEvent": "เลือกกิจกรรม",
+      "delaySeconds": "หน่วงเวลาก่อนแสดง (วินาที)",
+      "dismissHours": "ระยะเวลาหลังปิด (ชั่วโมง)",
+      "unsavedChanges": "มีข้อมูลที่ยังไม่ได้เซฟ",
+      "keys": {
+        "address": "ที่อยู่ของวัด",
+        "bank_account_info": "ข้อมูลบัญชีธนาคารสำหรับการบริจาค",
+        "paypal_email": "อีเมล Paypal สำหรับรับบริจาค",
+        "site_name": "ชื่อเว็บไซต์ (ค่าเริ่มต้น)",
+        "contact_address_de": "ที่อยู่ติดต่อ (ภาษาเยอรมัน)",
+        "contact_address_en": "ที่อยู่ติดต่อ (ภาษาอังกฤษ)",
+        "contact_address_th": "ที่อยู่ติดต่อ (ภาษาไทย)",
+        "contact_email": "อีเมลสำหรับติดต่อ",
+        "contact_phone": "เบอร์โทรศัพท์สำหรับติดต่อ",
+        "facebook_url": "ลิงก์หน้าเพจ Facebook",
+        "instagram_url": "ลิงก์ Instagram",
+        "line_url": "ลิงก์ Line",
+        "logo_url": "ลิงก์รูปภาพโลโก้เว็บไซต์",
+        "site_description_de": "คำอธิบายเว็บไซต์ (ภาษาเยอรมัน)",
+        "site_description_en": "คำอธิบายเว็บไซต์ (ภาษาอังกฤษ)",
+        "site_description_th": "คำอธิบายเว็บไซต์ (ภาษาไทย)",
+        "site_name_de": "ชื่อเว็บไซต์ (ภาษาเยอรมัน)",
+        "site_name_en": "ชื่อเว็บไซต์ (ภาษาอังกฤษ)",
+        "site_name_th": "ชื่อเว็บไซต์ (ภาษาไทย)",
+        "social_sidebar_position": "ตำแหน่งแถบโซเชียลมีเดียด้านข้าง",
+        "youtube_url": "ลิงก์ช่อง YouTube",
+        "line_id": "Line ID"
+      }
     },
     "website": {
       "back": "ย้อนกลับ",
