@@ -37,6 +37,7 @@
     "WelcomeSection": {
         "welcome": "Willkommen",
         "description": "Wat Loung Por Sai ist ein Praxiszentrum der Theravada-Waldtradition in Biebergemünd. Willkommen sind erfahrene Praktizierende ebenso wie Menschen, die buddhistische Praxis neu kennenlernen.",
+        "imageAlt": "Mönche und Praktizierende bei einer Zeremonie im Tempel",
         "meditation": "Meditation",
         "meditationDesc": "Achtsamkeitsübung",
         "sundaySchool": "Sonntagsschule",
@@ -78,6 +79,14 @@
         "viewAll": "Alle ansehen",
         "readMore": "Mehr Details",
         "close": "Schließen"
+    },
+    "VisitSection": {
+        "title": "Besuch vorbereiten",
+        "description": "Hier finden Sie Adresse, Anreiseinformationen und praktische Hinweise vor einer Veranstaltung oder Praxiszeit.",
+        "addressLabel": "Adresse des Tempels",
+        "addressFallback": "Die vollständige Adresse und Anreiseinformationen finden Sie auf der Kontaktseite.",
+        "planVisit": "Anreise planen",
+        "contact": "Tempel kontaktieren"
     },
     "AboutPage": {
         "title": "Über Wat Loung Por Sai",

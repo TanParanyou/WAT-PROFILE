@@ -37,6 +37,7 @@
     "WelcomeSection": {
         "welcome": "Welcome",
         "description": "Wat Loung Por Sai is a Theravada forest-tradition practice center in Biebergemünd, Germany. We welcome experienced practitioners and people who are beginning to explore Buddhist practice.",
+        "imageAlt": "Monks and practitioners taking part in a temple ceremony",
         "meditation": "Meditation",
         "meditationDesc": "Mindfulness Practice",
         "sundaySchool": "Sunday School",
@@ -78,6 +79,14 @@
         "viewAll": "View All",
         "readMore": "More Details",
         "close": "Close"
+    },
+    "VisitSection": {
+        "title": "Plan your visit",
+        "description": "Find the address, travel information, and practical details before joining an event or practice session.",
+        "addressLabel": "Temple address",
+        "addressFallback": "See the contact page for the full address and travel information.",
+        "planVisit": "Plan your journey",
+        "contact": "Contact the temple"
     },
     "AboutPage": {
         "title": "About Wat Loung Por Sai",

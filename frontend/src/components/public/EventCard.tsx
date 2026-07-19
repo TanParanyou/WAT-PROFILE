@@ -21,7 +21,7 @@ export function EventCard({ event, locale }: EventCardProps) {
   const imageUrl = event.image_url;
 
   return (
-    <div className="group rounded-2xl overflow-hidden bg-white shadow-sm hover:shadow-xl transition-all duration-300 border border-gray-100 flex flex-col h-full">
+    <div className="group flex h-full flex-col overflow-hidden rounded-xl border border-gray-100 bg-white shadow-sm transition-shadow duration-200 hover:shadow-md">
       <div className="relative h-48 w-full overflow-hidden bg-gray-100">
         <PublicImage
           src={imageUrl}
@@ -30,9 +30,6 @@ export function EventCard({ event, locale }: EventCardProps) {
           fallbackSrc={publicEventFallbackImage}
           className="object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
         />
-        <div className="absolute top-4 left-4 bg-white/90 backdrop-blur px-3 py-1 rounded-full text-xs font-semibold text-amber-700 shadow-sm">
-          {title}
-        </div>
       </div>
       <div className="p-5 flex flex-col flex-grow">
         <div className="flex items-center gap-2 text-sm text-gray-500 mb-2">

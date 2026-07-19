@@ -1,6 +1,6 @@
 "use client";
 
-import { motion } from "framer-motion";
+import Image from "next/image";
 import { useTranslations } from "next-intl";
 
 export default function WelcomeSection() {
@@ -8,77 +8,29 @@ export default function WelcomeSection() {
   const tSite = useTranslations("Site");
 
   return (
-    <section className="py-20 bg-white dark:bg-zinc-950">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-secondary font-sans font-medium tracking-wider mb-4 uppercase">
-              {t("welcome")}
-            </h2>
-            <h1 className="text-3xl md:text-5xl font-heading font-bold text-primary mb-8 leading-relaxed">
-              {tSite("name")}
-            </h1>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="prose prose-lg dark:prose-invert mx-auto text-gray-600 dark:text-gray-400 leading-relaxed font-light"
-          >
-            <p className="mb-6">{t("description")}</p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            viewport={{ once: true }}
-            className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8"
-          >
-            {/* Feature 1 */}
-            <div className="p-6 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary mx-auto mb-4 text-2xl">
-                🙏
-              </div>
-              <h3 className="font-heading font-bold text-lg mb-2">
-                {t("meditation")}
-              </h3>
-              <p className="text-sm text-gray-500 max-w-xs mx-auto">
-                {t("meditationDesc")}
-              </p>
-            </div>
-            {/* Feature 2 */}
-            <div className="p-6 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary mx-auto mb-4 text-2xl">
-                🏫
-              </div>
-              <h3 className="font-heading font-bold text-lg mb-2">
-                {t("sundaySchool")}
-              </h3>
-              <p className="text-sm text-gray-500 max-w-xs mx-auto">
-                {t("sundaySchoolDesc")}
-              </p>
-            </div>
-            {/* Feature 3 */}
-            <div className="p-6 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary mx-auto mb-4 text-2xl">
-                🌺
-              </div>
-              <h3 className="font-heading font-bold text-lg mb-2">
-                {t("culture")}
-              </h3>
-              <p className="text-sm text-gray-500 max-w-xs mx-auto">
-                {t("cultureDesc")}
-              </p>
-            </div>
-          </motion.div>
+    <section className="bg-white py-20 dark:bg-zinc-950" aria-labelledby="welcome-title">
+      <div className="container mx-auto grid gap-12 px-4 md:px-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,0.9fr)] lg:items-center lg:gap-16">
+        <div className="relative overflow-hidden rounded-2xl bg-zinc-100">
+          <Image
+            src="/images/gallery/common/LINE_ALBUM_1262026_260208_10.jpg"
+            alt={t("imageAlt")}
+            width={960}
+            height={1200}
+            sizes="(min-width: 1024px) 48vw, 100vw"
+            className="aspect-[4/5] w-full object-cover"
+          />
+        </div>
+        <div className="max-w-2xl">
+          <p className="mb-4 font-sans text-sm font-semibold text-secondary">{t("welcome")}</p>
+          <h2 id="welcome-title" className="text-balance font-heading text-3xl font-bold leading-tight text-primary md:text-5xl">
+            {tSite("name")}
+          </h2>
+          <p className="mt-6 text-pretty text-lg leading-relaxed text-gray-600 dark:text-gray-300">{t("description")}</p>
+          <ul className="mt-8 divide-y divide-zinc-200 border-y border-zinc-200 dark:divide-zinc-800 dark:border-zinc-800">
+            <li className="py-4"><h3 className="font-heading text-xl font-bold text-zinc-900 dark:text-white">{t("meditation")}</h3><p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{t("meditationDesc")}</p></li>
+            <li className="py-4"><h3 className="font-heading text-xl font-bold text-zinc-900 dark:text-white">{t("sundaySchool")}</h3><p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{t("sundaySchoolDesc")}</p></li>
+            <li className="py-4"><h3 className="font-heading text-xl font-bold text-zinc-900 dark:text-white">{t("culture")}</h3><p className="mt-1 text-sm text-gray-600 dark:text-gray-400">{t("cultureDesc")}</p></li>
+          </ul>
         </div>
       </div>
     </section>

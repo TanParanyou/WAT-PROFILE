@@ -1,6 +1,6 @@
 "use client";
 
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, MapPinned } from "lucide-react";
 import { Link } from "@/navigation";
 import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
@@ -20,7 +20,7 @@ export default function HeroSection() {
   const ctaHref = hero.ctaHref ?? "/events";
 
   return (
-    <section className="relative h-screen w-full overflow-hidden flex items-center justify-center">
+    <section className="relative flex min-h-[100svh] w-full items-center justify-center overflow-hidden">
       {/* Background Image (Placeholder) */}
       <div
         className="absolute inset-0 z-0 bg-cover bg-center"
@@ -33,30 +33,35 @@ export default function HeroSection() {
       </div>
 
       {/* Content */}
-      <div className="relative z-20 text-center px-4 max-w-4xl mx-auto">
+      <div className="relative z-20 mx-auto max-w-5xl px-4 text-center">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.8 }}
         >
-          <h2 className="text-xl md:text-2xl text-white font-medium tracking-wider mb-4 font-sans">
+          <p className="mb-4 font-sans text-lg font-medium text-white/90 md:text-xl">
             {t("welcomeTo")}
-          </h2>
-          <h1 className="text-5xl md:text-7xl lg:text-8xl font-heading font-bold text-white mb-6 leading-tight">
+          </p>
+          <h1 className="mb-6 text-balance font-heading text-5xl font-bold leading-tight text-white md:text-7xl lg:text-8xl">
             {title}
           </h1>
-          <p className="text-lg md:text-xl text-gray-200 mb-10 max-w-2xl mx-auto font-light">
-            {title}
-            <br className="hidden md:block" />
-            {description}
+          <p className="mx-auto mb-10 max-w-2xl text-pretty text-lg font-light leading-relaxed text-white/85 md:text-xl">
+            {hero.description ? description : t("promise")}
           </p>
 
-          <div className="flex flex-col sm:flex-row gap-4 justify-center items-center">
+          <div className="flex flex-col items-stretch justify-center gap-3 sm:flex-row sm:items-center">
             <Link
               href={ctaHref}
-              className="px-8 py-3 bg-primary hover:bg-primary/90 text-white rounded-full font-medium transition-all flex items-center gap-2"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full bg-primary px-8 py-3 font-medium text-white transition-colors duration-200 hover:bg-primary-600 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
             >
-              {ctaLabel} <ArrowRight size={18} />
+              {ctaLabel} <ArrowRight aria-hidden="true" size={18} />
+            </Link>
+            <Link
+              href="/contact"
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-full border border-white/60 bg-black/15 px-8 py-3 font-medium text-white transition-colors duration-200 hover:bg-white/15 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white"
+            >
+              <MapPinned aria-hidden="true" size={18} />
+              {t("planVisit")}
             </Link>
           </div>
         </motion.div>
