@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-07-18T14:41:16Z",
+  "title": "Design System: Wat Loung Por Sai",
+  "extensions": {
+    "colorMeta": {
+      "faith-gold": {
+        "role": "primary",
+        "displayName": "ทองแห่งศรัทธา — Faith Gold",
+        "canonical": "#C88D1E",
+        "tonalRamp": ["#351D08", "#5B3713", "#6F4314", "#875412", "#A97016", "#C88D1E", "#E3C886", "#FCF9F2"]
+      },
+      "forest-calm": {
+        "role": "secondary",
+        "displayName": "เขียวป่าอันสงบ — Forest Calm",
+        "canonical": "#4A6741",
+        "tonalRamp": ["#070A06", "#0F150D", "#1E291A", "#2C3E27", "#3B5234", "#4A6741", "#A1BD96", "#F4F7F2"]
+      },
+      "morning-amber": {
+        "role": "tertiary",
+        "displayName": "แสงอำพัน — Morning Amber",
+        "canonical": "#EEA111",
+        "tonalRamp": ["#181002", "#302003", "#5F4007", "#8F600A", "#BF810D", "#EEA111", "#F5C670", "#FDF6E7"]
+      },
+      "warm-ground": {
+        "role": "neutral",
+        "displayName": "พื้นดินอุ่น — Warm Ground",
+        "canonical": "#FCF3E9",
+        "tonalRamp": ["#160E03", "#2C1B07", "#58370E", "#845215", "#B06D1C", "#DD8922", "#F1D0A7", "#FCF3E9"]
+      },
+      "grounded-ink": {
+        "role": "neutral",
+        "displayName": "หมึกหยั่งราก — Grounded Ink",
+        "canonical": "#2B1F08",
+        "tonalRamp": ["#151004", "#2B1F08", "#563F10", "#815E18", "#AB7D21", "#D69C29", "#EFD8A9", "#FBF5EA"]
+      }
+    },
+    "typographyMeta": {
+      "display": { "displayName": "Display", "purpose": "ชื่อวัดและข้อความหลักใน hero เท่านั้น" },
+      "headline": { "displayName": "Headline", "purpose": "หัวเรื่องหลักของหน้าและ section" },
+      "title": { "displayName": "Title", "purpose": "ชื่อกิจกรรม บุคคล และกลุ่มเนื้อหา" },
+      "body": { "displayName": "Body", "purpose": "เนื้อหาหลายภาษาที่อ่านง่าย" },
+      "label": { "displayName": "Label", "purpose": "เมนู ปุ่ม วันที่ และข้อมูลกำกับ" }
+    },
+    "shadows": [
+      { "name": "resting-surface", "value": "0 1px 2px rgba(0, 0, 0, 0.05)", "purpose": "แยกพื้นผิวจากฉากหลังเพียงเล็กน้อย" },
+      { "name": "interactive-lift", "value": "0 4px 8px rgba(43, 31, 8, 0.10)", "purpose": "สถานะ hover ขององค์ประกอบที่คลิกได้" },
+      { "name": "modal-layer", "value": "0 8px 24px rgba(22, 14, 3, 0.18)", "purpose": "dialog และ overlay ที่ลอยเหนือเนื้อหา" }
+    ],
+    "motion": [
+      { "name": "state-fast", "value": "200ms cubic-bezier(0.22, 1, 0.36, 1)", "purpose": "hover, focus และสถานะปุ่ม" },
+      { "name": "surface-standard", "value": "300ms cubic-bezier(0.22, 1, 0.36, 1)", "purpose": "navigation, menu และการเปลี่ยนพื้นผิว" },
+      { "name": "entrance-calm", "value": "600ms cubic-bezier(0.22, 1, 0.36, 1)", "purpose": "การปรากฏของเนื้อหาที่มีเหตุผลและมี reduced-motion fallback" }
+    ],
+    "breakpoints": [
+      { "name": "sm", "value": "640px" },
+      { "name": "md", "value": "768px" },
+      { "name": "lg", "value": "1024px" },
+      { "name": "xl", "value": "1280px" }
+    ]
+  },
+  "components": [
+    {
+      "name": "Hero CTA",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "การกระทำหลักที่พาผู้เข้าชมไปยังกิจกรรม",
+      "html": "<a class=\"ds-hero-cta\" href=\"#\">ดูกิจกรรม <span aria-hidden=\"true\">→</span></a>",
+      "css": ".ds-hero-cta { display:inline-flex; align-items:center; gap:8px; background:var(--primary-500,#C88D1E); color:#fff; padding:12px 32px; border-radius:9999px; font:500 16px/1.5 Inter,Segoe UI,Arial,sans-serif; text-decoration:none; transition:background 200ms cubic-bezier(.22,1,.36,1),transform 200ms cubic-bezier(.22,1,.36,1); } .ds-hero-cta:hover { background:var(--primary-600,#A97016); transform:translateY(-1px); } .ds-hero-cta:focus-visible { outline:3px solid rgba(238,161,17,.45); outline-offset:3px; }"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "การกระทำรองบนพื้นสว่าง",
+      "html": "<button class=\"ds-btn-secondary\">วางแผนการเดินทาง</button>",
+      "css": ".ds-btn-secondary { background:#fff; color:var(--primary-500,#C88D1E); border:1px solid rgba(200,141,30,.35); border-radius:9999px; padding:10px 20px; font:500 14px/1.5 Inter,Segoe UI,Arial,sans-serif; transition:background 200ms cubic-bezier(.22,1,.36,1),border-color 200ms cubic-bezier(.22,1,.36,1); } .ds-btn-secondary:hover { background:var(--primary-50,#FCF9F2); border-color:var(--primary-500,#C88D1E); } .ds-btn-secondary:focus-visible { outline:3px solid rgba(238,161,17,.45); outline-offset:3px; }"
+    },
+    {
+      "name": "Text Input",
+      "kind": "input",
+      "refersTo": "input-default",
+      "description": "ช่องกรอกข้อมูลที่ชัดเจนสำหรับแบบฟอร์มหลายภาษา",
+      "html": "<label class=\"ds-field\"><span>อีเมล</span><input type=\"email\" placeholder=\"name@example.com\"></label>",
+      "css": ".ds-field { display:grid; gap:6px; color:#2B1F08; font:500 14px/1.5 Inter,Segoe UI,Arial,sans-serif; } .ds-field input { background:#fff; color:#2B1F08; border:1px solid #D1D5DB; border-radius:8px; padding:8px 12px; font:400 16px/1.5 Inter,Segoe UI,Arial,sans-serif; } .ds-field input::placeholder { color:#6B7280; } .ds-field input:hover { border-color:#9CA3AF; } .ds-field input:focus-visible { border-color:var(--primary-500,#C88D1E); outline:3px solid rgba(238,161,17,.30); outline-offset:1px; }"
+    },
+    {
+      "name": "Navigation Pill",
+      "kind": "nav",
+      "description": "เมนูเดสก์ท็อปที่ลอยเหนือภาพ hero",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-nav-active\" href=\"#\">หน้าแรก</a><a href=\"#\">กิจกรรม</a><a href=\"#\">ติดต่อ</a></nav>",
+      "css": ".ds-nav { display:flex; align-items:center; gap:4px; width:max-content; padding:6px 16px; border:1px solid rgba(255,255,255,.18); border-radius:9999px; background:rgba(0,0,0,.28); color:#fff; } .ds-nav a { color:inherit; padding:8px 18px; border-radius:9999px; font:500 14px/1.5 Inter,Segoe UI,Arial,sans-serif; text-decoration:none; transition:background 200ms cubic-bezier(.22,1,.36,1),color 200ms cubic-bezier(.22,1,.36,1); } .ds-nav a:hover { background:rgba(255,255,255,.12); } .ds-nav .ds-nav-active { background:#fff; color:var(--primary-500,#C88D1E); } .ds-nav a:focus-visible { outline:3px solid rgba(238,161,17,.55); outline-offset:2px; }"
+    },
+    {
+      "name": "Content Card",
+      "kind": "card",
+      "refersTo": "content-card",
+      "description": "พื้นผิวข้อมูลกิจกรรมหรือเนื้อหาที่แยกจากฉากหลังอย่างสงบ",
+      "html": "<article class=\"ds-card\"><p class=\"ds-card-date\">26 กรกฎาคม 2569</p><h3>วันอาสาฬหบูชาและเข้าพรรษา</h3><p>ร่วมทำบุญ ฟังธรรม และปฏิบัติภาวนา ณ ศาลาหลัก</p><a href=\"#\">ดูรายละเอียด</a></article>",
+      "css": ".ds-card { max-width:360px; background:#fff; color:#2B1F08; border:1px solid rgba(43,31,8,.09); border-radius:16px; padding:24px; font:400 16px/1.65 Inter,Segoe UI,Arial,sans-serif; transition:box-shadow 200ms cubic-bezier(.22,1,.36,1),transform 200ms cubic-bezier(.22,1,.36,1); } .ds-card:hover { box-shadow:0 4px 8px rgba(43,31,8,.10); transform:translateY(-2px); } .ds-card h3 { margin:6px 0 10px; font:700 24px/1.3 Georgia,Times New Roman,serif; } .ds-card p { margin:0 0 14px; } .ds-card-date { color:#875412; font-weight:600; } .ds-card a { color:#875412; font-weight:600; text-underline-offset:3px; } .ds-card a:focus-visible { outline:3px solid rgba(238,161,17,.45); outline-offset:3px; }"
+    },
+    {
+      "name": "Category Chip",
+      "kind": "chip",
+      "description": "ตัวกรองหมวดหมู่ที่แสดงสถานะเลือกอย่างชัดเจน",
+      "html": "<div class=\"ds-chip-row\"><button class=\"ds-chip ds-chip-selected\">ทั้งหมด</button><button class=\"ds-chip\">กิจกรรมวัด</button></div>",
+      "css": ".ds-chip-row { display:flex; flex-wrap:wrap; gap:8px; } .ds-chip { border:0; border-radius:9999px; padding:8px 16px; background:#F3F4F6; color:#563F10; font:600 14px/1.5 Inter,Segoe UI,Arial,sans-serif; transition:background 200ms cubic-bezier(.22,1,.36,1),color 200ms cubic-bezier(.22,1,.36,1); } .ds-chip:hover { background:#E5E7EB; } .ds-chip-selected { background:var(--primary-500,#C88D1E); color:#fff; } .ds-chip:focus-visible { outline:3px solid rgba(238,161,17,.45); outline-offset:2px; }"
+    }
+  ],
+  "narrative": {
+    "northStar": "ศาลาแห่งความสงบ — The Quiet Sala",
+    "overview": "ระบบภาพทำหน้าที่เหมือนศาลาที่เปิดรับผู้มาเยือน: สงบ มองเห็นทางเข้า และมีจุดหมายถัดไปชัดเจน ภาพจริงของวัด พระสงฆ์ และกิจกรรมเป็นผู้เล่าเรื่องหลัก ส่วนสีทองแห่งศรัทธาทำหน้าที่นำสายตาไปยังข้อมูลและการกระทำที่สำคัญ\n\nความสงบไม่ใช่ความว่างเปล่าหรือความหรูหรา แต่คือการจัดลำดับข้อมูลอย่างจริงใจ ใช้พื้นที่ว่างให้เนื้อหาหายใจ และทำให้ภาษาไทย อังกฤษ และเยอรมันอ่านง่ายเท่าเทียมกัน ระบบนี้ปฏิเสธความเชิงพาณิชย์ที่โอ้อวด การตกแต่งด้วยทองหรือลายไทยเกินจำเป็น และหน้าที่แน่นจนองค์ประกอบแข่งขันกัน",
+    "keyCharacteristics": [
+      "ภาพสถานที่และกิจกรรมจริงนำอารมณ์ของหน้า",
+      "สีทองใช้เพื่อการนำทาง ไม่ใช้เป็นเครื่องประดับทั่วทั้งหน้า",
+      "พื้นผิวสงบและโครงสร้างข้อมูลชัดเจนบนทุกขนาดหน้าจอ",
+      "การเคลื่อนไหวสุภาพและเคารพ `prefers-reduced-motion`",
+      "เว็บไซต์สาธารณะอบอุ่นและเล่าเรื่อง ส่วน CMS คงความเงียบและเน้นประสิทธิภาพ"
+    ],
+    "rules": [
+      { "name": "The Guiding Gold Rule", "body": "สีทองคือป้ายบอกทาง ใช้กับการกระทำหรือข้อมูลที่สำคัญจริงเท่านั้น ไม่ราดทั่วพื้นผิวเพื่อสร้างความรู้สึกหรูหรา", "section": "colors" },
+      { "name": "The Image Carries Culture Rule", "body": "ถ่ายทอดความเป็นวัดไทยผ่านภาพจริง เนื้อหา และบริบท ห้ามพึ่งสีทอง ลายไทย หรือสัญลักษณ์ทางศาสนาซ้ำ ๆ เป็นทางลัด", "section": "colors" },
+      { "name": "The Read Before Reverence Rule", "body": "ความน่าเคารพต้องไม่แลกกับการอ่านยาก ข้อความทุกภาษาต้องมีขนาด ระยะบรรทัด และคอนทราสต์เพียงพอก่อนพิจารณาความงาม", "section": "typography" },
+      { "name": "The One H1 Rule", "body": "แต่ละหน้ามี H1 เพียงหนึ่งตัว ห้ามใช้ H1 ซ้ำเพื่อจัดขนาดหัวเรื่องในแต่ละ section", "section": "typography" },
+      { "name": "The Flat-at-Rest Rule", "body": "พื้นผิวทั่วไปแบนราบ เงาเกิดขึ้นเพราะลำดับชั้นหรือสถานะโต้ตอบ ไม่ใช่เพื่อทำให้ทุกกล่องดูเป็นการ์ด", "section": "elevation" }
+    ],
+    "dos": [
+      "Do ใช้ภาพวัด พระสงฆ์ และกิจกรรมจริงเป็นหลักฐานและตัวสร้างอารมณ์ของหน้า",
+      "Do ใช้ Faith Gold (`#C88D1E`) เพื่อชี้การกระทำหรือข้อมูลที่สำคัญจริง",
+      "Do จำกัดการ์ดทั่วไปที่มุม `12–16px` และใช้พื้นที่ว่างสร้างลำดับชั้น",
+      "Do รักษา body text ที่ `1.125rem/1.75` และความยาวบรรทัด 65–75ch สำหรับเนื้อหายาว",
+      "Do ออกแบบและทดสอบภาษาไทย อังกฤษ และเยอรมันบนมือถือ แท็บเล็ต และเดสก์ท็อป",
+      "Do รองรับคีย์บอร์ด โปรแกรมอ่านหน้าจอ การซูม และ `prefers-reduced-motion`"
+    ],
+    "donts": [
+      "Don't ทำให้เว็บไซต์ดูหรูหราหรือเชิงพาณิชย์จนกลบความเรียบสงบของวัด",
+      "Don't ใช้ลวดลายไทย สีทอง หรือสัญลักษณ์ทางศาสนามากเกินไป",
+      "Don't จัดเนื้อหาแน่น อ่านยาก หรือปล่อยให้องค์ประกอบแข่งขันกัน",
+      "Don't ทำให้เว็บไซต์ดูเหมือนเทมเพลตเว็บไซต์วัดทั่วไปจนขาดตัวตนของวัดหลวงพ่อใส",
+      "Don't ใช้ภาพหรือถ้อยคำที่โอ้อวดเกินจริง",
+      "Don't ใช้ gradient text, side-stripe border, decorative grid, repeating stripes หรือ glassmorphism เป็นค่าเริ่มต้น",
+      "Don't จับคู่เส้นขอบ 1px กับเงาฟุ้งที่ blur ตั้งแต่ 16px ขึ้นไปบนการ์ดหรือปุ่ม",
+      "Don't ใช้มุมโค้งเกิน `16px` บนการ์ดเนื้อหาปกติ หรือปล่อยหัวเรื่องล้นกรอบบนหน้าจอแคบ",
+      "Don't ใช้ H1 ซ้ำหลายตัวในหน้าเดียว หรือใช้ tiny uppercase eyebrow ซ้ำเหนือทุก section"
+    ]
+  }
+}
