@@ -4,32 +4,18 @@ import { siteConfig } from '@/config/site.config';
 import { websiteCmsPublicService } from '@/services/websiteCmsService';
 import { getLocalizedText } from '@/utils/localizedText';
 import GalleryContent from './GalleryContent';
+import { fetchPublishedPageMetadata } from '@/features/public/seo/api';
+import { buildPublicMetadata, normalizeSeo } from '@/features/public/seo/metadata';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
     const { locale } = await params;
     const t = await getTranslations({ locale, namespace: 'GalleryPage' });
     const cmsPage = await websiteCmsPublicService.getPage('gallery').catch(() => null);
+    const apiPage = await fetchPublishedPageMetadata('gallery').catch(() => null);
 
-    const title = cmsPage ? getLocalizedText(cmsPage.title, locale) || t('title') : t('title');
-    const description = cmsPage ? getLocalizedText(cmsPage.description, locale) || t('subtitle') : t('subtitle');
-
-    return {
-        title,
-        description,
-        openGraph: {
-            title: `${title} | ${siteConfig.siteName.th}`,
-            description,
-            images: [{ url: siteConfig.seo.defaultOgImage, width: 1200, height: 630 }],
-        },
-        alternates: {
-            canonical: `/${locale}/gallery`,
-            languages: {
-                th: '/th/gallery',
-                en: '/en/gallery',
-                de: '/de/gallery',
-            },
-        },
-    };
+    const title = apiPage ? getLocalizedText(apiPage.title, locale) : cmsPage ? getLocalizedText(cmsPage.title, locale) : '';
+    const description = apiPage ? getLocalizedText(apiPage.description, locale) : cmsPage ? getLocalizedText(cmsPage.description, locale) : '';
+    return buildPublicMetadata({ locale, pathname: `/${locale}/gallery`, seo: normalizeSeo(apiPage?.seo), content: { title, description }, messages: { title: t('title'), description: t('subtitle') }, site: { name: siteConfig.siteName.th, description: siteConfig.seo.defaultDescription, image: siteConfig.seo.defaultOgImage } });
 }
 
 export default async function GalleryPage() {
