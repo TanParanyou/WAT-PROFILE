@@ -85,6 +85,7 @@ Deleting an event referenced by `event_registrations` would cascade and destroy 
 
 - an existing event with registrations and a slug present in the fixture is updated in place;
 - its schedules are replaced with the fixture schedules;
+- its `registration_enabled`, `max_participants`, and `registration_deadline` values are preserved because they are operational registration configuration absent from the fixture;
 - an existing registered event whose slug is absent from the fixture is retained unchanged;
 - only unregistered events absent from the fixture are deleted.
 
@@ -102,7 +103,7 @@ This exception takes priority over the general replace-all behavior for Events.
 - Parse ISO fixture dates into `start_date` and `end_date`.
 - Parse only valid `HH:mm` or `HH:mm - HH:mm` time values. Human labels such as `Fr. - So.` must not be cast to PostgreSQL `time`; because the current Event contract has no time-label field, these values produce null start/end times and the public UI displays the date without a misleading time.
 - Insert valid nested event schedule rows after the owning event is upserted.
-- Keep registration-related fields disabled unless the fixture explicitly provides valid values.
+- Use disabled registration defaults for new or unregistered fixture events. Preserve operational registration fields when a matching existing event already has registrations.
 
 ### Monks
 
