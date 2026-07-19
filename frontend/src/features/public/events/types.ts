@@ -9,6 +9,7 @@ export interface PublicEventScheduleDto {
 }
 
 export interface PublicEventDto {
+  id: number;
   slug: string;
   title: LocalizedTextDto;
   description: LocalizedRichTextDto | null;

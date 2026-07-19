@@ -8,6 +8,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/richtext"
+	"github.com/watloungporsai/wat-profile-backend/internal/seo"
 	"gorm.io/gorm"
 )
 
@@ -74,6 +75,9 @@ func (s *ContentService) UpdatePageDraft(id uuid.UUID, input models.ContentPage)
 		pageKey = page.PageKey
 	}
 	if err := richtext.ValidateContentPageBody(pageKey, input.Body); err != nil {
+		return nil, errors.Join(ErrInvalidContentBody, err)
+	}
+	if err := seo.ValidateMap(input.Seo); err != nil {
 		return nil, errors.Join(ErrInvalidContentBody, err)
 	}
 	page.PageKey = input.PageKey
@@ -169,7 +173,7 @@ func (s *ContentService) CreateSection(pageID uuid.UUID, sectionType, sectionKey
 		PageID:      pageID.String(),
 		SectionKey:  finalKey,
 		SectionType: sectionType,
-		Title:       models.MultiLangText{"th": "", "en": "", "de": ""} ,
+		Title:       models.MultiLangText{"th": "", "en": "", "de": ""},
 		Description: models.MultiLangText{"th": "", "en": "", "de": ""},
 		Body:        body,
 		Settings:    settings,
@@ -852,4 +856,3 @@ func (s *ContentService) EnsureHomePageSeed() error {
 		return tx.Create(&sections).Error
 	})
 }
-

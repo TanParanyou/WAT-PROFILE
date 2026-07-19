@@ -8,6 +8,7 @@ import (
 
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/richtext"
+	"github.com/watloungporsai/wat-profile-backend/internal/seo"
 )
 
 func ValidateAboutContent(req *AboutContent) error {
@@ -217,17 +218,20 @@ func validateOptionalURL(rawValue string, field string) error {
 	return nil
 }
 
-func validateSEO(seo models.JSONMap) error {
-	if seo == nil {
+func validateSEO(raw models.JSONMap) error {
+	if err := seo.ValidateMap(raw); err != nil {
+		return err
+	}
+	if raw == nil {
 		return nil
 	}
 
-	if value, ok := seo["canonical_url"].(string); ok {
+	if value, ok := raw["canonical_url"].(string); ok {
 		if err := validateOptionalURLOrPath(value, "seo.canonical_url"); err != nil {
 			return err
 		}
 	}
-	if value, ok := seo["og_image"].(string); ok {
+	if value, ok := raw["og_image"].(string); ok {
 		if err := validateOptionalURL(value, "seo.og_image"); err != nil {
 			return err
 		}

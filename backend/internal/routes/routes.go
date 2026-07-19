@@ -32,6 +32,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	auditHandler := handlers.NewAuditLogHandler(db)
 	richTextMigrationHandler := handlers.NewRichTextMigrationHandler(db)
 	publicContentHandler := handlers.NewPublicContentHandler(db)
+	eventAlertHandler := handlers.NewEventAlertHandler(db)
 
 	// ============ PUBLIC ROUTES (No Auth Required) ============
 	public := api.Group("/public")
@@ -65,6 +66,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 
 	// Settings
 	public.Get("/settings", settingsHandler.GetPublicSettings)
+	public.Get("/event-alert", eventAlertHandler.Get)
 	public.Get("/pages/:slug", contentHandler.GetPublicPage)
 
 	// Event Registration (public - no auth)
@@ -176,6 +178,8 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	admin.Get("/settings", middleware.PermissionRequired("settings", "read"), settingsHandler.GetAllSettings)
 	admin.Put("/settings", middleware.PermissionRequired("settings", "update"), settingsHandler.UpdateSettings)
 	admin.Post("/settings", middleware.PermissionRequired("settings", "create"), settingsHandler.UpsertSetting)
+	admin.Get("/event-alert", middleware.PermissionRequired("settings", "read"), eventAlertHandler.Get)
+	admin.Put("/event-alert", middleware.PermissionRequired("settings", "update"), eventAlertHandler.Save)
 
 	// Public Content Pages Management
 	admin.Get("/about", middleware.PermissionRequired("website", "read"), publicContentHandler.GetAbout)

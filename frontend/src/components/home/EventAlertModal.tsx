@@ -10,22 +10,26 @@ import { getLocalizedPlainText } from "@/features/public/shared/rich-text";
 import { formatDateRange, formatTimeRange } from "@/utils/formatters";
 import { PublicImage } from "@/components/public/media/PublicImage";
 import { publicEventFallbackImage } from "@/components/public/media/publicImageFallbacks";
+import { fetchEventAlertSettings, type EventAlertSettings } from "@/features/public/event-alert/api";
 
 export default function EventAlertModal() {
   const locale = useLocale();
   const t = useTranslations("EventsSection");
   const query = usePublicEventsQuery(3);
+  const [settings, setSettings] = useState<EventAlertSettings | null>(null);
   const [isOpen, setIsOpen] = useState(false);
-  const event = query.data?.[0];
+  const event = settings?.event_id ? query.data?.find((item) => item.id === settings.event_id) : undefined;
+
+  useEffect(() => { void fetchEventAlertSettings().then(setSettings).catch(() => setSettings(null)); }, []);
 
   useEffect(() => {
-    if (!event || typeof window === "undefined") return;
+    if (!settings?.enabled || !event || typeof window === "undefined") return;
     const key = `event-alert-dismissed-${event.slug}`;
     const dismissedAt = Number(window.localStorage.getItem(key));
-    if (dismissedAt && Date.now() - dismissedAt < 24 * 60 * 60 * 1000) return;
-    const timer = window.setTimeout(() => setIsOpen(true), 2000);
+    if (dismissedAt && Date.now() - dismissedAt < settings.dismiss_hours * 60 * 60 * 1000) return;
+    const timer = window.setTimeout(() => setIsOpen(true), settings.delay_seconds * 1000);
     return () => window.clearTimeout(timer);
-  }, [event]);
+  }, [event, settings]);
 
   if (!event || !isOpen) return null;
   const close = () => {

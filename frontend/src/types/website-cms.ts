@@ -7,6 +7,7 @@ export interface SeoMetadata {
   noindex?: boolean;
   title?: LocalizedText;
   description?: LocalizedText;
+  keywords?: LocalizedText;
   og_image?: string;
   [key: string]: unknown;
 }
