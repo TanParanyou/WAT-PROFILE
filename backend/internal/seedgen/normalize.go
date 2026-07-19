@@ -7,6 +7,8 @@ import (
 	"strings"
 	"time"
 	"unicode"
+
+	"github.com/google/uuid"
 )
 
 var requiredPageKeys = []string{
@@ -196,11 +198,22 @@ func normalizeSchedules(fixture ScheduleFixture) ([]SeedSchedule, error) {
 
 func normalizeCMS(fixtures []CMSPageFixture, about AboutFixture, contact ContactFixture) ([]SeedContentPage, []SeedContentSection, error) {
 	pageByKey := make(map[string]CMSPageFixture, len(fixtures))
+	pageSlugs := make(map[string]struct{}, len(fixtures))
 	for _, page := range fixtures {
 		if _, exists := pageByKey[page.PageKey]; exists {
 			return nil, nil, fmt.Errorf("duplicate CMS page key %q", page.PageKey)
 		}
+		if _, exists := pageSlugs[page.Slug]; exists {
+			return nil, nil, fmt.Errorf("duplicate CMS page slug %q", page.Slug)
+		}
+		if _, err := uuid.Parse(page.ID); err != nil {
+			return nil, nil, fmt.Errorf("CMS page %q has invalid id: %w", page.PageKey, err)
+		}
 		pageByKey[page.PageKey] = page
+		pageSlugs[page.Slug] = struct{}{}
+	}
+	if len(pageByKey) != len(requiredPageKeys) {
+		return nil, nil, fmt.Errorf("CMS fixture must contain exactly %d public pages", len(requiredPageKeys))
 	}
 	pages := make([]SeedContentPage, 0, len(requiredPageKeys))
 	sections := make([]SeedContentSection, 0)
@@ -209,8 +222,8 @@ func normalizeCMS(fixtures []CMSPageFixture, about AboutFixture, contact Contact
 		if !exists {
 			return nil, nil, fmt.Errorf("required CMS page %q is missing", key)
 		}
-		if page.ID == "" || page.Slug == "" {
-			return nil, nil, fmt.Errorf("CMS page %q requires id and slug", key)
+		if page.Slug == "" {
+			return nil, nil, fmt.Errorf("CMS page %q requires a slug", key)
 		}
 		if err := validateLocalized(key+".title", page.Title); err != nil {
 			return nil, nil, err
@@ -250,7 +263,13 @@ func normalizeCMS(fixtures []CMSPageFixture, about AboutFixture, contact Contact
 		}
 		pages = append(pages, SeedContentPage{ID: page.ID, PageKey: page.PageKey, Slug: page.Slug, Title: page.Title, Description: page.Description, SEO: page.SEO, Body: body, Settings: page.Settings})
 		for _, section := range page.Sections {
-			if section.ID == "" || section.PageID != page.ID || section.SectionKey == "" || section.SectionType == "" {
+			if _, err := uuid.Parse(section.ID); err != nil {
+				return nil, nil, fmt.Errorf("CMS section on %q has invalid id: %w", key, err)
+			}
+			if _, err := uuid.Parse(section.PageID); err != nil {
+				return nil, nil, fmt.Errorf("CMS section on %q has invalid page id: %w", key, err)
+			}
+			if section.PageID != page.ID || section.SectionKey == "" || section.SectionType == "" {
 				return nil, nil, fmt.Errorf("CMS section on %q has invalid identity", key)
 			}
 			if err := validateLocalized(key+"."+section.SectionKey+".title", section.Title); err != nil {
@@ -465,13 +484,46 @@ type aboutSanghaPayload struct {
 }
 
 func aboutBody(fixture AboutFixture) (json.RawMessage, error) {
+	if err := validateLocalized("about.intro.title", fixture.Intro.Title); err != nil {
+		return nil, err
+	}
+	if err := validateLocalized("about.intro.description", fixture.Intro.Description); err != nil {
+		return nil, err
+	}
+	if err := validateLocalized("about.intro.founded", fixture.Intro.Founded); err != nil {
+		return nil, err
+	}
+	if err := validateLocalized("about.intro.location", fixture.Intro.Location); err != nil {
+		return nil, err
+	}
+	if err := validateLocalized("about.objective.title", fixture.Objective.Title); err != nil {
+		return nil, err
+	}
+	if err := validateLocalized("about.objective.subtitle", fixture.Objective.Subtitle); err != nil {
+		return nil, err
+	}
 	if err := validateLocalized("about.objective.content", fixture.Objective.Content); err != nil {
+		return nil, err
+	}
+	if err := validateLocalized("about.administration.title", fixture.Administration.Title); err != nil {
 		return nil, err
 	}
 	if err := validateLocalized("about.administration.content", fixture.Administration.Content); err != nil {
 		return nil, err
 	}
+	if err := validateLocalized("about.buddhaHistory.title", fixture.BuddhaHistory.Title); err != nil {
+		return nil, err
+	}
 	if err := validateLocalized("about.buddhaHistory.content", fixture.BuddhaHistory.Content); err != nil {
+		return nil, err
+	}
+	if err := validateLocalized("about.buildings.title", fixture.Buildings.Title); err != nil {
+		return nil, err
+	}
+	if err := validateLocalized("about.sangha.title", fixture.Sangha.Title); err != nil {
+		return nil, err
+	}
+	if err := validateLocalized("about.sangha.mission", fixture.Sangha.Mission); err != nil {
 		return nil, err
 	}
 	if err := validateLocalized("about.sangha.currentWork", fixture.Sangha.CurrentWork); err != nil {

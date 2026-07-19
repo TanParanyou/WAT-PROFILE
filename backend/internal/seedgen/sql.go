@@ -268,7 +268,8 @@ DELETE FROM gallery_categories category
 WHERE category.slug IN (
   SELECT slug
   FROM jsonb_to_recordset((SELECT payload->'categories' FROM mock_seed_000017)) AS seed(slug TEXT)
-);
+)
+AND NOT EXISTS (SELECT 1 FROM galleries gallery WHERE gallery.category_id = category.id);
 
 DELETE FROM event_schedules schedule
 USING events event
