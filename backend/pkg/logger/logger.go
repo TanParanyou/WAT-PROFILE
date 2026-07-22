@@ -54,6 +54,11 @@ func FiberLogger() fiber.Handler {
 			event = Log.Error()
 		}
 
+		traceID, _ := c.Locals("trace_id").(string)
+		if traceID == "" {
+			traceID = c.GetRespHeader("X-Trace-Id")
+		}
+
 		event.
 			Str("method", c.Method()).
 			Str("path", c.Path()).
@@ -61,6 +66,7 @@ func FiberLogger() fiber.Handler {
 			Str("ip", c.IP()).
 			Dur("latency", time.Since(start)).
 			Str("user_agent", c.Get("User-Agent")).
+			Str("trace_id", traceID).
 			Msg("request")
 
 		return err

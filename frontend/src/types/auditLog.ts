@@ -10,5 +10,6 @@ export interface AuditLog {
   changes: Record<string, unknown>;
   ip_address: string;
   user_agent: string;
+  trace_id: string;
   created_at: string;
 }

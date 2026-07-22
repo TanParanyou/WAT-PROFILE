@@ -18,6 +18,7 @@ type AuditLog struct {
 	Changes    JSONMap                `gorm:"type:jsonb" json:"changes"` // Old/new values
 	IPAddress  string                 `gorm:"size:45" json:"ip_address"`
 	UserAgent  string                 `gorm:"type:text" json:"user_agent"`
+	TraceID    string                 `gorm:"size:255;index" json:"trace_id"`
 	CreatedAt  time.Time              `gorm:"index:idx_audit_logs_created_desc" json:"created_at"`
 }
 

@@ -10,6 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/gofiber/fiber/v2/middleware/recover"
+	"github.com/gofiber/fiber/v2/middleware/requestid"
 	"github.com/joho/godotenv"
 	"github.com/watloungporsai/wat-profile-backend/internal/config"
 	"github.com/watloungporsai/wat-profile-backend/internal/routes"
@@ -58,23 +59,34 @@ func main() {
 				message = e.Message
 			}
 
+			traceID, _ := c.Locals("trace_id").(string)
+			if traceID == "" {
+				traceID = c.GetRespHeader("X-Trace-Id")
+			}
+
 			// Log error ด้วย zerolog
 			logger.Log.Error().
 				Str("method", c.Method()).
 				Str("path", c.Path()).
 				Int("status", code).
 				Str("error", message).
+				Str("trace_id", traceID).
 				Msg("request error")
 
 			return c.Status(code).JSON(fiber.Map{
-				"success": false,
-				"error":   message,
+				"success":  false,
+				"error":    message,
+				"trace_id": traceID,
 			})
 		},
 	})
 
 	// Middleware
 	app.Use(recover.New())
+	app.Use(requestid.New(requestid.Config{
+		Header:     "X-Trace-Id",
+		ContextKey: "trace_id",
+	}))
 	app.Use(logger.FiberLogger()) // ใช้ zerolog แทน Fiber logger
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     getEnv("ALLOWED_ORIGINS", "http://localhost:3000"),

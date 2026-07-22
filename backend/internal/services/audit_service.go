@@ -22,6 +22,7 @@ func (s *AuditService) LogAction(c *fiber.Ctx, action string, entityType string,
 	var userID *uuid.UUID
 	ipAddress := ""
 	userAgent := ""
+	traceID := ""
 
 	if c != nil {
 		if val := c.Locals("user_id"); val != nil {
@@ -35,6 +36,11 @@ func (s *AuditService) LogAction(c *fiber.Ctx, action string, entityType string,
 		}
 		ipAddress = c.IP()
 		userAgent = string(c.Request().Header.UserAgent())
+		if val, ok := c.Locals("trace_id").(string); ok && val != "" {
+			traceID = val
+		} else {
+			traceID = c.GetRespHeader("X-Trace-Id")
+		}
 	}
 
 	auditLog := models.AuditLog{
@@ -45,6 +51,7 @@ func (s *AuditService) LogAction(c *fiber.Ctx, action string, entityType string,
 		Changes:    models.JSONMap(changes),
 		IPAddress:  ipAddress,
 		UserAgent:  userAgent,
+		TraceID:    traceID,
 		CreatedAt:  time.Now(),
 	}
 

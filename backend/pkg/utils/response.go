@@ -12,7 +12,7 @@ func SuccessResponse(c *fiber.Ctx, data interface{}) error {
 
 // ErrorResponse sends an error JSON response
 func ErrorResponse(c *fiber.Ctx, statusCode int, message string) error {
-	traceID := c.Get("X-Trace-Id")
+	traceID, _ := c.Locals("trace_id").(string)
 	if traceID == "" {
 		traceID = c.GetRespHeader("X-Trace-Id")
 	}

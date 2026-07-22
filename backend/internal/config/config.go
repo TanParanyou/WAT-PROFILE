@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
@@ -32,9 +33,17 @@ func InitDatabase() error {
 	)
 
 	var err error
+	
+	// Dynamic detection for Supabase Transaction Pooler (port 6543)
+	// Connection poolers don't support prepared statements and will break if PreferSimpleProtocol is false
+	useSimpleProtocol := false
+	if strings.Contains(dsn, "6543") || strings.Contains(dsn, "pooler.supabase.com") || os.Getenv("PREFER_SIMPLE_PROTOCOL") == "true" {
+		useSimpleProtocol = true
+	}
+
 	DB, err = gorm.Open(postgres.New(postgres.Config{
 		DSN:                  dsn,
-		PreferSimpleProtocol: true, // Disable prepared statements for connection poolers (e.g. Supabase)
+		PreferSimpleProtocol: useSimpleProtocol,
 	}), &gorm.Config{
 		Logger: newLogger,
 	})

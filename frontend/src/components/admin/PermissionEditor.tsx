@@ -15,6 +15,7 @@ const RESOURCES = [
   { key: "users", label: "ผู้ใช้งานและบทบาท (Users/Roles)" },
   { key: "registrations", label: "ลงทะเบียน (Registrations)" },
   { key: "website", label: "เว็บไซต์ (Website)" },
+  { key: "audit_logs", label: "บันทึกการใช้งาน (Audit Logs)" },
 ];
 
 const ACTIONS = [

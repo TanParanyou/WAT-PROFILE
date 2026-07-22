@@ -8,10 +8,10 @@ import { getLocalizedText } from "@/utils/localizedText";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
-  const t = await getTranslations({ locale, namespace: "Public.home" });
+  const t = await getTranslations({ locale, namespace: "PublicHome" });
   const cmsPage = await websiteCmsPublicService.getPage("home").catch(() => null);
-  const title = cmsPage ? getLocalizedText(cmsPage.title, locale) || t("heroTitle") : t("heroTitle");
-  const description = cmsPage ? getLocalizedText(cmsPage.description, locale) || t("heroSubtitle") : t("heroSubtitle");
+  const title = cmsPage ? getLocalizedText(cmsPage.title, locale) || t("heroFallbackTitle") : t("heroFallbackTitle");
+  const description = cmsPage ? getLocalizedText(cmsPage.description, locale) || t("heroFallbackDescription") : t("heroFallbackDescription");
 
   return {
     title,
