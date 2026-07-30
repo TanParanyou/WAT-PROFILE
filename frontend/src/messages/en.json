@@ -246,6 +246,7 @@
         "education": "Education",
         "daily": "Daily Routine",
         "allCategories": "All",
+        "filterLabel": "Filter images by category",
         "loading": "Loading gallery...",
         "errorTitle": "Gallery unavailable",
         "errorDescription": "We could not load the gallery right now.",

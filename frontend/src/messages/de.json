@@ -246,6 +246,7 @@
         "education": "Bildung",
         "daily": "Tagesablauf",
         "allCategories": "Alle",
+        "filterLabel": "Bilder nach Kategorie filtern",
         "loading": "Galerie wird geladen...",
         "errorTitle": "Galerie nicht verfügbar",
         "errorDescription": "Die Galerie konnte derzeit nicht geladen werden.",

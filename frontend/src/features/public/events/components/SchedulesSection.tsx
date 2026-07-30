@@ -18,8 +18,8 @@ export function SchedulesSection({ schedules }: SchedulesSectionProps) {
   const online = sortedSchedules.filter((schedule) => schedule.schedule_type === "online");
 
   return (
-    <div className="grid gap-8 lg:grid-cols-2">
-      <section className="rounded-2xl border border-gray-100 bg-white p-6">
+    <div className="grid gap-6 lg:grid-cols-2">
+      {daily.length > 0 ? <section className="rounded-2xl border border-primary/15 bg-white p-6">
         <div className="mb-4 flex items-center gap-3">
           <Clock className="text-amber-600" size={20} />
           <h3 className="text-lg font-bold">{t("dailySchedule")}</h3>
@@ -34,9 +34,9 @@ export function SchedulesSection({ schedules }: SchedulesSectionProps) {
             </div>
           ))}
         </div>
-      </section>
+      </section> : null}
       <div className="space-y-8">
-        <section className="rounded-2xl border border-gray-100 bg-white p-6">
+        {weekly.length > 0 ? <section className="rounded-2xl border border-primary/15 bg-white p-6">
           <div className="mb-4 flex items-center gap-3">
             <Calendar className="text-green-600" size={20} />
             <h3 className="text-lg font-bold">{t("weeklySchedule")}</h3>
@@ -52,8 +52,8 @@ export function SchedulesSection({ schedules }: SchedulesSectionProps) {
               </div>
             ))}
           </div>
-        </section>
-        <section className="rounded-2xl border border-blue-100 bg-blue-50 p-6">
+        </section> : null}
+        {online.length > 0 ? <section className="rounded-2xl border border-blue-200 bg-blue-50 p-6">
           <div className="mb-3 flex items-center gap-3">
             <Video className="text-blue-600" size={20} />
             <h3 className="text-lg font-bold">{t("onlineSchedule")}</h3>
@@ -75,7 +75,7 @@ export function SchedulesSection({ schedules }: SchedulesSectionProps) {
               </div>
             ))}
           </div>
-        </section>
+        </section> : null}
       </div>
     </div>
   );

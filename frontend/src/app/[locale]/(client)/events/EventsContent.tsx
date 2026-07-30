@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import PageHeader from "@/components/layout/PageHeader";
 import PageContainer from "@/components/layout/PageContainer";
+import { PublicSectionHeading } from "@/components/public/layout/PublicSectionHeading";
 import { EmptyState } from "@/components/public/states/EmptyState";
 import { QueryErrorState } from "@/components/public/states/QueryErrorState";
 import { EventsList } from "@/features/public/events/components/EventsList";
@@ -14,23 +15,31 @@ import { EventsListSkeleton } from "@/features/public/events/components/EventsLi
 export default function EventsContent() {
   const tPage = useTranslations("EventsPage");
   const tState = useTranslations("PublicState");
-
   const eventsQuery = usePublicEventsQuery();
   const schedulesQuery = usePublicSchedulesQuery();
-
   const events = eventsQuery.data?.map(toEventListItem) ?? [];
   const schedules = schedulesQuery.data ?? [];
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <PageHeader title={tPage("title")} subtitle={tPage("subtitle")} />
-      <PageContainer>
-        <div className="mx-auto mb-16 max-w-6xl space-y-10">
-          <section className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
+    <div className="min-h-screen bg-background">
+      <PageHeader
+        variant="color"
+        align="left"
+        title={tPage("title")}
+        subtitle={tPage("subtitle")}
+      />
+      <PageContainer width="content">
+        <section aria-labelledby="schedule-heading">
+          <PublicSectionHeading
+            id="schedule-heading"
+            title={tPage("regularSchedule")}
+            description={tPage("subtitle")}
+          />
+          <div className="mt-8">
             {schedulesQuery.isLoading ? (
-              <div className="space-y-4">
-                <div className="h-6 w-48 rounded bg-gray-200" />
-                <div className="h-40 rounded-2xl bg-gray-100" />
+              <div className="grid animate-pulse gap-6 lg:grid-cols-2" aria-label={tState("loading")}>
+                <div className="h-64 rounded-2xl bg-primary/10" />
+                <div className="h-64 rounded-2xl bg-primary/10" />
               </div>
             ) : schedulesQuery.isError ? (
               <QueryErrorState
@@ -48,21 +57,23 @@ export default function EventsContent() {
             ) : (
               <SchedulesSection schedules={schedules} />
             )}
-          </section>
+          </div>
+        </section>
 
-          <section className="rounded-3xl border border-gray-100 bg-white p-6 shadow-sm md:p-8">
-            <div className="mb-6 flex items-end justify-between gap-4">
-              <div>
-                <p className="text-sm font-medium uppercase tracking-wide text-amber-600">
-                  {tPage("upcomingEvents")}
-                </p>
-                <h2 className="mt-2 text-2xl font-bold text-gray-900">{tPage("title")}</h2>
-              </div>
-              {eventsQuery.isFetching && eventsQuery.data ? (
-                <span className="text-sm text-gray-500">{tState("refreshing")}</span>
-              ) : null}
-            </div>
-
+        <section className="mt-20 border-t border-primary/15 pt-16" aria-labelledby="events-heading">
+          <PublicSectionHeading
+            id="events-heading"
+            title={tPage("upcomingEvents")}
+            description={tPage("subtitle")}
+            action={
+              eventsQuery.isFetching && eventsQuery.data ? (
+                <span className="text-sm text-text-700" role="status">
+                  {tState("refreshing")}
+                </span>
+              ) : null
+            }
+          />
+          <div className="mt-8">
             {eventsQuery.isLoading ? (
               <EventsListSkeleton />
             ) : eventsQuery.isError ? (
@@ -81,8 +92,8 @@ export default function EventsContent() {
             ) : (
               <EventsList events={events} />
             )}
-          </section>
-        </div>
+          </div>
+        </section>
       </PageContainer>
     </div>
   );
