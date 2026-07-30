@@ -1,114 +1,109 @@
-'use client';
+"use client";
 
-import { cn } from '@/utils/cn';
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
+import { useTranslations } from "next-intl";
+import { cn } from "@/utils/cn";
 
 interface NavigationItem {
-    id: string;
-    label: string;
+  id: string;
+  label: string;
 }
 
 interface PageNavigationProps {
-    items: NavigationItem[];
+  items: NavigationItem[];
 }
 
 export default function PageNavigation({ items }: PageNavigationProps) {
-    const [activeId, setActiveId] = useState<string>(items[0]?.id || '');
+  const t = useTranslations("AboutPage");
+  const [activeId, setActiveId] = useState(items[0]?.id || "");
 
-    useEffect(() => {
-        const observer = new IntersectionObserver(
-            (entries) => {
-                entries.forEach((entry) => {
-                    if (entry.isIntersecting) {
-                        setActiveId(entry.target.id);
-                    }
-                });
-            },
-            {
-                rootMargin: '-20% 0px -60% 0px', // Adjust trigger point
-                threshold: 0,
-            }
-        );
-
-        items.forEach((item) => {
-            const element = document.getElementById(item.id);
-            if (element) {
-                observer.observe(element);
-            }
-        });
-
-        return () => {
-            items.forEach((item) => {
-                const element = document.getElementById(item.id);
-                if (element) {
-                    observer.unobserve(element);
-                }
-            });
-        };
-    }, [items]);
-
-    const scrollToSection = (id: string) => {
-        const element = document.getElementById(id);
-        if (element) {
-            const offset = 100; // Adjust for sticky header
-            const bodyRect = document.body.getBoundingClientRect().top;
-            const elementRect = element.getBoundingClientRect().top;
-            const elementPosition = elementRect - bodyRect;
-            const offsetPosition = elementPosition - offset;
-
-            window.scrollTo({
-                top: offsetPosition,
-                behavior: 'smooth',
-            });
-            setActiveId(id);
-        }
-    };
-
-    return (
-        <nav className="sticky top-20 z-10 w-full lg:w-64 shrink-0 self-start">
-            {/* Mobile / Tablet Horizontal Scroll */}
-            <div className="lg:hidden w-full overflow-x-auto pb-4 -mx-4 px-4 scrollbar-hide">
-                <div className="flex gap-2">
-                    {items.map((item) => (
-                        <button
-                            key={item.id}
-                            onClick={() => scrollToSection(item.id)}
-                            className={cn(
-                                'whitespace-nowrap px-4 py-2 rounded-full text-sm font-medium transition-all',
-                                activeId === item.id
-                                    ? 'bg-primary text-white shadow-md'
-                                    : 'bg-white dark:bg-zinc-800 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-zinc-700'
-                            )}
-                        >
-                            {item.label}
-                        </button>
-                    ))}
-                </div>
-            </div>
-
-            {/* Desktop Vertical List */}
-            <div className="hidden lg:block bg-white dark:bg-zinc-900 rounded-2xl p-6 shadow-lg border border-gray-100 dark:border-gray-800">
-                <h3 className="font-heading font-bold text-lg mb-4 text-gray-900 dark:text-white">
-                    Contents
-                </h3>
-                <ul className="space-y-1">
-                    {items.map((item) => (
-                        <li key={item.id}>
-                            <button
-                                onClick={() => scrollToSection(item.id)}
-                                className={cn(
-                                    'w-full text-left px-4 py-2 rounded-lg text-sm transition-all border-l-2',
-                                    activeId === item.id
-                                        ? 'border-primary text-primary font-bold bg-primary/5'
-                                        : 'border-transparent text-gray-500 hover:text-gray-900 dark:text-gray-400 dark:hover:text-white hover:bg-gray-50 dark:hover:bg-zinc-800'
-                                )}
-                            >
-                                {item.label}
-                            </button>
-                        </li>
-                    ))}
-                </ul>
-            </div>
-        </nav>
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visible = entries.find((entry) => entry.isIntersecting);
+        if (visible) setActiveId(visible.target.id);
+      },
+      { rootMargin: "-20% 0px -60% 0px", threshold: 0 },
     );
+
+    const elements = items
+      .map((item) => document.getElementById(item.id))
+      .filter((element): element is HTMLElement => Boolean(element));
+    elements.forEach((element) => observer.observe(element));
+    return () => observer.disconnect();
+  }, [items]);
+
+  const scrollToSection = (id: string) => {
+    const element = document.getElementById(id);
+    if (!element) return;
+    const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    element.scrollIntoView({ behavior: reduceMotion ? "auto" : "smooth", block: "start" });
+    setActiveId(id);
+  };
+
+  return (
+    <nav className="w-full lg:sticky lg:top-24" aria-label={t("contents")}>
+      <div className="-mx-4 overflow-x-auto px-4 pb-3 lg:hidden">
+        <div className="flex min-w-max gap-2">
+          {items.map((item) => (
+            <NavigationButton
+              key={item.id}
+              item={item}
+              active={activeId === item.id}
+              onClick={() => scrollToSection(item.id)}
+            />
+          ))}
+        </div>
+      </div>
+
+      <div className="hidden border-t border-primary/20 pt-5 lg:block">
+        <h2 className="font-heading text-lg font-bold text-text-900">{t("contents")}</h2>
+        <ul className="mt-4 space-y-1">
+          {items.map((item) => (
+            <li key={item.id}>
+              <NavigationButton
+                item={item}
+                active={activeId === item.id}
+                onClick={() => scrollToSection(item.id)}
+                desktop
+              />
+            </li>
+          ))}
+        </ul>
+      </div>
+    </nav>
+  );
+}
+
+function NavigationButton({
+  item,
+  active,
+  onClick,
+  desktop = false,
+}: {
+  item: NavigationItem;
+  active: boolean;
+  onClick: () => void;
+  desktop?: boolean;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-current={active ? "location" : undefined}
+      className={cn(
+        "min-h-11 rounded-full text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
+        desktop ? "w-full rounded-none border-l-2 px-4 py-2 text-left" : "px-4 py-2",
+        active
+          ? desktop
+            ? "border-primary bg-primary-50 text-primary-800"
+            : "bg-primary text-white"
+          : desktop
+            ? "border-transparent text-text-700 hover:border-primary/40 hover:text-primary"
+            : "border border-primary/20 bg-white text-text-800 hover:border-primary/50",
+      )}
+    >
+      {item.label}
+    </button>
+  );
 }

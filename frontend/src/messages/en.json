@@ -103,6 +103,7 @@
         "vision3": "Center for learning and meditation practice",
         "missionTitle": "Mission",
         "missionDesc": "We strive to create a peaceful, happy, and wise society through religious activities, education, and social service.",
+        "contents": "On this page",
         "sections": {"intro": "Introduction", "objective": "Objective", "administration": "Administration", "history": "History", "buildings": "Buildings", "sangha": "Sangha"}
     },
     "ContactPage": {
