@@ -1,13 +1,12 @@
 "use client";
 
 import { useLocale, useTranslations } from "next-intl";
-import PageHeader from "@/components/layout/PageHeader";
-import PageContainer from "@/components/layout/PageContainer";
 import { RichTextContent } from "@/components/admin/rich-text/RichTextContent";
+import { PublicReadingPage } from "@/components/public/layout/PublicReadingPage";
 import { PublicContentStateBoundary } from "@/features/public/content/components/PublicContentStateBoundary";
 import { usePublicPrivacyQuery } from "@/features/public/content/queries";
-import { getLocalizedText } from "@/utils/localizedText";
 import { toPublicQueryError } from "@/features/public/shared/query-error";
+import { getLocalizedText } from "@/utils/localizedText";
 
 export default function PrivacyContent() {
   const locale = useLocale();
@@ -16,28 +15,44 @@ export default function PrivacyContent() {
   const page = query.data;
   const title = page ? getLocalizedText(page.title, locale) || t("title") : t("title");
   const lastUpdated = page?.body.last_updated || page?.updated_at;
-  const subtitle = lastUpdated ? `${t("lastUpdated")}: ${new Date(lastUpdated).toLocaleDateString(locale)}` : undefined;
+  const subtitle = lastUpdated
+    ? `${t("lastUpdated")}: ${new Date(lastUpdated).toLocaleDateString(locale)}`
+    : undefined;
 
   return (
-    <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
-      <PageHeader title={title} subtitle={subtitle} />
-      <PageContainer>
-        <div className="rounded-3xl border border-gray-100 bg-white p-8 shadow-xl dark:border-gray-800 dark:bg-zinc-900 md:p-16">
-          <div className="prose prose-lg mx-auto max-w-3xl dark:prose-invert">
-            <PublicContentStateBoundary
-              isLoading={query.isLoading}
-              isError={query.isError}
-              isFetching={query.isFetching}
-              hasData={Boolean(page?.body.content)}
-              isNotFound={query.error ? toPublicQueryError(query.error).kind === "not-found" : false}
-              onRetry={() => query.refetch()}
-              loading={<div className="h-96 animate-pulse rounded-2xl bg-zinc-100 dark:bg-zinc-800" />}
-            >
-              {page?.body.content ? <RichTextContent value={page.body.content} locale={locale} defaultLocale="th" /> : null}
-            </PublicContentStateBoundary>
-          </div>
-        </div>
-      </PageContainer>
+    <PublicReadingPage title={title} subtitle={subtitle}>
+      <PublicContentStateBoundary
+        isLoading={query.isLoading}
+        isError={query.isError}
+        isFetching={query.isFetching}
+        hasData={Boolean(page?.body.content)}
+        isNotFound={
+          query.error ? toPublicQueryError(query.error).kind === "not-found" : false
+        }
+        onRetry={() => query.refetch()}
+        loading={<ReadingSkeleton />}
+      >
+        {page?.body.content ? (
+          <RichTextContent value={page.body.content} locale={locale} defaultLocale="th" />
+        ) : null}
+      </PublicContentStateBoundary>
+    </PublicReadingPage>
+  );
+}
+
+function ReadingSkeleton() {
+  return (
+    <div className="animate-pulse space-y-8" aria-label="Loading">
+      <div className="space-y-3">
+        <div className="h-7 w-2/3 rounded bg-primary/10" />
+        <div className="h-4 w-full rounded bg-primary/10" />
+        <div className="h-4 w-11/12 rounded bg-primary/10" />
+      </div>
+      <div className="space-y-3">
+        <div className="h-6 w-1/2 rounded bg-primary/10" />
+        <div className="h-4 w-full rounded bg-primary/10" />
+        <div className="h-4 w-5/6 rounded bg-primary/10" />
+      </div>
     </div>
   );
 }
