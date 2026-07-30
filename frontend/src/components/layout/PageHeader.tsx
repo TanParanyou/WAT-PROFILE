@@ -38,6 +38,13 @@ export default function PageHeader({
         isReading ? "border-b border-primary/15 bg-white" : "bg-secondary-800"
       }`}
     >
+      {isReading ? (
+        <div
+          className="absolute inset-x-0 top-0 h-24 bg-secondary-800"
+          aria-hidden="true"
+        />
+      ) : null}
+
       {variant === "image" ? (
         <>
           <PublicImage
