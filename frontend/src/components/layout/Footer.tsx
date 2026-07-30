@@ -1,6 +1,7 @@
 'use client';
 
 import { Facebook, Mail, MapPin, Phone } from 'lucide-react';
+import Image from 'next/image';
 import { Link } from '@/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { usePublicSiteSettings } from '@/features/public/settings/PublicSiteSettingsProvider';
@@ -19,20 +20,20 @@ export default function Footer() {
     ];
 
     return (
-        <footer className="bg-zinc-50 dark:bg-zinc-900 border-t border-gray-200 dark:border-gray-800 pt-16 pb-8">
+        <footer className="bg-white py-16 dark:bg-zinc-950">
             <div className="container mx-auto px-4 md:px-6">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-12 mb-12">
+                <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
                     {/* Column 1: About */}
                     <div>
                         <div className="flex items-center gap-2 mb-6">
-                            <div className="w-8 h-8 bg-primary rounded-full flex items-center justify-center text-white font-bold">
-                                W
+                            <div className="relative h-10 w-10 overflow-hidden rounded-full bg-white dark:bg-zinc-800">
+                                <Image src={settings.logoUrl || '/images/icon/logo.png'} alt="" fill sizes="40px" className="object-contain p-1" />
                             </div>
-                            <span className="font-heading font-bold text-lg text-primary">
+                            <span className="font-heading text-xl font-bold text-gray-800 dark:text-gray-100">
                                 {tSite('name')}
                             </span>
                         </div>
-                        <p className="text-gray-600 dark:text-gray-400 leading-relaxed mb-6">
+                        <p className="mb-6 max-w-sm text-gray-600 dark:text-gray-400">
                             {getLocalizedText(settings.description, locale)}
                         </p>
                         <div className="flex gap-4">
@@ -40,13 +41,15 @@ export default function Footer() {
                                 href={settings.social.facebook}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="w-10 h-10 rounded-full bg-white dark:bg-zinc-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-primary hover:scale-110 transition-all shadow-sm border border-gray-100 dark:border-gray-700"
+                                aria-label="Facebook"
+                                className="flex size-10 items-center justify-center rounded-full border border-gray-100 bg-white text-gray-600 shadow-sm transition-all hover:scale-110 hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary dark:border-gray-700 dark:bg-zinc-800 dark:text-gray-300"
                             >
                                 <Facebook size={20} />
                             </a>
                             <a
                                 href={`mailto:${settings.email}`}
-                                className="w-10 h-10 rounded-full bg-white dark:bg-zinc-800 flex items-center justify-center text-gray-600 dark:text-gray-300 hover:text-primary hover:scale-110 transition-all shadow-sm border border-gray-100 dark:border-gray-700"
+                                aria-label={t('email')}
+                                className="flex size-10 items-center justify-center rounded-full border border-gray-100 bg-white text-gray-600 shadow-sm transition-all hover:scale-110 hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary dark:border-gray-700 dark:bg-zinc-800 dark:text-gray-300"
                             >
                                 <Mail size={20} />
                             </a>
@@ -55,13 +58,13 @@ export default function Footer() {
 
                     {/* Column 2: Quick Links */}
                     <div>
-                        <h3 className="font-heading font-bold text-lg mb-6 text-gray-800 dark:text-gray-100">
+                        <h3 className="mb-6 font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
                             {t('quickLinks')}
                         </h3>
                         <ul className="space-y-3">
                             {menuItems.map((item) => (
                                 <li key={item.href}>
-                                    <Link href={item.href} className="text-gray-600 dark:text-gray-400 hover:text-primary transition-colors">
+                                    <Link href={item.href} className="text-gray-600 transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary dark:text-gray-400">
                                         {item.name}
                                     </Link>
                                 </li>
@@ -71,38 +74,34 @@ export default function Footer() {
 
                     {/* Column 3: Contact Info */}
                     <div>
-                        <h3 className="font-heading font-bold text-lg mb-6 text-gray-800 dark:text-gray-100">
+                        <h3 className="mb-6 font-heading text-lg font-bold text-gray-800 dark:text-gray-100">
                             {t('contactInfo')}
                         </h3>
                         <ul className="space-y-4">
                             <li className="flex items-start gap-3">
-                                <MapPin className="text-primary mt-1 shrink-0" size={20} />
+                                <MapPin className="mt-1 shrink-0 text-primary" size={20} />
                                 <span className="text-gray-600 dark:text-gray-400">
                                     {getLocalizedText(settings.address, locale)}
                                 </span>
                             </li>
                             <li className="flex items-center gap-3">
-                                <Phone className="text-primary shrink-0" size={20} />
-                                <span className="text-gray-600 dark:text-gray-400">
-                                    {settings.phone}
-                                </span>
+                                <Phone className="shrink-0 text-primary" size={20} />
+                                <a href={`tel:${settings.phone}`} className="text-gray-600 transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary dark:text-gray-400">{settings.phone}</a>
                             </li>
                             <li className="flex items-center gap-3">
-                                <Mail className="text-primary shrink-0" size={20} />
-                                <span className="text-gray-600 dark:text-gray-400">
-                                    {settings.email}
-                                </span>
+                                <Mail className="shrink-0 text-primary" size={20} />
+                                <a href={`mailto:${settings.email}`} className="text-gray-600 transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary dark:text-gray-400">{settings.email}</a>
                             </li>
                         </ul>
                     </div>
                 </div>
 
-                <div className="border-t border-gray-200 dark:border-gray-800 pt-8 text-center text-gray-500 dark:text-gray-500 text-sm">
+                <div className="mt-12 border-t border-gray-200 pt-8 text-center text-sm text-gray-500 dark:border-gray-800 dark:text-gray-500">
                     <div className="flex flex-col md:flex-row justify-center items-center gap-4">
                         <span>© {new Date().getFullYear()} {tSite('name')}. {t('allRightsReserved')}.</span>
                         <div className="flex gap-6 text-xs">
-                            <Link href="/privacy" className="hover:text-primary transition-colors">{t('privacy')}</Link>
-                            <Link href="/impressum" className="hover:text-primary transition-colors">{t('impressum')}</Link>
+                            <Link href="/privacy" className="transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">{t('privacy')}</Link>
+                            <Link href="/impressum" className="transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">{t('impressum')}</Link>
                         </div>
                     </div>
                 </div>

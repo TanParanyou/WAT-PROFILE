@@ -6,7 +6,11 @@
         "visit": "Visit",
         "gallery": "Gallery",
         "contact": "Contact",
-        "monks": "Monks History"
+        "monks": "Monks History",
+        "openMenu": "Open navigation menu",
+        "closeMenu": "Close navigation menu",
+        "primaryNavigation": "Primary navigation",
+        "languageNavigation": "Choose language"
     },
     "Footer": {
         "aboutUs": "About Us",
@@ -26,17 +30,34 @@
         "welcomeTo": "Welcome to",
         "inLocation": "in Germany",
         "viewEvents": "View Events",
-        "donate": "Donate"
+        "donate": "Donate",
+        "planVisit": "Plan your visit",
+        "heroImageAlt": "Life at Wat Loung Por Sai",
+        "imageCaption": "Images and moments from the temple community"
     },
     "WelcomeSection": {
-        "welcome": "Welcome",
-        "description": "Wat Loung Por Sai is a sanctuary for Dharma practice and mindfulness meditation in Germany. Established to be a center for Buddhist learning and to encourage practitioners to cultivate their minds according to the Four Foundations of Mindfulness.",
+        "welcome": "A place that welcomes everyone",
+        "description": "Wat Loung Por Sai is a place for practice, learning, and quiet connection in Germany. Whether you already know temple life or are just beginning to explore, you can arrive at your own pace.",
         "meditation": "Meditation",
         "meditationDesc": "Mindfulness Practice",
         "sundaySchool": "Sunday School",
         "sundaySchoolDesc": "Buddhist Education",
         "culture": "Cultural Events",
-        "cultureDesc": "Thai Traditions"
+        "cultureDesc": "Gather through sincere community and cultural activities"
+    },
+    "FirstVisitSection": {
+        "eyebrow": "For first-time visitors",
+        "title": "Begin with ease before you arrive",
+        "description": "Choose an activity, prepare a few simple things, and plan your journey with confidence.",
+        "stepLabel": "Step {number}",
+        "stepOneTitle": "Choose an activity",
+        "stepOneDescription": "Browse the calendar and read the details before deciding to join.",
+        "stepTwoTitle": "Prepare simply",
+        "stepTwoDescription": "Dress respectfully and take part at a pace that feels right for you.",
+        "stepThreeTitle": "Plan your journey",
+        "stepThreeDescription": "Check the address, route, and contact details before setting out.",
+        "cta": "See visiting and travel information",
+        "imageAlt": "A temple activity and community moment"
     },
     "DonationSection": {
         "title": "Support Wat Loung Por Sai",

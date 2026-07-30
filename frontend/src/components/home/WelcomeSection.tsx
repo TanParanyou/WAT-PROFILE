@@ -8,79 +8,12 @@ export default function WelcomeSection() {
   const tSite = useTranslations("Site");
 
   return (
-    <section className="py-20 bg-white dark:bg-zinc-950">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="max-w-4xl mx-auto text-center">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            viewport={{ once: true }}
-          >
-            <h2 className="text-secondary font-sans font-medium tracking-wider mb-4 uppercase">
-              {t("welcome")}
-            </h2>
-            <h1 className="text-3xl md:text-5xl font-heading font-bold text-primary mb-8 leading-relaxed">
-              {tSite("name")}
-            </h1>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6, delay: 0.2 }}
-            viewport={{ once: true }}
-            className="prose prose-lg dark:prose-invert mx-auto text-gray-600 dark:text-gray-400 leading-relaxed font-light"
-          >
-            <p className="mb-6">{t("description")}</p>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.6, delay: 0.4 }}
-            viewport={{ once: true }}
-            className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8"
-          >
-            {/* Feature 1 */}
-            <div className="p-6 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary mx-auto mb-4 text-2xl">
-                🙏
-              </div>
-              <h3 className="font-heading font-bold text-lg mb-2">
-                {t("meditation")}
-              </h3>
-              <p className="text-sm text-gray-500 max-w-xs mx-auto">
-                {t("meditationDesc")}
-              </p>
-            </div>
-            {/* Feature 2 */}
-            <div className="p-6 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary mx-auto mb-4 text-2xl">
-                🏫
-              </div>
-              <h3 className="font-heading font-bold text-lg mb-2">
-                {t("sundaySchool")}
-              </h3>
-              <p className="text-sm text-gray-500 max-w-xs mx-auto">
-                {t("sundaySchoolDesc")}
-              </p>
-            </div>
-            {/* Feature 3 */}
-            <div className="p-6 rounded-2xl bg-zinc-50 dark:bg-zinc-900 border border-gray-100 dark:border-gray-800 hover:shadow-lg transition-shadow">
-              <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center text-primary mx-auto mb-4 text-2xl">
-                🌺
-              </div>
-              <h3 className="font-heading font-bold text-lg mb-2">
-                {t("culture")}
-              </h3>
-              <p className="text-sm text-gray-500 max-w-xs mx-auto">
-                {t("cultureDesc")}
-              </p>
-            </div>
-          </motion.div>
-        </div>
-      </div>
-    </section>
+    <section className="bg-white py-20 dark:bg-zinc-950"><div className="container mx-auto px-4 md:px-6"><div className="mx-auto max-w-4xl text-center">
+      <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} viewport={{ once: true }}><h2 className="mb-4 font-sans font-medium tracking-wider text-secondary uppercase">{t("welcome")}</h2><h1 className="mb-8 font-heading text-3xl font-bold leading-relaxed text-primary md:text-5xl">{tSite("name")}</h1></motion.div>
+      <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} viewport={{ once: true }} className="prose prose-lg mx-auto font-light leading-relaxed text-gray-600 dark:prose-invert dark:text-gray-400"><p className="mb-6">{t("description")}</p></motion.div>
+      <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, delay: 0.4 }} viewport={{ once: true }} className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3">
+        {[["🙏", "meditation", "meditationDesc"], ["🏫", "sundaySchool", "sundaySchoolDesc"], ["🌺", "culture", "cultureDesc"]].map(([icon, title, description]) => <div key={title} className="rounded-2xl border border-gray-100 bg-zinc-50 p-6 transition-shadow hover:shadow-lg dark:border-gray-800 dark:bg-zinc-900"><div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-2xl text-primary">{icon}</div><h3 className="mb-2 font-heading text-lg font-bold">{t(title)}</h3><p className="mx-auto max-w-xs text-sm text-gray-500">{t(description)}</p></div>)}
+      </motion.div>
+    </div></div></section>
   );
 }

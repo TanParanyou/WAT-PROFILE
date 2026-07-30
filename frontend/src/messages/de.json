@@ -6,7 +6,11 @@
         "visit": "Besuch",
         "gallery": "Galerie",
         "contact": "Kontakt",
-        "monks": "Mönchschronik"
+        "monks": "Mönchschronik",
+        "openMenu": "Navigationsmenü öffnen",
+        "closeMenu": "Navigationsmenü schließen",
+        "primaryNavigation": "Hauptnavigation",
+        "languageNavigation": "Sprache auswählen"
     },
     "Footer": {
         "aboutUs": "Über Uns",
@@ -26,17 +30,34 @@
         "welcomeTo": "Willkommen bei",
         "inLocation": "in Deutschland",
         "viewEvents": "Veranstaltungen ansehen",
-        "donate": "Spenden"
+        "donate": "Spenden",
+        "planVisit": "Ihren Besuch planen",
+        "heroImageAlt": "Alltag im Wat Loung Por Sai",
+        "imageCaption": "Bilder und Momente aus der Tempelgemeinschaft"
     },
     "WelcomeSection": {
-        "welcome": "Willkommen",
-        "description": "Wat Loung Por Sai dient als spirituelles Zentrum für die thailändische buddhistische Gemeinschaft in Deutschland. Unsere Mission ist es, die Lehren Buddhas (Dhamma) zu verbreiten und das thailändische Kulturerbe für zukünftige Generationen zu bewahren.",
+        "welcome": "Ein Ort, der alle willkommen heißt",
+        "description": "Wat Loung Por Sai ist ein Ort für Praxis, Lernen und ruhige Begegnung in Deutschland. Ob Sie das Tempelleben bereits kennen oder es gerade erst entdecken: Sie können in Ihrem eigenen Tempo ankommen.",
         "meditation": "Meditation",
         "meditationDesc": "Achtsamkeitsübung",
         "sundaySchool": "Sonntagsschule",
         "sundaySchoolDesc": "Buddhistische Bildung",
         "culture": "Kulturelle Veranstaltungen",
-        "cultureDesc": "Thailändische Traditionen"
+        "cultureDesc": "Gemeinschaft und Kultur in einer offenen Atmosphäre erleben"
+    },
+    "FirstVisitSection": {
+        "eyebrow": "Für Ihren ersten Besuch",
+        "title": "Entspannt beginnen, bevor Sie bei uns ankommen",
+        "description": "Wählen Sie eine Veranstaltung, bereiten Sie ein paar einfache Dinge vor und planen Sie Ihre Anreise mit Sicherheit.",
+        "stepLabel": "Schritt {number}",
+        "stepOneTitle": "Veranstaltung auswählen",
+        "stepOneDescription": "Schauen Sie in den Kalender und lesen Sie die Details, bevor Sie teilnehmen.",
+        "stepTwoTitle": "Einfach vorbereiten",
+        "stepTwoDescription": "Kleiden Sie sich respektvoll und nehmen Sie in Ihrem eigenen Tempo teil.",
+        "stepThreeTitle": "Anreise planen",
+        "stepThreeDescription": "Prüfen Sie Adresse, Route und Kontaktmöglichkeiten vor der Abfahrt.",
+        "cta": "Besuchs- und Anreiseinformationen ansehen",
+        "imageAlt": "Eine Aktivität und ein Gemeinschaftsmoment im Tempel"
     },
     "DonationSection": {
         "title": "Unterstützen Sie Wat Loung Por Sai",

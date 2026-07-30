@@ -1,61 +1,28 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { siteConfig } from "@/config/site.config";
-import { Menu, X, Sun, Moon, Globe } from "lucide-react";
-import { AnimatePresence, motion, Variants } from "framer-motion";
-import { useTranslations, useLocale } from "next-intl";
-import { Link, usePathname, useRouter } from "@/navigation";
-import { routing } from "@/routing";
-import { getLocalizedText } from "@/utils/i18n";
+import { Menu, X } from "lucide-react";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { Link, usePathname } from "@/navigation";
 import { usePublicSiteSettings } from "@/features/public/settings/PublicSiteSettingsProvider";
+import { getLocalizedText } from "@/utils/i18n";
+import { siteConfig } from "@/config/site.config";
+
+const languageOptions = [
+  { code: "th", label: "ไทย" },
+  { code: "en", label: "EN" },
+  { code: "de", label: "DE" },
+] as const;
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
-  const [mounted, setMounted] = useState(false);
-  const [theme, setTheme] = useState<"light" | "dark">("light");
+  const locale = useLocale();
+  const pathname = usePathname();
   const t = useTranslations("Navbar");
   const tSite = useTranslations("Site");
-  const locale = useLocale();
   const settings = usePublicSiteSettings();
-
-  const pathname = usePathname();
-  const router = useRouter();
-
-  useEffect(() => {
-    // This effect runs only on the client side after hydration,
-    // so we can safely set mounted to true here.
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setMounted(true);
-    const savedTheme = window.localStorage.getItem("theme") as "light" | "dark" | null;
-    const initialTheme = savedTheme || (window.matchMedia?.("(prefers-color-scheme: dark)").matches ? "dark" : "light");
-    setTheme(initialTheme);
-    document.documentElement.classList.toggle("dark", initialTheme === "dark");
-    const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
-    };
-    // Set initial scroll state
-    handleScroll();
-    window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
-  }, []);
-
-  useEffect(() => {
-    if (!mounted) return;
-    window.localStorage.setItem("theme", theme);
-    document.documentElement.classList.toggle("dark", theme === "dark");
-  }, [theme, mounted]);
-
-  // Lock body scroll when mobile menu is open
-  useEffect(() => {
-    if (isOpen) {
-      document.body.style.overflow = "hidden";
-    } else {
-      document.body.style.overflow = "unset";
-    }
-  }, [isOpen]);
 
   const navLinks = [
     { name: t("home"), href: "/" },
@@ -66,239 +33,106 @@ export default function Navbar() {
     { name: t("contact"), href: "/contact" },
   ];
 
-  const toggleLanguage = () => {
-    const currentIndex = routing.locales.indexOf(
-      locale as (typeof routing.locales)[number],
-    );
-    const nextIndex = (currentIndex + 1) % routing.locales.length;
-    const nextLocale = routing.locales[nextIndex];
-    router.replace(pathname, { locale: nextLocale });
-  };
-
-  const navVariants: Variants = {
-    hidden: { opacity: 0, y: -20 },
-    visible: (i: number) => ({
-      opacity: 1,
-      y: 0,
-      transition: {
-        delay: i * 0.1,
-        duration: 0.5,
-        ease: "easeInOut",
-      },
-    }),
-  };
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 20);
+    onScroll();
+    window.addEventListener("scroll", onScroll);
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
 
   return (
-    <nav
-      className={`fixed top-0 w-full z-50 transition-all duration-500 ease-[cubic-bezier(0.22,1,0.36,1)] ${
-        scrolled
-          ? "bg-white dark:bg-black border-b border-white/20 dark:border-white/5 py-4 shadow-sm"
-          : "bg-transparent py-6"
-      }`}
-    >
-      <div className="container mx-auto px-4 md:px-6 flex items-center justify-between">
-        {/* Logo Section */}
-        <Link href="/" className="flex items-center gap-3 group relative z-50">
-          <div
-            className={`w-11 h-11 rounded-2xl flex items-center justify-center font-heading font-bold text-xl shadow-lg transition-all duration-500 group-hover:rotate-12 ${
-              scrolled || isOpen
-                ? "bg-primary text-white"
-                : "bg-white text-primary"
-            }`}
-          >
+    <header className={`fixed top-0 z-50 w-full transition-all duration-500 ${scrolled || isOpen ? "border-b border-white/20 bg-white py-4 shadow-sm" : "bg-transparent py-6"}`}>
+      <div className="container mx-auto flex min-h-11 items-center justify-between gap-4 px-4 md:px-6">
+        <Link href="/" className="relative z-50 flex min-w-0 items-center gap-3 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary">
+          <span className={`relative flex size-11 shrink-0 items-center justify-center overflow-hidden rounded-2xl shadow-lg transition-all ${scrolled || isOpen ? "bg-primary" : "bg-white"}`}>
             <Image
               src={settings.logoUrl || "/images/icon/logo.png"}
               alt={getLocalizedText(siteConfig.siteName, locale)}
-              width={40}
-              height={40}
+              fill
+              sizes="44px"
               className="object-cover"
             />
-          </div>
-          <div className="flex flex-col">
-            <span
-              className={`font-heading font-bold text-lg leading-none tracking-tight transition-colors duration-300 ${
-                scrolled || isOpen
-                  ? "text-gray-900 dark:text-white"
-                  : "text-white"
-              }`}
-            >
-              {tSite("name")}
-            </span>
-            <span
-              className={`text-[10px] uppercase tracking-widest font-medium opacity-80 ${
-                scrolled || isOpen
-                  ? "text-gray-500 dark:text-gray-400"
-                  : "text-white/80"
-              }`}
-            >
-              {tSite("location")}
-            </span>
-          </div>
+          </span>
+          <span className="min-w-0">
+            <span className={`block truncate font-heading text-lg font-bold leading-none ${scrolled || isOpen ? "text-gray-900" : "text-white"}`}>{tSite("name")}</span>
+            <span className={`mt-1 block truncate text-[10px] font-medium uppercase tracking-widest ${scrolled || isOpen ? "text-gray-500" : "text-white/80"}`}>{tSite("location")}</span>
+          </span>
         </Link>
 
-        {/* Desktop Navigation */}
-        <div className="hidden md:flex items-center">
-          <div
-            className={`flex items-center gap-1 px-4 py-1.5 rounded-full transition-all duration-300 ${
-              scrolled
-                ? "bg-gray-100 dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700"
-                : "bg-black/20 backdrop-blur-md border border-white/10"
-            }`}
-          >
-            {navLinks.map((link) => {
-              const isActive = pathname === link.href;
-              return (
-                <Link
-                  key={link.href}
-                  href={link.href}
-                  className={`relative px-5 py-2 text-sm font-medium rounded-full transition-all duration-300 ${
-                    isActive
-                      ? scrolled
-                        ? "bg-white text-primary shadow-sm"
-                        : "bg-white text-primary shadow-sm"
-                      : scrolled
-                        ? "text-gray-600 dark:text-gray-300 hover:text-primary"
-                        : "text-white/90 hover:text-white"
-                  }`}
-                >
-                  {isActive && (
-                    <motion.span
-                      layoutId="nav-pill"
-                      className="absolute inset-0 rounded-full bg-white -z-10 shadow-sm"
-                      transition={{
-                        type: "spring",
-                        bounce: 0.2,
-                        duration: 0.6,
-                      }}
-                    />
-                  )}
-                  {link.name}
-                </Link>
-              );
-            })}
-          </div>
+        <nav className={`hidden items-center gap-1 rounded-full px-4 py-1.5 lg:flex ${scrolled ? "border border-gray-200 bg-gray-100" : "border border-white/10 bg-black/20 backdrop-blur-md"}`} aria-label={t("primaryNavigation")}>
+          {navLinks.map((link) => {
+            const isActive = pathname === link.href;
+            return (
+              <Link
+                key={link.href}
+                href={link.href}
+                aria-current={isActive ? "page" : undefined}
+                className={`rounded-full px-5 py-2 text-sm font-medium transition-all focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary ${isActive ? "bg-white text-primary shadow-sm" : scrolled ? "text-gray-600 hover:text-primary" : "text-white/90 hover:text-white"}`}
+              >
+                {link.name}
+              </Link>
+            );
+          })}
+        </nav>
+
+        <div className="hidden items-center gap-1 lg:flex" aria-label={t("languageNavigation")}>
+          {languageOptions.map((language) => (
+            <Link
+              key={language.code}
+              href={pathname}
+              locale={language.code}
+              aria-current={locale === language.code ? "page" : undefined}
+              className={`rounded-full px-3 py-2 text-xs font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary ${scrolled ? "bg-gray-900 text-white" : "bg-white text-primary shadow-lg"}`}
+            >
+              {language.label}
+            </Link>
+          ))}
         </div>
 
-        {/* Actions (Desktop) */}
-        <div className="hidden md:flex items-center gap-4">
-          <button
-            onClick={() => setTheme((current) => (current === "dark" ? "light" : "dark"))}
-            className={`w-10 h-10 flex items-center justify-center rounded-full transition-all duration-300 ${
-              scrolled
-                ? "bg-gray-100 dark:bg-zinc-800 text-gray-600 dark:text-gray-300 hover:bg-gray-200 dark:hover:bg-zinc-700"
-                : "bg-white/10 text-white hover:bg-white/20 backdrop-blur-md"
-            }`}
-            aria-label="Toggle Theme"
-          >
-            {!mounted ? (
-              <div className="w-5 h-5" /> // Placeholder to prevent layout shift
-            ) : theme === "dark" ? (
-              <Sun size={20} />
-            ) : (
-              <Moon size={20} />
-            )}
-          </button>
-
-          <button
-            onClick={toggleLanguage}
-            className={`flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold transition-all duration-300 ${
-              scrolled
-                ? "bg-gray-900 text-white hover:bg-black dark:bg-white dark:text-black dark:hover:bg-gray-200"
-                : "bg-white text-primary hover:bg-white/90 shadow-lg"
-            }`}
-          >
-            <Globe size={16} />
-            {locale.toUpperCase()}
-          </button>
-        </div>
-
-        {/* Mobile Menu Toggle */}
         <button
-          className={`md:hidden relative z-50 p-2 rounded-full transition-colors ${
-            scrolled || isOpen
-              ? "text-gray-900 dark:text-white hover:bg-gray-100 dark:hover:bg-zinc-800"
-              : "text-white hover:bg-white/10"
-          }`}
-          onClick={() => setIsOpen(!isOpen)}
+          type="button"
+          className={`relative z-50 inline-flex size-11 items-center justify-center rounded-full focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary lg:hidden ${scrolled || isOpen ? "text-gray-900 hover:bg-gray-100" : "text-white hover:bg-white/10"}`}
+          onClick={() => setIsOpen((open) => !open)}
+          aria-expanded={isOpen}
+          aria-controls="public-navigation"
+          aria-label={isOpen ? t("closeMenu") : t("openMenu")}
         >
-          <div className="w-6 h-6 flex items-center justify-center">
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </div>
+          {isOpen ? <X size={24} aria-hidden="true" /> : <Menu size={24} aria-hidden="true" />}
         </button>
       </div>
 
-      {/* Full Screen Mobile Menu */}
-      <AnimatePresence>
-        {isOpen && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.3 }}
-            className="fixed inset-0 z-40 bg-white dark:bg-zinc-950 backdrop-blur-2xl md:hidden flex flex-col pt-32 px-6"
-          >
-            <div className="flex flex-col gap-6">
-              {navLinks.map((link, i) => (
-                <motion.div
-                  custom={i}
-                  variants={navVariants}
-                  initial="hidden"
-                  animate="visible"
+      {isOpen ? (
+        <div id="public-navigation" className="border-t border-gray-100 bg-white px-5 py-6 sm:px-8 lg:hidden">
+          <nav className="mx-auto max-w-7xl" aria-label={t("primaryNavigation")}>
+            <div className="grid gap-1">
+              {navLinks.map((link) => (
+                <Link
                   key={link.href}
+                  href={link.href}
+                  onClick={() => setIsOpen(false)}
+                  className="flex min-h-12 items-center border-b border-[#20382b]/10 py-2 font-heading text-2xl font-bold text-[#20382b] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#20382b]"
                 >
-                  <Link
-                    href={link.href}
-                    className={`flex items-center justify-between text-xl font-heading font-bold border-b border-gray-100 dark:border-gray-800 pb-4 ${
-                      pathname === link.href
-                        ? "text-primary border-primary/30 pl-4"
-                        : "text-gray-900 dark:text-white hover:pl-4 transition-all"
-                    }`}
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {link.name}
-                    {pathname === link.href && (
-                      <motion.div
-                        layoutId="active-dot"
-                        className="w-2 h-2 rounded-full bg-primary"
-                      />
-                    )}
-                  </Link>
-                </motion.div>
+                  {link.name}
+                </Link>
               ))}
             </div>
-
-            <motion.div
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.4 }}
-              className="mt-auto mb-12 space-y-6"
-            >
-              <button
-                onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
-                className="w-full py-4 rounded-2xl bg-white dark:bg-zinc-800 border border-gray-200 dark:border-zinc-700 text-gray-900 dark:text-white font-bold text-lg shadow-sm flex items-center justify-center gap-2"
-              >
-                {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
-                <span>
-                  {theme === "dark"
-                    ? "Switch to Light Mode"
-                    : "Switch to Dark Mode"}
-                </span>
-              </button>
-
-              <button
-                onClick={() => {
-                  toggleLanguage();
-                  setIsOpen(false);
-                }}
-                className="w-full py-4 rounded-2xl bg-primary text-white font-bold text-lg shadow-lg shadow-primary/30 flex items-center justify-center gap-2"
-              >
-                <Globe size={20} />
-                Switch Language ({locale.toUpperCase()})
-              </button>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
-    </nav>
+            <div className="mt-6 flex items-center gap-5" aria-label={t("languageNavigation")}>
+              {languageOptions.map((language) => (
+                <Link
+                  key={language.code}
+                  href={pathname}
+                  locale={language.code}
+                  onClick={() => setIsOpen(false)}
+                  aria-current={locale === language.code ? "page" : undefined}
+                  className={`min-h-11 py-2 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#20382b] ${locale === language.code ? "text-[#8a5a10]" : "text-[#5d5b53]"}`}
+                >
+                  {language.label}
+                </Link>
+              ))}
+            </div>
+          </nav>
+        </div>
+      ) : null}
+    </header>
   );
 }
