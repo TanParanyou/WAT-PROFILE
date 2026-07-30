@@ -20,7 +20,7 @@ export interface PublicEventDto {
   location: LocalizedTextDto;
   image_url: string | null;
   map_url: string | null;
-  schedules: readonly PublicEventScheduleDto[];
+  schedules?: readonly PublicEventScheduleDto[];
 }
 
 export interface PublicScheduleDto {

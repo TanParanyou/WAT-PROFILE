@@ -52,7 +52,7 @@ export function EventDetailContent({ slug, initialEvent }: EventDetailContentPro
   const description = event.description ? getLocalizedPlainText(event.description, locale) : "";
   const timeRange = formatTimeRange(event.start_time, event.end_time, locale);
   const calendarUrl = buildCalendarUrl(event, locale);
-  const scheduleEntries = [...event.schedules].sort((left, right) => left.display_order - right.display_order);
+  const scheduleEntries = [...(event.schedules || [])].sort((left, right) => left.display_order - right.display_order);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "Event",
