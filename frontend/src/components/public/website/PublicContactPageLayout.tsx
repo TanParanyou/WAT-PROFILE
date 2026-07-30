@@ -1,7 +1,18 @@
 "use client";
 
-import { Clock3, CreditCard, Facebook, Mail, MapPin, Navigation, Phone } from "lucide-react";
+import {
+  Clock3,
+  CreditCard,
+  Facebook,
+  Mail,
+  MapPin,
+  Navigation,
+  Phone,
+} from "lucide-react";
 import { useTranslations } from "next-intl";
+import PageContainer from "@/components/layout/PageContainer";
+import PageHeader from "@/components/layout/PageHeader";
+import { PublicSectionHeading } from "@/components/public/layout/PublicSectionHeading";
 import type { ContactContentFormData } from "@/types/public-content";
 import { getLocalizedText } from "@/utils/localizedText";
 
@@ -22,214 +33,213 @@ interface PublicContactPageLayoutProps {
   formSlot: React.ReactNode;
 }
 
-export function PublicContactPageLayout({ page, locale, labels, formSlot }: PublicContactPageLayoutProps) {
+export function PublicContactPageLayout({
+  page,
+  locale,
+  labels,
+  formSlot,
+}: PublicContactPageLayoutProps) {
   const t = useTranslations("ContactPage");
-  const heroEyebrow = labels.infoEyebrow;
-  const heroTitle = getLocalizedText(page.title, locale);
-  const heroDescription = getLocalizedText(page.description, locale);
+  const title = getLocalizedText(page.title, locale);
+  const description = getLocalizedText(page.description, locale);
   const address = getLocalizedText(page.body.address, locale);
-  const phone = page.body.phone;
-  const email = page.body.email;
-  const openingHours = page.body.opening_hours;
-  const transport = page.body.transport;
-  
-  const hasOpeningHours = !!(
+  const { phone, email, opening_hours: openingHours, transport, map, socials, bank } = page.body;
+  const publicTransport = transport.public_transport ?? [];
+  const hasOpeningHours = Boolean(
     getLocalizedText(openingHours.days, locale) ||
-    getLocalizedText(openingHours.time, locale) ||
-    getLocalizedText(openingHours.notice, locale)
+      getLocalizedText(openingHours.time, locale) ||
+      getLocalizedText(openingHours.notice, locale),
   );
-
-  const hasTransport = !!(
+  const hasTransport = Boolean(
     getLocalizedText(transport.parking, locale) ||
-    (transport.public_transport || []).length > 0 ||
-    getLocalizedText(transport.driving, locale)
+      publicTransport.length > 0 ||
+      getLocalizedText(transport.driving, locale),
   );
-
-  const hasSocials = !!(
-    page.body.socials.facebook ||
-    page.body.socials.instagram ||
-    page.body.socials.line ||
-    page.body.socials.youtube ||
-    page.body.socials.messenger
-  );
-
-  const hasBank = !!(
-    page.body.bank.bank_name.th ||
-    page.body.bank.account_number ||
-    page.body.bank.iban
+  const socialLinks = [
+    { label: "Facebook", href: socials.facebook },
+    { label: "Instagram", href: socials.instagram },
+    { label: "YouTube", href: socials.youtube },
+    { label: "Messenger", href: socials.messenger },
+  ].filter((item) => Boolean(item.href));
+  const hasSocials = socialLinks.length > 0 || Boolean(socials.line);
+  const hasBank = Boolean(
+    getLocalizedText(bank.bank_name, locale) ||
+      getLocalizedText(bank.account_name, locale) ||
+      bank.account_number ||
+      bank.iban ||
+      bank.bic,
   );
 
   return (
-    <div className="min-h-full bg-zinc-50 text-zinc-950">
-      <section className="border-b border-zinc-200 bg-zinc-950 px-6 py-10 text-white md:px-8 md:py-14">
-        <div className="mx-auto max-w-5xl">
-          <p className="font-mono text-[11px] uppercase tracking-[0.22em] text-zinc-300">{heroEyebrow}</p>
-          <h1 className="mt-4 text-3xl font-semibold leading-tight md:text-5xl">{heroTitle}</h1>
-          <p className="mt-4 max-w-2xl text-sm leading-7 text-zinc-300 md:text-base">
-            {heroDescription}
-          </p>
-        </div>
-      </section>
-
-      <section className="mx-auto max-w-5xl px-4 py-8 md:px-6 md:py-10">
-        <div className="grid gap-0 overflow-hidden border border-zinc-200 bg-white shadow-sm lg:grid-cols-[minmax(0,0.42fr)_minmax(0,0.58fr)]">
-          <div className="border-b border-zinc-200 p-6 md:p-8 lg:border-b-0 lg:border-r">
-            <div className="mb-8">
-              <p className="font-mono text-xs uppercase tracking-[0.2em] text-zinc-500">{labels.infoEyebrow}</p>
-              <h2 className="mt-2 text-2xl font-semibold text-zinc-950">
-                {labels.infoTitle}
-              </h2>
+    <div className="min-h-screen bg-background">
+      <PageHeader variant="color" align="left" title={title} subtitle={description} />
+      <PageContainer width="content">
+        <div className="grid gap-12 lg:grid-cols-2 lg:gap-x-14 lg:gap-y-16">
+          <section className="lg:col-start-1 lg:row-start-1" aria-labelledby="visit-heading">
+            <PublicSectionHeading id="visit-heading" title={labels.infoTitle} />
+            <div className="mt-8 space-y-7">
+              {address ? (
+                <InfoRow icon={<MapPin size={20} aria-hidden="true" />} title={labels.address}>
+                  <p>{address}</p>
+                  {map.directions_url ? (
+                    <a
+                      href={map.directions_url}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="mt-3 inline-flex min-h-11 items-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-600 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+                    >
+                      {t("directions")}
+                    </a>
+                  ) : null}
+                </InfoRow>
+              ) : null}
+              {phone ? (
+                <InfoRow icon={<Phone size={20} aria-hidden="true" />} title={labels.phone}>
+                  <a
+                    href={`tel:${phone}`}
+                    className="underline decoration-primary/40 underline-offset-4 hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                  >
+                    {phone}
+                  </a>
+                </InfoRow>
+              ) : null}
+              {email ? (
+                <InfoRow icon={<Mail size={20} aria-hidden="true" />} title={labels.email}>
+                  <a
+                    href={`mailto:${email}`}
+                    className="break-all underline decoration-primary/40 underline-offset-4 hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                  >
+                    {email}
+                  </a>
+                </InfoRow>
+              ) : null}
+              {hasOpeningHours ? (
+                <InfoRow icon={<Clock3 size={20} aria-hidden="true" />} title={t("openingHours")}>
+                  <div className="space-y-1">
+                    {getLocalizedText(openingHours.days, locale) ? (
+                      <p>{getLocalizedText(openingHours.days, locale)}</p>
+                    ) : null}
+                    {getLocalizedText(openingHours.time, locale) ? (
+                      <p>{getLocalizedText(openingHours.time, locale)}</p>
+                    ) : null}
+                    {getLocalizedText(openingHours.notice, locale) ? (
+                      <p className="text-sm text-text-700">
+                        {getLocalizedText(openingHours.notice, locale)}
+                      </p>
+                    ) : null}
+                  </div>
+                </InfoRow>
+              ) : null}
+              {hasTransport ? (
+                <InfoRow icon={<Navigation size={20} aria-hidden="true" />} title={t("transport")}>
+                  <div className="space-y-4">
+                    {getLocalizedText(transport.parking, locale) ? (
+                      <InfoGroup title={t("parking")}>
+                        {getLocalizedText(transport.parking, locale)}
+                      </InfoGroup>
+                    ) : null}
+                    {publicTransport.length > 0 ? (
+                      <div>
+                        <h3 className="font-semibold text-text-900">{t("publicTransport")}</h3>
+                        <ul className="mt-2 list-disc space-y-1 pl-5">
+                          {publicTransport.map((item, index) => {
+                            const itemText = getLocalizedText(item, locale);
+                            return itemText ? <li key={`${itemText}-${index}`}>{itemText}</li> : null;
+                          })}
+                        </ul>
+                      </div>
+                    ) : null}
+                    {getLocalizedText(transport.driving, locale) ? (
+                      <InfoGroup title={t("driving")}>
+                        {getLocalizedText(transport.driving, locale)}
+                      </InfoGroup>
+                    ) : null}
+                  </div>
+                </InfoRow>
+              ) : null}
             </div>
-            <div className="space-y-6">
-              {address && <InfoRow icon={<MapPin size={20} />} title={labels.address} value={address} />}
-              {phone && <InfoRow icon={<Phone size={20} />} title={labels.phone} value={phone} mono />}
-              {email && <InfoRow icon={<Mail size={20} />} title={labels.email} value={email} mono />}
-              {hasOpeningHours && (
-                <InfoRow
-                  icon={<Clock3 size={20} />}
-                  title={t("openingHours")}
-                  value={
-                    <div className="space-y-1">
-                      {getLocalizedText(openingHours.days, locale) && <p>{getLocalizedText(openingHours.days, locale)}</p>}
-                      {getLocalizedText(openingHours.time, locale) && <p>{getLocalizedText(openingHours.time, locale)}</p>}
-                      {getLocalizedText(openingHours.notice, locale) && <p className="text-xs text-zinc-500">{getLocalizedText(openingHours.notice, locale)}</p>}
-                    </div>
-                  }
-                />
-              )}
-              {hasTransport && (
-                <InfoRow
-                  icon={<Navigation size={20} />}
-                  title={t("transport")}
-                  value={
-                    <div className="space-y-3">
-                      {getLocalizedText(transport.parking, locale) && (
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">{t("parking")}</p>
-                          <p className="mt-1">{getLocalizedText(transport.parking, locale)}</p>
-                        </div>
-                      )}
-                      {(transport.public_transport || []).length > 0 && (
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">{t("publicTransport")}</p>
-                          <ul className="mt-1 list-disc space-y-1 pl-5">
-                            {(transport.public_transport || []).map((item, index) => {
-                              const text = getLocalizedText(item, locale);
-                              return text ? <li key={`${text}-${index}`}>{text}</li> : null;
-                            })}
-                          </ul>
-                        </div>
-                      )}
-                      {getLocalizedText(transport.driving, locale) && (
-                        <div>
-                          <p className="text-xs font-semibold uppercase tracking-[0.16em] text-zinc-400">{t("driving")}</p>
-                          <p className="mt-1">{getLocalizedText(transport.driving, locale)}</p>
-                        </div>
-                      )}
-                    </div>
-                  }
-                />
-              )}
-              
-              {hasSocials && (
-                <InfoRow
-                  icon={<Facebook size={20} />}
-                  title={labels.social}
-                  value={
-                    <div className="space-y-2">
-                      {page.body.socials.facebook && (
-                        <a href={page.body.socials.facebook} target="_blank" rel="noreferrer" className="block break-all text-zinc-900 underline underline-offset-4 text-sm font-medium">
-                          Facebook
-                        </a>
-                      )}
-                      {page.body.socials.instagram && (
-                        <a href={page.body.socials.instagram} target="_blank" rel="noreferrer" className="block break-all text-zinc-900 underline underline-offset-4 text-sm font-medium">
-                          Instagram
-                        </a>
-                      )}
-                      {page.body.socials.youtube && (
-                        <a href={page.body.socials.youtube} target="_blank" rel="noreferrer" className="block break-all text-zinc-900 underline underline-offset-4 text-sm font-medium">
-                          YouTube
-                        </a>
-                      )}
-                      {page.body.socials.messenger && (
-                        <a href={page.body.socials.messenger} target="_blank" rel="noreferrer" className="block break-all text-zinc-900 underline underline-offset-4 text-sm font-medium">
-                          Messenger
-                        </a>
-                      )}
-                      {page.body.socials.line && (
-                        <div className="text-zinc-600 text-sm">
-                          <span>LINE: </span>
-                          <span className="font-semibold text-zinc-800">{page.body.socials.line}</span>
-                        </div>
-                      )}
-                    </div>
-                  }
-                />
-              )}
+          </section>
 
-              {hasBank && (
-                <InfoRow
-                  icon={<CreditCard size={20} />}
-                  title={labels.bank}
-                  value={
-                    <div className="space-y-1 text-sm text-zinc-600">
-                      <p className="font-medium text-zinc-900">{getLocalizedText(page.body.bank.bank_name, locale)}</p>
-                      <p className="text-xs">Account: {getLocalizedText(page.body.bank.account_name, locale)}</p>
-                      {page.body.bank.account_number && <p>Number: {page.body.bank.account_number}</p>}
-                      {page.body.bank.iban && <p className="font-mono text-xs">IBAN: {page.body.bank.iban}</p>}
-                      {page.body.bank.bic && <p className="font-mono text-xs">BIC: {page.body.bank.bic}</p>}
-                    </div>
-                  }
-                />
-              )}
-            </div>
-
-            {/* Google Map Embed Iframe */}
-            {page.body.map.embed_url && (
-              <div className="mt-8 rounded border border-zinc-200">
-                <div className="border-b border-zinc-200 px-4 py-3">
-                  <p className="text-xs font-semibold uppercase tracking-[0.18em] text-zinc-500">{t("map")}</p>
-                </div>
+          {map.embed_url ? (
+            <section className="lg:col-span-2 lg:row-start-2" aria-labelledby="map-heading">
+              <PublicSectionHeading id="map-heading" title={t("map")} />
+              <div className="mt-7 overflow-hidden rounded-2xl border border-primary/15 bg-white">
                 <iframe
-                  src={page.body.map.embed_url}
+                  src={map.embed_url}
                   width="100%"
-                  height="220"
+                  height="360"
                   style={{ border: 0 }}
                   allowFullScreen={false}
                   loading="lazy"
                   referrerPolicy="no-referrer-when-downgrade"
-                  title={getLocalizedText(page.body.map.name, locale) || "Map"}
+                  title={getLocalizedText(map.name, locale) || t("map")}
                 />
-                {page.body.map.directions_url && (
-                  <a
-                    href={page.body.map.directions_url}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="block text-center bg-zinc-900 text-white py-2 text-xs font-semibold hover:bg-zinc-800 transition-colors"
-                  >
-                    {t("directions")}
-                  </a>
-                )}
               </div>
-            )}
-          </div>
+            </section>
+          ) : null}
 
-          <div className="p-6 md:p-8">
-            <div className="mb-8">
-              <p className="font-mono text-xs uppercase tracking-[0.2em] text-zinc-500">{labels.messageEyebrow}</p>
-              <h2 className="mt-2 text-2xl font-semibold text-zinc-950">
-                {labels.formTitle}
-              </h2>
+          <section className="lg:col-start-2 lg:row-start-1" aria-labelledby="contact-form-heading">
+            <PublicSectionHeading id="contact-form-heading" title={labels.formTitle} />
+            <div className="mt-8 rounded-2xl border border-primary/15 bg-white p-6 md:p-8">
+              {page.body.contact_form.enabled ? (
+                formSlot
+              ) : (
+                <p className="py-10 text-center text-text-700">{t("formDisabled")}</p>
+              )}
             </div>
-            {page.body.contact_form.enabled ? formSlot : (
-              <div className="text-center py-12 text-zinc-400 border border-dashed border-zinc-200 rounded">
-                {t("formDisabled")}
+          </section>
+
+          {hasSocials || hasBank ? (
+            <section className="border-t border-primary/15 pt-12 lg:col-span-2 lg:row-start-3">
+              <div className="grid gap-10 md:grid-cols-2">
+                {hasSocials ? (
+                  <div>
+                    <h2 className="font-heading text-2xl font-bold text-text-900">{labels.social}</h2>
+                    <div className="mt-5 flex flex-wrap gap-3">
+                      {socialLinks.map((item) => (
+                        <a
+                          key={item.label}
+                          href={item.href}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex min-h-11 items-center gap-2 rounded-full border border-primary/20 bg-white px-4 py-2 text-sm font-semibold text-text-800 hover:border-primary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+                        >
+                          <Facebook size={16} aria-hidden="true" />
+                          {item.label}
+                        </a>
+                      ))}
+                      {socials.line ? (
+                        <span className="inline-flex min-h-11 items-center rounded-full border border-primary/20 bg-white px-4 py-2 text-sm text-text-800">
+                          LINE: {socials.line}
+                        </span>
+                      ) : null}
+                    </div>
+                  </div>
+                ) : null}
+                {hasBank ? (
+                  <div>
+                    <h2 className="flex items-center gap-3 font-heading text-2xl font-bold text-text-900">
+                      <CreditCard size={22} aria-hidden="true" />
+                      {labels.bank}
+                    </h2>
+                    <dl className="mt-5 grid gap-2 text-sm text-text-800">
+                      {getLocalizedText(bank.bank_name, locale) ? (
+                        <div>{getLocalizedText(bank.bank_name, locale)}</div>
+                      ) : null}
+                      {getLocalizedText(bank.account_name, locale) ? (
+                        <div>{getLocalizedText(bank.account_name, locale)}</div>
+                      ) : null}
+                      {bank.account_number ? <div>{bank.account_number}</div> : null}
+                      {bank.iban ? <div className="break-all font-mono">IBAN: {bank.iban}</div> : null}
+                      {bank.bic ? <div className="break-all font-mono">BIC: {bank.bic}</div> : null}
+                    </dl>
+                  </div>
+                ) : null}
               </div>
-            )}
-          </div>
+            </section>
+          ) : null}
         </div>
-      </section>
+      </PageContainer>
     </div>
   );
 }
@@ -237,23 +247,30 @@ export function PublicContactPageLayout({ page, locale, labels, formSlot }: Publ
 function InfoRow({
   icon,
   title,
-  value,
-  mono,
+  children,
 }: {
   icon: React.ReactNode;
   title: string;
-  value: React.ReactNode;
-  mono?: boolean;
+  children: React.ReactNode;
 }) {
   return (
-    <div className="grid gap-4 sm:grid-cols-[40px_minmax(0,1fr)]">
-      <div className="flex h-10 w-10 items-center justify-center border border-zinc-200 bg-zinc-50 text-zinc-900">
+    <div className="grid gap-4 sm:grid-cols-[44px_minmax(0,1fr)]">
+      <div className="flex h-11 w-11 items-center justify-center rounded-full bg-secondary-50 text-secondary-700">
         {icon}
       </div>
       <div>
-        <h3 className="text-sm font-semibold text-zinc-950">{title}</h3>
-        <div className={mono ? "mt-1 font-mono text-sm text-zinc-600" : "mt-1 text-sm text-zinc-600"}>{value}</div>
+        <h3 className="font-heading text-lg font-bold text-text-900">{title}</h3>
+        <div className="mt-1 leading-7 text-text-800">{children}</div>
       </div>
+    </div>
+  );
+}
+
+function InfoGroup({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div>
+      <h3 className="font-semibold text-text-900">{title}</h3>
+      <p className="mt-1">{children}</p>
     </div>
   );
 }

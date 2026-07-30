@@ -142,7 +142,11 @@ export default function ContactContent({ locale, cmsPage }: ContactContentProps)
         bank: t("bank"),
       }}
       formSlot={
-        <form className="space-y-5" onSubmit={handleSubmit}>
+        <form
+          className="space-y-5"
+          onSubmit={handleSubmit}
+          aria-describedby={status === "error" ? "contact-form-error" : undefined}
+        >
           {query.isError ? <QueryErrorState title={t("contentErrorTitle")} description={t("contentErrorDescription")} retryLabel={t("retryContent")} onRetry={() => query.refetch()} isRetrying={query.isFetching} /> : null}
           <div className="grid gap-4 md:grid-cols-2">
             <Field id="name" label={t("fullName")} value={formData.name} onChange={handleChange} />
@@ -151,27 +155,27 @@ export default function ContactContent({ locale, cmsPage }: ContactContentProps)
           <Field id="subject" label={t("subject")} value={formData.subject} onChange={handleChange} />
           <Field id="message" label={t("message")} value={formData.message} onChange={handleChange} textarea />
           {errorMsg && (
-            <div className="flex items-start gap-2 border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            <div id="contact-form-error" role="alert" className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
               <AlertCircle size={16} className="mt-0.5 shrink-0" />
               <span>{errorMsg}</span>
             </div>
           )}
           {status === "success" && (
-            <div className="flex items-center gap-2 border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
+            <div role="status" aria-live="polite" className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
               <CheckCircle size={16} />
               <span>{successMessage}</span>
             </div>
           )}
-          <p className="text-xs leading-6 text-zinc-500">
+          <p className="text-sm leading-6 text-text-700">
             {t("privacyNotice")}{" "}
-            <Link href={privacyLink} className="font-medium text-zinc-900 underline underline-offset-4">
+            <Link href={privacyLink} className="font-medium text-text-900 underline decoration-primary/40 underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
               {t("privacyLink")}
             </Link>
           </p>
           <button
             type="submit"
             disabled={status === "loading"}
-            className="inline-flex items-center gap-2 border border-zinc-950 bg-zinc-950 px-4 py-2.5 font-medium text-white transition hover:bg-zinc-800 disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-6 py-2.5 font-semibold text-white transition-colors hover:bg-primary-600 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-60"
           >
             {status === "loading" ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
             {t("sendMessage")}
@@ -197,14 +201,14 @@ function Field({
   type?: string;
   textarea?: boolean;
 }) {
-  const base = "mt-2 w-full border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-950 outline-none transition placeholder:text-zinc-400 focus:border-zinc-950";
+  const base = "mt-2 min-h-11 w-full rounded-lg border border-primary/20 bg-white px-3 py-2.5 text-base text-text-900 outline-none transition-colors placeholder:text-text-600 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/25";
   return (
-    <label className="block text-sm font-medium text-zinc-700" htmlFor={id}>
+    <label className="block text-sm font-semibold text-text-800" htmlFor={id}>
       {label}
       {textarea ? (
-        <textarea id={id} value={value} onChange={onChange} rows={6} className={base} />
+        <textarea id={id} value={value} onChange={onChange} rows={6} className={base} required />
       ) : (
-        <input id={id} type={type} value={value} onChange={onChange} className={base} />
+        <input id={id} type={type} value={value} onChange={onChange} className={base} required />
       )}
     </label>
   );
