@@ -1,14 +1,33 @@
-import React from 'react';
+import type { ReactNode } from "react";
+
+type PageContainerWidth = "wide" | "content" | "reading";
 
 interface PageContainerProps {
-    children: React.ReactNode;
-    className?: string;
+  children: ReactNode;
+  className?: string;
+  width?: PageContainerWidth;
+  overlap?: boolean;
 }
 
-export default function PageContainer({ children, className = '' }: PageContainerProps) {
-    return (
-        <div className={`container mx-auto px-4 -mt-20 relative z-20 pb-20 ${className}`}>
-            {children}
-        </div>
-    );
+const widths: Record<PageContainerWidth, string> = {
+  wide: "max-w-7xl",
+  content: "max-w-6xl",
+  reading: "max-w-3xl",
+};
+
+export default function PageContainer({
+  children,
+  className = "",
+  width = "wide",
+  overlap = false,
+}: PageContainerProps) {
+  return (
+    <div
+      className={`relative z-20 mx-auto w-full px-4 pb-20 pt-12 sm:px-6 md:pb-28 md:pt-16 lg:px-8 ${
+        widths[width]
+      } ${overlap ? "-mt-10 md:-mt-12" : ""} ${className}`}
+    >
+      {children}
+    </div>
+  );
 }
