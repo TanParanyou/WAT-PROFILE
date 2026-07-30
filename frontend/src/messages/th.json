@@ -275,6 +275,8 @@
         "schedule": "กำหนดการ",
         "openMap": "เปิดแผนที่",
         "addToCalendar": "เพิ่มลงปฏิทิน",
+        "share": "แชร์",
+        "copied": "คัดลอกลิงก์แล้ว",
         "breadcrumbs": {
             "home": "หน้าแรก",
             "events": "กิจกรรม"

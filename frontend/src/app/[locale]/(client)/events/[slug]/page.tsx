@@ -68,23 +68,30 @@ export default async function EventDetailPage({ params }: Props) {
   const headerSubtitle = initialEvent ? getLocalizedText(initialEvent.location, locale) : tEvents("subtitle");
 
   return (
-    <div className="min-h-screen bg-zinc-50 pb-20 dark:bg-zinc-950">
-      <PageHeader title={headerTitle} subtitle={headerSubtitle}>
+    <div className="min-h-screen bg-background">
+      <PageHeader
+        variant={initialEvent?.image_url ? "image" : "color"}
+        align="left"
+        title={headerTitle}
+        subtitle={headerSubtitle}
+        imageSrc={initialEvent?.image_url}
+        imageAlt={headerTitle}
+      >
         {initialEvent ? (
-          <div className="mt-8 flex flex-wrap items-center justify-center gap-4 text-sm text-white/90 md:text-base">
-            <span className="flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 backdrop-blur-md">
-              <Calendar size={16} />
+          <div className="flex flex-wrap gap-x-6 gap-y-3 border-t border-white/30 pt-5 text-sm text-white/90 md:text-base">
+            <span className="flex items-center gap-2">
+              <Calendar size={16} aria-hidden="true" />
               {formatDateRange(initialEvent.start_date, initialEvent.end_date, locale)}
             </span>
-            <span className="flex items-center gap-2 rounded-full border border-white/10 bg-white/10 px-4 py-2 backdrop-blur-md">
-              <MapPin size={16} />
+            <span className="flex items-center gap-2">
+              <MapPin size={16} aria-hidden="true" />
               {getLocalizedText(initialEvent.location, locale)}
             </span>
           </div>
         ) : null}
       </PageHeader>
 
-      <PageContainer>
+      <PageContainer width="content">
         <DetailNavigation
           breadcrumbs={[
             { label: t("breadcrumbs.events"), href: "/events" },

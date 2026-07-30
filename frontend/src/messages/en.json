@@ -275,6 +275,8 @@
         "schedule": "Schedule",
         "openMap": "Open Map",
         "addToCalendar": "Add to Calendar",
+        "share": "Share",
+        "copied": "Link copied",
         "breadcrumbs": {
             "home": "Home",
             "events": "Events"

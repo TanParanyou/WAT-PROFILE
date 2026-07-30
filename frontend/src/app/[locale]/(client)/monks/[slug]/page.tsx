@@ -51,9 +51,9 @@ export default async function MonkDetailPage({ params }: Props) {
   const monkTitle = initialMonk?.title ? getLocalizedText(initialMonk.title, locale) : undefined;
 
   return (
-    <div className="min-h-screen bg-zinc-50 pb-20 dark:bg-zinc-950">
-      <PageHeader title={monkName} subtitle={monkTitle} />
-      <PageContainer>
+    <div className="min-h-screen bg-background">
+      <PageHeader variant="color" align="left" title={monkName} subtitle={monkTitle} />
+      <PageContainer width="content">
         <DetailNavigation
           breadcrumbs={[{ label: t("title"), href: "/monks" }, { label: monkName, active: true }]}
           backHref="/monks"

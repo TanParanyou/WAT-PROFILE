@@ -4,7 +4,12 @@ import { useState } from "react";
 import { Share2, Check } from "lucide-react";
 import { usePathname } from "next/navigation";
 
-export default function ShareButton() {
+interface ShareButtonProps {
+  shareLabel: string;
+  copiedLabel: string;
+}
+
+export default function ShareButton({ shareLabel, copiedLabel }: ShareButtonProps) {
   const pathname = usePathname();
   const [copied, setCopied] = useState(false);
   const [isSharing, setIsSharing] = useState(false);
@@ -42,19 +47,20 @@ export default function ShareButton() {
 
   return (
     <button
+      type="button"
       onClick={handleShare}
-      className="flex items-center gap-2 text-gray-500 hover:text-primary transition-all font-medium active:scale-95 hover:bg-zinc-100 dark:hover:bg-zinc-800 px-3 py-2 rounded-lg"
-      aria-label="Share this event"
+      className="inline-flex min-h-11 items-center gap-2 rounded-full border border-primary/25 bg-white px-5 py-2.5 text-sm font-semibold text-text-800 transition-colors hover:border-primary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+      aria-label={shareLabel}
     >
       {copied ? (
         <>
-          <Check size={20} className="text-green-500" />
-          <span className="text-green-600">Copied!</span>
+          <Check size={18} className="text-green-600" aria-hidden="true" />
+          <span className="text-green-700">{copiedLabel}</span>
         </>
       ) : (
         <>
-          <Share2 size={20} />
-          Share
+          <Share2 size={18} aria-hidden="true" />
+          {shareLabel}
         </>
       )}
     </button>

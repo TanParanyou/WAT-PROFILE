@@ -275,6 +275,8 @@
         "schedule": "Zeitplan",
         "openMap": "Karte öffnen",
         "addToCalendar": "Zum Kalender hinzufügen",
+        "share": "Teilen",
+        "copied": "Link kopiert",
         "breadcrumbs": {
             "home": "Startseite",
             "events": "Veranstaltungen"

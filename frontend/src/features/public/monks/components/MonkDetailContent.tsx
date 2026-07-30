@@ -1,6 +1,6 @@
 "use client";
 
-import { Quote, User } from "lucide-react";
+import { User } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { RichTextContent } from "@/components/admin/rich-text/RichTextContent";
 import { getLocalizedText } from "../mappers";
@@ -47,7 +47,7 @@ export function MonkDetailContent({ slug, initialMonk }: MonkDetailContentProps)
   return (
     <div className="grid gap-8 lg:grid-cols-12">
       <div className="lg:col-span-4">
-        <div className="sticky top-24 overflow-hidden rounded-3xl border-4 border-white bg-white shadow-xl shadow-primary/5 dark:border-zinc-800 dark:bg-zinc-900">
+        <div className="overflow-hidden rounded-2xl border border-primary/15 bg-white shadow-sm lg:sticky lg:top-24">
           <div className="relative aspect-[3/4] bg-zinc-100 dark:bg-zinc-800">
             <PublicImage
               src={imageUrl}
@@ -58,33 +58,33 @@ export function MonkDetailContent({ slug, initialMonk }: MonkDetailContentProps)
               sizes="(max-width: 1200px) 100vw, 33vw"
             />
           </div>
-          <div className="p-6">
+          {monk.title ? <div className="border-t border-primary/10 p-6">
             <div className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
               <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
                 <User size={20} />
               </div>
               <div>
                 <p className="text-xs font-bold uppercase text-gray-500">{t("role")}</p>
-                <p className="font-medium">{monk.title ? getLocalizedText(monk.title, locale) : "-"}</p>
+                <p className="font-medium">{getLocalizedText(monk.title, locale)}</p>
               </div>
             </div>
-          </div>
+          </div> : null}
         </div>
       </div>
 
       <div className="lg:col-span-8">
-        <div className="rounded-3xl border border-gray-100 bg-white p-8 shadow-sm dark:border-gray-800 dark:bg-zinc-900 md:p-12">
-          <Quote className="mb-4 h-16 w-16 text-primary/20" />
-          <h2 className="mb-6 text-3xl font-bold text-gray-900 dark:text-white md:text-4xl">
+        <article className="rounded-2xl border border-primary/15 bg-white p-8 md:p-12">
+          <h2 className="mb-8 font-heading text-3xl font-bold text-text-900 md:text-4xl">
             {t("biography")}
           </h2>
-          <div className="mb-8 h-1.5 w-20 rounded-full bg-primary" />
-          {monk.bio ? (
-            <RichTextContent value={monk.bio} locale={locale} defaultLocale="th" />
-          ) : (
-            <p className="text-sm text-gray-500">{tState("emptyContent")}</p>
-          )}
-        </div>
+          <div className="max-w-[75ch]">
+            {monk.bio ? (
+              <RichTextContent value={monk.bio} locale={locale} defaultLocale="th" />
+            ) : (
+              <p className="text-sm text-text-700">{tState("emptyContent")}</p>
+            )}
+          </div>
+        </article>
       </div>
     </div>
   );

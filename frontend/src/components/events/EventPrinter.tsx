@@ -22,10 +22,11 @@ export default function EventPrinter({ event, locale }: EventPrinterProps) {
   return (
     <>
       <button
+        type="button"
         onClick={() => reactToPrintFn()}
-        className="flex items-center gap-2 text-gray-500 hover:text-primary transition-all font-medium active:scale-95 hover:bg-zinc-100 dark:hover:bg-zinc-800 px-3 py-2 rounded-lg"
+        className="inline-flex min-h-11 items-center gap-2 rounded-full border border-primary/25 bg-white px-5 py-2.5 text-sm font-semibold text-text-800 transition-colors hover:border-primary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
       >
-        <Printer size={20} />
+        <Printer size={18} aria-hidden="true" />
         <span>{t("printButton")}</span>
       </button>
 

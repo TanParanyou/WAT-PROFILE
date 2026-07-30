@@ -14,8 +14,6 @@ import { usePublicEventQuery } from "../queries";
 import type { PublicEventDto } from "../types";
 import { EventDetailSkeleton } from "./EventDetailSkeleton";
 import { getLocalizedPlainText } from "@/features/public/shared/rich-text";
-import { PublicImage } from "@/components/public/media/PublicImage";
-import { publicEventFallbackImage } from "@/components/public/media/publicImageFallbacks";
 
 interface EventDetailContentProps {
   slug: string;
@@ -77,86 +75,71 @@ export function EventDetailContent({ slug, initialEvent }: EventDetailContentPro
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <div className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
-        <div className="relative aspect-video bg-gray-100">
-          <PublicImage
-            src={image}
-            alt={getLocalizedText(event.title, locale)}
-            fill
-            fallbackSrc={publicEventFallbackImage}
-            className="object-cover"
-          />
-        </div>
-        <div className="border-t border-gray-100 p-6 md:p-8">
-          <div className="flex flex-wrap gap-4 text-sm text-gray-500">
+      <section className="border-y border-primary/15 py-6">
+        <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-text-800">
+          <span className="flex items-center gap-2">
+            <Calendar size={16} aria-hidden="true" />
+            {formatDateRange(event.start_date, event.end_date, locale)}
+          </span>
+          {timeRange ? (
             <span className="flex items-center gap-2">
-              <Calendar size={16} />
-              {formatDateRange(event.start_date, event.end_date, locale)}
+              <Clock size={16} aria-hidden="true" />
+              {timeRange}
             </span>
-            {timeRange ? (
-              <span className="flex items-center gap-2">
-                <Clock size={16} />
-                {timeRange}
-              </span>
-            ) : null}
-            <span className="flex items-center gap-2">
-              <MapPin size={16} />
-              {getLocalizedText(event.location, locale)}
-            </span>
-          </div>
-          <div className="mt-6 flex flex-col gap-5 lg:flex-row lg:items-start lg:justify-between">
-            <div className="max-w-3xl">
-              <h2 className="text-3xl font-bold text-gray-900">{getLocalizedText(event.title, locale)}</h2>
-              <div className="mt-6">
-                {event.description ? (
-                  <RichTextContent value={event.description} locale={locale} defaultLocale="th" />
-                ) : (
-                  <p className="text-sm text-gray-500">{t("note")}</p>
-                )}
-              </div>
-            </div>
-            <div className="flex flex-wrap gap-2 lg:justify-end">
-              {event.map_url ? (
-                <a
-                  href={event.map_url}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="rounded-lg border border-amber-200 bg-amber-50 px-4 py-2 text-sm font-medium text-amber-800 transition-colors hover:bg-amber-100"
-                >
-                  {t("openMap")}
-                </a>
-              ) : null}
-              <a
-                href={calendarUrl}
-                target="_blank"
-                rel="noreferrer"
-                className="rounded-lg border border-gray-200 bg-white px-4 py-2 text-sm font-medium text-gray-700 transition-colors hover:bg-gray-50"
-              >
-                {t("addToCalendar")}
-              </a>
-              <EventPrinter event={event} locale={locale} />
-              <ShareButton />
-            </div>
-          </div>
+          ) : null}
+          <span className="flex items-center gap-2">
+            <MapPin size={16} aria-hidden="true" />
+            {getLocalizedText(event.location, locale)}
+          </span>
         </div>
-      </div>
+        <div className="mt-6 flex flex-wrap gap-3">
+          {event.map_url ? (
+            <a
+              href={event.map_url}
+              target="_blank"
+              rel="noreferrer"
+              className="inline-flex min-h-11 items-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-600 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+            >
+              {t("openMap")}
+            </a>
+          ) : null}
+          <a
+            href={calendarUrl}
+            target="_blank"
+            rel="noreferrer"
+            className="inline-flex min-h-11 items-center rounded-full border border-primary/25 bg-white px-5 py-2.5 text-sm font-semibold text-text-800 transition-colors hover:border-primary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+          >
+            {t("addToCalendar")}
+          </a>
+          <EventPrinter event={event} locale={locale} />
+          <ShareButton shareLabel={t("share")} copiedLabel={t("copied")} />
+        </div>
+      </section>
+
+      <section className="mx-auto max-w-3xl">
+        {event.description ? (
+          <RichTextContent value={event.description} locale={locale} defaultLocale="th" />
+        ) : (
+          <p className="text-sm text-text-700">{t("note")}</p>
+        )}
+      </section>
 
       {scheduleEntries.length > 0 ? (
-        <div className="overflow-hidden rounded-3xl border border-gray-100 bg-white shadow-sm">
-          <div className="border-b border-gray-100 p-6">
-            <h3 className="text-2xl font-bold text-gray-900">{t("schedule")}</h3>
+        <section className="overflow-hidden rounded-2xl border border-primary/15 bg-white">
+          <div className="border-b border-primary/15 p-6">
+            <h2 className="font-heading text-2xl font-bold text-text-900">{t("schedule")}</h2>
           </div>
-          <div className="divide-y divide-gray-100">
+          <div className="divide-y divide-primary/10">
             {scheduleEntries.map((schedule) => (
               <div key={schedule.id} className="grid gap-3 p-6 md:grid-cols-[140px_1fr]">
-                <div className="font-mono text-sm font-semibold text-amber-700">
+                <div className="font-mono text-sm font-semibold text-primary-700">
                   {formatTimeRange(schedule.start_time, schedule.end_time, locale)}
                 </div>
-                <div className="text-sm text-gray-700">{getLocalizedText(schedule.activity, locale)}</div>
+                <div className="text-sm text-text-800">{getLocalizedText(schedule.activity, locale)}</div>
               </div>
             ))}
           </div>
-        </div>
+        </section>
       ) : null}
     </div>
   );
