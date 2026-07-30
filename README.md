@@ -1,37 +1,57 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# WAT-PROFILE
 
-## Getting Started
+เว็บไซต์สาธารณะและระบบจัดการเนื้อหาของวัดหลวงพ่อใส รองรับภาษาไทย อังกฤษ และเยอรมัน
 
-First, run the development server:
+## Components
+
+| Path | Runtime | Purpose |
+|---|---|---|
+| `frontend/` | Next.js 16, React 19, TypeScript | Public website, Admin Panel, Website CMS |
+| `backend/` | Go Fiber, GORM | REST API, authentication, permissions, media, content |
+| `backend/migrations/` | PostgreSQL SQL | Versioned schema and data migrations |
+| `docs/` | Markdown | Database and deployment operations |
+
+PostgreSQL stores application data. Cloudflare R2 stores uploaded media.
+
+## Prerequisites
+
+- Node.js and npm compatible with `frontend/package-lock.json`
+- Go 1.24 or newer, as declared by `backend/go.mod`
+- PostgreSQL
+- R2 credentials only when upload features are required
+
+## Local setup
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+cp frontend/.env.example frontend/.env.local
+cp backend/.env.example backend/.env
+make install
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Set local values in the copied env files. Never commit either file.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Start both applications:
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+```bash
+make dev
+```
 
-## Learn More
+- Frontend: `http://localhost:3000`
+- Backend: `http://localhost:8080`
+- Health check: `http://localhost:8080/health`
+- API reference UI: `http://localhost:8080/docs`
 
-To learn more about Next.js, take a look at the following resources:
+Database migrations and seed data are separate operations. Read
+[`docs/DATABASE.md`](docs/DATABASE.md) before running either.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Documentation
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+- AI entry point and verified commands: [`AGENTS.md`](AGENTS.md)
+- Runtime boundaries and dependency flow: [`ARCHITECTURE.md`](ARCHITECTURE.md)
+- Product intent: [`PRODUCT.md`](PRODUCT.md)
+- UI design system: [`DESIGN.md`](DESIGN.md)
+- Database changes: [`docs/DATABASE.md`](docs/DATABASE.md)
+- Build and release state: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
-# WAT-SERM-RANGSI
+Frontend and backend rules live in their respective `AGENTS.md` files. Historical
+implementation plans are intentionally not part of the production documentation.
