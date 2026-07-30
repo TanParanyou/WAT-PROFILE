@@ -2,8 +2,12 @@
 
 import { useEffect, useState } from "react";
 import ThemePicker from "./ThemePicker";
-import type { ThemeVariantKey } from "./prototype-data";
+import { PROTOTYPE_CONTENT, type ThemeVariantKey } from "./prototype-data";
 import styles from "./prototype-shell.module.css";
+import ContemporaryPractice from "./variants/ContemporaryPractice";
+import ForestThreshold from "./variants/ForestThreshold";
+import LivingCommunity from "./variants/LivingCommunity";
+import OneBreathMinimal from "./variants/OneBreathMinimal";
 
 const variantKeys: readonly ThemeVariantKey[] = [
   "forest",
@@ -31,12 +35,23 @@ export default function ThemeExploration() {
     return () => window.removeEventListener("keydown", onKeyDown);
   }, [active]);
 
+  const renderVariant = () => {
+    switch (active) {
+      case "forest":
+        return <ForestThreshold content={PROTOTYPE_CONTENT} />;
+      case "community":
+        return <LivingCommunity content={PROTOTYPE_CONTENT} />;
+      case "practice":
+        return <ContemporaryPractice content={PROTOTYPE_CONTENT} />;
+      case "minimal":
+        return <OneBreathMinimal content={PROTOTYPE_CONTENT} />;
+    }
+  };
+
   return (
     <main className={styles.canvas} data-theme-variant={active}>
       <ThemePicker active={active} onChange={setActive} />
-      <div className={styles.stage} aria-live="polite">
-        กำลังเตรียม {active}
-      </div>
+      <div className={styles.stage} aria-live="polite">{renderVariant()}</div>
     </main>
   );
 }
