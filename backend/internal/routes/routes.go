@@ -133,6 +133,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 
 	// Upload Management
 	admin.Post("/upload", middleware.PermissionRequired("gallery", "create"), uploadHandler.UploadFile)
+	admin.Get("/media/filter-options", middleware.PermissionRequired("gallery", "read"), mediaHandler.GetFilterOptions)
 	admin.Get("/media", middleware.PermissionRequired("gallery", "read"), mediaHandler.GetMedia)
 	admin.Put("/media/:id", middleware.PermissionRequired("gallery", "update"), mediaHandler.UpdateMedia)
 	admin.Delete("/media/:id", middleware.PermissionRequired("gallery", "delete"), mediaHandler.DeleteMedia)
@@ -146,13 +147,14 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	admin.Delete("/schedules/:id", middleware.PermissionRequired("schedules", "delete"), scheduleHandler.DeleteSchedule)
 
 	// Donation Management
+	admin.Get("/donations/filter-options", middleware.PermissionRequired("donations", "read"), donationHandler.GetFilterOptions)
+	admin.Get("/donations/stats", middleware.PermissionRequired("donations", "read"), donationHandler.GetDonationStats)
 	admin.Get("/donations", middleware.PermissionRequired("donations", "read"), donationHandler.GetDonations)
 	admin.Get("/donations/:id", middleware.PermissionRequired("donations", "read"), donationHandler.GetDonationByID)
-	admin.Get("/donations/stats", middleware.PermissionRequired("donations", "read"), donationHandler.GetDonationStats)
 	admin.Put("/donations/:id", middleware.PermissionRequired("donations", "update"), donationHandler.UpdateDonation)
 	admin.Delete("/donations/bulk", middleware.PermissionRequired("donations", "delete"), donationHandler.BulkDeleteDonations)
 	admin.Delete("/donations/:id", middleware.PermissionRequired("donations", "delete"), donationHandler.DeleteDonation)
-	admin.Get("/donation-categories", middleware.PermissionRequired("donations", "read"), donationHandler.GetDonationCategories)
+	admin.Get("/donation-categories", middleware.PermissionRequired("donations", "read"), donationHandler.GetAdminDonationCategories)
 	admin.Post("/donation-categories", middleware.PermissionRequired("donations", "create"), donationHandler.CreateDonationCategory)
 	admin.Put("/donation-categories/:id", middleware.PermissionRequired("donations", "update"), donationHandler.UpdateDonationCategory)
 	admin.Delete("/donation-categories/bulk", middleware.PermissionRequired("donations", "delete"), donationHandler.BulkDeleteDonationCategories)

@@ -2,6 +2,7 @@ package services
 
 import (
 	"github.com/google/uuid"
+	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"gorm.io/gorm"
 )
@@ -12,6 +13,75 @@ type ContactService struct {
 
 func NewContactService(db *gorm.DB) *ContactService {
 	return &ContactService{db: db}
+}
+
+type ContactListOptions struct {
+	Common       listquery.Common
+	Statuses     []string
+	InquiryTypes []string
+}
+
+var contactSortColumns = map[string]string{
+	"created_at":   "contact_inquiries.created_at",
+	"name":         "contact_inquiries.name",
+	"email":        "contact_inquiries.email",
+	"subject":      "contact_inquiries.subject",
+	"status":       "contact_inquiries.status",
+	"inquiry_type": "contact_inquiries.inquiry_type",
+}
+
+// ListOptions returns paginated contact inquiries with full search, filter, and sorting
+func (s *ContactService) ListOptions(options ContactListOptions) ([]models.ContactInquiry, int64, error) {
+	var inquiries []models.ContactInquiry
+	var total int64
+
+	query := s.db.Model(&models.ContactInquiry{})
+
+	if options.Common.Search != "" {
+		searchTerm := "%" + options.Common.Search + "%"
+		query = query.Where(
+			"contact_inquiries.name ILIKE ? OR contact_inquiries.email ILIKE ? OR contact_inquiries.subject ILIKE ? OR contact_inquiries.message ILIKE ?",
+			searchTerm, searchTerm, searchTerm, searchTerm,
+		)
+	}
+
+	if len(options.Statuses) > 0 {
+		query = query.Where("contact_inquiries.status IN ?", options.Statuses)
+	}
+
+	if len(options.InquiryTypes) > 0 {
+		query = query.Where("contact_inquiries.inquiry_type IN ?", options.InquiryTypes)
+	}
+
+	if options.Common.From != nil {
+		query = query.Where("contact_inquiries.created_at >= ?", *options.Common.From)
+	}
+
+	if options.Common.To != nil {
+		query = query.Where("contact_inquiries.created_at <= ?", *options.Common.To)
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	sortCol, ok := contactSortColumns[options.Common.Sort]
+	if !ok {
+		sortCol = "contact_inquiries.created_at"
+	}
+	orderDir := "DESC"
+	if options.Common.Order == "asc" {
+		orderDir = "ASC"
+	}
+
+	offset := (options.Common.Page - 1) * options.Common.Limit
+	err := query.Preload("RepliedBy").
+		Order(sortCol + " " + orderDir + ", contact_inquiries.id " + orderDir).
+		Offset(offset).
+		Limit(options.Common.Limit).
+		Find(&inquiries).Error
+
+	return inquiries, total, err
 }
 
 // Submit creates a new contact inquiry

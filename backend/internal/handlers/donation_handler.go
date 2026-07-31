@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/middleware"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
@@ -51,19 +52,88 @@ func (h *DonationHandler) CreateDonation(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "data": donation})
 }
 
-// GetDonations - Admin: List all donations with filters
+// GetDonations - Admin: List all donations with pagination and filters
 func (h *DonationHandler) GetDonations(c *fiber.Ctx) error {
-	page, _ := strconv.Atoi(c.Query("page", "1"))
-	limit, _ := strconv.Atoi(c.Query("limit", "20"))
-	page, limit = utils.ClampPagination(page, limit)
+	common, err := listquery.Parse(c, listquery.Config{
+		DefaultSort:  "donation_date",
+		DefaultOrder: "desc",
+		AllowedSort: map[string]string{
+			"receipt_number": "receipt_number",
+			"donor_name":     "donor_name",
+			"amount":         "amount",
+			"donation_date":  "donation_date",
+			"payment_method": "payment_method",
+			"status":         "status",
+			"created_at":     "created_at",
+		},
+	})
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 
-	donations, total, err := h.donationService.ListDonations(
-		page, limit, c.Query("status"), c.Query("category_id"), c.Query("from"), c.Query("to"),
-	)
+	statuses := listquery.ExtractMulti(c, "status")
+	categoryIDStrs := listquery.ExtractMulti(c, "category")
+	var categoryIDs []int
+	for _, catStr := range categoryIDStrs {
+		if id, parseErr := strconv.Atoi(catStr); parseErr == nil {
+			categoryIDs = append(categoryIDs, id)
+		}
+	}
+	methods := listquery.ExtractMulti(c, "method")
+	currencies := listquery.ExtractMulti(c, "currency")
+
+	options := services.DonationListOptions{
+		Common:      common,
+		Statuses:    statuses,
+		CategoryIDs: categoryIDs,
+		Methods:     methods,
+		Currencies:  currencies,
+	}
+
+	donations, total, err := h.donationService.ListDonationsOptions(options)
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch donations")
 	}
-	return utils.PaginatedResponse(c, donations, page, limit, int(total))
+
+	return utils.PaginatedResponse(c, donations, common.Page, common.Limit, int(total))
+}
+
+// GetFilterOptions - Admin: Return distinct payment methods, currencies, and categories for filtering
+func (h *DonationHandler) GetFilterOptions(c *fiber.Ctx) error {
+	opts, err := h.donationService.GetFilterOptions()
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch donation filter options")
+	}
+	return utils.SuccessResponse(c, opts)
+}
+
+// GetAdminDonationCategories - Admin: List donation categories with pagination and filters
+func (h *DonationHandler) GetAdminDonationCategories(c *fiber.Ctx) error {
+	common, err := listquery.Parse(c, listquery.Config{
+		DefaultSort:  "display_order",
+		DefaultOrder: "asc",
+		AllowedSort: map[string]string{
+			"display_order": "display_order",
+			"name":          "name",
+			"created_at":    "created_at",
+		},
+	})
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+
+	statuses := listquery.ExtractMulti(c, "status")
+	options := services.DonationCategoryListOptions{
+		Common:   common,
+		Statuses: statuses,
+	}
+
+	categories, total, err := h.donationService.ListCategoriesAdmin(options)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch donation categories")
+	}
+
+	return utils.PaginatedResponse(c, categories, common.Page, common.Limit, int(total))
 }
 
 // GetDonationStats - Admin: Get donation statistics

@@ -4,6 +4,7 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/middleware"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
@@ -70,19 +71,49 @@ func (h *RegistrationHandler) GetMyRegistrations(c *fiber.Ctx) error {
 	return utils.SuccessResponse(c, registrations)
 }
 
-// GetRegistrations - Admin: List all registrations with filters
+// GetRegistrations - Admin: List all registrations with pagination and filters
 func (h *RegistrationHandler) GetRegistrations(c *fiber.Ctx) error {
-	page, _ := strconv.Atoi(c.Query("page", "1"))
-	limit, _ := strconv.Atoi(c.Query("limit", "20"))
-	page, limit = utils.ClampPagination(page, limit)
+	common, err := listquery.Parse(c, listquery.Config{
+		DefaultSort:  "created_at",
+		DefaultOrder: "desc",
+		AllowedSort: map[string]string{
+			"first_name":          "first_name",
+			"last_name":           "last_name",
+			"email":               "email",
+			"registration_status": "registration_status",
+			"status":              "registration_status",
+			"created_at":          "created_at",
+			"event_id":            "event_id",
+		},
+	})
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 
-	registrations, total, err := h.registrationService.List(
-		page, limit, c.Query("event_id"), c.Query("status"),
-	)
+	statuses := listquery.ExtractMulti(c, "status")
+	eventIDStrs := listquery.ExtractMulti(c, "event_id")
+	if len(eventIDStrs) == 0 {
+		eventIDStrs = listquery.ExtractMulti(c, "event")
+	}
+	var eventIDs []int
+	for _, evStr := range eventIDStrs {
+		if id, parseErr := strconv.Atoi(evStr); parseErr == nil {
+			eventIDs = append(eventIDs, id)
+		}
+	}
+
+	options := services.RegistrationListOptions{
+		Common:   common,
+		Statuses: statuses,
+		EventIDs: eventIDs,
+	}
+
+	registrations, total, err := h.registrationService.ListOptions(options)
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch registrations")
 	}
-	return utils.PaginatedResponse(c, registrations, page, limit, int(total))
+
+	return utils.PaginatedResponse(c, registrations, common.Page, common.Limit, int(total))
 }
 
 // UpdateRegistrationStatus - Admin: Update registration status
@@ -103,6 +134,16 @@ func (h *RegistrationHandler) UpdateRegistrationStatus(c *fiber.Ctx) error {
 	}
 	if err := c.BodyParser(&body); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	validStatuses := map[string]bool{
+		"pending":   true,
+		"confirmed": true,
+		"attended":  true,
+		"cancelled": true,
+	}
+	if !validStatuses[body.Status] {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid registration status value")
 	}
 
 	if err := h.registrationService.UpdateStatus(registration, body.Status, body.Reason); err != nil {

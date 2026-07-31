@@ -1,9 +1,8 @@
 package handlers
 
 import (
-	"strconv"
-
 	"github.com/gofiber/fiber/v2"
+	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/middleware"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
@@ -47,19 +46,39 @@ func (h *ContactHandler) SubmitContact(c *fiber.Ctx) error {
 	})
 }
 
-// GetContacts - Admin: List all contact inquiries
+// GetContacts - Admin: List all contact inquiries with pagination and filters
 func (h *ContactHandler) GetContacts(c *fiber.Ctx) error {
-	page, _ := strconv.Atoi(c.Query("page", "1"))
-	limit, _ := strconv.Atoi(c.Query("limit", "20"))
-	page, limit = utils.ClampPagination(page, limit)
+	common, err := listquery.Parse(c, listquery.Config{
+		DefaultSort:  "created_at",
+		DefaultOrder: "desc",
+		AllowedSort: map[string]string{
+			"created_at":   "created_at",
+			"name":         "name",
+			"email":        "email",
+			"subject":      "subject",
+			"status":       "status",
+			"inquiry_type": "inquiry_type",
+		},
+	})
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 
-	inquiries, total, err := h.contactService.List(
-		page, limit, c.Query("status"), c.Query("type"),
-	)
+	statuses := listquery.ExtractMulti(c, "status")
+	types := listquery.ExtractMulti(c, "type")
+
+	options := services.ContactListOptions{
+		Common:       common,
+		Statuses:     statuses,
+		InquiryTypes: types,
+	}
+
+	inquiries, total, err := h.contactService.ListOptions(options)
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch contacts")
 	}
-	return utils.PaginatedResponse(c, inquiries, page, limit, int(total))
+
+	return utils.PaginatedResponse(c, inquiries, common.Page, common.Limit, int(total))
 }
 
 // UpdateContactStatus - Admin: Update contact inquiry status / reply
@@ -80,6 +99,16 @@ func (h *ContactHandler) UpdateContactStatus(c *fiber.Ctx) error {
 	}
 	if err := c.BodyParser(&body); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	validStatuses := map[string]bool{
+		"new":      true,
+		"read":     true,
+		"replied":  true,
+		"archived": true,
+	}
+	if body.Status != "" && !validStatuses[body.Status] {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid contact inquiry status value")
 	}
 
 	userID, userErr := middleware.GetCurrentUserID(c)

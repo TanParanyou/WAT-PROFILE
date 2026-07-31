@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"gorm.io/gorm"
 )
@@ -47,32 +48,180 @@ func (s *DonationService) CreateDonation(donation *models.Donation, userID *uuid
 	return err
 }
 
-// ListDonations returns paginated donations with filters
-func (s *DonationService) ListDonations(page, limit int, status, categoryID, from, to string) ([]models.Donation, int64, error) {
+type DonationListOptions struct {
+	Common      listquery.Common
+	Statuses    []string
+	CategoryIDs []int
+	Methods     []string
+	Currencies  []string
+}
+
+type DonationCategoryListOptions struct {
+	Common   listquery.Common
+	Statuses []string
+}
+
+type DonationFilterOptions struct {
+	PaymentMethods []string                  `json:"payment_methods"`
+	Currencies     []string                  `json:"currencies"`
+	Categories     []models.DonationCategory `json:"categories"`
+}
+
+var donationSortColumns = map[string]string{
+	"receipt_number": "donations.receipt_number",
+	"donor_name":     "donations.donor_name",
+	"amount":         "donations.amount",
+	"donation_date":  "donations.donation_date",
+	"payment_method": "donations.payment_method",
+	"status":         "donations.status",
+	"created_at":     "donations.created_at",
+}
+
+var donationCategorySortColumns = map[string]string{
+	"display_order": "donation_categories.display_order",
+	"name":          "donation_categories.name->>'th'",
+	"created_at":    "donation_categories.created_at",
+}
+
+// ListDonationsOptions returns paginated donations with full search, filter, and sorting
+func (s *DonationService) ListDonationsOptions(options DonationListOptions) ([]models.Donation, int64, error) {
 	var donations []models.Donation
-	query := s.db.Order("created_at DESC")
-
-	if status != "" {
-		query = query.Where("status = ?", status)
-	}
-	if categoryID != "" {
-		query = query.Where("category_id = ?", categoryID)
-	}
-	if from != "" {
-		query = query.Where("donation_date >= ?", from)
-	}
-	if to != "" {
-		query = query.Where("donation_date <= ?", to)
-	}
-
 	var total int64
-	query.Model(&models.Donation{}).Count(&total)
 
-	offset := (page - 1) * limit
+	query := s.db.Model(&models.Donation{})
+
+	if options.Common.Search != "" {
+		searchTerm := "%" + options.Common.Search + "%"
+		query = query.Where(
+			"donations.donor_name ILIKE ? OR donations.receipt_number ILIKE ? OR donations.note ILIKE ?",
+			searchTerm, searchTerm, searchTerm,
+		)
+	}
+
+	if len(options.Statuses) > 0 {
+		query = query.Where("donations.status IN ?", options.Statuses)
+	}
+
+	if len(options.CategoryIDs) > 0 {
+		query = query.Where("donations.category_id IN ?", options.CategoryIDs)
+	}
+
+	if len(options.Methods) > 0 {
+		query = query.Where("donations.payment_method IN ?", options.Methods)
+	}
+
+	if len(options.Currencies) > 0 {
+		query = query.Where("donations.currency IN ?", options.Currencies)
+	}
+
+	if options.Common.From != nil {
+		query = query.Where("donations.donation_date >= ?", *options.Common.From)
+	}
+
+	if options.Common.To != nil {
+		query = query.Where("donations.donation_date <= ?", *options.Common.To)
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	sortCol, ok := donationSortColumns[options.Common.Sort]
+	if !ok {
+		sortCol = "donations.donation_date"
+	}
+	orderDir := "DESC"
+	if options.Common.Order == "asc" {
+		orderDir = "ASC"
+	}
+
+	offset := (options.Common.Page - 1) * options.Common.Limit
 	err := query.Preload("Category").Preload("Member").Preload("CreatedBy").
-		Offset(offset).Limit(limit).Find(&donations).Error
+		Order(sortCol + " " + orderDir + ", donations.id " + orderDir).
+		Offset(offset).
+		Limit(options.Common.Limit).
+		Find(&donations).Error
 
 	return donations, total, err
+}
+
+// GetFilterOptions returns distinct payment methods, currencies, and categories for filtering
+func (s *DonationService) GetFilterOptions() (*DonationFilterOptions, error) {
+	var methods []string
+	if err := s.db.Model(&models.Donation{}).
+		Where("payment_method IS NOT NULL AND payment_method != ''").
+		Distinct().Pluck("payment_method", &methods).Error; err != nil {
+		return nil, err
+	}
+
+	var currencies []string
+	if err := s.db.Model(&models.Donation{}).
+		Where("currency IS NOT NULL AND currency != ''").
+		Distinct().Pluck("currency", &currencies).Error; err != nil {
+		return nil, err
+	}
+
+	categories, err := s.ListCategories()
+	if err != nil {
+		return nil, err
+	}
+
+	return &DonationFilterOptions{
+		PaymentMethods: methods,
+		Currencies:     currencies,
+		Categories:     categories,
+	}, nil
+}
+
+// ListCategoriesAdmin returns paginated donation categories for admin
+func (s *DonationService) ListCategoriesAdmin(options DonationCategoryListOptions) ([]models.DonationCategory, int64, error) {
+	var categories []models.DonationCategory
+	var total int64
+
+	query := s.db.Model(&models.DonationCategory{})
+
+	if options.Common.Search != "" {
+		searchTerm := "%" + options.Common.Search + "%"
+		query = query.Where(
+			"donation_categories.name->>'th' ILIKE ? OR donation_categories.name->>'en' ILIKE ? OR donation_categories.name->>'de' ILIKE ? OR donation_categories.description->>'th' ILIKE ? OR donation_categories.description->>'en' ILIKE ? OR donation_categories.description->>'de' ILIKE ?",
+			searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm,
+		)
+	}
+
+	if len(options.Statuses) > 0 {
+		var activeFilter []bool
+		for _, st := range options.Statuses {
+			if st == "active" {
+				activeFilter = append(activeFilter, true)
+			} else if st == "inactive" {
+				activeFilter = append(activeFilter, false)
+			}
+		}
+		if len(activeFilter) > 0 {
+			query = query.Where("donation_categories.is_active IN ?", activeFilter)
+		}
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	sortCol, ok := donationCategorySortColumns[options.Common.Sort]
+	if !ok {
+		sortCol = "donation_categories.display_order"
+	}
+	orderDir := "ASC"
+	if options.Common.Order == "desc" {
+		orderDir = "DESC"
+	}
+
+	offset := (options.Common.Page - 1) * options.Common.Limit
+	err := query.Order(sortCol + " " + orderDir + ", donation_categories.id " + orderDir).
+		Offset(offset).
+		Limit(options.Common.Limit).
+		Find(&categories).Error
+
+	return categories, total, err
 }
 
 // GetStats returns donation statistics

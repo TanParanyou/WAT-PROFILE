@@ -6,6 +6,7 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
+	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"gorm.io/gorm"
 )
@@ -16,6 +17,76 @@ type RegistrationService struct {
 
 func NewRegistrationService(db *gorm.DB) *RegistrationService {
 	return &RegistrationService{db: db}
+}
+
+type RegistrationListOptions struct {
+	Common   listquery.Common
+	Statuses []string
+	EventIDs []int
+}
+
+var registrationSortColumns = map[string]string{
+	"first_name":          "event_registrations.first_name",
+	"last_name":           "event_registrations.last_name",
+	"email":               "event_registrations.email",
+	"registration_status": "event_registrations.registration_status",
+	"status":              "event_registrations.registration_status",
+	"created_at":          "event_registrations.created_at",
+	"event_id":            "event_registrations.event_id",
+}
+
+// ListOptions returns paginated registrations with full search, filter, and sorting
+func (s *RegistrationService) ListOptions(options RegistrationListOptions) ([]models.EventRegistration, int64, error) {
+	var registrations []models.EventRegistration
+	var total int64
+
+	query := s.db.Model(&models.EventRegistration{})
+
+	if options.Common.Search != "" {
+		searchTerm := "%" + options.Common.Search + "%"
+		query = query.Where(
+			"event_registrations.first_name ILIKE ? OR event_registrations.last_name ILIKE ? OR event_registrations.email ILIKE ? OR event_registrations.phone ILIKE ? OR event_registrations.confirmation_code ILIKE ?",
+			searchTerm, searchTerm, searchTerm, searchTerm, searchTerm,
+		)
+	}
+
+	if len(options.Statuses) > 0 {
+		query = query.Where("event_registrations.registration_status IN ?", options.Statuses)
+	}
+
+	if len(options.EventIDs) > 0 {
+		query = query.Where("event_registrations.event_id IN ?", options.EventIDs)
+	}
+
+	if options.Common.From != nil {
+		query = query.Where("event_registrations.created_at >= ?", *options.Common.From)
+	}
+
+	if options.Common.To != nil {
+		query = query.Where("event_registrations.created_at <= ?", *options.Common.To)
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	sortCol, ok := registrationSortColumns[options.Common.Sort]
+	if !ok {
+		sortCol = "event_registrations.created_at"
+	}
+	orderDir := "DESC"
+	if options.Common.Order == "asc" {
+		orderDir = "ASC"
+	}
+
+	offset := (options.Common.Page - 1) * options.Common.Limit
+	err := query.Preload("Event").Preload("Member").
+		Order(sortCol + " " + orderDir + ", event_registrations.id " + orderDir).
+		Offset(offset).
+		Limit(options.Common.Limit).
+		Find(&registrations).Error
+
+	return registrations, total, err
 }
 
 // RegisterForEvent handles public event registration with capacity check and duplicate detection
