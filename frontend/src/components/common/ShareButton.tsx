@@ -49,7 +49,7 @@ export default function ShareButton({ shareLabel, copiedLabel }: ShareButtonProp
     <button
       type="button"
       onClick={handleShare}
-      className="inline-flex min-h-11 items-center gap-2 rounded-full border border-primary/25 bg-white px-5 py-2.5 text-sm font-semibold text-text-800 transition-colors hover:border-primary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+      className="inline-flex min-h-11 items-center gap-2 border border-[#333] bg-[#fffef2] px-5 py-[13px] text-sm font-semibold text-[#333] transition-colors hover:bg-[#f7ecdd] hover:text-[#945c26] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26]"
       aria-label={shareLabel}
     >
       {copied ? (
