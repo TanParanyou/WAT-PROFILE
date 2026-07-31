@@ -11,7 +11,9 @@ import {
 import { Loading } from "./Loading";
 import { Checkbox } from "./Checkbox";
 import { cn } from "@/utils/cn";
-import type { SortState, PaginationState } from "@/hooks/useDataTable";
+import type { SortState } from "@/hooks/useDataTable";
+import type { AdminPagination, AdminPageSize } from "@/features/admin-list/types";
+import { AdminPageSizeSelect } from "@/components/admin/list/AdminPageSizeSelect";
 
 export interface Column<T> {
   header: string;
@@ -25,10 +27,11 @@ export interface Column<T> {
 interface DataTableProps<T> {
   columns: Column<T>[];
   data: T[];
-  pagination?: PaginationState;
+  pagination?: AdminPagination | { page: number; limit: number; totalPages: number; total?: number; totalItems?: number };
   sorting?: SortState;
   isLoading?: boolean;
   onPageChange?: (page: number) => void;
+  onLimitChange?: (limit: AdminPageSize) => void;
   onSort?: (key: string) => void;
   className?: string;
   hidePagination?: boolean;
@@ -40,14 +43,14 @@ interface DataTableProps<T> {
   onSelectAll?: (ids: (string | number)[]) => void;
 }
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-export function DataTable<T extends Record<string, any>>({
+export function DataTable<T>({
   columns,
   data,
   pagination,
   sorting,
   isLoading = false,
   onPageChange,
+  onLimitChange,
   onSort,
   className,
   hidePagination = false,
@@ -58,9 +61,9 @@ export function DataTable<T extends Record<string, any>>({
 }: DataTableProps<T>) {
   const safeData = data || [];
   const page = pagination?.page || 1;
-  const totalPages = pagination?.totalPages || 1;
-  const limit = pagination?.limit || 10;
-  const totalItems = pagination?.totalItems ?? safeData.length;
+  const totalPages = pagination?.totalPages ?? 0;
+  const limit = (pagination?.limit || 25) as AdminPageSize;
+  const totalItems = pagination?.total ?? (pagination as { totalItems?: number })?.totalItems ?? safeData.length;
   const sortingState = sorting || { key: null, order: "asc" as const };
 
   const getPageNumbers = () => {
@@ -87,17 +90,33 @@ export function DataTable<T extends Record<string, any>>({
     return pages;
   };
 
+  const isRowSelected = (row: T): boolean => {
+    const id = (row as Record<string, unknown>).id as string | number | undefined;
+    return id !== undefined && selectedIds.has(id);
+  };
+
   const isAllSelected =
-    safeData.length > 0 && safeData.every((row) => selectedIds.has(row.id));
+    safeData.length > 0 &&
+    safeData.every((row) => {
+      const id = (row as Record<string, unknown>).id as string | number | undefined;
+      return id !== undefined && selectedIds.has(id);
+    });
+
   const isSomeSelected =
     safeData.length > 0 &&
-    safeData.some((row) => selectedIds.has(row.id)) &&
+    safeData.some((row) => {
+      const id = (row as Record<string, unknown>).id as string | number | undefined;
+      return id !== undefined && selectedIds.has(id);
+    }) &&
     !isAllSelected;
 
   const handleSelectAll = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!onSelectAll) return;
     if (e.target.checked) {
-      onSelectAll(safeData.map((row) => row.id));
+      const ids = safeData
+        .map((row) => (row as Record<string, unknown>).id as string | number | undefined)
+        .filter((id): id is string | number => id !== undefined);
+      onSelectAll(ids);
     } else {
       onSelectAll([]);
     }
@@ -115,8 +134,6 @@ export function DataTable<T extends Record<string, any>>({
                   <th className="px-6 py-3 w-[50px]">
                     <Checkbox
                       checked={isAllSelected}
-                      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-                      // @ts-ignore - indeterminate is supported by underlying input ref but custom Checkbox might not expose it natively cleanly yet without ref, but typical Checkbox component passes props
                       ref={(input: HTMLInputElement | null) => {
                         if (input) input.indeterminate = isSomeSelected;
                       }}
@@ -171,44 +188,51 @@ export function DataTable<T extends Record<string, any>>({
                   </td>
                 </tr>
               ) : safeData.length > 0 ? (
-                safeData.map((row, rowIdx) => (
-                  <tr
-                    key={(row as { id?: string | number }).id ?? rowIdx}
-                    className={cn(
-                      "hover:bg-gray-50 transition-colors",
-                      selectedIds.has(row.id) && "bg-amber-50/50",
-                    )}
-                  >
-                    {selectable && (
-                      <td className="px-6 py-4">
-                        <Checkbox
-                          checked={selectedIds.has(row.id)}
-                          onChange={() => onSelect?.(row.id)}
-                        />
-                      </td>
-                    )}
-                    {columns.map((col, colIdx) => (
-                      <td
-                        key={colIdx}
-                        className={cn(
-                          "px-6 py-4 whitespace-nowrap text-gray-700",
-                          col.className,
-                        )}
-                      >
-                        {col.cell
-                          ? col.cell(
-                              col.accessorKey
-                                ? row[col.accessorKey]
-                                : undefined,
-                              row,
-                            )
-                          : col.accessorKey
-                            ? String(row[col.accessorKey] ?? "")
-                            : null}
-                      </td>
-                    ))}
-                  </tr>
-                ))
+                safeData.map((row, rowIdx) => {
+                  const rowObj = row as Record<string, unknown>;
+                  const rowId = (rowObj.id as string | number | undefined) ?? rowIdx;
+                  return (
+                    <tr
+                      key={rowId}
+                      className={cn(
+                        "hover:bg-gray-50 transition-colors",
+                        isRowSelected(row) && "bg-amber-50/50",
+                      )}
+                    >
+                      {selectable && (
+                        <td className="px-6 py-4">
+                          <Checkbox
+                            checked={isRowSelected(row)}
+                            onChange={() => {
+                              const id = rowObj.id as string | number | undefined;
+                              if (id !== undefined) onSelect?.(id);
+                            }}
+                          />
+                        </td>
+                      )}
+                      {columns.map((col, colIdx) => (
+                        <td
+                          key={colIdx}
+                          className={cn(
+                            "px-6 py-4 whitespace-nowrap text-gray-700",
+                            col.className,
+                          )}
+                        >
+                          {col.cell
+                            ? col.cell(
+                                col.accessorKey
+                                  ? rowObj[col.accessorKey as string]
+                                  : undefined,
+                                row,
+                              )
+                            : col.accessorKey
+                              ? String(rowObj[col.accessorKey as string] ?? "")
+                              : null}
+                        </td>
+                      ))}
+                    </tr>
+                  );
+                })
               ) : (
                 <tr>
                   <td
@@ -226,9 +250,9 @@ export function DataTable<T extends Record<string, any>>({
         {/* Pagination */}
         {!hidePagination && (
           <div className="flex flex-col sm:flex-row items-center justify-between border-t border-gray-200 bg-gray-50 px-6 py-3 gap-3">
-            <div className="text-xs text-gray-500">
+            <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500">
               {totalItems > 0 ? (
-                <>
+                <span>
                   แสดง{" "}
                   <span className="font-medium text-gray-700">
                     {(page - 1) * limit + 1}
@@ -242,23 +266,30 @@ export function DataTable<T extends Record<string, any>>({
                     {totalItems}
                   </span>{" "}
                   รายการ
-                </>
+                </span>
               ) : (
-                "ไม่มีรายการ"
+                <span>ไม่มีรายการ</span>
+              )}
+
+              {onLimitChange && (
+                <AdminPageSizeSelect
+                  value={limit}
+                  onChange={onLimitChange}
+                />
               )}
             </div>
 
             <div className="flex items-center gap-1">
               <button
                 onClick={() => onPageChange?.(1)}
-                disabled={page === 1 || isLoading}
+                disabled={page === 1 || totalPages === 0 || isLoading}
                 className="p-1.5 rounded border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ChevronsLeft className="h-4 w-4" />
               </button>
               <button
                 onClick={() => onPageChange?.(page - 1)}
-                disabled={page === 1 || isLoading}
+                disabled={page === 1 || totalPages === 0 || isLoading}
                 className="p-1.5 rounded border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ChevronLeft className="h-4 w-4" />
@@ -287,14 +318,14 @@ export function DataTable<T extends Record<string, any>>({
 
               <button
                 onClick={() => onPageChange?.(page + 1)}
-                disabled={page === totalPages || isLoading}
+                disabled={page >= totalPages || totalPages === 0 || isLoading}
                 className="p-1.5 rounded border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
               <button
                 onClick={() => onPageChange?.(totalPages)}
-                disabled={page === totalPages || isLoading}
+                disabled={page >= totalPages || totalPages === 0 || isLoading}
                 className="p-1.5 rounded border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 <ChevronsRight className="h-4 w-4" />
