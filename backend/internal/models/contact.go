@@ -14,7 +14,7 @@ type ContactInquiry struct {
 	Phone        string     `gorm:"size:20" json:"phone"`
 	Subject      string     `gorm:"size:500" json:"subject"`
 	Message      string     `gorm:"type:text;not null" json:"message"`
-	InquiryType  string     `gorm:"size:50" json:"inquiry_type"` // 'general', 'event', 'donation', 'volunteer'
+	InquiryType  string     `gorm:"size:50;index" json:"inquiry_type"` // 'general', 'event', 'donation', 'volunteer'
 	Status       string     `gorm:"size:20;default:new;index" json:"status"` // 'new', 'read', 'replied', 'archived'
 	RepliedByID  *uuid.UUID `gorm:"type:uuid" json:"replied_by_id"`
 	RepliedBy    *User      `gorm:"foreignKey:RepliedByID;constraint:OnDelete:SET NULL" json:"replied_by,omitempty"`
