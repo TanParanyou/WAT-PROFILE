@@ -8,6 +8,7 @@ import { Link, usePathname } from "@/navigation";
 import { usePublicSiteSettings } from "@/features/public/settings/PublicSiteSettingsProvider";
 import { getLocalizedText } from "@/utils/i18n";
 import { siteConfig } from "@/config/site.config";
+import { LanguageSwitcher } from "./LanguageSwitcher";
 
 const languageOptions = [
   { code: "th", label: "ไทย" },
@@ -75,18 +76,8 @@ export default function Navbar() {
           })}
         </nav>
 
-        <div className="hidden items-center gap-1 lg:flex" aria-label={t("languageNavigation")}>
-          {languageOptions.map((language) => (
-            <Link
-              key={language.code}
-              href={pathname}
-              locale={language.code}
-              aria-current={locale === language.code ? "page" : undefined}
-              className={`rounded-full px-3 py-2 text-xs font-bold transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary ${scrolled ? "bg-gray-900 text-white" : "bg-white text-primary shadow-lg"}`}
-            >
-              {language.label}
-            </Link>
-          ))}
+        <div className="hidden items-center lg:flex" aria-label={t("languageNavigation")}>
+          <LanguageSwitcher scrolled={scrolled} />
         </div>
 
         <button
@@ -116,19 +107,27 @@ export default function Navbar() {
                 </Link>
               ))}
             </div>
-            <div className="mt-6 flex items-center gap-5" aria-label={t("languageNavigation")}>
-              {languageOptions.map((language) => (
-                <Link
-                  key={language.code}
-                  href={pathname}
-                  locale={language.code}
-                  onClick={() => setIsOpen(false)}
-                  aria-current={locale === language.code ? "page" : undefined}
-                  className={`min-h-11 py-2 text-sm font-semibold focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#20382b] ${locale === language.code ? "text-[#8a5a10]" : "text-[#5d5b53]"}`}
-                >
-                  {language.label}
-                </Link>
-              ))}
+            
+            <div className="mt-8 flex flex-col gap-3" aria-label={t("languageNavigation")}>
+              <span className="text-sm font-medium text-gray-500 uppercase tracking-wider">เลือกภาษา / Language</span>
+              <div className="flex gap-2">
+                {languageOptions.map((language) => (
+                  <Link
+                    key={language.code}
+                    href={pathname}
+                    locale={language.code}
+                    onClick={() => setIsOpen(false)}
+                    aria-current={locale === language.code ? "page" : undefined}
+                    className={`flex-1 rounded-xl py-3 text-center text-sm font-semibold transition-all focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary ${
+                      locale === language.code 
+                        ? "bg-primary text-white shadow-md" 
+                        : "bg-gray-100 text-gray-600 hover:bg-gray-200"
+                    }`}
+                  >
+                    {language.label}
+                  </Link>
+                ))}
+              </div>
             </div>
           </nav>
         </div>
@@ -136,3 +135,4 @@ export default function Navbar() {
     </header>
   );
 }
+
