@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
@@ -23,21 +24,52 @@ func NewUserHandler(db *gorm.DB) *UserHandler {
 
 // GetUsers - Admin: List users with pagination
 func (h *UserHandler) GetUsers(c *fiber.Ctx) error {
-	page := c.QueryInt("page", 1)
-	limit := c.QueryInt("limit", 10)
+	common, err := listquery.Parse(c, listquery.Config{
+		DefaultSort:  "created_at",
+		DefaultOrder: "desc",
+		AllowedSort: map[string]string{
+			"created_at": "created_at",
+			"name":       "name",
+			"email":      "email",
+			"role":       "role_id",
+		},
+	})
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 
-	users, total, err := h.userService.List(page, limit)
+	statuses := listquery.ExtractMulti(c, "status")
+	roleIDStrs := listquery.ExtractMulti(c, "role")
+	var roleIDs []uuid.UUID
+	for _, idStr := range roleIDStrs {
+		if uid, parseErr := uuid.Parse(idStr); parseErr == nil {
+			roleIDs = append(roleIDs, uid)
+		}
+	}
+
+	emailVerifiedStrs := listquery.ExtractMulti(c, "email_verified")
+	var emailVerified []bool
+	for _, ev := range emailVerifiedStrs {
+		if ev == "true" {
+			emailVerified = append(emailVerified, true)
+		} else if ev == "false" {
+			emailVerified = append(emailVerified, false)
+		}
+	}
+
+	options := services.UserListOptions{
+		Common:        common,
+		Statuses:      statuses,
+		RoleIDs:       roleIDs,
+		EmailVerified: emailVerified,
+	}
+
+	users, total, err := h.userService.List(options)
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch users")
 	}
 
-	return c.JSON(fiber.Map{
-		"success": true,
-		"data":    users,
-		"total":   total,
-		"page":    page,
-		"limit":   limit,
-	})
+	return utils.PaginatedResponse(c, users, common.Page, common.Limit, int(total))
 }
 
 // GetUser - Admin: Get single user by id

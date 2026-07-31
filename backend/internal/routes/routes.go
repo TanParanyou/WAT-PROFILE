@@ -100,6 +100,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	admin.Get("/dashboard/stats", dashboardHandler.GetDashboardStats)
 
 	// Audit Logs
+	admin.Get("/audit-logs/filter-options", middleware.PermissionRequired("audit_logs", "read"), auditHandler.GetFilterOptions)
 	admin.Get("/audit-logs", middleware.PermissionRequired("audit_logs", "read"), auditHandler.GetAuditLogs)
 
 	// Events Management

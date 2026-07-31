@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
+	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
 	"gorm.io/gorm"
@@ -17,22 +18,79 @@ func NewUserService(db *gorm.DB) *UserService {
 	return &UserService{db: db}
 }
 
-// List returns a paginated list of users with their roles preloaded
-func (s *UserService) List(page, limit int) ([]models.User, int64, error) {
+type UserListOptions struct {
+	Common        listquery.Common
+	Statuses      []string
+	RoleIDs       []uuid.UUID
+	EmailVerified []bool
+}
+
+var userSortColumns = map[string]string{
+	"created_at": "users.created_at",
+	"name":       "users.name",
+	"email":      "users.email",
+	"role":       "users.role_id",
+}
+
+// List returns a paginated list of users with search, filters, sorting, and roles preloaded
+func (s *UserService) List(options UserListOptions) ([]models.User, int64, error) {
 	var users []models.User
 	var total int64
 
 	query := s.db.Model(&models.User{})
 
+	if options.Common.Search != "" {
+		searchTerm := "%" + options.Common.Search + "%"
+		query = query.Where("users.name ILIKE ? OR users.email ILIKE ?", searchTerm, searchTerm)
+	}
+
+	if len(options.Statuses) > 0 {
+		var activeFilter []bool
+		for _, st := range options.Statuses {
+			if st == "active" {
+				activeFilter = append(activeFilter, true)
+			} else if st == "inactive" {
+				activeFilter = append(activeFilter, false)
+			}
+		}
+		if len(activeFilter) > 0 {
+			query = query.Where("users.is_active IN ?", activeFilter)
+		}
+	}
+
+	if len(options.RoleIDs) > 0 {
+		query = query.Where("users.role_id IN ?", options.RoleIDs)
+	}
+
+	if len(options.EmailVerified) > 0 {
+		query = query.Where("users.email_verified IN ?", options.EmailVerified)
+	}
+
+	if options.Common.From != nil {
+		query = query.Where("users.created_at >= ?", *options.Common.From)
+	}
+	if options.Common.To != nil {
+		query = query.Where("users.created_at <= ?", *options.Common.To)
+	}
+
 	if err := query.Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
-	offset := (page - 1) * limit
+	sortCol, ok := userSortColumns[options.Common.Sort]
+	if !ok {
+		sortCol = "users.created_at"
+	}
+	orderDir := "DESC"
+	if options.Common.Order == "asc" {
+		orderDir = "ASC"
+	}
+
+	offset := (options.Common.Page - 1) * options.Common.Limit
 	err := query.Preload("Role").
-		Order("created_at DESC").
+		Order(sortCol + " " + orderDir + ", users.id " + orderDir).
 		Offset(offset).
-		Limit(limit).
+		Limit(options.Common.Limit).
 		Find(&users).Error
 
 	return users, total, err

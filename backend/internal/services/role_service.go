@@ -4,6 +4,7 @@ import (
 	"errors"
 
 	"github.com/google/uuid"
+	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"gorm.io/gorm"
 )
@@ -16,11 +17,62 @@ func NewRoleService(db *gorm.DB) *RoleService {
 	return &RoleService{db: db}
 }
 
-// List returns all roles
-func (s *RoleService) List() ([]models.Role, error) {
+type RoleListOptions struct {
+	Common   listquery.Common
+	Statuses []string
+}
+
+var roleSortColumns = map[string]string{
+	"name":       "roles.name",
+	"created_at": "roles.created_at",
+}
+
+// List returns a paginated list of roles with search, filter, and sorting
+func (s *RoleService) List(options RoleListOptions) ([]models.Role, int64, error) {
 	var roles []models.Role
-	err := s.db.Order("name ASC").Find(&roles).Error
-	return roles, err
+	var total int64
+
+	query := s.db.Model(&models.Role{})
+
+	if options.Common.Search != "" {
+		searchTerm := "%" + options.Common.Search + "%"
+		query = query.Where("roles.name ILIKE ? OR roles.description ILIKE ?", searchTerm, searchTerm)
+	}
+
+	if len(options.Statuses) > 0 {
+		var activeFilter []bool
+		for _, st := range options.Statuses {
+			if st == "active" {
+				activeFilter = append(activeFilter, true)
+			} else if st == "inactive" {
+				activeFilter = append(activeFilter, false)
+			}
+		}
+		if len(activeFilter) > 0 {
+			query = query.Where("roles.is_active IN ?", activeFilter)
+		}
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	sortCol, ok := roleSortColumns[options.Common.Sort]
+	if !ok {
+		sortCol = "roles.name"
+	}
+	orderDir := "ASC"
+	if options.Common.Order == "desc" {
+		orderDir = "DESC"
+	}
+
+	offset := (options.Common.Page - 1) * options.Common.Limit
+	err := query.Order(sortCol + " " + orderDir + ", roles.id " + orderDir).
+		Offset(offset).
+		Limit(options.Common.Limit).
+		Find(&roles).Error
+
+	return roles, total, err
 }
 
 // GetByID returns an active role by ID

@@ -3,6 +3,7 @@ package handlers
 import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
@@ -19,13 +20,31 @@ func NewRoleHandler(db *gorm.DB) *RoleHandler {
 	}
 }
 
-// GetRoles - Admin: List all roles
+// GetRoles - Admin: List all roles with pagination and filtering
 func (h *RoleHandler) GetRoles(c *fiber.Ctx) error {
-	roles, err := h.roleService.List()
+	common, err := listquery.Parse(c, listquery.Config{
+		DefaultSort:  "name",
+		DefaultOrder: "asc",
+		AllowedSort: map[string]string{
+			"name":       "name",
+			"created_at": "created_at",
+		},
+	})
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+
+	statuses := listquery.ExtractMulti(c, "status")
+	options := services.RoleListOptions{
+		Common:   common,
+		Statuses: statuses,
+	}
+
+	roles, total, err := h.roleService.List(options)
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch roles")
 	}
-	return utils.SuccessResponse(c, roles)
+	return utils.PaginatedResponse(c, roles, common.Page, common.Limit, int(total))
 }
 
 // GetRole - Admin: Get single role by id

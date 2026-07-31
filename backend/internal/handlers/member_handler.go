@@ -1,9 +1,8 @@
 package handlers
 
 import (
-	"strconv"
-
 	"github.com/gofiber/fiber/v2"
+	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/middleware"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
@@ -81,17 +80,34 @@ func (h *MemberHandler) UpdateMyProfile(c *fiber.Ctx) error {
 
 // GetMembers - Admin: List all members with pagination
 func (h *MemberHandler) GetMembers(c *fiber.Ctx) error {
-	page, _ := strconv.Atoi(c.Query("page", "1"))
-	limit, _ := strconv.Atoi(c.Query("limit", "20"))
-	page, limit = utils.ClampPagination(page, limit)
+	common, err := listquery.Parse(c, listquery.Config{
+		DefaultSort:  "created_at",
+		DefaultOrder: "desc",
+		AllowedSort: map[string]string{
+			"created_at":      "created_at",
+			"member_code":     "member_code",
+			"membership_date": "membership_date",
+			"membership_type": "membership_type",
+		},
+	})
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 
-	members, total, err := h.memberService.List(
-		page, limit, c.Query("status"), c.Query("type"), c.Query("search"),
-	)
+	statuses := listquery.ExtractMulti(c, "status")
+	types := listquery.ExtractMulti(c, "type")
+
+	options := services.MemberListOptions{
+		Common:   common,
+		Statuses: statuses,
+		Types:    types,
+	}
+
+	members, total, err := h.memberService.List(options)
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch members")
 	}
-	return utils.PaginatedResponse(c, members, page, limit, int(total))
+	return utils.PaginatedResponse(c, members, common.Page, common.Limit, int(total))
 }
 
 // GetMember - Admin: Get single member by ID

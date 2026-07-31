@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
+	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
 	"gorm.io/gorm"
@@ -19,21 +21,49 @@ func NewAuditLogHandler(db *gorm.DB) *AuditLogHandler {
 
 // GetAuditLogs - Admin: List audit logs with pagination and filters
 func (h *AuditLogHandler) GetAuditLogs(c *fiber.Ctx) error {
-	page := c.QueryInt("page", 1)
-	limit := c.QueryInt("limit", 10)
-	entityType := c.Query("entity_type")
-	action := c.Query("action")
+	common, err := listquery.Parse(c, listquery.Config{
+		DefaultSort:  "created_at",
+		DefaultOrder: "desc",
+		AllowedSort: map[string]string{
+			"created_at":  "created_at",
+			"action":      "action",
+			"entity_type": "entity_type",
+		},
+	})
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 
-	logs, total, err := h.auditService.List(page, limit, entityType, action)
+	actions := listquery.ExtractMulti(c, "action")
+	entityTypes := listquery.ExtractMulti(c, "entity_type")
+	userStrs := listquery.ExtractMulti(c, "user")
+	var userIDs []uuid.UUID
+	for _, uStr := range userStrs {
+		if uid, parseErr := uuid.Parse(uStr); parseErr == nil {
+			userIDs = append(userIDs, uid)
+		}
+	}
+
+	options := services.AuditListOptions{
+		Common:      common,
+		Actions:     actions,
+		EntityTypes: entityTypes,
+		UserIDs:     userIDs,
+	}
+
+	logs, total, err := h.auditService.List(options)
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch audit logs")
 	}
 
-	return c.JSON(fiber.Map{
-		"success": true,
-		"data":    logs,
-		"total":   total,
-		"page":    page,
-		"limit":   limit,
-	})
+	return utils.PaginatedResponse(c, logs, common.Page, common.Limit, int(total))
+}
+
+// GetFilterOptions - Admin: Return distinct audit log actions and entity types for filtering
+func (h *AuditLogHandler) GetFilterOptions(c *fiber.Ctx) error {
+	opts, err := h.auditService.GetFilterOptions()
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch audit filter options")
+	}
+	return utils.SuccessResponse(c, opts)
 }

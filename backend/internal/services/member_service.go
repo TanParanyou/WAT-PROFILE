@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"gorm.io/gorm"
 )
@@ -58,30 +59,69 @@ func (s *MemberService) UpdateByUserID(member *models.Member, userID uuid.UUID) 
 	return s.db.Save(member).Error
 }
 
-// List returns paginated members with filters
-func (s *MemberService) List(page, limit int, status, memberType, search string) ([]models.Member, int64, error) {
-	var members []models.Member
-	query := s.db.Order("created_at DESC")
+type MemberListOptions struct {
+	Common   listquery.Common
+	Statuses []string
+	Types    []string
+}
 
-	if status != "" {
-		query = query.Where("membership_status = ?", status)
-	}
-	if memberType != "" {
-		query = query.Where("membership_type = ?", memberType)
-	}
-	if search != "" {
-		searchParam := "%" + search + "%"
+var memberSortColumns = map[string]string{
+	"created_at":      "members.created_at",
+	"member_code":     "members.member_code",
+	"membership_date": "members.membership_date",
+	"membership_type": "members.membership_type",
+}
+
+// List returns paginated members with search, filters, sorting, and user details
+func (s *MemberService) List(options MemberListOptions) ([]models.Member, int64, error) {
+	var members []models.Member
+	var total int64
+
+	query := s.db.Model(&models.Member{}).
+		Joins("LEFT JOIN users ON users.id = members.user_id")
+
+	if options.Common.Search != "" {
+		searchTerm := "%" + options.Common.Search + "%"
 		query = query.Where(
-			"first_name_th ILIKE ? OR last_name_th ILIKE ? OR first_name_en ILIKE ? OR last_name_en ILIKE ? OR member_code ILIKE ?",
-			searchParam, searchParam, searchParam, searchParam, searchParam,
+			"members.first_name_th ILIKE ? OR members.last_name_th ILIKE ? OR members.first_name_en ILIKE ? OR members.last_name_en ILIKE ? OR members.member_code ILIKE ? OR members.phone ILIKE ? OR users.email ILIKE ?",
+			searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm,
 		)
 	}
 
-	var total int64
-	query.Model(&models.Member{}).Count(&total)
+	if len(options.Statuses) > 0 {
+		query = query.Where("members.membership_status IN ?", options.Statuses)
+	}
 
-	offset := (page - 1) * limit
-	err := query.Preload("User").Offset(offset).Limit(limit).Find(&members).Error
+	if len(options.Types) > 0 {
+		query = query.Where("members.membership_type IN ?", options.Types)
+	}
+
+	if options.Common.From != nil {
+		query = query.Where("members.membership_date >= ?", *options.Common.From)
+	}
+	if options.Common.To != nil {
+		query = query.Where("members.membership_date <= ?", *options.Common.To)
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	sortCol, ok := memberSortColumns[options.Common.Sort]
+	if !ok {
+		sortCol = "members.created_at"
+	}
+	orderDir := "DESC"
+	if options.Common.Order == "asc" {
+		orderDir = "ASC"
+	}
+
+	offset := (options.Common.Page - 1) * options.Common.Limit
+	err := query.Preload("User").
+		Order(sortCol + " " + orderDir + ", members.id " + orderDir).
+		Offset(offset).
+		Limit(options.Common.Limit).
+		Find(&members).Error
 
 	return members, total, err
 }

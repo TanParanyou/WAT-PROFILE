@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"gorm.io/gorm"
 )
@@ -58,27 +59,72 @@ func (s *AuditService) LogAction(c *fiber.Ctx, action string, entityType string,
 	return s.db.Create(&auditLog).Error
 }
 
-// List fetch paginated audit logs
-func (s *AuditService) List(page, limit int, entityType string, action string) ([]models.AuditLog, int64, error) {
+type AuditListOptions struct {
+	Common      listquery.Common
+	Actions     []string
+	EntityTypes []string
+	UserIDs     []uuid.UUID
+}
+
+var auditSortColumns = map[string]string{
+	"created_at":  "audit_logs.created_at",
+	"action":      "audit_logs.action",
+	"entity_type": "audit_logs.entity_type",
+}
+
+// List fetch paginated audit logs with search, filters, and user details
+func (s *AuditService) List(options AuditListOptions) ([]models.AuditLog, int64, error) {
 	var logs []models.AuditLog
 	var total int64
-	offset := (page - 1) * limit
 
-	query := s.db.Model(&models.AuditLog{})
+	query := s.db.Model(&models.AuditLog{}).
+		Joins("LEFT JOIN users ON users.id = audit_logs.user_id")
 
-	if entityType != "" {
-		query = query.Where("entity_type = ?", entityType)
+	if options.Common.Search != "" {
+		searchTerm := "%" + options.Common.Search + "%"
+		query = query.Where(
+			"audit_logs.entity_id ILIKE ? OR audit_logs.trace_id ILIKE ? OR audit_logs.ip_address ILIKE ? OR users.name ILIKE ? OR users.email ILIKE ?",
+			searchTerm, searchTerm, searchTerm, searchTerm, searchTerm,
+		)
 	}
-	if action != "" {
-		query = query.Where("action = ?", action)
+
+	if len(options.Actions) > 0 {
+		query = query.Where("audit_logs.action IN ?", options.Actions)
 	}
 
-	query.Count(&total)
+	if len(options.EntityTypes) > 0 {
+		query = query.Where("audit_logs.entity_type IN ?", options.EntityTypes)
+	}
 
+	if len(options.UserIDs) > 0 {
+		query = query.Where("audit_logs.user_id IN ?", options.UserIDs)
+	}
+
+	if options.Common.From != nil {
+		query = query.Where("audit_logs.created_at >= ?", *options.Common.From)
+	}
+	if options.Common.To != nil {
+		query = query.Where("audit_logs.created_at <= ?", *options.Common.To)
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	sortCol, ok := auditSortColumns[options.Common.Sort]
+	if !ok {
+		sortCol = "audit_logs.created_at"
+	}
+	orderDir := "DESC"
+	if options.Common.Order == "asc" {
+		orderDir = "ASC"
+	}
+
+	offset := (options.Common.Page - 1) * options.Common.Limit
 	err := query.Preload("User").
-		Order("created_at desc").
+		Order(sortCol + " " + orderDir + ", audit_logs.id " + orderDir).
 		Offset(offset).
-		Limit(limit).
+		Limit(options.Common.Limit).
 		Find(&logs).Error
 
 	if err != nil {
@@ -86,4 +132,27 @@ func (s *AuditService) List(page, limit int, entityType string, action string) (
 	}
 
 	return logs, total, nil
+}
+
+type AuditFilterOptions struct {
+	Actions     []string `json:"actions"`
+	EntityTypes []string `json:"entityTypes"`
+}
+
+func (s *AuditService) GetFilterOptions() (*AuditFilterOptions, error) {
+	var actions []string
+	var entityTypes []string
+
+	if err := s.db.Model(&models.AuditLog{}).Where("action IS NOT NULL AND action != ''").Distinct("action").Order("action ASC").Pluck("action", &actions).Error; err != nil {
+		return nil, err
+	}
+
+	if err := s.db.Model(&models.AuditLog{}).Where("entity_type IS NOT NULL AND entity_type != ''").Distinct("entity_type").Order("entity_type ASC").Pluck("entity_type", &entityTypes).Error; err != nil {
+		return nil, err
+	}
+
+	return &AuditFilterOptions{
+		Actions:     actions,
+		EntityTypes: entityTypes,
+	}, nil
 }
