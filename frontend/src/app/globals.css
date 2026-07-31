@@ -84,8 +84,10 @@
 
     --color-background: var(--background);
     --color-foreground: var(--foreground);
+}
 
-    /* Public website semantic roles */
+/* Resolve public theme roles where each utility is used, inside .public-theme. */
+@theme inline {
     --color-site-canvas: var(--public-canvas);
     --color-site-foreground: var(--public-foreground);
     --color-site-body: var(--public-body);
