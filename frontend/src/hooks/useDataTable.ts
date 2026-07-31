@@ -1,6 +1,9 @@
 import { useState, useMemo, useCallback } from 'react';
 import { useQuery } from '@tanstack/react-query';
 
+/**
+ * @deprecated Use useAdminListState and useAdminListQuery from '@/features/admin-list' instead.
+ */
 export type SortOrder = 'asc' | 'desc';
 
 export interface SortState {
