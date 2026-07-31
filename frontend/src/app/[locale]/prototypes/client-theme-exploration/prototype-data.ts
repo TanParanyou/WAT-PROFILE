@@ -1,4 +1,11 @@
-export type ThemeVariantKey = "forest" | "community" | "practice" | "minimal";
+export type ThemeVariantKey =
+  | "forest"
+  | "community"
+  | "practice"
+  | "minimal"
+  | "monochrome"
+  | "apothecary"
+  | "journal";
 
 export type ThemeVariant = {
   key: ThemeVariantKey;
@@ -31,6 +38,9 @@ export const THEME_VARIANTS = [
   { key: "community", name: "วัดที่มีชีวิต", axis: "Community" },
   { key: "practice", name: "สำนักปฏิบัติร่วมสมัย", axis: "Architectural" },
   { key: "minimal", name: "หนึ่งภาพ หนึ่งลมหายใจ", axis: "Minimal" },
+  { key: "monochrome", name: "ศาลาโมโนโครม", axis: "Monochrome" },
+  { key: "apothecary", name: "ทะเบียนศาลา", axis: "Apothecary" },
+  { key: "journal", name: "บันทึกภาวนา", axis: "Editorial" },
 ] as const satisfies readonly ThemeVariant[];
 
 export const PROTOTYPE_CONTENT: PrototypeContent = {

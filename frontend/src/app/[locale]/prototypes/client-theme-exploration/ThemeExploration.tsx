@@ -5,19 +5,25 @@ import ThemePicker from "./ThemePicker";
 import { PROTOTYPE_CONTENT, type ThemeVariantKey } from "./prototype-data";
 import styles from "./prototype-shell.module.css";
 import ContemporaryPractice from "./variants/ContemporaryPractice";
+import ApothecaryRegister from "./variants/ApothecaryRegister";
 import ForestThreshold from "./variants/ForestThreshold";
 import LivingCommunity from "./variants/LivingCommunity";
+import MonochromeSala from "./variants/MonochromeSala";
 import OneBreathMinimal from "./variants/OneBreathMinimal";
+import PracticeJournal from "./variants/PracticeJournal";
 
 const variantKeys: readonly ThemeVariantKey[] = [
   "forest",
   "community",
   "practice",
   "minimal",
+  "monochrome",
+  "apothecary",
+  "journal",
 ];
 
 export default function ThemeExploration() {
-  const [active, setActive] = useState<ThemeVariantKey>("forest");
+  const [active, setActive] = useState<ThemeVariantKey>("monochrome");
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
@@ -45,6 +51,12 @@ export default function ThemeExploration() {
         return <ContemporaryPractice content={PROTOTYPE_CONTENT} />;
       case "minimal":
         return <OneBreathMinimal content={PROTOTYPE_CONTENT} />;
+      case "monochrome":
+        return <MonochromeSala content={PROTOTYPE_CONTENT} />;
+      case "apothecary":
+        return <ApothecaryRegister content={PROTOTYPE_CONTENT} />;
+      case "journal":
+        return <PracticeJournal content={PROTOTYPE_CONTENT} />;
     }
   };
 

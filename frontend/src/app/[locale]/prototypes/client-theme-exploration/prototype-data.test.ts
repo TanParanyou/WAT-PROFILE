@@ -2,12 +2,12 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { PROTOTYPE_CONTENT, THEME_VARIANTS } from "./prototype-data.ts";
 
-test("exposes four unique theme directions in picker order", () => {
+test("exposes seven unique theme directions in picker order", () => {
   assert.deepEqual(
     THEME_VARIANTS.map(({ key }) => key),
-    ["forest", "community", "practice", "minimal"],
+    ["forest", "community", "practice", "minimal", "monochrome", "apothecary", "journal"],
   );
-  assert.equal(new Set(THEME_VARIANTS.map(({ key }) => key)).size, 4);
+  assert.equal(new Set(THEME_VARIANTS.map(({ key }) => key)).size, 7);
 });
 
 test("keeps the approved primary and secondary calls to action", () => {
