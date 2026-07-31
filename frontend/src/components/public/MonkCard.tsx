@@ -16,25 +16,25 @@ export function MonkCard({ monk, locale }: MonkCardProps) {
   const imageUrl = monk.image_url;
 
   return (
-    <div className="group flex flex-col items-center p-6 bg-white rounded-3xl shadow-sm hover:shadow-xl transition-all duration-300 border border-amber-50/50">
-      <div className="relative w-40 h-40 mb-6 rounded-full overflow-hidden border-4 border-amber-100/50 group-hover:border-amber-200 transition-colors p-1">
-        <div className="relative w-full h-full rounded-full overflow-hidden">
+    <div className="group flex flex-col items-center border border-[#333] bg-[#fffef2] p-6 transition-colors hover:bg-[#f7ecdd]">
+      <div className="relative mb-6 h-40 w-40 overflow-hidden border border-[#333] p-1">
+        <div className="relative h-full w-full overflow-hidden">
           <PublicImage
             src={imageUrl}
             alt={name}
             fill
             fallbackSrc={publicMonkFallbackImage}
-            className="object-cover group-hover:scale-110 transition-transform duration-500 ease-out"
+            className="object-cover transition-transform duration-500 ease-out group-hover:scale-[1.03]"
           />
         </div>
       </div>
-      <h3 className="text-xl font-bold text-gray-900 text-center mb-1 group-hover:text-amber-700 transition-colors">
+      <h3 className="mb-1 text-center text-xl font-medium text-[#333] transition-colors group-hover:text-[#945c26]">
         <Link href={`/monks/${monk.slug}`} className="hover:underline">
           {name}
         </Link>
       </h3>
       {position && (
-        <p className="text-amber-600/80 font-medium text-sm text-center">
+        <p className="text-center text-sm font-medium text-[#945c26]">
           {position}
         </p>
       )}

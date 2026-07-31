@@ -19,55 +19,55 @@ export function SchedulesSection({ schedules }: SchedulesSectionProps) {
 
   return (
     <div className="grid gap-6 lg:grid-cols-2">
-      {daily.length > 0 ? <section className="rounded-2xl border border-primary/15 bg-white p-6">
+      {daily.length > 0 ? <section className="border border-[#333] bg-[#fffef2] p-6">
         <div className="mb-4 flex items-center gap-3">
-          <Clock className="text-amber-600" size={20} />
+          <Clock className="text-[#945c26]" size={20} />
           <h3 className="text-lg font-bold">{t("dailySchedule")}</h3>
         </div>
         <div className="space-y-4">
           {daily.map((item) => (
-            <div key={item.id} className="flex justify-between gap-4 border-b border-gray-100 pb-3 last:border-0">
-              <div className="font-mono text-sm text-gray-500">
+            <div key={item.id} className="flex justify-between gap-4 border-b border-[#333] pb-3 last:border-0">
+              <div className="text-sm text-[#666]">
                 {formatTimeRange(item.time_start, item.time_end, locale)}
               </div>
-              <div className="text-sm text-gray-700">{getLocalizedText(item.activity, locale)}</div>
+              <div className="text-sm text-[#505050]">{getLocalizedText(item.activity, locale)}</div>
             </div>
           ))}
         </div>
       </section> : null}
       <div className="space-y-8">
-        {weekly.length > 0 ? <section className="rounded-2xl border border-primary/15 bg-white p-6">
+        {weekly.length > 0 ? <section className="border border-[#333] bg-[#fffef2] p-6">
           <div className="mb-4 flex items-center gap-3">
-            <Calendar className="text-green-600" size={20} />
+          <Calendar className="text-[#945c26]" size={20} />
             <h3 className="text-lg font-bold">{t("weeklySchedule")}</h3>
           </div>
           <div className="space-y-4">
             {weekly.map((item) => (
-              <div key={item.id} className="border-b border-gray-100 pb-3 last:border-0">
-                <div className="font-medium text-gray-900">{getDayLabel(item.day_of_week, t)}</div>
-                <div className="font-mono text-sm text-gray-500">
+              <div key={item.id} className="border-b border-[#333] pb-3 last:border-0">
+                <div className="font-medium text-[#333]">{getDayLabel(item.day_of_week, t)}</div>
+                <div className="text-sm text-[#666]">
                   {formatTimeRange(item.time_start, item.time_end, locale)}
                 </div>
-                <div className="text-sm text-gray-700">{getLocalizedText(item.activity, locale)}</div>
+                <div className="text-sm text-[#505050]">{getLocalizedText(item.activity, locale)}</div>
               </div>
             ))}
           </div>
         </section> : null}
-        {online.length > 0 ? <section className="rounded-2xl border border-blue-200 bg-blue-50 p-6">
+        {online.length > 0 ? <section className="border border-[#333] bg-[#f7ecdd] p-6">
           <div className="mb-3 flex items-center gap-3">
-            <Video className="text-blue-600" size={20} />
+          <Video className="text-[#945c26]" size={20} />
             <h3 className="text-lg font-bold">{t("onlineSchedule")}</h3>
           </div>
           <div className="space-y-3">
             {online.map((item) => (
-              <div key={item.id} className="space-y-1 text-sm text-gray-700">
+              <div key={item.id} className="space-y-1 text-sm text-[#505050]">
                 <div>{getLocalizedText(item.activity, locale)}</div>
                 {item.online_link ? (
                   <a
                     href={item.online_link}
                     target="_blank"
                     rel="noreferrer"
-                    className="inline-flex text-blue-700 hover:underline"
+                    className="inline-flex text-[#945c26] hover:underline"
                   >
                     {t("joinOnline")}
                   </a>

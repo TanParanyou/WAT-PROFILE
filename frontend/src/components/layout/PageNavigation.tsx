@@ -56,8 +56,8 @@ export default function PageNavigation({ items }: PageNavigationProps) {
         </div>
       </div>
 
-      <div className="hidden border-t border-primary/20 pt-5 lg:block">
-        <h2 className="font-heading text-lg font-bold text-text-900">{t("contents")}</h2>
+      <div className="hidden border-t border-[#333] pt-5 lg:block">
+        <h2 className="font-heading text-lg font-medium text-[#333]">{t("contents")}</h2>
         <ul className="mt-4 space-y-1">
           {items.map((item) => (
             <li key={item.id}>
@@ -92,15 +92,15 @@ function NavigationButton({
       onClick={onClick}
       aria-current={active ? "location" : undefined}
       className={cn(
-        "min-h-11 rounded-full text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary",
-        desktop ? "w-full rounded-none border-l-2 px-4 py-2 text-left" : "px-4 py-2",
+        "min-h-11 text-sm font-semibold transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#945c26]",
+        desktop ? "w-full border-l px-4 py-2 text-left" : "border px-4 py-2",
         active
           ? desktop
-            ? "border-primary bg-primary-50 text-primary-800"
-            : "bg-primary text-white"
+            ? "border-[#333] bg-[#f7ecdd] text-[#333]"
+            : "border-[#333] bg-[#333] text-[#fffef2]"
           : desktop
-            ? "border-transparent text-text-700 hover:border-primary/40 hover:text-primary"
-            : "border border-primary/20 bg-white text-text-800 hover:border-primary/50",
+            ? "border-transparent text-[#505050] hover:border-[#333] hover:text-[#333]"
+            : "border-[#333] bg-[#fffef2] text-[#333] hover:bg-[#f7ecdd]",
       )}
     >
       {item.label}

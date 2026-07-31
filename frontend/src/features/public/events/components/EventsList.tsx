@@ -17,16 +17,16 @@ export function EventsList({ events }: EventsListProps) {
   const t = useTranslations("EventsPage");
 
   return (
-    <div className="grid gap-6">
+    <div className="grid border-t border-[#333]">
       {events.map((event) => {
         const title = getLocalizedText(event.title, locale);
 
         return (
           <article
             key={event.slug}
-            className="group grid overflow-hidden rounded-2xl border border-primary/15 bg-white md:grid-cols-[minmax(15rem,0.8fr)_minmax(0,1.2fr)]"
+            className="group grid overflow-hidden border-b border-[#333] bg-[#fffef2] md:grid-cols-[minmax(15rem,0.8fr)_minmax(0,1.2fr)]"
           >
-            <div className="relative min-h-60 overflow-hidden bg-secondary-50 md:min-h-full">
+            <div className="relative min-h-60 overflow-hidden bg-[#f7ecdd] md:min-h-full">
               <PublicImage
                 src={event.imageUrl}
                 alt={title}
@@ -37,7 +37,7 @@ export function EventsList({ events }: EventsListProps) {
               />
             </div>
             <div className="flex flex-col p-6 md:p-8">
-              <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-text-700">
+              <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-[#666]">
                 <span className="flex items-center gap-2">
                   <Calendar size={16} aria-hidden="true" />
                   <time dateTime={event.startDate}>
@@ -49,15 +49,15 @@ export function EventsList({ events }: EventsListProps) {
                   {getLocalizedText(event.location, locale)}
                 </span>
               </div>
-              <h3 className="mt-4 font-heading text-2xl font-bold leading-tight text-text-900 text-balance">
+              <h3 className="mt-4 font-heading text-2xl font-medium leading-tight text-[#333] text-balance">
                 <Link
                   href={`/events/${event.slug}`}
-                  className="transition-colors hover:text-primary focus-visible:rounded focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+                  className="transition-colors hover:text-[#945c26] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26]"
                 >
                   {title}
                 </Link>
               </h3>
-              <p className="mt-4 line-clamp-3 max-w-[65ch] text-base leading-7 text-text-800">
+              <p className="mt-4 line-clamp-3 max-w-[65ch] text-base leading-7 text-[#505050]">
                 {event.description
                   ? getLocalizedPlainText(event.description, locale).slice(0, 220)
                   : ""}
@@ -65,7 +65,7 @@ export function EventsList({ events }: EventsListProps) {
               <div className="mt-7">
                 <Link
                   href={`/events/${event.slug}`}
-                  className="inline-flex min-h-11 items-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-600 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+                  className="inline-flex min-h-11 items-center bg-[#333] px-5 py-[13px] text-sm font-semibold text-[#fffef2] transition-colors hover:bg-[#242424] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26]"
                 >
                   {t("readMore")}
                 </Link>
