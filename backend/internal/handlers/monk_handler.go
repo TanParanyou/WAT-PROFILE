@@ -4,6 +4,7 @@ import (
 	"fmt"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/richtext"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
@@ -23,12 +24,43 @@ func NewMonkHandler(db *gorm.DB) *MonkHandler {
 	}
 }
 
+// GetMonks - Public: List active monks
 func (h *MonkHandler) GetMonks(c *fiber.Ctx) error {
 	monks, err := h.monkService.ListActive()
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch monks")
 	}
 	return utils.SuccessResponse(c, monks)
+}
+
+// GetAdminMonks - Admin: List monks with pagination and filters
+func (h *MonkHandler) GetAdminMonks(c *fiber.Ctx) error {
+	common, err := listquery.Parse(c, listquery.Config{
+		DefaultSort:  "display_order",
+		DefaultOrder: "asc",
+		AllowedSort: map[string]string{
+			"display_order": "display_order",
+			"name":          "name",
+			"status":        "status",
+			"created_at":    "created_at",
+		},
+	})
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+
+	statuses := listquery.ExtractMulti(c, "status")
+	options := services.MonkListOptions{
+		Common:   common,
+		Statuses: statuses,
+	}
+
+	monks, total, err := h.monkService.ListAdmin(options)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch monks")
+	}
+
+	return utils.PaginatedResponse(c, monks, common.Page, common.Limit, int(total))
 }
 
 func (h *MonkHandler) GetMonk(c *fiber.Ctx) error {

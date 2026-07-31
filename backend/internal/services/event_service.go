@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"gorm.io/gorm"
 )
@@ -11,6 +12,86 @@ type EventService struct {
 
 func NewEventService(db *gorm.DB) *EventService {
 	return &EventService{db: db}
+}
+
+type EventListOptions struct {
+	Common   listquery.Common
+	Statuses []string
+	Types    []string
+}
+
+var eventSortColumns = map[string]string{
+	"start_date":    "events.start_date",
+	"title":         "events.title->>'th'",
+	"event_type":    "events.event_type",
+	"created_at":    "events.created_at",
+	"display_order": "events.display_order",
+}
+
+// ListAdmin returns a paginated list of all events for admin management
+func (s *EventService) ListAdmin(options EventListOptions) ([]models.Event, int64, error) {
+	var events []models.Event
+	var total int64
+
+	query := s.db.Model(&models.Event{})
+
+	if options.Common.Search != "" {
+		searchTerm := "%" + options.Common.Search + "%"
+		query = query.Where(
+			"events.slug ILIKE ? OR events.title->>'th' ILIKE ? OR events.title->>'en' ILIKE ? OR events.title->>'de' ILIKE ? OR events.location->>'th' ILIKE ? OR events.location->>'en' ILIKE ? OR events.location->>'de' ILIKE ?",
+			searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm,
+		)
+	}
+
+	if len(options.Statuses) > 0 {
+		var activeFilter []bool
+		for _, st := range options.Statuses {
+			if st == "active" {
+				activeFilter = append(activeFilter, true)
+			} else if st == "inactive" {
+				activeFilter = append(activeFilter, false)
+			}
+		}
+		if len(activeFilter) > 0 {
+			query = query.Where("events.is_active IN ?", activeFilter)
+		}
+	}
+
+	if len(options.Types) > 0 {
+		query = query.Where("events.event_type IN ?", options.Types)
+	}
+
+	if options.Common.From != nil {
+		query = query.Where("events.start_date >= ?", *options.Common.From)
+	}
+	if options.Common.To != nil {
+		query = query.Where("events.start_date <= ?", *options.Common.To)
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	sortCol, ok := eventSortColumns[options.Common.Sort]
+	if !ok {
+		sortCol = "events.start_date"
+	}
+	orderDir := "DESC"
+	if options.Common.Order == "asc" {
+		orderDir = "ASC"
+	}
+
+	offset := (options.Common.Page - 1) * options.Common.Limit
+	preloadSchedules := func(db *gorm.DB) *gorm.DB {
+		return db.Order("display_order ASC")
+	}
+	err := query.Preload("Schedules", preloadSchedules).
+		Order(sortCol + " " + orderDir + ", events.id " + orderDir).
+		Offset(offset).
+		Limit(options.Common.Limit).
+		Find(&events).Error
+
+	return events, total, err
 }
 
 // ListActive returns all active events with schedules

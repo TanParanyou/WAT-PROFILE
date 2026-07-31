@@ -1,7 +1,10 @@
 package handlers
 
 import (
+	"strconv"
+
 	"github.com/gofiber/fiber/v2"
+	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
@@ -18,12 +21,89 @@ func NewGalleryHandler(db *gorm.DB) *GalleryHandler {
 	}
 }
 
+// GetGalleries - Public: List active galleries
 func (h *GalleryHandler) GetGalleries(c *fiber.Ctx) error {
 	galleries, err := h.galleryService.ListActive(c.Query("category_id"))
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch galleries")
 	}
 	return utils.SuccessResponse(c, galleries)
+}
+
+// GetAdminGalleries - Admin: List gallery items with pagination and filters
+func (h *GalleryHandler) GetAdminGalleries(c *fiber.Ctx) error {
+	common, err := listquery.Parse(c, listquery.Config{
+		DefaultSort:  "display_order",
+		DefaultOrder: "asc",
+		AllowedSort: map[string]string{
+			"display_order": "display_order",
+			"created_at":    "created_at",
+			"caption":       "caption",
+		},
+	})
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+
+	statuses := listquery.ExtractMulti(c, "status")
+	categoryIDStrs := listquery.ExtractMulti(c, "category")
+	var categoryIDs []int
+	for _, catStr := range categoryIDStrs {
+		if id, parseErr := strconv.Atoi(catStr); parseErr == nil {
+			categoryIDs = append(categoryIDs, id)
+		}
+	}
+
+	eventIDStrs := listquery.ExtractMulti(c, "event")
+	var eventIDs []int
+	for _, evStr := range eventIDStrs {
+		if id, parseErr := strconv.Atoi(evStr); parseErr == nil {
+			eventIDs = append(eventIDs, id)
+		}
+	}
+
+	options := services.GalleryListOptions{
+		Common:      common,
+		Statuses:    statuses,
+		CategoryIDs: categoryIDs,
+		EventIDs:    eventIDs,
+	}
+
+	galleries, total, err := h.galleryService.ListAdmin(options)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch galleries")
+	}
+
+	return utils.PaginatedResponse(c, galleries, common.Page, common.Limit, int(total))
+}
+
+// GetAdminCategories - Admin: List gallery categories with pagination and filters
+func (h *GalleryHandler) GetAdminCategories(c *fiber.Ctx) error {
+	common, err := listquery.Parse(c, listquery.Config{
+		DefaultSort:  "display_order",
+		DefaultOrder: "asc",
+		AllowedSort: map[string]string{
+			"display_order": "display_order",
+			"name":          "name",
+			"created_at":    "created_at",
+		},
+	})
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+
+	statuses := listquery.ExtractMulti(c, "status")
+	options := services.GalleryCategoryListOptions{
+		Common:   common,
+		Statuses: statuses,
+	}
+
+	categories, total, err := h.galleryService.ListCategoriesAdmin(options)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch categories")
+	}
+
+	return utils.PaginatedResponse(c, categories, common.Page, common.Limit, int(total))
 }
 
 func (h *GalleryHandler) CreateGallery(c *fiber.Ctx) error {

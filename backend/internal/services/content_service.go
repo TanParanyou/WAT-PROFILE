@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/richtext"
 	"github.com/watloungporsai/wat-profile-backend/internal/seo"
@@ -14,6 +15,62 @@ import (
 
 type ContentService struct {
 	db *gorm.DB
+}
+
+type ContentPageListOptions struct {
+	Common   listquery.Common
+	Statuses []string
+}
+
+var contentPageSortColumns = map[string]string{
+	"updated_at": "content_pages.updated_at",
+	"title":      "content_pages.title->>'th'",
+	"slug":       "content_pages.slug",
+	"status":     "content_pages.status",
+}
+
+// ListPagesAdmin returns a paginated list of content pages for admin management
+func (s *ContentService) ListPagesAdmin(options ContentPageListOptions) ([]models.ContentPage, int64, error) {
+	var pages []models.ContentPage
+	var total int64
+
+	query := s.db.Model(&models.ContentPage{})
+
+	if options.Common.Search != "" {
+		searchTerm := "%" + options.Common.Search + "%"
+		query = query.Where(
+			"content_pages.page_key ILIKE ? OR content_pages.slug ILIKE ? OR content_pages.title->>'th' ILIKE ? OR content_pages.title->>'en' ILIKE ? OR content_pages.title->>'de' ILIKE ? OR content_pages.description->>'th' ILIKE ? OR content_pages.description->>'en' ILIKE ? OR content_pages.description->>'de' ILIKE ?",
+			searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm,
+		)
+	}
+
+	if len(options.Statuses) > 0 {
+		query = query.Where("content_pages.status IN ?", options.Statuses)
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	sortCol, ok := contentPageSortColumns[options.Common.Sort]
+	if !ok {
+		sortCol = "content_pages.updated_at"
+	}
+	orderDir := "DESC"
+	if options.Common.Order == "asc" {
+		orderDir = "ASC"
+	}
+
+	offset := (options.Common.Page - 1) * options.Common.Limit
+	err := query.Preload("Sections", func(tx *gorm.DB) *gorm.DB {
+		return tx.Order("sort_order ASC")
+	}).
+		Order(sortCol + " " + orderDir + ", content_pages.id " + orderDir).
+		Offset(offset).
+		Limit(options.Common.Limit).
+		Find(&pages).Error
+
+	return pages, total, err
 }
 
 var ErrInvalidContentBody = errors.New("invalid content body")

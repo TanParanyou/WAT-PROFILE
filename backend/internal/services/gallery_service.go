@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"gorm.io/gorm"
 )
@@ -11,6 +12,141 @@ type GalleryService struct {
 
 func NewGalleryService(db *gorm.DB) *GalleryService {
 	return &GalleryService{db: db}
+}
+
+type GalleryListOptions struct {
+	Common      listquery.Common
+	Statuses    []string
+	CategoryIDs []int
+	EventIDs    []int
+}
+
+type GalleryCategoryListOptions struct {
+	Common   listquery.Common
+	Statuses []string
+}
+
+var gallerySortColumns = map[string]string{
+	"display_order": "galleries.display_order",
+	"created_at":    "galleries.created_at",
+	"caption":       "galleries.caption->>'th'",
+}
+
+var galleryCategorySortColumns = map[string]string{
+	"display_order": "gallery_categories.display_order",
+	"name":          "gallery_categories.name->>'th'",
+	"created_at":    "gallery_categories.created_at",
+}
+
+// ListAdmin returns a paginated list of gallery items for admin management
+func (s *GalleryService) ListAdmin(options GalleryListOptions) ([]models.Gallery, int64, error) {
+	var galleries []models.Gallery
+	var total int64
+
+	query := s.db.Model(&models.Gallery{})
+
+	if options.Common.Search != "" {
+		searchTerm := "%" + options.Common.Search + "%"
+		query = query.Where(
+			"galleries.caption->>'th' ILIKE ? OR galleries.caption->>'en' ILIKE ? OR galleries.caption->>'de' ILIKE ?",
+			searchTerm, searchTerm, searchTerm,
+		)
+	}
+
+	if len(options.Statuses) > 0 {
+		var activeFilter []bool
+		for _, st := range options.Statuses {
+			if st == "active" {
+				activeFilter = append(activeFilter, true)
+			} else if st == "inactive" {
+				activeFilter = append(activeFilter, false)
+			}
+		}
+		if len(activeFilter) > 0 {
+			query = query.Where("galleries.is_active IN ?", activeFilter)
+		}
+	}
+
+	if len(options.CategoryIDs) > 0 {
+		query = query.Where("galleries.category_id IN ?", options.CategoryIDs)
+	}
+
+	if len(options.EventIDs) > 0 {
+		query = query.Where("galleries.event_id IN ?", options.EventIDs)
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	sortCol, ok := gallerySortColumns[options.Common.Sort]
+	if !ok {
+		sortCol = "galleries.display_order"
+	}
+	orderDir := "ASC"
+	if options.Common.Order == "desc" {
+		orderDir = "DESC"
+	}
+
+	offset := (options.Common.Page - 1) * options.Common.Limit
+	err := query.Preload("Category").
+		Order(sortCol + " " + orderDir + ", galleries.id " + orderDir).
+		Offset(offset).
+		Limit(options.Common.Limit).
+		Find(&galleries).Error
+
+	return galleries, total, err
+}
+
+// ListCategoriesAdmin returns a paginated list of gallery categories for admin management
+func (s *GalleryService) ListCategoriesAdmin(options GalleryCategoryListOptions) ([]models.GalleryCategory, int64, error) {
+	var categories []models.GalleryCategory
+	var total int64
+
+	query := s.db.Model(&models.GalleryCategory{})
+
+	if options.Common.Search != "" {
+		searchTerm := "%" + options.Common.Search + "%"
+		query = query.Where(
+			"gallery_categories.slug ILIKE ? OR gallery_categories.name->>'th' ILIKE ? OR gallery_categories.name->>'en' ILIKE ? OR gallery_categories.name->>'de' ILIKE ? OR gallery_categories.description->>'th' ILIKE ? OR gallery_categories.description->>'en' ILIKE ? OR gallery_categories.description->>'de' ILIKE ?",
+			searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm,
+		)
+	}
+
+	if len(options.Statuses) > 0 {
+		var activeFilter []bool
+		for _, st := range options.Statuses {
+			if st == "active" {
+				activeFilter = append(activeFilter, true)
+			} else if st == "inactive" {
+				activeFilter = append(activeFilter, false)
+			}
+		}
+		if len(activeFilter) > 0 {
+			query = query.Where("gallery_categories.is_active IN ?", activeFilter)
+		}
+	}
+
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	sortCol, ok := galleryCategorySortColumns[options.Common.Sort]
+	if !ok {
+		sortCol = "gallery_categories.display_order"
+	}
+	orderDir := "ASC"
+	if options.Common.Order == "desc" {
+		orderDir = "DESC"
+	}
+
+	offset := (options.Common.Page - 1) * options.Common.Limit
+	err := query.Order(sortCol + " " + orderDir + ", gallery_categories.id " + orderDir).
+		Offset(offset).
+		Limit(options.Common.Limit).
+		Find(&categories).Error
+
+	return categories, total, err
 }
 
 // ListActive returns all active galleries, optionally filtered by category

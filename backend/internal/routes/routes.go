@@ -104,7 +104,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	admin.Get("/audit-logs", middleware.PermissionRequired("audit_logs", "read"), auditHandler.GetAuditLogs)
 
 	// Events Management
-	admin.Get("/events", middleware.PermissionRequired("events", "read"), eventHandler.GetEvents)
+	admin.Get("/events", middleware.PermissionRequired("events", "read"), eventHandler.GetAdminEvents)
 	admin.Get("/events/:id", middleware.PermissionRequired("events", "read"), eventHandler.GetEventByID)
 	admin.Post("/events", middleware.PermissionRequired("events", "create"), eventHandler.CreateEvent)
 	admin.Put("/events/:id", middleware.PermissionRequired("events", "update"), eventHandler.UpdateEvent)
@@ -112,7 +112,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	admin.Delete("/events/:id", middleware.PermissionRequired("events", "delete"), eventHandler.DeleteEvent)
 
 	// Monks Management
-	admin.Get("/monks", middleware.PermissionRequired("monks", "read"), monkHandler.GetMonks)
+	admin.Get("/monks", middleware.PermissionRequired("monks", "read"), monkHandler.GetAdminMonks)
 	admin.Get("/monks/:id", middleware.PermissionRequired("monks", "read"), monkHandler.GetMonkByID)
 	admin.Post("/monks", middleware.PermissionRequired("monks", "create"), monkHandler.CreateMonk)
 	admin.Put("/monks/:id", middleware.PermissionRequired("monks", "update"), monkHandler.UpdateMonk)
@@ -120,13 +120,13 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	admin.Delete("/monks/:id", middleware.PermissionRequired("monks", "delete"), monkHandler.DeleteMonk)
 
 	// Gallery Management
-	admin.Get("/gallery", middleware.PermissionRequired("gallery", "read"), galleryHandler.GetGalleries)
+	admin.Get("/gallery", middleware.PermissionRequired("gallery", "read"), galleryHandler.GetAdminGalleries)
+	admin.Get("/gallery/categories", middleware.PermissionRequired("gallery", "read"), galleryHandler.GetAdminCategories)
 	admin.Get("/gallery/:id", middleware.PermissionRequired("gallery", "read"), galleryHandler.GetGalleryByID)
 	admin.Post("/gallery", middleware.PermissionRequired("gallery", "create"), galleryHandler.CreateGallery)
 	admin.Put("/gallery/:id", middleware.PermissionRequired("gallery", "update"), galleryHandler.UpdateGallery)
 	admin.Delete("/gallery/bulk", middleware.PermissionRequired("gallery", "delete"), galleryHandler.BulkDeleteGalleries)
 	admin.Delete("/gallery/:id", middleware.PermissionRequired("gallery", "delete"), galleryHandler.DeleteGallery)
-	admin.Get("/gallery/categories", middleware.PermissionRequired("gallery", "read"), galleryHandler.GetCategories)
 	admin.Post("/gallery/categories", middleware.PermissionRequired("gallery", "create"), galleryHandler.CreateCategory)
 	admin.Put("/gallery/categories/:id", middleware.PermissionRequired("gallery", "update"), galleryHandler.UpdateCategory)
 	admin.Delete("/gallery/categories/bulk", middleware.PermissionRequired("gallery", "delete"), galleryHandler.BulkDeleteCategories)
@@ -138,7 +138,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	admin.Delete("/media/:id", middleware.PermissionRequired("gallery", "delete"), mediaHandler.DeleteMedia)
 
 	// Schedule Management
-	admin.Get("/schedules", middleware.PermissionRequired("schedules", "read"), scheduleHandler.GetSchedules)
+	admin.Get("/schedules", middleware.PermissionRequired("schedules", "read"), scheduleHandler.GetAdminSchedules)
 	admin.Get("/schedules/:id", middleware.PermissionRequired("schedules", "read"), scheduleHandler.GetScheduleByID)
 	admin.Post("/schedules", middleware.PermissionRequired("schedules", "create"), scheduleHandler.CreateSchedule)
 	admin.Put("/schedules/:id", middleware.PermissionRequired("schedules", "update"), scheduleHandler.UpdateSchedule)
@@ -193,7 +193,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	admin.Put("/impressum", middleware.PermissionRequired("website", "update"), publicContentHandler.SaveImpressum)
 
 	// Website CMS
-	admin.Get("/website/pages", middleware.PermissionRequired("website", "read"), contentHandler.ListPages)
+	admin.Get("/website/pages", middleware.PermissionRequired("website", "read"), contentHandler.ListAdminPages)
 	admin.Get("/website/pages/:pageKey", middleware.PermissionRequired("website", "read"), contentHandler.GetPage)
 	admin.Put("/website/pages/:id", middleware.PermissionRequired("website", "update"), contentHandler.UpdatePageDraft)
 	admin.Post("/website/pages/:id/publish", middleware.PermissionRequired("website", "update"), contentHandler.PublishPage)

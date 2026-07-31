@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
@@ -24,12 +25,43 @@ func NewContentHandler(db *gorm.DB) *ContentHandler {
 	}
 }
 
+// ListPages - Internal/Legacy list pages
 func (h *ContentHandler) ListPages(c *fiber.Ctx) error {
 	pages, err := h.contentService.ListPages()
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch content pages")
 	}
 	return utils.SuccessResponse(c, pages)
+}
+
+// ListAdminPages - Admin: List website content pages with pagination and filters
+func (h *ContentHandler) ListAdminPages(c *fiber.Ctx) error {
+	common, err := listquery.Parse(c, listquery.Config{
+		DefaultSort:  "updated_at",
+		DefaultOrder: "desc",
+		AllowedSort: map[string]string{
+			"updated_at": "updated_at",
+			"title":      "title",
+			"slug":       "slug",
+			"status":     "status",
+		},
+	})
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+
+	statuses := listquery.ExtractMulti(c, "status")
+	options := services.ContentPageListOptions{
+		Common:   common,
+		Statuses: statuses,
+	}
+
+	pages, total, err := h.contentService.ListPagesAdmin(options)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch content pages")
+	}
+
+	return utils.PaginatedResponse(c, pages, common.Page, common.Limit, int(total))
 }
 
 func (h *ContentHandler) GetPage(c *fiber.Ctx) error {

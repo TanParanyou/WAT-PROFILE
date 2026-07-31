@@ -6,6 +6,7 @@ import (
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/richtext"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
@@ -41,6 +42,40 @@ func (h *EventHandler) GetEvents(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch events")
 	}
 	return utils.SuccessResponse(c, events)
+}
+
+// GetAdminEvents - Admin: List all events with pagination and filters
+func (h *EventHandler) GetAdminEvents(c *fiber.Ctx) error {
+	common, err := listquery.Parse(c, listquery.Config{
+		DefaultSort:  "start_date",
+		DefaultOrder: "desc",
+		AllowedSort: map[string]string{
+			"start_date":    "start_date",
+			"title":         "title",
+			"event_type":    "event_type",
+			"created_at":    "created_at",
+			"display_order": "display_order",
+		},
+	})
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+
+	statuses := listquery.ExtractMulti(c, "status")
+	types := listquery.ExtractMulti(c, "type")
+
+	options := services.EventListOptions{
+		Common:   common,
+		Statuses: statuses,
+		Types:    types,
+	}
+
+	events, total, err := h.eventService.ListAdmin(options)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch events")
+	}
+
+	return utils.PaginatedResponse(c, events, common.Page, common.Limit, int(total))
 }
 
 // GetEvent - Public: Get single event by slug
