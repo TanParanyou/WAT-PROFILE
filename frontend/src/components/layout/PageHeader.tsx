@@ -26,16 +26,18 @@ export default function PageHeader({
   imageAlt,
 }: PageHeaderProps) {
   const isReading = variant === "reading";
+  const isImage = variant === "image";
   const heightClass = isReading
     ? "pb-12 pt-32 md:pb-16 md:pt-36"
     : "pb-16 pt-36 md:pb-20 md:pt-44";
   const alignmentClass = align === "center" ? "mx-auto text-center" : "text-left";
-  const textClass = "text-[#333]";
+  const textClass = isImage ? "text-[#fffef2]" : "text-[#333]";
+  const subtitleClass = isImage ? "text-[#fffef2]/90" : "text-[#505050]";
 
   return (
     <header
       className={`relative overflow-hidden border-b border-[#333] ${heightClass} ${
-        isReading ? "bg-[#fffef2]" : "bg-[#f7ecdd]"
+        isReading ? "bg-[#fffef2]" : isImage ? "bg-[#333]" : "bg-[#f7ecdd]"
       }`}
     >
       {isReading ? (
@@ -45,7 +47,7 @@ export default function PageHeader({
         />
       ) : null}
 
-      {variant === "image" ? (
+      {isImage ? (
         <>
           <PublicImage
             src={imageSrc}
@@ -56,7 +58,7 @@ export default function PageHeader({
             sizes="100vw"
             className="object-cover"
           />
-          <div className="absolute inset-0 bg-[#333]/35" aria-hidden="true" />
+          <div className="absolute inset-0 bg-[#333]/70" aria-hidden="true" />
         </>
       ) : null}
 
@@ -69,7 +71,7 @@ export default function PageHeader({
             <p
               className={`mt-5 max-w-[65ch] text-lg leading-8 text-pretty ${
                 align === "center" ? "mx-auto" : ""
-              } text-[#505050]`}
+              } ${subtitleClass}`}
             >
               {subtitle}
             </p>
