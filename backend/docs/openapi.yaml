@@ -40,6 +40,12 @@ tags:
     description: Site settings (Public)
   - name: Member
     description: Member profile & actions (Auth required)
+  - name: Admin - Users
+    description: Users management (Admin only)
+  - name: Admin - Roles
+    description: Roles & permissions management (Admin only)
+  - name: Admin - Audit Logs
+    description: Audit trail logs (Admin only)
   - name: Admin - Events
     description: Events management (Admin only)
   - name: Admin - Monks
@@ -50,6 +56,8 @@ tags:
     description: Media library management (Admin only)
   - name: Admin - Schedules
     description: Schedules management (Admin only)
+  - name: Admin - Website
+    description: Website CMS pages management (Admin only)
   - name: Admin - Donations
     description: Donations management (Admin only)
   - name: Admin - Members
@@ -396,16 +404,192 @@ paths:
         '200':
           description: Registrations list
 
+  # ==================== ADMIN - Users & Roles ====================
+  /admin/users:
+    get:
+      tags: [Admin - Users]
+      summary: List users (admin)
+      description: Query parameters support repeated values for multi-select (OR within filter, AND across filters), e.g. `?status=active&status=inactive`.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/OrderParam'
+        - name: status
+          in: query
+          description: Status filter (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: role
+          in: query
+          description: Role ID filter (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: Paginated users list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/User'
+
+  /admin/roles:
+    get:
+      tags: [Admin - Roles]
+      summary: List roles (admin)
+      description: Query parameters support repeated values for multi-select.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/OrderParam'
+        - name: status
+          in: query
+          description: Status filter (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: Paginated roles list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Role'
+
+  # ==================== ADMIN - Audit Logs ====================
+  /admin/audit-logs/filter-options:
+    get:
+      tags: [Admin - Audit Logs]
+      summary: Get distinct audit log actions and entity types
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Distinct filter options for audit logs
+
+  /admin/audit-logs:
+    get:
+      tags: [Admin - Audit Logs]
+      summary: List audit logs (admin)
+      description: Query parameters support repeated values for multi-select.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/OrderParam'
+        - name: action
+          in: query
+          description: Action filter (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: entity_type
+          in: query
+          description: Entity type filter (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: user
+          in: query
+          description: User ID filter (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: Paginated audit logs list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/AuditLog'
+
   # ==================== ADMIN - Events ====================
   /admin/events:
     get:
       tags: [Admin - Events]
       summary: List all events (admin)
+      description: Query parameters support repeated values for multi-select, e.g. `?status=active&status=inactive`.
       security:
         - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/OrderParam'
+        - $ref: '#/components/parameters/FromParam'
+        - $ref: '#/components/parameters/ToParam'
+        - name: status
+          in: query
+          description: Status filter (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: type
+          in: query
+          description: Event type filter (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
       responses:
         '200':
-          description: Events list
+          description: Paginated events list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Event'
     post:
       tags: [Admin - Events]
       summary: Create event
@@ -454,11 +638,36 @@ paths:
     get:
       tags: [Admin - Monks]
       summary: List all monks (admin)
+      description: Query parameters support repeated values for multi-select.
       security:
         - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/OrderParam'
+        - name: status
+          in: query
+          description: Status filter (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
       responses:
         '200':
-          description: Monks list
+          description: Paginated monks list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Monk'
     post:
       tags: [Admin - Monks]
       summary: Create monk
@@ -507,11 +716,52 @@ paths:
     get:
       tags: [Admin - Gallery]
       summary: List gallery (admin)
+      description: Query parameters support repeated values for multi-select.
       security:
         - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/OrderParam'
+        - name: status
+          in: query
+          description: Status filter (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: category
+          in: query
+          description: Category ID filter (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: event
+          in: query
+          description: Event ID filter (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
       responses:
         '200':
-          description: Gallery list
+          description: Paginated gallery list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Gallery'
     post:
       tags: [Admin - Gallery]
       summary: Create gallery item
@@ -559,11 +809,36 @@ paths:
     get:
       tags: [Admin - Gallery]
       summary: List gallery categories (admin)
+      description: Query parameters support repeated values for multi-select.
       security:
         - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/OrderParam'
+        - name: status
+          in: query
+          description: Status filter (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
       responses:
         '200':
-          description: Categories list
+          description: Paginated categories list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/GalleryCategory'
     post:
       tags: [Admin - Gallery]
       summary: Create gallery category
@@ -629,20 +904,63 @@ paths:
         '400':
           $ref: '#/components/responses/BadRequest'
 
-  /admin/media:
+  /admin/media/filter-options:
     get:
       tags: [Admin - Media]
-      summary: List uploaded media
+      summary: Get distinct media categories and mime types
       security:
         - BearerAuth: []
       responses:
         '200':
-          description: Media list
+          description: Distinct media filter options
+
+  /admin/media:
+    get:
+      tags: [Admin - Media]
+      summary: List uploaded media
+      description: Query parameters support repeated values for multi-select.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/OrderParam'
+        - $ref: '#/components/parameters/FromParam'
+        - $ref: '#/components/parameters/ToParam'
+        - name: mime
+          in: query
+          description: MIME group filter (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: category
+          in: query
+          description: Category filter (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: uploader
+          in: query
+          description: Uploader ID filter (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: Paginated media list
           content:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/SuccessResponse'
+                  - $ref: '#/components/schemas/PaginatedResponse'
                   - properties:
                       data:
                         type: array
@@ -696,11 +1014,88 @@ paths:
     get:
       tags: [Admin - Schedules]
       summary: List schedules (admin)
+      description: Query parameters support repeated values for multi-select.
       security:
         - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/OrderParam'
+        - name: status
+          in: query
+          description: Status filter (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: type
+          in: query
+          description: Schedule type filter (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: weekday
+          in: query
+          description: Weekday filter (repeated integer for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: integer
       responses:
         '200':
-          description: Schedules list
+          description: Paginated schedules list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Schedule'
+
+  # ==================== ADMIN - Website ====================
+  /admin/website/pages:
+    get:
+      tags: [Admin - Website]
+      summary: List website CMS pages (admin)
+      description: Query parameters support repeated values for multi-select.
+      security:
+        - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/OrderParam'
+        - name: status
+          in: query
+          description: Status filter (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: Paginated content pages list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ContentPage'
     post:
       tags: [Admin - Schedules]
       summary: Create schedule
@@ -745,43 +1140,63 @@ paths:
           description: Schedule deleted
 
   # ==================== ADMIN - Donations ====================
+  /admin/donations/filter-options:
+    get:
+      tags: [Admin - Donations]
+      summary: Get distinct donation payment methods, currencies, and categories
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Distinct donation filter options
+
   /admin/donations:
     get:
       tags: [Admin - Donations]
       summary: List donations
+      description: Query parameters support repeated values for multi-select.
       security:
         - BearerAuth: []
       parameters:
-        - name: page
-          in: query
-          schema:
-            type: integer
-            default: 1
-        - name: limit
-          in: query
-          schema:
-            type: integer
-            default: 10
-            maximum: 100
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/OrderParam'
+        - $ref: '#/components/parameters/FromParam'
+        - $ref: '#/components/parameters/ToParam'
         - name: status
           in: query
+          description: Status filter (repeated string for multi-select)
+          required: false
           schema:
-            type: string
-            enum: [pending, confirmed, cancelled]
-        - name: category_id
+            type: array
+            items:
+              type: string
+        - name: category
           in: query
+          description: Category ID filter (repeated string for multi-select)
+          required: false
           schema:
-            type: string
-        - name: from
+            type: array
+            items:
+              type: string
+        - name: method
           in: query
+          description: Payment method filter (repeated string for multi-select)
+          required: false
           schema:
-            type: string
-            format: date
-        - name: to
+            type: array
+            items:
+              type: string
+        - name: currency
           in: query
+          description: Currency filter (repeated string for multi-select)
+          required: false
           schema:
-            type: string
-            format: date
+            type: array
+            items:
+              type: string
       responses:
         '200':
           description: Paginated donations list
@@ -789,14 +1204,12 @@ paths:
             application/json:
               schema:
                 allOf:
-                  - $ref: '#/components/schemas/SuccessResponse'
+                  - $ref: '#/components/schemas/PaginatedResponse'
                   - properties:
                       data:
                         type: array
                         items:
                           $ref: '#/components/schemas/Donation'
-                      total:
-                        type: integer
 
   /admin/donations/stats:
     get:
@@ -857,11 +1270,36 @@ paths:
     get:
       tags: [Admin - Donations]
       summary: List donation categories (admin)
+      description: Query parameters support repeated values for multi-select.
       security:
         - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/OrderParam'
+        - name: status
+          in: query
+          description: Status filter (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
       responses:
         '200':
-          description: Donation categories
+          description: Paginated donation categories list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/DonationCategory'
     post:
       tags: [Admin - Donations]
       summary: Create donation category
@@ -910,35 +1348,46 @@ paths:
     get:
       tags: [Admin - Members]
       summary: List members
+      description: Query parameters support repeated values for multi-select.
       security:
         - BearerAuth: []
       parameters:
-        - name: page
-          in: query
-          schema:
-            type: integer
-            default: 1
-        - name: limit
-          in: query
-          schema:
-            type: integer
-            default: 10
-            maximum: 100
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/OrderParam'
+        - $ref: '#/components/parameters/FromParam'
+        - $ref: '#/components/parameters/ToParam'
         - name: status
           in: query
+          description: Status filter (repeated string for multi-select)
+          required: false
           schema:
-            type: string
+            type: array
+            items:
+              type: string
         - name: type
           in: query
+          description: Member type filter (repeated string for multi-select)
+          required: false
           schema:
-            type: string
-        - name: search
-          in: query
-          schema:
-            type: string
+            type: array
+            items:
+              type: string
       responses:
         '200':
           description: Paginated members list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Member'
 
   /admin/members/{id}:
     get:
@@ -973,11 +1422,46 @@ paths:
     get:
       tags: [Admin - Registrations]
       summary: List event registrations
+      description: Query parameters support repeated values for multi-select.
       security:
         - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/OrderParam'
+        - $ref: '#/components/parameters/FromParam'
+        - $ref: '#/components/parameters/ToParam'
+        - name: status
+          in: query
+          description: Status filter (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: event
+          in: query
+          description: Event ID filter (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
       responses:
         '200':
-          description: Registrations list
+          description: Paginated registrations list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/EventRegistration'
 
   /admin/registrations/{id}/status:
     put:
@@ -997,7 +1481,9 @@ paths:
               properties:
                 status:
                   type: string
-                  enum: [confirmed, cancelled, attended]
+                  enum: [pending, confirmed, attended, cancelled]
+                reason:
+                  type: string
       responses:
         '200':
           description: Status updated
@@ -1007,11 +1493,46 @@ paths:
     get:
       tags: [Admin - Contacts]
       summary: List contact inquiries
+      description: Query parameters support repeated values for multi-select.
       security:
         - BearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/OrderParam'
+        - $ref: '#/components/parameters/FromParam'
+        - $ref: '#/components/parameters/ToParam'
+        - name: status
+          in: query
+          description: Status filter (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: type
+          in: query
+          description: Inquiry type filter (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
       responses:
         '200':
-          description: Contact inquiries list
+          description: Paginated contact inquiries list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/ContactInquiry'
 
   /admin/contacts/{id}/status:
     put:
@@ -1126,6 +1647,59 @@ components:
       schema:
         type: string
         format: uuid
+    PageParam:
+      name: page
+      in: query
+      description: Page number (1-based)
+      required: false
+      schema:
+        type: integer
+        default: 1
+    LimitParam:
+      name: limit
+      in: query
+      description: Number of items per page (10, 25, 50, 100)
+      required: false
+      schema:
+        type: integer
+        default: 25
+        enum: [10, 25, 50, 100]
+    SearchParam:
+      name: search
+      in: query
+      description: Search string matched against text/JSONB fields
+      required: false
+      schema:
+        type: string
+    SortParam:
+      name: sort
+      in: query
+      description: Field name to sort by
+      required: false
+      schema:
+        type: string
+    OrderParam:
+      name: order
+      in: query
+      description: Sort direction (asc or desc)
+      required: false
+      schema:
+        type: string
+        enum: [asc, desc]
+    FromParam:
+      name: from
+      in: query
+      description: Start date filter (RFC3339 or YYYY-MM-DD)
+      required: false
+      schema:
+        type: string
+    ToParam:
+      name: to
+      in: query
+      description: End date filter (RFC3339 or YYYY-MM-DD)
+      required: false
+      schema:
+        type: string
 
   responses:
     BadRequest:
@@ -1165,6 +1739,22 @@ components:
           type: string
         de:
           type: string
+
+    PaginationMeta:
+      type: object
+      properties:
+        page:
+          type: integer
+          example: 1
+        limit:
+          type: integer
+          example: 25
+        total:
+          type: integer
+          example: 100
+        total_pages:
+          type: integer
+          example: 4
 
     SuccessResponse:
       type: object
