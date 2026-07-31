@@ -36,6 +36,7 @@
     "react-datepicker": "^9.1.0",
     "react-day-picker": "^10.0.1",
     "react-dom": "19.2.3",
+    "react-easy-crop": "^6.2.3",
     "react-hook-form": "^7.71.2",
     "react-to-print": "^3.2.0",
     "resend": "^6.8.0",
