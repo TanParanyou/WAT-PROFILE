@@ -3,28 +3,109 @@
 import React, { useState } from "react";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { DataTable, Column } from "@/components/ui/DataTable";
-import { useDataTable } from "@/hooks/useDataTable";
 import { auditLogAdminService } from "@/services/auditLogService";
 import type { AuditLog } from "@/types/auditLog";
 import { Drawer } from "@/components/ui/Drawer";
 import { Eye } from "lucide-react";
+import { useAdminListState } from "@/features/admin-list/useAdminListState";
+import { useAdminListQuery } from "@/features/admin-list/useAdminListQuery";
+import type { AdminFilterRecord, AdminFilterDefinition } from "@/features/admin-list/types";
+import { AdminListToolbar } from "@/components/admin/list/AdminListToolbar";
+import { AdminSearchInput } from "@/components/admin/list/AdminSearchInput";
+import { AdminMultiSelectFilter } from "@/components/admin/list/AdminMultiSelectFilter";
+import { AdminDateRangeFilter } from "@/components/admin/list/AdminDateRangeFilter";
+import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components/admin/list/AdminActiveFilterChips";
+import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
+import { exportToCsv } from "@/services/adminListExportService";
+import { useQuery } from "@tanstack/react-query";
+
+interface AuditLogFilters extends AdminFilterRecord {
+  action: string[];
+  entity_type: string[];
+  created_from?: string;
+  created_to?: string;
+}
 
 export default function AuditLogsPage() {
   const [selectedLog, setSelectedLog] = useState<AuditLog | null>(null);
 
-  const { data, pagination, sort, isLoading, onPageChange, onSort } =
-    useDataTable<AuditLog>({
-      queryKey: "audit-logs",
-      fetcher: (p) =>
-        auditLogAdminService.getList({ page: p.page, limit: p.limit }),
-    });
+  const listState = useAdminListState<AuditLogFilters>({
+    schema: {
+      defaultSort: "created_at",
+      defaultOrder: "desc",
+      multi: ["action", "entity_type"],
+      single: ["created_from", "created_to"],
+      allowedSorts: ["id", "action", "entity_type", "created_at"],
+    },
+  });
+
+  const listQuery = useAdminListQuery<AuditLog, AuditLogFilters>({
+    queryKey: ["admin", "audit-logs"],
+    params: listState.params,
+    fetcher: (params) => auditLogAdminService.getPaginated(params),
+    setPage: listState.actions.setPage,
+  });
+
+  const { data: filterOptions } = useQuery({
+    queryKey: ["admin", "audit-logs", "filter-options"],
+    queryFn: () => auditLogAdminService.getFilterOptions(),
+  });
+
+  const filterDefinitions: AdminFilterDefinition<AuditLogFilters>[] = [
+    {
+      key: "action",
+      kind: "multi",
+      label: "การทำงาน (Action)",
+      options: (filterOptions?.actions || []).map((a) => ({ value: a, label: a.toUpperCase() })),
+    },
+    {
+      key: "entity_type",
+      kind: "multi",
+      label: "ประเภทข้อมูล (Entity)",
+      options: (filterOptions?.entity_types || []).map((e) => ({ value: e, label: e })),
+    },
+  ];
+
+  const activeChips: AdminActiveFilterChip[] = [];
+  for (const act of listState.params.filters.action || []) {
+    activeChips.push({ key: "action", value: act, label: `Action: ${act}` });
+  }
+  for (const ent of listState.params.filters.entity_type || []) {
+    activeChips.push({ key: "entity_type", value: ent, label: `Entity: ${ent}` });
+  }
+  if (listState.params.filters.created_from) {
+    activeChips.push({ key: "created_from", value: listState.params.filters.created_from, label: `ตั้งแต่วันที่: ${listState.params.filters.created_from}` });
+  }
+  if (listState.params.filters.created_to) {
+    activeChips.push({ key: "created_to", value: listState.params.filters.created_to, label: `ถึงวันที่: ${listState.params.filters.created_to}` });
+  }
+
+  const handleExportCsv = () => {
+    exportToCsv(
+      listQuery.rows,
+      [
+        { header: "ID", accessor: (item) => item.id },
+        {
+          header: "Date",
+          accessor: (item) =>
+            item.created_at ? new Date(item.created_at).toLocaleString("th-TH") : "",
+        },
+        { header: "User", accessor: (item) => item.user?.name || "System" },
+        { header: "Action", accessor: (item) => item.action },
+        { header: "Entity Type", accessor: (item) => item.entity_type },
+        { header: "Entity ID", accessor: (item) => item.entity_id || "" },
+        { header: "IP Address", accessor: (item) => item.ip_address || "" },
+      ],
+      "audit_logs_export"
+    );
+  };
 
   const columns: Column<AuditLog>[] = [
     {
       header: "วันที่",
       accessorKey: "created_at",
       cell: (v) => (v ? new Date(v as string).toLocaleString("th-TH") : "-"),
-      sortable: false,
+      sortable: true,
     },
     {
       header: "ผู้ใช้",
@@ -42,6 +123,7 @@ export default function AuditLogsPage() {
     {
       header: "การทำงาน",
       accessorKey: "action",
+      sortable: true,
       cell: (v) => (
         <span
           className={`px-2 py-1 rounded text-xs font-medium ${
@@ -61,6 +143,7 @@ export default function AuditLogsPage() {
     {
       header: "ข้อมูลอ้างอิง",
       accessorKey: "entity_type",
+      sortable: true,
       cell: (_, row) => (
         <div>
           <span className="font-medium text-gray-700">{row.entity_type}</span>
@@ -107,16 +190,75 @@ export default function AuditLogsPage() {
         breadcrumbs={[{ label: "Audit Logs" }]}
       />
 
-      <DataTable
-        columns={columns}
-        data={data}
-        pagination={pagination}
-        sorting={sort}
-        isLoading={isLoading}
-        onPageChange={onPageChange}
-        onSort={onSort}
-        selectable={false}
-      />
+      <div className="mt-4">
+        <AdminListToolbar
+          activeFilterCount={activeChips.length}
+          search={
+            <AdminSearchInput
+              value={listState.draftSearch}
+              isDebouncing={listState.isDebouncing}
+              onChange={(val) => listState.actions.setSearch(val)}
+              onSubmit={(val) => listState.actions.setSearch(val, true)}
+              onClear={() => listState.actions.setSearch("", true)}
+            />
+          }
+          primaryFilters={
+            <>
+              <AdminMultiSelectFilter
+                label="การทำงาน (Action)"
+                options={filterDefinitions[0].options || []}
+                values={listState.params.filters.action || []}
+                onChange={(val) => listState.actions.setFilter("action", val)}
+              />
+              <AdminMultiSelectFilter
+                label="ประเภทข้อมูล (Entity)"
+                options={filterDefinitions[1].options || []}
+                values={listState.params.filters.entity_type || []}
+                onChange={(val) => listState.actions.setFilter("entity_type", val)}
+              />
+            </>
+          }
+          activeFilters={
+            <div className="flex items-center justify-between">
+              <AdminActiveFilterChips
+                filters={activeChips}
+                onRemove={(key, val) => listState.actions.removeFilterValue(key as keyof AuditLogFilters, val)}
+                onClear={listState.actions.clearFilters}
+              />
+              <AdminListExportButton
+                isExporting={false}
+                completed={0}
+                total={listQuery.pagination.total}
+                onExport={handleExportCsv}
+              />
+            </div>
+          }
+        >
+          <AdminDateRangeFilter
+            label="ช่วงวันที่"
+            from={listState.params.filters.created_from}
+            to={listState.params.filters.created_to}
+            onChange={({ from, to }) => {
+              listState.actions.setFilter("created_from", from);
+              listState.actions.setFilter("created_to", to);
+            }}
+          />
+        </AdminListToolbar>
+      </div>
+
+      <div className="mt-6">
+        <DataTable
+          columns={columns}
+          data={listQuery.rows}
+          pagination={listQuery.pagination}
+          sorting={{ key: listState.params.sort || "created_at", order: listState.params.order }}
+          isLoading={listQuery.isLoading}
+          onPageChange={listState.actions.setPage}
+          onLimitChange={listState.actions.setLimit}
+          onSort={(field) => listState.actions.setSort(field)}
+          selectable={false}
+        />
+      </div>
 
       <Drawer
         isOpen={!!selectedLog}

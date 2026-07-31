@@ -8,29 +8,93 @@ import { PermissionButton } from "@/components/admin/PermissionButton";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { useConfirm } from "@/hooks/useConfirm";
-import { useDataTable } from "@/hooks/useDataTable";
-import { Button } from "@/components/ui/Button";
-import { userAdminService } from "@/services/adminService";
+import { userAdminService, roleAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import { useTranslations } from "next-intl";
 import type { User } from "@/types/entities";
 import { useApiError } from "@/hooks/useApiError";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
-import { exportToCsv } from "@/utils/exportToCsv";
 import { Icons } from "@/components/ui/Icons";
+import { useAdminListState } from "@/features/admin-list/useAdminListState";
+import { useAdminListQuery } from "@/features/admin-list/useAdminListQuery";
+import type { AdminFilterRecord, AdminFilterDefinition } from "@/features/admin-list/types";
+import { AdminListToolbar } from "@/components/admin/list/AdminListToolbar";
+import { AdminSearchInput } from "@/components/admin/list/AdminSearchInput";
+import { AdminMultiSelectFilter } from "@/components/admin/list/AdminMultiSelectFilter";
+import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components/admin/list/AdminActiveFilterChips";
+import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
+import { exportToCsv } from "@/services/adminListExportService";
+import { useQuery } from "@tanstack/react-query";
+
+interface UserFilters extends AdminFilterRecord {
+  status: string[];
+  role: string[];
+}
 
 export default function UsersListPage() {
   const t = useTranslations("Admin");
-  const { data, pagination, sort, isLoading, onPageChange, onSort, fetchData } =
-    useDataTable<User>({
-      queryKey: "users",
-      fetcher: (p) => userAdminService.getAll({ page: p.page, limit: p.limit }),
-    });
   const { confirm, ConfirmDialog } = useConfirm();
   const { toast } = useToast();
   const { handleApiError } = useApiError();
   const selectedIds = useRowSelection<string>();
+
+  const listState = useAdminListState<UserFilters>({
+    schema: {
+      defaultSort: "id",
+      defaultOrder: "asc",
+      multi: ["status", "role"],
+      allowedSorts: ["id", "name", "email", "created_at"],
+    },
+  });
+
+  const listQuery = useAdminListQuery<User, UserFilters>({
+    queryKey: ["admin", "users"],
+    params: listState.params,
+    fetcher: (params) => userAdminService.getPaginated(params),
+    setPage: listState.actions.setPage,
+  });
+
+  const { data: rolesData } = useQuery({
+    queryKey: ["admin", "roles", "options"],
+    queryFn: async () => {
+      const res = await roleAdminService.getPaginated({
+        page: 1,
+        limit: 100,
+        search: "",
+        order: "asc",
+        filters: { status: [] },
+      });
+      return res.data || [];
+    },
+  });
+
+  const filterDefinitions: AdminFilterDefinition<UserFilters>[] = [
+    {
+      key: "status",
+      kind: "multi",
+      label: "สถานะ",
+      options: [
+        { value: "active", label: "Active" },
+        { value: "inactive", label: "Inactive" },
+      ],
+    },
+    {
+      key: "role",
+      kind: "multi",
+      label: "บทบาท",
+      options: (rolesData || []).map((r) => ({ value: String(r.id), label: r.name })),
+    },
+  ];
+
+  const activeChips: AdminActiveFilterChip[] = [];
+  for (const s of listState.params.filters.status || []) {
+    activeChips.push({ key: "status", value: s, label: `สถานะ: ${s}` });
+  }
+  for (const rId of listState.params.filters.role || []) {
+    const rName = rolesData?.find((r) => String(r.id) === rId)?.name || rId;
+    activeChips.push({ key: "role", value: rId, label: `บทบาท: ${rName}` });
+  }
 
   const handleDelete = async (id: string) => {
     await confirm({
@@ -42,7 +106,7 @@ export default function UsersListPage() {
           await userAdminService.delete(id);
           toast.success(t("common.success"));
           selectedIds.clearSelection();
-          fetchData();
+          listQuery.refetch();
         } catch (err: unknown) {
           handleApiError(err);
           throw err;
@@ -62,7 +126,7 @@ export default function UsersListPage() {
           await userAdminService.bulkDelete(selectedIds.selectedArray);
           toast.success(t("common.success"));
           selectedIds.clearSelection();
-          fetchData();
+          listQuery.refetch();
         } catch (err: unknown) {
           handleApiError(err);
           throw err;
@@ -72,25 +136,22 @@ export default function UsersListPage() {
   };
 
   const handleExportCsv = () => {
-    const exportData = data.map((item) => ({
-      id: item.id,
-      name: item.name || "",
-      email: item.email || "",
-      role: item.role?.name || "",
-      is_active: item.is_active ? "Active" : "Inactive",
-      last_login_at: item.last_login_at
-        ? new Date(item.last_login_at as string).toLocaleDateString("th-TH")
-        : "",
-    }));
-
-    exportToCsv("users_export", exportData, [
-      { label: "ID", key: "id" },
-      { label: "Name", key: "name" },
-      { label: "Email", key: "email" },
-      { label: "Role", key: "role" },
-      { label: "Status", key: "is_active" },
-      { label: "Last Login", key: "last_login_at" },
-    ]);
+    exportToCsv(
+      listQuery.rows,
+      [
+        { header: "ID", accessor: (item) => item.id },
+        { header: "Name", accessor: (item) => item.name || "" },
+        { header: "Email", accessor: (item) => item.email || "" },
+        { header: "Role", accessor: (item) => item.role?.name || "" },
+        { header: "Status", accessor: (item) => (item.is_active ? "Active" : "Inactive") },
+        {
+          header: "Last Login",
+          accessor: (item) =>
+            item.last_login_at ? new Date(item.last_login_at as string).toLocaleDateString("th-TH") : "",
+        },
+      ],
+      "users_export"
+    );
   };
 
   const columns: Column<User>[] = [
@@ -145,25 +206,61 @@ export default function UsersListPage() {
         title={t("users.title")}
         breadcrumbs={[{ label: t("users.title") }]}
         actions={
-          <div className="flex gap-2">
-            <Button
-              onClick={handleExportCsv}
-              variant="outline"
-              icon={<Icons.Download size={14} />}
-              className="shadow-sm"
-            >
-              Export CSV
-            </Button>
-            <PermissionButton
-              resource="users"
-              action="create"
-              icon={<Icons.Plus size={14} />}
-            >
-              <Link href="/admin/users/create">{t("users.create")}</Link>
-            </PermissionButton>
-          </div>
+          <PermissionButton
+            resource="users"
+            action="create"
+            icon={<Icons.Plus size={14} />}
+          >
+            <Link href="/admin/users/create">{t("users.create")}</Link>
+          </PermissionButton>
         }
       />
+
+      <div className="mt-4">
+        <AdminListToolbar
+          activeFilterCount={activeChips.length}
+          search={
+            <AdminSearchInput
+              value={listState.draftSearch}
+              isDebouncing={listState.isDebouncing}
+              onChange={(val) => listState.actions.setSearch(val)}
+              onSubmit={(val) => listState.actions.setSearch(val, true)}
+              onClear={() => listState.actions.setSearch("", true)}
+            />
+          }
+          primaryFilters={
+            <>
+              <AdminMultiSelectFilter
+                label="สถานะ"
+                options={filterDefinitions[0].options || []}
+                values={listState.params.filters.status || []}
+                onChange={(val) => listState.actions.setFilter("status", val)}
+              />
+              <AdminMultiSelectFilter
+                label="บทบาท"
+                options={filterDefinitions[1].options || []}
+                values={listState.params.filters.role || []}
+                onChange={(val) => listState.actions.setFilter("role", val)}
+              />
+            </>
+          }
+          activeFilters={
+            <div className="flex items-center justify-between">
+              <AdminActiveFilterChips
+                filters={activeChips}
+                onRemove={(key, val) => listState.actions.removeFilterValue(key as keyof UserFilters, val)}
+                onClear={listState.actions.clearFilters}
+              />
+              <AdminListExportButton
+                isExporting={false}
+                completed={0}
+                total={listQuery.pagination.total}
+                onExport={handleExportCsv}
+              />
+            </div>
+          }
+        />
+      </div>
 
       <BulkActionToolbar
         selectedCount={selectedIds.selectedCount}
@@ -183,12 +280,13 @@ export default function UsersListPage() {
       <div className="mt-6">
         <DataTable
           columns={columns}
-          data={data}
-          pagination={pagination}
-          sorting={sort}
-          isLoading={isLoading}
-          onPageChange={onPageChange}
-          onSort={onSort}
+          data={listQuery.rows}
+          pagination={listQuery.pagination}
+          sorting={{ key: listState.params.sort || "id", order: listState.params.order }}
+          isLoading={listQuery.isLoading}
+          onPageChange={listState.actions.setPage}
+          onLimitChange={listState.actions.setLimit}
+          onSort={(field) => listState.actions.setSort(field)}
           selectable={true}
           selectedIds={selectedIds.selectedIds as Set<string | number>}
           onSelect={(id) => selectedIds.toggleSelection(id as string)}

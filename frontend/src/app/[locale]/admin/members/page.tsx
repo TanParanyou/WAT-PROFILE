@@ -7,15 +7,29 @@ import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { useConfirm } from "@/hooks/useConfirm";
-import { useDataTable } from "@/hooks/useDataTable";
-import { Button } from "@/components/ui/Button";
 import { memberAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import type { Member } from "@/types/entities";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
-import { exportToCsv } from "@/utils/exportToCsv";
 import { Icons } from "@/components/ui/Icons";
+import { useAdminListState } from "@/features/admin-list/useAdminListState";
+import { useAdminListQuery } from "@/features/admin-list/useAdminListQuery";
+import type { AdminFilterRecord, AdminFilterDefinition } from "@/features/admin-list/types";
+import { AdminListToolbar } from "@/components/admin/list/AdminListToolbar";
+import { AdminSearchInput } from "@/components/admin/list/AdminSearchInput";
+import { AdminMultiSelectFilter } from "@/components/admin/list/AdminMultiSelectFilter";
+import { AdminDateRangeFilter } from "@/components/admin/list/AdminDateRangeFilter";
+import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components/admin/list/AdminActiveFilterChips";
+import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
+import { exportToCsv } from "@/services/adminListExportService";
+
+interface MemberFilters extends AdminFilterRecord {
+  status: string[];
+  type: string[];
+  created_from?: string;
+  created_to?: string;
+}
 
 export default function MembersPage() {
   const t = useTranslations("Admin");
@@ -23,12 +37,60 @@ export default function MembersPage() {
   const { confirm, ConfirmDialog } = useConfirm();
   const selectedIds = useRowSelection();
 
-  const { data, pagination, sort, onPageChange, onSort, isLoading, fetchData } =
-    useDataTable<Member>({
-      queryKey: "members",
-      fetcher: (p) =>
-        memberAdminService.getAll({ page: p.page, limit: p.limit }),
-    });
+  const listState = useAdminListState<MemberFilters>({
+    schema: {
+      defaultSort: "created_at",
+      defaultOrder: "desc",
+      multi: ["status", "type"],
+      single: ["created_from", "created_to"],
+      allowedSorts: ["id", "member_code", "first_name_th", "membership_type", "membership_status", "membership_date", "created_at"],
+    },
+  });
+
+  const listQuery = useAdminListQuery<Member, MemberFilters>({
+    queryKey: ["admin", "members"],
+    params: listState.params,
+    fetcher: (params) => memberAdminService.getPaginated(params),
+    setPage: listState.actions.setPage,
+  });
+
+  const filterDefinitions: AdminFilterDefinition<MemberFilters>[] = [
+    {
+      key: "status",
+      kind: "multi",
+      label: "สถานะสมาชิก",
+      options: [
+        { value: "active", label: "Active" },
+        { value: "pending", label: "Pending" },
+        { value: "inactive", label: "Inactive" },
+      ],
+    },
+    {
+      key: "type",
+      kind: "multi",
+      label: "ประเภทสมาชิก",
+      options: [
+        { value: "monk", label: "Monk" },
+        { value: "layperson", label: "Layperson" },
+        { value: "vip", label: "VIP" },
+        { value: "general", label: "General" },
+      ],
+    },
+  ];
+
+  const activeChips: AdminActiveFilterChip[] = [];
+  for (const s of listState.params.filters.status || []) {
+    activeChips.push({ key: "status", value: s, label: `สถานะ: ${s}` });
+  }
+  for (const tp of listState.params.filters.type || []) {
+    activeChips.push({ key: "type", value: tp, label: `ประเภท: ${tp}` });
+  }
+  if (listState.params.filters.created_from) {
+    activeChips.push({ key: "created_from", value: listState.params.filters.created_from, label: `ตั้งแต่วันที่: ${listState.params.filters.created_from}` });
+  }
+  if (listState.params.filters.created_to) {
+    activeChips.push({ key: "created_to", value: listState.params.filters.created_to, label: `ถึงวันที่: ${listState.params.filters.created_to}` });
+  }
 
   const handleDelete = async (id: number) => {
     await confirm({
@@ -40,10 +102,9 @@ export default function MembersPage() {
           await memberAdminService.delete(id);
           toast.success(t("common.success"));
           selectedIds.clearSelection();
-          fetchData();
+          listQuery.refetch();
         } catch (err) {
           toast.error(t("common.error"));
-
           throw err;
         }
       },
@@ -61,10 +122,9 @@ export default function MembersPage() {
           await memberAdminService.bulkDelete(selectedIds.selectedArray);
           toast.success(t("common.success"));
           selectedIds.clearSelection();
-          fetchData();
+          listQuery.refetch();
         } catch (err) {
           toast.error(t("common.error"));
-
           throw err;
         }
       },
@@ -72,29 +132,24 @@ export default function MembersPage() {
   };
 
   const handleExportCsv = () => {
-    const exportData = data.map((item) => ({
-      id: item.id,
-      member_code: item.member_code || "",
-      first_name_th: item.first_name_th || "",
-      last_name_th: item.last_name_th || "",
-      phone: item.phone || "",
-      membership_type: item.membership_type || "",
-      membership_status: item.membership_status || "",
-      membership_date: item.membership_date
-        ? new Date(item.membership_date).toLocaleDateString("th-TH")
-        : "",
-    }));
-
-    exportToCsv("members_export", exportData, [
-      { label: "ID", key: "id" },
-      { label: "Member Code", key: "member_code" },
-      { label: "First Name (TH)", key: "first_name_th" },
-      { label: "Last Name (TH)", key: "last_name_th" },
-      { label: "Phone", key: "phone" },
-      { label: "Type", key: "membership_type" },
-      { label: "Status", key: "membership_status" },
-      { label: "Date", key: "membership_date" },
-    ]);
+    exportToCsv(
+      listQuery.rows,
+      [
+        { header: "ID", accessor: (item) => item.id },
+        { header: "Member Code", accessor: (item) => item.member_code || "" },
+        { header: "First Name (TH)", accessor: (item) => item.first_name_th || "" },
+        { header: "Last Name (TH)", accessor: (item) => item.last_name_th || "" },
+        { header: "Phone", accessor: (item) => item.phone || "" },
+        { header: "Type", accessor: (item) => item.membership_type || "" },
+        { header: "Status", accessor: (item) => item.membership_status || "" },
+        {
+          header: "Date",
+          accessor: (item) =>
+            item.membership_date ? new Date(item.membership_date).toLocaleDateString("th-TH") : "",
+        },
+      ],
+      "members_export"
+    );
   };
 
   const columns: Column<Member>[] = [
@@ -121,7 +176,7 @@ export default function MembersPage() {
       header: t("members.fullName"),
       accessorKey: "first_name_th",
       sortable: true,
-      cell: (_, row) => `${row.first_name_th} ${row.last_name_th}`,
+      cell: (_, row) => `${row.first_name_th || ""} ${row.last_name_th || ""}`,
     },
     { header: t("columns.phone"), accessorKey: "phone" },
     {
@@ -165,17 +220,63 @@ export default function MembersPage() {
       <AdminPageHeader
         title={t("members.title")}
         breadcrumbs={[{ label: t("members.title") }]}
-        actions={
-          <Button
-            onClick={handleExportCsv}
-            variant="outline"
-            icon={<Icons.Download size={14} />}
-            className="shadow-sm"
-          >
-            {t("common.exportCsv")}
-          </Button>
-        }
       />
+
+      <div className="mt-4">
+        <AdminListToolbar
+          activeFilterCount={activeChips.length}
+          search={
+            <AdminSearchInput
+              value={listState.draftSearch}
+              isDebouncing={listState.isDebouncing}
+              onChange={(val) => listState.actions.setSearch(val)}
+              onSubmit={(val) => listState.actions.setSearch(val, true)}
+              onClear={() => listState.actions.setSearch("", true)}
+            />
+          }
+          primaryFilters={
+            <>
+              <AdminMultiSelectFilter
+                label="สถานะสมาชิก"
+                options={filterDefinitions[0].options || []}
+                values={listState.params.filters.status || []}
+                onChange={(val) => listState.actions.setFilter("status", val)}
+              />
+              <AdminMultiSelectFilter
+                label="ประเภทสมาชิก"
+                options={filterDefinitions[1].options || []}
+                values={listState.params.filters.type || []}
+                onChange={(val) => listState.actions.setFilter("type", val)}
+              />
+            </>
+          }
+          activeFilters={
+            <div className="flex items-center justify-between">
+              <AdminActiveFilterChips
+                filters={activeChips}
+                onRemove={(key, val) => listState.actions.removeFilterValue(key as keyof MemberFilters, val)}
+                onClear={listState.actions.clearFilters}
+              />
+              <AdminListExportButton
+                isExporting={false}
+                completed={0}
+                total={listQuery.pagination.total}
+                onExport={handleExportCsv}
+              />
+            </div>
+          }
+        >
+          <AdminDateRangeFilter
+            label="ช่วงวันที่สมัคร"
+            from={listState.params.filters.created_from}
+            to={listState.params.filters.created_to}
+            onChange={({ from, to }) => {
+              listState.actions.setFilter("created_from", from);
+              listState.actions.setFilter("created_to", to);
+            }}
+          />
+        </AdminListToolbar>
+      </div>
 
       <BulkActionToolbar
         selectedCount={selectedIds.selectedCount}
@@ -192,19 +293,22 @@ export default function MembersPage() {
         </PermissionGuard>
       </BulkActionToolbar>
 
-      <DataTable
-        columns={columns}
-        data={data}
-        pagination={pagination}
-        sorting={sort}
-        isLoading={isLoading}
-        onPageChange={onPageChange}
-        onSort={onSort}
-        selectable={true}
-        selectedIds={selectedIds.selectedIds as Set<string | number>}
-        onSelect={(id) => selectedIds.toggleSelection(id)}
-        onSelectAll={(ids) => selectedIds.selectAll(ids)}
-      />
+      <div className="mt-6">
+        <DataTable
+          columns={columns}
+          data={listQuery.rows}
+          pagination={listQuery.pagination}
+          sorting={{ key: listState.params.sort || "created_at", order: listState.params.order }}
+          isLoading={listQuery.isLoading}
+          onPageChange={listState.actions.setPage}
+          onLimitChange={listState.actions.setLimit}
+          onSort={(field) => listState.actions.setSort(field)}
+          selectable={true}
+          selectedIds={selectedIds.selectedIds as Set<string | number>}
+          onSelect={(id) => selectedIds.toggleSelection(id)}
+          onSelectAll={(ids) => selectedIds.selectAll(ids)}
+        />
+      </div>
       <ConfirmDialog />
     </div>
   );
