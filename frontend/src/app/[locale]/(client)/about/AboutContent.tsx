@@ -14,7 +14,7 @@ export default function AboutContent() {
       isFetching={query.isFetching}
       hasData={Boolean(query.data)}
       onRetry={() => query.refetch()}
-      loading={<div className="min-h-screen animate-pulse bg-zinc-100 dark:bg-zinc-950" />}
+      loading={<div className="min-h-screen animate-pulse bg-[#f7ecdd]" />}
     >
       <PublicAboutPageLayout page={query.data ?? null} />
     </PublicContentStateBoundary>

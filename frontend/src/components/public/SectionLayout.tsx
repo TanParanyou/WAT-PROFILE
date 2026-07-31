@@ -16,16 +16,16 @@ export function SectionLayout({
   action,
 }: SectionLayoutProps) {
   return (
-    <section className={`py-16 md:py-24 bg-white ${className}`}>
+    <section className={`bg-[#fffef2] py-16 md:py-24 ${className}`}>
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-12 gap-6">
+        <div className="mb-12 flex flex-col justify-between gap-6 md:flex-row md:items-end">
           <div className="max-w-3xl">
             {subtitle && (
-              <p className="text-amber-600 font-medium tracking-wide text-sm uppercase mb-2">
+              <p className="mb-2 text-sm font-medium tracking-wide text-[#945c26]">
                 {subtitle}
               </p>
             )}
-            <h2 className="text-3xl md:text-4xl font-extrabold text-gray-900 tracking-tight">
+            <h2 className="text-3xl font-bold tracking-[-0.03em] text-[#333] md:text-4xl">
               {title}
             </h2>
           </div>

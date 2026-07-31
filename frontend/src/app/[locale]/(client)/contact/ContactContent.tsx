@@ -155,13 +155,13 @@ export default function ContactContent({ locale, cmsPage }: ContactContentProps)
           <Field id="subject" label={t("subject")} value={formData.subject} onChange={handleChange} />
           <Field id="message" label={t("message")} value={formData.message} onChange={handleChange} textarea />
           {errorMsg && (
-            <div id="contact-form-error" role="alert" className="flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">
+            <div id="contact-form-error" role="alert" className="flex items-start gap-2 border border-red-700 bg-red-50 p-3 text-sm text-red-700">
               <AlertCircle size={16} className="mt-0.5 shrink-0" />
               <span>{errorMsg}</span>
             </div>
           )}
           {status === "success" && (
-            <div role="status" aria-live="polite" className="flex items-center gap-2 rounded-lg border border-emerald-200 bg-emerald-50 p-3 text-sm text-emerald-700">
+            <div role="status" aria-live="polite" className="flex items-center gap-2 border border-emerald-700 bg-emerald-50 p-3 text-sm text-emerald-700">
               <CheckCircle size={16} />
               <span>{successMessage}</span>
             </div>
