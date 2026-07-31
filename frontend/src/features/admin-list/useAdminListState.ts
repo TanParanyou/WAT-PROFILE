@@ -50,10 +50,11 @@ export function useAdminListState<TFilters extends AdminFilterRecord>(
   const [isDebouncing, setIsDebouncing] = useState(false);
   const searchTimerRef = useRef<NodeJS.Timeout | null>(null);
 
-  // Synchronize draft search when URL search parameter changes externally (e.g. back/forward)
-  useEffect(() => {
+  const [prevParamsSearch, setPrevParamsSearch] = useState(params.search);
+  if (prevParamsSearch !== params.search) {
+    setPrevParamsSearch(params.search);
     setDraftSearch(params.search);
-  }, [params.search]);
+  }
 
   const updateUrl = useCallback(
     (newParams: AdminListParams<TFilters>) => {
