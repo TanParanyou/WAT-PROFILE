@@ -26,6 +26,10 @@ func ErrorResponse(c *fiber.Ctx, statusCode int, message string) error {
 
 // PaginatedResponse sends a paginated JSON response
 func PaginatedResponse(c *fiber.Ctx, data interface{}, page, limit, total int) error {
+	totalPages := 0
+	if limit > 0 && total > 0 {
+		totalPages = (total + limit - 1) / limit
+	}
 	return c.JSON(fiber.Map{
 		"success": true,
 		"data":    data,
@@ -33,7 +37,7 @@ func PaginatedResponse(c *fiber.Ctx, data interface{}, page, limit, total int) e
 			"page":       page,
 			"limit":      limit,
 			"total":      total,
-			"totalPages": (total + limit - 1) / limit,
+			"totalPages": totalPages,
 		},
 	})
 }
