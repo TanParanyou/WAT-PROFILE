@@ -7,15 +7,31 @@ import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { useConfirm } from "@/hooks/useConfirm";
-import { useDataTable } from "@/hooks/useDataTable";
-import { Button } from "@/components/ui/Button";
 import { donationAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import type { Donation } from "@/types/entities";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
-import { exportToCsv } from "@/utils/exportToCsv";
 import { Icons } from "@/components/ui/Icons";
+import { useAdminListState } from "@/features/admin-list/useAdminListState";
+import { useAdminListQuery } from "@/features/admin-list/useAdminListQuery";
+import type { AdminFilterRecord, AdminFilterDefinition } from "@/features/admin-list/types";
+import { AdminListToolbar } from "@/components/admin/list/AdminListToolbar";
+import { AdminSearchInput } from "@/components/admin/list/AdminSearchInput";
+import { AdminMultiSelectFilter } from "@/components/admin/list/AdminMultiSelectFilter";
+import { AdminDateRangeFilter } from "@/components/admin/list/AdminDateRangeFilter";
+import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components/admin/list/AdminActiveFilterChips";
+import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
+import { exportToCsv } from "@/services/adminListExportService";
+import { useQuery } from "@tanstack/react-query";
+
+interface DonationFilters extends AdminFilterRecord {
+  status: string[];
+  category: string[];
+  channel: string[];
+  created_from?: string;
+  created_to?: string;
+}
 
 export default function DonationsPage() {
   const t = useTranslations("Admin");
@@ -23,12 +39,70 @@ export default function DonationsPage() {
   const { confirm, ConfirmDialog } = useConfirm();
   const selectedIds = useRowSelection();
 
-  const { data, pagination, sort, onPageChange, onSort, isLoading, fetchData } =
-    useDataTable<Donation>({
-      queryKey: "donations",
-      fetcher: (p) =>
-        donationAdminService.getAll({ page: p.page, limit: p.limit }),
-    });
+  const listState = useAdminListState<DonationFilters>({
+    schema: {
+      defaultSort: "created_at",
+      defaultOrder: "desc",
+      multi: ["status", "category", "channel"],
+      single: ["created_from", "created_to"],
+      allowedSorts: ["id", "receipt_number", "donor_name", "amount", "donation_method", "donation_date", "status", "created_at"],
+    },
+  });
+
+  const listQuery = useAdminListQuery<Donation, DonationFilters>({
+    queryKey: ["admin", "donations"],
+    params: listState.params,
+    fetcher: (params) => donationAdminService.getPaginated(params),
+    setPage: listState.actions.setPage,
+  });
+
+  const { data: filterOptions } = useQuery({
+    queryKey: ["admin", "donations", "filter-options"],
+    queryFn: () => donationAdminService.getFilterOptions(),
+  });
+
+  const filterDefinitions: AdminFilterDefinition<DonationFilters>[] = [
+    {
+      key: "status",
+      kind: "multi",
+      label: "สถานะ",
+      options: [
+        { value: "pending", label: "Pending" },
+        { value: "verified", label: "Verified" },
+        { value: "rejected", label: "Rejected" },
+      ],
+    },
+    {
+      key: "category",
+      kind: "multi",
+      label: "หมวดหมู่",
+      options: (filterOptions?.categories || []).map((c) => ({ value: String(c.id), label: c.name?.th || String(c.id) })),
+    },
+    {
+      key: "channel",
+      kind: "multi",
+      label: "ช่องทางการบริจาค",
+      options: (filterOptions?.payment_methods || []).map((ch: string) => ({ value: ch, label: ch })),
+    },
+  ];
+
+  const activeChips: AdminActiveFilterChip[] = [];
+  for (const s of listState.params.filters.status || []) {
+    activeChips.push({ key: "status", value: s, label: `สถานะ: ${s}` });
+  }
+  for (const cId of listState.params.filters.category || []) {
+    const cName = filterOptions?.categories?.find((c) => String(c.id) === cId)?.name?.th || cId;
+    activeChips.push({ key: "category", value: cId, label: `หมวดหมู่: ${cName}` });
+  }
+  for (const ch of listState.params.filters.channel || []) {
+    activeChips.push({ key: "channel", value: ch, label: `ช่องทาง: ${ch}` });
+  }
+  if (listState.params.filters.created_from) {
+    activeChips.push({ key: "created_from", value: listState.params.filters.created_from, label: `ตั้งแต่วันที่: ${listState.params.filters.created_from}` });
+  }
+  if (listState.params.filters.created_to) {
+    activeChips.push({ key: "created_to", value: listState.params.filters.created_to, label: `ถึงวันที่: ${listState.params.filters.created_to}` });
+  }
 
   const handleDelete = async (id: number) => {
     await confirm({
@@ -40,10 +114,9 @@ export default function DonationsPage() {
           await donationAdminService.delete(id);
           toast.success(t("common.success"));
           selectedIds.clearSelection();
-          fetchData();
+          listQuery.refetch();
         } catch (err) {
           toast.error(t("common.error"));
-
           throw err;
         }
       },
@@ -61,10 +134,9 @@ export default function DonationsPage() {
           await donationAdminService.bulkDelete(selectedIds.selectedArray);
           toast.success(t("common.success"));
           selectedIds.clearSelection();
-          fetchData();
+          listQuery.refetch();
         } catch (err) {
           toast.error(t("common.error"));
-
           throw err;
         }
       },
@@ -72,31 +144,25 @@ export default function DonationsPage() {
   };
 
   const handleExportCsv = () => {
-    const exportData = data.map((item) => ({
-      id: item.id,
-      receipt_number: item.receipt_number || "",
-      donor_name: item.donor_name || "",
-      amount: item.amount || 0,
-      currency: item.currency || "THB",
-      donation_method: item.donation_method || "",
-      category: item.category?.name?.th || "",
-      donation_date: item.donation_date
-        ? new Date(item.donation_date).toLocaleDateString("th-TH")
-        : "",
-      status: item.status || "",
-    }));
-
-    exportToCsv("donations_export", exportData, [
-      { label: "ID", key: "id" },
-      { label: "Receipt Number", key: "receipt_number" },
-      { label: "Donor Name", key: "donor_name" },
-      { label: "Amount", key: "amount" },
-      { label: "Currency", key: "currency" },
-      { label: "Method", key: "donation_method" },
-      { label: "Category", key: "category" },
-      { label: "Date", key: "donation_date" },
-      { label: "Status", key: "status" },
-    ]);
+    exportToCsv(
+      listQuery.rows,
+      [
+        { header: "ID", accessor: (item) => item.id },
+        { header: "Receipt Number", accessor: (item) => item.receipt_number || "" },
+        { header: "Donor Name", accessor: (item) => item.donor_name || "" },
+        { header: "Amount", accessor: (item) => item.amount || 0 },
+        { header: "Currency", accessor: (item) => item.currency || "THB" },
+        { header: "Method", accessor: (item) => item.donation_method || "" },
+        { header: "Category", accessor: (item) => item.category?.name?.th || "" },
+        {
+          header: "Date",
+          accessor: (item) =>
+            item.donation_date ? new Date(item.donation_date).toLocaleDateString("th-TH") : "",
+        },
+        { header: "Status", accessor: (item) => item.status || "" },
+      ],
+      "donations_export"
+    );
   };
 
   const columns: Column<Donation>[] = [
@@ -181,17 +247,69 @@ export default function DonationsPage() {
       <AdminPageHeader
         title={t("donations.title")}
         breadcrumbs={[{ label: t("donations.title") }]}
-        actions={
-          <Button
-            onClick={handleExportCsv}
-            variant="outline"
-            icon={<Icons.Download size={14} />}
-            className="shadow-sm"
-          >
-            {t("common.exportCsv")}
-          </Button>
-        }
       />
+
+      <div className="mt-4">
+        <AdminListToolbar
+          activeFilterCount={activeChips.length}
+          search={
+            <AdminSearchInput
+              value={listState.draftSearch}
+              isDebouncing={listState.isDebouncing}
+              onChange={(val) => listState.actions.setSearch(val)}
+              onSubmit={(val) => listState.actions.setSearch(val, true)}
+              onClear={() => listState.actions.setSearch("", true)}
+            />
+          }
+          primaryFilters={
+            <>
+              <AdminMultiSelectFilter
+                label="สถานะ"
+                options={filterDefinitions[0].options || []}
+                values={listState.params.filters.status || []}
+                onChange={(val) => listState.actions.setFilter("status", val)}
+              />
+              <AdminMultiSelectFilter
+                label="หมวดหมู่"
+                options={filterDefinitions[1].options || []}
+                values={listState.params.filters.category || []}
+                onChange={(val) => listState.actions.setFilter("category", val)}
+              />
+            </>
+          }
+          activeFilters={
+            <div className="flex items-center justify-between">
+              <AdminActiveFilterChips
+                filters={activeChips}
+                onRemove={(key, val) => listState.actions.removeFilterValue(key as keyof DonationFilters, val)}
+                onClear={listState.actions.clearFilters}
+              />
+              <AdminListExportButton
+                isExporting={false}
+                completed={0}
+                total={listQuery.pagination.total}
+                onExport={handleExportCsv}
+              />
+            </div>
+          }
+        >
+          <AdminMultiSelectFilter
+            label="ช่องทางการบริจาค"
+            options={filterDefinitions[2].options || []}
+            values={listState.params.filters.channel || []}
+            onChange={(val) => listState.actions.setFilter("channel", val)}
+          />
+          <AdminDateRangeFilter
+            label="ช่วงวันที่บริจาค"
+            from={listState.params.filters.created_from}
+            to={listState.params.filters.created_to}
+            onChange={({ from, to }) => {
+              listState.actions.setFilter("created_from", from);
+              listState.actions.setFilter("created_to", to);
+            }}
+          />
+        </AdminListToolbar>
+      </div>
 
       <BulkActionToolbar
         selectedCount={selectedIds.selectedCount}
@@ -208,19 +326,22 @@ export default function DonationsPage() {
         </PermissionGuard>
       </BulkActionToolbar>
 
-      <DataTable
-        columns={columns}
-        data={data}
-        pagination={pagination}
-        sorting={sort}
-        isLoading={isLoading}
-        onPageChange={onPageChange}
-        onSort={onSort}
-        selectable={true}
-        selectedIds={selectedIds.selectedIds as Set<string | number>}
-        onSelect={(id) => selectedIds.toggleSelection(id)}
-        onSelectAll={(ids) => selectedIds.selectAll(ids)}
-      />
+      <div className="mt-6">
+        <DataTable
+          columns={columns}
+          data={listQuery.rows}
+          pagination={listQuery.pagination}
+          sorting={{ key: listState.params.sort || "created_at", order: listState.params.order }}
+          isLoading={listQuery.isLoading}
+          onPageChange={listState.actions.setPage}
+          onLimitChange={listState.actions.setLimit}
+          onSort={(field) => listState.actions.setSort(field)}
+          selectable={true}
+          selectedIds={selectedIds.selectedIds as Set<string | number>}
+          onSelect={(id) => selectedIds.toggleSelection(id)}
+          onSelectAll={(ids) => selectedIds.selectAll(ids)}
+        />
+      </div>
       <ConfirmDialog />
     </div>
   );

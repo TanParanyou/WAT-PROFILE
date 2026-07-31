@@ -12,21 +12,37 @@ import { useConfirm } from "@/hooks/useConfirm";
 import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
-import { useDataTable } from "@/hooks/useDataTable";
 import { contactAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import type { ContactInquiry } from "@/types/entities";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
-import { exportToCsv } from "@/utils/exportToCsv";
+import { useAdminListState } from "@/features/admin-list/useAdminListState";
+import { useAdminListQuery } from "@/features/admin-list/useAdminListQuery";
+import type { AdminFilterRecord, AdminFilterDefinition } from "@/features/admin-list/types";
+import { AdminListToolbar } from "@/components/admin/list/AdminListToolbar";
+import { AdminSearchInput } from "@/components/admin/list/AdminSearchInput";
+import { AdminMultiSelectFilter } from "@/components/admin/list/AdminMultiSelectFilter";
+import { AdminDateRangeFilter } from "@/components/admin/list/AdminDateRangeFilter";
+import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components/admin/list/AdminActiveFilterChips";
+import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
+import { exportToCsv } from "@/services/adminListExportService";
+
+interface ContactFilters extends AdminFilterRecord {
+  status: string[];
+  subject: string[];
+  created_from?: string;
+  created_to?: string;
+}
 
 export default function ContactsPage() {
   const t = useTranslations("Admin");
 
   const statusOptions = [
-    { value: "pending", label: t("contacts.pending") },
+    { value: "new", label: "New" },
+    { value: "read", label: "Read" },
     { value: "replied", label: t("contacts.replied") },
-    { value: "closed", label: t("contacts.closed") },
+    { value: "archived", label: "Archived" },
   ];
 
   const [selectedContact, setSelectedContact] = useState<ContactInquiry | null>(
@@ -41,12 +57,61 @@ export default function ContactsPage() {
   const { toast } = useToast();
   const selectedIds = useRowSelection();
 
-  const { data, pagination, sort, onPageChange, onSort, isLoading, fetchData } =
-    useDataTable<ContactInquiry>({
-      queryKey: "contacts",
-      fetcher: (p) =>
-        contactAdminService.getAll({ page: p.page, limit: p.limit }),
-    });
+  const listState = useAdminListState<ContactFilters>({
+    schema: {
+      defaultSort: "created_at",
+      defaultOrder: "desc",
+      multi: ["status", "subject"],
+      single: ["created_from", "created_to"],
+      allowedSorts: ["id", "name", "email", "subject", "inquiry_type", "status", "created_at"],
+    },
+  });
+
+  const listQuery = useAdminListQuery<ContactInquiry, ContactFilters>({
+    queryKey: ["admin", "contacts"],
+    params: listState.params,
+    fetcher: (params) => contactAdminService.getPaginated(params),
+    setPage: listState.actions.setPage,
+  });
+
+  const filterDefinitions: AdminFilterDefinition<ContactFilters>[] = [
+    {
+      key: "status",
+      kind: "multi",
+      label: "สถานะ",
+      options: [
+        { value: "new", label: "New" },
+        { value: "read", label: "Read" },
+        { value: "replied", label: "Replied" },
+        { value: "archived", label: "Archived" },
+      ],
+    },
+    {
+      key: "subject",
+      kind: "multi",
+      label: "หัวข้อสอบถาม",
+      options: [
+        { value: "general", label: "General" },
+        { value: "merit", label: "Merit" },
+        { value: "ceremony", label: "Ceremony" },
+        { value: "other", label: "Other" },
+      ],
+    },
+  ];
+
+  const activeChips: AdminActiveFilterChip[] = [];
+  for (const s of listState.params.filters.status || []) {
+    activeChips.push({ key: "status", value: s, label: `สถานะ: ${s}` });
+  }
+  for (const sb of listState.params.filters.subject || []) {
+    activeChips.push({ key: "subject", value: sb, label: `หัวข้อ: ${sb}` });
+  }
+  if (listState.params.filters.created_from) {
+    activeChips.push({ key: "created_from", value: listState.params.filters.created_from, label: `ตั้งแต่วันที่: ${listState.params.filters.created_from}` });
+  }
+  if (listState.params.filters.created_to) {
+    activeChips.push({ key: "created_to", value: listState.params.filters.created_to, label: `ถึงวันที่: ${listState.params.filters.created_to}` });
+  }
 
   const handleViewReply = (contact: ContactInquiry) => {
     setSelectedContact(contact);
@@ -66,7 +131,7 @@ export default function ContactsPage() {
       );
       toast.success(t("common.success"));
       close();
-      fetchData();
+      listQuery.refetch();
     } catch {
       toast.error(t("common.error"));
     } finally {
@@ -84,10 +149,9 @@ export default function ContactsPage() {
           await contactAdminService.delete(contact.id);
           toast.success(t("common.success"));
           selectedIds.clearSelection();
-          fetchData();
+          listQuery.refetch();
         } catch (err) {
           toast.error(t("common.error"));
-
           throw err;
         }
       },
@@ -105,10 +169,9 @@ export default function ContactsPage() {
           await contactAdminService.bulkDelete(selectedIds.selectedArray);
           toast.success(t("common.success"));
           selectedIds.clearSelection();
-          fetchData();
+          listQuery.refetch();
         } catch (err) {
           toast.error(t("common.error"));
-
           throw err;
         }
       },
@@ -116,29 +179,24 @@ export default function ContactsPage() {
   };
 
   const handleExportCsv = () => {
-    const exportData = data.map((item) => ({
-      id: item.id,
-      name: item.name || "",
-      email: item.email || "",
-      phone: item.phone || "",
-      subject: item.subject || "",
-      inquiry_type: item.inquiry_type || "",
-      status: item.status || "",
-      created_at: item.created_at
-        ? new Date(item.created_at as string).toLocaleDateString("th-TH")
-        : "",
-    }));
-
-    exportToCsv("contacts_export", exportData, [
-      { label: "ID", key: "id" },
-      { label: "Name", key: "name" },
-      { label: "Email", key: "email" },
-      { label: "Phone", key: "phone" },
-      { label: "Subject", key: "subject" },
-      { label: "Type", key: "inquiry_type" },
-      { label: "Status", key: "status" },
-      { label: "Date", key: "created_at" },
-    ]);
+    exportToCsv(
+      listQuery.rows,
+      [
+        { header: "ID", accessor: (item) => item.id },
+        { header: "Name", accessor: (item) => item.name || "" },
+        { header: "Email", accessor: (item) => item.email || "" },
+        { header: "Phone", accessor: (item) => item.phone || "" },
+        { header: "Subject", accessor: (item) => item.subject || "" },
+        { header: "Type", accessor: (item) => item.inquiry_type || "" },
+        { header: "Status", accessor: (item) => item.status || "" },
+        {
+          header: "Date",
+          accessor: (item) =>
+            item.created_at ? new Date(item.created_at as string).toLocaleDateString("th-TH") : "",
+        },
+      ],
+      "contacts_export"
+    );
   };
 
   const handleModalClose = () => {
@@ -157,9 +215,12 @@ export default function ContactsPage() {
       accessorKey: "status",
       cell: (v) => {
         const map: Record<string, string> = {
+          new: "New",
+          read: "Read",
           pending: t("contacts.pending"),
           replied: t("contacts.replied"),
           closed: t("contacts.closed"),
+          archived: "Archived",
         };
         return <StatusBadge label={map[v] || v} />;
       },
@@ -207,17 +268,63 @@ export default function ContactsPage() {
       <AdminPageHeader
         title={t("contacts.title")}
         breadcrumbs={[{ label: t("contacts.title") }]}
-        actions={
-          <Button
-            onClick={handleExportCsv}
-            variant="outline"
-            icon={<Icons.Download size={14} />}
-            className="shadow-sm"
-          >
-            {t("common.exportCsv")}
-          </Button>
-        }
       />
+
+      <div className="mt-4">
+        <AdminListToolbar
+          activeFilterCount={activeChips.length}
+          search={
+            <AdminSearchInput
+              value={listState.draftSearch}
+              isDebouncing={listState.isDebouncing}
+              onChange={(val) => listState.actions.setSearch(val)}
+              onSubmit={(val) => listState.actions.setSearch(val, true)}
+              onClear={() => listState.actions.setSearch("", true)}
+            />
+          }
+          primaryFilters={
+            <>
+              <AdminMultiSelectFilter
+                label="สถานะ"
+                options={filterDefinitions[0].options || []}
+                values={listState.params.filters.status || []}
+                onChange={(val) => listState.actions.setFilter("status", val)}
+              />
+              <AdminMultiSelectFilter
+                label="หัวข้อสอบถาม"
+                options={filterDefinitions[1].options || []}
+                values={listState.params.filters.subject || []}
+                onChange={(val) => listState.actions.setFilter("subject", val)}
+              />
+            </>
+          }
+          activeFilters={
+            <div className="flex items-center justify-between">
+              <AdminActiveFilterChips
+                filters={activeChips}
+                onRemove={(key, val) => listState.actions.removeFilterValue(key as keyof ContactFilters, val)}
+                onClear={listState.actions.clearFilters}
+              />
+              <AdminListExportButton
+                isExporting={false}
+                completed={0}
+                total={listQuery.pagination.total}
+                onExport={handleExportCsv}
+              />
+            </div>
+          }
+        >
+          <AdminDateRangeFilter
+            label="ช่วงวันที่ติดต่อ"
+            from={listState.params.filters.created_from}
+            to={listState.params.filters.created_to}
+            onChange={({ from, to }) => {
+              listState.actions.setFilter("created_from", from);
+              listState.actions.setFilter("created_to", to);
+            }}
+          />
+        </AdminListToolbar>
+      </div>
 
       <BulkActionToolbar
         selectedCount={selectedIds.selectedCount}
@@ -234,19 +341,22 @@ export default function ContactsPage() {
         </PermissionGuard>
       </BulkActionToolbar>
 
-      <DataTable
-        columns={columns}
-        data={data}
-        pagination={pagination}
-        sorting={sort}
-        isLoading={isLoading}
-        onPageChange={onPageChange}
-        onSort={onSort}
-        selectable={true}
-        selectedIds={selectedIds.selectedIds as Set<string | number>}
-        onSelect={(id) => selectedIds.toggleSelection(id)}
-        onSelectAll={(ids) => selectedIds.selectAll(ids)}
-      />
+      <div className="mt-6">
+        <DataTable
+          columns={columns}
+          data={listQuery.rows}
+          pagination={listQuery.pagination}
+          sorting={{ key: listState.params.sort || "created_at", order: listState.params.order }}
+          isLoading={listQuery.isLoading}
+          onPageChange={listState.actions.setPage}
+          onLimitChange={listState.actions.setLimit}
+          onSort={(field) => listState.actions.setSort(field)}
+          selectable={true}
+          selectedIds={selectedIds.selectedIds as Set<string | number>}
+          onSelect={(id) => selectedIds.toggleSelection(id)}
+          onSelectAll={(ids) => selectedIds.selectAll(ids)}
+        />
+      </div>
 
       {/* View/Reply Modal */}
       <Modal
