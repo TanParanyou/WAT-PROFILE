@@ -4,7 +4,7 @@ export type AdminSortOrder = "asc" | "desc";
 export type AdminFilterValue = string | string[] | undefined;
 export type AdminFilterRecord = Record<string, AdminFilterValue>;
 
-export interface AdminListParams<TFilters extends AdminFilterRecord> {
+export interface AdminListParams<TFilters extends AdminFilterRecord = AdminFilterRecord> {
   page: number;
   limit: AdminPageSize;
   search: string;

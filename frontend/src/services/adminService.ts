@@ -1,5 +1,7 @@
 import api from "./api";
-import type { ApiResponse } from "@/types/api";
+import type { ApiResponse, PaginatedResponse } from "@/types/api";
+import type { AdminListParams } from "@/features/admin-list/types";
+import { serializeAdminListParams } from "@/features/admin-list/url";
 import type {
   Event,
   Monk,
@@ -18,10 +20,20 @@ import type {
 // Generic CRUD helpers สำหรับ admin endpoints
 export function createAdminService<T>(resource: string) {
   return {
+    async getPaginated(params: AdminListParams): Promise<PaginatedResponse<T>> {
+      const queryString = serializeAdminListParams(params);
+      const url = queryString ? `/admin/${resource}?${queryString}` : `/admin/${resource}`;
+      const res = await api.get<PaginatedResponse<T>>(url);
+      return res.data;
+    },
+
+    /**
+     * @deprecated Use `getPaginated` instead.
+     */
     async getAll(
       params?: Record<string, string | number>,
     ): Promise<{ data: T[]; total: number }> {
-      const res = await api.get(`/admin/${resource}`, { params });
+      const res = await api.get(`/admin/${resource}`, { params: { limit: 100, ...params } });
       const body = res.data;
       // รองรับทั้ง paginated และ non-paginated response
       if (body.pagination) {
@@ -63,88 +75,53 @@ export const eventAdminService = createAdminService<Event>("events");
 export const monkAdminService = createAdminService<Monk>("monks");
 export const galleryAdminService = createAdminService<Gallery>("gallery");
 export const scheduleAdminService = createAdminService<Schedule>("schedules");
-export const donationAdminService = createAdminService<Donation>("donations");
+export const donationAdminService = {
+  ...createAdminService<Donation>("donations"),
+  async getFilterOptions(): Promise<{
+    payment_methods: string[];
+    currencies: string[];
+    categories: DonationCategory[];
+  }> {
+    const res = await api.get(
+      "/admin/donations/filter-options"
+    );
+    return res.data.data || { payment_methods: [], currencies: [], categories: [] };
+  },
+};
 export const memberAdminService = createAdminService<Member>("members");
 export const userAdminService = createAdminService<User>("users");
 export const roleAdminService = createAdminService<Role>("roles");
+export const mediaAdminService = {
+  ...createAdminService<Record<string, unknown>>("media"),
+  async getFilterOptions(): Promise<{
+    categories: string[];
+    mime_types: string[];
+  }> {
+    const res = await api.get(
+      "/admin/media/filter-options"
+    );
+    return res.data.data || { categories: [], mime_types: [] };
+  },
+};
+export const auditLogAdminService = {
+  ...createAdminService<Record<string, unknown>>("audit-logs"),
+  async getFilterOptions(): Promise<{ actions: string[]; entity_types: string[] }> {
+    const res = await api.get<ApiResponse<{ actions: string[]; entity_types: string[] }>>(
+      "/admin/audit-logs/filter-options"
+    );
+    return res.data.data || { actions: [], entity_types: [] };
+  },
+};
 
 // Gallery Categories
-export const galleryCategoryAdminService = {
-  async getAll(): Promise<{ data: GalleryCategory[]; total: number }> {
-    const res = await api.get("/admin/gallery/categories");
-    const data = Array.isArray(res.data.data) ? res.data.data : [];
-    return { data, total: data.length };
-  },
-  async create(data: Partial<GalleryCategory>): Promise<GalleryCategory> {
-    const res = await api.post<ApiResponse<GalleryCategory>>(
-      "/admin/gallery/categories",
-      data,
-    );
-    return res.data.data!;
-  },
-  async update(
-    id: number,
-    data: Partial<GalleryCategory>,
-  ): Promise<GalleryCategory> {
-    const res = await api.put<ApiResponse<GalleryCategory>>(
-      `/admin/gallery/categories/${id}`,
-      data,
-    );
-    return res.data.data!;
-  },
-  async delete(id: number): Promise<void> {
-    await api.delete(`/admin/gallery/categories/${id}`);
-  },
-  async bulkDelete(ids: (number | string)[]): Promise<void> {
-    await api.delete(`/admin/gallery/categories/bulk`, { data: { ids } });
-  },
-};
+export const galleryCategoryAdminService = createAdminService<GalleryCategory>("gallery/categories");
 
 // Donation Categories
-export const donationCategoryAdminService = {
-  async getAll(): Promise<{ data: DonationCategory[]; total: number }> {
-    const res = await api.get("/admin/donation-categories");
-    const data = Array.isArray(res.data.data) ? res.data.data : [];
-    return { data, total: data.length };
-  },
-  async create(data: Partial<DonationCategory>): Promise<DonationCategory> {
-    const res = await api.post<ApiResponse<DonationCategory>>(
-      "/admin/donation-categories",
-      data,
-    );
-    return res.data.data!;
-  },
-  async update(
-    id: number,
-    data: Partial<DonationCategory>,
-  ): Promise<DonationCategory> {
-    const res = await api.put<ApiResponse<DonationCategory>>(
-      `/admin/donation-categories/${id}`,
-      data,
-    );
-    return res.data.data!;
-  },
-  async delete(id: number): Promise<void> {
-    await api.delete(`/admin/donation-categories/${id}`);
-  },
-  async bulkDelete(ids: (number | string)[]): Promise<void> {
-    await api.delete(`/admin/donation-categories/bulk`, { data: { ids } });
-  },
-};
+export const donationCategoryAdminService = createAdminService<DonationCategory>("donation-categories");
 
 // Contact
 export const contactAdminService = {
-  async getAll(
-    params?: Record<string, string | number>,
-  ): Promise<{ data: ContactInquiry[]; total: number }> {
-    const res = await api.get("/admin/contacts", { params });
-    const body = res.data;
-    if (body.pagination) {
-      return { data: body.data || [], total: body.pagination.total || 0 };
-    }
-    const data = Array.isArray(body.data) ? body.data : [];
-    return { data, total: data.length };
-  },
+  ...createAdminService<ContactInquiry>("contacts"),
   async updateStatus(
     id: number,
     status: string,
@@ -158,12 +135,6 @@ export const contactAdminService = {
       },
     );
     return res.data.data!;
-  },
-  async delete(id: number): Promise<void> {
-    await api.delete(`/admin/contacts/${id}`);
-  },
-  async bulkDelete(ids: (number | string)[]): Promise<void> {
-    await api.delete(`/admin/contacts/bulk`, { data: { ids } });
   },
 };
 
@@ -215,24 +186,8 @@ export const dashboardService = {
 
 // Registration
 export const registrationAdminService = {
-  async getAll(
-    params?: Record<string, string | number>,
-  ): Promise<{ data: Record<string, unknown>[]; total: number }> {
-    const res = await api.get("/admin/registrations", { params });
-    const body = res.data;
-    if (body.pagination) {
-      return { data: body.data || [], total: body.pagination.total || 0 };
-    }
-    const data = Array.isArray(body.data) ? body.data : [];
-    return { data, total: data.length };
-  },
-  async updateStatus(id: number, status: string): Promise<void> {
-    await api.put(`/admin/registrations/${id}/status`, { status });
-  },
-  async delete(id: number): Promise<void> {
-    await api.delete(`/admin/registrations/${id}`);
-  },
-  async bulkDelete(ids: (number | string)[]): Promise<void> {
-    await api.delete(`/admin/registrations/bulk`, { data: { ids } });
+  ...createAdminService<Record<string, unknown>>("registrations"),
+  async updateStatus(id: number, status: string, reason?: string): Promise<void> {
+    await api.put(`/admin/registrations/${id}/status`, { status, reason });
   },
 };

@@ -1,22 +1,19 @@
 import { createAdminService } from "./adminService";
-import { AuditLog } from "@/types/auditLog";
+import type { AuditLog } from "@/types/auditLog";
 import api from "./api";
 
-// Create base CRUD admin service for Audit Logs
-const baseAuditLogService = createAdminService<AuditLog>("/admin/audit-logs");
+const baseAuditLogService = createAdminService<AuditLog>("audit-logs");
 
-// Add specific functionality if needed, normally audit logs are read-only.
 export const auditLogAdminService = {
   ...baseAuditLogService,
 
-  // Custom fetch if we need filters
-  getList: async (params?: {
-    page?: number;
-    limit?: number;
-    entity_type?: string;
-    action?: string;
-  }) => {
+  getList: async (params?: Record<string, unknown>) => {
     const response = await api.get("/admin/audit-logs", { params });
     return response.data;
+  },
+
+  async getFilterOptions(): Promise<{ actions: string[]; entity_types: string[] }> {
+    const res = await api.get("/admin/audit-logs/filter-options");
+    return res.data.data || { actions: [], entity_types: [] };
   },
 };

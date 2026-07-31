@@ -1,6 +1,9 @@
 import api from "./api";
 import type { ApiResponse } from "@/types/api";
 import type { Media, MediaMetadata } from "@/types/entities";
+import { createAdminService } from "./adminService";
+
+const baseMediaAdminService = createAdminService<Media>("media");
 
 type UploadResponse = {
   url: string;
@@ -8,6 +11,8 @@ type UploadResponse = {
 };
 
 export const mediaService = {
+  ...baseMediaAdminService,
+
   async list(): Promise<Media[]> {
     const res = await api.get<ApiResponse<Media[]>>("/admin/media");
     return res.data.data || [];
@@ -44,5 +49,13 @@ export const mediaService = {
 
   async delete(id: string): Promise<void> {
     await api.delete(`/admin/media/${id}`);
+  },
+
+  async getFilterOptions(): Promise<{
+    categories: string[];
+    mime_types: string[];
+  }> {
+    const res = await api.get("/admin/media/filter-options");
+    return res.data.data || { categories: [], mime_types: [] };
   },
 };

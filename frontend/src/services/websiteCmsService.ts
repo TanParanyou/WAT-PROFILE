@@ -1,6 +1,8 @@
 import api from "./api";
 import { publicApi } from "./publicService";
-import type { ApiResponse } from "@/types/api";
+import type { ApiResponse, PaginatedResponse } from "@/types/api";
+import type { AdminListParams } from "@/features/admin-list/types";
+import { serializeAdminListParams } from "@/features/admin-list/url";
 import type {
   ArchiveContentSectionRequest,
   ContentPage,
@@ -81,6 +83,17 @@ function normalizePublicPage(page: PublicContentPage): PublicContentPage {
 const toPublicPage = (page: ContentPage): PublicContentPage => contentPageToPublishedPreview(page);
 
 export const websiteCmsAdminService = {
+  async getPaginatedPages(params: AdminListParams): Promise<PaginatedResponse<ContentPage>> {
+    const queryString = serializeAdminListParams(params);
+    const url = queryString ? `/admin/website/pages?${queryString}` : `/admin/website/pages`;
+    const res = await api.get<PaginatedResponse<ContentPage>>(url);
+    const data = (res.data.data || []).map(normalizePage);
+    return {
+      ...res.data,
+      data,
+    };
+  },
+
   async listPages() {
     const res = await api.get<ApiResponse<ContentPage[]>>("/admin/website/pages");
     const payload = unwrapApiResponse(res.data, "Failed to fetch content pages");
