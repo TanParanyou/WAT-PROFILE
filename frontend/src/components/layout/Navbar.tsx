@@ -2,7 +2,7 @@
 
 import { Menu, X } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname } from "@/navigation";
 import { usePublicSiteSettings } from "@/features/public/settings/PublicSiteSettingsProvider";
@@ -18,7 +18,6 @@ const languageOptions = [
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
-  const [scrolled, setScrolled] = useState(false);
   const locale = useLocale();
   const pathname = usePathname();
   const t = useTranslations("Navbar");
@@ -34,15 +33,8 @@ export default function Navbar() {
     { name: t("contact"), href: "/contact" },
   ];
 
-  useEffect(() => {
-    const onScroll = () => setScrolled(window.scrollY > 20);
-    onScroll();
-    window.addEventListener("scroll", onScroll);
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
   return (
-    <header className={`fixed top-0 z-50 w-full border-b border-[#333] bg-[#fffef2] text-[#333] transition-colors duration-200 ${scrolled || isOpen ? "" : ""}`}>
+    <header className="fixed top-0 z-50 w-full border-b border-[#333] bg-[#fffef2] text-[#333]">
       <div className="mx-auto flex min-h-[72px] max-w-[1440px] items-center justify-between gap-4 px-6 sm:px-10 lg:px-[6vw]">
         <Link href="/" className="relative z-50 flex min-w-0 items-center gap-3 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26]">
           <span className="relative flex size-11 shrink-0 items-center justify-center overflow-hidden border border-[#333] bg-[#fffef2]">
@@ -77,7 +69,7 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden items-center lg:flex" aria-label={t("languageNavigation")}>
-          <LanguageSwitcher scrolled={scrolled} />
+          <LanguageSwitcher />
         </div>
 
         <button

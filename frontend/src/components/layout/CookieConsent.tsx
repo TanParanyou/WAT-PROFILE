@@ -40,16 +40,16 @@ export default function CookieConsent() {
           className="fixed bottom-0 left-0 right-0 z-100 px-4 pb-4 md:pb-6 pointer-events-none"
         >
           <div className="container mx-auto max-w-5xl pointer-events-auto">
-            <div className="bg-zinc-950/95 backdrop-blur-md border border-white/10 rounded-3xl p-6 md:p-8 md:flex md:items-center md:justify-between gap-8 shadow-2xl ring-1 ring-black/5">
+            <div className="border border-[#333] bg-[#fffef2] p-6 text-[#333] md:flex md:items-center md:justify-between md:gap-8 md:p-8">
               <div className="space-y-3 md:max-w-xl">
-                <h3 className="text-xl font-heading font-bold text-white">
+                <h3 className="text-xl font-heading font-medium">
                   {t("title")}
                 </h3>
-                <p className="text-sm text-zinc-400 leading-relaxed">
+                <p className="text-sm leading-relaxed text-[#505050]">
                   {t("description")}{" "}
                   <Link
                     href="/privacy"
-                    className="text-primary hover:text-primary/80 transition-colors underline decoration-primary/30 underline-offset-4 hover:decoration-primary"
+                    className="text-[#945c26] transition-colors underline decoration-[#945c26]/40 underline-offset-4 hover:decoration-[#945c26]"
                   >
                     {t("readMore")}
                   </Link>
@@ -59,13 +59,13 @@ export default function CookieConsent() {
               <div className="mt-6 md:mt-0 flex flex-col sm:flex-row gap-3 min-w-fit">
                 <button
                   onClick={handleDecline}
-                  className="px-6 py-3 rounded-xl border border-white/10 text-zinc-300 font-medium text-sm hover:bg-white/5 transition-colors uppercase tracking-wider"
+                  className="border border-[#333] px-6 py-[13px] text-sm font-medium text-[#333] transition-colors hover:bg-[#f7ecdd]"
                 >
                   {t("decline")}
                 </button>
                 <button
                   onClick={handleAccept}
-                  className="px-6 py-3 rounded-xl bg-white text-black font-bold text-sm hover:bg-zinc-200 transition-colors shadow-lg shadow-white/10 uppercase tracking-wider"
+                  className="bg-[#333] px-6 py-[13px] text-sm font-semibold text-[#fffef2] transition-colors hover:bg-[#242424]"
                 >
                   {t("acceptAll")}
                 </button>

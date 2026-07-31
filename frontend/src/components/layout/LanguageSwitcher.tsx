@@ -12,11 +12,7 @@ const languageOptions = [
   { code: "de", label: "Deutsch", fullName: "Deutsch" },
 ] as const;
 
-interface LanguageSwitcherProps {
-  scrolled?: boolean;
-}
-
-export function LanguageSwitcher({ scrolled }: LanguageSwitcherProps) {
+export function LanguageSwitcher() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
   const locale = useLocale();
@@ -38,11 +34,7 @@ export function LanguageSwitcher({ scrolled }: LanguageSwitcherProps) {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className={`flex items-center gap-1.5 rounded-full px-3 py-1.5 text-sm font-medium transition-all focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary ${
-          scrolled
-            ? "border border-gray-200 bg-white text-gray-700 shadow-sm hover:bg-gray-50"
-            : "border border-white/20 bg-black/20 text-white backdrop-blur-md hover:bg-black/30"
-        }`}
+        className="flex items-center gap-1.5 border border-[#333] bg-[#fffef2] px-3 py-1.5 text-sm font-medium text-[#333] transition-colors hover:bg-[#f7ecdd] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26]"
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
@@ -53,23 +45,23 @@ export function LanguageSwitcher({ scrolled }: LanguageSwitcherProps) {
       <AnimatePresence>
         {isOpen && (
           <motion.div
-            initial={{ opacity: 0, y: 10, scale: 0.95 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.95 }}
+            exit={{ opacity: 0, y: 8 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-0 mt-2 w-40 origin-top-right overflow-hidden rounded-xl bg-white shadow-xl ring-1 ring-black/5 focus:outline-none"
+            className="absolute right-0 mt-2 w-40 origin-top-right overflow-hidden border border-[#333] bg-[#fffef2] focus:outline-none"
           >
-            <div className="p-1.5 space-y-0.5">
+            <div className="p-1">
               {languageOptions.map((language) => (
                 <Link
                   key={language.code}
                   href={pathname}
                   locale={language.code}
                   onClick={() => setIsOpen(false)}
-                  className={`flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-sm transition-colors ${
+                  className={`flex w-full items-center justify-between px-3 py-2.5 text-sm transition-colors ${
                     locale === language.code
-                      ? "bg-primary/10 text-primary font-medium"
-                      : "text-gray-700 hover:bg-gray-100"
+                      ? "bg-[#333] font-medium text-[#fffef2]"
+                      : "text-[#333] hover:bg-[#f7ecdd]"
                   }`}
                 >
                   <span>{language.label}</span>

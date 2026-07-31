@@ -11,13 +11,11 @@ export default function StickySocials() {
       name: "Facebook",
       icon: Facebook,
       href: settings.social.facebook,
-      color: "bg-[#1877F2]",
     },
     {
       name: "YouTube",
       icon: Youtube,
       href: settings.social.youtube,
-      color: "bg-[#FF0000]",
     },
     {
       name: "Email",
@@ -25,7 +23,6 @@ export default function StickySocials() {
       href: settings.email
         ? `mailto:${settings.email}`
         : null,
-      color: "bg-green-600",
     },
   ].filter((item) => item.href);
 
@@ -43,7 +40,7 @@ export default function StickySocials() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.5 + index * 0.1 }}
-          className={`w-12 h-12 rounded-full flex items-center justify-center text-white shadow-lg hover:scale-110 hover:-translate-y-1 transition-all duration-300 ${social.color}`}
+          className="flex h-12 w-12 items-center justify-center border border-[#333] bg-[#fffef2] text-[#333] transition-colors hover:bg-[#f7ecdd] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26]"
           title={social.name}
         >
           <social.icon size={24} />

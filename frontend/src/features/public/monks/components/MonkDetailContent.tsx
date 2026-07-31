@@ -47,8 +47,8 @@ export function MonkDetailContent({ slug, initialMonk }: MonkDetailContentProps)
   return (
     <div className="grid gap-8 lg:grid-cols-12">
       <div className="lg:col-span-4">
-        <div className="overflow-hidden rounded-2xl border border-primary/15 bg-white shadow-sm lg:sticky lg:top-24">
-          <div className="relative aspect-[3/4] bg-zinc-100 dark:bg-zinc-800">
+        <div className="overflow-hidden border border-[#333] bg-[#fffef2] lg:sticky lg:top-24">
+          <div className="relative aspect-[3/4] bg-[#f7ecdd]">
             <PublicImage
               src={imageUrl}
               alt={getLocalizedText(monk.name, locale)}
@@ -58,13 +58,13 @@ export function MonkDetailContent({ slug, initialMonk }: MonkDetailContentProps)
               sizes="(max-width: 1200px) 100vw, 33vw"
             />
           </div>
-          {monk.title ? <div className="border-t border-primary/10 p-6">
-            <div className="flex items-center gap-3 text-gray-600 dark:text-gray-300">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-primary/10 text-primary">
+          {monk.title ? <div className="border-t border-[#333] p-6">
+            <div className="flex items-center gap-3 text-[#505050]">
+              <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-[#333] text-[#945c26]">
                 <User size={20} />
               </div>
               <div>
-                <p className="text-xs font-bold uppercase text-gray-500">{t("role")}</p>
+                <p className="text-xs font-bold text-[#666]">{t("role")}</p>
                 <p className="font-medium">{getLocalizedText(monk.title, locale)}</p>
               </div>
             </div>
@@ -73,15 +73,15 @@ export function MonkDetailContent({ slug, initialMonk }: MonkDetailContentProps)
       </div>
 
       <div className="lg:col-span-8">
-        <article className="rounded-2xl border border-primary/15 bg-white p-8 md:p-12">
-          <h2 className="mb-8 font-heading text-3xl font-bold text-text-900 md:text-4xl">
+        <article className="border border-[#333] bg-[#fffef2] p-8 md:p-12">
+          <h2 className="mb-8 font-heading text-3xl font-medium text-[#333] md:text-4xl">
             {t("biography")}
           </h2>
           <div className="max-w-[75ch]">
             {monk.bio ? (
               <RichTextContent value={monk.bio} locale={locale} defaultLocale="th" />
             ) : (
-              <p className="text-sm text-text-700">{tState("emptyContent")}</p>
+              <p className="text-sm text-[#666]">{tState("emptyContent")}</p>
             )}
           </div>
         </article>

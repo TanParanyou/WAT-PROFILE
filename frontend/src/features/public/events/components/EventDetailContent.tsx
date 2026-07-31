@@ -75,8 +75,8 @@ export function EventDetailContent({ slug, initialEvent }: EventDetailContentPro
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <section className="border-b border-primary/15 py-6">
-        <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-text-800">
+      <section className="border-b border-[#333] py-6">
+        <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-[#505050]">
           <span className="flex items-center gap-2">
             <Calendar size={16} aria-hidden="true" />
             {formatDateRange(event.start_date, event.end_date, locale)}
@@ -98,7 +98,7 @@ export function EventDetailContent({ slug, initialEvent }: EventDetailContentPro
               href={event.map_url}
               target="_blank"
               rel="noreferrer"
-              className="inline-flex min-h-11 items-center rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-primary-600 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+              className="inline-flex min-h-11 items-center bg-[#333] px-5 py-[13px] text-sm font-semibold text-[#fffef2] transition-colors hover:bg-[#242424] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26]"
             >
               {t("openMap")}
             </a>
@@ -107,7 +107,7 @@ export function EventDetailContent({ slug, initialEvent }: EventDetailContentPro
             href={calendarUrl}
             target="_blank"
             rel="noreferrer"
-            className="inline-flex min-h-11 items-center rounded-full border border-primary/25 bg-white px-5 py-2.5 text-sm font-semibold text-text-800 transition-colors hover:border-primary hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+            className="inline-flex min-h-11 items-center border border-[#333] bg-[#fffef2] px-5 py-[13px] text-sm font-semibold text-[#333] transition-colors hover:bg-[#f7ecdd] hover:text-[#945c26] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26]"
           >
             {t("addToCalendar")}
           </a>
@@ -120,22 +120,22 @@ export function EventDetailContent({ slug, initialEvent }: EventDetailContentPro
         {event.description ? (
           <RichTextContent value={event.description} locale={locale} defaultLocale="th" />
         ) : (
-          <p className="text-sm text-text-700">{t("note")}</p>
+          <p className="text-sm text-[#666]">{t("note")}</p>
         )}
       </section>
 
       {scheduleEntries.length > 0 ? (
-        <section className="overflow-hidden rounded-2xl border border-primary/15 bg-white">
-          <div className="border-b border-primary/15 p-6">
-            <h2 className="font-heading text-2xl font-bold text-text-900">{t("schedule")}</h2>
+        <section className="overflow-hidden border border-[#333] bg-[#fffef2]">
+          <div className="border-b border-[#333] p-6">
+            <h2 className="font-heading text-2xl font-medium text-[#333]">{t("schedule")}</h2>
           </div>
-          <div className="divide-y divide-primary/10">
+          <div className="divide-y divide-[#333]">
             {scheduleEntries.map((schedule) => (
               <div key={schedule.id} className="grid gap-3 p-6 md:grid-cols-[140px_1fr]">
-                <div className="font-mono text-sm font-semibold text-primary-700">
+                <div className="text-sm font-semibold text-[#945c26]">
                   {formatTimeRange(schedule.start_time, schedule.end_time, locale)}
                 </div>
-                <div className="text-sm text-text-800">{getLocalizedText(schedule.activity, locale)}</div>
+                <div className="text-sm text-[#505050]">{getLocalizedText(schedule.activity, locale)}</div>
               </div>
             ))}
           </div>
