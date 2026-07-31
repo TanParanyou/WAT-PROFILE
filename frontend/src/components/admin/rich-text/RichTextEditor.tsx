@@ -6,6 +6,7 @@ import { richTextExtensions } from "@/lib/rich-text/extensions";
 import type { RichTextDocument } from "@/lib/rich-text/document";
 import { setEditorContentWithoutHistory } from "@/lib/rich-text/editor-commands";
 import { RichTextToolbar } from "./RichTextToolbar";
+import { ImageBubbleMenu } from "./ImageBubbleMenu";
 import { useTranslations } from "next-intl";
 
 type RichTextEditorProps = {
@@ -70,9 +71,10 @@ export function RichTextEditor({
   return (
     <div className={`border rounded-lg overflow-hidden bg-white transition-all ${ringStyle}`}>
       {editor && <RichTextToolbar editor={editor} disabled={disabled} />}
+      {editor && <ImageBubbleMenu editor={editor} />}
       
       <div
-        className="relative min-h-[180px] cursor-text p-4 max-h-[500px] overflow-y-auto font-sans text-sm text-zinc-900 [&_.ProseMirror]:min-h-[148px] [&_.ProseMirror]:outline-none [&_.ProseMirror_ul]:my-2 [&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ul]:pl-6 [&_.ProseMirror_ol]:my-2 [&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_ol]:pl-6 [&_.ProseMirror_li]:my-1 [&_.ProseMirror_blockquote]:my-3 [&_.ProseMirror_blockquote]:border-l-4 [&_.ProseMirror_blockquote]:border-amber-500 [&_.ProseMirror_blockquote]:bg-amber-50 [&_.ProseMirror_blockquote]:px-4 [&_.ProseMirror_blockquote]:py-2 [&_.ProseMirror_blockquote]:text-zinc-700 [&_.ProseMirror_hr]:my-4 [&_.ProseMirror_hr]:border-zinc-300 [&_.ProseMirror_a]:font-medium [&_.ProseMirror_a]:text-amber-700 [&_.ProseMirror_a]:underline [&_.ProseMirror_a]:underline-offset-2"
+        className="relative min-h-[180px] cursor-text p-4 max-h-[500px] overflow-y-auto font-sans text-sm text-zinc-900 [&_.ProseMirror]:min-h-[148px] [&_.ProseMirror]:whitespace-pre-wrap [&_.ProseMirror]:outline-none [&_.ProseMirror_h2]:text-xl [&_.ProseMirror_h2]:font-bold [&_.ProseMirror_h2]:mt-6 [&_.ProseMirror_h2]:mb-4 [&_.ProseMirror_h3]:text-lg [&_.ProseMirror_h3]:font-semibold [&_.ProseMirror_h3]:mt-5 [&_.ProseMirror_h3]:mb-3 [&_.ProseMirror_ul]:my-2 [&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ul]:pl-6 [&_.ProseMirror_ol]:my-2 [&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_ol]:pl-6 [&_.ProseMirror_li]:my-1 [&_.ProseMirror_blockquote]:my-3 [&_.ProseMirror_blockquote]:border-l-4 [&_.ProseMirror_blockquote]:border-amber-500 [&_.ProseMirror_blockquote]:bg-amber-50 [&_.ProseMirror_blockquote]:px-4 [&_.ProseMirror_blockquote]:py-2 [&_.ProseMirror_blockquote]:text-zinc-700 [&_.ProseMirror_hr]:my-4 [&_.ProseMirror_hr]:border-zinc-300 [&_.ProseMirror_a]:font-medium [&_.ProseMirror_a]:text-amber-700 [&_.ProseMirror_a]:underline [&_.ProseMirror_a]:underline-offset-2 [&_.ProseMirror_img[data-align=left]]:float-left [&_.ProseMirror_img[data-align=left]]:mr-4 [&_.ProseMirror_img[data-align=left]]:mb-4 [&_.ProseMirror_img[data-align=right]]:float-right [&_.ProseMirror_img[data-align=right]]:ml-4 [&_.ProseMirror_img[data-align=right]]:mb-4 [&_.ProseMirror_img[data-align=center]]:mx-auto [&_.ProseMirror_img[data-align=center]]:block [&_.ProseMirror_img]:clear-both"
         onMouseDown={(event) => {
           if (disabled || event.target !== event.currentTarget) return;
           event.preventDefault();

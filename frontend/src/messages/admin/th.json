@@ -18,6 +18,12 @@
         "link": "ลิงก์",
         "image": "รูปภาพ",
         "clearFormat": "ล้างรูปแบบ",
+        "alignLeft": "จัดชิดซ้าย",
+        "alignCenter": "จัดกึ่งกลาง",
+        "alignRight": "จัดชิดขวา",
+        "alignJustify": "กระจายเต็มบรรทัด",
+        "fontSize": "ขนาดตัวอักษร",
+        "size": "ขนาด",
         "unavailable": "ไม่สามารถใช้งานได้ในสถานะปัจจุบัน"
       },
       "blockType": {

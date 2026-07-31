@@ -18,6 +18,12 @@
         "link": "Link",
         "image": "Image",
         "clearFormat": "Clear formatting",
+        "alignLeft": "Align Left",
+        "alignCenter": "Align Center",
+        "alignRight": "Align Right",
+        "alignJustify": "Justify",
+        "fontSize": "Font Size",
+        "size": "Size",
         "unavailable": "Unavailable in current state"
       },
       "blockType": {

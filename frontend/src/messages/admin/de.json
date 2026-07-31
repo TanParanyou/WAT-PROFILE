@@ -18,6 +18,12 @@
         "link": "Link",
         "image": "Bild",
         "clearFormat": "Formatierung löschen",
+        "alignLeft": "Linksbündig",
+        "alignCenter": "Zentriert",
+        "alignRight": "Rechtsbündig",
+        "alignJustify": "Blocksatz",
+        "fontSize": "Schriftgröße",
+        "size": "Größe",
         "unavailable": "Im aktuellen Zustand nicht verfügbar"
       },
       "blockType": {

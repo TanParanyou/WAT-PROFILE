@@ -12,6 +12,10 @@ export type RichTextToolbarState = {
   orderedList: boolean;
   blockquote: boolean;
   link: boolean;
+  alignLeft: boolean;
+  alignCenter: boolean;
+  alignRight: boolean;
+  alignJustify: boolean;
 };
 
 export function getRichTextToolbarState(editor: Editor): RichTextToolbarState {
@@ -30,6 +34,10 @@ export function getRichTextToolbarState(editor: Editor): RichTextToolbarState {
     orderedList: editor.isActive("orderedList"),
     blockquote: editor.isActive("blockquote"),
     link: editor.isActive("link"),
+    alignLeft: editor.isActive({ textAlign: "left" }),
+    alignCenter: editor.isActive({ textAlign: "center" }),
+    alignRight: editor.isActive({ textAlign: "right" }),
+    alignJustify: editor.isActive({ textAlign: "justify" }),
   };
 }
 

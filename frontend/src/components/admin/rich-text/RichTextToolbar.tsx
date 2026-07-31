@@ -16,6 +16,10 @@ import {
   Minus,
   Link,
   Image as ImageIcon,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  AlignJustify,
 } from "lucide-react";
 import { MediaPickerDialog } from "../media/MediaPickerDialog";
 import { RichTextLinkDialog } from "./RichTextLinkDialog";
@@ -111,14 +115,32 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
   const handleBlockTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (disabled) return;
     const type = e.target.value;
-    const chain = editor.chain().focus();
+    const { from, to } = editor.state.selection;
+    const chain = editor.chain().focus().setTextSelection({ from, to });
     
     if (type === "heading2") {
-      chain.toggleHeading({ level: 2 }).run();
+      chain.setHeading({ level: 2 }).run();
     } else if (type === "heading3") {
-      chain.toggleHeading({ level: 3 }).run();
+      chain.setHeading({ level: 3 }).run();
     } else {
       chain.setParagraph().run();
+    }
+  };
+
+  const getFontSize = () => {
+    return editor.getAttributes("textStyle").fontSize || "default";
+  };
+
+  const handleFontSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    if (disabled) return;
+    const size = e.target.value;
+    const { from, to } = editor.state.selection;
+    const chain = editor.chain().focus().setTextSelection({ from, to });
+
+    if (size === "default") {
+      chain.unsetFontSize().run();
+    } else {
+      chain.setFontSize(size).run();
     }
   };
 
@@ -167,7 +189,6 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
       <select
         value={getBlockType()}
         onChange={handleBlockTypeChange}
-        onMouseDown={keepEditorSelection}
         disabled={disabled}
         className="px-2 py-1 text-xs rounded border border-zinc-300 bg-white text-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 disabled:cursor-not-allowed disabled:opacity-40"
         aria-label={t("toolbar.paragraph")}
@@ -175,6 +196,24 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
         <option value="paragraph">{t("blockType.paragraph")}</option>
         <option value="heading2">{t("blockType.heading2")}</option>
         <option value="heading3">{t("blockType.heading3")}</option>
+      </select>
+
+      <select
+        value={getFontSize()}
+        onChange={handleFontSizeChange}
+        disabled={disabled}
+        className="px-2 py-1 text-xs rounded border border-zinc-300 bg-white text-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 disabled:cursor-not-allowed disabled:opacity-40"
+        aria-label={t("toolbar.fontSize")}
+      >
+        <option value="default">{t("toolbar.size")}</option>
+        <option value="12px">12px</option>
+        <option value="14px">14px</option>
+        <option value="16px">16px</option>
+        <option value="18px">18px</option>
+        <option value="20px">20px</option>
+        <option value="24px">24px</option>
+        <option value="30px">30px</option>
+        <option value="36px">36px</option>
       </select>
 
       <div className="w-[1px] h-5 bg-zinc-300 mx-1" />
@@ -211,6 +250,53 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
         aria-label={t("toolbar.strike")}
       >
         <Strikethrough size={16} />
+      </button>
+
+      <div className="w-[1px] h-5 bg-zinc-300 mx-1" />
+
+      <button
+        type="button"
+        onMouseDown={keepEditorSelection}
+        onClick={() => !disabled && editor.chain().focus().setTextAlign('left').run()}
+        disabled={disabled || !editor.can().setTextAlign('left')}
+        className={toolbarButtonClass(toolbarState?.alignLeft)}
+        title={getTitle("alignLeft", editor.can().setTextAlign('left'))}
+        aria-label={t("toolbar.alignLeft")}
+      >
+        <AlignLeft size={16} />
+      </button>
+      <button
+        type="button"
+        onMouseDown={keepEditorSelection}
+        onClick={() => !disabled && editor.chain().focus().setTextAlign('center').run()}
+        disabled={disabled || !editor.can().setTextAlign('center')}
+        className={toolbarButtonClass(toolbarState?.alignCenter)}
+        title={getTitle("alignCenter", editor.can().setTextAlign('center'))}
+        aria-label={t("toolbar.alignCenter")}
+      >
+        <AlignCenter size={16} />
+      </button>
+      <button
+        type="button"
+        onMouseDown={keepEditorSelection}
+        onClick={() => !disabled && editor.chain().focus().setTextAlign('right').run()}
+        disabled={disabled || !editor.can().setTextAlign('right')}
+        className={toolbarButtonClass(toolbarState?.alignRight)}
+        title={getTitle("alignRight", editor.can().setTextAlign('right'))}
+        aria-label={t("toolbar.alignRight")}
+      >
+        <AlignRight size={16} />
+      </button>
+      <button
+        type="button"
+        onMouseDown={keepEditorSelection}
+        onClick={() => !disabled && editor.chain().focus().setTextAlign('justify').run()}
+        disabled={disabled || !editor.can().setTextAlign('justify')}
+        className={toolbarButtonClass(toolbarState?.alignJustify)}
+        title={getTitle("alignJustify", editor.can().setTextAlign('justify'))}
+        aria-label={t("toolbar.alignJustify")}
+      >
+        <AlignJustify size={16} />
       </button>
 
       <div className="w-[1px] h-5 bg-zinc-300 mx-1" />
