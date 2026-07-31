@@ -10,6 +10,6 @@ export function sanitizeHtml(dirty: string): string {
             'h2', 'h3', 'p', 'br', 'strong', 'em', 's',
             'ul', 'ol', 'li', 'blockquote', 'hr', 'a', 'img'
         ],
-        ALLOWED_ATTR: ['href', 'src', 'alt', 'target', 'rel'],
+        ALLOWED_ATTR: ['href', 'src', 'alt', 'target', 'rel', 'class', 'title', 'width', 'height', 'start'],
     });
 }

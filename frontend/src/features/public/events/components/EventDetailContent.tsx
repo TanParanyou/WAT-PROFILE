@@ -3,7 +3,7 @@
 import Script from "next/script";
 import { Calendar, Clock, MapPin } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { formatDateRange, formatTimeRange } from "@/utils/formatters";
+import { formatDateRange, formatTimeRange, toCalendarDateTime } from "@/utils/formatters";
 import { EmptyState } from "@/components/public/states/EmptyState";
 import { QueryErrorState } from "@/components/public/states/QueryErrorState";
 import EventPrinter from "@/components/events/EventPrinter";
@@ -75,7 +75,7 @@ export function EventDetailContent({ slug, initialEvent }: EventDetailContentPro
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
 
-      <section className="border-y border-primary/15 py-6">
+      <section className="border-b border-primary/15 py-6">
         <div className="flex flex-wrap gap-x-6 gap-y-3 text-sm text-text-800">
           <span className="flex items-center gap-2">
             <Calendar size={16} aria-hidden="true" />
@@ -161,15 +161,4 @@ function buildCalendarUrl(event: PublicEventDto, locale: string): string {
   }
 
   return `https://calendar.google.com/calendar/render?${params.toString()}`;
-}
-
-function toCalendarDateTime(date: string, time: string | null): string {
-  const [year, month, day] = date.split("-");
-
-  if (!time) {
-    return `${year}${month}${day}`;
-  }
-
-  const [hour = "00", minute = "00", second = "00"] = time.split(":");
-  return `${year}${month}${day}T${hour}${minute}${second}`;
 }

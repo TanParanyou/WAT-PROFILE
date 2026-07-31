@@ -6,8 +6,8 @@ import { Printer } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { PublicEventDto } from "@/features/public/events/types";
 import { getLocalizedText } from "@/features/public/events/mappers";
-import { getLocalizedPlainText } from "@/features/public/shared/rich-text";
 import { formatDate, formatTimeRange } from "@/utils/formatters";
+import { RichTextContent } from "@/components/admin/rich-text/RichTextContent";
 
 interface EventPrinterProps {
   event: PublicEventDto;
@@ -64,7 +64,11 @@ export default function EventPrinter({ event, locale }: EventPrinterProps) {
             </div>
 
             <div className="bg-gray-50 p-6 border border-gray-200 rounded-lg mb-8 text-sm leading-relaxed text-gray-800 text-justify">
-              {event.description ? getLocalizedPlainText(event.description, locale) || "-" : "-"}
+              {event.description ? (
+                <RichTextContent value={event.description} locale={locale} defaultLocale="th" />
+              ) : (
+                "-"
+              )}
             </div>
           </div>
 

@@ -53,6 +53,7 @@ export function formatTime(
     return timeStr.toLocaleTimeString(locale === "th" ? "th-TH" : locale === "de" ? "de-DE" : "en-US", {
       hour: "2-digit",
       minute: "2-digit",
+      timeZone: "UTC",
     });
   }
 
@@ -63,11 +64,8 @@ export function formatTime(
   const formatOptions: Intl.DateTimeFormatOptions = {
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "UTC",
   };
-
-  if (isTimeOnlyValue(timeStr)) {
-    formatOptions.timeZone = "UTC";
-  }
 
   return date.toLocaleTimeString(localeTag, formatOptions);
 }
@@ -84,6 +82,39 @@ export function formatTimeRange(
   if (start !== "-" && end !== "-" && start !== end) return `${start} - ${end}`;
   return start !== "-" ? start : end;
 }
+
+export function toCalendarDateTime(
+  date: string,
+  time?: string | null,
+): string {
+  if (!date) return "";
+
+  // Parse the date safely regardless of whether it's YYYY-MM-DD or an ISO string
+  const d = new Date(date);
+  if (isNaN(d.getTime())) return "";
+  
+  // Format to YYYYMMDD using local time (or UTC if we want to be strict, but sticking to local is fine)
+  // Let's extract exactly the parts from the ISO string to avoid timezone shifts
+  const isoDate = date.includes("T") ? date.split("T")[0] : date;
+  const [year, month, day] = isoDate.split("-");
+
+  if (!time) {
+    return `${year}${month}${day}`;
+  }
+
+  // Time might be HH:MM:SS or an ISO string like "2026-12-31T17:00:00Z"
+  let isoTime = time;
+  if (time.includes("T")) {
+    isoTime = time.split("T")[1].replace("Z", "");
+  }
+  
+  const [hour = "00", minute = "00", second = "00"] = isoTime.split(":");
+  // Strip any decimal seconds
+  const cleanSecond = second.split(".")[0];
+  
+  return `${year}${month}${day}T${hour}${minute}${cleanSecond}`;
+}
+
 
 export function formatNumber(num: number | string | null | undefined): string {
   if (num === null || num === undefined) return "-";
