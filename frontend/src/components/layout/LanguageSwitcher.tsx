@@ -34,7 +34,7 @@ export function LanguageSwitcher() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 border border-[#333] bg-[#fffef2] px-3 py-1.5 text-sm font-medium text-[#333] transition-colors hover:bg-[#f7ecdd] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26]"
+        className="flex items-center gap-1.5 border border-site-border bg-site-canvas px-3 py-1.5 text-sm font-medium text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
@@ -49,7 +49,7 @@ export function LanguageSwitcher() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-0 mt-2 w-40 origin-top-right overflow-hidden border border-[#333] bg-[#fffef2] focus:outline-none"
+            className="absolute right-0 mt-2 w-40 origin-top-right overflow-hidden border border-site-border bg-site-canvas focus:outline-none"
           >
             <div className="p-1">
               {languageOptions.map((language) => (
@@ -60,8 +60,8 @@ export function LanguageSwitcher() {
                   onClick={() => setIsOpen(false)}
                   className={`flex w-full items-center justify-between px-3 py-2.5 text-sm transition-colors ${
                     locale === language.code
-                      ? "bg-[#333] font-medium text-[#fffef2]"
-                      : "text-[#333] hover:bg-[#f7ecdd]"
+                      ? "bg-site-action font-medium text-site-on-action"
+                      : "text-site-foreground hover:bg-site-surface"
                   }`}
                 >
                   <span>{language.label}</span>

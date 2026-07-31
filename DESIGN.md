@@ -42,6 +42,17 @@ source of truth for public-facing visual decisions.
 - Do not add gradients, glassmorphism, decorative grids, repeating stripes, or
   gold by default.
 
+### Theme implementation
+
+- `.public-theme` in `frontend/src/app/globals.css` is the single seam for the
+  public-site palette.
+- Public modules use role-based Tailwind utilities such as `bg-site-canvas`,
+  `text-site-foreground`, `bg-site-surface`, `border-site-border`,
+  `bg-site-action`, and `text-site-accent`.
+- Do not use raw colour values or theme-specific names in public TSX modules.
+  A future visual theme changes the `.public-theme` variables, not each caller.
+- Keep Admin/CMS colours independent from the public theme.
+
 ## Typography
 
 - Interface and body: `"Noto Sans Thai", Inter, "Segoe UI", Arial, sans-serif`.

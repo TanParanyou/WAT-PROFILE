@@ -40,7 +40,7 @@ export default function StickySocials() {
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ delay: 0.5 + index * 0.1 }}
-          className="flex h-12 w-12 items-center justify-center border border-[#333] bg-[#fffef2] text-[#333] transition-colors hover:bg-[#f7ecdd] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26]"
+          className="flex h-12 w-12 items-center justify-center border border-site-border bg-site-canvas text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
           title={social.name}
         >
           <social.icon size={24} />

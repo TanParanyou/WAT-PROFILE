@@ -10,10 +10,10 @@ interface PublicReadingPageProps {
 
 export function PublicReadingPage({ title, subtitle, children }: PublicReadingPageProps) {
   return (
-    <div className="min-h-screen bg-[#fffef2]">
+    <div className="min-h-screen bg-site-canvas">
       <PageHeader variant="reading" align="left" title={title} subtitle={subtitle} />
       <PageContainer width="reading">
-        <article className="prose prose-lg max-w-none text-[#333] prose-headings:font-heading prose-headings:text-[#333] prose-a:text-[#945c26]">
+        <article className="prose prose-lg max-w-none text-site-foreground prose-headings:font-heading prose-headings:text-site-foreground prose-a:text-site-accent">
           {children}
         </article>
       </PageContainer>

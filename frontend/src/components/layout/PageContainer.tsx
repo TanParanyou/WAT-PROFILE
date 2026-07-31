@@ -23,7 +23,7 @@ export default function PageContainer({
 }: PageContainerProps) {
   return (
     <div
-      className={`relative z-20 mx-auto w-full bg-[#fffef2] px-6 pb-20 pt-12 text-[#333] sm:px-10 md:pb-28 md:pt-16 lg:px-[8vw] ${
+      className={`relative z-20 mx-auto w-full bg-site-canvas px-6 pb-20 pt-12 text-site-foreground sm:px-10 md:pb-28 md:pt-16 lg:px-[8vw] ${
         widths[width]
       } ${overlap ? "-mt-10 md:-mt-12" : ""} ${className}`}
     >

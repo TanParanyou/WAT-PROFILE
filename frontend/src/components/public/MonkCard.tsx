@@ -16,8 +16,8 @@ export function MonkCard({ monk, locale }: MonkCardProps) {
   const imageUrl = monk.image_url;
 
   return (
-    <div className="group flex flex-col items-center border border-[#333] bg-[#fffef2] p-6 transition-colors hover:bg-[#f7ecdd]">
-      <div className="relative mb-6 h-40 w-40 overflow-hidden border border-[#333] p-1">
+    <div className="group flex flex-col items-center border border-site-border bg-site-canvas p-6 transition-colors hover:bg-site-surface">
+      <div className="relative mb-6 h-40 w-40 overflow-hidden border border-site-border p-1">
         <div className="relative h-full w-full overflow-hidden">
           <PublicImage
             src={imageUrl}
@@ -28,13 +28,13 @@ export function MonkCard({ monk, locale }: MonkCardProps) {
           />
         </div>
       </div>
-      <h3 className="mb-1 text-center text-xl font-medium text-[#333] transition-colors group-hover:text-[#945c26]">
+      <h3 className="mb-1 text-center text-xl font-medium text-site-foreground transition-colors group-hover:text-site-accent">
         <Link href={`/monks/${monk.slug}`} className="hover:underline">
           {name}
         </Link>
       </h3>
       {position && (
-        <p className="text-center text-sm font-medium text-[#945c26]">
+        <p className="text-center text-sm font-medium text-site-accent">
           {position}
         </p>
       )}

@@ -86,7 +86,7 @@ export function PublicContactPageLayout({
                       href={map.directions_url}
                       target="_blank"
                       rel="noreferrer"
-                      className="mt-3 inline-flex min-h-11 items-center bg-[#333] px-5 py-[13px] text-sm font-semibold text-[#fffef2] transition-colors hover:bg-[#242424] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26]"
+                      className="mt-3 inline-flex min-h-11 items-center bg-site-action px-5 py-[13px] text-sm font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
                     >
                       {t("directions")}
                     </a>
@@ -163,7 +163,7 @@ export function PublicContactPageLayout({
           {map.embed_url ? (
             <section className="lg:col-span-2 lg:row-start-2" aria-labelledby="map-heading">
               <PublicSectionHeading id="map-heading" title={t("map")} />
-              <div className="mt-7 overflow-hidden border border-[#333] bg-[#fffef2]">
+              <div className="mt-7 overflow-hidden border border-site-border bg-site-canvas">
                 <iframe
                   src={map.embed_url}
                   width="100%"
@@ -180,7 +180,7 @@ export function PublicContactPageLayout({
 
           <section className="lg:col-start-2 lg:row-start-1" aria-labelledby="contact-form-heading">
             <PublicSectionHeading id="contact-form-heading" title={labels.formTitle} />
-            <div className="mt-8 border border-[#333] bg-[#fffef2] p-6 md:p-8">
+            <div className="mt-8 border border-site-border bg-site-canvas p-6 md:p-8">
               {page.body.contact_form.enabled ? (
                 formSlot
               ) : (
@@ -202,14 +202,14 @@ export function PublicContactPageLayout({
                           href={item.href}
                           target="_blank"
                           rel="noreferrer"
-                          className="inline-flex min-h-11 items-center gap-2 border border-[#333] bg-[#fffef2] px-4 py-2 text-sm font-semibold text-[#333] hover:bg-[#f7ecdd] hover:text-[#945c26] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26]"
+                          className="inline-flex min-h-11 items-center gap-2 border border-site-border bg-site-canvas px-4 py-2 text-sm font-semibold text-site-foreground hover:bg-site-surface hover:text-site-accent focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
                         >
                           <Facebook size={16} aria-hidden="true" />
                           {item.label}
                         </a>
                       ))}
                       {socials.line ? (
-                        <span className="inline-flex min-h-11 items-center border border-[#333] bg-[#fffef2] px-4 py-2 text-sm text-[#333]">
+                        <span className="inline-flex min-h-11 items-center border border-site-border bg-site-canvas px-4 py-2 text-sm text-site-foreground">
                           LINE: {socials.line}
                         </span>
                       ) : null}
@@ -255,7 +255,7 @@ function InfoRow({
 }) {
   return (
     <div className="grid gap-4 sm:grid-cols-[44px_minmax(0,1fr)]">
-      <div className="flex h-11 w-11 items-center justify-center border border-[#333] bg-[#fffef2] text-[#945c26]">
+      <div className="flex h-11 w-11 items-center justify-center border border-site-border bg-site-canvas text-site-accent">
         {icon}
       </div>
       <div>

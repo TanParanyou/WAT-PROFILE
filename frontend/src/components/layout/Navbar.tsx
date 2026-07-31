@@ -34,10 +34,10 @@ export default function Navbar() {
   ];
 
   return (
-    <header className="fixed top-0 z-50 w-full border-b border-[#333] bg-[#fffef2] text-[#333]">
+    <header className="fixed top-0 z-50 w-full border-b border-site-border bg-site-canvas text-site-foreground">
       <div className="mx-auto flex min-h-[72px] max-w-[1440px] items-center justify-between gap-4 px-6 sm:px-10 lg:px-[6vw]">
-        <Link href="/" className="relative z-50 flex min-w-0 items-center gap-3 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26]">
-          <span className="relative flex size-11 shrink-0 items-center justify-center overflow-hidden border border-[#333] bg-[#fffef2]">
+        <Link href="/" className="relative z-50 flex min-w-0 items-center gap-3 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus">
+          <span className="relative flex size-11 shrink-0 items-center justify-center overflow-hidden border border-site-border bg-site-canvas">
             <Image
               src={settings.logoUrl || "/images/icon/logo.png"}
               alt={getLocalizedText(siteConfig.siteName, locale)}
@@ -48,7 +48,7 @@ export default function Navbar() {
           </span>
           <span className="min-w-0">
             <span className="block truncate font-heading text-lg font-medium leading-none">{tSite("name")}</span>
-            <span className="mt-1 block truncate text-[10px] font-medium tracking-widest text-[#666]">{tSite("location")}</span>
+            <span className="mt-1 block truncate text-[10px] font-medium tracking-widest text-site-muted">{tSite("location")}</span>
           </span>
         </Link>
 
@@ -60,7 +60,7 @@ export default function Navbar() {
                 key={link.href}
                 href={link.href}
                 aria-current={isActive ? "page" : undefined}
-                className={`border-b px-0 py-2 text-sm font-medium transition-colors focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26] ${isActive ? "border-[#333] text-[#333]" : "border-transparent text-[#666] hover:border-[#333] hover:text-[#333]"}`}
+                className={`border-b px-0 py-2 text-sm font-medium transition-colors focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus ${isActive ? "border-site-border text-site-foreground" : "border-transparent text-site-muted hover:border-site-border hover:text-site-foreground"}`}
               >
                 {link.name}
               </Link>
@@ -74,7 +74,7 @@ export default function Navbar() {
 
         <button
           type="button"
-          className="relative z-50 inline-flex size-11 items-center justify-center border border-[#333] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26] lg:hidden"
+          className="relative z-50 inline-flex size-11 items-center justify-center border border-site-border focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus lg:hidden"
           onClick={() => setIsOpen((open) => !open)}
           aria-expanded={isOpen}
           aria-controls="public-navigation"
@@ -85,7 +85,7 @@ export default function Navbar() {
       </div>
 
       {isOpen ? (
-        <div id="public-navigation" className="border-t border-[#333] bg-[#fffef2] px-6 py-6 sm:px-10 lg:hidden">
+        <div id="public-navigation" className="border-t border-site-border bg-site-canvas px-6 py-6 sm:px-10 lg:hidden">
           <nav className="mx-auto max-w-7xl" aria-label={t("primaryNavigation")}>
             <div className="grid gap-1">
               {navLinks.map((link) => (
@@ -93,7 +93,7 @@ export default function Navbar() {
                   key={link.href}
                   href={link.href}
                   onClick={() => setIsOpen(false)}
-                  className="flex min-h-12 items-center border-b border-[#333] py-2 font-heading text-2xl font-medium text-[#333] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26]"
+                  className="flex min-h-12 items-center border-b border-site-border py-2 font-heading text-2xl font-medium text-site-foreground focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
                 >
                   {link.name}
                 </Link>
@@ -101,7 +101,7 @@ export default function Navbar() {
             </div>
             
             <div className="mt-8 flex flex-col gap-3" aria-label={t("languageNavigation")}>
-              <span className="text-sm font-medium text-[#666]">เลือกภาษา / Language</span>
+              <span className="text-sm font-medium text-site-muted">เลือกภาษา / Language</span>
               <div className="flex gap-2">
                 {languageOptions.map((language) => (
                   <Link
@@ -110,10 +110,10 @@ export default function Navbar() {
                     locale={language.code}
                     onClick={() => setIsOpen(false)}
                     aria-current={locale === language.code ? "page" : undefined}
-                    className={`flex-1 border py-3 text-center text-sm font-semibold transition-all focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26] ${
+                    className={`flex-1 border py-3 text-center text-sm font-semibold transition-all focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus ${
                       locale === language.code 
-                        ? "border-[#333] bg-[#333] text-[#fffef2]"
-                        : "border-[#333] bg-[#fffef2] text-[#333] hover:bg-[#f7ecdd]"
+                        ? "border-site-border bg-site-action text-site-on-action"
+                        : "border-site-border bg-site-canvas text-site-foreground hover:bg-site-surface"
                     }`}
                   >
                     {language.label}

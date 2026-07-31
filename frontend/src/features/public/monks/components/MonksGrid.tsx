@@ -12,12 +12,12 @@ interface MonksGridProps {
 export function MonksGrid({ monks }: MonksGridProps) {
   const locale = useLocale();
   return (
-    <div className="grid grid-cols-1 border-t border-[#333] md:grid-cols-2 lg:grid-cols-3">
+    <div className="grid grid-cols-1 border-t border-site-border md:grid-cols-2 lg:grid-cols-3">
       {monks.map((monk) => (
         <Link
           key={monk.slug}
           href={`/monks/${monk.slug}`}
-          className="group overflow-hidden border-b border-[#333] bg-[#fffef2] transition-colors hover:bg-[#f7ecdd] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26] md:border-r md:px-7 md:first:pl-0 md:last:border-r-0 md:last:pr-0"
+          className="group overflow-hidden border-b border-site-border bg-site-canvas transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus md:border-r md:px-7 md:first:pl-0 md:last:border-r-0 md:last:pr-0"
         >
           <div className="relative aspect-[3/4]">
             <PublicImage
@@ -30,10 +30,10 @@ export function MonksGrid({ monks }: MonksGridProps) {
             />
           </div>
           <div className="py-6">
-            {monk.title ? <p className="text-sm font-medium text-[#945c26]">
+            {monk.title ? <p className="text-sm font-medium text-site-accent">
               {getLocalizedText(monk.title, locale)}
             </p> : null}
-            <h3 className="mt-2 font-heading text-xl font-medium text-[#333]">
+            <h3 className="mt-2 font-heading text-xl font-medium text-site-foreground">
               {getLocalizedText(monk.name, locale)}
             </h3>
           </div>

@@ -84,6 +84,20 @@
 
     --color-background: var(--background);
     --color-foreground: var(--foreground);
+
+    /* Public website semantic roles */
+    --color-site-canvas: var(--public-canvas);
+    --color-site-foreground: var(--public-foreground);
+    --color-site-body: var(--public-body);
+    --color-site-muted: var(--public-muted);
+    --color-site-surface: var(--public-surface);
+    --color-site-border: var(--public-border);
+    --color-site-divider: var(--public-divider);
+    --color-site-action: var(--public-action);
+    --color-site-action-hover: var(--public-action-hover);
+    --color-site-on-action: var(--public-on-action);
+    --color-site-accent: var(--public-accent);
+    --color-site-focus: var(--public-focus);
 }
 
 /* Dark Mode Implementation */
@@ -156,6 +170,29 @@
     /* Theme Defaults */
     --background: var(--background-50);
     --foreground: var(--text-900);
+}
+
+/*
+ * Public-site theme seam. Keep the values here aligned with DESIGN.md.
+ * Public modules consume semantic site-* utilities, never theme names or raw values.
+ */
+.public-theme {
+    --public-canvas: #fffef2;
+    --public-foreground: #333333;
+    --public-body: #505050;
+    --public-muted: #666666;
+    --public-surface: #f7ecdd;
+    --public-border: #333333;
+    --public-divider: #e4e9ea;
+    --public-action: #333333;
+    --public-action-hover: #242424;
+    --public-on-action: #fffef2;
+    --public-accent: #945c26;
+    --public-focus: #945c26;
+
+    background-color: var(--public-canvas);
+    color: var(--public-foreground);
+    color-scheme: light;
 }
 
 .dark {

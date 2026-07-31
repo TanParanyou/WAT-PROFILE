@@ -18,13 +18,13 @@ export default function HeroSection() {
   const ctaLabel = hero.ctaLabel ? getLocalizedText(hero.ctaLabel, locale) : t("viewEvents");
   const ctaHref = hero.ctaHref ?? "/events";
 
-  return <section className="grid min-h-[calc(100svh-4rem)] bg-[#fffef2] text-[#333] lg:grid-cols-2">
+  return <section className="grid min-h-[calc(100svh-4rem)] bg-site-canvas text-site-foreground lg:grid-cols-2">
     <div className="flex items-center px-6 py-20 sm:px-10 lg:px-[8vw]">
       <div className="max-w-2xl">
-        <p className="mb-5 text-sm text-[#666]">{t("welcomeTo")} · {description}</p>
+        <p className="mb-5 text-sm text-site-muted">{t("welcomeTo")} · {description}</p>
         <h1 className="max-w-[11ch] text-balance font-sans text-[clamp(2.9rem,6vw,5.8rem)] font-bold leading-[1.05] tracking-[-0.03em]">{title}</h1>
-        <p className="mt-8 max-w-[65ch] text-lg leading-8 text-[#505050]">{description}</p>
-        <Link href={ctaHref} className="mt-10 inline-flex min-h-12 items-center gap-3 bg-[#333] px-6 py-[13px] text-sm font-medium text-[#fffef2] transition-colors hover:bg-[#242424] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26]">
+        <p className="mt-8 max-w-[65ch] text-lg leading-8 text-site-body">{description}</p>
+        <Link href={ctaHref} className="mt-10 inline-flex min-h-12 items-center gap-3 bg-site-action px-6 py-[13px] text-sm font-medium text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus">
           {ctaLabel}<ArrowRight size={18} aria-hidden="true" />
         </Link>
       </div>

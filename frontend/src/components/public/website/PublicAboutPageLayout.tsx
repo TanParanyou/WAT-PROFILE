@@ -76,12 +76,12 @@ export function PublicAboutPageLayout({ page }: { page: AboutContentFormData | n
             ) : null}
 
             {objective && (text(objective.heading) || objective.content) ? (
-              <section id="objective" className="mt-20 scroll-mt-28 border-y border-[#333] bg-[#333] p-8 text-[#fffef2] md:p-12">
+              <section id="objective" className="mt-20 scroll-mt-28 border-y border-site-border bg-site-action p-8 text-site-on-action md:p-12">
                 <h2 className="max-w-[18ch] font-heading text-[clamp(2.3rem,4.8vw,4.7rem)] font-normal leading-[1.14] text-balance">
                   {text(objective.heading)}
                 </h2>
                 {text(objective.subtitle) ? (
-                  <p className="mt-5 max-w-[65ch] text-lg leading-8 text-[#fffef2]/80">
+                  <p className="mt-5 max-w-[65ch] text-lg leading-8 text-site-on-action/80">
                     {text(objective.subtitle)}
                   </p>
                 ) : null}

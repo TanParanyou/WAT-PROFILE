@@ -20,9 +20,9 @@ export default function EventsSection() {
   const query = usePublicEventsQuery(3);
 
   return (
-    <section className="border-t border-[#333] bg-[#fffef2] px-6 py-[clamp(4rem,9vw,8rem)] text-[#333] sm:px-10 lg:px-[8vw]"><div>
-        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]"><p className="text-sm text-[#666]">{t("subtitle")}</p><h2 className="max-w-[16ch] text-balance font-heading text-[clamp(2.3rem,4.8vw,4.7rem)] font-normal leading-[1.14]">{t("title")}</h2></div>
-        <div className="mt-16">{query.isLoading ? <EventsListSkeleton /> : query.isError ? <QueryErrorState title={state("errorTitle")} description={state("errorDescription")} retryLabel={state("retry")} onRetry={() => query.refetch()} isRetrying={query.isFetching} /> : query.data?.length ? <div className="grid grid-cols-1 border-t border-[#333] md:grid-cols-3">{query.data.slice(0, 3).map((event) => <EventCard key={event.slug} event={event} locale={locale} />)}</div> : <EmptyState title={state("emptyEvents")} description={state("emptyContent")} />}</div>
+    <section className="border-t border-site-border bg-site-canvas px-6 py-[clamp(4rem,9vw,8rem)] text-site-foreground sm:px-10 lg:px-[8vw]"><div>
+        <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]"><p className="text-sm text-site-muted">{t("subtitle")}</p><h2 className="max-w-[16ch] text-balance font-heading text-[clamp(2.3rem,4.8vw,4.7rem)] font-normal leading-[1.14]">{t("title")}</h2></div>
+        <div className="mt-16">{query.isLoading ? <EventsListSkeleton /> : query.isError ? <QueryErrorState title={state("errorTitle")} description={state("errorDescription")} retryLabel={state("retry")} onRetry={() => query.refetch()} isRetrying={query.isFetching} /> : query.data?.length ? <div className="grid grid-cols-1 border-t border-site-border md:grid-cols-3">{query.data.slice(0, 3).map((event) => <EventCard key={event.slug} event={event} locale={locale} />)}</div> : <EmptyState title={state("emptyEvents")} description={state("emptyContent")} />}</div>
       </div>
     </section>
   );

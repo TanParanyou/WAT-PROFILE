@@ -11,13 +11,15 @@ export default function ClientLayout({
   children: React.ReactNode;
 }) {
   return (
-    <PublicSiteSettingsProvider>
-      <Navbar />
-      <main className="grow">{children}</main>
-      <Footer />
-      <StickySocials />
-      <CookieConsent />
-      <JsonLd />
-    </PublicSiteSettingsProvider>
+    <div className="public-theme flex min-h-screen flex-col bg-site-canvas text-site-foreground">
+      <PublicSiteSettingsProvider>
+        <Navbar />
+        <main className="grow">{children}</main>
+        <Footer />
+        <StickySocials />
+        <CookieConsent />
+        <JsonLd />
+      </PublicSiteSettingsProvider>
+    </div>
   );
 }

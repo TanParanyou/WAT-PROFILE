@@ -50,17 +50,17 @@ export function PublicHomePageLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <section className="grid min-h-[80svh] bg-[#fffef2] text-[#333] lg:grid-cols-2">
+      <section className="grid min-h-[80svh] bg-site-canvas text-site-foreground lg:grid-cols-2">
         <div className="flex items-center px-6 py-20 sm:px-10 lg:px-[8vw]">
           <div className="max-w-2xl">
           <h1 className="mb-6 max-w-[11ch] text-balance text-[clamp(2.9rem,6vw,5.8rem)] font-bold leading-[1.05] tracking-[-0.03em]">{heroTitle}</h1>
-          <p className="mb-8 max-w-[65ch] text-lg leading-8 text-[#505050]">
+          <p className="mb-8 max-w-[65ch] text-lg leading-8 text-site-body">
             {heroSubtitle}
           </p>
           <div className="flex gap-4">
             <Link
               href={heroCtaHref}
-              className="bg-[#333] px-6 py-[13px] font-semibold text-[#fffef2] transition-colors hover:bg-[#242424] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26]"
+              className="bg-site-action px-6 py-[13px] font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
             >
               {heroCtaLabel}
             </Link>
@@ -73,15 +73,15 @@ export function PublicHomePageLayout({
       <SectionLayout
         title={latestEventsTitle}
         subtitle={latestEventsSubtitle}
-        className="border-t border-[#333] bg-[#fffef2]"
+        className="border-t border-site-border bg-site-canvas"
         action={
-          <Link href="/events" className="group flex items-center gap-1 font-semibold text-[#945c26] hover:underline">
+          <Link href="/events" className="group flex items-center gap-1 font-semibold text-site-accent hover:underline">
             {labels.viewAll}
             <ChevronRight size={18} className="transition-transform group-hover:translate-x-1" />
           </Link>
         }
       >
-        <div className="grid grid-cols-1 border-t border-[#333] md:grid-cols-3">
+        <div className="grid grid-cols-1 border-t border-site-border md:grid-cols-3">
           {latestEvents.map((event) => (
             <EventCard key={event.slug} event={event} locale={locale} />
           ))}
@@ -91,9 +91,9 @@ export function PublicHomePageLayout({
       <SectionLayout
         title={monksTitle}
         subtitle={monksSubtitle}
-        className="border-t border-[#333] bg-[#fffef2]"
+        className="border-t border-site-border bg-site-canvas"
         action={
-          <Link href="/monks" className="group flex items-center gap-1 font-semibold text-[#945c26] hover:underline">
+          <Link href="/monks" className="group flex items-center gap-1 font-semibold text-site-accent hover:underline">
             {labels.viewAll}
             <ChevronRight size={18} className="transition-transform group-hover:translate-x-1" />
           </Link>

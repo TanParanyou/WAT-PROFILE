@@ -18,10 +18,10 @@ export function QueryErrorState({
   return (
     <div
       role="alert"
-      className="border border-[#945c26] bg-[#fffef2] px-5 py-6 text-[#333]"
+      className="border border-site-accent bg-site-canvas px-5 py-6 text-site-foreground"
     >
       <h3 className="text-lg font-semibold">{title}</h3>
-      <p className="mt-2 text-sm text-[#505050]">{description}</p>
+      <p className="mt-2 text-sm text-site-body">{description}</p>
       <Button
         type="button"
         onClick={onRetry}

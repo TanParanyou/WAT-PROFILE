@@ -21,8 +21,8 @@ export function EventCard({ event, locale }: EventCardProps) {
   const imageUrl = event.image_url;
 
   return (
-    <div className="group flex h-full flex-col border-b border-[#333] bg-[#fffef2] py-0 md:border-b-0 md:border-r md:px-7 md:first:pl-0 md:last:border-r-0 md:last:pr-0">
-      <div className="relative h-56 w-full overflow-hidden bg-[#f7ecdd]">
+    <div className="group flex h-full flex-col border-b border-site-border bg-site-canvas py-0 md:border-b-0 md:border-r md:px-7 md:first:pl-0 md:last:border-r-0 md:last:pr-0">
+      <div className="relative h-56 w-full overflow-hidden bg-site-surface">
         <PublicImage
           src={imageUrl}
           alt={title}
@@ -32,11 +32,11 @@ export function EventCard({ event, locale }: EventCardProps) {
         />
       </div>
       <div className="flex flex-grow flex-col py-6">
-        <div className="mb-3 flex items-center gap-2 text-sm text-[#666]"><Calendar size={14} className="text-[#945c26]" /><time dateTime={event.start_date}>{formatDateRange(event.start_date, event.end_date)}</time></div>
-        <h3 className="mb-3 line-clamp-2 text-xl font-medium leading-tight text-[#333]"><Link href={`/events/${event.slug}`} className="hover:text-[#945c26] hover:underline">{title}</Link></h3>
-        <p className="mb-5 line-clamp-3 flex-grow text-sm leading-7 text-[#505050]">{description}</p>
+        <div className="mb-3 flex items-center gap-2 text-sm text-site-muted"><Calendar size={14} className="text-site-accent" /><time dateTime={event.start_date}>{formatDateRange(event.start_date, event.end_date)}</time></div>
+        <h3 className="mb-3 line-clamp-2 text-xl font-medium leading-tight text-site-foreground"><Link href={`/events/${event.slug}`} className="hover:text-site-accent hover:underline">{title}</Link></h3>
+        <p className="mb-5 line-clamp-3 flex-grow text-sm leading-7 text-site-body">{description}</p>
         {location && (
-          <div className="mt-auto flex shrink-0 items-center gap-2 border-t border-[#333] pt-4 text-xs text-[#666]">
+          <div className="mt-auto flex shrink-0 items-center gap-2 border-t border-site-border pt-4 text-xs text-site-muted">
             <MapPin size={14} />
             <span className="truncate">{location}</span>
           </div>

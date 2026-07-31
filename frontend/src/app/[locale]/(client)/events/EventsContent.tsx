@@ -38,8 +38,8 @@ export default function EventsContent() {
           <div className="mt-8">
             {schedulesQuery.isLoading ? (
               <div className="grid animate-pulse gap-6 lg:grid-cols-2" aria-label={tState("loading")}>
-                <div className="h-64 bg-[#f7ecdd]" />
-                <div className="h-64 bg-[#f7ecdd]" />
+                <div className="h-64 bg-site-surface" />
+                <div className="h-64 bg-site-surface" />
               </div>
             ) : schedulesQuery.isError ? (
               <QueryErrorState
@@ -60,7 +60,7 @@ export default function EventsContent() {
           </div>
         </section>
 
-        <section className="mt-20 border-t border-[#333] pt-16" aria-labelledby="events-heading">
+        <section className="mt-20 border-t border-site-border pt-16" aria-labelledby="events-heading">
           <PublicSectionHeading
             id="events-heading"
             title={tPage("upcomingEvents")}
