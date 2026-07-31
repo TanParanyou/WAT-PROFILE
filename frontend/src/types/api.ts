@@ -1,3 +1,5 @@
+import type { AdminPagination } from "@/features/admin-list/types";
+
 // API Response types ตรง backend response format
 export interface ApiResponse<T> {
     success: boolean;
@@ -10,12 +12,7 @@ export interface ApiResponse<T> {
 export interface PaginatedResponse<T> {
     success: boolean;
     data: T[];
-    pagination: {
-        page: number;
-        limit: number;
-        total: number;
-        totalPages: number;
-    };
+    pagination: AdminPagination;
 }
 
 export interface MultiLangText {
