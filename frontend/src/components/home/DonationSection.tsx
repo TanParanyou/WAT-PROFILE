@@ -32,14 +32,13 @@ export default function DonationSection() {
   }, [showQrModal]);
 
   return (
-    <section className="bg-zinc-50 py-20 dark:bg-zinc-900">
-      <div className="container mx-auto px-4 md:px-6">
-        <div className="mx-auto mb-12 max-w-4xl text-center">
+    <section className="border-t border-[#333] bg-[#f7ecdd] px-6 py-[clamp(4rem,9vw,8rem)] text-[#333] sm:px-10 lg:px-[8vw]">
+      <div>
+        <div className="mb-16 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} viewport={{ once: true }}>
-            <h2 className="mb-4 font-sans font-medium tracking-wider text-secondary uppercase">{t("subtitle")}</h2>
-            <h1 className="mb-6 font-heading text-3xl font-bold leading-relaxed text-primary md:text-5xl">{t("title")}</h1>
-            <p className="mx-auto max-w-2xl text-lg font-light leading-relaxed text-gray-600 dark:text-gray-400">{t("description")}</p>
+            <p className="text-sm text-[#666]">{t("subtitle")}</p>
           </motion.div>
+          <div><h2 className="max-w-[16ch] text-balance font-heading text-[clamp(2.3rem,4.8vw,4.7rem)] font-normal leading-[1.14]">{t("title")}</h2><p className="mt-6 max-w-[65ch] text-lg leading-8 text-[#505050]">{t("description")}</p></div>
         </div>
 
         {contactQuery.isLoading ? (
@@ -52,25 +51,25 @@ export default function DonationSection() {
         ) : !hasPaymentData ? (
           <div className="mx-auto max-w-4xl"><EmptyState title={t("emptyTitle")} description={t("emptyDescription")} /></div>
         ) : (
-          <div className={`mx-auto grid max-w-4xl grid-cols-1 gap-8 ${hasQr && hasBankTransfer ? "md:grid-cols-2" : "md:grid-cols-1"}`}>
+          <div className={`grid grid-cols-1 border-y border-[#333] ${hasQr && hasBankTransfer ? "md:grid-cols-2" : "md:grid-cols-1"}`}>
             {hasQr && bank?.qr_image_url ? (
-              <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 0.45, delay: 0.1 }} viewport={{ once: true }} className="flex flex-col items-center border border-[#20382b]/15 bg-white p-8 text-center">
-                <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-[#20382b] text-white"><QrCode size={26} /></div>
-                <h3 className="mb-2 font-heading text-2xl font-bold text-[#20382b]">{t("scanQr")}</h3>
-                <p className="mb-6 text-sm leading-7 text-[#5d5b53]">{t("createQrDesc")}</p>
-                <button type="button" onClick={() => setShowQrModal(true)} className="relative mb-6 h-64 w-full max-w-xs overflow-hidden rounded-xl border border-[#20382b]/20 bg-white p-4 transition-colors hover:border-[#8a5a10] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#20382b]">
+              <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 0.45, delay: 0.1 }} viewport={{ once: true }} className="flex flex-col items-center bg-[#fffef2] p-8 text-center md:border-r md:border-[#333]">
+                <div className="mb-6 text-[#945c26]"><QrCode size={28} /></div>
+                <h3 className="mb-2 font-heading text-2xl font-medium text-[#333]">{t("scanQr")}</h3>
+                <p className="mb-6 text-sm leading-7 text-[#505050]">{t("createQrDesc")}</p>
+                <button type="button" onClick={() => setShowQrModal(true)} className="relative mb-6 h-64 w-full max-w-xs overflow-hidden border border-[#333] bg-[#fffef2] p-4 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26]">
                   <PublicImage src={bank.qr_image_url} alt={t("qrAlt")} fill fallbackSrc={donationFallbackImage} className="object-contain p-4" />
                   <span className="absolute inset-x-4 bottom-4 bg-white/95 px-3 py-2 text-xs font-semibold text-[#25231e]">{t("clickToView")}</span>
                 </button>
-                <button type="button" onClick={() => setShowQrModal(true)} className="min-h-11 rounded-full bg-[#8a5a10] px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-[#70470b] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-[#20382b]">{t("scanQr")}</button>
+                <button type="button" onClick={() => setShowQrModal(true)} className="min-h-11 bg-[#333] px-6 py-[13px] text-sm font-medium text-[#fffef2] transition-colors hover:bg-[#242424] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26]">{t("scanQr")}</button>
               </motion.div>
             ) : null}
 
             {hasBankTransfer && bank ? (
-              <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 0.45, delay: 0.2 }} viewport={{ once: true }} className="flex flex-col items-center border border-[#20382b]/15 bg-white p-8 text-center">
-                <div className="mb-6 flex h-14 w-14 items-center justify-center rounded-full bg-[#20382b] text-white"><Building2 size={26} /></div>
-                <h3 className="mb-4 font-heading text-2xl font-bold text-[#20382b]">{t("bankTransfer")}</h3>
-                <div className="w-full space-y-4 bg-[#f7f8f6] p-6 text-left">
+              <motion.div initial={{ opacity: 0, x: 20 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 0.45, delay: 0.2 }} viewport={{ once: true }} className="flex flex-col items-center bg-[#fffef2] p-8 text-center">
+                <div className="mb-6 text-[#945c26]"><Building2 size={28} /></div>
+                <h3 className="mb-4 font-heading text-2xl font-medium text-[#333]">{t("bankTransfer")}</h3>
+                <div className="w-full space-y-4 border border-[#333] bg-[#fffef2] p-6 text-left">
                   {bank.bank_name ? <div><p className="mb-1 text-xs font-semibold text-[#4a6741]">{t("bankLabel")}</p><p className="font-medium text-[#25231e]">{getLocalizedText(bank.bank_name, locale)}</p></div> : null}
                   {bank.account_name ? <div><p className="mb-1 text-xs font-semibold text-[#4a6741]">{t("accountNameLabel")}</p><p className="font-medium text-[#25231e]">{getLocalizedText(bank.account_name, locale)}</p></div> : null}
                   <div className="grid grid-cols-1 gap-4 md:grid-cols-2">

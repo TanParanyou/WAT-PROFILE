@@ -1,19 +1,24 @@
 "use client";
 
-import { motion } from "framer-motion";
 import { useTranslations } from "next-intl";
+
+const welcomeItems = [
+  ["meditation", "meditationDesc"],
+  ["sundaySchool", "sundaySchoolDesc"],
+  ["culture", "cultureDesc"],
+] as const;
 
 export default function WelcomeSection() {
   const t = useTranslations("WelcomeSection");
   const tSite = useTranslations("Site");
 
-  return (
-    <section className="bg-white py-20 dark:bg-zinc-950"><div className="container mx-auto px-4 md:px-6"><div className="mx-auto max-w-4xl text-center">
-      <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} viewport={{ once: true }}><h2 className="mb-4 font-sans font-medium tracking-wider text-secondary uppercase">{t("welcome")}</h2><h1 className="mb-8 font-heading text-3xl font-bold leading-relaxed text-primary md:text-5xl">{tSite("name")}</h1></motion.div>
-      <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6, delay: 0.2 }} viewport={{ once: true }} className="prose prose-lg mx-auto font-light leading-relaxed text-gray-600 dark:prose-invert dark:text-gray-400"><p className="mb-6">{t("description")}</p></motion.div>
-      <motion.div initial={{ opacity: 0, scale: 0.9 }} whileInView={{ opacity: 1, scale: 1 }} transition={{ duration: 0.6, delay: 0.4 }} viewport={{ once: true }} className="mt-12 grid grid-cols-1 gap-8 md:grid-cols-3">
-        {[["🙏", "meditation", "meditationDesc"], ["🏫", "sundaySchool", "sundaySchoolDesc"], ["🌺", "culture", "cultureDesc"]].map(([icon, title, description]) => <div key={title} className="rounded-2xl border border-gray-100 bg-zinc-50 p-6 transition-shadow hover:shadow-lg dark:border-gray-800 dark:bg-zinc-900"><div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-2xl text-primary">{icon}</div><h3 className="mb-2 font-heading text-lg font-bold">{t(title)}</h3><p className="mx-auto max-w-xs text-sm text-gray-500">{t(description)}</p></div>)}
-      </motion.div>
-    </div></div></section>
-  );
+  return <section className="bg-[#fffef2] px-6 py-[clamp(4rem,9vw,8rem)] text-[#333] sm:px-10 lg:px-[8vw]">
+    <div className="grid gap-10 border-t border-[#333] pt-8 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
+      <p className="text-sm text-[#666]">{t("welcome")}</p>
+      <div><h2 className="max-w-[18ch] text-balance font-heading text-[clamp(2.3rem,4.8vw,4.7rem)] font-normal leading-[1.14]">{tSite("name")}</h2><p className="mt-8 max-w-[68ch] text-lg leading-8 text-[#505050]">{t("description")}</p></div>
+    </div>
+    <div className="mt-16 grid border-y border-[#333] md:grid-cols-3">
+      {welcomeItems.map(([title, description]) => <article className="border-b border-[#333] px-0 py-8 last:border-b-0 md:border-b-0 md:px-7 md:first:pl-0 md:not-last:border-r md:last:pr-0" key={title}><h3 className="text-xl font-medium">{t(title)}</h3><p className="mt-3 leading-7 text-[#505050]">{t(description)}</p></article>)}
+    </div>
+  </section>;
 }
