@@ -50,38 +50,38 @@ export function PublicHomePageLayout({
 
   return (
     <div className="flex min-h-screen flex-col">
-      <section className="relative flex h-[80vh] items-center justify-center overflow-hidden bg-gray-900">
-        <div className="absolute inset-0 bg-[url('/hero-bg.jpg')] bg-cover bg-center opacity-40 mix-blend-overlay" />
-        <div className="absolute inset-0 bg-gradient-to-t from-gray-900 via-gray-900/40 to-transparent" />
-
-        <div className="relative z-10 mx-auto max-w-4xl px-4 text-center">
-          <h1 className="mb-6 text-4xl font-extrabold text-white drop-shadow-md md:text-6xl">{heroTitle}</h1>
-          <p className="mx-auto mb-8 max-w-2xl text-lg font-light text-gray-200 drop-shadow md:text-2xl">
+      <section className="grid min-h-[80svh] bg-[#fffef2] text-[#333] lg:grid-cols-2">
+        <div className="flex items-center px-6 py-20 sm:px-10 lg:px-[8vw]">
+          <div className="max-w-2xl">
+          <h1 className="mb-6 max-w-[11ch] text-balance text-[clamp(2.9rem,6vw,5.8rem)] font-bold leading-[1.05] tracking-[-0.03em]">{heroTitle}</h1>
+          <p className="mb-8 max-w-[65ch] text-lg leading-8 text-[#505050]">
             {heroSubtitle}
           </p>
-          <div className="flex justify-center gap-4">
+          <div className="flex gap-4">
             <Link
               href={heroCtaHref}
-              className="transform rounded-full bg-amber-600 px-8 py-3 font-semibold text-white shadow-lg transition-all duration-300 hover:-translate-y-1 hover:bg-amber-700 hover:shadow-xl"
+              className="bg-[#333] px-6 py-[13px] font-semibold text-[#fffef2] transition-colors hover:bg-[#242424] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26]"
             >
               {heroCtaLabel}
             </Link>
           </div>
+          </div>
         </div>
+        <div className="min-h-[26rem] bg-[url('/images/hero-bg.png')] bg-cover bg-center lg:min-h-full" />
       </section>
 
       <SectionLayout
         title={latestEventsTitle}
         subtitle={latestEventsSubtitle}
-        className="bg-gray-50"
+        className="border-t border-[#333] bg-[#fffef2]"
         action={
-          <Link href="/events" className="group flex items-center gap-1 font-semibold text-amber-600 hover:text-amber-700">
+          <Link href="/events" className="group flex items-center gap-1 font-semibold text-[#945c26] hover:underline">
             {labels.viewAll}
             <ChevronRight size={18} className="transition-transform group-hover:translate-x-1" />
           </Link>
         }
       >
-        <div className="grid grid-cols-1 gap-8 md:grid-cols-3">
+        <div className="grid grid-cols-1 border-t border-[#333] md:grid-cols-3">
           {latestEvents.map((event) => (
             <EventCard key={event.slug} event={event} locale={locale} />
           ))}
@@ -91,9 +91,9 @@ export function PublicHomePageLayout({
       <SectionLayout
         title={monksTitle}
         subtitle={monksSubtitle}
-        className="bg-white"
+        className="border-t border-[#333] bg-[#fffef2]"
         action={
-          <Link href="/monks" className="group flex items-center gap-1 font-semibold text-amber-600 hover:text-amber-700">
+          <Link href="/monks" className="group flex items-center gap-1 font-semibold text-[#945c26] hover:underline">
             {labels.viewAll}
             <ChevronRight size={18} className="transition-transform group-hover:translate-x-1" />
           </Link>

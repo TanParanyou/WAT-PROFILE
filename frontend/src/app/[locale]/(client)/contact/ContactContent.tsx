@@ -175,7 +175,7 @@ export default function ContactContent({ locale, cmsPage }: ContactContentProps)
           <button
             type="submit"
             disabled={status === "loading"}
-            className="inline-flex min-h-11 items-center gap-2 rounded-full bg-primary px-6 py-2.5 font-semibold text-white transition-colors hover:bg-primary-600 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary disabled:cursor-not-allowed disabled:opacity-60"
+            className="inline-flex min-h-11 items-center gap-2 bg-[#333] px-6 py-[13px] font-semibold text-[#fffef2] transition-colors hover:bg-[#242424] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26] disabled:cursor-not-allowed disabled:opacity-60"
           >
             {status === "loading" ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
             {t("sendMessage")}
@@ -201,7 +201,7 @@ function Field({
   type?: string;
   textarea?: boolean;
 }) {
-  const base = "mt-2 min-h-11 w-full rounded-lg border border-primary/20 bg-white px-3 py-2.5 text-base text-text-900 outline-none transition-colors placeholder:text-text-600 focus-visible:border-primary focus-visible:ring-2 focus-visible:ring-primary/25";
+  const base = "mt-2 min-h-11 w-full border border-[#333] bg-[#fffef2] px-3 py-2.5 text-base text-[#333] outline-none transition-colors placeholder:text-[#666] focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-[#945c26]";
   return (
     <label className="block text-sm font-semibold text-text-800" htmlFor={id}>
       {label}
