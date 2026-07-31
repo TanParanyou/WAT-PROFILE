@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { Plus, Pencil, Trash2 } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
@@ -27,14 +27,24 @@ import {
 } from "@/schemas/gallery.schema";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
-import { exportToCsv } from "@/utils/exportToCsv";
+import { useAdminListState } from "@/features/admin-list/useAdminListState";
+import { useAdminListQuery } from "@/features/admin-list/useAdminListQuery";
+import type { AdminFilterRecord, AdminFilterDefinition } from "@/features/admin-list/types";
+import { AdminListToolbar } from "@/components/admin/list/AdminListToolbar";
+import { AdminSearchInput } from "@/components/admin/list/AdminSearchInput";
+import { AdminMultiSelectFilter } from "@/components/admin/list/AdminMultiSelectFilter";
+import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components/admin/list/AdminActiveFilterChips";
+import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
+import { exportToCsv } from "@/services/adminListExportService";
 
 const emptyLang: MultiLangText = { th: "", en: "", de: "" };
 
+interface GalleryCategoryFilters extends AdminFilterRecord {
+  status: string[];
+}
+
 export default function GalleryCategoriesPage() {
   const t = useTranslations("Admin");
-  const [categories, setCategories] = useState<GalleryCategory[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const { isOpen, open, close } = useModal();
   const { confirm, ConfirmDialog } = useConfirm();
@@ -44,6 +54,39 @@ export default function GalleryCategoriesPage() {
 
   const [editingCategory, setEditingCategory] =
     useState<GalleryCategory | null>(null);
+
+  const listState = useAdminListState<GalleryCategoryFilters>({
+    schema: {
+      defaultSort: "id",
+      defaultOrder: "asc",
+      multi: ["status"],
+      allowedSorts: ["id", "name", "slug", "display_order", "created_at"],
+    },
+  });
+
+  const listQuery = useAdminListQuery<GalleryCategory, GalleryCategoryFilters>({
+    queryKey: ["admin", "gallery-categories"],
+    params: listState.params,
+    fetcher: (params) => galleryCategoryAdminService.getPaginated(params),
+    setPage: listState.actions.setPage,
+  });
+
+  const filterDefinitions: AdminFilterDefinition<GalleryCategoryFilters>[] = [
+    {
+      key: "status",
+      kind: "multi",
+      label: "สถานะ",
+      options: [
+        { value: "active", label: "Active" },
+        { value: "inactive", label: "Inactive" },
+      ],
+    },
+  ];
+
+  const activeChips: AdminActiveFilterChip[] = [];
+  for (const s of listState.params.filters.status || []) {
+    activeChips.push({ key: "status", value: s, label: `สถานะ: ${s}` });
+  }
 
   const handleDelete = async (id: number) => {
     await confirm({
@@ -55,10 +98,9 @@ export default function GalleryCategoriesPage() {
           await galleryCategoryAdminService.delete(id);
           toast.success(t("common.success"));
           selectedIds.clearSelection();
-          loadCategories();
+          listQuery.refetch();
         } catch (err) {
           toast.error(t("common.error"));
-
           throw err;
         }
       },
@@ -78,10 +120,9 @@ export default function GalleryCategoriesPage() {
           );
           toast.success(t("common.success"));
           selectedIds.clearSelection();
-          loadCategories();
+          listQuery.refetch();
         } catch (err) {
           toast.error(t("common.error"));
-
           throw err;
         }
       },
@@ -89,23 +130,18 @@ export default function GalleryCategoriesPage() {
   };
 
   const handleExportCsv = () => {
-    const exportData = categories.map((cat) => ({
-      id: cat.id,
-      "name.th": cat.name?.th || "",
-      "name.en": cat.name?.en || "",
-      slug: cat.slug || "",
-      display_order: cat.display_order || 0,
-      is_active: cat.is_active ? "Active" : "Inactive",
-    }));
-
-    exportToCsv("gallery_categories_export", exportData, [
-      { label: "ID", key: "id" },
-      { label: "Name (TH)", key: "name.th" },
-      { label: "Name (EN)", key: "name.en" },
-      { label: "Slug", key: "slug" },
-      { label: "Display Order", key: "display_order" },
-      { label: "Status", key: "is_active" },
-    ]);
+    exportToCsv(
+      listQuery.rows,
+      [
+        { header: "ID", accessor: (item) => item.id },
+        { header: "Name (TH)", accessor: (item) => item.name?.th || "" },
+        { header: "Name (EN)", accessor: (item) => item.name?.en || "" },
+        { header: "Slug", accessor: (item) => item.slug || "" },
+        { header: "Display Order", accessor: (item) => item.display_order || 0 },
+        { header: "Status", accessor: (item) => (item.is_active ? "Active" : "Inactive") },
+      ],
+      "gallery_categories_export"
+    );
   };
 
   const {
@@ -124,23 +160,6 @@ export default function GalleryCategoriesPage() {
       is_active: true,
     },
   });
-
-  const loadCategories = async () => {
-    setIsLoading(true);
-    try {
-      const result = await galleryCategoryAdminService.getAll();
-      setCategories(result.data);
-    } catch (err: unknown) {
-      handleApiError(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadCategories();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const handleOpenCreate = () => {
     setEditingCategory(null);
@@ -180,7 +199,7 @@ export default function GalleryCategoriesPage() {
         toast.success(t("common.success"));
       }
       close();
-      loadCategories();
+      listQuery.refetch();
     } catch (err: unknown) {
       handleApiError(err, setError);
     } finally {
@@ -254,14 +273,42 @@ export default function GalleryCategoriesPage() {
         }
       />
 
-      <div className="flex justify-between items-center mb-4 mt-4">
-        <div />
-        <button
-          onClick={handleExportCsv}
-          className="px-4 py-2 bg-white border border-gray-200 text-gray-600 rounded-lg text-sm font-medium hover:bg-gray-50 hover:text-gray-900 transition-colors shadow-sm"
-        >
-          Export CSV
-        </button>
+      <div className="mt-4">
+        <AdminListToolbar
+          activeFilterCount={activeChips.length}
+          search={
+            <AdminSearchInput
+              value={listState.draftSearch}
+              isDebouncing={listState.isDebouncing}
+              onChange={(val) => listState.actions.setSearch(val)}
+              onSubmit={(val) => listState.actions.setSearch(val, true)}
+              onClear={() => listState.actions.setSearch("", true)}
+            />
+          }
+          primaryFilters={
+            <AdminMultiSelectFilter
+              label="สถานะ"
+              options={filterDefinitions[0].options || []}
+              values={listState.params.filters.status || []}
+              onChange={(val) => listState.actions.setFilter("status", val)}
+            />
+          }
+          activeFilters={
+            <div className="flex items-center justify-between">
+              <AdminActiveFilterChips
+                filters={activeChips}
+                onRemove={(key, val) => listState.actions.removeFilterValue(key as keyof GalleryCategoryFilters, val)}
+                onClear={listState.actions.clearFilters}
+              />
+              <AdminListExportButton
+                isExporting={false}
+                completed={0}
+                total={listQuery.pagination.total}
+                onExport={handleExportCsv}
+              />
+            </div>
+          }
+        />
       </div>
 
       <BulkActionToolbar
@@ -279,16 +326,22 @@ export default function GalleryCategoriesPage() {
         </PermissionGuard>
       </BulkActionToolbar>
 
-      <DataTable
-        columns={columns}
-        data={categories}
-        isLoading={isLoading}
-        hidePagination={true}
-        selectable={true}
-        selectedIds={selectedIds.selectedIds as Set<string | number>}
-        onSelect={(id) => selectedIds.toggleSelection(id)}
-        onSelectAll={(ids) => selectedIds.selectAll(ids)}
-      />
+      <div className="mt-6">
+        <DataTable
+          columns={columns}
+          data={listQuery.rows}
+          pagination={listQuery.pagination}
+          sorting={{ key: listState.params.sort || "id", order: listState.params.order }}
+          isLoading={listQuery.isLoading}
+          onPageChange={listState.actions.setPage}
+          onLimitChange={listState.actions.setLimit}
+          onSort={(field) => listState.actions.setSort(field)}
+          selectable={true}
+          selectedIds={selectedIds.selectedIds as Set<string | number>}
+          onSelect={(id) => selectedIds.toggleSelection(id)}
+          onSelectAll={(ids) => selectedIds.selectAll(ids)}
+        />
+      </div>
 
       <FormModal
         isOpen={isOpen}

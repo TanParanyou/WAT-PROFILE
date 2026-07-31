@@ -10,27 +10,116 @@ import { PermissionButton } from "@/components/admin/PermissionButton";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { useConfirm } from "@/hooks/useConfirm";
-import { useDataTable } from "@/hooks/useDataTable";
-import { Button } from "@/components/ui/Button";
-import { galleryAdminService } from "@/services/adminService";
+import { galleryAdminService, galleryCategoryAdminService, eventAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import type { Gallery } from "@/types/entities";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
-import { exportToCsv } from "@/utils/exportToCsv";
 import { Icons } from "@/components/ui/Icons";
+import { useAdminListState } from "@/features/admin-list/useAdminListState";
+import { useAdminListQuery } from "@/features/admin-list/useAdminListQuery";
+import type { AdminFilterRecord, AdminFilterDefinition } from "@/features/admin-list/types";
+import { AdminListToolbar } from "@/components/admin/list/AdminListToolbar";
+import { AdminSearchInput } from "@/components/admin/list/AdminSearchInput";
+import { AdminMultiSelectFilter } from "@/components/admin/list/AdminMultiSelectFilter";
+import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components/admin/list/AdminActiveFilterChips";
+import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
+import { exportToCsv } from "@/services/adminListExportService";
+import { useQuery } from "@tanstack/react-query";
+
+interface GalleryFilters extends AdminFilterRecord {
+  status: string[];
+  category: string[];
+  event: string[];
+}
 
 export default function GalleryListPage() {
   const t = useTranslations("Admin");
-  const { data, pagination, sort, isLoading, onPageChange, onSort, fetchData } =
-    useDataTable<Gallery>({
-      queryKey: "gallery",
-      fetcher: (p) =>
-        galleryAdminService.getAll({ page: p.page, limit: p.limit }),
-    });
   const { confirm, ConfirmDialog } = useConfirm();
   const { toast } = useToast();
   const selectedIds = useRowSelection();
+
+  const listState = useAdminListState<GalleryFilters>({
+    schema: {
+      defaultSort: "created_at",
+      defaultOrder: "desc",
+      multi: ["status", "category", "event"],
+      allowedSorts: ["id", "caption", "display_order", "created_at"],
+    },
+  });
+
+  const listQuery = useAdminListQuery<Gallery, GalleryFilters>({
+    queryKey: ["admin", "gallery"],
+    params: listState.params,
+    fetcher: (params) => galleryAdminService.getPaginated(params),
+    setPage: listState.actions.setPage,
+  });
+
+  const { data: categoriesData } = useQuery({
+    queryKey: ["admin", "gallery-categories", "options"],
+    queryFn: async () => {
+      const res = await galleryCategoryAdminService.getPaginated({
+        page: 1,
+        limit: 100,
+        search: "",
+        order: "asc",
+        filters: {},
+      });
+      return res.data || [];
+    },
+  });
+
+  const { data: eventsData } = useQuery({
+    queryKey: ["admin", "events", "options"],
+    queryFn: async () => {
+      const res = await eventAdminService.getPaginated({
+        page: 1,
+        limit: 100,
+        search: "",
+        order: "asc",
+        filters: {},
+      });
+      return res.data || [];
+    },
+  });
+
+  const filterDefinitions: AdminFilterDefinition<GalleryFilters>[] = [
+    {
+      key: "status",
+      kind: "multi",
+      label: "สถานะ",
+      options: [
+        { value: "published", label: "Published" },
+        { value: "draft", label: "Draft" },
+        { value: "archived", label: "Archived" },
+      ],
+    },
+    {
+      key: "category",
+      kind: "multi",
+      label: "หมวดหมู่",
+      options: (categoriesData || []).map((c) => ({ value: String(c.id), label: c.name?.th || String(c.id) })),
+    },
+    {
+      key: "event",
+      kind: "multi",
+      label: "กิจกรรม",
+      options: (eventsData || []).map((e) => ({ value: String(e.id), label: e.title?.th || String(e.id) })),
+    },
+  ];
+
+  const activeChips: AdminActiveFilterChip[] = [];
+  for (const s of listState.params.filters.status || []) {
+    activeChips.push({ key: "status", value: s, label: `สถานะ: ${s}` });
+  }
+  for (const cId of listState.params.filters.category || []) {
+    const cName = categoriesData?.find((c) => String(c.id) === cId)?.name?.th || cId;
+    activeChips.push({ key: "category", value: cId, label: `หมวดหมู่: ${cName}` });
+  }
+  for (const eId of listState.params.filters.event || []) {
+    const eTitle = eventsData?.find((e) => String(e.id) === eId)?.title?.th || eId;
+    activeChips.push({ key: "event", value: eId, label: `กิจกรรม: ${eTitle}` });
+  }
 
   const handleDelete = async (id: number) => {
     await confirm({
@@ -42,10 +131,9 @@ export default function GalleryListPage() {
           await galleryAdminService.delete(id);
           toast.success(t("common.success"));
           selectedIds.clearSelection();
-          fetchData();
+          listQuery.refetch();
         } catch (err) {
           toast.error(t("common.error"));
-
           throw err;
         }
       },
@@ -63,10 +151,9 @@ export default function GalleryListPage() {
           await galleryAdminService.bulkDelete(selectedIds.selectedArray);
           toast.success(t("common.success"));
           selectedIds.clearSelection();
-          fetchData();
+          listQuery.refetch();
         } catch (err) {
           toast.error(t("common.error"));
-
           throw err;
         }
       },
@@ -74,21 +161,17 @@ export default function GalleryListPage() {
   };
 
   const handleExportCsv = () => {
-    const exportData = data.map((item) => ({
-      id: item.id,
-      caption: item.caption?.th || "",
-      category: item.category?.name?.th || "",
-      display_order: item.display_order,
-      is_active: item.is_active ? "Active" : "Inactive",
-    }));
-
-    exportToCsv("gallery_export", exportData, [
-      { label: "ID", key: "id" },
-      { label: "Caption", key: "caption" },
-      { label: "Category", key: "category" },
-      { label: "Display Order", key: "display_order" },
-      { label: "Status", key: "is_active" },
-    ]);
+    exportToCsv(
+      listQuery.rows,
+      [
+        { header: "ID", accessor: (item) => item.id },
+        { header: "Caption", accessor: (item) => item.caption?.th || "" },
+        { header: "Category", accessor: (item) => item.category?.name?.th || "" },
+        { header: "Display Order", accessor: (item) => item.display_order },
+        { header: "Status", accessor: (item) => (item.is_active ? "Active" : "Inactive") },
+      ],
+      "gallery_export"
+    );
   };
 
   const columns: Column<Gallery>[] = [
@@ -149,14 +232,6 @@ export default function GalleryListPage() {
         breadcrumbs={[{ label: t("gallery.title") }]}
         actions={
           <div className="flex gap-2">
-            <Button
-              onClick={handleExportCsv}
-              variant="outline"
-              icon={<Icons.Download size={14} />}
-              className="shadow-sm"
-            >
-              Export CSV
-            </Button>
             <PermissionButton
               resource="gallery"
               action="create"
@@ -176,6 +251,59 @@ export default function GalleryListPage() {
         }
       />
 
+      <div className="mt-4">
+        <AdminListToolbar
+          activeFilterCount={activeChips.length}
+          search={
+            <AdminSearchInput
+              value={listState.draftSearch}
+              isDebouncing={listState.isDebouncing}
+              onChange={(val) => listState.actions.setSearch(val)}
+              onSubmit={(val) => listState.actions.setSearch(val, true)}
+              onClear={() => listState.actions.setSearch("", true)}
+            />
+          }
+          primaryFilters={
+            <>
+              <AdminMultiSelectFilter
+                label="สถานะ"
+                options={filterDefinitions[0].options || []}
+                values={listState.params.filters.status || []}
+                onChange={(val) => listState.actions.setFilter("status", val)}
+              />
+              <AdminMultiSelectFilter
+                label="หมวดหมู่"
+                options={filterDefinitions[1].options || []}
+                values={listState.params.filters.category || []}
+                onChange={(val) => listState.actions.setFilter("category", val)}
+              />
+            </>
+          }
+          activeFilters={
+            <div className="flex items-center justify-between">
+              <AdminActiveFilterChips
+                filters={activeChips}
+                onRemove={(key, val) => listState.actions.removeFilterValue(key as keyof GalleryFilters, val)}
+                onClear={listState.actions.clearFilters}
+              />
+              <AdminListExportButton
+                isExporting={false}
+                completed={0}
+                total={listQuery.pagination.total}
+                onExport={handleExportCsv}
+              />
+            </div>
+          }
+        >
+          <AdminMultiSelectFilter
+            label="กิจกรรม"
+            options={filterDefinitions[2].options || []}
+            values={listState.params.filters.event || []}
+            onChange={(val) => listState.actions.setFilter("event", val)}
+          />
+        </AdminListToolbar>
+      </div>
+
       <BulkActionToolbar
         selectedCount={selectedIds.selectedCount}
         onClear={selectedIds.clearSelection}
@@ -191,19 +319,22 @@ export default function GalleryListPage() {
         </PermissionGuard>
       </BulkActionToolbar>
 
-      <DataTable
-        columns={columns}
-        data={data}
-        pagination={pagination}
-        sorting={sort}
-        isLoading={isLoading}
-        onPageChange={onPageChange}
-        onSort={onSort}
-        selectable={true}
-        selectedIds={selectedIds.selectedIds as Set<string | number>}
-        onSelect={(id) => selectedIds.toggleSelection(id)}
-        onSelectAll={(ids) => selectedIds.selectAll(ids)}
-      />
+      <div className="mt-6">
+        <DataTable
+          columns={columns}
+          data={listQuery.rows}
+          pagination={listQuery.pagination}
+          sorting={{ key: listState.params.sort || "created_at", order: listState.params.order }}
+          isLoading={listQuery.isLoading}
+          onPageChange={listState.actions.setPage}
+          onLimitChange={listState.actions.setLimit}
+          onSort={(field) => listState.actions.setSort(field)}
+          selectable={true}
+          selectedIds={selectedIds.selectedIds as Set<string | number>}
+          onSelect={(id) => selectedIds.toggleSelection(id)}
+          onSelectAll={(ids) => selectedIds.selectAll(ids)}
+        />
+      </div>
       <ConfirmDialog />
     </div>
   );

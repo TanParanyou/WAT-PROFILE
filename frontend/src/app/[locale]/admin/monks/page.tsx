@@ -9,31 +9,70 @@ import { PermissionButton } from "@/components/admin/PermissionButton";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { useConfirm } from "@/hooks/useConfirm";
-import { useDataTable } from "@/hooks/useDataTable";
-import { Button } from "@/components/ui/Button";
 import { monkAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import type { Monk } from "@/types/entities";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
-import { exportToCsv } from "@/utils/exportToCsv";
 import { Icons } from "@/components/ui/Icons";
 import { Drawer } from "@/components/ui/Drawer";
 import { IframePreview } from "@/components/ui/IframePreview";
 import { useAppOptions } from "@/hooks/useAppOptions";
+import { useAdminListState } from "@/features/admin-list/useAdminListState";
+import { useAdminListQuery } from "@/features/admin-list/useAdminListQuery";
+import type { AdminFilterRecord, AdminFilterDefinition } from "@/features/admin-list/types";
+import { AdminListToolbar } from "@/components/admin/list/AdminListToolbar";
+import { AdminSearchInput } from "@/components/admin/list/AdminSearchInput";
+import { AdminMultiSelectFilter } from "@/components/admin/list/AdminMultiSelectFilter";
+import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components/admin/list/AdminActiveFilterChips";
+import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
+import { exportToCsv } from "@/services/adminListExportService";
+
+interface MonkFilters extends AdminFilterRecord {
+  status: string[];
+}
 
 export default function MonksListPage() {
   const t = useTranslations("Admin");
   const { getMonkPositionLabel } = useAppOptions();
-  const { data, pagination, sort, isLoading, onPageChange, onSort, fetchData } =
-    useDataTable<Monk>({
-      queryKey: "monks",
-      fetcher: (p) => monkAdminService.getAll({ page: p.page, limit: p.limit }),
-    });
   const { confirm, ConfirmDialog } = useConfirm();
   const { toast } = useToast();
   const selectedIds = useRowSelection();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const listState = useAdminListState<MonkFilters>({
+    schema: {
+      defaultSort: "pansa",
+      defaultOrder: "desc",
+      multi: ["status"],
+      allowedSorts: ["id", "name", "position", "pansa", "created_at"],
+    },
+  });
+
+  const listQuery = useAdminListQuery<Monk, MonkFilters>({
+    queryKey: ["admin", "monks"],
+    params: listState.params,
+    fetcher: (params) => monkAdminService.getPaginated(params),
+    setPage: listState.actions.setPage,
+  });
+
+  const filterDefinitions: AdminFilterDefinition<MonkFilters>[] = [
+    {
+      key: "status",
+      kind: "multi",
+      label: "สถานะ",
+      options: [
+        { value: "active", label: "Active" },
+        { value: "inactive", label: "Inactive" },
+        { value: "retired", label: "Retired" },
+      ],
+    },
+  ];
+
+  const activeChips: AdminActiveFilterChip[] = [];
+  for (const s of listState.params.filters.status || []) {
+    activeChips.push({ key: "status", value: s, label: `สถานะ: ${s}` });
+  }
 
   const handleDelete = async (id: number) => {
     await confirm({
@@ -45,10 +84,9 @@ export default function MonksListPage() {
           await monkAdminService.delete(id);
           toast.success(t("common.success"));
           selectedIds.clearSelection();
-          fetchData();
+          listQuery.refetch();
         } catch (err) {
           toast.error(t("common.error"));
-
           throw err;
         }
       },
@@ -66,10 +104,9 @@ export default function MonksListPage() {
           await monkAdminService.bulkDelete(selectedIds.selectedArray);
           toast.success(t("common.success"));
           selectedIds.clearSelection();
-          fetchData();
+          listQuery.refetch();
         } catch (err) {
           toast.error(t("common.error"));
-
           throw err;
         }
       },
@@ -77,20 +114,17 @@ export default function MonksListPage() {
   };
 
   const handleExportCsv = () => {
-    const exportData = data.map((monk) => ({
-      id: monk.id,
-      "name.th": monk.name?.th || "",
-      "name.en": monk.name?.en || "",
-      position: monk.position || "",
-      is_active: monk.is_active ? "Active" : "Inactive",
-    }));
-    exportToCsv("monks_export", exportData, [
-      { label: "ID", key: "id" },
-      { label: "Name (TH)", key: "name.th" },
-      { label: "Name (EN)", key: "name.en" },
-      { label: "Position", key: "position" },
-      { label: "Status", key: "is_active" },
-    ]);
+    exportToCsv(
+      listQuery.rows,
+      [
+        { header: "ID", accessor: (item) => item.id },
+        { header: "Name (TH)", accessor: (item) => item.name?.th || "" },
+        { header: "Name (EN)", accessor: (item) => item.name?.en || "" },
+        { header: "Position", accessor: (item) => item.position || "" },
+        { header: "Status", accessor: (item) => (item.is_active ? "Active" : "Inactive") },
+      ],
+      "monks_export"
+    );
   };
 
   const columns: Column<Monk>[] = [
@@ -166,25 +200,53 @@ export default function MonksListPage() {
         title={t("monks.title")}
         breadcrumbs={[{ label: t("monks.title") }]}
         actions={
-          <div className="flex gap-2">
-            <Button
-              onClick={handleExportCsv}
-              variant="outline"
-              icon={<Icons.Download size={14} />}
-              className="shadow-sm"
-            >
-              {t("common.exportCsv")}
-            </Button>
-            <PermissionButton
-              resource="monks"
-              action="create"
-              icon={<Icons.Plus size={14} />}
-            >
-              <Link href="/admin/monks/create">{t("monks.create")}</Link>
-            </PermissionButton>
-          </div>
+          <PermissionButton
+            resource="monks"
+            action="create"
+            icon={<Icons.Plus size={14} />}
+          >
+            <Link href="/admin/monks/create">{t("monks.create")}</Link>
+          </PermissionButton>
         }
       />
+
+      <div className="mt-4">
+        <AdminListToolbar
+          activeFilterCount={activeChips.length}
+          search={
+            <AdminSearchInput
+              value={listState.draftSearch}
+              isDebouncing={listState.isDebouncing}
+              onChange={(val) => listState.actions.setSearch(val)}
+              onSubmit={(val) => listState.actions.setSearch(val, true)}
+              onClear={() => listState.actions.setSearch("", true)}
+            />
+          }
+          primaryFilters={
+            <AdminMultiSelectFilter
+              label="สถานะ"
+              options={filterDefinitions[0].options || []}
+              values={listState.params.filters.status || []}
+              onChange={(val) => listState.actions.setFilter("status", val)}
+            />
+          }
+          activeFilters={
+            <div className="flex items-center justify-between">
+              <AdminActiveFilterChips
+                filters={activeChips}
+                onRemove={(key, val) => listState.actions.removeFilterValue(key as keyof MonkFilters, val)}
+                onClear={listState.actions.clearFilters}
+              />
+              <AdminListExportButton
+                isExporting={false}
+                completed={0}
+                total={listQuery.pagination.total}
+                onExport={handleExportCsv}
+              />
+            </div>
+          }
+        />
+      </div>
 
       <BulkActionToolbar
         selectedCount={selectedIds.selectedCount}
@@ -204,12 +266,13 @@ export default function MonksListPage() {
       <div className="mt-6">
         <DataTable
           columns={columns}
-          data={data}
-          pagination={pagination}
-          sorting={sort}
-          isLoading={isLoading}
-          onPageChange={onPageChange}
-          onSort={onSort}
+          data={listQuery.rows}
+          pagination={listQuery.pagination}
+          sorting={{ key: listState.params.sort || "pansa", order: listState.params.order }}
+          isLoading={listQuery.isLoading}
+          onPageChange={listState.actions.setPage}
+          onLimitChange={listState.actions.setLimit}
+          onSort={(field) => listState.actions.setSort(field)}
           selectable={true}
           selectedIds={selectedIds.selectedIds as Set<string | number>}
           onSelect={(id) => selectedIds.toggleSelection(id)}

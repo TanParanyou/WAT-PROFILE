@@ -9,33 +9,95 @@ import { PermissionButton } from "@/components/admin/PermissionButton";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { useConfirm } from "@/hooks/useConfirm";
-import { useDataTable } from "@/hooks/useDataTable";
-import { Button } from "@/components/ui/Button";
 import { eventAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import type { Event } from "@/types/entities";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
-import { exportToCsv } from "@/utils/exportToCsv";
 import { Drawer } from "@/components/ui/Drawer";
 import { IframePreview } from "@/components/ui/IframePreview";
 import { Icons } from "@/components/ui/Icons";
-
 import { useDateFormat } from "@/hooks/useDateFormat";
+import { useAdminListState } from "@/features/admin-list/useAdminListState";
+import { useAdminListQuery } from "@/features/admin-list/useAdminListQuery";
+import type { AdminFilterRecord, AdminFilterDefinition } from "@/features/admin-list/types";
+import { AdminListToolbar } from "@/components/admin/list/AdminListToolbar";
+import { AdminSearchInput } from "@/components/admin/list/AdminSearchInput";
+import { AdminMultiSelectFilter } from "@/components/admin/list/AdminMultiSelectFilter";
+import { AdminDateRangeFilter } from "@/components/admin/list/AdminDateRangeFilter";
+import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components/admin/list/AdminActiveFilterChips";
+import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
+import { exportToCsv } from "@/services/adminListExportService";
+
+interface EventFilters extends AdminFilterRecord {
+  status: string[];
+  type: string[];
+  start_from?: string;
+  start_to?: string;
+}
 
 export default function EventsListPage() {
   const t = useTranslations("Admin");
   const { formatDateRange } = useDateFormat();
-  const { data, pagination, sort, isLoading, onPageChange, onSort, fetchData } =
-    useDataTable<Event>({
-      queryKey: "events",
-      fetcher: (p) =>
-        eventAdminService.getAll({ page: p.page, limit: p.limit }),
-    });
   const { confirm, ConfirmDialog } = useConfirm();
   const { toast } = useToast();
   const selectedIds = useRowSelection();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+
+  const listState = useAdminListState<EventFilters>({
+    schema: {
+      defaultSort: "start_date",
+      defaultOrder: "desc",
+      multi: ["status", "type"],
+      single: ["start_from", "start_to"],
+      allowedSorts: ["id", "title", "event_type", "start_date", "end_date", "created_at"],
+    },
+  });
+
+  const listQuery = useAdminListQuery<Event, EventFilters>({
+    queryKey: ["admin", "events"],
+    params: listState.params,
+    fetcher: (params) => eventAdminService.getPaginated(params),
+    setPage: listState.actions.setPage,
+  });
+
+  const filterDefinitions: AdminFilterDefinition<EventFilters>[] = [
+    {
+      key: "status",
+      kind: "multi",
+      label: "สถานะ",
+      options: [
+        { value: "draft", label: "Draft" },
+        { value: "published", label: "Published" },
+        { value: "archived", label: "Archived" },
+      ],
+    },
+    {
+      key: "type",
+      kind: "multi",
+      label: "ประเภทกิจกรรม",
+      options: [
+        { value: "ceremony", label: "Ceremony" },
+        { value: "merit", label: "Merit" },
+        { value: "meditation", label: "Meditation" },
+        { value: "general", label: "General" },
+      ],
+    },
+  ];
+
+  const activeChips: AdminActiveFilterChip[] = [];
+  for (const s of listState.params.filters.status || []) {
+    activeChips.push({ key: "status", value: s, label: `สถานะ: ${s}` });
+  }
+  for (const tp of listState.params.filters.type || []) {
+    activeChips.push({ key: "type", value: tp, label: `ประเภท: ${tp}` });
+  }
+  if (listState.params.filters.start_from) {
+    activeChips.push({ key: "start_from", value: listState.params.filters.start_from, label: `ตั้งแต่วันที่: ${listState.params.filters.start_from}` });
+  }
+  if (listState.params.filters.start_to) {
+    activeChips.push({ key: "start_to", value: listState.params.filters.start_to, label: `ถึงวันที่: ${listState.params.filters.start_to}` });
+  }
 
   const handleDelete = async (id: number) => {
     await confirm({
@@ -47,10 +109,9 @@ export default function EventsListPage() {
           await eventAdminService.delete(id);
           toast.success(t("common.success"));
           selectedIds.clearSelection();
-          fetchData();
+          listQuery.refetch();
         } catch (err) {
           toast.error(t("common.error"));
-
           throw err;
         }
       },
@@ -68,10 +129,9 @@ export default function EventsListPage() {
           await eventAdminService.bulkDelete(selectedIds.selectedArray);
           toast.success(t("common.success"));
           selectedIds.clearSelection();
-          fetchData();
+          listQuery.refetch();
         } catch (err) {
           toast.error(t("common.error"));
-
           throw err;
         }
       },
@@ -79,23 +139,18 @@ export default function EventsListPage() {
   };
 
   const handleExportCsv = () => {
-    const exportData = data.map((event) => ({
-      id: event.id,
-      "title.th": event.title?.th || "",
-      "title.en": event.title?.en || "",
-      event_type: event.event_type || "",
-      event_date: formatDateRange(event.start_date, event.end_date),
-      is_active: event.is_active ? "Active" : "Inactive",
-    }));
-
-    exportToCsv("events_export", exportData, [
-      { label: "ID", key: "id" },
-      { label: "Title (TH)", key: "title.th" },
-      { label: "Title (EN)", key: "title.en" },
-      { label: "Type", key: "event_type" },
-      { label: "Date", key: "event_date" },
-      { label: "Status", key: "is_active" },
-    ]);
+    exportToCsv(
+      listQuery.rows,
+      [
+        { header: "ID", accessor: (item) => item.id },
+        { header: "Title (TH)", accessor: (item) => item.title?.th || "" },
+        { header: "Title (EN)", accessor: (item) => item.title?.en || "" },
+        { header: "Type", accessor: (item) => item.event_type || "" },
+        { header: "Date", accessor: (item) => formatDateRange(item.start_date, item.end_date) },
+        { header: "Status", accessor: (item) => (item.is_active ? "Active" : "Inactive") },
+      ],
+      "events_export"
+    );
   };
 
   const columns: Column<Event>[] = [
@@ -158,26 +213,69 @@ export default function EventsListPage() {
         title={t("events.title")}
         breadcrumbs={[{ label: t("events.title") }]}
         actions={
-          <div className="flex gap-2">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={handleExportCsv}
-              icon={<Icons.Download size={14} />}
-              className="shadow-sm"
-            >
-              {t("common.exportCsv")}
-            </Button>
-            <PermissionButton
-              resource="events"
-              action="create"
-              icon={<Icons.Plus size={14} />}
-            >
-              <Link href="/admin/events/create">{t("events.create")}</Link>
-            </PermissionButton>
-          </div>
+          <PermissionButton
+            resource="events"
+            action="create"
+            icon={<Icons.Plus size={14} />}
+          >
+            <Link href="/admin/events/create">{t("events.create")}</Link>
+          </PermissionButton>
         }
       />
+
+      <AdminListToolbar
+        activeFilterCount={activeChips.length}
+        search={
+          <AdminSearchInput
+            value={listState.draftSearch}
+            isDebouncing={listState.isDebouncing}
+            onChange={(val) => listState.actions.setSearch(val)}
+            onSubmit={(val) => listState.actions.setSearch(val, true)}
+            onClear={() => listState.actions.setSearch("", true)}
+          />
+        }
+        primaryFilters={
+          <>
+            <AdminMultiSelectFilter
+              label="สถานะ"
+              options={filterDefinitions[0].options || []}
+              values={listState.params.filters.status || []}
+              onChange={(val) => listState.actions.setFilter("status", val)}
+            />
+            <AdminMultiSelectFilter
+              label="ประเภทกิจกรรม"
+              options={filterDefinitions[1].options || []}
+              values={listState.params.filters.type || []}
+              onChange={(val) => listState.actions.setFilter("type", val)}
+            />
+          </>
+        }
+        activeFilters={
+          <div className="flex items-center justify-between">
+            <AdminActiveFilterChips
+              filters={activeChips}
+              onRemove={(key, val) => listState.actions.removeFilterValue(key as keyof EventFilters, val)}
+              onClear={listState.actions.clearFilters}
+            />
+            <AdminListExportButton
+              isExporting={false}
+              completed={0}
+              total={listQuery.pagination.total}
+              onExport={handleExportCsv}
+            />
+          </div>
+        }
+      >
+        <AdminDateRangeFilter
+          label="ช่วงวันที่กิจกรรม"
+          from={listState.params.filters.start_from}
+          to={listState.params.filters.start_to}
+          onChange={({ from, to }) => {
+            listState.actions.setFilter("start_from", from);
+            listState.actions.setFilter("start_to", to);
+          }}
+        />
+      </AdminListToolbar>
 
       <BulkActionToolbar
         selectedCount={selectedIds.selectedCount}
@@ -196,12 +294,13 @@ export default function EventsListPage() {
 
       <DataTable
         columns={columns}
-        data={data}
-        pagination={pagination}
-        sorting={sort}
-        isLoading={isLoading}
-        onPageChange={onPageChange}
-        onSort={onSort}
+        data={listQuery.rows}
+        pagination={listQuery.pagination}
+        sorting={{ key: listState.params.sort || "start_date", order: listState.params.order }}
+        isLoading={listQuery.isLoading}
+        onPageChange={listState.actions.setPage}
+        onLimitChange={listState.actions.setLimit}
+        onSort={(field) => listState.actions.setSort(field)}
         selectable={true}
         selectedIds={selectedIds.selectedIds as Set<string | number>}
         onSelect={(id) => selectedIds.toggleSelection(id)}

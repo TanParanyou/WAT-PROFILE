@@ -1,40 +1,92 @@
 "use client";
 
-import { useDeferredValue, useState } from "react";
+import React from "react";
 import { useTranslations } from "next-intl";
-import { Search } from "lucide-react";
-import { Input } from "@/components/ui/Input";
 import { PageLoading } from "@/components/ui/Loading";
 import { WebsitePagesList } from "@/components/admin/website/WebsitePagesList";
-import { useWebsitePagesQuery } from "@/hooks/website-cms";
-import type { ContentStatus } from "@/types/website-cms";
+import { websiteCmsAdminService } from "@/services/websiteCmsService";
+import type { ContentPage } from "@/types/website-cms";
+import { useAdminListState } from "@/features/admin-list/useAdminListState";
+import { useAdminListQuery } from "@/features/admin-list/useAdminListQuery";
+import type { AdminFilterRecord, AdminFilterDefinition } from "@/features/admin-list/types";
+import { AdminListToolbar } from "@/components/admin/list/AdminListToolbar";
+import { AdminSearchInput } from "@/components/admin/list/AdminSearchInput";
+import { AdminMultiSelectFilter } from "@/components/admin/list/AdminMultiSelectFilter";
+import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components/admin/list/AdminActiveFilterChips";
+import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
+import { exportToCsv } from "@/services/adminListExportService";
+import { useQuery } from "@tanstack/react-query";
+
+interface WebsitePageFilters extends AdminFilterRecord {
+  status: string[];
+}
 
 export function WebsitePagesManager() {
   const t = useTranslations("Admin");
-  const pagesQuery = useWebsitePagesQuery();
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState<ContentStatus | "all">("all");
-  const deferredSearch = useDeferredValue(search);
 
-  if (pagesQuery.isLoading) {
+  const listState = useAdminListState<WebsitePageFilters>({
+    schema: {
+      defaultSort: "id",
+      defaultOrder: "asc",
+      multi: ["status"],
+      allowedSorts: ["id", "slug", "page_key", "created_at"],
+    },
+  });
+
+  const listQuery = useAdminListQuery<ContentPage, WebsitePageFilters>({
+    queryKey: ["admin", "website-pages"],
+    params: listState.params,
+    fetcher: (params) => websiteCmsAdminService.getPaginatedPages(params),
+    setPage: listState.actions.setPage,
+  });
+
+  const { data: allPagesData } = useQuery({
+    queryKey: ["admin", "website-pages", "all-metrics"],
+    queryFn: () => websiteCmsAdminService.listPages(),
+  });
+
+  const filterDefinitions: AdminFilterDefinition<WebsitePageFilters>[] = [
+    {
+      key: "status",
+      kind: "multi",
+      label: "สถานะ",
+      options: [
+        { value: "published", label: "Published" },
+        { value: "draft", label: "Draft" },
+        { value: "archived", label: "Archived" },
+      ],
+    },
+  ];
+
+  const activeChips: AdminActiveFilterChip[] = [];
+  for (const s of listState.params.filters.status || []) {
+    activeChips.push({ key: "status", value: s, label: `สถานะ: ${s}` });
+  }
+
+  const handleExportCsv = () => {
+    exportToCsv(
+      listQuery.rows,
+      [
+        { header: "ID", accessor: (item) => item.id },
+        { header: "Page Key", accessor: (item) => item.page_key },
+        { header: "Slug", accessor: (item) => item.slug },
+        { header: "Title (TH)", accessor: (item) => item.title?.th || "" },
+        { header: "Title (EN)", accessor: (item) => item.title?.en || "" },
+        { header: "Status", accessor: (item) => item.status },
+        { header: "Sections Count", accessor: (item) => item.sections?.length || 0 },
+      ],
+      "website_pages_export"
+    );
+  };
+
+  if (listQuery.isLoading && !allPagesData) {
     return <PageLoading text={t("common.loading")} />;
   }
 
-  const pages = pagesQuery.data ?? [];
-  const filteredPages = pages.filter((page) => {
-    const term = deferredSearch.trim().toLowerCase();
-    const matchesSearch =
-      !term ||
-      page.page_key.toLowerCase().includes(term) ||
-      page.slug.toLowerCase().includes(term) ||
-      Object.values(page.title).some((value) => value?.toLowerCase().includes(term));
-    const matchesStatus = status === "all" || page.status === status;
-    return matchesSearch && matchesStatus;
-  });
-
-  const publishedCount = pages.filter((page) => page.status === "published").length;
-  const draftCount = pages.filter((page) => page.status === "draft").length;
-  const sectionCount = pages.reduce((total, page) => total + page.sections.length, 0);
+  const allPages = allPagesData ?? [];
+  const publishedCount = allPages.filter((page) => page.status === "published").length;
+  const draftCount = allPages.filter((page) => page.status === "draft").length;
+  const sectionCount = allPages.reduce((total, page) => total + (page.sections?.length || 0), 0);
 
   return (
     <div className="space-y-4">
@@ -43,44 +95,53 @@ export function WebsitePagesManager() {
         <p className="text-sm text-zinc-500">Website pages</p>
       </div>
       <div className="grid gap-3 md:grid-cols-4">
-        <Metric label="Pages" value={pages.length} />
+        <Metric label="Pages" value={allPages.length} />
         <Metric label="Published" value={publishedCount} />
         <Metric label="Draft" value={draftCount} />
         <Metric label="Sections" value={sectionCount} />
       </div>
-      <div className="flex flex-col gap-3 border border-zinc-200 bg-white p-3 md:flex-row md:items-end md:justify-between">
-        <div className="relative min-w-0 flex-1">
-          <Input
-            label="Search pages"
-            value={search}
-            onChange={(event) => setSearch(event.target.value)}
-            placeholder="PAGE-CONTACT, contact, title..."
-            className="pl-9"
+
+      <AdminListToolbar
+        activeFilterCount={activeChips.length}
+        search={
+          <AdminSearchInput
+            value={listState.draftSearch}
+            isDebouncing={listState.isDebouncing}
+            onChange={(val) => listState.actions.setSearch(val)}
+            onSubmit={(val) => listState.actions.setSearch(val, true)}
+            onClear={() => listState.actions.setSearch("", true)}
           />
-          <Search size={15} className="absolute left-3 bottom-[11px] text-zinc-400 pointer-events-none" />
-        </div>
-        <div className="flex gap-2">
-          {(["all", "published", "draft", "archived"] as const).map((item) => (
-            <button
-              key={item}
-              type="button"
-              onClick={() => setStatus(item)}
-              className={
-                status === item
-                  ? "border border-zinc-950 bg-zinc-950 px-3 py-2 text-xs font-medium uppercase tracking-[0.12em] text-white"
-                  : "border border-zinc-200 bg-white px-3 py-2 text-xs font-medium uppercase tracking-[0.12em] text-zinc-600 hover:bg-zinc-50"
-              }
-            >
-              {item}
-            </button>
-          ))}
-        </div>
-      </div>
+        }
+        primaryFilters={
+          <AdminMultiSelectFilter
+            label="สถานะ"
+            options={filterDefinitions[0].options || []}
+            values={listState.params.filters.status || []}
+            onChange={(val) => listState.actions.setFilter("status", val)}
+          />
+        }
+        activeFilters={
+          <div className="flex items-center justify-between">
+            <AdminActiveFilterChips
+              filters={activeChips}
+              onRemove={(key, val) => listState.actions.removeFilterValue(key as keyof WebsitePageFilters, val)}
+              onClear={listState.actions.clearFilters}
+            />
+            <AdminListExportButton
+              isExporting={false}
+              completed={0}
+              total={listQuery.pagination.total}
+              onExport={handleExportCsv}
+            />
+          </div>
+        }
+      />
+
       <WebsitePagesList
-        pages={filteredPages}
-        isLoading={pagesQuery.isLoading}
-        error={pagesQuery.error as Error | null}
-        onRetry={() => pagesQuery.refetch()}
+        pages={listQuery.rows}
+        isLoading={listQuery.isLoading}
+        error={listQuery.error as Error | null}
+        onRetry={() => listQuery.refetch()}
       />
     </div>
   );

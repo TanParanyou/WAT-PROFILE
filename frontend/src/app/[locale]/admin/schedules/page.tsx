@@ -13,18 +13,15 @@ import { DataTable, Column } from "@/components/ui/DataTable";
 import { FormModal, useModal } from "@/components/ui/Modal";
 import { useConfirm } from "@/hooks/useConfirm";
 import { Input } from "@/components/ui/Input";
-import { Button } from "@/components/ui/Button";
 import { Select } from "@/components/ui/Select";
 import { TimePicker } from "@/components/ui/TimePicker";
 import { Switch } from "@/components/ui/Switch";
-import { useDataTable } from "@/hooks/useDataTable";
 import { scheduleAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import type { Schedule } from "@/types/entities";
 import type { MultiLangText } from "@/types/api";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
-import { exportToCsv } from "@/utils/exportToCsv";
 import {
   scheduleSchema,
   type ScheduleFormData,
@@ -33,8 +30,23 @@ import {
 
 import { useAppOptions } from "@/hooks/useAppOptions";
 import { Icons } from "@/components/ui/Icons";
+import { useAdminListState } from "@/features/admin-list/useAdminListState";
+import { useAdminListQuery } from "@/features/admin-list/useAdminListQuery";
+import type { AdminFilterRecord, AdminFilterDefinition } from "@/features/admin-list/types";
+import { AdminListToolbar } from "@/components/admin/list/AdminListToolbar";
+import { AdminSearchInput } from "@/components/admin/list/AdminSearchInput";
+import { AdminMultiSelectFilter } from "@/components/admin/list/AdminMultiSelectFilter";
+import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components/admin/list/AdminActiveFilterChips";
+import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
+import { exportToCsv } from "@/services/adminListExportService";
 
 const emptyLang: MultiLangText = { th: "", en: "", de: "" };
+
+interface ScheduleFilters extends AdminFilterRecord {
+  status: string[];
+  type: string[];
+  weekday: string[];
+}
 
 export default function SchedulesPage() {
   const t = useTranslations("Admin");
@@ -55,6 +67,71 @@ export default function SchedulesPage() {
   const scheduleTypeOptions = getScheduleTypeOptions(true);
   const dayOfWeekOptions = getDayOfWeekOptions(true);
 
+  const listState = useAdminListState<ScheduleFilters>({
+    schema: {
+      defaultSort: "start_time",
+      defaultOrder: "asc",
+      multi: ["status", "type", "weekday"],
+      allowedSorts: ["id", "schedule_type", "day_of_week", "start_time", "activity", "created_at"],
+    },
+  });
+
+  const listQuery = useAdminListQuery<Schedule, ScheduleFilters>({
+    queryKey: ["admin", "schedules"],
+    params: listState.params,
+    fetcher: (params) => scheduleAdminService.getPaginated(params),
+    setPage: listState.actions.setPage,
+  });
+
+  const filterDefinitions: AdminFilterDefinition<ScheduleFilters>[] = [
+    {
+      key: "status",
+      kind: "multi",
+      label: "สถานะ",
+      options: [
+        { value: "active", label: "Active" },
+        { value: "inactive", label: "Inactive" },
+      ],
+    },
+    {
+      key: "type",
+      kind: "multi",
+      label: "ประเภทกำหนดการ",
+      options: [
+        { value: "daily", label: "Daily" },
+        { value: "weekly", label: "Weekly" },
+        { value: "monthly", label: "Monthly" },
+        { value: "special", label: "Special" },
+      ],
+    },
+    {
+      key: "weekday",
+      kind: "multi",
+      label: "วันในสัปดาห์",
+      options: [
+        { value: "0", label: "อาทิตย์" },
+        { value: "1", label: "จันทร์" },
+        { value: "2", label: "อังคาร" },
+        { value: "3", label: "พุธ" },
+        { value: "4", label: "พฤหัสบดี" },
+        { value: "5", label: "ศุกร์" },
+        { value: "6", label: "เสาร์" },
+      ],
+    },
+  ];
+
+  const activeChips: AdminActiveFilterChip[] = [];
+  for (const s of listState.params.filters.status || []) {
+    activeChips.push({ key: "status", value: s, label: `สถานะ: ${s}` });
+  }
+  for (const tp of listState.params.filters.type || []) {
+    activeChips.push({ key: "type", value: tp, label: `ประเภท: ${tp}` });
+  }
+  for (const wd of listState.params.filters.weekday || []) {
+    const dayLabel = getDayOfWeekLabel(Number(wd));
+    activeChips.push({ key: "weekday", value: wd, label: `วัน: ${dayLabel}` });
+  }
+
   const {
     control,
     register,
@@ -68,13 +145,6 @@ export default function SchedulesPage() {
   });
 
   const scheduleType = watch("schedule_type");
-
-  const { data, pagination, sort, onPageChange, onSort, isLoading, fetchData } =
-    useDataTable<Schedule>({
-      queryKey: "schedules",
-      fetcher: (p) =>
-        scheduleAdminService.getAll({ page: p.page, limit: p.limit }),
-    });
 
   const getTypeLabel = (type: string) => getScheduleTypeLabel(type);
   const getDayLabel = (day: number | null) => getDayOfWeekLabel(day);
@@ -124,7 +194,7 @@ export default function SchedulesPage() {
         toast.success(t("common.success"));
       }
       close();
-      fetchData();
+      listQuery.refetch();
     } catch {
       toast.error(t("common.error"));
     } finally {
@@ -142,10 +212,9 @@ export default function SchedulesPage() {
           await scheduleAdminService.delete(schedule.id);
           toast.success(t("common.success"));
           selectedIds.clearSelection();
-          fetchData();
+          listQuery.refetch();
         } catch (err) {
           toast.error(t("common.error"));
-
           throw err;
         }
       },
@@ -163,10 +232,9 @@ export default function SchedulesPage() {
           await scheduleAdminService.bulkDelete(selectedIds.selectedArray);
           toast.success(t("common.success"));
           selectedIds.clearSelection();
-          fetchData();
+          listQuery.refetch();
         } catch (err) {
           toast.error(t("common.error"));
-
           throw err;
         }
       },
@@ -174,28 +242,23 @@ export default function SchedulesPage() {
   };
 
   const handleExportCsv = () => {
-    const exportData = data.map((item) => ({
-      id: item.id,
-      schedule_type: item.schedule_type || "",
-      day_of_week:
-        item.day_of_week !== null ? getDayLabel(item.day_of_week) : "",
-      time_start: item.time_start || "",
-      time_end: item.time_end || "",
-      "activity.th": item.activity?.th || "",
-      "activity.en": item.activity?.en || "",
-      is_active: item.is_active ? "Active" : "Inactive",
-    }));
-
-    exportToCsv("schedules_export", exportData, [
-      { label: "ID", key: "id" },
-      { label: "Type", key: "schedule_type" },
-      { label: "Day", key: "day_of_week" },
-      { label: "Start Time", key: "time_start" },
-      { label: "End Time", key: "time_end" },
-      { label: "Activity (TH)", key: "activity.th" },
-      { label: "Activity (EN)", key: "activity.en" },
-      { label: "Status", key: "is_active" },
-    ]);
+    exportToCsv(
+      listQuery.rows,
+      [
+        { header: "ID", accessor: (item) => item.id },
+        { header: "Type", accessor: (item) => item.schedule_type || "" },
+        {
+          header: "Day",
+          accessor: (item) => (item.day_of_week !== null ? getDayLabel(item.day_of_week) : ""),
+        },
+        { header: "Start Time", accessor: (item) => item.time_start || "" },
+        { header: "End Time", accessor: (item) => item.time_end || "" },
+        { header: "Activity (TH)", accessor: (item) => item.activity?.th || "" },
+        { header: "Activity (EN)", accessor: (item) => item.activity?.en || "" },
+        { header: "Status", accessor: (item) => (item.is_active ? "Active" : "Inactive") },
+      ],
+      "schedules_export"
+    );
   };
 
   const columns: Column<Schedule>[] = [
@@ -261,26 +324,69 @@ export default function SchedulesPage() {
         title={t("schedules.title")}
         breadcrumbs={[{ label: t("schedules.title") }]}
         actions={
-          <div className="flex gap-2">
-            <Button
-              onClick={handleExportCsv}
-              variant="outline"
-              icon={<Icons.Download size={14} />}
-              className="shadow-sm"
-            >
-              {t("common.exportCsv")}
-            </Button>
-            <PermissionButton
-              resource="schedules"
-              action="create"
-              icon={<Icons.Plus size={14} />}
-              onClick={handleCreate}
-            >
-              {t("schedules.create")}
-            </PermissionButton>
-          </div>
+          <PermissionButton
+            resource="schedules"
+            action="create"
+            icon={<Icons.Plus size={14} />}
+            onClick={handleCreate}
+          >
+            {t("schedules.create")}
+          </PermissionButton>
         }
       />
+
+      <div className="mt-4">
+        <AdminListToolbar
+          activeFilterCount={activeChips.length}
+          search={
+            <AdminSearchInput
+              value={listState.draftSearch}
+              isDebouncing={listState.isDebouncing}
+              onChange={(val) => listState.actions.setSearch(val)}
+              onSubmit={(val) => listState.actions.setSearch(val, true)}
+              onClear={() => listState.actions.setSearch("", true)}
+            />
+          }
+          primaryFilters={
+            <>
+              <AdminMultiSelectFilter
+                label="สถานะ"
+                options={filterDefinitions[0].options || []}
+                values={listState.params.filters.status || []}
+                onChange={(val) => listState.actions.setFilter("status", val)}
+              />
+              <AdminMultiSelectFilter
+                label="ประเภทกำหนดการ"
+                options={filterDefinitions[1].options || []}
+                values={listState.params.filters.type || []}
+                onChange={(val) => listState.actions.setFilter("type", val)}
+              />
+            </>
+          }
+          activeFilters={
+            <div className="flex items-center justify-between">
+              <AdminActiveFilterChips
+                filters={activeChips}
+                onRemove={(key, val) => listState.actions.removeFilterValue(key as keyof ScheduleFilters, val)}
+                onClear={listState.actions.clearFilters}
+              />
+              <AdminListExportButton
+                isExporting={false}
+                completed={0}
+                total={listQuery.pagination.total}
+                onExport={handleExportCsv}
+              />
+            </div>
+          }
+        >
+          <AdminMultiSelectFilter
+            label="วันในสัปดาห์"
+            options={filterDefinitions[2].options || []}
+            values={listState.params.filters.weekday || []}
+            onChange={(val) => listState.actions.setFilter("weekday", val)}
+          />
+        </AdminListToolbar>
+      </div>
 
       <BulkActionToolbar
         selectedCount={selectedIds.selectedCount}
@@ -297,19 +403,22 @@ export default function SchedulesPage() {
         </PermissionGuard>
       </BulkActionToolbar>
 
-      <DataTable
-        columns={columns}
-        data={data}
-        pagination={pagination}
-        sorting={sort}
-        isLoading={isLoading}
-        onPageChange={onPageChange}
-        onSort={onSort}
-        selectable={true}
-        selectedIds={selectedIds.selectedIds as Set<string | number>}
-        onSelect={(id) => selectedIds.toggleSelection(id)}
-        onSelectAll={(ids) => selectedIds.selectAll(ids)}
-      />
+      <div className="mt-6">
+        <DataTable
+          columns={columns}
+          data={listQuery.rows}
+          pagination={listQuery.pagination}
+          sorting={{ key: listState.params.sort || "start_time", order: listState.params.order }}
+          isLoading={listQuery.isLoading}
+          onPageChange={listState.actions.setPage}
+          onLimitChange={listState.actions.setLimit}
+          onSort={(field) => listState.actions.setSort(field)}
+          selectable={true}
+          selectedIds={selectedIds.selectedIds as Set<string | number>}
+          onSelect={(id) => selectedIds.toggleSelection(id)}
+          onSelectAll={(ids) => selectedIds.selectAll(ids)}
+        />
+      </div>
 
       <FormModal
         isOpen={isOpen}
