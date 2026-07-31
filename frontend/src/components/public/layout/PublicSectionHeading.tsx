@@ -20,18 +20,18 @@ export function PublicSectionHeading({
   return (
     <div
       className={`flex flex-col gap-5 ${
-        centered ? "items-center text-center" : "sm:flex-row sm:items-end sm:justify-between"
+        centered ? "items-center text-center" : "border-t border-[#333] pt-6 sm:flex-row sm:items-end sm:justify-between"
       }`}
     >
       <div className={centered ? "max-w-3xl" : "max-w-3xl"}>
         <h2
           id={id}
-          className="font-heading text-[clamp(2rem,4vw,3.25rem)] font-bold leading-[1.18] tracking-[-0.025em] text-text-900 text-balance"
+          className="font-heading text-[clamp(2rem,4vw,3.25rem)] font-normal leading-[1.18] tracking-[-0.025em] text-[#333] text-balance"
         >
           {title}
         </h2>
         {description ? (
-          <p className="mt-4 max-w-[65ch] leading-8 text-text-800 text-pretty">{description}</p>
+          <p className="mt-4 max-w-[65ch] leading-8 text-[#505050] text-pretty">{description}</p>
         ) : null}
       </div>
       {action ? <div className="shrink-0">{action}</div> : null}

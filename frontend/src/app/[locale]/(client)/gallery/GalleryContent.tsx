@@ -96,10 +96,7 @@ export default function GalleryContent({ cmsPage }: { cmsPage: PublicContentPage
             aria-label={t("loading")}
           >
             {Array.from({ length: 6 }, (_, item) => (
-              <div
-                key={item}
-                className="aspect-[4/3] animate-pulse rounded-2xl bg-primary/10"
-              />
+              <div key={item} className="aspect-[4/3] animate-pulse bg-[#f7ecdd]" />
             ))}
           </div>
         ) : hasError ? (
@@ -129,9 +126,9 @@ export default function GalleryContent({ cmsPage }: { cmsPage: PublicContentPage
                     exit={reduceMotion ? undefined : { opacity: 0, scale: 0.98 }}
                     transition={{ duration: reduceMotion ? 0 : 0.2 }}
                     onClick={() => setIndex(imageIndex)}
-                    className="group overflow-hidden rounded-2xl border border-primary/15 bg-white text-left transition-colors hover:border-primary/45 focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+                    className="group overflow-hidden border border-[#333] bg-[#fffef2] text-left transition-colors hover:border-[#945c26] focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26]"
                   >
-                    <span className="relative block aspect-[4/3] overflow-hidden bg-secondary-50">
+                    <span className="relative block aspect-[4/3] overflow-hidden bg-[#f7ecdd]">
                       <PublicImage
                         src={image.image_url || image.thumbnail_url}
                         alt={caption}
@@ -141,7 +138,7 @@ export default function GalleryContent({ cmsPage }: { cmsPage: PublicContentPage
                         className="object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                       />
                     </span>
-                    <span className="block px-4 py-3 text-sm leading-6 text-text-800">
+                    <span className="block px-4 py-3 text-sm leading-6 text-[#505050]">
                       {caption}
                     </span>
                   </motion.button>
@@ -176,10 +173,10 @@ function CategoryButton({
       type="button"
       onClick={onClick}
       aria-pressed={active}
-      className={`min-h-11 rounded-full border px-5 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary ${
+      className={`min-h-11 border px-5 py-2.5 text-sm font-semibold transition-colors focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-[#945c26] ${
         active
-          ? "border-primary bg-primary text-white"
-          : "border-primary/20 bg-white text-text-800 hover:border-primary/50 hover:text-primary"
+          ? "border-[#333] bg-[#333] text-[#fffef2]"
+          : "border-[#333] bg-[#fffef2] text-[#333] hover:bg-[#f7ecdd]"
       }`}
     >
       {children}

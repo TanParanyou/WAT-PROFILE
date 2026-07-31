@@ -30,17 +30,17 @@ export default function PageHeader({
     ? "pb-12 pt-32 md:pb-16 md:pt-36"
     : "pb-16 pt-36 md:pb-20 md:pt-44";
   const alignmentClass = align === "center" ? "mx-auto text-center" : "text-left";
-  const textClass = isReading ? "text-text-900" : "text-white";
+  const textClass = "text-[#333]";
 
   return (
     <header
-      className={`relative overflow-hidden ${heightClass} ${
-        isReading ? "border-b border-primary/15 bg-white" : "bg-secondary-800"
+      className={`relative overflow-hidden border-b border-[#333] ${heightClass} ${
+        isReading ? "bg-[#fffef2]" : "bg-[#f7ecdd]"
       }`}
     >
       {isReading ? (
         <div
-          className="absolute inset-x-0 top-0 h-24 bg-secondary-800"
+            className="absolute inset-x-0 top-0 h-24 bg-[#333]"
           aria-hidden="true"
         />
       ) : null}
@@ -56,7 +56,7 @@ export default function PageHeader({
             sizes="100vw"
             className="object-cover"
           />
-          <div className="absolute inset-0 bg-black/60" aria-hidden="true" />
+          <div className="absolute inset-0 bg-[#333]/35" aria-hidden="true" />
         </>
       ) : null}
 
@@ -69,7 +69,7 @@ export default function PageHeader({
             <p
               className={`mt-5 max-w-[65ch] text-lg leading-8 text-pretty ${
                 align === "center" ? "mx-auto" : ""
-              } ${isReading ? "text-text-800" : "text-white/85"}`}
+              } text-[#505050]`}
             >
               {subtitle}
             </p>
