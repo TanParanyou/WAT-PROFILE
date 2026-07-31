@@ -23,7 +23,7 @@ const variantKeys: readonly ThemeVariantKey[] = [
 ];
 
 export default function ThemeExploration() {
-  const [active, setActive] = useState<ThemeVariantKey>("monochrome");
+  const [active, setActive] = useState<ThemeVariantKey>("apothecary");
 
   useEffect(() => {
     const onKeyDown = (event: KeyboardEvent) => {
