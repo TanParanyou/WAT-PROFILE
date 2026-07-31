@@ -10,41 +10,52 @@ source of truth for public-facing visual decisions.
 
 ## Direction
 
-**Creative North Star:** “ศาลาแห่งความสงบ — The Quiet Sala”
+**Creative North Star:** “ทะเบียนศาลา — The Apothecary Register”
 
-- Use real temple, monk, and activity photography as the primary proof and atmosphere.
-- Make the next action obvious without making the site feel commercial.
-- Public pages are warm and narrative; Admin/CMS surfaces are quiet and task-focused.
+- The public site reads as a carefully maintained temple register: calm, exact,
+  and welcoming rather than ceremonial or commercial.
+- Use real temple, monk, and activity photography to carry warmth; interface
+  chrome remains quiet and precise.
+- Make the next action obvious with order, proximity, and typography—not a loud
+  colour or oversized control.
+- Public pages are narrative and image-led; Admin/CMS surfaces remain
+  task-focused and may use their own operational conventions.
 - Do not use Thai ornament, gold, or religious symbols as repetitive decoration.
 
 ## Colors
 
 | Token | Value | Use |
 |---|---|---|
-| Faith Gold | `#C88D1E` | Primary CTA, selected state, important link |
-| Deep Faith Gold | `#A97016` | Hover/focus emphasis |
-| Soft Gold Wash | `#FCF9F2` | Small highlighted area |
-| Forest Calm | `#4A6741` | Nature/practice-related secondary information |
-| Morning Amber | `#EEA111` | Necessary warning or accent only |
-| Warm Ground | `#FCF3E9` | Light page background |
-| Clear Surface | `#FFFFFF` | Content and form surface |
-| Grounded Ink | `#2B1F08` | Primary text |
-| Quiet Text | `#563F10` | Secondary text that still passes contrast |
-| Night Ground | `#160E03` | Dark background |
+| Register Canvas | `#FFFEF2` | Primary public-page background; paper rather than white screen |
+| Register Ink | `#333333` | Primary text, primary CTA, and all standard hairline rules |
+| Deep Graphite | `#242424` | Hover/active fill on the primary CTA only |
+| Quiet Graphite | `#666666` | Secondary metadata that remains readable on canvas |
+| Taupe Surface | `#F7ECDD` | Image-adjacent information and visit guidance |
+| Cool Divider | `#E4E9EA` | Rare quiet separation only |
+| Terracotta Marker | `#945C26` | Sparse inline link/focus/important metadata accent; never a CTA fill |
+| Inverse Canvas | `#FFFEF2` | Text on graphite surfaces |
 
-- Gold is navigation, not decoration; reserve it for meaningful emphasis.
-- Do not add gradients, glassmorphism, decorative grids, or repeating stripes by default.
+- Treat ink and hairline as the same colour so sections read as one continuous
+  printed sheet.
+- Terracotta is a scarcity signal, not a brand field; use it for one meaningful
+  detail within a local context, never as a wide panel or decorative motif.
+- Do not add gradients, glassmorphism, decorative grids, repeating stripes, or
+  gold by default.
 
 ## Typography
 
-- Display: `Pridi, Georgia, "Times New Roman", serif`.
-- Body: `"Noto Sans Thai", Inter, "Segoe UI", Arial, sans-serif`.
-- Display: `clamp(3rem, 7vw, 6rem)`, weight 700, line-height 1.2.
-- Headline: `clamp(1.875rem, 4vw, 3rem)`, weight 700, line-height 1.2.
-- Title: `1.5rem`, weight 700, line-height 1.3.
+- Interface and body: `"Noto Sans Thai", Inter, "Segoe UI", Arial, sans-serif`.
+- Editorial moment only: `Pridi, Georgia, "Times New Roman", serif`.
+- Hero display: `clamp(2.9rem, 6vw, 5.8rem)`, weight 700, line-height 1.05,
+  letter-spacing no tighter than `-0.03em`.
+- Editorial section heading: `clamp(2.3rem, 4.8vw, 4.7rem)`, weight 400,
+  line-height 1.14; use the serif family for one principal statement per page.
+- Event title: `1.5rem`, weight 500, line-height 1.3.
 - Body: `1.125rem`, weight 400, line-height 1.75, maximum `65–75ch`.
-- Label: `0.875rem`, weight 500, line-height 1.5.
+- Label and metadata: `0.875rem`, weight 400–500, line-height 1.5.
 - Use one `h1` per page; do not use headings only to obtain a font size.
+- Use `text-wrap: balance` for long Thai headings; use `text-wrap: pretty` for
+  longer prose where supported.
 - Prefer readability and contrast over ceremonial styling in every locale.
 
 ## Spacing and shape
@@ -53,43 +64,61 @@ source of truth for public-facing visual decisions.
 |---|---|
 | `xs` | `8px` |
 | `sm` | `12px` |
+| `base` | `15px` |
 | `md` | `16px` |
 | `lg` | `24px` |
 | `xl` | `32px` |
-| section | `80px` |
+| rail | `40px` |
+| section | `clamp(64px, 9vw, 120px)` |
 
-- Inputs and ordinary controls use `8px` corners.
-- Content cards use `12–16px` corners and `24px` internal padding.
-- Primary hero CTA may use a pill radius; ordinary cards must not exceed `16px`.
-- Use whitespace, background contrast, and thin borders before adding elevation.
+- Public-site controls, panels, images, inputs, and CTAs use `0px` corner radius.
+- Use asymmetric button padding `13px 24px 12px` when the control is at least
+  44px high; this is an intentional typographic correction.
+- Prefer rails and ordered rows over card grids. Event content is a register:
+  date, description, and action align in columns at desktop and stack in reading
+  order on mobile.
+- Use whitespace, image composition, background contrast, and 1px rules before
+  considering elevation.
 
 ## Elevation
 
-| Layer | Shadow |
+| Layer | Treatment |
 |---|---|
-| Resting surface | `0 1px 2px rgba(0, 0, 0, 0.05)` |
-| Interactive hover | `0 4px 8px rgba(43, 31, 8, 0.10)` |
-| Modal/overlay | `0 8px 24px rgba(22, 14, 3, 0.18)` |
+| Resting surface | Flat canvas; no shadow |
+| Structural separation | `1px solid #333333` hairline |
+| Image-adjacent section | Taupe Surface background |
+| Primary action | Register Ink fill with Inverse Canvas text |
+| Modal/overlay | A functional, compact shadow only when depth is necessary |
 
-- General surfaces are flat at rest.
-- Do not combine a 1px border with a decorative shadow blur of 16px or more.
+- Public page sections are flat at rest; do not use decorative shadows.
+- Do not combine a 1px border with a decorative shadow blur.
 
 ## Components
 
-- Primary hero button: Faith Gold, white text, `12px 32px`, pill.
-- Hover transitions last 200–300ms and preserve visible keyboard focus.
-- Inputs: white surface, 1px neutral border, `8px 12px`, no layout shift on focus.
+- Primary hero button: Register Ink fill, Inverse Canvas text, `13px 24px 12px`,
+  square corners, minimum 44px height.
+- Secondary action: Register Canvas fill, 1px Register Ink border, same padding
+  and square corners.
+- Important text link: Terracotta Marker, underlined or otherwise clear without
+  relying on colour alone.
+- Hover transitions last 150–200ms and preserve visible keyboard focus; avoid
+  decorative motion.
+- Inputs: Register Canvas surface, 1px Register Ink border, square corners,
+  `0 16px` horizontal padding, no layout shift on focus.
 - Errors need text or an icon; color alone is insufficient.
-- Desktop navigation may float over the hero, then become solid on scroll.
+- Navigation is a compact solid canvas bar with a 1px rule when it separates
+  from the page; do not float it over photography by default.
 - Mobile navigation uses at least 44px touch targets.
-- Hero text keeps sufficient overlay contrast and renders without motion.
-- Cards use borders or the resting shadow only when separation is otherwise unclear.
+- Hero copy and natural-colour photography form a balanced split at desktop;
+  image follows copy on mobile unless content order requires otherwise.
+- Event rows use 1px rules; do not wrap each row in a card.
 
 ## Accessibility and responsive rules
 
 - Target WCAG 2.2 AA.
 - Support keyboard navigation, screen readers, 200% zoom, and reduced motion.
-- Keep focus indicators at least 2px and visually distinct.
+- Keep focus indicators at least 3px, visually distinct, and Terracotta Marker
+  when shown on a light public surface.
 - Test Thai, English, and German at mobile, tablet, and desktop widths.
 - Prevent long German labels and Thai headings from clipping or overflowing.
 - Do not hide essential content behind animation or hover.
