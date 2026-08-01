@@ -13,15 +13,14 @@ export async function createImage(
 
   if (url.startsWith("http://") || url.startsWith("https://")) {
     try {
-      // Use Next.js image proxy endpoint to bypass cross-origin CORS limitations for Canvas
-      const proxiedUrl = `/_next/image?url=${encodeURIComponent(url)}&w=1920&q=95`;
+      // Proxy through dedicated Next.js API route to fetch cross-origin images without CORS issues
+      const proxiedUrl = `/api/media-proxy?url=${encodeURIComponent(url)}`;
       const response = await fetch(proxiedUrl);
       if (response.ok) {
         const blob = await response.blob();
         imageSrc = URL.createObjectURL(blob);
         cleanup = () => URL.revokeObjectURL(imageSrc);
       } else {
-        // Fallback: try fetching direct CORS URL
         const directResponse = await fetch(url, { mode: "cors" });
         if (directResponse.ok) {
           const blob = await directResponse.blob();
