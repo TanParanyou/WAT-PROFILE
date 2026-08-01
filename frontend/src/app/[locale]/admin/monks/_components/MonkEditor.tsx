@@ -197,9 +197,10 @@ export function MonkEditor({ id }: MonkEditorProps) {
             </div>
           </div>
 
-          {/* Form Content */}
-          <div className="space-y-6">
-            <div className="bg-admin-surface rounded-none border border-admin-border p-6 space-y-4">
+          {/* Form Content in Split Screen */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Left Column: Form Fields */}
+            <div className="lg:col-span-7 bg-admin-surface rounded-none border border-admin-border p-6 space-y-4">
               <Controller
                 control={control}
                 name="name"
@@ -320,8 +321,8 @@ export function MonkEditor({ id }: MonkEditorProps) {
               />
             </div>
 
-            {/* Live Previews Section */}
-            <div className="space-y-6 pt-4 border-t border-admin-border">
+            {/* Right Column: Sticky Live Previews Panel */}
+            <div className="lg:col-span-5 sticky top-6 self-start space-y-6">
               <MonkCardPreview
                 name={watch("name")}
                 title={watch("title")}

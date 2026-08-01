@@ -325,248 +325,251 @@ export function EventEditor({ id }: EventEditorProps) {
             </div>
           )}
 
-          {/* Form Content Sections */}
-          <div className="space-y-6">
-            {/* Section 1: General Info */}
-            <div className="bg-admin-surface rounded-none border border-admin-border p-6 space-y-4">
-              <h2 className="text-base font-semibold text-admin-foreground flex items-center gap-2 border-b border-admin-border pb-3">
-                <FileText size={18} className="text-admin-action" />
-                {t("events.tabs.general")}
-              </h2>
-              <div className="space-y-4">
-                <Controller
-                  control={control}
-                  name="title"
-                  render={({ field }) => (
-                    <MultiLangInput
-                      label={t("events.form.title")}
-                      value={field.value as MultiLangText}
-                      onChange={field.onChange}
-                      error={getFieldError(errors.title)}
-                      required={true}
-                    />
-                  )}
-                />
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <label htmlFor="slug" className="text-sm font-medium text-admin-body flex items-center">
-                      {t("events.form.slug")}
-                      <span className="text-admin-danger ml-1">*</span>
-                    </label>
-                    <button
-                      type="button"
-                      onClick={handleAutoGenerateSlug}
-                      className="text-xs text-admin-action hover:text-admin-action-hover font-semibold focus-visible:outline-2 focus-visible:outline-admin-focus rounded transition-colors"
-                    >
-                      {t("events.form.autoGen")}
-                    </button>
-                  </div>
-                  <Input
-                    id="slug"
-                    placeholder="event-slug-name"
-                    {...register("slug")}
-                    error={errors.slug?.message}
-                  />
-                </div>
-                <Controller
-                  control={control}
-                  name="description"
-                  render={({ field }) => (
-                    <MultiLangRichText
-                      label={t("events.form.description")}
-                      locales={[
-                        { code: "th", label: "TH" },
-                        { code: "en", label: "EN" },
-                        { code: "de", label: "DE" }
-                      ]}
-                      defaultLocale="th"
-                      value={normalizeLocalizedRichText(field.value, [...richTextLocales], "th")}
-                      onChange={field.onChange}
-                      error={getFieldError(errors.description)}
-                    />
-                  )}
-                />
-                <Controller
-                  control={control}
-                  name="image_url"
-                  render={({ field }) => (
-                    <div className="space-y-1">
-                      <ImageUpload
-                        label={t("events.form.image")}
-                        value={field.value || ""}
-                        onChange={field.onChange}
-                      />
-                      {getFieldError(errors.image_url) && (
-                        <p className="text-sm text-admin-danger">
-                          {getFieldError(errors.image_url)}
-                        </p>
-                      )}
-                    </div>
-                  )}
-                />
-              </div>
-            </div>
-
-            {/* Section 2: Details & Settings */}
-            <div className="bg-admin-surface rounded-none border border-admin-border p-6 space-y-4">
-              <h2 className="text-base font-semibold text-admin-foreground flex items-center gap-2 border-b border-admin-border pb-3">
-                <MapPin size={18} className="text-admin-action" />
-                {t("events.tabs.details")}
-              </h2>
-              <div className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {/* Form Content Sections in Split Screen */}
+          <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+            {/* Left Column: Form Controls & Schedule */}
+            <div className="lg:col-span-7 space-y-6">
+              {/* Section 1: General Info */}
+              <div className="bg-admin-surface rounded-none border border-admin-border p-6 space-y-4">
+                <h2 className="text-base font-semibold text-admin-foreground flex items-center gap-2 border-b border-admin-border pb-3">
+                  <FileText size={18} className="text-admin-action" />
+                  {t("events.tabs.general")}
+                </h2>
+                <div className="space-y-4">
                   <Controller
                     control={control}
-                    name="start_date"
-                    render={({ field }) => {
-                      const startDateVal = methods.watch("start_date");
-                      const endDateVal = methods.watch("end_date");
-
-                      const from = startDateVal
-                        ? parse(startDateVal, "yyyy-MM-dd", new Date())
-                        : undefined;
-                      const to = endDateVal
-                        ? parse(endDateVal, "yyyy-MM-dd", new Date())
-                        : undefined;
-
-                      return (
-                        <DateRangePicker
-                          label={t("events.form.date")}
-                          value={{ from, to }}
-                          onChange={(range) => {
-                            methods.setValue(
-                              "start_date",
-                              range.from
-                                ? format(range.from, "yyyy-MM-dd")
-                                : "",
-                              { shouldDirty: true },
-                            );
-                            methods.setValue(
-                              "end_date",
-                              range.to ? format(range.to, "yyyy-MM-dd") : "",
-                              { shouldDirty: true },
-                            );
-                          }}
-                          error={
-                            errors.start_date?.message ||
-                            errors.end_date?.message
-                          }
-                          required={true}
-                        />
-                      );
-                    }}
-                  />
-                  <Controller
-                    control={control}
-                    name="event_type"
+                    name="title"
                     render={({ field }) => (
-                      <Select
-                        id="event_type"
-                        label={t("events.form.type")}
-                        options={eventTypeOptions}
-                        value={field.value}
-                        onChange={(e) => field.onChange(e.target.value)}
-                        error={errors.event_type?.message}
+                      <MultiLangInput
+                        label={t("events.form.title")}
+                        value={field.value as MultiLangText}
+                        onChange={field.onChange}
+                        error={getFieldError(errors.title)}
                         required={true}
                       />
                     )}
                   />
-                </div>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  <Controller
-                    control={control}
-                    name="start_time"
-                    render={({ field }) => (
-                      <TimePicker
-                        id="start_time"
-                        label={t("events.form.start")}
-                        value={field.value}
-                        onChange={field.onChange}
-                        error={errors.start_time?.message}
-                      />
-                    )}
-                  />
-                  <Controller
-                    control={control}
-                    name="end_time"
-                    render={({ field }) => (
-                      <TimePicker
-                        id="end_time"
-                        label={t("events.form.end")}
-                        value={field.value}
-                        onChange={field.onChange}
-                        error={errors.end_time?.message}
-                      />
-                    )}
-                  />
-                </div>
-                <Controller
-                  control={control}
-                  name="location"
-                  render={({ field }) => (
-                    <MultiLangInput
-                      label={t("events.form.location")}
-                      value={
-                        (field.value || {
-                          th: "",
-                          en: "",
-                          de: "",
-                        }) as MultiLangText
-                      }
-                      onChange={field.onChange}
-                      error={getFieldError(errors.location)}
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <label htmlFor="slug" className="text-sm font-medium text-admin-body flex items-center">
+                        {t("events.form.slug")}
+                        <span className="text-admin-danger ml-1">*</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={handleAutoGenerateSlug}
+                        className="text-xs text-admin-action hover:text-admin-action-hover font-semibold focus-visible:outline-2 focus-visible:outline-admin-focus rounded transition-colors"
+                      >
+                        {t("events.form.autoGen")}
+                      </button>
+                    </div>
+                    <Input
+                      id="slug"
+                      placeholder="event-slug-name"
+                      {...register("slug")}
+                      error={errors.slug?.message}
                     />
-                  )}
-                />
-                <Input
-                  id="map_url"
-                  label={t("events.form.map")}
-                  placeholder="https://www.google.com/maps/embed?pb=..."
-                  {...register("map_url")}
-                  error={errors.map_url?.message}
-                />
-                
-                {/* Map Embed Live Preview */}
-                {watch("map_url") && (
-                  <MapEmbedPreview embedUrl={watch("map_url")} />
-                )}
-
-                <div className="flex gap-6 pt-4">
+                  </div>
                   <Controller
                     control={control}
-                    name="is_active"
+                    name="description"
                     render={({ field }) => (
-                      <Switch
-                        id="is_active"
-                        label={t("form.active")}
-                        checked={field.value}
-                        onChange={(e) => field.onChange(e.target.checked)}
+                      <MultiLangRichText
+                        label={t("events.form.description")}
+                        locales={[
+                          { code: "th", label: "TH" },
+                          { code: "en", label: "EN" },
+                          { code: "de", label: "DE" }
+                        ]}
+                        defaultLocale="th"
+                        value={normalizeLocalizedRichText(field.value, [...richTextLocales], "th")}
+                        onChange={field.onChange}
+                        error={getFieldError(errors.description)}
                       />
                     )}
                   />
                   <Controller
                     control={control}
-                    name="registration_enabled"
+                    name="image_url"
                     render={({ field }) => (
-                      <Switch
-                        id="registration_enabled"
-                        label={t("form.enableRegistration")}
-                        checked={field.value}
-                        onChange={(e) => field.onChange(e.target.checked)}
-                      />
+                      <div className="space-y-1">
+                        <ImageUpload
+                          label={t("events.form.image")}
+                          value={field.value || ""}
+                          onChange={field.onChange}
+                        />
+                        {getFieldError(errors.image_url) && (
+                          <p className="text-sm text-admin-danger">
+                            {getFieldError(errors.image_url)}
+                          </p>
+                        )}
+                      </div>
                     )}
                   />
                 </div>
               </div>
+
+              {/* Section 2: Details & Settings */}
+              <div className="bg-admin-surface rounded-none border border-admin-border p-6 space-y-4">
+                <h2 className="text-base font-semibold text-admin-foreground flex items-center gap-2 border-b border-admin-border pb-3">
+                  <MapPin size={18} className="text-admin-action" />
+                  {t("events.tabs.details")}
+                </h2>
+                <div className="space-y-4">
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Controller
+                      control={control}
+                      name="start_date"
+                      render={({ field }) => {
+                        const startDateVal = methods.watch("start_date");
+                        const endDateVal = methods.watch("end_date");
+
+                        const from = startDateVal
+                          ? parse(startDateVal, "yyyy-MM-dd", new Date())
+                          : undefined;
+                        const to = endDateVal
+                          ? parse(endDateVal, "yyyy-MM-dd", new Date())
+                          : undefined;
+
+                        return (
+                          <DateRangePicker
+                            label={t("events.form.date")}
+                            value={{ from, to }}
+                            onChange={(range) => {
+                              methods.setValue(
+                                "start_date",
+                                range.from
+                                  ? format(range.from, "yyyy-MM-dd")
+                                  : "",
+                                { shouldDirty: true },
+                              );
+                              methods.setValue(
+                                "end_date",
+                                range.to ? format(range.to, "yyyy-MM-dd") : "",
+                                { shouldDirty: true },
+                              );
+                            }}
+                            error={
+                              errors.start_date?.message ||
+                              errors.end_date?.message
+                            }
+                            required={true}
+                          />
+                        );
+                      }}
+                    />
+                    <Controller
+                      control={control}
+                      name="event_type"
+                      render={({ field }) => (
+                        <Select
+                          id="event_type"
+                          label={t("events.form.type")}
+                          options={eventTypeOptions}
+                          value={field.value}
+                          onChange={(e) => field.onChange(e.target.value)}
+                          error={errors.event_type?.message}
+                          required={true}
+                        />
+                      )}
+                    />
+                  </div>
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <Controller
+                      control={control}
+                      name="start_time"
+                      render={({ field }) => (
+                        <TimePicker
+                          id="start_time"
+                          label={t("events.form.start")}
+                          value={field.value}
+                          onChange={field.onChange}
+                          error={errors.start_time?.message}
+                        />
+                      )}
+                    />
+                    <Controller
+                      control={control}
+                      name="end_time"
+                      render={({ field }) => (
+                        <TimePicker
+                          id="end_time"
+                          label={t("events.form.end")}
+                          value={field.value}
+                          onChange={field.onChange}
+                          error={errors.end_time?.message}
+                        />
+                      )}
+                    />
+                  </div>
+                  <Controller
+                    control={control}
+                    name="location"
+                    render={({ field }) => (
+                      <MultiLangInput
+                        label={t("events.form.location")}
+                        value={
+                          (field.value || {
+                            th: "",
+                            en: "",
+                            de: "",
+                          }) as MultiLangText
+                        }
+                        onChange={field.onChange}
+                        error={getFieldError(errors.location)}
+                      />
+                    )}
+                  />
+                  <Input
+                    id="map_url"
+                    label={t("events.form.map")}
+                    placeholder="https://www.google.com/maps/embed?pb=..."
+                    {...register("map_url")}
+                    error={errors.map_url?.message}
+                  />
+                  
+                  {/* Map Embed Live Preview */}
+                  {watch("map_url") && (
+                    <MapEmbedPreview embedUrl={watch("map_url")} />
+                  )}
+
+                  <div className="flex gap-6 pt-4">
+                    <Controller
+                      control={control}
+                      name="is_active"
+                      render={({ field }) => (
+                        <Switch
+                          id="is_active"
+                          label={t("form.active")}
+                          checked={field.value}
+                          onChange={(e) => field.onChange(e.target.checked)}
+                        />
+                      )}
+                    />
+                    <Controller
+                      control={control}
+                      name="registration_enabled"
+                      render={({ field }) => (
+                        <Switch
+                          id="registration_enabled"
+                          label={t("form.enableRegistration")}
+                          checked={field.value}
+                          onChange={(e) => field.onChange(e.target.checked)}
+                        />
+                      )}
+                    />
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 3: Schedule */}
+              <div className="bg-admin-surface rounded-none border border-admin-border p-6 space-y-4">
+                <EventScheduleEditor />
+              </div>
             </div>
 
-            {/* Section 3: Schedule */}
-            <div className="bg-admin-surface rounded-none border border-admin-border p-6 space-y-4">
-              <EventScheduleEditor />
-            </div>
-
-            {/* Section 4: Live Previews */}
-            <div className="space-y-6 pt-4 border-t border-admin-border">
+            {/* Right Column: Sticky Live Previews Panel */}
+            <div className="lg:col-span-5 sticky top-6 self-start space-y-6">
               <EventCardPreview
                 title={watch("title")}
                 location={watch("location")}

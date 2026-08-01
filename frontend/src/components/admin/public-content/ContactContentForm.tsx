@@ -194,12 +194,11 @@ export function ContactContentForm() {
 
           <FormTabs tabs={sectionTabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
-          {/* Form Content per tab */}
-          <div className="bg-admin-surface p-6 rounded-none border border-admin-border space-y-6">
-            
-            {/* 1. DETAILS TAB */}
-            {activeTab === "details" && (
-              <div className="space-y-6">
+          {/* 1. DETAILS TAB */}
+          {activeTab === "details" && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              {/* Left Form Controls */}
+              <div className="lg:col-span-7 bg-admin-surface p-6 rounded-none border border-admin-border space-y-6">
                 <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">
                   {t("contact.detailsHeading")}
                 </h3>
@@ -276,8 +275,10 @@ export function ContactContentForm() {
                     {errors.body?.email && <p className="text-sm text-admin-danger mt-1">{errors.body.email.message}</p>}
                   </div>
                 </div>
+              </div>
 
-                {/* Details Tab Live Preview */}
+              {/* Right Sticky Preview Panel */}
+              <div className="lg:col-span-5 sticky top-6 self-start space-y-6">
                 <ContactDetailsPreview
                   title={watchedTitle}
                   description={watchedDescription}
@@ -286,11 +287,13 @@ export function ContactContentForm() {
                   email={watchedEmail}
                 />
               </div>
-            )}
+            </div>
+          )}
 
-            {/* 2. OPENING HOURS TAB */}
-            {activeTab === "opening" && (
-              <div className="space-y-6">
+          {/* 2. OPENING HOURS TAB */}
+          {activeTab === "opening" && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              <div className="lg:col-span-7 bg-admin-surface p-6 rounded-none border border-admin-border space-y-6">
                 <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">
                   {t("contact.hoursHeadingDesc")}
                 </h3>
@@ -336,15 +339,18 @@ export function ContactContentForm() {
                     />
                   )}
                 />
+              </div>
 
-                {/* Opening Hours Live Preview */}
+              <div className="lg:col-span-5 sticky top-6 self-start space-y-6">
                 <OpeningHoursPreview openingHours={watchedOpeningHours} />
               </div>
-            )}
+            </div>
+          )}
 
-            {/* 3. MAP TAB */}
-            {activeTab === "map" && (
-              <div className="space-y-6">
+          {/* 3. MAP TAB */}
+          {activeTab === "map" && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              <div className="lg:col-span-7 bg-admin-surface p-6 rounded-none border border-admin-border space-y-6">
                 <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">
                   {t("contact.mapHeadingDesc")}
                 </h3>
@@ -387,19 +393,22 @@ export function ContactContentForm() {
                   />
                   {errors.body?.map?.directions_url && <p className="text-sm text-admin-danger mt-1">{errors.body.map.directions_url.message}</p>}
                 </div>
+              </div>
 
-                {/* Map Live Preview Component */}
+              <div className="lg:col-span-5 sticky top-6 self-start space-y-6">
                 <MapEmbedPreview
                   embedUrl={watchedMap?.embed_url}
                   directionsUrl={watchedMap?.directions_url}
                   mapName={watchedMap?.name}
                 />
               </div>
-            )}
+            </div>
+          )}
 
-            {/* 4. TRAVEL TAB */}
-            {activeTab === "travel" && (
-              <div className="space-y-6">
+          {/* 4. TRAVEL TAB */}
+          {activeTab === "travel" && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              <div className="lg:col-span-7 bg-admin-surface p-6 rounded-none border border-admin-border space-y-6">
                 <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">
                   {t("contact.travelHeadingDesc")}
                 </h3>
@@ -482,15 +491,18 @@ export function ContactContentForm() {
                     )}
                   </div>
                 </div>
+              </div>
 
-                {/* Travel Live Preview */}
+              <div className="lg:col-span-5 sticky top-6 self-start space-y-6">
                 <TravelGuidePreview transport={watchedTransport} />
               </div>
-            )}
+            </div>
+          )}
 
-            {/* 5. SOCIALS TAB */}
-            {activeTab === "socials" && (
-              <div className="space-y-6">
+          {/* 5. SOCIALS TAB */}
+          {activeTab === "socials" && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              <div className="lg:col-span-7 bg-admin-surface p-6 rounded-none border border-admin-border space-y-6">
                 <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">
                   {t("contact.socialsHeading")}
                 </h3>
@@ -570,15 +582,18 @@ export function ContactContentForm() {
                   />
                   {errors.body?.socials?.youtube && <p className="text-sm text-admin-danger mt-1">{errors.body.socials.youtube.message}</p>}
                 </div>
+              </div>
 
-                {/* Social Buttons Live Preview */}
+              <div className="lg:col-span-5 sticky top-6 self-start space-y-6">
                 <SocialsPreview socials={watchedSocials} />
               </div>
-            )}
+            </div>
+          )}
 
-            {/* 6. BANK TAB */}
-            {activeTab === "bank" && (
-              <div className="space-y-6">
+          {/* 6. BANK TAB */}
+          {activeTab === "bank" && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              <div className="lg:col-span-7 bg-admin-surface p-6 rounded-none border border-admin-border space-y-6">
                 <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">
                   {t("contact.bankHeadingDesc")}
                 </h3>
@@ -652,8 +667,9 @@ export function ContactContentForm() {
                     />
                   )}
                 />
+              </div>
 
-                {/* Bank Card Live Preview */}
+              <div className="lg:col-span-5 sticky top-6 self-start space-y-6">
                 <BankCardPreview
                   bankName={watchedBank?.bank_name}
                   accountName={watchedBank?.account_name}
@@ -663,11 +679,13 @@ export function ContactContentForm() {
                   qrImageUrl={watchedBank?.qr_image_url}
                 />
               </div>
-            )}
+            </div>
+          )}
 
-            {/* 7. FORM TAB */}
-            {activeTab === "form" && (
-              <div className="space-y-6">
+          {/* 7. FORM TAB */}
+          {activeTab === "form" && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              <div className="lg:col-span-7 bg-admin-surface p-6 rounded-none border border-admin-border space-y-6">
                 <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">
                   {t("contact.formHeading")}
                 </h3>
@@ -711,19 +729,22 @@ export function ContactContentForm() {
                     className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                   />
                 </div>
+              </div>
 
-                {/* Contact Form Live Mockup Preview */}
+              <div className="lg:col-span-5 sticky top-6 self-start space-y-6">
                 <ContactFormPreview
                   enabled={watchedContactForm?.enabled}
                   successMessage={watchedContactForm?.success_message}
                   privacyPageLink={watchedContactForm?.privacy_page_link}
                 />
               </div>
-            )}
+            </div>
+          )}
 
-            {/* 8. SEO TAB */}
-            {activeTab === "seo" && (
-              <div className="space-y-6">
+          {/* 8. SEO TAB */}
+          {activeTab === "seo" && (
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+              <div className="lg:col-span-7 bg-admin-surface p-6 rounded-none border border-admin-border space-y-6">
                 <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">
                   {t("seo.title")}
                 </h3>
@@ -795,8 +816,9 @@ export function ContactContentForm() {
                     />
                   )}
                 />
+              </div>
 
-                {/* Google Search & Social Share Live Preview */}
+              <div className="lg:col-span-5 sticky top-6 self-start space-y-6">
                 <GoogleSearchPreview
                   seoTitle={watchedSeo?.title}
                   pageTitle={watchedTitle}
@@ -807,9 +829,9 @@ export function ContactContentForm() {
                   ogImage={watchedSeo?.og_image}
                 />
               </div>
-            )}
+            </div>
+          )}
 
-          </div>
         </div>
 
         <PublicContentSaveBar
