@@ -24,7 +24,7 @@ export function AdminListExportButton({
       type="button"
       onClick={onExport}
       disabled={isExporting}
-      className="inline-flex items-center gap-2 h-11 px-4 text-sm font-medium border border-admin-control-border rounded-lg bg-admin-surface text-admin-body hover:bg-admin-surface-muted disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-admin-focus transition-colors"
+      className="inline-flex items-center gap-2 h-11 px-4 text-sm font-medium border border-admin-control-border rounded-none bg-admin-surface text-admin-body hover:bg-admin-surface-muted disabled:opacity-60 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-admin-focus transition-colors"
     >
       {isExporting ? (
         <>

@@ -54,7 +54,7 @@ export function AdminSearchInput({
           onKeyDown={handleKeyDown}
           placeholder={placeholder ?? t("searchPlaceholder")}
           aria-label={t("search")}
-          className="min-h-11 w-full pl-9 pr-20 text-sm border border-admin-control-border rounded-lg bg-admin-surface text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus transition-colors"
+          className="min-h-11 w-full pl-9 pr-20 text-sm border border-admin-control-border rounded-none bg-admin-surface text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus transition-colors"
         />
         <div className="absolute right-1 flex items-center gap-1">
           {value && (
@@ -62,7 +62,7 @@ export function AdminSearchInput({
               type="button"
               onClick={onClear}
               aria-label={t("clearAll")}
-              className="flex items-center justify-center w-8 h-8 rounded-md text-admin-muted hover:text-admin-foreground hover:bg-admin-surface-muted transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
+              className="flex items-center justify-center w-8 h-8 rounded-none text-admin-muted hover:text-admin-foreground hover:bg-admin-surface-muted transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
             >
               <X className="h-4 w-4" />
             </button>
@@ -71,7 +71,7 @@ export function AdminSearchInput({
             type="button"
             onClick={() => onSubmit(value)}
             aria-label={t("search")}
-            className="flex items-center justify-center w-8 h-8 rounded-md text-admin-muted hover:text-admin-foreground hover:bg-admin-surface-muted transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
+            className="flex items-center justify-center w-8 h-8 rounded-none text-admin-muted hover:text-admin-foreground hover:bg-admin-surface-muted transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
           >
             <Search className="h-4 w-4" />
           </button>

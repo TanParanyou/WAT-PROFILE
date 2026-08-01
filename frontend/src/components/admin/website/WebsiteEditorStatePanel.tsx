@@ -46,10 +46,10 @@ export function WebsiteEditorStatePanel({
           key={`${item.tone}-${item.text}`}
           className={
             item.tone === "error"
-              ? "flex items-center gap-2 border border-admin-danger-border bg-admin-danger-surface px-3 py-2 text-sm text-admin-danger rounded-lg"
+              ? "flex items-center gap-2 border border-admin-danger-border bg-admin-danger-surface px-3 py-2 text-sm text-admin-danger rounded-none"
               : item.tone === "success"
-                ? "flex items-center gap-2 border border-admin-success-border bg-admin-success-surface px-3 py-2 text-sm text-admin-success rounded-lg"
-                : "flex items-center gap-2 border border-admin-border bg-admin-surface-muted px-3 py-2 text-sm text-admin-body rounded-lg"
+                ? "flex items-center gap-2 border border-admin-success-border bg-admin-success-surface px-3 py-2 text-sm text-admin-success rounded-none"
+                : "flex items-center gap-2 border border-admin-border bg-admin-surface-muted px-3 py-2 text-sm text-admin-body rounded-none"
           }
         >
           {item.tone === "loading" ? <Loader2 size={14} className="animate-spin" /> : null}

@@ -97,7 +97,7 @@ export function PermissionEditor({ value, onChange }: PermissionEditorProps) {
   };
 
   return (
-    <div className="overflow-x-auto border border-admin-border rounded-lg">
+    <div className="overflow-x-auto border border-admin-border rounded-none">
       <table className="w-full text-sm text-left">
         <thead className="bg-admin-surface-muted border-b border-admin-border">
           <tr>

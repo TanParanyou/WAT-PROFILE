@@ -24,7 +24,7 @@ export function WebsitePagesList({
 
   if (error) {
     return (
-      <div className="flex flex-col items-center gap-4 border border-admin-danger-border bg-admin-danger-surface p-8 text-center rounded-xl">
+      <div className="flex flex-col items-center gap-4 border border-admin-danger-border bg-admin-danger-surface p-8 text-center rounded-none">
         <p className="text-admin-danger">Error loading pages: {error.message}</p>
         <Button onClick={onRetry} variant="secondary">
           Retry
@@ -40,11 +40,11 @@ export function WebsitePagesList({
   );
 
   if (!activePages.length) {
-    return <div className="border border-dashed border-admin-border bg-admin-surface p-6 text-sm text-admin-muted rounded-xl">No pages yet.</div>;
+    return <div className="border border-dashed border-admin-border bg-admin-surface p-6 text-sm text-admin-muted rounded-none">No pages yet.</div>;
   }
 
   return (
-    <div className="divide-y divide-admin-border border border-admin-border bg-admin-surface rounded-xl overflow-hidden">
+    <div className="divide-y divide-admin-border border border-admin-border bg-admin-surface rounded-none overflow-hidden">
       {activePages.map((page) => (
         <LocaleLink
           key={page.id}

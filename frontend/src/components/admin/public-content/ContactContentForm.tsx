@@ -166,7 +166,7 @@ export function ContactContentForm() {
           <FormTabs tabs={sectionTabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
           {/* Form Content per tab */}
-          <div className="bg-admin-surface p-6 rounded-lg border border-admin-border space-y-6">
+          <div className="bg-admin-surface p-6 rounded-none border border-admin-border space-y-6">
             
             {activeTab === "details" && (
               <div className="space-y-6">
@@ -224,7 +224,7 @@ export function ContactContentForm() {
                       type="text"
                       {...methods.register("body.phone")}
                       placeholder="+49 160-1604486"
-                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                      className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                   </div>
                   <div className="space-y-1">
@@ -233,7 +233,7 @@ export function ContactContentForm() {
                       type="text"
                       {...methods.register("body.email")}
                       placeholder="info@watloungporsai.de"
-                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                      className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                     {errors.body?.email && <p className="text-sm text-admin-danger mt-1">{errors.body.email.message}</p>}
                   </div>
@@ -313,7 +313,7 @@ export function ContactContentForm() {
                     type="text"
                     {...methods.register("body.map.embed_url")}
                     placeholder="https://www.google.com/maps/embed?..."
-                    className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                    className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                   />
                   {errors.body?.map?.embed_url && <p className="text-sm text-admin-danger mt-1">{errors.body.map.embed_url.message}</p>}
                 </div>
@@ -324,7 +324,7 @@ export function ContactContentForm() {
                     type="text"
                     {...methods.register("body.map.directions_url")}
                     placeholder="https://maps.app.goo.gl/..."
-                    className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                    className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                   />
                   {errors.body?.map?.directions_url && <p className="text-sm text-admin-danger mt-1">{errors.body.map.directions_url.message}</p>}
                 </div>
@@ -379,7 +379,7 @@ export function ContactContentForm() {
 
                   <div className="space-y-4">
                     {transportFields.map((field, index) => (
-                      <div key={field.id} className="flex gap-4 items-start p-4 border border-admin-border rounded-lg bg-admin-surface-muted relative">
+                      <div key={field.id} className="flex gap-4 items-start p-4 border border-admin-border rounded-none bg-admin-surface-muted relative">
                         <div className="flex-1">
                           <Controller
                             name={`body.transport.public_transport.${index}`}
@@ -398,7 +398,7 @@ export function ContactContentForm() {
                         <button
                           type="button"
                           onClick={() => removeTransport(index)}
-                          className="mt-8 p-2 rounded-lg text-admin-muted hover:text-admin-danger hover:bg-admin-border transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
+                          className="mt-8 p-2 rounded-none text-admin-muted hover:text-admin-danger hover:bg-admin-border transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
                           title={t("contact.deleteTravelStep")}
                         >
                           <Trash size={16} />
@@ -407,7 +407,7 @@ export function ContactContentForm() {
                     ))}
 
                     {transportFields.length === 0 && (
-                      <div className="text-center py-6 text-admin-muted border border-dashed border-admin-border rounded-lg">
+                      <div className="text-center py-6 text-admin-muted border border-dashed border-admin-border rounded-none">
                         {t("contact.noTravelSteps")}
                       </div>
                     )}
@@ -427,7 +427,7 @@ export function ContactContentForm() {
                       type="text"
                       {...methods.register("body.socials.facebook")}
                       placeholder="https://facebook.com/..."
-                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                      className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                     {errors.body?.socials?.facebook && <p className="text-sm text-admin-danger mt-1">{errors.body.socials.facebook.message}</p>}
                   </div>
@@ -438,7 +438,7 @@ export function ContactContentForm() {
                       type="text"
                       {...methods.register("body.socials.instagram")}
                       placeholder="https://instagram.com/..."
-                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                      className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                     {errors.body?.socials?.instagram && <p className="text-sm text-admin-danger mt-1">{errors.body.socials.instagram.message}</p>}
                   </div>
@@ -451,7 +451,7 @@ export function ContactContentForm() {
                       type="text"
                       {...methods.register("body.socials.messenger")}
                       placeholder="https://m.me/..."
-                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                      className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                     {errors.body?.socials?.messenger && <p className="text-sm text-admin-danger mt-1">{errors.body.socials.messenger.message}</p>}
                   </div>
@@ -462,7 +462,7 @@ export function ContactContentForm() {
                       type="text"
                       {...methods.register("body.socials.line")}
                       placeholder="@line_id"
-                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                      className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                   </div>
                 </div>
@@ -473,7 +473,7 @@ export function ContactContentForm() {
                     type="text"
                     {...methods.register("body.socials.youtube")}
                     placeholder="https://youtube.com/channel/..."
-                    className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                    className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                   />
                   {errors.body?.socials?.youtube && <p className="text-sm text-admin-danger mt-1">{errors.body.socials.youtube.message}</p>}
                 </div>
@@ -516,7 +516,7 @@ export function ContactContentForm() {
                   <input
                     type="text"
                     {...methods.register("body.bank.account_number")}
-                    className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                    className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                   />
                 </div>
 
@@ -526,7 +526,7 @@ export function ContactContentForm() {
                     <input
                       type="text"
                       {...methods.register("body.bank.iban")}
-                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                      className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                   </div>
                   <div className="space-y-1">
@@ -534,13 +534,13 @@ export function ContactContentForm() {
                     <input
                       type="text"
                       {...methods.register("body.bank.bic")}
-                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                      className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                   </div>
                 </div>
                 <div className="space-y-1">
                   <label className="text-sm font-medium text-admin-body">{t("contact.qrImageUrl")}</label>
-                  <input type="url" {...methods.register("body.bank.qr_image_url")} placeholder="https://..." className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus" />
+                  <input type="url" {...methods.register("body.bank.qr_image_url")} placeholder="https://..." className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus" />
                   {errors.body?.bank?.qr_image_url && <p className="mt-1 text-sm text-admin-danger">{errors.body.bank.qr_image_url.message}</p>}
                 </div>
               </div>
@@ -583,7 +583,7 @@ export function ContactContentForm() {
                     type="text"
                     {...methods.register("body.contact_form.privacy_page_link")}
                     placeholder="/privacy"
-                    className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                    className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                   />
                 </div>
               </div>
@@ -630,7 +630,7 @@ export function ContactContentForm() {
                       type="text"
                       {...methods.register("seo.canonical_url")}
                       placeholder="/th/contact"
-                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                      className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                   </div>
                   <div className="flex items-center gap-2 pt-6">
@@ -652,7 +652,7 @@ export function ContactContentForm() {
                     type="text"
                     {...methods.register("seo.og_image")}
                     placeholder="https://example.com/image.jpg"
-                    className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                    className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                   />
                 </div>
               </div>

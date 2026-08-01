@@ -14,7 +14,7 @@ export function AboutSanghaTab({ disabled = false }: AboutSanghaTabProps) {
   return (
     <div className="space-y-6">
       {/* Sangha Section */}
-      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-xl">
+      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-none">
         <div>
           <h2 className="text-sm font-semibold text-admin-foreground">Sangha & Monks Introduction</h2>
           <p className="text-xs text-admin-muted">Mission and background of the monks.</p>

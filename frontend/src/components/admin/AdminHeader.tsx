@@ -27,7 +27,7 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
       {/* Mobile menu button */}
       <button
         onClick={onMenuClick}
-        className="lg:hidden p-2 rounded-lg hover:bg-admin-surface-muted text-admin-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus min-h-11 min-w-11 flex items-center justify-center"
+        className="lg:hidden p-2 rounded-none hover:bg-admin-surface-muted text-admin-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus min-h-11 min-w-11 flex items-center justify-center"
       >
         <Menu size={20} />
       </button>
@@ -41,12 +41,12 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
           <span className="text-sm font-medium text-admin-muted hidden sm:block">
             {t("language")}:
           </span>
-          <div className="flex bg-admin-surface-muted border border-admin-border rounded-lg p-1">
+          <div className="flex bg-admin-surface-muted border border-admin-border rounded-none p-1">
             {["th", "en", "de"].map((l) => (
               <button
                 key={l}
                 onClick={() => changeLocale(l)}
-                className={`px-2 py-1 text-xs rounded-md transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus ${locale === l ? "bg-admin-selected text-admin-selected-foreground font-medium" : "text-admin-muted hover:text-admin-foreground"}`}
+                className={`px-2 py-1 text-xs rounded-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus ${locale === l ? "bg-admin-selected text-admin-selected-foreground font-medium" : "text-admin-muted hover:text-admin-foreground"}`}
               >
                 {l.toUpperCase()}
               </button>
@@ -68,7 +68,7 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
         {/* Logout */}
         <button
           onClick={handleLogout}
-          className="p-2 rounded-lg hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus min-h-11 min-w-11 flex items-center justify-center"
+          className="p-2 rounded-none hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus min-h-11 min-w-11 flex items-center justify-center"
           title={t("logout")}
         >
           <LogOut size={18} />

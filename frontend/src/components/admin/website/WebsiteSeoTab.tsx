@@ -58,7 +58,7 @@ export function WebsiteSeoTab({
 
   return (
     <div className="space-y-4">
-      <div className="border border-admin-border bg-admin-surface-muted p-3 rounded-lg">
+      <div className="border border-admin-border bg-admin-surface-muted p-3 rounded-none">
         <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-admin-muted">{t("seoScore")}</div>
         <div className="mt-1 text-2xl font-semibold text-admin-foreground">{health.score}%</div>
         {health.warnings.length ? (
@@ -72,7 +72,7 @@ export function WebsiteSeoTab({
         )}
       </div>
       <SeoPreviewPanel page={page} locale={locale} />
-      <form className="space-y-4 border border-admin-border bg-admin-surface p-4 rounded-xl" onSubmit={form.handleSubmit(onSubmit)}>
+      <form className="space-y-4 border border-admin-border bg-admin-surface p-4 rounded-none" onSubmit={form.handleSubmit(onSubmit)}>
         <div className="flex items-start justify-between gap-3">
           <div>
             <h2 className="text-sm font-semibold text-admin-foreground">{t("seoTitle")}</h2>

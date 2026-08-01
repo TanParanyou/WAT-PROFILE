@@ -25,7 +25,7 @@ export function AdminListEmptyState({
 
   if (hasActiveQuery) {
     return (
-      <div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-admin-border rounded-lg bg-admin-surface-muted/50">
+      <div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-admin-border rounded-none bg-admin-surface-muted/50">
         <div className="flex h-12 w-12 items-center justify-center rounded-full bg-admin-selected text-admin-selected-foreground mb-3">
           <SearchX className="h-6 w-6" />
         </div>
@@ -39,7 +39,7 @@ export function AdminListEmptyState({
           <button
             type="button"
             onClick={onClear}
-            className="mt-4 inline-flex items-center gap-2 min-h-11 rounded-lg bg-admin-surface px-4 py-2 text-sm font-medium text-admin-body border border-admin-control-border hover:bg-admin-surface-muted focus-visible:outline-2 focus-visible:outline-admin-focus transition-colors"
+            className="mt-4 inline-flex items-center gap-2 min-h-11 rounded-none bg-admin-surface px-4 py-2 text-sm font-medium text-admin-body border border-admin-control-border hover:bg-admin-surface-muted focus-visible:outline-2 focus-visible:outline-admin-focus transition-colors"
           >
             {t("clearAll")}
           </button>
@@ -49,7 +49,7 @@ export function AdminListEmptyState({
   }
 
   return (
-    <div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-admin-border rounded-lg bg-admin-surface-muted/50">
+    <div className="flex flex-col items-center justify-center p-12 text-center border border-dashed border-admin-border rounded-none bg-admin-surface-muted/50">
       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-admin-surface-muted text-admin-muted mb-3">
         <Inbox className="h-6 w-6" />
       </div>
@@ -63,7 +63,7 @@ export function AdminListEmptyState({
         <button
           type="button"
           onClick={onCreate}
-          className="mt-4 inline-flex items-center gap-2 min-h-11 rounded-lg bg-admin-action px-4 py-2 text-sm font-medium text-admin-on-action hover:bg-admin-action-hover focus-visible:outline-2 focus-visible:outline-admin-focus transition-colors"
+          className="mt-4 inline-flex items-center gap-2 min-h-11 rounded-none bg-admin-action px-4 py-2 text-sm font-medium text-admin-on-action hover:bg-admin-action-hover focus-visible:outline-2 focus-visible:outline-admin-focus transition-colors"
         >
           <Plus className="h-4 w-4" />
           <span>{createLabel ?? "สร้างรายการใหม่"}</span>
@@ -85,7 +85,7 @@ export function AdminListErrorState({
   const t = useTranslations("admin.list");
 
   return (
-    <div className="flex flex-col items-center justify-center p-12 text-center border border-admin-danger/20 rounded-lg bg-admin-danger-surface/30">
+    <div className="flex flex-col items-center justify-center p-12 text-center border border-admin-danger/20 rounded-none bg-admin-danger-surface/30">
       <div className="flex h-12 w-12 items-center justify-center rounded-full bg-admin-danger-surface text-admin-danger mb-3">
         <AlertTriangle className="h-6 w-6" />
       </div>
@@ -98,7 +98,7 @@ export function AdminListErrorState({
       <button
         type="button"
         onClick={onRetry}
-        className="mt-4 inline-flex items-center gap-2 min-h-11 rounded-lg bg-admin-danger px-4 py-2 text-sm font-medium text-admin-on-action hover:brightness-90 focus-visible:outline-2 focus-visible:outline-admin-focus transition-colors"
+        className="mt-4 inline-flex items-center gap-2 min-h-11 rounded-none bg-admin-danger px-4 py-2 text-sm font-medium text-admin-on-action hover:brightness-90 focus-visible:outline-2 focus-visible:outline-admin-focus transition-colors"
       >
         <RotateCcw className="h-4 w-4" />
         <span>{t("retry")}</span>

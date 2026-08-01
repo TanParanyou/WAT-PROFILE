@@ -273,19 +273,19 @@ export default function AuditLogsPage() {
             <div className="space-y-6">
               {/* Header Info */}
               <div className="grid grid-cols-2 gap-4">
-                <div className="bg-admin-surface p-4 rounded-lg border border-admin-border shadow-sm">
+                <div className="bg-admin-surface p-4 rounded-none border border-admin-border shadow-sm">
                   <p className="text-xs text-admin-muted mb-1">การทำงาน (Action)</p>
                   <p className="font-medium text-admin-foreground uppercase">
                     {selectedLog.action}
                   </p>
                 </div>
-                <div className="bg-admin-surface p-4 rounded-lg border border-admin-border shadow-sm">
+                <div className="bg-admin-surface p-4 rounded-none border border-admin-border shadow-sm">
                   <p className="text-xs text-admin-muted mb-1">วันที่ (Date)</p>
                   <p className="font-medium text-admin-foreground">
                     {new Date(selectedLog.created_at).toLocaleString("th-TH")}
                   </p>
                 </div>
-                <div className="bg-admin-surface p-4 rounded-lg border border-admin-border shadow-sm">
+                <div className="bg-admin-surface p-4 rounded-none border border-admin-border shadow-sm">
                   <p className="text-xs text-admin-muted mb-1">ข้อมูล (Entity)</p>
                   <p className="font-medium text-admin-foreground">
                     {selectedLog.entity_type}
@@ -294,7 +294,7 @@ export default function AuditLogsPage() {
                     {selectedLog.entity_id}
                   </p>
                 </div>
-                <div className="bg-admin-surface p-4 rounded-lg border border-admin-border shadow-sm">
+                <div className="bg-admin-surface p-4 rounded-none border border-admin-border shadow-sm">
                   <p className="text-xs text-admin-muted mb-1">ผู้ทำรายการ (User)</p>
                   <p className="font-medium text-admin-foreground">
                     {selectedLog.user?.name || "System"}
@@ -306,7 +306,7 @@ export default function AuditLogsPage() {
               </div>
 
               {/* Network / Tracing */}
-              <div className="bg-admin-surface p-4 rounded-lg border border-admin-border shadow-sm">
+              <div className="bg-admin-surface p-4 rounded-none border border-admin-border shadow-sm">
                 <h3 className="text-sm font-semibold text-admin-foreground mb-3 pb-2 border-b border-admin-border">
                   ข้อมูลการเชื่อมต่อ & Tracing
                 </h3>
@@ -327,7 +327,7 @@ export default function AuditLogsPage() {
               </div>
 
               {/* JSON Changes */}
-              <div className="bg-admin-surface rounded-lg border border-admin-border shadow-sm overflow-hidden flex flex-col">
+              <div className="bg-admin-surface rounded-none border border-admin-border shadow-sm overflow-hidden flex flex-col">
                 <div className="px-4 py-3 border-b border-admin-border bg-admin-surface-muted">
                   <h3 className="text-sm font-semibold text-admin-foreground">
                     รายละเอียดการเปลี่ยนแปลง (Changes)

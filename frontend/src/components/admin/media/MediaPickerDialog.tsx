@@ -219,7 +219,7 @@ export function MediaPickerDialog({
               {filteredImages.map((url, idx) => (
                 <div
                   key={idx}
-                  className="group aspect-square border border-admin-border rounded-lg overflow-hidden bg-admin-surface-muted hover:border-admin-focus transition-all relative cursor-pointer"
+                  className="group aspect-square border border-admin-border rounded-none overflow-hidden bg-admin-surface-muted hover:border-admin-focus transition-all relative cursor-pointer"
                   onClick={() => {
                     onSelect(url);
                     onClose();
@@ -236,7 +236,7 @@ export function MediaPickerDialog({
                     <button
                       type="button"
                       onClick={(e) => handleOpenCropForGallery(url, e)}
-                      className="p-1.5 bg-admin-surface/90 hover:bg-admin-surface text-admin-foreground rounded-md transition-colors text-xs flex items-center gap-1 font-medium focus-visible:outline-2 focus-visible:outline-admin-focus"
+                      className="p-1.5 bg-admin-surface/90 hover:bg-admin-surface text-admin-foreground rounded-none transition-colors text-xs flex items-center gap-1 font-medium focus-visible:outline-2 focus-visible:outline-admin-focus"
                       title={t("cropTooltip")}
                     >
                       <Crop size={14} className="text-admin-action" />

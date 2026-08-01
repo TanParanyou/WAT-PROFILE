@@ -45,7 +45,7 @@ export function ToastContainer() {
                         role="status"
                         aria-live={toast.type === 'error' ? 'assertive' : 'polite'}
                         className={cn(
-                            'pointer-events-auto flex items-start gap-3 rounded-md border px-4 py-3 shadow-lg backdrop-blur-sm',
+                            'pointer-events-auto flex items-start gap-3 rounded-none border px-4 py-3 shadow-lg backdrop-blur-sm',
                             toneMap[toast.type],
                         )}
                     >

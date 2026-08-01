@@ -21,7 +21,7 @@ export function SeoEditorTab({ disabled = false }: SeoEditorTabProps) {
   return (
     <div className="space-y-6">
       {/* Live SEO Preview Panel */}
-      <div className="border border-admin-border bg-admin-surface-muted p-4 rounded-xl">
+      <div className="border border-admin-border bg-admin-surface-muted p-4 rounded-none">
         <h3 className="mb-3 font-mono text-[11px] uppercase tracking-[0.18em] text-admin-muted">
           SEO Search Result Preview (Google & Facebook)
         </h3>
@@ -43,7 +43,7 @@ export function SeoEditorTab({ disabled = false }: SeoEditorTabProps) {
         {/* Facebook/OG Preview */}
         <div>
           <div className="text-[11px] text-admin-muted mb-1">Social Media Share Preview</div>
-          <div className="border border-admin-border bg-admin-surface max-w-md overflow-hidden rounded-lg">
+          <div className="border border-admin-border bg-admin-surface max-w-md overflow-hidden rounded-none">
             {ogImage ? (
               <img src={ogImage} alt="OG Preview" className="h-48 w-full object-cover" />
             ) : (
@@ -65,7 +65,7 @@ export function SeoEditorTab({ disabled = false }: SeoEditorTabProps) {
       </div>
 
       {/* Editor Form Fields */}
-      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-xl">
+      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-none">
         <div>
           <h2 className="text-sm font-semibold text-admin-foreground">Search Engine Optimization (SEO)</h2>
           <p className="text-xs text-admin-muted">Configure how this page looks in search engines and social shares.</p>

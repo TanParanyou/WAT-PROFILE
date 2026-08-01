@@ -167,27 +167,27 @@ export default function SettingsPage() {
         breadcrumbs={[{ label: t("settings.title") }]}
       />
       <div className="space-y-6 max-w-3xl">
-        <div className="bg-admin-surface rounded-xl border border-admin-border p-6 space-y-4">
+        <div className="bg-admin-surface rounded-none border border-admin-border p-6 space-y-4">
           <h2 className="text-lg font-semibold text-admin-foreground">{t("settings.eventAlert")}</h2>
           <Switch id="event-alert-enabled" label={t("settings.eventAlertEnabled")} checked={alert.enabled} onChange={(e) => setAlert({ ...alert, enabled: e.target.checked })} />
           <label className="block text-sm font-medium text-admin-body">{t("settings.eventToDisplay")}
-            <select className="mt-1 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-admin-focus" value={alert.event_id} onChange={(e) => setAlert({ ...alert, event_id: Number(e.target.value) })}>
+            <select className="mt-1 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-admin-focus" value={alert.event_id} onChange={(e) => setAlert({ ...alert, event_id: Number(e.target.value) })}>
               <option value={0}>{t("settings.selectEvent")}</option>{events.map((event) => <option key={event.id} value={event.id}>{event.title.th || event.title.en}</option>)}
             </select>
           </label>
           <Input id="alert-delay" label={t("settings.delaySeconds")} type="number" min={0} max={30} value={alert.delay_seconds} onChange={(e) => setAlert({ ...alert, delay_seconds: Number(e.target.value) })} />
           <Input id="alert-dismiss" label={t("settings.dismissHours")} type="number" min={1} max={720} value={alert.dismiss_hours} onChange={(e) => setAlert({ ...alert, dismiss_hours: Number(e.target.value) })} />
         </div>
-        <div className="bg-admin-surface rounded-xl border border-admin-border p-6 space-y-4">
+        <div className="bg-admin-surface rounded-none border border-admin-border p-6 space-y-4">
           <h2 className="text-lg font-semibold text-admin-foreground">Public Website</h2>
           <ImageUpload label="โลโก้เว็บไซต์" value={shell.logo_url} onChange={(value) => setShell({ ...shell, logo_url: typeof value === "string" ? value : "" })} />
-          <label className="block text-sm font-medium text-admin-body">ตำแหน่งแถบโซเชียลมีเดียด้านข้าง<select className="mt-1 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-admin-focus" value={shell.social_sidebar_position} onChange={(e) => setShell({ ...shell, social_sidebar_position: e.target.value })}><option value="left">ซ้าย</option><option value="right">ขวา</option></select></label>
+          <label className="block text-sm font-medium text-admin-body">ตำแหน่งแถบโซเชียลมีเดียด้านข้าง<select className="mt-1 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-admin-focus" value={shell.social_sidebar_position} onChange={(e) => setShell({ ...shell, social_sidebar_position: e.target.value })}><option value="left">ซ้าย</option><option value="right">ขวา</option></select></label>
           <Input id="youtube-url" label="ลิงก์ช่อง YouTube" type="url" placeholder="https://youtube.com/@channel" value={shell.youtube_url} onChange={(e) => setShell({ ...shell, youtube_url: e.target.value })} />
         </div>
         {Object.entries(grouped).map(([category, items]) => (
           <div
             key={category}
-            className="bg-admin-surface rounded-xl border border-admin-border"
+            className="bg-admin-surface rounded-none border border-admin-border"
           >
             <div className="px-6 py-4 border-b border-admin-border">
               <h2 className="text-lg font-semibold text-admin-foreground">

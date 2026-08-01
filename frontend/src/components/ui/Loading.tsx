@@ -57,7 +57,7 @@ const TableSkeleton: React.FC<{ rows?: number; columns?: number }> = ({
     rows = 5,
     columns = 4,
 }) => (
-    <div className="border border-admin-border rounded-lg overflow-hidden">
+    <div className="border border-admin-border rounded-none overflow-hidden">
         <div className="flex gap-4 p-4 border-b border-admin-border bg-admin-surface-muted">
             {Array.from({ length: columns }).map((_, i) => (
                 <Skeleton key={i} className="h-4 flex-1" />

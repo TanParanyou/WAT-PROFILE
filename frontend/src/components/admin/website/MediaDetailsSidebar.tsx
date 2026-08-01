@@ -77,7 +77,7 @@ export function MediaDetailsSidebar({
       </div>
 
       <div className="space-y-4 flex-1">
-        <div className="aspect-video w-full overflow-hidden border border-admin-border bg-admin-surface-muted rounded-lg">
+        <div className="aspect-video w-full overflow-hidden border border-admin-border bg-admin-surface-muted rounded-none">
           <img src={media.url} alt="" className="h-full w-full object-contain" />
         </div>
 

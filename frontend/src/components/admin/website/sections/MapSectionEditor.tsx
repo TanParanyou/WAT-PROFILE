@@ -18,7 +18,7 @@ export function MapSectionEditor(props: ContentEditorProps) {
         return (
           <div className="space-y-3">
             {!embedUrl && !directionsUrl && !address ? (
-              <div className="border border-admin-warning-border bg-admin-warning-surface px-3 py-2 text-sm text-admin-warning rounded-lg">
+              <div className="border border-admin-warning-border bg-admin-warning-surface px-3 py-2 text-sm text-admin-warning rounded-none">
                 Add at least one map reference so the public page does not render as an empty location block.
               </div>
             ) : null}

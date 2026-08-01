@@ -15,7 +15,7 @@ export function ContactFormSectionEditor(props: ContentEditorProps) {
         return (
           <div className="space-y-3">
             {!enabled ? (
-              <div className="border border-admin-warning-border bg-admin-warning-surface px-3 py-2 text-sm text-admin-warning rounded-lg">
+              <div className="border border-admin-warning-border bg-admin-warning-surface px-3 py-2 text-sm text-admin-warning rounded-none">
                 The public page will hide the live form and keep only the surrounding content block.
               </div>
             ) : null}

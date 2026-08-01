@@ -110,7 +110,7 @@ const Modal: React.FC<ModalProps> = ({
                     aria-modal="true"
                     aria-labelledby={title ? titleId : undefined}
                     aria-describedby={description ? descriptionId : undefined}
-                    className={`max-h-[calc(100vh-1.5rem)] w-full ${sizeClasses[size]} overflow-hidden border border-admin-border bg-admin-surface rounded-xl shadow-2xl pointer-events-auto`}
+                    className={`max-h-[calc(100vh-1.5rem)] w-full ${sizeClasses[size]} overflow-hidden border border-admin-border bg-admin-surface rounded-none shadow-2xl pointer-events-auto`}
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}
@@ -125,7 +125,7 @@ const Modal: React.FC<ModalProps> = ({
                                     type="button"
                                     aria-label="Close modal"
                                     onClick={onClose}
-                                    className="shrink-0 rounded-lg p-1.5 text-admin-muted hover:bg-admin-surface-muted hover:text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus"
+                                    className="shrink-0 rounded-none p-1.5 text-admin-muted hover:bg-admin-surface-muted hover:text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus"
                                 >
                                     <X size={20} />
                                 </button>
@@ -171,10 +171,10 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
                 <h3 className="mb-2 text-base font-semibold text-admin-foreground">{title}</h3>
                 <p className="mb-6 text-sm text-admin-muted">{message}</p>
                 <div className="flex gap-3">
-                    <button type="button" onClick={onClose} disabled={isLoading} className="flex-1 border border-admin-control-border bg-admin-surface px-4 py-2 min-h-11 rounded-lg text-sm font-medium text-admin-body hover:bg-admin-surface-muted disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus">
+                    <button type="button" onClick={onClose} disabled={isLoading} className="flex-1 border border-admin-control-border bg-admin-surface px-4 py-2 min-h-11 rounded-none text-sm font-medium text-admin-body hover:bg-admin-surface-muted disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus">
                         {cancelText}
                     </button>
-                    <button type="button" onClick={onConfirm} disabled={isLoading} className={`flex flex-1 items-center justify-center gap-2 px-4 py-2 min-h-11 rounded-lg text-sm font-medium disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus ${config.btnClass}`}>
+                    <button type="button" onClick={onConfirm} disabled={isLoading} className={`flex flex-1 items-center justify-center gap-2 px-4 py-2 min-h-11 rounded-none text-sm font-medium disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus ${config.btnClass}`}>
                         {isLoading ? <Loading size="sm" /> : confirmText}
                     </button>
                 </div>
@@ -206,10 +206,10 @@ const FormModal: React.FC<FormModalProps> = ({
             <form onSubmit={handleSubmit}>
                 <div className="space-y-4">{children}</div>
                 <div className="mt-6 flex justify-end gap-3 border-t border-admin-border pt-4">
-                    <button type="button" onClick={onClose} disabled={isLoading} className="border border-admin-control-border bg-admin-surface px-4 py-2 min-h-11 rounded-lg text-sm font-medium text-admin-body hover:bg-admin-surface-muted disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus">
+                    <button type="button" onClick={onClose} disabled={isLoading} className="border border-admin-control-border bg-admin-surface px-4 py-2 min-h-11 rounded-none text-sm font-medium text-admin-body hover:bg-admin-surface-muted disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus">
                         {cancelText}
                     </button>
-                    <button type="submit" disabled={isLoading || submitDisabled} className="flex items-center gap-2 bg-admin-action px-6 py-2 min-h-11 rounded-lg text-sm font-medium text-admin-on-action hover:bg-admin-action-hover disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus">
+                    <button type="submit" disabled={isLoading || submitDisabled} className="flex items-center gap-2 bg-admin-action px-6 py-2 min-h-11 rounded-none text-sm font-medium text-admin-on-action hover:bg-admin-action-hover disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus">
                         {isLoading ? <Loading size="sm" /> : submitText}
                     </button>
                 </div>

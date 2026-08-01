@@ -62,7 +62,7 @@ export default function AdminLoginPage() {
         </div>
 
         {/* Login Form */}
-        <div className="bg-admin-surface rounded-xl border border-admin-border p-6">
+        <div className="bg-admin-surface rounded-none border border-admin-border p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               id="email"
@@ -86,7 +86,7 @@ export default function AdminLoginPage() {
             />
 
             {error && (
-              <div className="bg-admin-danger-surface border border-admin-danger/20 text-admin-danger text-sm rounded-lg px-4 py-3">
+              <div className="bg-admin-danger-surface border border-admin-danger/20 text-admin-danger text-sm rounded-none px-4 py-3">
                 {error}
               </div>
             )}

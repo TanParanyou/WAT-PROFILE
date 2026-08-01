@@ -145,7 +145,7 @@ export default function GalleryUploadPage() {
       />
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="max-w-2xl bg-admin-surface rounded-xl border border-admin-border p-6 space-y-4"
+        className="max-w-2xl bg-admin-surface rounded-none border border-admin-border p-6 space-y-4"
       >
         <Controller
           control={control}

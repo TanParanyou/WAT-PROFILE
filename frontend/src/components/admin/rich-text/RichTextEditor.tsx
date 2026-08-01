@@ -69,7 +69,7 @@ export function RichTextEditor({
     : "border-admin-control-border";
 
   return (
-    <div className={`border rounded-lg overflow-hidden bg-admin-surface transition-all ${ringStyle}`}>
+    <div className={`border rounded-none overflow-hidden bg-admin-surface transition-all ${ringStyle}`}>
       {editor && <RichTextToolbar editor={editor} disabled={disabled} />}
       {editor && <ImageBubbleMenu editor={editor} />}
       

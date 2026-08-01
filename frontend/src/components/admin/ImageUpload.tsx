@@ -47,12 +47,12 @@ export function ImageUpload({
           <img
             src={previewSrc}
             alt="Preview"
-            className="h-36 w-36 object-cover rounded-lg border border-admin-border"
+            className="h-36 w-36 object-cover rounded-none border border-admin-border"
           />
           <button
             type="button"
             onClick={() => setIsLightboxOpen(true)}
-            className="absolute inset-0 bg-black/40 text-admin-on-action rounded-lg flex items-center justify-center opacity-0 group-hover/preview:opacity-100 transition-opacity focus-visible:outline-2 focus-visible:outline-admin-focus"
+            className="absolute inset-0 bg-black/40 text-admin-on-action rounded-none flex items-center justify-center opacity-0 group-hover/preview:opacity-100 transition-opacity focus-visible:outline-2 focus-visible:outline-admin-focus"
             title="ดูภาพขนาดเต็ม"
           >
             <Eye size={20} strokeWidth={1.5} />
@@ -70,7 +70,7 @@ export function ImageUpload({
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="flex flex-col items-center justify-center w-36 h-36 border-2 border-dashed border-admin-control-border rounded-lg bg-admin-surface hover:border-admin-focus hover:bg-admin-selected transition-all focus-visible:outline-2 focus-visible:outline-admin-focus group"
+          className="flex flex-col items-center justify-center w-36 h-36 border-2 border-dashed border-admin-control-border rounded-none bg-admin-surface hover:border-admin-focus hover:bg-admin-selected transition-all focus-visible:outline-2 focus-visible:outline-admin-focus group"
         >
           <Upload size={20} className="text-admin-muted group-hover:text-admin-action mb-1 transition-colors" />
           <span className="text-xs text-admin-muted group-hover:text-admin-selected-foreground font-medium">เพิ่มรูปภาพ</span>

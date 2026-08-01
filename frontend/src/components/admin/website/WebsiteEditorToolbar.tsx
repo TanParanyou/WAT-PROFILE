@@ -30,7 +30,7 @@ export function WebsiteEditorToolbar({
   const publicHref = getPublicPageHref(page, locale);
 
   return (
-    <div className="flex flex-wrap items-center justify-between gap-3 border border-admin-border bg-admin-surface px-4 py-3 rounded-xl">
+    <div className="flex flex-wrap items-center justify-between gap-3 border border-admin-border bg-admin-surface px-4 py-3 rounded-none">
       <div className="flex min-w-0 flex-wrap items-center gap-2 sm:gap-3">
         <Button
           type="button"

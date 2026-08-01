@@ -24,10 +24,10 @@ export function MediaUrlField({
   return (
     <div className="space-y-2">
       <Input label={label} disabled={disabled} {...inputProps} />
-      <div className="border border-admin-border bg-admin-surface-muted p-3 rounded-lg">
+      <div className="border border-admin-border bg-admin-surface-muted p-3 rounded-none">
         {isPreviewable ? (
           <div className="flex items-center gap-3">
-            <div className="grid h-16 w-20 shrink-0 place-items-center overflow-hidden border border-admin-border bg-admin-surface rounded-lg">
+            <div className="grid h-16 w-20 shrink-0 place-items-center overflow-hidden border border-admin-border bg-admin-surface rounded-none">
               <img src={value} alt="" className="h-full w-full object-cover" />
             </div>
             <div className="min-w-0 text-sm text-admin-body">
@@ -48,7 +48,7 @@ export function MediaUrlField({
           type="button"
           onClick={() => setIsPickerOpen(true)}
           disabled={disabled}
-          className="mt-3 border border-admin-control-border bg-admin-surface px-3 py-2 text-xs font-medium uppercase tracking-[0.12em] text-admin-foreground hover:bg-admin-surface-muted disabled:opacity-50 rounded-lg"
+          className="mt-3 border border-admin-control-border bg-admin-surface px-3 py-2 text-xs font-medium uppercase tracking-[0.12em] text-admin-foreground hover:bg-admin-surface-muted disabled:opacity-50 rounded-none"
         >
           Choose media
         </button>

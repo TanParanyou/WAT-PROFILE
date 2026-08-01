@@ -193,7 +193,7 @@ export function MonkEditor({ id }: MonkEditorProps) {
           </div>
 
           {/* Form Content */}
-          <div className="bg-admin-surface rounded-xl border border-admin-border p-6 space-y-4">
+          <div className="bg-admin-surface rounded-none border border-admin-border p-6 space-y-4">
             <Controller
               control={control}
               name="name"

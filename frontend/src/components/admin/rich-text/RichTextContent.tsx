@@ -33,7 +33,7 @@ export function RichTextContent({
     "[&_blockquote]:my-3 [&_blockquote]:border-l-4 [&_blockquote]:border-amber-500 [&_blockquote]:bg-amber-50 dark:[&_blockquote]:bg-amber-900/20 [&_blockquote]:px-4 [&_blockquote]:py-2 [&_blockquote]:text-zinc-700 dark:[&_blockquote]:text-zinc-300",
     "[&_hr]:my-4 [&_hr]:border-zinc-300 dark:[&_hr]:border-zinc-700",
     "[&_a]:font-medium [&_a]:text-amber-700 dark:[&_a]:text-amber-500 [&_a]:underline [&_a]:underline-offset-2",
-    "[&_img]:rounded-lg [&_img]:max-w-full [&_img]:h-auto [&_img]:my-4"
+    "[&_img]:rounded-none [&_img]:max-w-full [&_img]:h-auto [&_img]:my-4"
   ].join(" ");
 
   return (

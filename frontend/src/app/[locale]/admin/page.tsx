@@ -115,11 +115,11 @@ export default function AdminDashboardPage() {
             <Link
               key={stat.labelKey}
               href={stat.href}
-              className="bg-admin-surface rounded-xl border border-admin-border p-6 hover:border-admin-focus transition-all focus-visible:outline-2 focus-visible:outline-admin-focus"
+              className="bg-admin-surface rounded-none border border-admin-border p-6 hover:border-admin-focus transition-all focus-visible:outline-2 focus-visible:outline-admin-focus"
             >
               <div className="flex items-center gap-4">
                 <div
-                  className="h-12 w-12 rounded-lg flex items-center justify-center bg-admin-selected text-admin-selected-foreground border border-admin-control-border"
+                  className="h-12 w-12 rounded-none flex items-center justify-center bg-admin-selected text-admin-selected-foreground border border-admin-control-border"
                 >
                   <Icon size={24} />
                 </div>

@@ -67,7 +67,7 @@ export function AdminMultiSelectFilter({
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "flex items-center justify-between w-full min-h-11 rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus",
+          "flex items-center justify-between w-full min-h-11 rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus",
           isOpen ? "border-admin-focus" : ""
         )}
       >
@@ -78,7 +78,7 @@ export function AdminMultiSelectFilter({
       </button>
 
       {isOpen && (
-        <div className="absolute top-[calc(100%+4px)] left-0 z-50 flex w-full flex-col rounded-lg border border-admin-border bg-admin-surface p-2 text-sm max-h-56 overflow-y-auto min-w-[200px]">
+        <div className="absolute top-[calc(100%+4px)] left-0 z-50 flex w-full flex-col rounded-none border border-admin-border bg-admin-surface p-2 text-sm max-h-56 overflow-y-auto min-w-[200px]">
           {options.length > 10 && (
             <div className="relative mb-2">
               <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-admin-muted" />
@@ -87,7 +87,7 @@ export function AdminMultiSelectFilter({
                 value={optionSearch}
                 onChange={(e) => setOptionSearch(e.target.value)}
                 placeholder="ค้นหาตัวเลือก..."
-                className="w-full rounded border border-admin-control-border bg-admin-surface py-1 pl-8 pr-2 text-xs text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-admin-focus"
+                className="w-full rounded-none border border-admin-control-border bg-admin-surface py-1 pl-8 pr-2 text-xs text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-admin-focus"
               />
             </div>
           )}
@@ -102,7 +102,7 @@ export function AdminMultiSelectFilter({
                 return (
                   <label
                     key={opt.value}
-                    className="flex min-h-[32px] cursor-pointer items-center gap-2 rounded px-2 hover:bg-admin-surface-muted text-sm text-admin-body select-none"
+                    className="flex min-h-[32px] cursor-pointer items-center gap-2 rounded-none px-2 hover:bg-admin-surface-muted text-sm text-admin-body select-none"
                   >
                     <Checkbox
                       checked={isChecked}

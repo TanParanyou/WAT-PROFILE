@@ -159,7 +159,7 @@ export function AboutContentForm() {
           <FormTabs tabs={sectionTabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
           {/* Form Content per tab */}
-          <div className="bg-admin-surface p-6 rounded-lg border border-admin-border space-y-6">
+          <div className="bg-admin-surface p-6 rounded-none border border-admin-border space-y-6">
 
             {activeTab === "intro" && (
               <div className="space-y-6">
@@ -409,11 +409,11 @@ export function AboutContentForm() {
 
                   <div className="space-y-6">
                     {buildingFields.map((field, index) => (
-                      <div key={field.id} className="p-4 border border-admin-border rounded-lg bg-admin-surface-muted space-y-4 relative">
+                      <div key={field.id} className="p-4 border border-admin-border rounded-none bg-admin-surface-muted space-y-4 relative">
                         <button
                           type="button"
                           onClick={() => removeBuilding(index)}
-                          className="absolute top-4 right-4 p-1.5 rounded-lg text-admin-muted hover:text-admin-danger hover:bg-admin-border transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
+                          className="absolute top-4 right-4 p-1.5 rounded-none text-admin-muted hover:text-admin-danger hover:bg-admin-border transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
                           title={t("about.deleteBuilding")}
                         >
                           <Trash size={16} />
@@ -453,7 +453,7 @@ export function AboutContentForm() {
                     ))}
 
                     {buildingFields.length === 0 && (
-                      <div className="text-center py-8 text-admin-muted border border-dashed border-admin-border rounded-lg">
+                      <div className="text-center py-8 text-admin-muted border border-dashed border-admin-border rounded-none">
                         {t("about.fields.noBuildings")}
                       </div>
                     )}
@@ -554,7 +554,7 @@ export function AboutContentForm() {
                       type="text"
                       {...methods.register("seo.canonical_url")}
                       placeholder="/th/about"
-                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                      className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                   </div>
                   <div className="flex items-center gap-2 pt-6">
@@ -576,7 +576,7 @@ export function AboutContentForm() {
                     type="text"
                     {...methods.register("seo.og_image")}
                     placeholder="https://example.com/image.jpg"
-                    className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                    className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                   />
                 </div>
               </div>

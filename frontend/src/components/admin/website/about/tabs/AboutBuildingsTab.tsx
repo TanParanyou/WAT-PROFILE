@@ -20,7 +20,7 @@ export function AboutBuildingsTab({ disabled = false }: AboutBuildingsTabProps) 
   return (
     <div className="space-y-6">
       {/* Title Settings */}
-      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-xl">
+      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-none">
         <div>
           <h2 className="text-sm font-semibold text-admin-foreground">Buildings Section Header</h2>
           <p className="text-xs text-admin-muted">Configure titles for the temple's building structures.</p>
@@ -38,7 +38,7 @@ export function AboutBuildingsTab({ disabled = false }: AboutBuildingsTabProps) 
       </div>
 
       {/* Buildings Items List */}
-      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-xl">
+      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-none">
         <div className="flex items-center justify-between">
           <div>
             <h2 className="text-sm font-semibold text-admin-foreground">Building Items</h2>
@@ -57,7 +57,7 @@ export function AboutBuildingsTab({ disabled = false }: AboutBuildingsTabProps) 
         </div>
 
         {fields.map((field, index) => (
-          <div key={field.id} className="relative border border-admin-border p-4 pt-10 space-y-4 bg-admin-surface-muted rounded-lg">
+          <div key={field.id} className="relative border border-admin-border p-4 pt-10 space-y-4 bg-admin-surface-muted rounded-none">
             <div className="absolute right-2 top-2">
               <Button
                 type="button"
@@ -96,7 +96,7 @@ export function AboutBuildingsTab({ disabled = false }: AboutBuildingsTabProps) 
         ))}
 
         {fields.length === 0 && (
-          <div className="text-center py-6 text-xs text-admin-muted border border-dashed border-admin-border rounded-lg">
+          <div className="text-center py-6 text-xs text-admin-muted border border-dashed border-admin-border rounded-none">
             No buildings configured.
           </div>
         )}

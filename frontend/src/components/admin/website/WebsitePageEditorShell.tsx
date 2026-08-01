@@ -168,7 +168,7 @@ export function WebsitePageEditorShell({
         publishError={publishError}
       />
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-        <div className="space-y-4 border border-admin-border bg-admin-surface p-4 rounded-xl">
+        <div className="space-y-4 border border-admin-border bg-admin-surface p-4 rounded-none">
           <WebsiteEditorTabs
             value={activeTab}
             onChange={async (tab) => {
@@ -242,7 +242,7 @@ export function WebsitePageEditorShell({
         </div>
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="inline-flex rounded-lg border border-admin-control-border bg-admin-surface p-1">
+            <div className="inline-flex rounded-none border border-admin-control-border bg-admin-surface p-1">
               <button
                 type="button"
                 className={previewMode === "draft" ? "bg-admin-action text-admin-on-action rounded px-3 py-2 text-xs font-medium focus-visible:outline-2 focus-visible:outline-admin-focus" : "px-3 py-2 text-xs font-medium text-admin-body hover:text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus"}

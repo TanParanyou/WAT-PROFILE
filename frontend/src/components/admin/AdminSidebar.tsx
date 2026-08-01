@@ -131,7 +131,7 @@ export function AdminSidebar({
         {/* Desktop toggle */}
         <button
           onClick={onToggle}
-          className="hidden lg:block p-1.5 rounded-lg hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus min-h-11 min-w-11 flex items-center justify-center"
+          className="hidden lg:block p-1.5 rounded-none hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus min-h-11 min-w-11 flex items-center justify-center"
         >
           {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
         </button>
@@ -139,7 +139,7 @@ export function AdminSidebar({
         {mobileOpen && (
           <button
             onClick={onMobileClose}
-            className="lg:hidden p-1.5 rounded-lg hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus min-h-11 min-w-11 flex items-center justify-center"
+            className="lg:hidden p-1.5 rounded-none hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus min-h-11 min-w-11 flex items-center justify-center"
           >
             <X size={18} />
           </button>
@@ -153,7 +153,7 @@ export function AdminSidebar({
           href="/admin"
           onClick={onMobileClose}
           className={cn(
-            "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus min-h-11",
+            "flex items-center gap-3 px-3 py-2.5 rounded-none text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus min-h-11",
             isActive("/admin")
               ? "bg-admin-selected text-admin-selected-foreground font-medium"
               : "text-admin-body hover:bg-admin-surface-muted hover:text-admin-foreground",
@@ -196,7 +196,7 @@ export function AdminSidebar({
                       href={item.href}
                       onClick={onMobileClose}
                       className={cn(
-                        "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus min-h-11",
+                        "flex items-center gap-3 px-3 py-2 rounded-none text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus min-h-11",
                         active
                           ? "bg-admin-selected text-admin-selected-foreground font-medium"
                           : "text-admin-body hover:bg-admin-surface-muted hover:text-admin-foreground",

@@ -32,7 +32,7 @@ export function ImageBubbleMenu({ editor }: ImageBubbleMenuProps) {
       editor={editor}
       options={{ placement: "bottom" }}
       shouldShow={({ editor }) => editor.isActive("image")}
-      className="flex items-center gap-1 bg-admin-surface border border-admin-border rounded-lg p-1"
+      className="flex items-center gap-1 bg-admin-surface border border-admin-border rounded-none p-1"
     >
       <button
         type="button"

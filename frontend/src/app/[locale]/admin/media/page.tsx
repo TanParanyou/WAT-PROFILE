@@ -225,7 +225,7 @@ export default function MediaLibraryPage() {
               <button
                 key={media.id}
                 onClick={() => setSelectedMedia(media)}
-                className={`group relative aspect-video overflow-hidden rounded-lg border bg-admin-surface-muted transition focus-visible:outline-2 focus-visible:outline-admin-focus ${
+                className={`group relative aspect-video overflow-hidden rounded-none border bg-admin-surface-muted transition focus-visible:outline-2 focus-visible:outline-admin-focus ${
                   selectedMedia?.id === media.id
                     ? "border-admin-focus ring-2 ring-admin-focus/20"
                     : "border-admin-border hover:border-admin-control-border"

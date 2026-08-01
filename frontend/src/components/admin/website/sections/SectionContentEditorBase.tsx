@@ -60,7 +60,7 @@ export function SectionContentEditorBase({
   const hidden = form.watch("status") === "archived";
 
   return (
-    <form className="space-y-4 border border-admin-border bg-admin-surface-muted p-4 rounded-xl" onSubmit={form.handleSubmit(onSubmit)}>
+    <form className="space-y-4 border border-admin-border bg-admin-surface-muted p-4 rounded-none" onSubmit={form.handleSubmit(onSubmit)}>
       <div className="flex items-start justify-between gap-3">
         <div>
           <h2 className="text-sm font-semibold text-admin-foreground">{heading}</h2>

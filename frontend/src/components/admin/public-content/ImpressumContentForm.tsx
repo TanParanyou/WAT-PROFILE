@@ -135,7 +135,7 @@ export function ImpressumContentForm() {
           <FormTabs tabs={sectionTabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
           {/* Form Content per tab */}
-          <div className="bg-admin-surface p-6 rounded-lg border border-admin-border space-y-6">
+          <div className="bg-admin-surface p-6 rounded-none border border-admin-border space-y-6">
             
             {activeTab === "details" && (
               <div className="space-y-6">
@@ -221,7 +221,7 @@ export function ImpressumContentForm() {
                       type="text"
                       {...methods.register("body.phone")}
                       placeholder="+49 160-1604486"
-                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                      className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                   </div>
                   <div className="space-y-1">
@@ -230,7 +230,7 @@ export function ImpressumContentForm() {
                       type="text"
                       {...methods.register("body.email")}
                       placeholder="info@watloungporsai.de"
-                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                      className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                     {errors.body?.email && <p className="text-sm text-admin-danger mt-1">{errors.body.email.message}</p>}
                   </div>
@@ -275,7 +275,7 @@ export function ImpressumContentForm() {
                       type="text"
                       {...methods.register("body.registry_number")}
                       placeholder="VR 20123"
-                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                      className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                   </div>
                 </div>
@@ -285,7 +285,7 @@ export function ImpressumContentForm() {
                   <input
                     type="text"
                     {...methods.register("body.vat_id")}
-                    className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                    className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                   />
                 </div>
               </div>
@@ -351,7 +351,7 @@ export function ImpressumContentForm() {
                       type="text"
                       {...methods.register("seo.canonical_url")}
                       placeholder="/th/impressum"
-                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                      className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                   </div>
                   <div className="flex items-center gap-2 pt-6">
@@ -373,7 +373,7 @@ export function ImpressumContentForm() {
                     type="text"
                     {...methods.register("seo.og_image")}
                     placeholder="https://example.com/image.jpg"
-                    className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                    className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                   />
                 </div>
               </div>

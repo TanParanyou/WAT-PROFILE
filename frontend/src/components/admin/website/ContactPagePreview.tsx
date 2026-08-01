@@ -9,7 +9,7 @@ export function ContactPagePreview({ page, locale }: { page: PublicContentPage |
   const isContactPage = page?.slug === "contact";
 
   return (
-    <div className="space-y-4 border border-admin-border bg-admin-surface-muted p-4 rounded-xl">
+    <div className="space-y-4 border border-admin-border bg-admin-surface-muted p-4 rounded-none">
       <div>
         <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-admin-muted">Preview</p>
         <h3 className="mt-1 text-lg font-semibold text-admin-foreground">
@@ -27,7 +27,7 @@ export function ContactPagePreview({ page, locale }: { page: PublicContentPage |
       {page ? (
         <div className="space-y-2">
           {page.sections.map((section) => (
-            <div key={section.id} className="border border-admin-border bg-admin-surface p-3 rounded-lg">
+            <div key={section.id} className="border border-admin-border bg-admin-surface p-3 rounded-none">
               <div className="font-mono text-[11px] uppercase tracking-[0.14em] text-admin-muted">
                 {section.section_key}
               </div>

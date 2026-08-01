@@ -18,7 +18,7 @@ export function WebsitePublishPanel({
   const dirty = hasDraftDifference(page);
 
   return (
-    <div className="border border-admin-border bg-admin-surface p-4 rounded-xl">
+    <div className="border border-admin-border bg-admin-surface p-4 rounded-none">
       <div className="flex items-start justify-between gap-3">
         <div>
           <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-admin-muted">{t("publishPanel")}</p>

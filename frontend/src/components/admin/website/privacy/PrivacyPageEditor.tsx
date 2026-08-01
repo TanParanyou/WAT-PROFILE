@@ -238,14 +238,14 @@ export function PrivacyPageEditor() {
         </div>
 
         {Object.keys(errors).length > 0 ? (
-          <div className="rounded-lg border border-admin-danger-border bg-admin-danger-surface p-3 text-xs text-admin-danger">
+          <div className="rounded-none border border-admin-danger-border bg-admin-danger-surface p-3 text-xs text-admin-danger">
             Please fix the validation errors before saving.
           </div>
         ) : null}
 
         <div className="space-y-4">
           {activeTab === "content" ? (
-            <div className="space-y-6 rounded-xl border border-admin-border bg-admin-surface p-6">
+            <div className="space-y-6 rounded-none border border-admin-border bg-admin-surface p-6">
               <div className="grid gap-6 md:grid-cols-2">
                 <Input type="date" label="Last Updated Date" {...methods.register("body.last_updated")} />
                 <Controller
@@ -273,7 +273,7 @@ export function PrivacyPageEditor() {
 
                 <div className="space-y-6">
                   {fields.map((field, index) => (
-                    <div key={field.id} className="relative rounded-xl border border-admin-border bg-admin-surface-muted p-6">
+                    <div key={field.id} className="relative rounded-none border border-admin-border bg-admin-surface-muted p-6">
                       <div className="absolute right-4 top-4 flex items-center gap-1">
                         <button
                           type="button"
@@ -327,7 +327,7 @@ export function PrivacyPageEditor() {
                   ))}
 
                   {fields.length === 0 ? (
-                    <div className="rounded-xl border border-dashed border-admin-border py-8 text-center text-sm text-admin-muted">
+                    <div className="rounded-none border border-dashed border-admin-border py-8 text-center text-sm text-admin-muted">
                       No policy sections added yet. Click "Add Section" to begin.
                     </div>
                   ) : null}

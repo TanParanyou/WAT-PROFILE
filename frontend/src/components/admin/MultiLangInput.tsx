@@ -71,7 +71,7 @@ export function MultiLangInput({
           required={required && activeLang === "th"}
           rows={4}
           className={cn(
-            "w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus",
+            "w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus",
             error && "border-admin-danger focus-visible:border-admin-danger focus-visible:outline-admin-danger",
           )}
         />
@@ -83,7 +83,7 @@ export function MultiLangInput({
           placeholder={placeholder || `${label} (${activeLang.toUpperCase()})`}
           required={required && activeLang === "th"}
           className={cn(
-            "min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus",
+            "min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus",
             error && "border-admin-danger focus-visible:border-admin-danger focus-visible:outline-admin-danger",
           )}
         />

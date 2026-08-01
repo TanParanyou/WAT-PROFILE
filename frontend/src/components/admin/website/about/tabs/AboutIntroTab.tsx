@@ -23,7 +23,7 @@ export function AboutIntroTab({ disabled = false }: AboutIntroTabProps) {
   return (
     <div className="space-y-6">
       {/* Hero Section */}
-      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-xl">
+      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-none">
         <div>
           <h2 className="text-sm font-semibold text-admin-foreground">Hero Section</h2>
           <p className="text-xs text-admin-muted">Header title and subtitle for the About page.</p>
@@ -52,7 +52,7 @@ export function AboutIntroTab({ disabled = false }: AboutIntroTabProps) {
       </div>
 
       {/* Intro Section */}
-      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-xl">
+      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-none">
         <div>
           <h2 className="text-sm font-semibold text-admin-foreground">Introduction</h2>
           <p className="text-xs text-admin-muted">Basic intro text and details.</p>
@@ -102,7 +102,7 @@ export function AboutIntroTab({ disabled = false }: AboutIntroTabProps) {
       </div>
 
       {/* Objectives Section */}
-      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-xl">
+      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-none">
         <div>
           <h2 className="text-sm font-semibold text-admin-foreground">Objectives / Vision</h2>
           <p className="text-xs text-admin-muted">Vision, mission quote, and core message.</p>

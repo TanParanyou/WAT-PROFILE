@@ -39,7 +39,7 @@ export function WebsiteAdvancedTab({
 
   return (
     <div className="space-y-4">
-      <div className="border border-admin-warning-border bg-admin-warning-surface p-3 text-sm text-admin-warning rounded-lg">
+      <div className="border border-admin-warning-border bg-admin-warning-surface p-3 text-sm text-admin-warning rounded-none">
         {t("advancedWarning")}
       </div>
       <WebsitePageMetadataEditor

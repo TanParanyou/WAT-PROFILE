@@ -70,7 +70,7 @@ export default function WebsitePageEditor() {
 
   if (pageQuery.isError || !pageQuery.data) {
     return (
-      <div className="border border-admin-danger-border bg-admin-danger-surface p-4 text-sm text-admin-danger rounded-xl">
+      <div className="border border-admin-danger-border bg-admin-danger-surface p-4 text-sm text-admin-danger rounded-none">
         Page not found.
       </div>
     );

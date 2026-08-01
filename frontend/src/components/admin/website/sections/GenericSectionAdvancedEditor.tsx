@@ -51,7 +51,7 @@ export function GenericSectionAdvancedEditor({
   }, [form, onPreviewDraftChange]);
 
   return (
-    <form className="space-y-4 border border-admin-border bg-admin-surface-muted p-4 rounded-xl" onSubmit={form.handleSubmit(onSubmit)}>
+    <form className="space-y-4 border border-admin-border bg-admin-surface-muted p-4 rounded-none" onSubmit={form.handleSubmit(onSubmit)}>
       <div>
         <div className="text-sm font-medium text-admin-foreground">{section.section_key}</div>
         <div className="text-xs text-admin-muted">

@@ -88,7 +88,7 @@ export function WebsiteContentTab({
     <div className="space-y-4">
       <WebsiteLocaleTabs activeLocale={activeLocale} onChange={onActiveLocaleChange} />
       {templates.length ? (
-        <div className="border border-admin-border bg-admin-surface-muted p-3 rounded-lg">
+        <div className="border border-admin-border bg-admin-surface-muted p-3 rounded-none">
           <div className="mb-3 font-mono text-[11px] uppercase tracking-[0.18em] text-admin-muted">{t("addSection")}</div>
           <div className="flex flex-wrap gap-2">
             {templates.map((template) => (
@@ -180,13 +180,13 @@ export function WebsiteContentTab({
               />
             </div>
           ) : (
-            <div className="border border-dashed border-admin-border bg-admin-surface-muted p-6 text-sm text-admin-muted rounded-xl">
+            <div className="border border-dashed border-admin-border bg-admin-surface-muted p-6 text-sm text-admin-muted rounded-none">
               Select a section to start editing this page.
             </div>
           )}
         </>
       ) : (
-        <div className="border border-dashed border-admin-border bg-admin-surface-muted p-6 rounded-xl">
+        <div className="border border-dashed border-admin-border bg-admin-surface-muted p-6 rounded-none">
           <p className="font-medium text-admin-foreground">This page does not have any sections yet.</p>
           <p className="mt-2 text-sm text-admin-muted">
             The preview can still render page-level metadata, but content editing will stay empty until sections are added.

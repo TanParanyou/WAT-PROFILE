@@ -186,7 +186,7 @@ export function AboutPageEditor() {
 
         {/* Form Error Alert if validation fails */}
         {Object.keys(errors).length > 0 && (
-          <div className="p-3 border border-admin-danger-border bg-admin-danger-surface text-admin-danger text-xs rounded-lg">
+          <div className="p-3 border border-admin-danger-border bg-admin-danger-surface text-admin-danger text-xs rounded-none">
             Please fix the validation errors before saving.
           </div>
         )}

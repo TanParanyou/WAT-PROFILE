@@ -141,7 +141,7 @@ export function UserEditor({ id }: UserEditorProps) {
           </div>
 
           {/* Form Content */}
-          <div className="bg-admin-surface rounded-xl border border-admin-border p-6 space-y-4 max-w-2xl">
+          <div className="bg-admin-surface rounded-none border border-admin-border p-6 space-y-4 max-w-2xl">
             <Input
               id="name"
               label="ชื่อ-นามสกุล *"

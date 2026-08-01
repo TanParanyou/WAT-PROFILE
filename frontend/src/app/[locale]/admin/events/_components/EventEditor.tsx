@@ -314,7 +314,7 @@ export function EventEditor({ id }: EventEditorProps) {
 
           {/* Form Error Alert */}
           {Object.keys(errors).length > 0 && (
-            <div className="p-3 border border-admin-danger/30 bg-admin-danger-surface text-admin-danger text-xs rounded-lg">
+            <div className="p-3 border border-admin-danger/30 bg-admin-danger-surface text-admin-danger text-xs rounded-none">
               {t("events.formError")}
             </div>
           )}
@@ -322,7 +322,7 @@ export function EventEditor({ id }: EventEditorProps) {
           {/* Form Content Sections */}
           <div className="space-y-6">
             {/* Section 1: General Info */}
-            <div className="bg-admin-surface rounded-xl border border-admin-border p-6 space-y-4">
+            <div className="bg-admin-surface rounded-none border border-admin-border p-6 space-y-4">
               <h2 className="text-base font-semibold text-admin-foreground flex items-center gap-2 border-b border-admin-border pb-3">
                 <FileText size={18} className="text-admin-action" />
                 {t("events.tabs.general")}
@@ -402,7 +402,7 @@ export function EventEditor({ id }: EventEditorProps) {
             </div>
 
             {/* Section 2: Details & Settings */}
-            <div className="bg-admin-surface rounded-xl border border-admin-border p-6 space-y-4">
+            <div className="bg-admin-surface rounded-none border border-admin-border p-6 space-y-4">
               <h2 className="text-base font-semibold text-admin-foreground flex items-center gap-2 border-b border-admin-border pb-3">
                 <MapPin size={18} className="text-admin-action" />
                 {t("events.tabs.details")}
@@ -549,7 +549,7 @@ export function EventEditor({ id }: EventEditorProps) {
             </div>
 
             {/* Section 3: Schedule */}
-            <div className="bg-admin-surface rounded-xl border border-admin-border p-6 space-y-4">
+            <div className="bg-admin-surface rounded-none border border-admin-border p-6 space-y-4">
               <EventScheduleEditor />
             </div>
           </div>

@@ -181,14 +181,14 @@ export function ImpressumPageEditor() {
         </div>
 
         {Object.keys(errors).length > 0 ? (
-          <div className="rounded-lg border border-admin-danger-border bg-admin-danger-surface p-3 text-xs text-admin-danger">
+          <div className="rounded-none border border-admin-danger-border bg-admin-danger-surface p-3 text-xs text-admin-danger">
             Please fix the validation errors before saving.
           </div>
         ) : null}
 
         <div className="space-y-4">
           {activeTab === "content" ? (
-            <div className="space-y-6 rounded-xl border border-admin-border bg-admin-surface p-6">
+            <div className="space-y-6 rounded-none border border-admin-border bg-admin-surface p-6">
               <Controller
                 name="title"
                 control={methods.control}

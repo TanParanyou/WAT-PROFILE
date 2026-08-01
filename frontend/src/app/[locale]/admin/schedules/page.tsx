@@ -395,7 +395,7 @@ export default function SchedulesPage() {
         <PermissionGuard resource="schedules" action="delete">
           <button
             onClick={handleBulkDelete}
-            className="flex items-center gap-2 px-3 py-1.5 bg-admin-danger hover:brightness-90 text-admin-on-action rounded-md transition-colors text-sm font-medium focus-visible:outline-2 focus-visible:outline-admin-focus"
+            className="flex items-center gap-2 px-3 py-1.5 bg-admin-danger hover:brightness-90 text-admin-on-action rounded-none transition-colors text-sm font-medium focus-visible:outline-2 focus-visible:outline-admin-focus"
           >
             <Icons.Delete size={16} />
             {t("common.bulkDelete")}

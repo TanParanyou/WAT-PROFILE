@@ -59,7 +59,7 @@ export function EventScheduleEditor() {
       </div>
 
       {fields.length === 0 ? (
-        <div className="text-center py-8 border-2 border-dashed border-admin-border rounded-xl bg-admin-surface-muted/50">
+        <div className="text-center py-8 border-2 border-dashed border-admin-border rounded-none bg-admin-surface-muted/50">
           <p className="text-sm text-admin-muted">{t("events.schedule.empty")}</p>
           <Button
             type="button"
@@ -83,7 +83,7 @@ export function EventScheduleEditor() {
               <div
                 key={field.id}
                 {...dragProps}
-                className={`p-4 border rounded-xl bg-admin-surface space-y-4 relative group transition-all ${
+                className={`p-4 border rounded-none bg-admin-surface space-y-4 relative group transition-all ${
                   isDragging
                     ? "border-admin-focus bg-admin-selected opacity-50 scale-[0.99]"
                     : "border-admin-border hover:border-admin-control-border"
@@ -103,7 +103,7 @@ export function EventScheduleEditor() {
                       type="button"
                       disabled={index === 0}
                       onClick={() => move(index, index - 1)}
-                      className="p-1.5 rounded-lg text-admin-muted hover:text-admin-action hover:bg-admin-selected disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-admin-muted transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
+                      className="p-1.5 rounded-none text-admin-muted hover:text-admin-action hover:bg-admin-selected disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-admin-muted transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
                       title={t("events.schedule.moveUp")}
                     >
                       <ArrowUp size={16} />
@@ -112,7 +112,7 @@ export function EventScheduleEditor() {
                       type="button"
                       disabled={index === fields.length - 1}
                       onClick={() => move(index, index + 1)}
-                      className="p-1.5 rounded-lg text-admin-muted hover:text-admin-action hover:bg-admin-selected disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-admin-muted transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
+                      className="p-1.5 rounded-none text-admin-muted hover:text-admin-action hover:bg-admin-selected disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-admin-muted transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
                       title={t("events.schedule.moveDown")}
                     >
                       <ArrowDown size={16} />
@@ -120,7 +120,7 @@ export function EventScheduleEditor() {
                     <button
                       type="button"
                       onClick={() => remove(index)}
-                      className="p-1.5 rounded-lg text-admin-muted hover:text-admin-danger hover:bg-admin-danger-surface transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
+                      className="p-1.5 rounded-none text-admin-muted hover:text-admin-danger hover:bg-admin-danger-surface transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
                       title={t("events.schedule.delete")}
                     >
                       <Trash2 size={16} />

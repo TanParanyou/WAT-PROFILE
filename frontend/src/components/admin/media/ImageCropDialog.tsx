@@ -97,7 +97,7 @@ export function ImageCropDialog({
     >
       <div className="space-y-4 font-sans text-sm">
         {/* Cropper Container */}
-        <div className="relative w-full h-[360px] bg-admin-canvas rounded-lg overflow-hidden">
+        <div className="relative w-full h-[360px] bg-admin-canvas rounded-none overflow-hidden">
           <Cropper
             image={imageSrc}
             crop={crop}
@@ -114,7 +114,7 @@ export function ImageCropDialog({
         {error && <p className="text-sm text-admin-danger font-medium">{error}</p>}
 
         {/* Controls Toolbar */}
-        <div className="space-y-3 bg-admin-surface-muted p-3 rounded-lg border border-admin-border">
+        <div className="space-y-3 bg-admin-surface-muted p-3 rounded-none border border-admin-border">
           {/* Aspect Ratio */}
           <div className="flex flex-wrap items-center justify-between gap-2">
             <span className="text-xs font-medium text-admin-muted">{t("aspectRatio")}</span>
@@ -124,7 +124,7 @@ export function ImageCropDialog({
                   key={idx}
                   type="button"
                   onClick={() => setAspect(option.value)}
-                  className={`px-2.5 py-1 text-xs rounded-md transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus ${
+                  className={`px-2.5 py-1 text-xs rounded-none transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus ${
                     aspect === option.value
                       ? "bg-admin-action text-admin-on-action font-medium"
                       : "bg-admin-surface text-admin-body hover:bg-admin-surface-muted border border-admin-control-border"
@@ -149,7 +149,7 @@ export function ImageCropDialog({
                 step={0.1}
                 aria-label="Zoom"
                 onChange={(e) => setZoom(Number(e.target.value))}
-                className="w-full h-1.5 bg-admin-surface-muted rounded-lg appearance-none cursor-pointer accent-admin-action"
+                className="w-full h-1.5 bg-admin-surface-muted rounded-none appearance-none cursor-pointer accent-admin-action"
               />
               <ZoomIn size={16} className="text-admin-muted shrink-0" />
             </div>
@@ -159,7 +159,7 @@ export function ImageCropDialog({
               <button
                 type="button"
                 onClick={handleRotateLeft}
-                className="p-1.5 bg-admin-surface border border-admin-control-border hover:bg-admin-surface-muted rounded-md text-admin-body transition-colors flex items-center gap-1 text-xs focus-visible:outline-2 focus-visible:outline-admin-focus"
+                className="p-1.5 bg-admin-surface border border-admin-control-border hover:bg-admin-surface-muted rounded-none text-admin-body transition-colors flex items-center gap-1 text-xs focus-visible:outline-2 focus-visible:outline-admin-focus"
                 title={t("rotateLeft")}
               >
                 <RotateCcw size={14} />
@@ -168,7 +168,7 @@ export function ImageCropDialog({
               <button
                 type="button"
                 onClick={handleRotateRight}
-                className="p-1.5 bg-admin-surface border border-admin-control-border hover:bg-admin-surface-muted rounded-md text-admin-body transition-colors flex items-center gap-1 text-xs focus-visible:outline-2 focus-visible:outline-admin-focus"
+                className="p-1.5 bg-admin-surface border border-admin-control-border hover:bg-admin-surface-muted rounded-none text-admin-body transition-colors flex items-center gap-1 text-xs focus-visible:outline-2 focus-visible:outline-admin-focus"
                 title={t("rotateRight")}
               >
                 <RotateCw size={14} />

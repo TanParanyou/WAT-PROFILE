@@ -336,7 +336,7 @@ export default function ContactsPage() {
         <PermissionGuard resource="contacts" action="delete">
           <button
             onClick={handleBulkDelete}
-            className="flex items-center gap-2 px-3 py-1.5 bg-admin-danger hover:brightness-90 text-admin-on-action rounded-md transition-colors text-sm font-medium focus-visible:outline-2 focus-visible:outline-admin-focus"
+            className="flex items-center gap-2 px-3 py-1.5 bg-admin-danger hover:brightness-90 text-admin-on-action rounded-none transition-colors text-sm font-medium focus-visible:outline-2 focus-visible:outline-admin-focus"
           >
             <Icons.Delete size={16} />
             {t("common.bulkDelete")}
@@ -405,7 +405,7 @@ export default function ContactsPage() {
               <label className="block text-sm font-medium text-admin-body mb-1">
                 {t("contacts.message")}
               </label>
-              <div className="bg-admin-surface-muted rounded-lg p-3 border border-admin-border">
+              <div className="bg-admin-surface-muted rounded-none p-3 border border-admin-border">
                 <p className="text-admin-foreground whitespace-pre-wrap text-sm">
                   {selectedContact.message}
                 </p>

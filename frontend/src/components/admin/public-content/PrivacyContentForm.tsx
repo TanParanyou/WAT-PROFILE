@@ -107,7 +107,7 @@ export function PrivacyContentForm() {
           <FormTabs tabs={sectionTabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
           {/* Form Content per tab */}
-          <div className="bg-admin-surface p-6 rounded-lg border border-admin-border space-y-6">
+          <div className="bg-admin-surface p-6 rounded-none border border-admin-border space-y-6">
             
             {activeTab === "details" && (
               <div className="space-y-6">
@@ -195,7 +195,7 @@ export function PrivacyContentForm() {
                       type="text"
                       {...methods.register("seo.canonical_url")}
                       placeholder="/th/privacy"
-                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                      className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                   </div>
                   <div className="flex items-center gap-2 pt-6">
@@ -217,7 +217,7 @@ export function PrivacyContentForm() {
                     type="text"
                     {...methods.register("seo.og_image")}
                     placeholder="https://example.com/image.jpg"
-                    className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                    className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                   />
                 </div>
               </div>

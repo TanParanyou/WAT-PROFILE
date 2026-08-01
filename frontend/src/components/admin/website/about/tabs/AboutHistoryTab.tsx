@@ -22,7 +22,7 @@ export function AboutHistoryTab({ disabled = false }: AboutHistoryTabProps) {
   return (
     <div className="space-y-6">
       {/* Administration Section */}
-      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-xl">
+      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-none">
         <div>
           <h2 className="text-sm font-semibold text-admin-foreground">Administration</h2>
           <p className="text-xs text-admin-muted">Board information and structure.</p>
@@ -55,7 +55,7 @@ export function AboutHistoryTab({ disabled = false }: AboutHistoryTabProps) {
       </div>
 
       {/* History Section */}
-      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-xl">
+      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-none">
         <div>
           <h2 className="text-sm font-semibold text-admin-foreground">History & Heritage</h2>
           <p className="text-xs text-admin-muted">Temple's history and background story.</p>

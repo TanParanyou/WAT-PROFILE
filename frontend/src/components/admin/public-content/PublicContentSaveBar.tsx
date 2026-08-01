@@ -43,7 +43,7 @@ export function PublicContentSaveBar({
         <Link
           href={publicUrl}
           target="_blank"
-          className="flex items-center gap-1.5 px-4 py-2 min-h-11 border border-admin-control-border rounded-lg text-sm text-admin-body bg-admin-surface hover:bg-admin-surface-muted font-medium transition-colors w-full sm:w-auto justify-center focus-visible:outline-2 focus-visible:outline-admin-focus"
+          className="flex items-center gap-1.5 px-4 py-2 min-h-11 border border-admin-control-border rounded-none text-sm text-admin-body bg-admin-surface hover:bg-admin-surface-muted font-medium transition-colors w-full sm:w-auto justify-center focus-visible:outline-2 focus-visible:outline-admin-focus"
         >
           <span>{t("viewLiveSite")}</span>
           <ExternalLink size={16} />
@@ -52,7 +52,7 @@ export function PublicContentSaveBar({
         <button
           type="submit"
           disabled={isPending || !isDirty}
-          className="flex items-center gap-2 px-6 py-2 min-h-11 bg-admin-action hover:bg-admin-action-hover disabled:opacity-50 text-admin-on-action rounded-lg text-sm font-medium transition-colors disabled:cursor-not-allowed w-full sm:w-auto justify-center focus-visible:outline-2 focus-visible:outline-admin-focus"
+          className="flex items-center gap-2 px-6 py-2 min-h-11 bg-admin-action hover:bg-admin-action-hover disabled:opacity-50 text-admin-on-action rounded-none text-sm font-medium transition-colors disabled:cursor-not-allowed w-full sm:w-auto justify-center focus-visible:outline-2 focus-visible:outline-admin-focus"
         >
           {isPending ? (
             <Loader2 className="w-4 h-4 animate-spin" />

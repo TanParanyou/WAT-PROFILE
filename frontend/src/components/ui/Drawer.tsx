@@ -76,7 +76,7 @@ export function Drawer({
           <button
             type="button"
             onClick={onClose}
-            className="p-1.5 text-admin-muted hover:text-admin-foreground hover:bg-admin-border rounded-lg transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
+            className="p-1.5 text-admin-muted hover:text-admin-foreground hover:bg-admin-border rounded-none transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
             aria-label="Close drawer"
           >
             <X size={20} />

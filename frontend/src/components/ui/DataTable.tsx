@@ -123,7 +123,7 @@ export function DataTable<T>({
 
   return (
     <div className={cn("w-full space-y-4", className)}>
-      <div className="w-full rounded-lg border border-admin-border bg-admin-surface overflow-hidden">
+      <div className="w-full rounded-none border border-admin-border bg-admin-surface overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             {/* Header */}

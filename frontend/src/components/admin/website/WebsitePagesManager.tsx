@@ -149,7 +149,7 @@ export function WebsitePagesManager() {
 
 function Metric({ label, value }: { label: string; value: number }) {
   return (
-    <div className="border border-admin-border bg-admin-surface p-4 rounded-xl">
+    <div className="border border-admin-border bg-admin-surface p-4 rounded-none">
       <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-admin-muted">{label}</div>
       <div className="mt-2 text-2xl font-semibold text-admin-foreground">{value}</div>
     </div>
