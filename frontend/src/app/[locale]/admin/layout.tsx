@@ -20,19 +20,23 @@ export default function AdminRootLayout({
 
   if (isLoginPage) {
     return (
-      <AuthProvider>
-        <AdminIntlProvider>{children}</AdminIntlProvider>
-      </AuthProvider>
+      <div className="admin-theme min-h-screen bg-admin-canvas text-admin-foreground">
+        <AuthProvider>
+          <AdminIntlProvider>{children}</AdminIntlProvider>
+        </AuthProvider>
+      </div>
     );
   }
 
   return (
-    <AuthProvider>
-      <AdminAuthGuard>
-        <AdminIntlProvider>
-          <AdminLayout>{children}</AdminLayout>
-        </AdminIntlProvider>
-      </AdminAuthGuard>
-    </AuthProvider>
+    <div className="admin-theme min-h-screen bg-admin-canvas text-admin-foreground">
+      <AuthProvider>
+        <AdminAuthGuard>
+          <AdminIntlProvider>
+            <AdminLayout>{children}</AdminLayout>
+          </AdminIntlProvider>
+        </AdminAuthGuard>
+      </AuthProvider>
+    </div>
   );
 }

@@ -74,6 +74,7 @@ but direct `node --test` cannot currently resolve the TypeScript modules.
 ## UI rules
 
 - Read `../DESIGN.md` for public UI changes.
+- Read `ADMIN_DESIGN.md` for Admin UI changes.
 - Read `../PRODUCT.md` when changing content hierarchy, calls to action, or copy.
 - Keep focus indicators, keyboard operation, 44px touch targets, and reduced motion.
 - Verify layouts and copy in Thai, English, and German at mobile and desktop widths.

@@ -100,6 +100,29 @@
     --color-site-on-action: var(--public-on-action);
     --color-site-accent: var(--public-accent);
     --color-site-focus: var(--public-focus);
+
+    --color-admin-canvas: var(--admin-canvas);
+    --color-admin-surface: var(--admin-surface);
+    --color-admin-surface-muted: var(--admin-surface-muted);
+    --color-admin-foreground: var(--admin-foreground);
+    --color-admin-body: var(--admin-body);
+    --color-admin-muted: var(--admin-muted);
+    --color-admin-border: var(--admin-border);
+    --color-admin-control-border: var(--admin-control-border);
+    --color-admin-action: var(--admin-action);
+    --color-admin-action-hover: var(--admin-action-hover);
+    --color-admin-on-action: var(--admin-on-action);
+    --color-admin-selected: var(--admin-selected);
+    --color-admin-selected-foreground: var(--admin-selected-foreground);
+    --color-admin-focus: var(--admin-focus);
+    --color-admin-success: var(--admin-success);
+    --color-admin-success-surface: var(--admin-success-surface);
+    --color-admin-warning: var(--admin-warning);
+    --color-admin-warning-surface: var(--admin-warning-surface);
+    --color-admin-danger: var(--admin-danger);
+    --color-admin-danger-surface: var(--admin-danger-surface);
+    --color-admin-info: var(--admin-info);
+    --color-admin-info-surface: var(--admin-info-surface);
 }
 
 /* Dark Mode Implementation */
@@ -195,6 +218,34 @@
     background-color: var(--public-canvas);
     color: var(--public-foreground);
     color-scheme: light;
+}
+
+.admin-theme {
+    --admin-canvas: var(--color-gray-50);
+    --admin-surface: var(--color-white);
+    --admin-surface-muted: var(--color-gray-100);
+    --admin-foreground: var(--color-gray-900);
+    --admin-body: var(--color-gray-700);
+    --admin-muted: var(--color-gray-500);
+    --admin-border: var(--color-gray-200);
+    --admin-control-border: var(--color-gray-300);
+    --admin-action: var(--color-amber-600);
+    --admin-action-hover: var(--color-amber-700);
+    --admin-on-action: var(--color-white);
+    --admin-selected: var(--color-amber-50);
+    --admin-selected-foreground: var(--color-amber-700);
+    --admin-focus: var(--color-amber-500);
+    --admin-success: var(--color-green-700);
+    --admin-success-surface: var(--color-green-100);
+    --admin-warning: var(--color-amber-700);
+    --admin-warning-surface: var(--color-amber-100);
+    --admin-danger: var(--color-red-700);
+    --admin-danger-surface: var(--color-red-100);
+    --admin-info: var(--color-blue-700);
+    --admin-info-surface: var(--color-blue-100);
+
+    background: var(--admin-canvas);
+    color: var(--admin-foreground);
 }
 
 .dark {
