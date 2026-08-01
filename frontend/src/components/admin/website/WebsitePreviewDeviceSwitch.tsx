@@ -14,7 +14,7 @@ export function WebsitePreviewDeviceSwitch({
 }) {
   const t = useTranslations("Admin.website");
   return (
-    <div className="inline-flex rounded-none border border-zinc-200 p-1">
+    <div className="inline-flex rounded-lg border border-admin-control-border bg-admin-surface p-1">
       <Button
         type="button"
         size="sm"

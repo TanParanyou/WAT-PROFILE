@@ -168,7 +168,7 @@ export function WebsitePageEditorShell({
         publishError={publishError}
       />
       <div className="grid gap-4 xl:grid-cols-[minmax(0,1.1fr)_minmax(0,0.9fr)]">
-        <div className="space-y-4 border border-zinc-200 bg-white p-4">
+        <div className="space-y-4 border border-admin-border bg-admin-surface p-4 rounded-xl">
           <WebsiteEditorTabs
             value={activeTab}
             onChange={async (tab) => {
@@ -242,17 +242,17 @@ export function WebsitePageEditorShell({
         </div>
         <div className="space-y-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
-            <div className="inline-flex border border-zinc-200 p-1">
+            <div className="inline-flex rounded-lg border border-admin-control-border bg-admin-surface p-1">
               <button
                 type="button"
-                className={previewMode === "draft" ? "bg-zinc-950 px-3 py-2 text-xs font-medium text-white" : "px-3 py-2 text-xs font-medium text-zinc-600"}
+                className={previewMode === "draft" ? "bg-admin-action text-admin-on-action rounded px-3 py-2 text-xs font-medium focus-visible:outline-2 focus-visible:outline-admin-focus" : "px-3 py-2 text-xs font-medium text-admin-body hover:text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus"}
                 onClick={() => onPreviewModeChange("draft")}
               >
                 {t("draft")}
               </button>
               <button
                 type="button"
-                className={previewMode === "published" ? "bg-zinc-950 px-3 py-2 text-xs font-medium text-white" : "px-3 py-2 text-xs font-medium text-zinc-600"}
+                className={previewMode === "published" ? "bg-admin-action text-admin-on-action rounded px-3 py-2 text-xs font-medium focus-visible:outline-2 focus-visible:outline-admin-focus" : "px-3 py-2 text-xs font-medium text-admin-body hover:text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus"}
                 onClick={() => onPreviewModeChange("published")}
               >
                 {t("published")}

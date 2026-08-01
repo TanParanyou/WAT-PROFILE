@@ -20,13 +20,13 @@ export default function WebsiteAdminLayout({
       action="read"
       fallback={
         <div className="flex h-[60vh] flex-col items-center justify-center p-12 text-center">
-          <div className="rounded-full bg-amber-50 p-4 text-amber-600 mb-4">
+          <div className="rounded-full bg-admin-warning-surface p-4 text-admin-warning mb-4">
             <ShieldAlert size={32} />
           </div>
-          <h2 className="text-xl font-semibold text-zinc-950 mb-2">
+          <h2 className="text-xl font-semibold text-admin-foreground mb-2">
             {t("common.forbiddenTitle")}
           </h2>
-          <p className="text-zinc-500 max-w-md mb-6">
+          <p className="text-admin-muted max-w-md mb-6">
             {t("common.forbiddenDesc")}
           </p>
           <LocaleLink href="/admin">

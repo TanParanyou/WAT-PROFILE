@@ -21,7 +21,7 @@ export function WebsiteEditorTabs({
 }) {
   const t = useTranslations("Admin.website");
   return (
-    <div className="grid grid-cols-2 gap-2 border-b border-zinc-200 pb-3 md:grid-cols-4">
+    <div className="grid grid-cols-2 gap-2 border-b border-admin-border pb-3 md:grid-cols-4">
       {tabs.map((tab) => {
         const Icon = tab.icon;
         return (

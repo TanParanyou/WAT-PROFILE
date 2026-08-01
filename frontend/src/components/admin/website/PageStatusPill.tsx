@@ -7,10 +7,10 @@ export function PageStatusPill({ status }: { status: ContentStatus }) {
   return (
     <span
       className={cn(
-        "inline-flex items-center border px-2 py-1 font-mono text-[11px] uppercase tracking-[0.18em]",
-        status === "published" && "border-emerald-300 bg-emerald-50 text-emerald-700",
-        status === "draft" && "border-amber-300 bg-amber-50 text-amber-700",
-        status === "archived" && "border-zinc-300 bg-zinc-100 text-zinc-600",
+        "inline-flex items-center border px-2 py-1 font-mono text-[11px] uppercase tracking-[0.18em] rounded",
+        status === "published" && "border-admin-success-border bg-admin-success-surface text-admin-success",
+        status === "draft" && "border-admin-warning-border bg-admin-warning-surface text-admin-warning",
+        status === "archived" && "border-admin-border bg-admin-surface-muted text-admin-muted",
       )}
     >
       {status}

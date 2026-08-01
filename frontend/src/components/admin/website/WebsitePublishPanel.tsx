@@ -18,12 +18,12 @@ export function WebsitePublishPanel({
   const dirty = hasDraftDifference(page);
 
   return (
-    <div className="border border-zinc-200 bg-white p-4">
+    <div className="border border-admin-border bg-admin-surface p-4 rounded-xl">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-500">{t("publishPanel")}</p>
-          <div className="mt-2 text-sm text-zinc-600">{`${t("lastPublished")}: ${formatCmsTimestamp(page.published_at)}`}</div>
-          <div className={dirty ? "mt-2 text-sm text-amber-700" : "mt-2 text-sm text-emerald-700"}>
+          <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-admin-muted">{t("publishPanel")}</p>
+          <div className="mt-2 text-sm text-admin-body">{`${t("lastPublished")}: ${formatCmsTimestamp(page.published_at)}`}</div>
+          <div className={dirty ? "mt-2 text-sm text-admin-warning" : "mt-2 text-sm text-admin-success"}>
             {dirty ? t("draftWaiting") : t("publishedMatchesDraft")}
           </div>
         </div>

@@ -12,7 +12,7 @@ export function WebsiteLocaleTabs({
   onChange: (locale: WebsiteCmsLocale) => void;
 }) {
   return (
-    <div className="flex gap-2 border-b border-zinc-200 pb-3">
+    <div className="flex gap-2 border-b border-admin-border pb-3">
       {WEBSITE_CMS_LOCALES.map((locale) => (
         <Button
           key={locale}
