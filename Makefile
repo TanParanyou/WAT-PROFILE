@@ -1,6 +1,9 @@
 # WAT-PROFILE Makefile
 # ใช้สำหรับจัดการ frontend (Next.js) และ backend (Go Fiber)
 
+FE_PORT ?= 3002
+BE_PORT ?= 8082
+
 # ============================================================
 # Frontend
 # ============================================================
@@ -11,7 +14,7 @@ fe-install: ## ติดตั้ง frontend dependencies
 	cd frontend && npm install
 
 fe-dev: ## รัน frontend dev server
-	cd frontend && npm run dev
+	cd frontend && NEXT_PUBLIC_API_URL=http://localhost:$(BE_PORT) npm run dev -- -p $(FE_PORT)
 
 fe-build: ## Build frontend สำหรับ production
 	cd frontend && npm run build
@@ -32,7 +35,7 @@ be-tidy: ## จัดการ Go dependencies
 	cd backend && go mod tidy
 
 be-dev: ## รัน backend dev server
-	cd backend && go run cmd/app/main.go
+	cd backend && PORT=$(BE_PORT) go run cmd/app/main.go
 
 be-build: ## Build backend binary
 	cd backend && CGO_ENABLED=0 go build -o bin/server ./cmd/app
@@ -64,8 +67,8 @@ docker-run: ## รัน backend ผ่าน Docker
 install: fe-install be-tidy ## ติดตั้ง dependencies ทั้ง frontend และ backend
 
 dev: ## รัน frontend + backend พร้อมกัน
-	@echo "Starting frontend and backend..."
-	@make fe-dev & make be-dev & wait
+	@echo "Starting frontend on port $(FE_PORT) and backend on port $(BE_PORT)..."
+	@make fe-dev FE_PORT=$(FE_PORT) BE_PORT=$(BE_PORT) & make be-dev BE_PORT=$(BE_PORT) & wait
 
 clean: ## ลบ build artifacts
 	rm -rf frontend/.next frontend/node_modules backend/bin backend/tmp
