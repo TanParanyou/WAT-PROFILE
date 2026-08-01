@@ -1,12 +1,18 @@
 "use client";
 
-import React, { useEffect, useState, useRef } from "react";
+import React, { useEffect, useState, useRef, useMemo } from "react";
 import { Upload, Loader2, Crop } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { mediaService } from "@/services/mediaService";
 import { useTranslations } from "next-intl";
 import { ImageCropDialog } from "./ImageCropDialog";
+import {
+  AdminSearchInput,
+  AdminActiveFilterChips,
+  AdminListEmptyState,
+  AdminListErrorState,
+} from "@/components/admin/list";
 
 type MediaPickerDialogProps = {
   isOpen: boolean;
@@ -25,6 +31,7 @@ export function MediaPickerDialog({
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState("");
+  const [searchQuery, setSearchQuery] = useState("");
 
   // Crop State
   const [cropSrc, setCropSrc] = useState<string | null>(null);
@@ -56,6 +63,12 @@ export function MediaPickerDialog({
       setIsLoading(false);
     }
   };
+
+  const filteredImages = useMemo(() => {
+    if (!searchQuery.trim()) return galleryImages;
+    const q = searchQuery.toLowerCase();
+    return galleryImages.filter((url) => url.toLowerCase().includes(q));
+  }, [galleryImages, searchQuery]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -109,6 +122,17 @@ export function MediaPickerDialog({
     }
   };
 
+  const activeChips = useMemo(() => {
+    if (!searchQuery.trim()) return [];
+    return [
+      {
+        key: "search",
+        value: searchQuery,
+        label: `ค้นหา: "${searchQuery}"`,
+      },
+    ];
+  }, [searchQuery]);
+
   return (
     <>
       <Modal
@@ -118,6 +142,7 @@ export function MediaPickerDialog({
         size="lg"
       >
         <div className="space-y-4 font-sans text-sm">
+          {/* Top Actions & Description */}
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-zinc-100 pb-3">
             <p className="text-xs text-zinc-500">
               {t("description")}
@@ -143,20 +168,52 @@ export function MediaPickerDialog({
             className="hidden"
           />
 
-          {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
+          {/* Search Toolbar using existing AdminSearchInput & Filter Chips */}
+          <div className="space-y-2">
+            <div className="flex items-center gap-2">
+              <AdminSearchInput
+                value={searchQuery}
+                isDebouncing={false}
+                placeholder="ค้นหารูปภาพ..."
+                onChange={(val) => setSearchQuery(val)}
+                onSubmit={(val) => setSearchQuery(val)}
+                onClear={() => setSearchQuery("")}
+              />
+            </div>
+            {activeChips.length > 0 && (
+              <AdminActiveFilterChips
+                filters={activeChips}
+                onRemove={() => setSearchQuery("")}
+                onClear={() => setSearchQuery("")}
+              />
+            )}
+          </div>
 
-          {isLoading ? (
+          {/* Main List Content */}
+          {error ? (
+            <AdminListErrorState
+              message={error}
+              onRetry={fetchImages}
+            />
+          ) : isLoading ? (
             <div className="flex flex-col items-center justify-center py-12">
               <Loader2 className="animate-spin text-zinc-400 mb-2" size={32} />
               <span className="text-sm text-zinc-500">{t("loading")}</span>
             </div>
-          ) : galleryImages.length === 0 ? (
-            <div className="text-center py-12 border-2 border-dashed border-zinc-200 rounded-xl bg-zinc-50/50">
-              <span className="text-sm text-zinc-400">{t("empty")}</span>
-            </div>
+          ) : filteredImages.length === 0 ? (
+            <AdminListEmptyState
+              hasActiveQuery={Boolean(searchQuery.trim())}
+              onClear={() => setSearchQuery("")}
+              title={searchQuery.trim() ? "ไม่พบรูปภาพที่ค้นหา" : t("empty")}
+              description={
+                searchQuery.trim()
+                  ? `ไม่พบรูปภาพที่ตรงกับคำค้นหา "${searchQuery}"`
+                  : undefined
+              }
+            />
           ) : (
-            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-[360px] overflow-y-auto pr-1">
-              {galleryImages.map((url, idx) => (
+            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-[340px] overflow-y-auto pr-1">
+              {filteredImages.map((url, idx) => (
                 <div
                   key={idx}
                   className="group aspect-square border border-zinc-200 rounded-lg overflow-hidden bg-zinc-50 hover:border-amber-500 transition-all relative shadow-sm cursor-pointer"
