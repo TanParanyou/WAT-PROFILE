@@ -111,23 +111,23 @@ export function ImageCropDialog({
           />
         </div>
 
-        {error && <p className="text-sm text-red-600 font-medium">{error}</p>}
+        {error && <p className="text-sm text-admin-danger font-medium">{error}</p>}
 
         {/* Controls Toolbar */}
-        <div className="space-y-3 bg-zinc-50 p-3 rounded-lg border border-zinc-200">
+        <div className="space-y-3 bg-admin-surface-muted p-3 rounded-lg border border-admin-border">
           {/* Aspect Ratio */}
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="text-xs font-medium text-zinc-600">{t("aspectRatio")}</span>
+            <span className="text-xs font-medium text-admin-muted">{t("aspectRatio")}</span>
             <div className="flex items-center gap-1.5">
               {aspectRatios.map((option, idx) => (
                 <button
                   key={idx}
                   type="button"
                   onClick={() => setAspect(option.value)}
-                  className={`px-2.5 py-1 text-xs rounded-md transition-colors ${
+                  className={`px-2.5 py-1 text-xs rounded-md transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus ${
                     aspect === option.value
-                      ? "bg-amber-600 text-white font-medium shadow-sm"
-                      : "bg-white text-zinc-700 hover:bg-zinc-100 border border-zinc-200"
+                      ? "bg-admin-action text-admin-on-action font-medium"
+                      : "bg-admin-surface text-admin-body hover:bg-admin-surface-muted border border-admin-control-border"
                   }`}
                 >
                   {option.label}
@@ -137,10 +137,10 @@ export function ImageCropDialog({
           </div>
 
           {/* Zoom Slider & Rotation Controls */}
-          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-zinc-200">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-admin-border">
             {/* Zoom Slider */}
             <div className="flex items-center gap-2 flex-1">
-              <ZoomOut size={16} className="text-zinc-500 shrink-0" />
+              <ZoomOut size={16} className="text-admin-muted shrink-0" />
               <input
                 type="range"
                 value={zoom}
@@ -149,9 +149,9 @@ export function ImageCropDialog({
                 step={0.1}
                 aria-label="Zoom"
                 onChange={(e) => setZoom(Number(e.target.value))}
-                className="w-full h-1.5 bg-zinc-200 rounded-lg appearance-none cursor-pointer accent-amber-600"
+                className="w-full h-1.5 bg-admin-surface-muted rounded-lg appearance-none cursor-pointer accent-admin-action"
               />
-              <ZoomIn size={16} className="text-zinc-500 shrink-0" />
+              <ZoomIn size={16} className="text-admin-muted shrink-0" />
             </div>
 
             {/* Rotation Buttons */}
@@ -159,7 +159,7 @@ export function ImageCropDialog({
               <button
                 type="button"
                 onClick={handleRotateLeft}
-                className="p-1.5 bg-white border border-zinc-200 hover:bg-zinc-100 rounded-md text-zinc-700 transition-colors flex items-center gap-1 text-xs"
+                className="p-1.5 bg-admin-surface border border-admin-control-border hover:bg-admin-surface-muted rounded-md text-admin-body transition-colors flex items-center gap-1 text-xs focus-visible:outline-2 focus-visible:outline-admin-focus"
                 title={t("rotateLeft")}
               >
                 <RotateCcw size={14} />
@@ -168,7 +168,7 @@ export function ImageCropDialog({
               <button
                 type="button"
                 onClick={handleRotateRight}
-                className="p-1.5 bg-white border border-zinc-200 hover:bg-zinc-100 rounded-md text-zinc-700 transition-colors flex items-center gap-1 text-xs"
+                className="p-1.5 bg-admin-surface border border-admin-control-border hover:bg-admin-surface-muted rounded-md text-admin-body transition-colors flex items-center gap-1 text-xs focus-visible:outline-2 focus-visible:outline-admin-focus"
                 title={t("rotateRight")}
               >
                 <RotateCw size={14} />
@@ -179,7 +179,7 @@ export function ImageCropDialog({
         </div>
 
         {/* Footer Actions */}
-        <div className="flex items-center justify-end gap-2 pt-2 border-t border-zinc-100">
+        <div className="flex items-center justify-end gap-2 pt-2 border-t border-admin-border">
           <Button
             type="button"
             variant="outline"

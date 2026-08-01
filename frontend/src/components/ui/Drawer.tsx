@@ -53,10 +53,10 @@ export function Drawer({
   if (!isOpen || typeof document === "undefined") return null;
 
   return createPortal(
-    <>
+    <div className="admin-theme">
       {/* Backdrop */}
       <div
-        className="fixed inset-0 z-50 bg-zinc-950/45 transition-opacity"
+        className="fixed inset-0 z-50 bg-black/45 transition-opacity"
         onClick={closeOnOverlayClick ? onClose : undefined}
       />
       {/* Drawer Container */}
@@ -64,30 +64,30 @@ export function Drawer({
         role="dialog"
         aria-modal="true"
         className={cn(
-          "fixed top-0 right-0 z-50 h-full w-full border-l border-zinc-200 bg-white shadow-2xl transition-transform duration-300 flex flex-col",
+          "fixed top-0 right-0 z-50 h-full w-full border-l border-admin-border bg-admin-surface text-admin-foreground shadow-2xl transition-transform duration-300 flex flex-col",
           sizeClasses[size],
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-zinc-200 px-4 py-3 bg-zinc-50">
-          <h2 className="text-sm font-semibold text-zinc-950">
+        <div className="flex items-center justify-between border-b border-admin-border px-4 py-3 bg-admin-surface-muted">
+          <h2 className="text-sm font-semibold text-admin-foreground">
             {title || ""}
           </h2>
           <button
             type="button"
             onClick={onClose}
-            className="p-1 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-200 rounded transition-colors"
+            className="p-1.5 text-admin-muted hover:text-admin-foreground hover:bg-admin-border rounded-lg transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
             aria-label="Close drawer"
           >
             <X size={20} />
           </button>
         </div>
         {/* Content */}
-        <div className="flex-1 overflow-hidden relative flex flex-col">
+        <div className="flex-1 overflow-hidden relative flex flex-col text-admin-body">
           {children}
         </div>
       </div>
-    </>,
+    </div>,
     document.body,
   );
 }

@@ -144,8 +144,8 @@ export function MediaPickerDialog({
       >
         <div className="space-y-4 font-sans text-sm">
           {/* Top Actions & Description */}
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-zinc-100 pb-3">
-            <p className="text-xs text-zinc-500">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-admin-border pb-3">
+            <p className="text-xs text-admin-muted">
               {t("description")}
             </p>
             <Button
@@ -200,8 +200,8 @@ export function MediaPickerDialog({
             />
           ) : isLoading ? (
             <div className="flex flex-col items-center justify-center py-12">
-              <Loader2 className="animate-spin text-zinc-400 mb-2" size={32} />
-              <span className="text-sm text-zinc-500">{t("loading")}</span>
+              <Loader2 className="animate-spin text-admin-action mb-2" size={32} />
+              <span className="text-sm text-admin-muted">{t("loading")}</span>
             </div>
           ) : filteredImages.length === 0 ? (
             <AdminListEmptyState
@@ -219,7 +219,7 @@ export function MediaPickerDialog({
               {filteredImages.map((url, idx) => (
                 <div
                   key={idx}
-                  className="group aspect-square border border-zinc-200 rounded-lg overflow-hidden bg-zinc-50 hover:border-amber-500 transition-all relative shadow-sm cursor-pointer"
+                  className="group aspect-square border border-admin-border rounded-lg overflow-hidden bg-admin-surface-muted hover:border-admin-focus transition-all relative cursor-pointer"
                   onClick={() => {
                     onSelect(url);
                     onClose();
@@ -236,10 +236,10 @@ export function MediaPickerDialog({
                     <button
                       type="button"
                       onClick={(e) => handleOpenCropForGallery(url, e)}
-                      className="p-1.5 bg-white/90 hover:bg-white text-zinc-800 rounded-md shadow-sm transition-colors text-xs flex items-center gap-1 font-medium"
+                      className="p-1.5 bg-admin-surface/90 hover:bg-admin-surface text-admin-foreground rounded-md transition-colors text-xs flex items-center gap-1 font-medium focus-visible:outline-2 focus-visible:outline-admin-focus"
                       title={t("cropTooltip")}
                     >
-                      <Crop size={14} className="text-amber-600" />
+                      <Crop size={14} className="text-admin-action" />
                       <span>{t("crop")}</span>
                     </button>
                   </div>

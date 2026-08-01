@@ -54,11 +54,11 @@ const sizeClasses: Record<ModalSize, string> = {
 };
 
 const variantConfig: Record<ModalVariant, { icon: React.ElementType; iconColor: string; btnClass: string }> = {
-    default: { icon: Info, iconColor: 'text-blue-500', btnClass: 'bg-blue-600 hover:bg-blue-700' },
-    danger: { icon: AlertTriangle, iconColor: 'text-red-500', btnClass: 'bg-red-600 hover:bg-red-700' },
-    success: { icon: CheckCircle, iconColor: 'text-green-500', btnClass: 'bg-green-600 hover:bg-green-700' },
-    warning: { icon: AlertCircle, iconColor: 'text-amber-500', btnClass: 'bg-amber-600 hover:bg-amber-700' },
-    info: { icon: Info, iconColor: 'text-cyan-500', btnClass: 'bg-cyan-600 hover:bg-cyan-700' },
+    default: { icon: Info, iconColor: 'text-admin-info', btnClass: 'bg-admin-info text-admin-on-action hover:brightness-90' },
+    danger: { icon: AlertTriangle, iconColor: 'text-admin-danger', btnClass: 'bg-admin-danger text-admin-on-action hover:brightness-90' },
+    success: { icon: CheckCircle, iconColor: 'text-admin-success', btnClass: 'bg-admin-success text-admin-on-action hover:brightness-90' },
+    warning: { icon: AlertCircle, iconColor: 'text-admin-warning', btnClass: 'bg-admin-warning text-admin-on-action hover:brightness-90' },
+    info: { icon: Info, iconColor: 'text-admin-info', btnClass: 'bg-admin-info text-admin-on-action hover:brightness-90' },
 };
 
 // Base Modal
@@ -97,10 +97,10 @@ const Modal: React.FC<ModalProps> = ({
     if (!isOpen || typeof document === 'undefined') return null;
 
     return createPortal(
-        <>
+        <div className="admin-theme">
             {/* Backdrop */}
             <div
-                className="fixed inset-0 z-50 bg-zinc-950/45"
+                className="fixed inset-0 z-50 bg-black/45"
                 onClick={closeOnOverlayClick ? onClose : undefined}
             />
             {/* Modal */}
@@ -110,22 +110,22 @@ const Modal: React.FC<ModalProps> = ({
                     aria-modal="true"
                     aria-labelledby={title ? titleId : undefined}
                     aria-describedby={description ? descriptionId : undefined}
-                    className={`max-h-[calc(100vh-1.5rem)] w-full ${sizeClasses[size]} overflow-hidden border border-zinc-200 bg-white shadow-2xl pointer-events-auto`}
+                    className={`max-h-[calc(100vh-1.5rem)] w-full ${sizeClasses[size]} overflow-hidden border border-admin-border bg-admin-surface rounded-xl shadow-2xl pointer-events-auto`}
                     onClick={(e) => e.stopPropagation()}
                 >
                     {/* Header */}
                     {(title || showCloseButton) && (
-                        <div className="flex items-start justify-between gap-4 border-b border-zinc-200 px-4 py-3 sm:px-5">
+                        <div className="flex items-start justify-between gap-4 border-b border-admin-border px-4 py-3 sm:px-5">
                             <div className="min-w-0">
-                                {title && <h2 id={titleId} className="text-base font-semibold text-zinc-950">{title}</h2>}
-                                {description && <p id={descriptionId} className="mt-1 text-sm text-zinc-500">{description}</p>}
+                                {title && <h2 id={titleId} className="text-base font-semibold text-admin-foreground">{title}</h2>}
+                                {description && <p id={descriptionId} className="mt-1 text-sm text-admin-muted">{description}</p>}
                             </div>
                             {showCloseButton && (
                                 <button
                                     type="button"
                                     aria-label="Close modal"
                                     onClick={onClose}
-                                    className="shrink-0 border border-transparent p-1 text-zinc-400 hover:border-zinc-200 hover:bg-zinc-50 hover:text-zinc-700"
+                                    className="shrink-0 rounded-lg p-1.5 text-admin-muted hover:bg-admin-surface-muted hover:text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus"
                                 >
                                     <X size={20} />
                                 </button>
@@ -133,16 +133,16 @@ const Modal: React.FC<ModalProps> = ({
                         </div>
                     )}
                     {/* Body */}
-                    {children && <div className="max-h-[70vh] overflow-y-auto px-4 py-4 sm:px-5">{children}</div>}
+                    {children && <div className="max-h-[70vh] overflow-y-auto px-4 py-4 sm:px-5 text-admin-body">{children}</div>}
                     {/* Footer */}
                     {footer && (
-                        <div className="flex flex-wrap items-center justify-end gap-3 border-t border-zinc-200 bg-zinc-50 px-4 py-3 sm:px-5">
+                        <div className="flex flex-wrap items-center justify-end gap-3 border-t border-admin-border bg-admin-surface-muted px-4 py-3 sm:px-5">
                             {footer}
                         </div>
                     )}
                 </div>
             </div>
-        </>,
+        </div>,
         document.body
     );
 };
@@ -165,16 +165,16 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
     return (
         <Modal isOpen={isOpen} onClose={onClose} size="sm" showCloseButton={false} closeOnOverlayClick={!isLoading} closeOnEscape={!isLoading}>
             <div className="text-center">
-                <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center border border-zinc-200 bg-zinc-50 ${config.iconColor}`}>
+                <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center border border-admin-border bg-admin-surface-muted rounded-full ${config.iconColor}`}>
                     <Icon size={24} />
                 </div>
-                <h3 className="mb-2 text-base font-semibold text-zinc-950">{title}</h3>
-                <p className="mb-6 text-sm text-zinc-500">{message}</p>
+                <h3 className="mb-2 text-base font-semibold text-admin-foreground">{title}</h3>
+                <p className="mb-6 text-sm text-admin-muted">{message}</p>
                 <div className="flex gap-3">
-                    <button type="button" onClick={onClose} disabled={isLoading} className="flex-1 border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-50">
+                    <button type="button" onClick={onClose} disabled={isLoading} className="flex-1 border border-admin-control-border bg-admin-surface px-4 py-2 min-h-11 rounded-lg text-sm font-medium text-admin-body hover:bg-admin-surface-muted disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus">
                         {cancelText}
                     </button>
-                    <button type="button" onClick={onConfirm} disabled={isLoading} className={`flex flex-1 items-center justify-center gap-2 px-4 py-2 text-sm font-medium text-white disabled:opacity-50 ${config.btnClass}`}>
+                    <button type="button" onClick={onConfirm} disabled={isLoading} className={`flex flex-1 items-center justify-center gap-2 px-4 py-2 min-h-11 rounded-lg text-sm font-medium disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus ${config.btnClass}`}>
                         {isLoading ? <Loading size="sm" /> : confirmText}
                     </button>
                 </div>
@@ -205,11 +205,11 @@ const FormModal: React.FC<FormModalProps> = ({
         <Modal isOpen={isOpen} onClose={onClose} title={title} size={size} closeOnOverlayClick={!isLoading} closeOnEscape={!isLoading}>
             <form onSubmit={handleSubmit}>
                 <div className="space-y-4">{children}</div>
-                <div className="mt-6 flex justify-end gap-3 border-t border-zinc-200 pt-4">
-                    <button type="button" onClick={onClose} disabled={isLoading} className="border border-zinc-300 px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 disabled:opacity-50">
+                <div className="mt-6 flex justify-end gap-3 border-t border-admin-border pt-4">
+                    <button type="button" onClick={onClose} disabled={isLoading} className="border border-admin-control-border bg-admin-surface px-4 py-2 min-h-11 rounded-lg text-sm font-medium text-admin-body hover:bg-admin-surface-muted disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus">
                         {cancelText}
                     </button>
-                    <button type="submit" disabled={isLoading || submitDisabled} className="flex items-center gap-2 bg-amber-600 px-6 py-2 text-sm font-medium text-white hover:bg-amber-700 disabled:opacity-50">
+                    <button type="submit" disabled={isLoading || submitDisabled} className="flex items-center gap-2 bg-admin-action px-6 py-2 min-h-11 rounded-lg text-sm font-medium text-admin-on-action hover:bg-admin-action-hover disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus">
                         {isLoading ? <Loading size="sm" /> : submitText}
                     </button>
                 </div>

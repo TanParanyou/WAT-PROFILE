@@ -22,7 +22,7 @@ export function FormTabs<T extends string>({
   setActiveTab,
 }: FormTabsProps<T>) {
   return (
-    <div className="flex flex-wrap gap-2 border-b border-zinc-200 pb-3">
+    <div className="flex flex-wrap gap-2 border-b border-admin-border pb-3">
       {tabs.map((tab) => (
         <Button
           key={tab.id}
@@ -35,7 +35,7 @@ export function FormTabs<T extends string>({
           <span className="flex items-center gap-1.5">
             {tab.label}
             {tab.hasError && (
-              <span className="w-2 h-2 rounded-full bg-red-500 animate-pulse" />
+              <span className="w-2 h-2 rounded-full bg-admin-danger animate-pulse" />
             )}
           </span>
         </Button>

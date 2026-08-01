@@ -40,9 +40,9 @@ export function MultiLangInput({
   return (
     <div className="space-y-1">
       <div className="flex items-center justify-between min-h-[24px]">
-        <label className="text-sm font-medium text-gray-700 flex items-center">
+        <label className="text-sm font-medium text-admin-body flex items-center">
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          {required && <span className="text-admin-danger ml-1">*</span>}
         </label>
         <div className="flex gap-1">
           {langs.map((lang) => (
@@ -51,10 +51,10 @@ export function MultiLangInput({
               type="button"
               onClick={() => setActiveLang(lang.key)}
               className={cn(
-                "px-2 py-0.5 text-xs rounded font-medium transition-colors",
+                "px-2 py-0.5 text-xs rounded font-medium transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus",
                 activeLang === lang.key
-                  ? "bg-amber-600 text-white"
-                  : "bg-gray-100 text-gray-500 hover:bg-gray-200",
+                  ? "bg-admin-action text-admin-on-action"
+                  : "bg-admin-surface-muted text-admin-muted hover:bg-admin-border hover:text-admin-foreground",
               )}
             >
               {lang.label}
@@ -71,10 +71,8 @@ export function MultiLangInput({
           required={required && activeLang === "th"}
           rows={4}
           className={cn(
-            "w-full rounded-lg border bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500",
-            error
-              ? "border-red-500 focus:ring-red-500/50 focus:border-red-500"
-              : "border-gray-300",
+            "w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus",
+            error && "border-admin-danger focus-visible:border-admin-danger focus-visible:outline-admin-danger",
           )}
         />
       ) : (
@@ -85,14 +83,12 @@ export function MultiLangInput({
           placeholder={placeholder || `${label} (${activeLang.toUpperCase()})`}
           required={required && activeLang === "th"}
           className={cn(
-            "w-full rounded-lg border bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500",
-            error
-              ? "border-red-500 focus:ring-red-500/50 focus:border-red-500"
-              : "border-gray-300",
+            "min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus",
+            error && "border-admin-danger focus-visible:border-admin-danger focus-visible:outline-admin-danger",
           )}
         />
       )}
-      {error && <p className="text-sm text-red-600 mt-1">{error}</p>}
+      {error && <p className="text-sm text-admin-danger mt-1">{error}</p>}
     </div>
   );
 }

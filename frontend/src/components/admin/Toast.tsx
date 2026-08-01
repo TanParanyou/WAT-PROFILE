@@ -14,19 +14,19 @@ const iconMap: Record<TType, ElementType> = {
 };
 
 const toneMap: Record<TType, string> = {
-    success: 'border-emerald-500/30 bg-emerald-50 text-emerald-950',
-    error: 'border-rose-500/30 bg-rose-50 text-rose-950',
-    warning: 'border-amber-500/30 bg-amber-50 text-amber-950',
-    info: 'border-slate-500/30 bg-slate-50 text-slate-950',
-    loading: 'border-zinc-500/30 bg-zinc-50 text-zinc-950',
+    success: 'border-admin-success/30 bg-admin-success-surface text-admin-foreground',
+    error: 'border-admin-danger/30 bg-admin-danger-surface text-admin-foreground',
+    warning: 'border-admin-warning/30 bg-admin-warning-surface text-admin-foreground',
+    info: 'border-admin-info/30 bg-admin-info-surface text-admin-foreground',
+    loading: 'border-admin-border bg-admin-surface-muted text-admin-foreground',
 };
 
 const iconToneMap: Record<TType, string> = {
-    success: 'text-emerald-600',
-    error: 'text-rose-600',
-    warning: 'text-amber-600',
-    info: 'text-slate-600',
-    loading: 'text-zinc-600',
+    success: 'text-admin-success',
+    error: 'text-admin-danger',
+    warning: 'text-admin-warning',
+    info: 'text-admin-info',
+    loading: 'text-admin-muted',
 };
 
 export function ToastContainer() {

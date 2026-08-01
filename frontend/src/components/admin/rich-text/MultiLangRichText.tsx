@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useMemo, useState } from "react";
 import type { LocalizedRichText, RichTextDocument } from "@/lib/rich-text/document";
 import { getLocalizedRichText } from "@/lib/rich-text/document";
 import { RichTextEditor } from "./RichTextEditor";
@@ -28,14 +28,10 @@ export function MultiLangRichText({
   required = false,
   error,
 }: MultiLangRichTextProps) {
-  const [activeLocale, setActiveLocale] = useState(defaultLocale);
+  const [selectedLocale, setSelectedLocale] = useState(defaultLocale);
   const safeValue = useMemo(() => value || {}, [value]);
 
-  useEffect(() => {
-    if (!locales.some((locale) => locale.code === activeLocale)) {
-      setActiveLocale(defaultLocale);
-    }
-  }, [activeLocale, defaultLocale, locales]);
+  const activeLocale = locales.some((l) => l.code === selectedLocale) ? selectedLocale : defaultLocale;
 
   const activeDocument = useMemo(
     () => getLocalizedRichText(safeValue, activeLocale, defaultLocale),
@@ -52,20 +48,20 @@ export function MultiLangRichText({
   return (
     <div className="space-y-2 font-sans">
       <div className="flex items-center justify-between">
-        <label className="text-sm font-semibold text-zinc-800 flex items-center">
+        <label className="text-sm font-semibold text-admin-foreground flex items-center">
           {label}
-          {required && <span className="text-red-500 ml-1">*</span>}
+          {required && <span className="text-admin-danger ml-1">*</span>}
         </label>
-        <div className="flex border border-zinc-200 rounded overflow-hidden">
+        <div className="flex border border-admin-control-border rounded overflow-hidden">
           {locales.map((loc) => (
             <button
               key={loc.code}
               type="button"
-              onClick={() => setActiveLocale(loc.code)}
-              className={`px-3 py-1 text-xs font-medium uppercase transition-colors ${
+              onClick={() => setSelectedLocale(loc.code)}
+              className={`px-3 py-1 text-xs font-medium uppercase transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus ${
                 activeLocale === loc.code
-                  ? "bg-zinc-950 text-white"
-                  : "bg-white text-zinc-600 hover:bg-zinc-100"
+                  ? "bg-admin-action text-admin-on-action"
+                  : "bg-admin-surface text-admin-muted hover:bg-admin-surface-muted hover:text-admin-foreground"
               }`}
             >
               {loc.label}

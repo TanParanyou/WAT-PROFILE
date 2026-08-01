@@ -27,10 +27,10 @@ const Loading: React.FC<LoadingProps> = ({ size = 'md', text, className = '' }) 
     return (
         <div className={`flex flex-col items-center justify-center gap-2 ${className}`}>
             <div
-                className={`${sizeMap[size]} rounded-full border-gray-200 border-t-amber-600 animate-spin`}
+                className={`${sizeMap[size]} rounded-full border-admin-border border-t-admin-action animate-spin`}
             />
             {text && (
-                <p className={`text-gray-500 ${textSizeMap[size]}`}>{text}</p>
+                <p className={`text-admin-muted ${textSizeMap[size]}`}>{text}</p>
             )}
         </div>
     );
@@ -49,7 +49,7 @@ interface SkeletonProps {
 }
 
 const Skeleton: React.FC<SkeletonProps> = ({ className = '' }) => (
-    <div className={`animate-pulse bg-gray-200 rounded ${className}`} />
+    <div className={`animate-pulse bg-admin-surface-muted rounded ${className}`} />
 );
 
 // Table Skeleton
@@ -57,14 +57,14 @@ const TableSkeleton: React.FC<{ rows?: number; columns?: number }> = ({
     rows = 5,
     columns = 4,
 }) => (
-    <div className="border border-gray-200 rounded-lg overflow-hidden">
-        <div className="flex gap-4 p-4 border-b border-gray-100 bg-gray-50">
+    <div className="border border-admin-border rounded-lg overflow-hidden">
+        <div className="flex gap-4 p-4 border-b border-admin-border bg-admin-surface-muted">
             {Array.from({ length: columns }).map((_, i) => (
                 <Skeleton key={i} className="h-4 flex-1" />
             ))}
         </div>
         {Array.from({ length: rows }).map((_, rowIndex) => (
-            <div key={rowIndex} className="flex gap-4 p-4 border-b border-gray-50">
+            <div key={rowIndex} className="flex gap-4 p-4 border-b border-admin-border">
                 {Array.from({ length: columns }).map((_, colIndex) => (
                     <Skeleton key={colIndex} className="h-4 flex-1" />
                 ))}

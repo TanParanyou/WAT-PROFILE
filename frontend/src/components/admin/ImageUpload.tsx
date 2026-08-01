@@ -37,7 +37,7 @@ export function ImageUpload({
   return (
     <div className={`space-y-2 ${className}`}>
       {label && (
-        <label className="text-sm font-medium text-zinc-700 flex items-center min-h-[24px]">
+        <label className="text-sm font-medium text-admin-body flex items-center min-h-[24px]">
           {label}
         </label>
       )}
@@ -47,12 +47,12 @@ export function ImageUpload({
           <img
             src={previewSrc}
             alt="Preview"
-            className="h-36 w-36 object-cover rounded-lg border border-zinc-200 shadow-sm"
+            className="h-36 w-36 object-cover rounded-lg border border-admin-border"
           />
           <button
             type="button"
             onClick={() => setIsLightboxOpen(true)}
-            className="absolute inset-0 bg-black/40 text-white rounded-lg flex items-center justify-center opacity-0 group-hover/preview:opacity-100 transition-opacity"
+            className="absolute inset-0 bg-black/40 text-white rounded-lg flex items-center justify-center opacity-0 group-hover/preview:opacity-100 transition-opacity focus-visible:outline-2 focus-visible:outline-admin-focus"
             title="ดูภาพขนาดเต็ม"
           >
             <Eye size={20} strokeWidth={1.5} />
@@ -60,7 +60,7 @@ export function ImageUpload({
           <button
             type="button"
             onClick={handleRemove}
-            className="absolute -top-2 -right-2 h-6 w-6 bg-red-500 hover:bg-red-600 text-white rounded-full flex items-center justify-center shadow-md transition-colors z-10"
+            className="absolute -top-2 -right-2 h-6 w-6 bg-admin-danger hover:brightness-90 text-admin-on-action rounded-full flex items-center justify-center shadow-md transition-colors z-10 focus-visible:outline-2 focus-visible:outline-admin-focus"
             title="ลบรูปภาพ"
           >
             <X size={14} />
@@ -70,10 +70,10 @@ export function ImageUpload({
         <button
           type="button"
           onClick={() => setIsModalOpen(true)}
-          className="flex flex-col items-center justify-center w-36 h-36 border-2 border-dashed border-zinc-300 rounded-lg hover:border-amber-500 hover:bg-amber-50/50 transition-all shadow-sm group"
+          className="flex flex-col items-center justify-center w-36 h-36 border-2 border-dashed border-admin-control-border rounded-lg bg-admin-surface hover:border-admin-focus hover:bg-admin-selected transition-all focus-visible:outline-2 focus-visible:outline-admin-focus group"
         >
-          <Upload size={20} className="text-zinc-400 group-hover:text-amber-600 mb-1 transition-colors" />
-          <span className="text-xs text-zinc-500 group-hover:text-amber-700 font-medium">เพิ่มรูปภาพ</span>
+          <Upload size={20} className="text-admin-muted group-hover:text-admin-action mb-1 transition-colors" />
+          <span className="text-xs text-admin-muted group-hover:text-admin-selected-foreground font-medium">เพิ่มรูปภาพ</span>
         </button>
       )}
 

@@ -23,8 +23,8 @@ export function ImageBubbleMenu({ editor }: ImageBubbleMenuProps) {
   };
 
   const buttonClass = (isActive: boolean) =>
-    `p-1.5 rounded transition-colors ${
-      isActive ? "bg-amber-100 text-amber-700" : "text-zinc-600 hover:bg-zinc-100"
+    `p-1.5 rounded transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus ${
+      isActive ? "bg-admin-selected text-admin-selected-foreground font-bold" : "text-admin-body hover:bg-admin-surface-muted"
     }`;
 
   return (
@@ -32,7 +32,7 @@ export function ImageBubbleMenu({ editor }: ImageBubbleMenuProps) {
       editor={editor}
       options={{ placement: "bottom" }}
       shouldShow={({ editor }) => editor.isActive("image")}
-      className="flex items-center gap-1 bg-white border border-zinc-200 shadow-md rounded-lg p-1"
+      className="flex items-center gap-1 bg-admin-surface border border-admin-border rounded-lg p-1"
     >
       <button
         type="button"

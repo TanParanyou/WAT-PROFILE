@@ -12,11 +12,11 @@ interface StatusBadgeProps {
 }
 
 const variantClasses: Record<BadgeVariant, string> = {
-    success: 'bg-green-100 text-green-700',
-    warning: 'bg-amber-100 text-amber-700',
-    danger: 'bg-red-100 text-red-700',
-    info: 'bg-blue-100 text-blue-700',
-    default: 'bg-gray-100 text-gray-700',
+    success: 'bg-admin-success-surface text-admin-success',
+    warning: 'bg-admin-warning-surface text-admin-warning',
+    danger: 'bg-admin-danger-surface text-admin-danger',
+    info: 'bg-admin-info-surface text-admin-info',
+    default: 'bg-admin-surface-muted text-admin-body',
 };
 
 // Mapping สถานะภาษาอังกฤษเป็น variant

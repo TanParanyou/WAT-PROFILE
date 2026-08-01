@@ -145,10 +145,10 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
   };
 
   const toolbarButtonClass = (isActive = false) => `
-    p-1.5 rounded text-zinc-700 transition-colors
-    focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500
+    p-1.5 rounded text-admin-body transition-colors
+    focus-visible:outline-2 focus-visible:outline-admin-focus
     disabled:cursor-not-allowed disabled:opacity-40
-    ${isActive ? "bg-zinc-200 font-bold" : "hover:bg-zinc-200"}
+    ${isActive ? "bg-admin-selected text-admin-selected-foreground font-bold" : "hover:bg-admin-border hover:text-admin-foreground"}
   `.trim();
 
   const getTitle = (key: string, isAvailable = true) => {
@@ -160,7 +160,7 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-1 border-b border-zinc-200 bg-zinc-50 p-2">
+    <div className="flex flex-wrap items-center gap-1 border-b border-admin-border bg-admin-surface-muted p-2">
       <button
         type="button"
         onMouseDown={keepEditorSelection}
@@ -184,13 +184,13 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
         <Redo size={16} />
       </button>
 
-      <div className="w-[1px] h-5 bg-zinc-300 mx-1" />
+      <div className="w-[1px] h-5 bg-admin-border mx-1" />
 
       <select
         value={getBlockType()}
         onChange={handleBlockTypeChange}
         disabled={disabled}
-        className="px-2 py-1 text-xs rounded border border-zinc-300 bg-white text-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 disabled:cursor-not-allowed disabled:opacity-40"
+        className="px-2 py-1 text-xs rounded border border-admin-control-border bg-admin-surface text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus disabled:cursor-not-allowed disabled:opacity-40"
         aria-label={t("toolbar.paragraph")}
       >
         <option value="paragraph">{t("blockType.paragraph")}</option>
@@ -202,7 +202,7 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
         value={getFontSize()}
         onChange={handleFontSizeChange}
         disabled={disabled}
-        className="px-2 py-1 text-xs rounded border border-zinc-300 bg-white text-zinc-700 focus:outline-none focus-visible:ring-2 focus-visible:ring-amber-500 disabled:cursor-not-allowed disabled:opacity-40"
+        className="px-2 py-1 text-xs rounded border border-admin-control-border bg-admin-surface text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus disabled:cursor-not-allowed disabled:opacity-40"
         aria-label={t("toolbar.fontSize")}
       >
         <option value="default">{t("toolbar.size")}</option>
@@ -216,7 +216,7 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
         <option value="36px">36px</option>
       </select>
 
-      <div className="w-[1px] h-5 bg-zinc-300 mx-1" />
+      <div className="w-[1px] h-5 bg-admin-border mx-1" />
 
       <button
         type="button"
@@ -252,7 +252,7 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
         <Strikethrough size={16} />
       </button>
 
-      <div className="w-[1px] h-5 bg-zinc-300 mx-1" />
+      <div className="w-[1px] h-5 bg-admin-border mx-1" />
 
       <button
         type="button"
@@ -299,7 +299,7 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
         <AlignJustify size={16} />
       </button>
 
-      <div className="w-[1px] h-5 bg-zinc-300 mx-1" />
+      <div className="w-[1px] h-5 bg-admin-border mx-1" />
 
       <button
         type="button"
@@ -346,7 +346,7 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
         <Minus size={16} />
       </button>
 
-      <div className="w-[1px] h-5 bg-zinc-300 mx-1" />
+      <div className="w-[1px] h-5 bg-admin-border mx-1" />
 
       <button
         type="button"

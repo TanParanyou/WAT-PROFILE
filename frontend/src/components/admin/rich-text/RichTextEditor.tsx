@@ -63,18 +63,18 @@ export function RichTextEditor({
   }, [disabled, editor]);
 
   const ringStyle = isFocused
-    ? "border-amber-500 ring-2 ring-amber-500/20"
+    ? "border-admin-focus ring-2 ring-admin-focus/20"
     : error
-    ? "border-red-500"
-    : "border-zinc-200";
+    ? "border-admin-danger"
+    : "border-admin-control-border";
 
   return (
-    <div className={`border rounded-lg overflow-hidden bg-white transition-all ${ringStyle}`}>
+    <div className={`border rounded-lg overflow-hidden bg-admin-surface transition-all ${ringStyle}`}>
       {editor && <RichTextToolbar editor={editor} disabled={disabled} />}
       {editor && <ImageBubbleMenu editor={editor} />}
       
       <div
-        className="relative min-h-[180px] cursor-text p-4 max-h-[500px] overflow-y-auto font-sans text-sm text-zinc-900 [&_.ProseMirror]:min-h-[148px] [&_.ProseMirror]:whitespace-pre-wrap [&_.ProseMirror]:outline-none [&_.ProseMirror_h2]:text-xl [&_.ProseMirror_h2]:font-bold [&_.ProseMirror_h2]:mt-6 [&_.ProseMirror_h2]:mb-4 [&_.ProseMirror_h3]:text-lg [&_.ProseMirror_h3]:font-semibold [&_.ProseMirror_h3]:mt-5 [&_.ProseMirror_h3]:mb-3 [&_.ProseMirror_ul]:my-2 [&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ul]:pl-6 [&_.ProseMirror_ol]:my-2 [&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_ol]:pl-6 [&_.ProseMirror_li]:my-1 [&_.ProseMirror_blockquote]:my-3 [&_.ProseMirror_blockquote]:border-l-4 [&_.ProseMirror_blockquote]:border-amber-500 [&_.ProseMirror_blockquote]:bg-amber-50 [&_.ProseMirror_blockquote]:px-4 [&_.ProseMirror_blockquote]:py-2 [&_.ProseMirror_blockquote]:text-zinc-700 [&_.ProseMirror_hr]:my-4 [&_.ProseMirror_hr]:border-zinc-300 [&_.ProseMirror_a]:font-medium [&_.ProseMirror_a]:text-amber-700 [&_.ProseMirror_a]:underline [&_.ProseMirror_a]:underline-offset-2 [&_.ProseMirror_img[data-align=left]]:float-left [&_.ProseMirror_img[data-align=left]]:mr-4 [&_.ProseMirror_img[data-align=left]]:mb-4 [&_.ProseMirror_img[data-align=right]]:float-right [&_.ProseMirror_img[data-align=right]]:ml-4 [&_.ProseMirror_img[data-align=right]]:mb-4 [&_.ProseMirror_img[data-align=center]]:mx-auto [&_.ProseMirror_img[data-align=center]]:block [&_.ProseMirror_img]:clear-both"
+        className="relative min-h-[180px] cursor-text p-4 max-h-[500px] overflow-y-auto font-sans text-sm text-admin-foreground [&_.ProseMirror]:min-h-[148px] [&_.ProseMirror]:whitespace-pre-wrap [&_.ProseMirror]:outline-none [&_.ProseMirror_h2]:text-xl [&_.ProseMirror_h2]:font-bold [&_.ProseMirror_h2]:mt-6 [&_.ProseMirror_h2]:mb-4 [&_.ProseMirror_h3]:text-lg [&_.ProseMirror_h3]:font-semibold [&_.ProseMirror_h3]:mt-5 [&_.ProseMirror_h3]:mb-3 [&_.ProseMirror_ul]:my-2 [&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ul]:pl-6 [&_.ProseMirror_ol]:my-2 [&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_ol]:pl-6 [&_.ProseMirror_li]:my-1 [&_.ProseMirror_blockquote]:my-3 [&_.ProseMirror_blockquote]:border-l-4 [&_.ProseMirror_blockquote]:border-admin-focus [&_.ProseMirror_blockquote]:bg-admin-selected [&_.ProseMirror_blockquote]:px-4 [&_.ProseMirror_blockquote]:py-2 [&_.ProseMirror_blockquote]:text-admin-body [&_.ProseMirror_hr]:my-4 [&_.ProseMirror_hr]:border-admin-border [&_.ProseMirror_a]:font-medium [&_.ProseMirror_a]:text-admin-selected-foreground [&_.ProseMirror_a]:underline [&_.ProseMirror_a]:underline-offset-2 [&_.ProseMirror_img[data-align=left]]:float-left [&_.ProseMirror_img[data-align=left]]:mr-4 [&_.ProseMirror_img[data-align=left]]:mb-4 [&_.ProseMirror_img[data-align=right]]:float-right [&_.ProseMirror_img[data-align=right]]:ml-4 [&_.ProseMirror_img[data-align=right]]:mb-4 [&_.ProseMirror_img[data-align=center]]:mx-auto [&_.ProseMirror_img[data-align=center]]:block [&_.ProseMirror_img]:clear-both"
         onMouseDown={(event) => {
           if (disabled || event.target !== event.currentTarget) return;
           event.preventDefault();
@@ -82,14 +82,14 @@ export function RichTextEditor({
         }}
       >
         {isEmpty && !isFocused && (
-          <p className="pointer-events-none absolute left-4 top-4 text-sm text-zinc-400">
+          <p className="pointer-events-none absolute left-4 top-4 text-sm text-admin-muted">
             {placeholder || t("placeholder")}
           </p>
         )}
         <EditorContent editor={editor} />
       </div>
       
-      {error && <p className="text-xs text-red-500 px-4 pb-2">{error}</p>}
+      {error && <p className="text-xs text-admin-danger px-4 pb-2">{error}</p>}
     </div>
   );
 }
