@@ -97,30 +97,30 @@ export function PermissionEditor({ value, onChange }: PermissionEditorProps) {
   };
 
   return (
-    <div className="overflow-x-auto border border-gray-200 rounded-lg">
+    <div className="overflow-x-auto border border-admin-border rounded-lg">
       <table className="w-full text-sm text-left">
-        <thead className="bg-gray-50 border-b border-gray-200">
+        <thead className="bg-admin-surface-muted border-b border-admin-border">
           <tr>
-            <th className="px-4 py-3 font-medium text-gray-700">
+            <th className="px-4 py-3 font-medium text-admin-body">
               ระบบ (Resource)
             </th>
             {ACTIONS.map((a) => (
               <th
                 key={a.key}
-                className="px-4 py-3 font-medium text-gray-700 text-center"
+                className="px-4 py-3 font-medium text-admin-body text-center"
               >
                 {a.label}
               </th>
             ))}
-            <th className="px-4 py-3 font-medium text-gray-700 text-center border-l">
+            <th className="px-4 py-3 font-medium text-admin-body text-center border-l border-admin-border">
               ALL
             </th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100">
+        <tbody className="divide-y divide-admin-border">
           {RESOURCES.map((res) => (
-            <tr key={res.key} className="hover:bg-gray-50">
-              <td className="px-4 py-3 font-medium text-gray-900">
+            <tr key={res.key} className="hover:bg-admin-selected/50">
+              <td className="px-4 py-3 font-medium text-admin-foreground">
                 {res.label}
               </td>
 
@@ -136,7 +136,7 @@ export function PermissionEditor({ value, onChange }: PermissionEditorProps) {
                 </td>
               ))}
 
-              <td className="px-4 py-3 text-center border-l bg-gray-50/50">
+              <td className="px-4 py-3 text-center border-l border-admin-border bg-admin-surface-muted/50">
                 <Checkbox
                   id={`perm-${res.key}-all`}
                   checked={isChecked(res.key, "all")}

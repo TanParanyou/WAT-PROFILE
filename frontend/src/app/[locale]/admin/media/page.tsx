@@ -128,10 +128,10 @@ export default function MediaLibraryPage() {
       <div className="flex-1 space-y-4 overflow-y-auto p-4 font-sans text-sm">
         <div className="flex items-center justify-between">
           <div>
-            <h1 className="text-xl font-semibold text-zinc-950">
+            <h1 className="text-xl font-semibold text-admin-foreground">
               Media Library
             </h1>
-            <p className="text-sm text-zinc-500">
+            <p className="text-sm text-admin-muted">
               Manage public content media files
             </p>
           </div>
@@ -150,7 +150,7 @@ export default function MediaLibraryPage() {
               className="text-xs uppercase tracking-wider flex items-center gap-2"
             >
               {isUploading ? (
-                <Loader2 className="w-4 h-4 animate-spin text-amber-600" />
+                <Loader2 className="w-4 h-4 animate-spin text-admin-on-action" />
               ) : (
                 <Upload className="w-4 h-4" />
               )}
@@ -217,7 +217,7 @@ export default function MediaLibraryPage() {
 
         {listQuery.isLoading ? (
           <div className="flex h-64 items-center justify-center">
-            <Loader2 className="w-8 h-8 animate-spin text-zinc-400" />
+            <Loader2 className="w-8 h-8 animate-spin text-admin-action" />
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-5">
@@ -225,10 +225,10 @@ export default function MediaLibraryPage() {
               <button
                 key={media.id}
                 onClick={() => setSelectedMedia(media)}
-                className={`group relative aspect-video overflow-hidden border bg-zinc-50 ${
+                className={`group relative aspect-video overflow-hidden rounded-lg border bg-admin-surface-muted transition focus-visible:outline-2 focus-visible:outline-admin-focus ${
                   selectedMedia?.id === media.id
-                    ? "border-zinc-950"
-                    : "border-zinc-200"
+                    ? "border-admin-focus ring-2 ring-admin-focus/20"
+                    : "border-admin-border hover:border-admin-control-border"
                 }`}
               >
                 <img

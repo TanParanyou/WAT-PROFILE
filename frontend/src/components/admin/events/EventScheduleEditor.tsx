@@ -37,13 +37,13 @@ export function EventScheduleEditor() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+      <div className="flex items-center justify-between border-b border-admin-border pb-3">
         <div>
-          <h3 className="text-sm font-semibold text-gray-900 flex items-center gap-2">
-            <Clock size={16} className="text-amber-600" />
+          <h3 className="text-sm font-semibold text-admin-foreground flex items-center gap-2">
+            <Clock size={16} className="text-admin-action" />
             {t("events.schedule.title")}
           </h3>
-          <p className="text-xs text-gray-500 mt-0.5">
+          <p className="text-xs text-admin-muted mt-0.5">
             {t("events.schedule.description")}
           </p>
         </div>
@@ -59,14 +59,14 @@ export function EventScheduleEditor() {
       </div>
 
       {fields.length === 0 ? (
-        <div className="text-center py-8 border-2 border-dashed border-gray-200 rounded-xl bg-gray-50/50">
-          <p className="text-sm text-gray-400">{t("events.schedule.empty")}</p>
+        <div className="text-center py-8 border-2 border-dashed border-admin-border rounded-xl bg-admin-surface-muted/50">
+          <p className="text-sm text-admin-muted">{t("events.schedule.empty")}</p>
           <Button
             type="button"
             size="sm"
             variant="ghost"
             onClick={handleAdd}
-            className="mt-2 text-amber-600 hover:text-amber-700"
+            className="mt-2 text-admin-action hover:text-admin-action-hover"
           >
             {t("events.schedule.createFirst")}
           </Button>
@@ -83,18 +83,18 @@ export function EventScheduleEditor() {
               <div
                 key={field.id}
                 {...dragProps}
-                className={`p-4 border rounded-xl bg-white shadow-sm space-y-4 relative group transition-all ${
+                className={`p-4 border rounded-xl bg-admin-surface space-y-4 relative group transition-all ${
                   isDragging
-                    ? "border-amber-400 bg-amber-50/30 opacity-50 scale-[0.99]"
-                    : "border-gray-200 hover:border-gray-300"
+                    ? "border-admin-focus bg-admin-selected opacity-50 scale-[0.99]"
+                    : "border-admin-border hover:border-admin-control-border"
                 }`}
               >
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2">
-                    <div className="cursor-grab active:cursor-grabbing p-1 -ml-1 text-gray-400 hover:text-gray-600 rounded hover:bg-gray-100 transition-colors">
+                    <div className="cursor-grab active:cursor-grabbing p-1 -ml-1 text-admin-muted hover:text-admin-foreground rounded hover:bg-admin-surface-muted transition-colors">
                       <GripVertical size={16} />
                     </div>
-                    <span className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                    <span className="text-xs font-bold text-admin-muted uppercase tracking-wider">
                       {t("events.schedule.itemOrder", { index: index + 1 })}
                     </span>
                   </div>
@@ -103,7 +103,7 @@ export function EventScheduleEditor() {
                       type="button"
                       disabled={index === 0}
                       onClick={() => move(index, index - 1)}
-                      className="p-1.5 rounded-lg text-gray-400 hover:text-amber-600 hover:bg-amber-50 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-400 transition-colors"
+                      className="p-1.5 rounded-lg text-admin-muted hover:text-admin-action hover:bg-admin-selected disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-admin-muted transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
                       title={t("events.schedule.moveUp")}
                     >
                       <ArrowUp size={16} />
@@ -112,7 +112,7 @@ export function EventScheduleEditor() {
                       type="button"
                       disabled={index === fields.length - 1}
                       onClick={() => move(index, index + 1)}
-                      className="p-1.5 rounded-lg text-gray-400 hover:text-amber-600 hover:bg-amber-50 disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-gray-400 transition-colors"
+                      className="p-1.5 rounded-lg text-admin-muted hover:text-admin-action hover:bg-admin-selected disabled:opacity-30 disabled:hover:bg-transparent disabled:hover:text-admin-muted transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
                       title={t("events.schedule.moveDown")}
                     >
                       <ArrowDown size={16} />
@@ -120,7 +120,7 @@ export function EventScheduleEditor() {
                     <button
                       type="button"
                       onClick={() => remove(index)}
-                      className="p-1.5 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                      className="p-1.5 rounded-lg text-admin-muted hover:text-admin-danger hover:bg-admin-danger-surface transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
                       title={t("events.schedule.delete")}
                     >
                       <Trash2 size={16} />

@@ -156,21 +156,21 @@ export function ContactContentForm() {
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="min-h-[calc(100vh-7rem)] flex flex-col justify-between space-y-6">
         <div className="flex-1 space-y-6">
-          <div className="flex flex-col gap-4 border-b border-zinc-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 border-b border-admin-border pb-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-xl font-semibold text-zinc-950">{t("contact.pageTitle")}</h1>
-              <p className="text-sm text-zinc-500">{t("contact.pageDesc")}</p>
+              <h1 className="text-xl font-semibold text-admin-foreground">{t("contact.pageTitle")}</h1>
+              <p className="text-sm text-admin-muted">{t("contact.pageDesc")}</p>
             </div>
           </div>
 
           <FormTabs tabs={sectionTabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
           {/* Form Content per tab */}
-          <div className="bg-white p-6 rounded-lg border border-zinc-200 shadow-sm space-y-6">
+          <div className="bg-admin-surface p-6 rounded-lg border border-admin-border space-y-6">
             
             {activeTab === "details" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("contact.detailsHeading")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("contact.detailsHeading")}</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -219,23 +219,23 @@ export function ContactContentForm() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-gray-700">{t("contact.phone")}</label>
+                    <label className="text-sm font-medium text-admin-body">{t("contact.phone")}</label>
                     <input
                       type="text"
                       {...methods.register("body.phone")}
                       placeholder="+49 160-1604486"
-                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-gray-700">{t("contact.email")}</label>
+                    <label className="text-sm font-medium text-admin-body">{t("contact.email")}</label>
                     <input
                       type="text"
                       {...methods.register("body.email")}
                       placeholder="info@watloungporsai.de"
-                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
-                    {errors.body?.email && <p className="text-sm text-red-600 mt-1">{errors.body.email.message}</p>}
+                    {errors.body?.email && <p className="text-sm text-admin-danger mt-1">{errors.body.email.message}</p>}
                   </div>
                 </div>
               </div>
@@ -243,7 +243,7 @@ export function ContactContentForm() {
 
             {activeTab === "opening" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("contact.hoursHeadingDesc")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("contact.hoursHeadingDesc")}</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -291,7 +291,7 @@ export function ContactContentForm() {
 
             {activeTab === "map" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("contact.mapHeadingDesc")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("contact.mapHeadingDesc")}</h3>
                 
                 <Controller
                   name="body.map.name"
@@ -308,32 +308,32 @@ export function ContactContentForm() {
                 />
 
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-700">{t("contact.mapEmbed")}</label>
+                  <label className="text-sm font-medium text-admin-body">{t("contact.mapEmbed")}</label>
                   <input
                     type="text"
                     {...methods.register("body.map.embed_url")}
                     placeholder="https://www.google.com/maps/embed?..."
-                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                    className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                   />
-                  {errors.body?.map?.embed_url && <p className="text-sm text-red-600 mt-1">{errors.body.map.embed_url.message}</p>}
+                  {errors.body?.map?.embed_url && <p className="text-sm text-admin-danger mt-1">{errors.body.map.embed_url.message}</p>}
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-700">{t("contact.mapDirections")}</label>
+                  <label className="text-sm font-medium text-admin-body">{t("contact.mapDirections")}</label>
                   <input
                     type="text"
                     {...methods.register("body.map.directions_url")}
                     placeholder="https://maps.app.goo.gl/..."
-                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                    className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                   />
-                  {errors.body?.map?.directions_url && <p className="text-sm text-red-600 mt-1">{errors.body.map.directions_url.message}</p>}
+                  {errors.body?.map?.directions_url && <p className="text-sm text-admin-danger mt-1">{errors.body.map.directions_url.message}</p>}
                 </div>
               </div>
             )}
 
             {activeTab === "travel" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("contact.travelHeadingDesc")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("contact.travelHeadingDesc")}</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -365,7 +365,7 @@ export function ContactContentForm() {
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <label className="text-sm font-semibold text-zinc-800">{t("contact.publicTransport")}</label>
+                    <label className="text-sm font-semibold text-admin-foreground">{t("contact.publicTransport")}</label>
                     <Button
                       type="button"
                       size="sm"
@@ -379,7 +379,7 @@ export function ContactContentForm() {
 
                   <div className="space-y-4">
                     {transportFields.map((field, index) => (
-                      <div key={field.id} className="flex gap-4 items-start p-4 border border-zinc-200 rounded-lg bg-zinc-50/50 relative">
+                      <div key={field.id} className="flex gap-4 items-start p-4 border border-admin-border rounded-lg bg-admin-surface-muted relative">
                         <div className="flex-1">
                           <Controller
                             name={`body.transport.public_transport.${index}`}
@@ -398,7 +398,7 @@ export function ContactContentForm() {
                         <button
                           type="button"
                           onClick={() => removeTransport(index)}
-                          className="mt-8 p-2 rounded-lg text-zinc-400 hover:text-red-600 hover:bg-zinc-100 transition-colors"
+                          className="mt-8 p-2 rounded-lg text-admin-muted hover:text-admin-danger hover:bg-admin-border transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
                           title={t("contact.deleteTravelStep")}
                         >
                           <Trash size={16} />
@@ -407,7 +407,7 @@ export function ContactContentForm() {
                     ))}
 
                     {transportFields.length === 0 && (
-                      <div className="text-center py-6 text-zinc-400 border border-dashed border-zinc-200 rounded-lg">
+                      <div className="text-center py-6 text-admin-muted border border-dashed border-admin-border rounded-lg">
                         {t("contact.noTravelSteps")}
                       </div>
                     )}
@@ -418,71 +418,71 @@ export function ContactContentForm() {
 
             {activeTab === "socials" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("contact.socialsHeading")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("contact.socialsHeading")}</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-gray-700">Facebook URL</label>
+                    <label className="text-sm font-medium text-admin-body">Facebook URL</label>
                     <input
                       type="text"
                       {...methods.register("body.socials.facebook")}
                       placeholder="https://facebook.com/..."
-                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
-                    {errors.body?.socials?.facebook && <p className="text-sm text-red-600 mt-1">{errors.body.socials.facebook.message}</p>}
+                    {errors.body?.socials?.facebook && <p className="text-sm text-admin-danger mt-1">{errors.body.socials.facebook.message}</p>}
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-gray-700">Instagram URL</label>
+                    <label className="text-sm font-medium text-admin-body">Instagram URL</label>
                     <input
                       type="text"
                       {...methods.register("body.socials.instagram")}
                       placeholder="https://instagram.com/..."
-                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
-                    {errors.body?.socials?.instagram && <p className="text-sm text-red-600 mt-1">{errors.body.socials.instagram.message}</p>}
+                    {errors.body?.socials?.instagram && <p className="text-sm text-admin-danger mt-1">{errors.body.socials.instagram.message}</p>}
                   </div>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-gray-700">Facebook Messenger URL</label>
+                    <label className="text-sm font-medium text-admin-body">Facebook Messenger URL</label>
                     <input
                       type="text"
                       {...methods.register("body.socials.messenger")}
                       placeholder="https://m.me/..."
-                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
-                    {errors.body?.socials?.messenger && <p className="text-sm text-red-600 mt-1">{errors.body.socials.messenger.message}</p>}
+                    {errors.body?.socials?.messenger && <p className="text-sm text-admin-danger mt-1">{errors.body.socials.messenger.message}</p>}
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-gray-700">LINE ID / Add URL</label>
+                    <label className="text-sm font-medium text-admin-body">LINE ID / Add URL</label>
                     <input
                       type="text"
                       {...methods.register("body.socials.line")}
                       placeholder="@line_id"
-                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-700">YouTube Channel URL</label>
+                  <label className="text-sm font-medium text-admin-body">YouTube Channel URL</label>
                   <input
                     type="text"
                     {...methods.register("body.socials.youtube")}
                     placeholder="https://youtube.com/channel/..."
-                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                    className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                   />
-                  {errors.body?.socials?.youtube && <p className="text-sm text-red-600 mt-1">{errors.body.socials.youtube.message}</p>}
+                  {errors.body?.socials?.youtube && <p className="text-sm text-admin-danger mt-1">{errors.body.socials.youtube.message}</p>}
                 </div>
               </div>
             )}
 
             {activeTab === "bank" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("contact.bankHeadingDesc")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("contact.bankHeadingDesc")}</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -512,52 +512,52 @@ export function ContactContentForm() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-700">เลขบัญชีเงินฝาก (Account Number)</label>
+                  <label className="text-sm font-medium text-admin-body">เลขบัญชีเงินฝาก (Account Number)</label>
                   <input
                     type="text"
                     {...methods.register("body.bank.account_number")}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                    className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                   />
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-gray-700">IBAN (เยอรมนี/ยุโรป)</label>
+                    <label className="text-sm font-medium text-admin-body">IBAN (เยอรมนี/ยุโรป)</label>
                     <input
                       type="text"
                       {...methods.register("body.bank.iban")}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-gray-700">BIC / SWIFT Code</label>
+                    <label className="text-sm font-medium text-admin-body">BIC / SWIFT Code</label>
                     <input
                       type="text"
                       {...methods.register("body.bank.bic")}
-                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                   </div>
                 </div>
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-700">{t("contact.qrImageUrl")}</label>
-                  <input type="url" {...methods.register("body.bank.qr_image_url")} placeholder="https://..." className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:border-amber-500 focus:outline-none focus:ring-2 focus:ring-amber-500/50" />
-                  {errors.body?.bank?.qr_image_url && <p className="mt-1 text-sm text-red-600">{errors.body.bank.qr_image_url.message}</p>}
+                  <label className="text-sm font-medium text-admin-body">{t("contact.qrImageUrl")}</label>
+                  <input type="url" {...methods.register("body.bank.qr_image_url")} placeholder="https://..." className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus" />
+                  {errors.body?.bank?.qr_image_url && <p className="mt-1 text-sm text-admin-danger">{errors.body.bank.qr_image_url.message}</p>}
                 </div>
               </div>
             )}
 
             {activeTab === "form" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("contact.formHeading")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("contact.formHeading")}</h3>
                 
                 <div className="flex items-center gap-2">
                   <input
                     type="checkbox"
                     id="form_enabled"
                     {...methods.register("body.contact_form.enabled")}
-                    className="rounded text-amber-600 focus:ring-amber-500 border-gray-300 w-4 h-4"
+                    className="rounded text-admin-action focus-visible:outline-2 focus-visible:outline-admin-focus border-admin-control-border w-4 h-4"
                   />
-                  <label htmlFor="form_enabled" className="text-sm font-medium text-gray-700 select-none">
+                  <label htmlFor="form_enabled" className="text-sm font-medium text-admin-body select-none">
                     {t("contact.formEnabledLabel")}
                   </label>
                 </div>
@@ -578,12 +578,12 @@ export function ContactContentForm() {
                 />
 
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-700">ลิงก์หน้านโยบายความเป็นส่วนตัว (Privacy Page Link)</label>
+                  <label className="text-sm font-medium text-admin-body">ลิงก์หน้านโยบายความเป็นส่วนตัว (Privacy Page Link)</label>
                   <input
                     type="text"
                     {...methods.register("body.contact_form.privacy_page_link")}
                     placeholder="/privacy"
-                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                    className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                   />
                 </div>
               </div>
@@ -591,7 +591,7 @@ export function ContactContentForm() {
 
             {activeTab === "seo" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("seo.title")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("seo.title")}</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -625,12 +625,12 @@ export function ContactContentForm() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-gray-700">Canonical URL</label>
+                    <label className="text-sm font-medium text-admin-body">Canonical URL</label>
                     <input
                       type="text"
                       {...methods.register("seo.canonical_url")}
                       placeholder="/th/contact"
-                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                   </div>
                   <div className="flex items-center gap-2 pt-6">
@@ -638,21 +638,21 @@ export function ContactContentForm() {
                       type="checkbox"
                       id="seo_noindex"
                       {...methods.register("seo.noindex")}
-                      className="rounded text-amber-600 focus:ring-amber-500 border-gray-300 w-4 h-4"
+                      className="rounded text-admin-action focus-visible:outline-2 focus-visible:outline-admin-focus border-admin-control-border w-4 h-4"
                     />
-                    <label htmlFor="seo_noindex" className="text-sm font-medium text-gray-700 select-none">
+                    <label htmlFor="seo_noindex" className="text-sm font-medium text-admin-body select-none">
                       {t("seo.noIndex")}
                     </label>
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-700">{t("seo.ogImage")}</label>
+                  <label className="text-sm font-medium text-admin-body">{t("seo.ogImage")}</label>
                   <input
                     type="text"
                     {...methods.register("seo.og_image")}
                     placeholder="https://example.com/image.jpg"
-                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                    className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                   />
                 </div>
               </div>

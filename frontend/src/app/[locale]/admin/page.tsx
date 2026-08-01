@@ -22,7 +22,6 @@ import type { LucideIcon } from "lucide-react";
 interface StatCard {
   labelKey: string;
   icon: LucideIcon;
-  color: string;
   resource: PermissionResource;
   statKey: keyof DashboardStats;
   href: string;
@@ -32,7 +31,6 @@ const stats: StatCard[] = [
   {
     labelKey: "events",
     icon: Calendar,
-    color: "bg-blue-50 text-blue-600",
     resource: "events",
     statKey: "events",
     href: "/admin/events",
@@ -40,7 +38,6 @@ const stats: StatCard[] = [
   {
     labelKey: "monks",
     icon: Users,
-    color: "bg-purple-50 text-purple-600",
     resource: "monks",
     statKey: "monks",
     href: "/admin/monks",
@@ -48,7 +45,6 @@ const stats: StatCard[] = [
   {
     labelKey: "gallery",
     icon: Image,
-    color: "bg-green-50 text-green-600",
     resource: "gallery",
     statKey: "gallery",
     href: "/admin/gallery",
@@ -56,7 +52,6 @@ const stats: StatCard[] = [
   {
     labelKey: "schedules",
     icon: Clock,
-    color: "bg-indigo-50 text-indigo-600",
     resource: "schedules",
     statKey: "schedules",
     href: "/admin/schedules",
@@ -64,7 +59,6 @@ const stats: StatCard[] = [
   {
     labelKey: "donations",
     icon: Heart,
-    color: "bg-red-50 text-red-600",
     resource: "donations",
     statKey: "donations",
     href: "/admin/donations",
@@ -72,7 +66,6 @@ const stats: StatCard[] = [
   {
     labelKey: "members",
     icon: UserCheck,
-    color: "bg-amber-50 text-amber-600",
     resource: "members",
     statKey: "members",
     href: "/admin/members",
@@ -80,7 +73,6 @@ const stats: StatCard[] = [
   {
     labelKey: "contacts",
     icon: Mail,
-    color: "bg-cyan-50 text-cyan-600",
     resource: "contacts",
     statKey: "contacts",
     href: "/admin/contacts",
@@ -108,10 +100,10 @@ export default function AdminDashboardPage() {
     <div>
       {/* Welcome */}
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-gray-900">
+        <h1 className="text-2xl font-bold text-admin-foreground">
           {t("dashboard.welcome")}, {user?.name}
         </h1>
-        <p className="text-gray-500 mt-1">{t("dashboard.welcomeMessage")}</p>
+        <p className="text-admin-muted mt-1">{t("dashboard.welcomeMessage")}</p>
       </div>
 
       {/* Stats Grid */}
@@ -123,22 +115,22 @@ export default function AdminDashboardPage() {
             <Link
               key={stat.labelKey}
               href={stat.href}
-              className="bg-white rounded-xl border border-gray-200 p-6 shadow-sm hover:shadow-md hover:border-gray-300 transition-all"
+              className="bg-admin-surface rounded-xl border border-admin-border p-6 hover:border-admin-focus transition-all focus-visible:outline-2 focus-visible:outline-admin-focus"
             >
               <div className="flex items-center gap-4">
                 <div
-                  className={`h-12 w-12 rounded-lg flex items-center justify-center ${stat.color}`}
+                  className="h-12 w-12 rounded-lg flex items-center justify-center bg-admin-selected text-admin-selected-foreground border border-admin-control-border"
                 >
                   <Icon size={24} />
                 </div>
                 <div>
-                  <p className="text-sm text-gray-500">
+                  <p className="text-sm text-admin-muted">
                     {t(`dashboard.${stat.labelKey}`)}
                   </p>
                   {isLoading ? (
                     <Loading size="sm" />
                   ) : (
-                    <p className="text-2xl font-bold text-gray-900">
+                    <p className="text-2xl font-bold text-admin-foreground">
                       {count !== null ? count.toLocaleString() : "—"}
                     </p>
                   )}

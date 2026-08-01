@@ -211,7 +211,7 @@ export default function RolesPage() {
             <button
               type="button"
               onClick={() => handleOpenEdit(row)}
-              className="p-1.5 rounded hover:bg-zinc-100 text-zinc-500 transition-colors"
+              className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
             >
               <Icons.Edit size={16} />
             </button>
@@ -220,7 +220,7 @@ export default function RolesPage() {
             <button
               type="button"
               onClick={() => handleDelete(String(row.id), row.name)}
-              className="p-1.5 rounded hover:bg-red-50 text-zinc-500 hover:text-red-600 transition-colors disabled:opacity-50 disabled:hover:bg-transparent"
+              className="p-1.5 rounded hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger transition-colors disabled:opacity-50 disabled:hover:bg-transparent focus-visible:outline-2 focus-visible:outline-admin-focus"
               disabled={row.name === "admin"}
             >
               <Icons.Delete
@@ -296,7 +296,7 @@ export default function RolesPage() {
         <PermissionGuard resource="users" action="delete">
           <button
             onClick={handleBulkDelete}
-            className="flex items-center gap-2 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors text-sm font-medium"
+            className="flex items-center gap-2 px-3 py-1.5 bg-admin-danger hover:brightness-90 text-admin-on-action rounded-md transition-colors text-sm font-medium focus-visible:outline-2 focus-visible:outline-admin-focus"
           >
             <Icons.Delete size={16} />
             {t("common.delete")}
@@ -350,7 +350,7 @@ export default function RolesPage() {
           />
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-2">
+            <label className="block text-sm font-medium text-admin-body mb-2">
               สิทธิ์การเข้าถึง (Permissions)
             </label>
             <Controller
@@ -364,7 +364,7 @@ export default function RolesPage() {
               )}
             />
             {errors.permissions?.message && (
-              <p className="text-sm text-red-600 mt-1">
+              <p className="text-sm text-admin-danger mt-1">
                 {String(errors.permissions.message)}
               </p>
             )}

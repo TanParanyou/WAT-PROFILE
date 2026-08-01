@@ -97,26 +97,26 @@ export function PrivacyContentForm() {
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="min-h-[calc(100vh-7rem)] flex flex-col justify-between space-y-6">
         <div className="flex-1 space-y-6">
-          <div className="flex flex-col gap-4 border-b border-zinc-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 border-b border-admin-border pb-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-xl font-semibold text-zinc-950">{t("privacy.pageTitle")}</h1>
-              <p className="text-sm text-zinc-500">{t("privacy.pageDesc")}</p>
+              <h1 className="text-xl font-semibold text-admin-foreground">{t("privacy.pageTitle")}</h1>
+              <p className="text-sm text-admin-muted">{t("privacy.pageDesc")}</p>
             </div>
           </div>
 
           <FormTabs tabs={sectionTabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
           {/* Form Content per tab */}
-          <div className="bg-white p-6 rounded-lg border border-zinc-200 shadow-sm space-y-6">
+          <div className="bg-admin-surface p-6 rounded-lg border border-admin-border space-y-6">
             
             {activeTab === "details" && (
               <div className="space-y-6">
-                <div className="flex justify-between items-center border-b pb-2">
-                  <h3 className="text-lg font-medium text-zinc-900">{t("privacy.title")}</h3>
+                <div className="flex justify-between items-center border-b border-admin-border pb-2">
+                  <h3 className="text-lg font-medium text-admin-foreground">{t("privacy.title")}</h3>
                   {(() => {
                     const lu = watch("body.last_updated");
                     return lu ? (
-                      <span className="text-xs text-zinc-500 bg-zinc-100 px-2.5 py-1 rounded">
+                      <span className="text-xs text-admin-muted bg-admin-surface-muted px-2.5 py-1 rounded">
                         {t("privacy.lastUpdated", { time: new Date(lu).toLocaleString("th-TH") })}
                       </span>
                     ) : null;
@@ -156,7 +156,7 @@ export function PrivacyContentForm() {
 
             {activeTab === "seo" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("seo.title")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("seo.title")}</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -190,12 +190,12 @@ export function PrivacyContentForm() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-gray-700">Canonical URL</label>
+                    <label className="text-sm font-medium text-admin-body">Canonical URL</label>
                     <input
                       type="text"
                       {...methods.register("seo.canonical_url")}
                       placeholder="/th/privacy"
-                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                   </div>
                   <div className="flex items-center gap-2 pt-6">
@@ -203,21 +203,21 @@ export function PrivacyContentForm() {
                       type="checkbox"
                       id="seo_noindex"
                       {...methods.register("seo.noindex")}
-                      className="rounded text-amber-600 focus:ring-amber-500 border-gray-300 w-4 h-4"
+                      className="rounded text-admin-action focus-visible:outline-2 focus-visible:outline-admin-focus border-admin-control-border w-4 h-4"
                     />
-                    <label htmlFor="seo_noindex" className="text-sm font-medium text-gray-700 select-none">
+                    <label htmlFor="seo_noindex" className="text-sm font-medium text-admin-body select-none">
                       {t("seo.noIndex")}
                     </label>
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-700">{t("seo.ogImage")}</label>
+                  <label className="text-sm font-medium text-admin-body">{t("seo.ogImage")}</label>
                   <input
                     type="text"
                     {...methods.register("seo.og_image")}
                     placeholder="https://example.com/image.jpg"
-                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                    className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                   />
                 </div>
               </div>

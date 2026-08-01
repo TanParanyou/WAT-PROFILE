@@ -125,21 +125,21 @@ export function ImpressumContentForm() {
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="min-h-[calc(100vh-7rem)] flex flex-col justify-between space-y-6">
         <div className="flex-1 space-y-6">
-          <div className="flex flex-col gap-4 border-b border-zinc-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 border-b border-admin-border pb-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-xl font-semibold text-zinc-950">{t("impressum.pageTitle")}</h1>
-              <p className="text-sm text-zinc-500">{t("impressum.pageDesc")}</p>
+              <h1 className="text-xl font-semibold text-admin-foreground">{t("impressum.pageTitle")}</h1>
+              <p className="text-sm text-admin-muted">{t("impressum.pageDesc")}</p>
             </div>
           </div>
 
           <FormTabs tabs={sectionTabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
           {/* Form Content per tab */}
-          <div className="bg-white p-6 rounded-lg border border-zinc-200 shadow-sm space-y-6">
+          <div className="bg-admin-surface p-6 rounded-lg border border-admin-border space-y-6">
             
             {activeTab === "details" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("impressum.orgHeading")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("impressum.orgHeading")}</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -216,23 +216,23 @@ export function ImpressumContentForm() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-gray-700">{t("impressum.fields.phone")}</label>
+                    <label className="text-sm font-medium text-admin-body">{t("impressum.fields.phone")}</label>
                     <input
                       type="text"
                       {...methods.register("body.phone")}
                       placeholder="+49 160-1604486"
-                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-gray-700">{t("impressum.fields.email")}</label>
+                    <label className="text-sm font-medium text-admin-body">{t("impressum.fields.email")}</label>
                     <input
                       type="text"
                       {...methods.register("body.email")}
                       placeholder="info@watloungporsai.de"
-                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
-                    {errors.body?.email && <p className="text-sm text-red-600 mt-1">{errors.body.email.message}</p>}
+                    {errors.body?.email && <p className="text-sm text-admin-danger mt-1">{errors.body.email.message}</p>}
                   </div>
                 </div>
               </div>
@@ -240,7 +240,7 @@ export function ImpressumContentForm() {
 
             {activeTab === "legal" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("impressum.regHeading")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("impressum.regHeading")}</h3>
                 
                 <Controller
                   name="body.representative"
@@ -270,22 +270,22 @@ export function ImpressumContentForm() {
                     )}
                   />
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-gray-700">{t("impressum.fields.regNumber")}</label>
+                    <label className="text-sm font-medium text-admin-body">{t("impressum.fields.regNumber")}</label>
                     <input
                       type="text"
                       {...methods.register("body.registry_number")}
                       placeholder="VR 20123"
-                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-700">{t("impressum.fields.vatId")}</label>
+                  <label className="text-sm font-medium text-admin-body">{t("impressum.fields.vatId")}</label>
                   <input
                     type="text"
                     {...methods.register("body.vat_id")}
-                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                    className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                   />
                 </div>
               </div>
@@ -293,7 +293,7 @@ export function ImpressumContentForm() {
 
             {activeTab === "responsibility" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("impressum.respHeading")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("impressum.respHeading")}</h3>
                 
                 <Controller
                   name="body.content_responsibility"
@@ -312,7 +312,7 @@ export function ImpressumContentForm() {
 
             {activeTab === "seo" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("seo.title")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("seo.title")}</h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -346,12 +346,12 @@ export function ImpressumContentForm() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-gray-700">Canonical URL</label>
+                    <label className="text-sm font-medium text-admin-body">Canonical URL</label>
                     <input
                       type="text"
                       {...methods.register("seo.canonical_url")}
                       placeholder="/th/impressum"
-                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                   </div>
                   <div className="flex items-center gap-2 pt-6">
@@ -359,21 +359,21 @@ export function ImpressumContentForm() {
                       type="checkbox"
                       id="seo_noindex"
                       {...methods.register("seo.noindex")}
-                      className="rounded text-amber-600 focus:ring-amber-500 border-gray-300 w-4 h-4"
+                      className="rounded text-admin-action focus-visible:outline-2 focus-visible:outline-admin-focus border-admin-control-border w-4 h-4"
                     />
-                    <label htmlFor="seo_noindex" className="text-sm font-medium text-gray-700 select-none">
+                    <label htmlFor="seo_noindex" className="text-sm font-medium text-admin-body select-none">
                       {t("seo.noIndex")}
                     </label>
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-700">{t("seo.ogImage")}</label>
+                  <label className="text-sm font-medium text-admin-body">{t("seo.ogImage")}</label>
                   <input
                     type="text"
                     {...methods.register("seo.og_image")}
                     placeholder="https://example.com/image.jpg"
-                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                    className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                   />
                 </div>
               </div>

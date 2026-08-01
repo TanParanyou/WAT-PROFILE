@@ -122,26 +122,26 @@ export function UserEditor({ id }: UserEditorProps) {
       >
         <div className="space-y-6 flex-1 mb-8">
           {/* Header */}
-          <div className="flex flex-col gap-4 border-b border-zinc-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 border-b border-admin-border pb-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <div className="flex items-center gap-2 text-sm text-zinc-500 mb-1">
+              <div className="flex items-center gap-2 text-sm text-admin-muted mb-1">
                 <button
                   type="button"
                   onClick={() => router.push("/admin/users")}
-                  className="hover:text-zinc-950 flex items-center gap-1"
+                  className="hover:text-admin-foreground flex items-center gap-1 focus-visible:outline-2 focus-visible:outline-admin-focus rounded"
                 >
                   <ArrowLeft size={14} />
                   ย้อนกลับ
                 </button>
               </div>
-              <h1 className="text-xl font-semibold text-zinc-950">
+              <h1 className="text-xl font-semibold text-admin-foreground">
                 {isEditMode ? t("users.edit") : t("users.create")}
               </h1>
             </div>
           </div>
 
           {/* Form Content */}
-          <div className="bg-white rounded-xl border border-zinc-200 p-6 shadow-sm space-y-4 max-w-2xl">
+          <div className="bg-admin-surface rounded-xl border border-admin-border p-6 space-y-4 max-w-2xl">
             <Input
               id="name"
               label="ชื่อ-นามสกุล *"
@@ -206,13 +206,13 @@ export function UserEditor({ id }: UserEditorProps) {
         </div>
 
         {/* Sticky Action Bar */}
-        <div className="sticky bottom-0 z-40 -mx-4 -mb-4 mt-8 flex items-center justify-between border-t border-zinc-200 bg-white/80 px-4 py-4 backdrop-blur-md sm:-mx-6 sm:-mb-6 sm:px-6">
+        <div className="sticky bottom-0 z-40 -mx-4 -mb-4 mt-8 flex items-center justify-between border-t border-admin-border bg-admin-surface/80 px-4 py-4 backdrop-blur-md sm:-mx-6 sm:-mb-6 sm:px-6">
           <div className="flex items-center gap-3">
             {isDirty && (
-              <span className="flex items-center gap-1.5 text-xs font-medium text-amber-600">
+              <span className="flex items-center gap-1.5 text-xs font-medium text-admin-warning">
                 <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500"></span>
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-admin-warning/75 opacity-75"></span>
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-admin-warning"></span>
                 </span>
                 มีข้อมูลที่ยังไม่ได้เซฟ
               </span>
@@ -232,7 +232,7 @@ export function UserEditor({ id }: UserEditorProps) {
               variant="primary"
               isLoading={isLoading}
               icon={<Save size={16} />}
-              className="w-full sm:w-auto shadow-sm"
+              className="w-full sm:w-auto"
             >
               {isEditMode ? t("common.saveChanges") : t("common.save")}
             </Button>

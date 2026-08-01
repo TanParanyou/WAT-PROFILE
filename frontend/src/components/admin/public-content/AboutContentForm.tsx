@@ -149,21 +149,21 @@ export function AboutContentForm() {
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit, onInvalid)} className="min-h-[calc(100vh-7rem)] flex flex-col justify-between space-y-6">
         <div className="flex-1 space-y-6">
-          <div className="flex flex-col gap-4 border-b border-zinc-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
+          <div className="flex flex-col gap-4 border-b border-admin-border pb-4 sm:flex-row sm:items-center sm:justify-between">
             <div>
-              <h1 className="text-xl font-semibold text-zinc-950">{t("about.pageTitle")}</h1>
-              <p className="text-sm text-zinc-500">{t("about.pageDesc")}</p>
+              <h1 className="text-xl font-semibold text-admin-foreground">{t("about.pageTitle")}</h1>
+              <p className="text-sm text-admin-muted">{t("about.pageDesc")}</p>
             </div>
           </div>
 
           <FormTabs tabs={sectionTabs} activeTab={activeTab} setActiveTab={setActiveTab} />
 
           {/* Form Content per tab */}
-          <div className="bg-white p-6 rounded-lg border border-zinc-200 shadow-sm space-y-6">
+          <div className="bg-admin-surface p-6 rounded-lg border border-admin-border space-y-6">
 
             {activeTab === "intro" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("about.introHeading")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("about.introHeading")}</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -256,7 +256,7 @@ export function AboutContentForm() {
 
             {activeTab === "objective" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("about.objective")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("about.objective")}</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -305,7 +305,7 @@ export function AboutContentForm() {
 
             {activeTab === "administration" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("about.administration")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("about.administration")}</h3>
 
                 <Controller
                   name="body.administration.heading"
@@ -340,7 +340,7 @@ export function AboutContentForm() {
 
             {activeTab === "history" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("about.history")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("about.history")}</h3>
 
                 <Controller
                   name="body.history.heading"
@@ -375,7 +375,7 @@ export function AboutContentForm() {
 
             {activeTab === "buildings" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("about.buildings")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("about.buildings")}</h3>
 
                 <Controller
                   name="body.buildings.heading"
@@ -393,8 +393,8 @@ export function AboutContentForm() {
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
-                    <label className="text-sm font-semibold text-zinc-800">{t("about.fields.buildingsList")}
-                      <span className="text-red-500 ml-1">*</span>
+                    <label className="text-sm font-semibold text-admin-foreground">{t("about.fields.buildingsList")}
+                      <span className="text-admin-danger ml-1">*</span>
                     </label>
                     <Button
                       type="button"
@@ -409,17 +409,17 @@ export function AboutContentForm() {
 
                   <div className="space-y-6">
                     {buildingFields.map((field, index) => (
-                      <div key={field.id} className="p-4 border border-zinc-200 rounded-lg bg-zinc-50/50 space-y-4 relative">
+                      <div key={field.id} className="p-4 border border-admin-border rounded-lg bg-admin-surface-muted space-y-4 relative">
                         <button
                           type="button"
                           onClick={() => removeBuilding(index)}
-                          className="absolute top-4 right-4 p-1.5 rounded-lg text-zinc-400 hover:text-red-600 hover:bg-zinc-100 transition-colors"
+                          className="absolute top-4 right-4 p-1.5 rounded-lg text-admin-muted hover:text-admin-danger hover:bg-admin-border transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
                           title={t("about.deleteBuilding")}
                         >
                           <Trash size={16} />
                         </button>
 
-                        <span className="text-xs font-semibold text-zinc-400 uppercase tracking-wider">{t("about.buildingNumber", { number: index + 1 })}</span>
+                        <span className="text-xs font-semibold text-admin-muted uppercase tracking-wider">{t("about.buildingNumber", { number: index + 1 })}</span>
 
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                           <Controller
@@ -453,7 +453,7 @@ export function AboutContentForm() {
                     ))}
 
                     {buildingFields.length === 0 && (
-                      <div className="text-center py-8 text-zinc-400 border border-dashed border-zinc-200 rounded-lg">
+                      <div className="text-center py-8 text-admin-muted border border-dashed border-admin-border rounded-lg">
                         {t("about.fields.noBuildings")}
                       </div>
                     )}
@@ -464,7 +464,7 @@ export function AboutContentForm() {
 
             {activeTab === "sangha" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("about.sangha")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("about.sangha")}</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -515,7 +515,7 @@ export function AboutContentForm() {
 
             {activeTab === "seo" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-zinc-900 border-b pb-2">{t("seo.title")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("seo.title")}</h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -549,12 +549,12 @@ export function AboutContentForm() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-gray-700">Canonical URL</label>
+                    <label className="text-sm font-medium text-admin-body">Canonical URL</label>
                     <input
                       type="text"
                       {...methods.register("seo.canonical_url")}
                       placeholder="/th/about"
-                      className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                      className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                   </div>
                   <div className="flex items-center gap-2 pt-6">
@@ -562,21 +562,21 @@ export function AboutContentForm() {
                       type="checkbox"
                       id="seo_noindex"
                       {...methods.register("seo.noindex")}
-                      className="rounded text-amber-600 focus:ring-amber-500 border-gray-300 w-4 h-4"
+                      className="rounded text-admin-action focus-visible:outline-2 focus-visible:outline-admin-focus border-admin-control-border w-4 h-4"
                     />
-                    <label htmlFor="seo_noindex" className="text-sm font-medium text-gray-700 select-none">
+                    <label htmlFor="seo_noindex" className="text-sm font-medium text-admin-body select-none">
                       {t("seo.noIndex")}
                     </label>
                   </div>
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-gray-700">{t("seo.ogImage")}</label>
+                  <label className="text-sm font-medium text-admin-body">{t("seo.ogImage")}</label>
                   <input
                     type="text"
                     {...methods.register("seo.og_image")}
                     placeholder="https://example.com/image.jpg"
-                    className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500"
+                    className="min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                   />
                 </div>
               </div>

@@ -244,7 +244,7 @@ export default function ContactsPage() {
           <button
             type="button"
             onClick={() => handleViewReply(row)}
-            className="p-1.5 rounded hover:bg-zinc-100 text-zinc-500 transition-colors"
+            className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
             title={t("contacts.viewReply")}
           >
             <Icons.View size={16} />
@@ -253,7 +253,7 @@ export default function ContactsPage() {
             <button
               type="button"
               onClick={() => handleDelete(row)}
-              className="p-1.5 rounded hover:bg-red-50 text-zinc-500 hover:text-red-600 transition-colors"
+              className="p-1.5 rounded hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
               title={t("common.delete")}
             >
               <Icons.Delete size={16} />
@@ -336,7 +336,7 @@ export default function ContactsPage() {
         <PermissionGuard resource="contacts" action="delete">
           <button
             onClick={handleBulkDelete}
-            className="flex items-center gap-2 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors text-sm font-medium"
+            className="flex items-center gap-2 px-3 py-1.5 bg-admin-danger hover:brightness-90 text-admin-on-action rounded-md transition-colors text-sm font-medium focus-visible:outline-2 focus-visible:outline-admin-focus"
           >
             <Icons.Delete size={16} />
             {t("common.bulkDelete")}
@@ -371,42 +371,42 @@ export default function ContactsPage() {
           <div className="space-y-4">
             <div className="grid grid-cols-2 gap-4 text-sm">
               <div>
-                <span className="font-medium text-gray-700">
+                <span className="font-medium text-admin-body">
                   {t("columns.name")}:
                 </span>{" "}
                 {selectedContact.name}
               </div>
               <div>
-                <span className="font-medium text-gray-700">
+                <span className="font-medium text-admin-body">
                   {t("columns.email")}:
                 </span>{" "}
                 {selectedContact.email}
               </div>
               <div>
-                <span className="font-medium text-gray-700">
+                <span className="font-medium text-admin-body">
                   {t("contacts.phone")}:
                 </span>{" "}
                 {selectedContact.phone || "-"}
               </div>
               <div>
-                <span className="font-medium text-gray-700">
+                <span className="font-medium text-admin-body">
                   {t("columns.type")}:
                 </span>{" "}
                 {selectedContact.inquiry_type}
               </div>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-admin-body mb-1">
                 {t("contacts.subject")}
               </label>
-              <p className="text-gray-900">{selectedContact.subject}</p>
+              <p className="text-admin-foreground">{selectedContact.subject}</p>
             </div>
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">
+              <label className="block text-sm font-medium text-admin-body mb-1">
                 {t("contacts.message")}
               </label>
-              <div className="bg-gray-50 rounded-lg p-3 border border-gray-200">
-                <p className="text-gray-900 whitespace-pre-wrap text-sm">
+              <div className="bg-admin-surface-muted rounded-lg p-3 border border-admin-border">
+                <p className="text-admin-foreground whitespace-pre-wrap text-sm">
                   {selectedContact.message}
                 </p>
               </div>
@@ -426,12 +426,12 @@ export default function ContactsPage() {
               onChange={(e) => setSelectedStatus(e.target.value)}
             />
             {selectedContact.replied_at && (
-              <p className="text-xs text-gray-500">
+              <p className="text-xs text-admin-muted">
                 {t("contacts.repliedAt")}:{" "}
                 {new Date(selectedContact.replied_at).toLocaleString("th-TH")}
               </p>
             )}
-            <div className="flex justify-end gap-3 pt-4 border-t border-gray-200">
+            <div className="flex justify-end gap-3 pt-4 border-t border-admin-border">
               <Button variant="outline" onClick={handleModalClose}>
                 {t("common.cancel")}
               </Button>

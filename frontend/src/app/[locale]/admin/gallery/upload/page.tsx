@@ -145,7 +145,7 @@ export default function GalleryUploadPage() {
       />
       <form
         onSubmit={handleSubmit(onSubmit)}
-        className="max-w-2xl bg-white rounded-xl border border-gray-200 p-6 space-y-4"
+        className="max-w-2xl bg-admin-surface rounded-xl border border-admin-border p-6 space-y-4"
       >
         <Controller
           control={control}
@@ -158,7 +158,7 @@ export default function GalleryUploadPage() {
                 onChange={field.onChange}
               />
               {errors.image_url?.message && (
-                <p className="text-sm text-red-500">
+                <p className="text-sm text-admin-danger">
                   {errors.image_url.message}
                 </p>
               )}
@@ -217,7 +217,7 @@ export default function GalleryUploadPage() {
             />
           )}
         />
-        <div className="flex gap-3 pt-4 border-t border-gray-200">
+        <div className="flex gap-3 pt-4 border-t border-admin-border">
           <Button
             type="button"
             variant="outline"

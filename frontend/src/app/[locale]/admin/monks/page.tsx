@@ -136,10 +136,10 @@ export default function MonksListPage() {
           <img
             src={v as string}
             alt=""
-            className="h-10 w-10 rounded-full object-cover border border-zinc-200"
+            className="h-10 w-10 rounded-full object-cover border border-admin-border"
           />
         ) : (
-          <div className="h-10 w-10 rounded-full bg-zinc-100 border border-dashed border-zinc-200" />
+          <div className="h-10 w-10 rounded-full bg-admin-surface-muted border border-dashed border-admin-border" />
         ),
     },
     {
@@ -166,7 +166,7 @@ export default function MonksListPage() {
           <button
             type="button"
             onClick={() => setPreviewUrl(`/monks/${row.slug}`)}
-            className="p-1.5 rounded hover:bg-zinc-100 text-zinc-500 transition-colors"
+            className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
             title="ดูหน้าเว็บสาธารณะ"
           >
             <Icons.View size={16} />
@@ -174,7 +174,7 @@ export default function MonksListPage() {
           <PermissionGuard resource="monks" action="update">
             <Link
               href={`/admin/monks/${row.id}`}
-              className="p-1.5 rounded hover:bg-zinc-100 text-zinc-500 transition-colors"
+              className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
             >
               <Icons.Edit size={16} />
             </Link>
@@ -183,7 +183,7 @@ export default function MonksListPage() {
             <button
               type="button"
               onClick={() => handleDelete(row.id)}
-              className="p-1.5 rounded hover:bg-red-50 text-zinc-500 hover:text-red-600 transition-colors"
+              className="p-1.5 rounded hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
               title={t("common.delete")}
             >
               <Icons.Delete size={16} />
@@ -255,7 +255,7 @@ export default function MonksListPage() {
         <PermissionGuard resource="monks" action="delete">
           <button
             onClick={handleBulkDelete}
-            className="flex items-center gap-2 px-3 py-1.5 bg-red-500 hover:bg-red-600 text-white rounded-md transition-colors text-sm font-medium"
+            className="flex items-center gap-2 px-3 py-1.5 bg-admin-danger hover:brightness-90 text-admin-on-action rounded-md transition-colors text-sm font-medium focus-visible:outline-2 focus-visible:outline-admin-focus"
           >
             <Icons.Delete size={16} />
             {t("common.bulkDelete")}

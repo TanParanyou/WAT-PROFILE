@@ -167,30 +167,30 @@ export default function SettingsPage() {
         breadcrumbs={[{ label: t("settings.title") }]}
       />
       <div className="space-y-6 max-w-3xl">
-        <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">{t("settings.eventAlert")}</h2>
+        <div className="bg-admin-surface rounded-xl border border-admin-border p-6 space-y-4">
+          <h2 className="text-lg font-semibold text-admin-foreground">{t("settings.eventAlert")}</h2>
           <Switch id="event-alert-enabled" label={t("settings.eventAlertEnabled")} checked={alert.enabled} onChange={(e) => setAlert({ ...alert, enabled: e.target.checked })} />
-          <label className="block text-sm font-medium">{t("settings.eventToDisplay")}
-            <select className="mt-1 w-full rounded-lg border p-2" value={alert.event_id} onChange={(e) => setAlert({ ...alert, event_id: Number(e.target.value) })}>
+          <label className="block text-sm font-medium text-admin-body">{t("settings.eventToDisplay")}
+            <select className="mt-1 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-admin-focus" value={alert.event_id} onChange={(e) => setAlert({ ...alert, event_id: Number(e.target.value) })}>
               <option value={0}>{t("settings.selectEvent")}</option>{events.map((event) => <option key={event.id} value={event.id}>{event.title.th || event.title.en}</option>)}
             </select>
           </label>
           <Input id="alert-delay" label={t("settings.delaySeconds")} type="number" min={0} max={30} value={alert.delay_seconds} onChange={(e) => setAlert({ ...alert, delay_seconds: Number(e.target.value) })} />
           <Input id="alert-dismiss" label={t("settings.dismissHours")} type="number" min={1} max={720} value={alert.dismiss_hours} onChange={(e) => setAlert({ ...alert, dismiss_hours: Number(e.target.value) })} />
         </div>
-        <div className="bg-white rounded-xl border border-gray-200 p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-gray-900">Public Website</h2>
+        <div className="bg-admin-surface rounded-xl border border-admin-border p-6 space-y-4">
+          <h2 className="text-lg font-semibold text-admin-foreground">Public Website</h2>
           <ImageUpload label="โลโก้เว็บไซต์" value={shell.logo_url} onChange={(value) => setShell({ ...shell, logo_url: typeof value === "string" ? value : "" })} />
-          <label className="block text-sm font-medium">ตำแหน่งแถบโซเชียลมีเดียด้านข้าง<select className="mt-1 w-full rounded-lg border p-2" value={shell.social_sidebar_position} onChange={(e) => setShell({ ...shell, social_sidebar_position: e.target.value })}><option value="left">ซ้าย</option><option value="right">ขวา</option></select></label>
+          <label className="block text-sm font-medium text-admin-body">ตำแหน่งแถบโซเชียลมีเดียด้านข้าง<select className="mt-1 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-admin-focus" value={shell.social_sidebar_position} onChange={(e) => setShell({ ...shell, social_sidebar_position: e.target.value })}><option value="left">ซ้าย</option><option value="right">ขวา</option></select></label>
           <Input id="youtube-url" label="ลิงก์ช่อง YouTube" type="url" placeholder="https://youtube.com/@channel" value={shell.youtube_url} onChange={(e) => setShell({ ...shell, youtube_url: e.target.value })} />
         </div>
         {Object.entries(grouped).map(([category, items]) => (
           <div
             key={category}
-            className="bg-white rounded-xl border border-gray-200"
+            className="bg-admin-surface rounded-xl border border-admin-border"
           >
-            <div className="px-6 py-4 border-b border-gray-200">
-              <h2 className="text-lg font-semibold text-gray-900">
+            <div className="px-6 py-4 border-b border-admin-border">
+              <h2 className="text-lg font-semibold text-admin-foreground">
                 {category}
               </h2>
             </div>
@@ -202,13 +202,13 @@ export default function SettingsPage() {
           </div>
         ))}
         {/* Sticky Action Bar */}
-        <div className="sticky bottom-0 z-40 -mx-4 -mb-4 mt-8 flex items-center justify-between border-t border-zinc-200 bg-white/80 px-4 py-4 backdrop-blur-md sm:-mx-6 sm:-mb-6 sm:px-6">
+        <div className="sticky bottom-0 z-40 -mx-4 -mb-4 mt-8 flex items-center justify-between border-t border-admin-border bg-admin-surface/80 px-4 py-4 backdrop-blur-md sm:-mx-6 sm:-mb-6 sm:px-6">
           <div className="flex items-center gap-3">
             {hasChanges && (
-              <span className="flex items-center gap-1.5 text-xs font-medium text-amber-600">
+              <span className="flex items-center gap-1.5 text-xs font-medium text-admin-warning">
                 <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500"></span>
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-admin-warning/75 opacity-75"></span>
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-admin-warning"></span>
                 </span>
                 {t("settings.unsavedChanges")}
               </span>
@@ -221,7 +221,7 @@ export default function SettingsPage() {
               isLoading={isSaving}
               icon={<Icons.Save size={16} />}
               variant="primary"
-              className="w-full sm:w-auto shadow-sm"
+              className="w-full sm:w-auto"
             >
               {t("common.saveChanges")}
             </Button>

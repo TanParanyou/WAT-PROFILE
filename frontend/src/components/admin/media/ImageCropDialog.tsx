@@ -97,7 +97,7 @@ export function ImageCropDialog({
     >
       <div className="space-y-4 font-sans text-sm">
         {/* Cropper Container */}
-        <div className="relative w-full h-[360px] bg-zinc-900 rounded-lg overflow-hidden">
+        <div className="relative w-full h-[360px] bg-admin-canvas rounded-lg overflow-hidden">
           <Cropper
             image={imageSrc}
             crop={crop}

@@ -52,7 +52,7 @@ export function ImageUpload({
           <button
             type="button"
             onClick={() => setIsLightboxOpen(true)}
-            className="absolute inset-0 bg-black/40 text-white rounded-lg flex items-center justify-center opacity-0 group-hover/preview:opacity-100 transition-opacity focus-visible:outline-2 focus-visible:outline-admin-focus"
+            className="absolute inset-0 bg-black/40 text-admin-on-action rounded-lg flex items-center justify-center opacity-0 group-hover/preview:opacity-100 transition-opacity focus-visible:outline-2 focus-visible:outline-admin-focus"
             title="ดูภาพขนาดเต็ม"
           >
             <Eye size={20} strokeWidth={1.5} />
