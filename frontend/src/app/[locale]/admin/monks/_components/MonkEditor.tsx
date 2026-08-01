@@ -20,7 +20,7 @@ import { useTranslations } from "next-intl";
 import { useForm, Controller, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { monkSchema, type MonkFormData } from "@/schemas/monk.schema";
-import { Save, ArrowLeft, Eye, X } from "lucide-react";
+import { FileText, MapPin, Save, ArrowLeft } from "lucide-react";
 import { useAppOptions } from "@/hooks/useAppOptions";
 import { hasLegacyLocalizedRichText, normalizeLocalizedRichText } from "@/lib/rich-text/document";
 import { richTextMigrationService } from "@/services/richTextMigrationService";

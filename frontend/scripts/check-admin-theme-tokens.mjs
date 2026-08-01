@@ -21,6 +21,7 @@ const publicPreviewOwners = new Set([
   "src/components/admin/preview/ContactFormPreview.tsx",
   "src/components/admin/preview/EventCardPreview.tsx",
   "src/components/admin/preview/MonkCardPreview.tsx",
+  "src/components/admin/preview/MobilePreviewDrawer.tsx",
 ]);
 const findings = [];
 

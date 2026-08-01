@@ -29,6 +29,7 @@ import {
   OpeningHoursPreview,
   TravelGuidePreview,
   ContactFormPreview,
+  MobilePreviewDrawer,
 } from "@/components/admin/preview";
 
 export function ContactContentForm() {
@@ -38,7 +39,6 @@ export function ContactContentForm() {
   const { toast } = useToast();
 
   const [activeTab, setActiveTab] = useState<"details" | "opening" | "map" | "travel" | "socials" | "bank" | "form" | "seo">("details");
-  const [isMobilePreviewOpen, setIsMobilePreviewOpen] = useState(false);
 
   const methods = useForm<ContactContentFormData>({
     resolver: zodResolver(contactContentFormSchema),
@@ -192,19 +192,55 @@ export function ContactContentForm() {
               <p className="text-sm text-admin-muted">{t("contact.pageDesc")}</p>
             </div>
 
-            {/* Mobile Preview Button */}
-            <div className="lg:hidden">
-              <Button
-                type="button"
-                variant="outline"
-                size="sm"
-                onClick={() => setIsMobilePreviewOpen(true)}
-                icon={<Eye size={16} />}
-                className="w-full sm:w-auto text-admin-action border-admin-action hover:bg-admin-action-surface"
-              >
-                ดูพรีวิวแบบเรียลไทม์
-              </Button>
-            </div>
+            <MobilePreviewDrawer>
+              {activeTab === "details" && (
+                <ContactDetailsPreview
+                  title={watchedTitle}
+                  description={watchedDescription}
+                  address={watchedAddress}
+                  phone={watchedPhone}
+                  email={watchedEmail}
+                />
+              )}
+              {activeTab === "opening" && <OpeningHoursPreview openingHours={watchedOpeningHours} />}
+              {activeTab === "map" && (
+                <MapEmbedPreview
+                  embedUrl={watchedMap?.embed_url}
+                  directionsUrl={watchedMap?.directions_url}
+                  mapName={watchedMap?.name}
+                />
+              )}
+              {activeTab === "travel" && <TravelGuidePreview transport={watchedTransport} />}
+              {activeTab === "socials" && <SocialsPreview socials={watchedSocials} />}
+              {activeTab === "bank" && (
+                <BankCardPreview
+                  bankName={watchedBank?.bank_name}
+                  accountName={watchedBank?.account_name}
+                  accountNumber={watchedBank?.account_number}
+                  iban={watchedBank?.iban}
+                  bic={watchedBank?.bic}
+                  qrImageUrl={watchedBank?.qr_image_url}
+                />
+              )}
+              {activeTab === "form" && (
+                <ContactFormPreview
+                  enabled={watchedContactForm?.enabled}
+                  successMessage={watchedContactForm?.success_message}
+                  privacyPageLink={watchedContactForm?.privacy_page_link}
+                />
+              )}
+              {activeTab === "seo" && (
+                <GoogleSearchPreview
+                  seoTitle={watchedSeo?.title}
+                  pageTitle={watchedTitle}
+                  seoDescription={watchedSeo?.description}
+                  pageDescription={watchedDescription}
+                  canonicalUrl={watchedSeo?.canonical_url}
+                  noindex={watchedSeo?.noindex}
+                  ogImage={watchedSeo?.og_image}
+                />
+              )}
+            </MobilePreviewDrawer>
           </div>
 
           <FormTabs tabs={sectionTabs} activeTab={activeTab} setActiveTab={setActiveTab} />
@@ -855,77 +891,6 @@ export function ContactContentForm() {
           updatedAt={contactData?.updated_at}
           publicUrl="/contact"
         />
-
-        {/* Mobile Preview Drawer Modal */}
-        {isMobilePreviewOpen && (
-          <div className="fixed inset-0 z-50 flex flex-col bg-admin-surface p-4 lg:hidden overflow-y-auto space-y-4">
-            <div className="flex items-center justify-between border-b border-admin-border pb-3 sticky top-0 bg-admin-surface z-10 py-1">
-              <div className="flex items-center gap-2">
-                <Eye size={18} className="text-admin-action" />
-                <h3 className="text-base font-semibold text-admin-foreground">
-                  พรีวิวการแสดงผล (Mobile Preview)
-                </h3>
-              </div>
-              <button
-                type="button"
-                onClick={() => setIsMobilePreviewOpen(false)}
-                className="p-1.5 text-admin-muted hover:text-admin-foreground rounded-none border border-admin-border bg-admin-surface-muted transition-colors"
-              >
-                <X size={20} />
-              </button>
-            </div>
-
-            <div className="space-y-6 pt-2 pb-8">
-              {activeTab === "details" && (
-                <ContactDetailsPreview
-                  title={watchedTitle}
-                  description={watchedDescription}
-                  address={watchedAddress}
-                  phone={watchedPhone}
-                  email={watchedEmail}
-                />
-              )}
-              {activeTab === "opening" && <OpeningHoursPreview openingHours={watchedOpeningHours} />}
-              {activeTab === "map" && (
-                <MapEmbedPreview
-                  embedUrl={watchedMap?.embed_url}
-                  directionsUrl={watchedMap?.directions_url}
-                  mapName={watchedMap?.name}
-                />
-              )}
-              {activeTab === "travel" && <TravelGuidePreview transport={watchedTransport} />}
-              {activeTab === "socials" && <SocialsPreview socials={watchedSocials} />}
-              {activeTab === "bank" && (
-                <BankCardPreview
-                  bankName={watchedBank?.bank_name}
-                  accountName={watchedBank?.account_name}
-                  accountNumber={watchedBank?.account_number}
-                  iban={watchedBank?.iban}
-                  bic={watchedBank?.bic}
-                  qrImageUrl={watchedBank?.qr_image_url}
-                />
-              )}
-              {activeTab === "form" && (
-                <ContactFormPreview
-                  enabled={watchedContactForm?.enabled}
-                  successMessage={watchedContactForm?.success_message}
-                  privacyPageLink={watchedContactForm?.privacy_page_link}
-                />
-              )}
-              {activeTab === "seo" && (
-                <GoogleSearchPreview
-                  seoTitle={watchedSeo?.title}
-                  pageTitle={watchedTitle}
-                  seoDescription={watchedSeo?.description}
-                  pageDescription={watchedDescription}
-                  canonicalUrl={watchedSeo?.canonical_url}
-                  noindex={watchedSeo?.noindex}
-                  ogImage={watchedSeo?.og_image}
-                />
-              )}
-            </div>
-          </div>
-        )}
       </form>
     </FormProvider>
   );

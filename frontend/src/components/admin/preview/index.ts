@@ -10,4 +10,5 @@ export * from "./TravelGuidePreview";
 export * from "./ContactFormPreview";
 export * from "./EventCardPreview";
 export * from "./MonkCardPreview";
+export * from "./MobilePreviewDrawer";
 export * from "../ImageInputPreview";
