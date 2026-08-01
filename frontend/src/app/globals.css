@@ -221,28 +221,28 @@
 }
 
 .admin-theme {
-    --admin-canvas: var(--color-gray-50);
-    --admin-surface: var(--color-white);
-    --admin-surface-muted: var(--color-gray-100);
-    --admin-foreground: var(--color-gray-900);
-    --admin-body: var(--color-gray-700);
-    --admin-muted: var(--color-gray-500);
-    --admin-border: var(--color-gray-200);
-    --admin-control-border: var(--color-gray-300);
-    --admin-action: var(--color-amber-600);
-    --admin-action-hover: var(--color-amber-700);
-    --admin-on-action: var(--color-white);
-    --admin-selected: var(--color-amber-50);
-    --admin-selected-foreground: var(--color-amber-700);
-    --admin-focus: var(--color-amber-500);
-    --admin-success: var(--color-green-700);
-    --admin-success-surface: var(--color-green-100);
-    --admin-warning: var(--color-amber-700);
-    --admin-warning-surface: var(--color-amber-100);
-    --admin-danger: var(--color-red-700);
-    --admin-danger-surface: var(--color-red-100);
-    --admin-info: var(--color-blue-700);
-    --admin-info-surface: var(--color-blue-100);
+    --admin-canvas: #fffef2;
+    --admin-surface: #ffffff;
+    --admin-surface-muted: #f7ecdd;
+    --admin-foreground: #333333;
+    --admin-body: #505050;
+    --admin-muted: #666666;
+    --admin-border: #e2d8c9;
+    --admin-control-border: #333333;
+    --admin-action: #333333;
+    --admin-action-hover: #242424;
+    --admin-on-action: #fffef2;
+    --admin-selected: #f7ecdd;
+    --admin-selected-foreground: #945c26;
+    --admin-focus: #945c26;
+    --admin-success: #2c5e3b;
+    --admin-success-surface: #eaf3ed;
+    --admin-warning: #945c26;
+    --admin-warning-surface: #f7ecdd;
+    --admin-danger: #a83232;
+    --admin-danger-surface: #fbf0f0;
+    --admin-info: #2b547e;
+    --admin-info-surface: #edf3f8;
 
     background: var(--admin-canvas);
     color: var(--admin-foreground);
