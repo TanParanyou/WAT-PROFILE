@@ -2,10 +2,7 @@ import { readFile, readdir } from "node:fs/promises";
 import { extname, join } from "node:path";
 
 const roots = ["src/app/[locale]/admin", "src/components/admin", "src/components/ui"];
-const deferred = new Set([
-  "src/app/[locale]/admin/website",
-  "src/components/admin/website",
-]);
+const deferred = new Set([]);
 const forbiddenPalette = /(?:bg|text|border|divide|outline|ring)-(?:white(?:\/[0-9]{1,3})?|black(?![\/])|(?:gray|zinc|slate|amber)-(?:[0-9]{2,3})(?:\/[0-9]{1,3})?)|#[0-9a-fA-F]{3,8}/g;
 const forbiddenPublicTheme = /(?:bg|text|border|divide|outline|ring)-site-[a-z-]+(?:\/[0-9]{1,3})?/g;
 const publicPreviewOwners = new Set([
