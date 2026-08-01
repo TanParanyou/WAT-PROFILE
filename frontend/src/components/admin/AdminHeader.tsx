@@ -23,11 +23,11 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
   };
 
   return (
-    <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-4 sm:px-6 sticky top-0 z-20">
+    <header className="h-16 bg-admin-surface border-b border-admin-border flex items-center justify-between px-4 sm:px-6 sticky top-0 z-20">
       {/* Mobile menu button */}
       <button
         onClick={onMenuClick}
-        className="lg:hidden p-2 rounded-lg hover:bg-gray-100 text-gray-500"
+        className="lg:hidden p-2 rounded-lg hover:bg-admin-surface-muted text-admin-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus min-h-11 min-w-11 flex items-center justify-center"
       >
         <Menu size={20} />
       </button>
@@ -37,16 +37,16 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
 
       <div className="flex items-center gap-4">
         {/* Language Switcher */}
-        <div className="flex items-center gap-2 border-r pr-4 mr-1">
-          <span className="text-sm font-medium text-gray-500 hidden sm:block">
+        <div className="flex items-center gap-2 border-r border-admin-border pr-4 mr-1">
+          <span className="text-sm font-medium text-admin-muted hidden sm:block">
             {t("language")}:
           </span>
-          <div className="flex bg-gray-100 rounded-lg p-1">
+          <div className="flex bg-admin-surface-muted border border-admin-border rounded-lg p-1">
             {["th", "en", "de"].map((l) => (
               <button
                 key={l}
                 onClick={() => changeLocale(l)}
-                className={`px-2 py-1 text-xs rounded-md transition-colors ${locale === l ? "bg-white shadow text-gray-900 font-medium" : "text-gray-500 hover:text-gray-700"}`}
+                className={`px-2 py-1 text-xs rounded-md transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus ${locale === l ? "bg-admin-selected text-admin-selected-foreground font-medium" : "text-admin-muted hover:text-admin-foreground"}`}
               >
                 {l.toUpperCase()}
               </button>
@@ -56,19 +56,19 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
 
         {/* User info */}
         <div className="flex items-center gap-2 text-sm">
-          <div className="h-8 w-8 rounded-full bg-amber-100 flex items-center justify-center">
-            <User size={16} className="text-amber-700" />
+          <div className="h-8 w-8 rounded-full bg-admin-surface-muted border border-admin-border flex items-center justify-center text-admin-body">
+            <User size={16} />
           </div>
           <div className="hidden sm:block">
-            <p className="font-medium text-gray-700">{user?.name}</p>
-            <p className="text-xs text-gray-400">{user?.role?.name}</p>
+            <p className="font-medium text-admin-foreground">{user?.name}</p>
+            <p className="text-xs text-admin-muted">{user?.role?.name}</p>
           </div>
         </div>
 
         {/* Logout */}
         <button
           onClick={handleLogout}
-          className="p-2 rounded-lg hover:bg-gray-100 text-gray-500 hover:text-red-600 transition-colors"
+          className="p-2 rounded-lg hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus min-h-11 min-w-11 flex items-center justify-center"
           title={t("logout")}
         >
           <LogOut size={18} />

@@ -4,6 +4,8 @@ import React from 'react';
 import { Link } from "@/navigation";
 import { ChevronRight } from 'lucide-react';
 
+import { useTranslations } from 'next-intl';
+
 interface Breadcrumb {
     label: string;
     href?: string;
@@ -16,23 +18,31 @@ interface AdminPageHeaderProps {
 }
 
 export function AdminPageHeader({ title, breadcrumbs, actions }: AdminPageHeaderProps) {
+    const t = useTranslations('Admin.sidebar');
+
     return (
         <div className="mb-6">
             {/* Breadcrumbs */}
             {breadcrumbs && breadcrumbs.length > 0 && (
-                <nav className="flex items-center gap-1 text-sm text-gray-500 mb-2">
-                    <Link href="/admin" className="hover:text-gray-700">
-                        Dashboard
+                <nav className="flex items-center gap-1 text-sm text-admin-muted mb-2">
+                    <Link
+                        href="/admin"
+                        className="hover:text-admin-foreground text-admin-muted transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus rounded"
+                    >
+                        {t('dashboard')}
                     </Link>
                     {breadcrumbs.map((crumb, idx) => (
                         <React.Fragment key={idx}>
-                            <ChevronRight size={14} />
+                            <ChevronRight size={14} className="text-admin-muted" />
                             {crumb.href ? (
-                                <Link href={crumb.href} className="hover:text-gray-700">
+                                <Link
+                                    href={crumb.href}
+                                    className="hover:text-admin-foreground text-admin-muted transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus rounded"
+                                >
                                     {crumb.label}
                                 </Link>
                             ) : (
-                                <span className="text-gray-700">{crumb.label}</span>
+                                <span className="text-admin-body font-medium">{crumb.label}</span>
                             )}
                         </React.Fragment>
                     ))}
@@ -41,7 +51,7 @@ export function AdminPageHeader({ title, breadcrumbs, actions }: AdminPageHeader
 
             {/* Title + Actions */}
             <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-gray-900">{title}</h1>
+                <h1 className="text-2xl font-bold text-admin-foreground">{title}</h1>
                 {actions && <div className="flex items-center gap-2">{actions}</div>}
             </div>
         </div>

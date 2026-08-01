@@ -51,18 +51,18 @@ export default function AdminLoginPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 flex items-center justify-center px-4">
+    <div className="min-h-screen bg-admin-canvas flex items-center justify-center px-4">
       <div className="w-full max-w-sm">
         {/* Header */}
         <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900">
+          <h1 className="text-2xl font-bold text-admin-foreground">
             {t("login.title")}
           </h1>
-          <p className="text-sm text-gray-500 mt-1">{t("login.subtitle")}</p>
+          <p className="text-sm text-admin-muted mt-1">{t("login.subtitle")}</p>
         </div>
 
         {/* Login Form */}
-        <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+        <div className="bg-admin-surface rounded-xl border border-admin-border p-6">
           <form onSubmit={handleSubmit} className="space-y-4">
             <Input
               id="email"
@@ -86,7 +86,7 @@ export default function AdminLoginPage() {
             />
 
             {error && (
-              <div className="bg-red-50 border border-red-200 text-red-700 text-sm rounded-lg px-4 py-3">
+              <div className="bg-admin-danger-surface border border-admin-danger/20 text-admin-danger text-sm rounded-lg px-4 py-3">
                 {error}
               </div>
             )}

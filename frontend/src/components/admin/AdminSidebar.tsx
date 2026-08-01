@@ -113,7 +113,7 @@ export function AdminSidebar({
   return (
     <aside
       className={cn(
-        "fixed top-0 h-full bg-white border-r border-gray-200 shadow-sm z-50 transition-all duration-300",
+        "fixed top-0 h-full bg-admin-surface border-r border-admin-border z-50 transition-all duration-300",
         // Desktop: ซ่อน/ขยาย
         "hidden lg:block",
         collapsed ? "lg:w-16" : "lg:w-64",
@@ -122,16 +122,16 @@ export function AdminSidebar({
       )}
     >
       {/* Logo */}
-      <div className="h-16 flex items-center justify-between px-4 border-b border-gray-200">
+      <div className="h-16 flex items-center justify-between px-4 border-b border-admin-border">
         {(!collapsed || mobileOpen) && (
-          <span className="text-lg font-semibold text-gray-800 truncate">
+          <span className="text-lg font-semibold text-admin-foreground truncate">
             WAT Admin
           </span>
         )}
         {/* Desktop toggle */}
         <button
           onClick={onToggle}
-          className="hidden lg:block p-1.5 rounded-lg hover:bg-gray-100 text-gray-500"
+          className="hidden lg:block p-1.5 rounded-lg hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus min-h-11 min-w-11 flex items-center justify-center"
         >
           {collapsed ? <ChevronRight size={18} /> : <ChevronLeft size={18} />}
         </button>
@@ -139,7 +139,7 @@ export function AdminSidebar({
         {mobileOpen && (
           <button
             onClick={onMobileClose}
-            className="lg:hidden p-1.5 rounded-lg hover:bg-gray-100 text-gray-500"
+            className="lg:hidden p-1.5 rounded-lg hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus min-h-11 min-w-11 flex items-center justify-center"
           >
             <X size={18} />
           </button>
@@ -153,14 +153,14 @@ export function AdminSidebar({
           href="/admin"
           onClick={onMobileClose}
           className={cn(
-            "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors",
+            "flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus min-h-11",
             isActive("/admin")
-              ? "bg-amber-50 text-amber-700 font-medium"
-              : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+              ? "bg-admin-selected text-admin-selected-foreground font-medium"
+              : "text-admin-body hover:bg-admin-surface-muted hover:text-admin-foreground",
           )}
           title={collapsed && !mobileOpen ? t("dashboard") : undefined}
         >
-          <LayoutDashboard size={20} className={cn(isActive("/admin") && "text-amber-600")} />
+          <LayoutDashboard size={20} />
           {(!collapsed || mobileOpen) && <span>{t("dashboard")}</span>}
         </Link>
 
@@ -179,11 +179,11 @@ export function AdminSidebar({
           return (
             <div key={group.titleKey} className="mt-4 mb-2">
               {!collapsed || mobileOpen ? (
-                <div className="px-3 py-1.5 text-xs font-semibold text-gray-400 uppercase tracking-wider">
+                <div className="px-3 py-1.5 text-xs font-semibold text-admin-muted uppercase tracking-wider">
                   {t(group.titleKey)}
                 </div>
               ) : (
-                <div className="h-px bg-gray-200 my-2" />
+                <div className="h-px bg-admin-border my-2" />
               )}
               <div className="space-y-1">
                 {visibleItems.map((item) => {
@@ -196,14 +196,14 @@ export function AdminSidebar({
                       href={item.href}
                       onClick={onMobileClose}
                       className={cn(
-                        "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors",
+                        "flex items-center gap-3 px-3 py-2 rounded-lg text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus min-h-11",
                         active
-                          ? "bg-amber-50 text-amber-700 font-medium"
-                          : "text-gray-600 hover:bg-gray-50 hover:text-gray-900",
+                          ? "bg-admin-selected text-admin-selected-foreground font-medium"
+                          : "text-admin-body hover:bg-admin-surface-muted hover:text-admin-foreground",
                       )}
                       title={!showLabel ? t(item.labelKey) : undefined}
                     >
-                      <Icon size={18} className={cn(active && "text-amber-600")} />
+                      <Icon size={18} />
                       {showLabel && <span>{t(item.labelKey)}</span>}
                     </Link>
                   );
