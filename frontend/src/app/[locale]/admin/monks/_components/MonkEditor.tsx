@@ -24,6 +24,7 @@ import { Save, ArrowLeft } from "lucide-react";
 import { useAppOptions } from "@/hooks/useAppOptions";
 import { hasLegacyLocalizedRichText, normalizeLocalizedRichText } from "@/lib/rich-text/document";
 import { richTextMigrationService } from "@/services/richTextMigrationService";
+import { MonkCardPreview, GoogleSearchPreview } from "@/components/admin/preview";
 
 const emptyLang: MultiLangText = { th: "", en: "", de: "" };
 const richTextLocales = ["th", "en", "de"] as const;
@@ -81,6 +82,7 @@ export function MonkEditor({ id }: MonkEditorProps) {
     handleSubmit,
     reset,
     setError,
+    watch,
     formState: { errors, isDirty },
   } = methods;
 
@@ -183,132 +185,159 @@ export function MonkEditor({ id }: MonkEditorProps) {
                   className="hover:text-admin-foreground flex items-center gap-1 focus-visible:outline-2 focus-visible:outline-admin-focus rounded"
                 >
                   <ArrowLeft size={14} />
-                  ย้อนกลับ
+                  {t("monks.backToList")}
                 </button>
               </div>
               <h1 className="text-xl font-semibold text-admin-foreground">
                 {isEditMode ? t("monks.edit") : t("monks.create")}
               </h1>
+              <p className="text-sm text-admin-muted">
+                {isEditMode ? t("monks.editDesc") : t("monks.createDesc")}
+              </p>
             </div>
           </div>
 
           {/* Form Content */}
-          <div className="bg-admin-surface rounded-none border border-admin-border p-6 space-y-4">
-            <Controller
-              control={control}
-              name="name"
-              render={({ field }) => (
-                <MultiLangInput
-                  label="ชื่อ *"
-                  value={field.value as MultiLangText}
-                  onChange={field.onChange}
-                  error={getFieldError(errors.name)}
-                />
-              )}
-            />
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Input
-                id="slug"
-                label="Slug *"
-                placeholder="monk-slug-name"
-                {...register("slug")}
-                error={errors.slug?.message}
-              />
+          <div className="space-y-6">
+            <div className="bg-admin-surface rounded-none border border-admin-border p-6 space-y-4">
               <Controller
                 control={control}
-                name="position"
-                render={({ field }) => (
-                  <Select
-                    id="position"
-                    label="ตำแหน่ง"
-                    options={positionOptions}
-                    value={field.value}
-                    onChange={(e) => field.onChange(e.target.value)}
-                    error={errors.position?.message}
-                  />
-                )}
-              />
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <Controller
-                control={control}
-                name="ordination_date"
-                render={({ field }) => (
-                  <DatePicker
-                    id="ordination_date"
-                    label="วันที่อุปสมบท"
-                    value={field.value}
-                    onChange={field.onChange}
-                    error={errors.ordination_date?.message}
-                  />
-                )}
-              />
-              <Controller
-                control={control}
-                name="title"
+                name="name"
                 render={({ field }) => (
                   <MultiLangInput
-                    label="ตำแหน่ง/ยศ"
-                    value={(field.value || { ...emptyLang }) as MultiLangText}
+                    label={t("monks.form.name")}
+                    value={field.value as MultiLangText}
                     onChange={field.onChange}
-                    error={getFieldError(errors.title)}
+                    error={getFieldError(errors.name)}
+                    required
+                  />
+                )}
+              />
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Input
+                  id="slug"
+                  label={t("monks.form.slug")}
+                  placeholder="monk-slug-name"
+                  {...register("slug")}
+                  error={errors.slug?.message}
+                  required
+                />
+                <Controller
+                  control={control}
+                  name="position"
+                  render={({ field }) => (
+                    <Select
+                      id="position"
+                      label={t("monks.form.position")}
+                      options={positionOptions}
+                      value={field.value}
+                      onChange={(e) => field.onChange(e.target.value)}
+                      error={errors.position?.message}
+                      required
+                    />
+                  )}
+                />
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <Controller
+                  control={control}
+                  name="ordination_date"
+                  render={({ field }) => (
+                    <DatePicker
+                      id="ordination_date"
+                      label={t("monks.form.ordinationDate")}
+                      value={field.value}
+                      onChange={field.onChange}
+                      error={errors.ordination_date?.message}
+                    />
+                  )}
+                />
+                <Controller
+                  control={control}
+                  name="title"
+                  render={({ field }) => (
+                    <MultiLangInput
+                      label={t("monks.form.titleRank")}
+                      value={(field.value || { ...emptyLang }) as MultiLangText}
+                      onChange={field.onChange}
+                      error={getFieldError(errors.title)}
+                    />
+                  )}
+                />
+              </div>
+
+              <Controller
+                control={control}
+                name="bio"
+                render={({ field }) => (
+                  <MultiLangRichText
+                    label={t("monks.form.bio")}
+                    locales={[
+                      { code: "th", label: "TH" },
+                      { code: "en", label: "EN" },
+                      { code: "de", label: "DE" }
+                    ]}
+                    defaultLocale="th"
+                    value={normalizeLocalizedRichText(field.value, [...richTextLocales], "th")}
+                    onChange={field.onChange}
+                    error={getFieldError(errors.bio)}
+                  />
+                )}
+              />
+
+              <Controller
+                control={control}
+                name="image_url"
+                render={({ field }) => (
+                  <div className="space-y-1">
+                    <ImageUpload
+                      label={t("monks.form.image")}
+                      value={field.value || ""}
+                      onChange={field.onChange}
+                    />
+                    {getFieldError(errors.image_url) && (
+                      <p className="text-sm text-admin-danger">
+                        {getFieldError(errors.image_url)}
+                      </p>
+                    )}
+                  </div>
+                )}
+              />
+
+              <Controller
+                control={control}
+                name="is_active"
+                render={({ field }) => (
+                  <Switch
+                    id="is_active"
+                    label={t("monks.form.active")}
+                    checked={field.value}
+                    onChange={(e) => field.onChange(e.target.checked)}
                   />
                 )}
               />
             </div>
 
-            <Controller
-              control={control}
-              name="bio"
-              render={({ field }) => (
-                <MultiLangRichText
-                  label="ประวัติ"
-                  locales={[
-                    { code: "th", label: "TH" },
-                    { code: "en", label: "EN" },
-                    { code: "de", label: "DE" }
-                  ]}
-                  defaultLocale="th"
-                  value={normalizeLocalizedRichText(field.value, [...richTextLocales], "th")}
-                  onChange={field.onChange}
-                  error={getFieldError(errors.bio)}
-                />
-              )}
-            />
+            {/* Live Previews Section */}
+            <div className="space-y-6 pt-4 border-t border-admin-border">
+              <MonkCardPreview
+                name={watch("name")}
+                title={watch("title")}
+                position={watch("position")}
+                ordinationDate={watch("ordination_date")}
+                imageUrl={watch("image_url")}
+                isActive={watch("is_active")}
+              />
 
-            <Controller
-              control={control}
-              name="image_url"
-              render={({ field }) => (
-                <div className="space-y-1">
-                  <ImageUpload
-                    label="รูปภาพประจำตัว"
-                    value={field.value || ""}
-                    onChange={field.onChange}
-                  />
-                  {getFieldError(errors.image_url) && (
-                    <p className="text-sm text-admin-danger">
-                      {getFieldError(errors.image_url)}
-                    </p>
-                  )}
-                </div>
-              )}
-            />
-
-            <Controller
-              control={control}
-              name="is_active"
-              render={({ field }) => (
-                <Switch
-                  id="is_active"
-                  label="เปิดใช้งานแสดงบนเว็บไซต์"
-                  checked={field.value}
-                  onChange={(e) => field.onChange(e.target.checked)}
-                />
-              )}
-            />
+              <GoogleSearchPreview
+                seoTitle={watch("name")}
+                pageTitle={watch("name")}
+                canonicalUrl={`/monks/${watch("slug") || "monk-name"}`}
+                ogImage={typeof watch("image_url") === "string" ? watch("image_url") : ""}
+              />
+            </div>
           </div>
         </div>
 
@@ -321,7 +350,7 @@ export function MonkEditor({ id }: MonkEditorProps) {
                   <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-admin-warning/75 opacity-75"></span>
                   <span className="relative inline-flex h-2 w-2 rounded-full bg-admin-warning"></span>
                 </span>
-                มีข้อมูลที่ยังไม่ได้เซฟ
+                {t("website.unsavedEdits")}
               </span>
             )}
           </div>

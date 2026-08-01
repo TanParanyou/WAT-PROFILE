@@ -161,9 +161,22 @@
       "title": "Mönche",
       "create": "Mönch hinzufügen",
       "edit": "Mönch bearbeiten",
+      "backToList": "Zurück zur Liste",
+      "createDesc": "Biografie und Details eines Mönchs oder Tempelleiters hinzufügen",
+      "editDesc": "Biografie und Details eines Mönchs oder Tempelleiters bearbeiten",
+      "form": {
+        "name": "Vollständiger Name / Titel",
+        "slug": "Slug (URL)",
+        "position": "Position",
+        "ordinationDate": "Ordinationsdatum",
+        "titleRank": "Titel / Rang",
+        "bio": "Biografie",
+        "image": "Profilbild",
+        "active": "Auf der Website anzeigen"
+      },
       "positions": {
         "abbot": "Abt",
-        "vice_abbot": "Vizeabt",
+        "vice_abbot": "Stellvertretender Abt",
         "monk": "Mönch"
       }
     },
@@ -638,7 +651,19 @@
       "namePlaceholder": "Ihr Vor- und Nachname",
       "emailPlaceholder": "Ihre E-Mail-Adresse",
       "subjectPlaceholder": "Betreff der Nachricht",
-      "messagePlaceholder": "Details Ihrer Nachricht..."
+      "messagePlaceholder": "Details Ihrer Nachricht...",
+      "eventTitle": "Veranstaltungsvorschau auf der Website",
+      "eventDefaultTitle": "Titel der Veranstaltung",
+      "eventDefaultDesc": "Beschreibung der Veranstaltung wird hier angezeigt...",
+      "eventDefaultLocation": "Veranstaltungsort nicht angegeben",
+      "eventRegOpen": "Online-Anmeldung geöffnet",
+      "eventRegClosed": "Keine Online-Anmeldung",
+      "eventScheduleCount": "Programm Ablauf ({count} Einträge)",
+      "monkTitle": "Mönchsprofil-Vorschau auf der Website",
+      "monkDefaultName": "Vollständiger Name des Mönchs",
+      "monkDefaultTitle": "Rang / Titel",
+      "monkOrdinationLabel": "Ordinationsdatum: {date}",
+      "monkBioHeading": "Zusammenfassung der Biografie"
     }
   },
   "admin": {

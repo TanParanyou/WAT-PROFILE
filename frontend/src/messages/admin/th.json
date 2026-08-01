@@ -159,8 +159,21 @@
     },
     "monks": {
       "title": "พระสงฆ์",
-      "create": "เพิ่มพระสงฆ์",
+      "create": "เพิ่มข้อมูลพระสงฆ์",
       "edit": "แก้ไขข้อมูลพระสงฆ์",
+      "backToList": "ย้อนกลับ",
+      "createDesc": "เพิ่มข้อมูลประวัติ พระภิกษุ หรือผู้บริหารของวัด",
+      "editDesc": "แก้ไขข้อมูลประวัติ พระภิกษุ หรือผู้บริหารของวัด",
+      "form": {
+        "name": "ชื่อ-ฉายา",
+        "slug": "Slug (สำหรับ URL)",
+        "position": "ตำแหน่ง",
+        "ordinationDate": "วันที่อุปสมบท",
+        "titleRank": "ตำแหน่ง/สมณศักดิ์",
+        "bio": "ประวัติ",
+        "image": "รูปภาพประจำตัว",
+        "active": "เปิดใช้งานแสดงบนเว็บไซต์"
+      },
       "positions": {
         "abbot": "เจ้าอาวาส",
         "vice_abbot": "รองเจ้าอาวาส",
@@ -638,7 +651,19 @@
       "namePlaceholder": "ชื่อ-นามสกุลของคุณ",
       "emailPlaceholder": "อีเมลสำหรับติดต่อกลับ",
       "subjectPlaceholder": "หัวข้อข้อความ",
-      "messagePlaceholder": "รายละเอียดข้อความที่คุณต้องการติดต่อ..."
+      "messagePlaceholder": "รายละเอียดข้อความที่คุณต้องการติดต่อ...",
+      "eventTitle": "พรีวิวการแสดงผลกิจกรรมบนหน้าเว็บ",
+      "eventDefaultTitle": "ชื่อกิจกรรม",
+      "eventDefaultDesc": "รายละเอียดกิจกรรมจะแสดงที่นี่...",
+      "eventDefaultLocation": "สถานที่จัดงานยังไม่ได้ระบุ",
+      "eventRegOpen": "เปิดรับสมัครออนไลน์",
+      "eventRegClosed": "ไม่มีการเปิดรับสมัครออนไลน์",
+      "eventScheduleCount": "กำหนดการจัดงาน ({count} รายการ)",
+      "monkTitle": "พรีวิวโปรไฟล์พระสงฆ์บนหน้าเว็บ",
+      "monkDefaultName": "ชื่อ-ฉายาพระสงฆ์",
+      "monkDefaultTitle": "สมณศักดิ์/ตำแหน่ง",
+      "monkOrdinationLabel": "วันที่อุปสมบท: {date}",
+      "monkBioHeading": "ประวัติโดยย่อ"
     }
   },
   "admin": {

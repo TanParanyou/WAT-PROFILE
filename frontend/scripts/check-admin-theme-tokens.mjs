@@ -19,6 +19,8 @@ const publicPreviewOwners = new Set([
   "src/components/admin/preview/OpeningHoursPreview.tsx",
   "src/components/admin/preview/TravelGuidePreview.tsx",
   "src/components/admin/preview/ContactFormPreview.tsx",
+  "src/components/admin/preview/EventCardPreview.tsx",
+  "src/components/admin/preview/MonkCardPreview.tsx",
 ]);
 const findings = [];
 

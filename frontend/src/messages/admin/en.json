@@ -161,6 +161,19 @@
       "title": "Monks",
       "create": "Add Monk",
       "edit": "Edit Monk",
+      "backToList": "Back to Monks",
+      "createDesc": "Add biography and details for a monk or temple leader",
+      "editDesc": "Edit biography and details for a monk or temple leader",
+      "form": {
+        "name": "Full Name / Title",
+        "slug": "Slug (URL)",
+        "position": "Position",
+        "ordinationDate": "Ordination Date",
+        "titleRank": "Rank / Title",
+        "bio": "Biography",
+        "image": "Profile Image",
+        "active": "Show on Public Site"
+      },
       "positions": {
         "abbot": "Abbot",
         "vice_abbot": "Vice Abbot",
@@ -638,7 +651,19 @@
       "namePlaceholder": "Your Name & Surname",
       "emailPlaceholder": "Your Email Address",
       "subjectPlaceholder": "Message Subject",
-      "messagePlaceholder": "Details of your message..."
+      "messagePlaceholder": "Details of your message...",
+      "eventTitle": "Event Website Display Preview",
+      "eventDefaultTitle": "Event Title",
+      "eventDefaultDesc": "Event description will be displayed here...",
+      "eventDefaultLocation": "Event location not specified",
+      "eventRegOpen": "Online Registration Open",
+      "eventRegClosed": "No Online Registration",
+      "eventScheduleCount": "Event Schedule ({count} items)",
+      "monkTitle": "Monk Profile Display Preview",
+      "monkDefaultName": "Monk Full Name",
+      "monkDefaultTitle": "Rank / Title",
+      "monkOrdinationLabel": "Ordination Date: {date}",
+      "monkBioHeading": "Biography Summary"
     }
   },
   "admin": {

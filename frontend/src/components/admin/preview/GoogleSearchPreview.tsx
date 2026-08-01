@@ -3,10 +3,12 @@
 import React, { useState } from "react";
 import { Search, AlertCircle, Image as ImageIcon } from "lucide-react";
 import { useTranslations } from "next-intl";
-import type { MultiLangText } from "@/types/api";
 
-function getLangText(text?: MultiLangText | null, lang: "th" | "en" | "de" = "th", fallback: string = ""): string {
+type PartialMultiLangText = { th?: string; en?: string; de?: string } | null;
+
+function getLangText(text?: PartialMultiLangText, lang: "th" | "en" | "de" = "th", fallback: string = ""): string {
   if (!text) return fallback;
+  if (typeof text === "string") return text;
   return text[lang] || text.th || text.en || text.de || fallback;
 }
 
@@ -19,13 +21,13 @@ export function GoogleSearchPreview({
   noindex,
   ogImage,
 }: {
-  seoTitle?: MultiLangText;
-  pageTitle?: MultiLangText;
-  seoDescription?: MultiLangText;
-  pageDescription?: MultiLangText;
+  seoTitle?: PartialMultiLangText;
+  pageTitle?: PartialMultiLangText;
+  seoDescription?: PartialMultiLangText;
+  pageDescription?: PartialMultiLangText;
   canonicalUrl?: string;
   noindex?: boolean;
-  ogImage?: string;
+  ogImage?: string | File | null;
 }) {
   const t = useTranslations("Admin.previews");
   const [lang, setLang] = useState<"th" | "en" | "de">("th");
@@ -33,6 +35,7 @@ export function GoogleSearchPreview({
   const displayTitle = getLangText(seoTitle, lang) || getLangText(pageTitle, lang) || t("defaultTitle");
   const displayDesc = getLangText(seoDescription, lang) || getLangText(pageDescription, lang) || t("defaultDesc");
   const displayUrl = `https://watloungporsai.de${canonicalUrl || "/contact"}`;
+  const ogImgSrc = typeof ogImage === "string" ? ogImage : "";
 
   return (
     <div className="space-y-4 border border-admin-border p-5 bg-admin-surface rounded-none">
@@ -96,9 +99,9 @@ export function GoogleSearchPreview({
         </span>
 
         <div className="max-w-md border border-admin-border bg-admin-surface rounded-none overflow-hidden">
-          {ogImage && ogImage.trim() ? (
+          {ogImgSrc && ogImgSrc.trim() ? (
             <img
-              src={ogImage.trim()}
+              src={ogImgSrc.trim()}
               alt="OG Share Preview"
               className="w-full h-44 object-cover border-b border-admin-border bg-admin-surface-muted"
               onError={(e) => {

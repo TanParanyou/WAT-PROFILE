@@ -28,6 +28,11 @@ import { format, parse } from "date-fns";
 import { DateRangePicker } from "@/components/ui/DateRangePicker";
 import { hasLegacyLocalizedRichText, normalizeLocalizedRichText } from "@/lib/rich-text/document";
 import { richTextMigrationService } from "@/services/richTextMigrationService";
+import {
+  EventCardPreview,
+  GoogleSearchPreview,
+  MapEmbedPreview,
+} from "@/components/admin/preview";
 
 const emptyLang: MultiLangText = { th: "", en: "", de: "" };
 const richTextLocales = ["th", "en", "de"] as const;
@@ -95,6 +100,7 @@ export function EventEditor({ id }: EventEditorProps) {
     setError,
     setValue,
     getValues,
+    watch,
     formState: { errors, isDirty },
   } = methods;
 
@@ -519,6 +525,12 @@ export function EventEditor({ id }: EventEditorProps) {
                   {...register("map_url")}
                   error={errors.map_url?.message}
                 />
+                
+                {/* Map Embed Live Preview */}
+                {watch("map_url") && (
+                  <MapEmbedPreview embedUrl={watch("map_url")} />
+                )}
+
                 <div className="flex gap-6 pt-4">
                   <Controller
                     control={control}
@@ -551,6 +563,29 @@ export function EventEditor({ id }: EventEditorProps) {
             {/* Section 3: Schedule */}
             <div className="bg-admin-surface rounded-none border border-admin-border p-6 space-y-4">
               <EventScheduleEditor />
+            </div>
+
+            {/* Section 4: Live Previews */}
+            <div className="space-y-6 pt-4 border-t border-admin-border">
+              <EventCardPreview
+                title={watch("title")}
+                location={watch("location")}
+                startDate={watch("start_date")}
+                endDate={watch("end_date")}
+                startTime={watch("start_time")}
+                endTime={watch("end_time")}
+                eventType={watch("event_type")}
+                imageUrl={watch("image_url")}
+                registrationEnabled={watch("registration_enabled")}
+                schedule={watch("schedule")}
+              />
+
+              <GoogleSearchPreview
+                seoTitle={watch("title")}
+                pageTitle={watch("title")}
+                canonicalUrl={`/events/${watch("slug") || "event-name"}`}
+                ogImage={typeof watch("image_url") === "string" ? watch("image_url") : ""}
+              />
             </div>
           </div>
         </div>
