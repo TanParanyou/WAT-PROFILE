@@ -88,8 +88,8 @@ export function WebsiteContentTab({
     <div className="space-y-4">
       <WebsiteLocaleTabs activeLocale={activeLocale} onChange={onActiveLocaleChange} />
       {templates.length ? (
-        <div className="border border-zinc-200 bg-zinc-50 p-3">
-          <div className="mb-3 font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">{t("addSection")}</div>
+        <div className="border border-admin-border bg-admin-surface-muted p-3 rounded-lg">
+          <div className="mb-3 font-mono text-[11px] uppercase tracking-[0.18em] text-admin-muted">{t("addSection")}</div>
           <div className="flex flex-wrap gap-2">
             {templates.map((template) => (
               <Button
@@ -180,15 +180,15 @@ export function WebsiteContentTab({
               />
             </div>
           ) : (
-            <div className="border border-dashed border-zinc-300 bg-zinc-50 p-6 text-sm text-zinc-600">
+            <div className="border border-dashed border-admin-border bg-admin-surface-muted p-6 text-sm text-admin-muted rounded-xl">
               Select a section to start editing this page.
             </div>
           )}
         </>
       ) : (
-        <div className="border border-dashed border-zinc-300 bg-zinc-50 p-6">
-          <p className="font-medium text-zinc-950">This page does not have any sections yet.</p>
-          <p className="mt-2 text-sm text-zinc-600">
+        <div className="border border-dashed border-admin-border bg-admin-surface-muted p-6 rounded-xl">
+          <p className="font-medium text-admin-foreground">This page does not have any sections yet.</p>
+          <p className="mt-2 text-sm text-admin-muted">
             The preview can still render page-level metadata, but content editing will stay empty until sections are added.
           </p>
         </div>

@@ -70,11 +70,11 @@ export function WebsitePageMetadataEditor({
   }, [form, onPreviewDraftChange]);
 
   return (
-    <form className="space-y-4 border border-zinc-200 bg-white p-4" onSubmit={form.handleSubmit(onSubmit)}>
+    <form className="space-y-4 border border-admin-border bg-admin-surface p-4 rounded-xl" onSubmit={form.handleSubmit(onSubmit)}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-sm font-semibold text-zinc-950">{heading}</h2>
-          <p className="text-xs text-zinc-500">{summary}</p>
+          <h2 className="text-sm font-semibold text-admin-foreground">{heading}</h2>
+          <p className="text-xs text-admin-muted">{summary}</p>
         </div>
         <Button type="submit" size="sm" isLoading={isSaving} icon={<Save size={14} />}>
           {saveLabel || t("savePage")}
@@ -128,7 +128,7 @@ export function WebsitePageMetadataEditor({
         <JsonTextareaField label="Page settings JSON" name="settings" control={form.control} disabled={isSaving} rows={4} />
       ) : null}
 
-      {error ? <p className="text-sm text-red-600">{error.message}</p> : null}
+      {error ? <p className="text-sm text-admin-danger">{error.message}</p> : null}
     </form>
   );
 }

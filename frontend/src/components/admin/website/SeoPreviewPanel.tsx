@@ -9,12 +9,12 @@ export function SeoPreviewPanel({ page, locale }: { page: ContentPage; locale: s
   const canonicalUrl = page.seo?.canonical_url || `/${locale}/${page.slug}`;
 
   return (
-    <div className="border border-zinc-200 bg-white p-4">
-      <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-zinc-500">SEO</p>
+    <div className="border border-admin-border bg-admin-surface p-4 rounded-xl">
+      <p className="font-mono text-[11px] uppercase tracking-[0.2em] text-admin-muted">SEO</p>
       <div className="mt-3 space-y-2">
-        <div className="text-sm font-medium text-zinc-900">{title}</div>
-        <div className="text-sm text-zinc-600">{description}</div>
-        <div className="font-mono text-[11px] text-zinc-500">{canonicalUrl}</div>
+        <div className="text-sm font-medium text-admin-foreground">{title}</div>
+        <div className="text-sm text-admin-body">{description}</div>
+        <div className="font-mono text-[11px] text-admin-muted">{canonicalUrl}</div>
       </div>
     </div>
   );

@@ -91,8 +91,8 @@ export function WebsitePagesManager() {
   return (
     <div className="space-y-4">
       <div>
-        <h1 className="text-xl font-semibold text-zinc-950">Website</h1>
-        <p className="text-sm text-zinc-500">Website pages</p>
+        <h1 className="text-xl font-semibold text-admin-foreground">Website</h1>
+        <p className="text-sm text-admin-muted">Website pages</p>
       </div>
       <div className="grid gap-3 md:grid-cols-4">
         <Metric label="Pages" value={allPages.length} />
@@ -149,9 +149,9 @@ export function WebsitePagesManager() {
 
 function Metric({ label, value }: { label: string; value: number }) {
   return (
-    <div className="border border-zinc-200 bg-white p-4">
-      <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">{label}</div>
-      <div className="mt-2 text-2xl font-semibold text-zinc-950">{value}</div>
+    <div className="border border-admin-border bg-admin-surface p-4 rounded-xl">
+      <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-admin-muted">{label}</div>
+      <div className="mt-2 text-2xl font-semibold text-admin-foreground">{value}</div>
     </div>
   );
 }

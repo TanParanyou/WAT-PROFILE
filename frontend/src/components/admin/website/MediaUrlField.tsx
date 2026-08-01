@@ -24,14 +24,14 @@ export function MediaUrlField({
   return (
     <div className="space-y-2">
       <Input label={label} disabled={disabled} {...inputProps} />
-      <div className="border border-zinc-200 bg-zinc-50 p-3">
+      <div className="border border-admin-border bg-admin-surface-muted p-3 rounded-lg">
         {isPreviewable ? (
           <div className="flex items-center gap-3">
-            <div className="grid h-16 w-20 shrink-0 place-items-center overflow-hidden border border-zinc-200 bg-white">
+            <div className="grid h-16 w-20 shrink-0 place-items-center overflow-hidden border border-admin-border bg-admin-surface rounded-lg">
               <img src={value} alt="" className="h-full w-full object-cover" />
             </div>
-            <div className="min-w-0 text-sm text-zinc-600">
-              <div className="flex items-center gap-2 font-medium text-zinc-950">
+            <div className="min-w-0 text-sm text-admin-body">
+              <div className="flex items-center gap-2 font-medium text-admin-foreground">
                 <Image size={14} />
                 Preview
               </div>
@@ -39,7 +39,7 @@ export function MediaUrlField({
             </div>
           </div>
         ) : (
-          <div className="flex items-center gap-2 text-sm text-zinc-500">
+          <div className="flex items-center gap-2 text-sm text-admin-muted">
             <LinkIcon size={14} />
             Add a URL to preview this media.
           </div>
@@ -48,7 +48,7 @@ export function MediaUrlField({
           type="button"
           onClick={() => setIsPickerOpen(true)}
           disabled={disabled}
-          className="mt-3 border border-zinc-200 bg-white px-3 py-2 text-xs font-medium uppercase tracking-[0.12em] text-zinc-800 hover:bg-zinc-100 disabled:opacity-50"
+          className="mt-3 border border-admin-control-border bg-admin-surface px-3 py-2 text-xs font-medium uppercase tracking-[0.12em] text-admin-foreground hover:bg-admin-surface-muted disabled:opacity-50 rounded-lg"
         >
           Choose media
         </button>

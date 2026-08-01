@@ -21,42 +21,42 @@ export function SeoEditorTab({ disabled = false }: SeoEditorTabProps) {
   return (
     <div className="space-y-6">
       {/* Live SEO Preview Panel */}
-      <div className="border border-zinc-200 bg-zinc-50 p-4">
-        <h3 className="mb-3 font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+      <div className="border border-admin-border bg-admin-surface-muted p-4 rounded-xl">
+        <h3 className="mb-3 font-mono text-[11px] uppercase tracking-[0.18em] text-admin-muted">
           SEO Search Result Preview (Google & Facebook)
         </h3>
         
         {/* Google Preview */}
-        <div className="mb-4 border-b border-zinc-200 pb-4">
-          <div className="text-[11px] text-zinc-400">Google Search Result</div>
-          <div className="mt-1 text-lg font-medium text-blue-800 hover:underline cursor-pointer truncate max-w-xl">
+        <div className="mb-4 border-b border-admin-border pb-4">
+          <div className="text-[11px] text-admin-muted">Google Search Result</div>
+          <div className="mt-1 text-lg font-medium text-admin-action hover:underline cursor-pointer truncate max-w-xl">
             {titleValue || "Example Title | Wat Profile"}
           </div>
-          <div className="text-xs text-green-700 truncate">
+          <div className="text-xs text-admin-success truncate">
             https://watprofile.org/th/home
           </div>
-          <div className="mt-1 text-xs text-zinc-600 line-clamp-2 max-w-xl">
+          <div className="mt-1 text-xs text-admin-body line-clamp-2 max-w-xl">
             {descValue || "Please enter a meta description to see how this page will appear in search results."}
           </div>
         </div>
 
         {/* Facebook/OG Preview */}
         <div>
-          <div className="text-[11px] text-zinc-400 mb-1">Social Media Share Preview</div>
-          <div className="border border-zinc-200 bg-white max-w-md overflow-hidden">
+          <div className="text-[11px] text-admin-muted mb-1">Social Media Share Preview</div>
+          <div className="border border-admin-border bg-admin-surface max-w-md overflow-hidden rounded-lg">
             {ogImage ? (
               <img src={ogImage} alt="OG Preview" className="h-48 w-full object-cover" />
             ) : (
-              <div className="h-48 w-full bg-zinc-100 flex items-center justify-center text-xs text-zinc-400">
+              <div className="h-48 w-full bg-admin-surface-muted flex items-center justify-center text-xs text-admin-muted">
                 No OG Image Selected
               </div>
             )}
-            <div className="p-3 border-t border-zinc-100">
-              <div className="text-[11px] text-zinc-400 uppercase tracking-wider">watprofile.org</div>
-              <div className="mt-1 font-semibold text-sm text-zinc-900 truncate">
+            <div className="p-3 border-t border-admin-border">
+              <div className="text-[11px] text-admin-muted uppercase tracking-wider">watprofile.org</div>
+              <div className="mt-1 font-semibold text-sm text-admin-foreground truncate">
                 {titleValue || "Example Title"}
               </div>
-              <div className="mt-1 text-xs text-zinc-500 line-clamp-2">
+              <div className="mt-1 text-xs text-admin-muted line-clamp-2">
                 {descValue || "Example Meta Description"}
               </div>
             </div>
@@ -65,10 +65,10 @@ export function SeoEditorTab({ disabled = false }: SeoEditorTabProps) {
       </div>
 
       {/* Editor Form Fields */}
-      <div className="space-y-4 bg-white border border-zinc-200 p-4">
+      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-xl">
         <div>
-          <h2 className="text-sm font-semibold text-zinc-950">Search Engine Optimization (SEO)</h2>
-          <p className="text-xs text-zinc-500">Configure how this page looks in search engines and social shares.</p>
+          <h2 className="text-sm font-semibold text-admin-foreground">Search Engine Optimization (SEO)</h2>
+          <p className="text-xs text-admin-muted">Configure how this page looks in search engines and social shares.</p>
         </div>
 
         <div className="grid gap-4 md:grid-cols-2">

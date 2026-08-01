@@ -20,10 +20,10 @@ export function AboutBuildingsTab({ disabled = false }: AboutBuildingsTabProps) 
   return (
     <div className="space-y-6">
       {/* Title Settings */}
-      <div className="space-y-4 bg-white border border-zinc-200 p-4">
+      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-xl">
         <div>
-          <h2 className="text-sm font-semibold text-zinc-950">Buildings Section Header</h2>
-          <p className="text-xs text-zinc-500">Configure titles for the temple's building structures.</p>
+          <h2 className="text-sm font-semibold text-admin-foreground">Buildings Section Header</h2>
+          <p className="text-xs text-admin-muted">Configure titles for the temple's building structures.</p>
         </div>
 
         <LocalizedTextFields
@@ -38,11 +38,11 @@ export function AboutBuildingsTab({ disabled = false }: AboutBuildingsTabProps) 
       </div>
 
       {/* Buildings Items List */}
-      <div className="space-y-4 bg-white border border-zinc-200 p-4">
+      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-xl">
         <div className="flex items-center justify-between">
           <div>
-            <h2 className="text-sm font-semibold text-zinc-950">Building Items</h2>
-            <p className="text-xs text-zinc-500">List of buildings inside the temple area.</p>
+            <h2 className="text-sm font-semibold text-admin-foreground">Building Items</h2>
+            <p className="text-xs text-admin-muted">List of buildings inside the temple area.</p>
           </div>
           <Button
             type="button"
@@ -57,13 +57,13 @@ export function AboutBuildingsTab({ disabled = false }: AboutBuildingsTabProps) 
         </div>
 
         {fields.map((field, index) => (
-          <div key={field.id} className="relative border border-zinc-100 p-4 pt-10 space-y-4 bg-zinc-50/50">
+          <div key={field.id} className="relative border border-admin-border p-4 pt-10 space-y-4 bg-admin-surface-muted rounded-lg">
             <div className="absolute right-2 top-2">
               <Button
                 type="button"
                 size="sm"
                 variant="outline"
-                className="text-red-600 hover:text-red-700 hover:bg-red-50 border-zinc-200"
+                className="text-admin-danger hover:text-admin-danger hover:bg-admin-danger-surface border-admin-danger-border"
                 icon={<Trash2 size={14} />}
                 disabled={disabled}
                 onClick={() => remove(index)}
@@ -96,7 +96,7 @@ export function AboutBuildingsTab({ disabled = false }: AboutBuildingsTabProps) 
         ))}
 
         {fields.length === 0 && (
-          <div className="text-center py-6 text-xs text-zinc-500 border border-dashed border-zinc-200">
+          <div className="text-center py-6 text-xs text-admin-muted border border-dashed border-admin-border rounded-lg">
             No buildings configured.
           </div>
         )}

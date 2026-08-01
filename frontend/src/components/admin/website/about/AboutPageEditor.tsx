@@ -116,17 +116,17 @@ export function AboutPageEditor() {
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
         {/* Header toolbar */}
-        <div className="flex flex-col gap-4 border-b border-zinc-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 border-b border-admin-border pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-xl font-semibold text-zinc-950">About Page Master Data</h1>
-            <p className="text-sm text-zinc-500">
+            <h1 className="text-xl font-semibold text-admin-foreground">About Page Master Data</h1>
+            <p className="text-sm text-admin-muted">
               Manage the content and configurations for the About page.
             </p>
           </div>
         </div>
 
         {/* Tab Selection */}
-        <div className="flex flex-col gap-4 border-b border-zinc-200 pb-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 border-b border-admin-border pb-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap gap-2">
             <Button
               type="button"
@@ -176,9 +176,9 @@ export function AboutPageEditor() {
           </div>
 
           {/* Quick Info */}
-          <div className="flex items-center gap-3 text-xs text-zinc-500">
+          <div className="flex items-center gap-3 text-xs text-admin-muted">
             <span>Status: </span>
-            <span className="font-mono bg-emerald-50 text-emerald-700 px-2 py-0.5 border border-emerald-200 rounded font-medium uppercase tracking-wider">
+            <span className="font-mono bg-admin-success-surface text-admin-success px-2 py-0.5 border border-admin-success-border rounded font-medium uppercase tracking-wider">
               {pageData?.status || "published"}
             </span>
           </div>
@@ -186,7 +186,7 @@ export function AboutPageEditor() {
 
         {/* Form Error Alert if validation fails */}
         {Object.keys(errors).length > 0 && (
-          <div className="p-3 border border-red-200 bg-red-50 text-red-700 text-xs rounded">
+          <div className="p-3 border border-admin-danger-border bg-admin-danger-surface text-admin-danger text-xs rounded-lg">
             Please fix the validation errors before saving.
           </div>
         )}
@@ -211,13 +211,13 @@ export function AboutPageEditor() {
         </div>
 
         {/* Sticky Bottom Action Bar */}
-        <div className="sticky bottom-0 z-40 -mx-4 -mb-4 mt-8 flex items-center justify-between border-t border-zinc-200 bg-white/80 px-4 py-4 backdrop-blur-md sm:-mx-6 sm:-mb-6 sm:px-6">
+        <div className="sticky bottom-0 z-40 -mx-4 -mb-4 mt-8 flex items-center justify-between border-t border-admin-border bg-admin-surface/80 px-4 py-4 backdrop-blur-md sm:-mx-6 sm:-mb-6 sm:px-6">
           <div className="flex items-center gap-3">
             {isDirty && (
-              <span className="flex items-center gap-1.5 text-xs font-medium text-amber-600">
+              <span className="flex items-center gap-1.5 text-xs font-medium text-admin-warning">
                 <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500"></span>
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-admin-warning opacity-75"></span>
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-admin-warning"></span>
                 </span>
                 Unsaved changes
               </span>

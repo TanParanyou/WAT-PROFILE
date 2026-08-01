@@ -34,16 +34,16 @@ export function ContactSectionEditor({
   }, [form, section]);
 
   return (
-    <form className="space-y-4 border border-zinc-200 bg-zinc-50 p-4" onSubmit={form.handleSubmit(onSubmit)}>
+    <form className="space-y-4 border border-admin-border bg-admin-surface-muted p-4 rounded-xl" onSubmit={form.handleSubmit(onSubmit)}>
       <div>
-        <div className="text-sm font-medium text-zinc-950">Section Editor</div>
-        <div className="text-xs text-zinc-500">{activeLocale.toUpperCase()}</div>
+        <div className="text-sm font-medium text-admin-foreground">Section Editor</div>
+        <div className="text-xs text-admin-muted">{activeLocale.toUpperCase()}</div>
       </div>
       <LocalizedTextFields label="Title" name="title" register={form.register} errors={form.formState.errors} disabled={isSaving} />
       <LocalizedTextareaFields label="Description" name="description" register={form.register} errors={form.formState.errors} disabled={isSaving} />
       <JsonTextareaField label="Body JSON" name="body" control={form.control} disabled={isSaving} />
       <JsonTextareaField label="Settings JSON" name="settings" control={form.control} disabled={isSaving} />
-      {error ? <p className="text-sm text-red-600">{error.message}</p> : null}
+      {error ? <p className="text-sm text-admin-danger">{error.message}</p> : null}
       <div className="flex justify-end">
         <Button type="submit" isLoading={isSaving}>
           Save section

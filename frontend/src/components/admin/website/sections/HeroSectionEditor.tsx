@@ -17,7 +17,7 @@ export function HeroSectionEditor(props: ContentEditorProps) {
         return (
           <div className="space-y-3">
             {ctaLabel && !ctaHref ? (
-              <div className="border border-amber-200 bg-amber-50 px-3 py-2 text-sm text-amber-700">
+              <div className="border border-admin-warning-border bg-admin-warning-surface px-3 py-2 text-sm text-admin-warning rounded-lg">
                 CTA label is filled, but the destination link is still empty.
               </div>
             ) : null}

@@ -60,15 +60,15 @@ export function SectionContentEditorBase({
   const hidden = form.watch("status") === "archived";
 
   return (
-    <form className="space-y-4 border border-zinc-200 bg-zinc-50 p-4" onSubmit={form.handleSubmit(onSubmit)}>
+    <form className="space-y-4 border border-admin-border bg-admin-surface-muted p-4 rounded-xl" onSubmit={form.handleSubmit(onSubmit)}>
       <div className="flex items-start justify-between gap-3">
         <div>
-          <h2 className="text-sm font-semibold text-zinc-950">{heading}</h2>
-          <p className="text-xs text-zinc-500">
+          <h2 className="text-sm font-semibold text-admin-foreground">{heading}</h2>
+          <p className="text-xs text-admin-muted">
             {summary} · {activeLocale.toUpperCase()}
           </p>
         </div>
-        <div className="flex items-center gap-2 text-xs text-zinc-500">
+        <div className="flex items-center gap-2 text-xs text-admin-muted">
           {hidden ? <EyeOff size={14} /> : <Eye size={14} />}
           {hidden ? "Hidden" : "Visible"}
         </div>
@@ -107,7 +107,7 @@ export function SectionContentEditorBase({
 
       {children?.(form)}
 
-      {error ? <p className="text-sm text-red-600">{error.message}</p> : null}
+      {error ? <p className="text-sm text-admin-danger">{error.message}</p> : null}
       <div className="flex justify-end">
         <Button type="submit" isLoading={isSaving} icon={<Save size={14} />}>
           Save section

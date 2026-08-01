@@ -30,7 +30,7 @@ export function WebsiteSettingsTab({
 
   return (
     <div className="space-y-4">
-      <div className="border border-zinc-200 bg-zinc-50 p-3 text-sm text-zinc-600">
+      <div className="border border-admin-border bg-admin-surface-muted p-3 text-sm text-admin-body rounded-lg">
         {`Last updated: ${formatCmsTimestamp(page.updated_at)} · Last published: ${formatCmsTimestamp(page.published_at)}`}
       </div>
       <WebsitePageMetadataEditor

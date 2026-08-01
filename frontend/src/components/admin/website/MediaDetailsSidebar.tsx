@@ -66,22 +66,22 @@ export function MediaDetailsSidebar({
   };
 
   return (
-    <div className="w-80 border-l border-zinc-200 bg-white p-4 h-full overflow-y-auto flex flex-col font-sans text-sm">
+    <div className="w-80 border-l border-admin-border bg-admin-surface p-4 h-full overflow-y-auto flex flex-col font-sans text-sm">
       <ConfirmDialog />
 
-      <div className="flex items-center justify-between border-b border-zinc-200 pb-2 mb-4">
-        <span className="font-mono text-xs uppercase tracking-wider text-zinc-500">Details</span>
-        <button onClick={onClose} className="text-zinc-400 hover:text-zinc-600">
+      <div className="flex items-center justify-between border-b border-admin-border pb-2 mb-4">
+        <span className="font-mono text-xs uppercase tracking-wider text-admin-muted">Details</span>
+        <button onClick={onClose} className="text-admin-muted hover:text-admin-foreground">
           <X size={16} />
         </button>
       </div>
 
       <div className="space-y-4 flex-1">
-        <div className="aspect-video w-full overflow-hidden border border-zinc-200 bg-zinc-50">
+        <div className="aspect-video w-full overflow-hidden border border-admin-border bg-admin-surface-muted rounded-lg">
           <img src={media.url} alt="" className="h-full w-full object-contain" />
         </div>
 
-        <div className="font-mono text-[11px] text-zinc-500 space-y-1">
+        <div className="font-mono text-[11px] text-admin-muted space-y-1">
           <div>Name: {media.original_filename || media.filename}</div>
           <div>Size: {(media.size / 1024 / 1024).toFixed(2)} MB</div>
           <div>Type: {media.mime_type}</div>
@@ -111,7 +111,7 @@ export function MediaDetailsSidebar({
         </div>
       </div>
 
-      <div className="pt-4 border-t border-zinc-200 mt-4 space-y-2">
+      <div className="pt-4 border-t border-admin-border mt-4 space-y-2">
         <Button
           className="w-full text-xs uppercase tracking-wider flex items-center justify-center gap-2"
           onClick={handleSave}

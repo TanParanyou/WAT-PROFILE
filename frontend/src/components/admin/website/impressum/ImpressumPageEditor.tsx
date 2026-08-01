@@ -144,14 +144,14 @@ export function ImpressumPageEditor() {
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <div className="flex flex-col gap-4 border-b border-zinc-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 border-b border-admin-border pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-xl font-semibold text-zinc-950">Impressum Editor</h1>
-            <p className="text-sm text-zinc-500">Manage legal information and provider disclosure settings.</p>
+            <h1 className="text-xl font-semibold text-admin-foreground">Impressum Editor</h1>
+            <p className="text-sm text-admin-muted">Manage legal information and provider disclosure settings.</p>
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 border-b border-zinc-200 pb-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 border-b border-admin-border pb-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap gap-2">
             <Button
               type="button"
@@ -172,23 +172,23 @@ export function ImpressumPageEditor() {
               SEO Settings
             </Button>
           </div>
-          <div className="flex items-center gap-3 text-xs text-zinc-500">
+          <div className="flex items-center gap-3 text-xs text-admin-muted">
             <span>Status:</span>
-            <span className="rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-mono font-medium uppercase tracking-wider text-emerald-700">
+            <span className="rounded border border-admin-success-border bg-admin-success-surface px-2 py-0.5 font-mono font-medium uppercase tracking-wider text-admin-success">
               {pageData?.status || "published"}
             </span>
           </div>
         </div>
 
         {Object.keys(errors).length > 0 ? (
-          <div className="rounded border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+          <div className="rounded-lg border border-admin-danger-border bg-admin-danger-surface p-3 text-xs text-admin-danger">
             Please fix the validation errors before saving.
           </div>
         ) : null}
 
         <div className="space-y-4">
           {activeTab === "content" ? (
-            <div className="space-y-6 rounded-xl border border-zinc-200 bg-white p-6">
+            <div className="space-y-6 rounded-xl border border-admin-border bg-admin-surface p-6">
               <Controller
                 name="title"
                 control={methods.control}
@@ -197,7 +197,7 @@ export function ImpressumPageEditor() {
                 )}
               />
 
-              <div className="space-y-6 border-t border-zinc-100 pt-6">
+              <div className="space-y-6 border-t border-admin-border pt-6">
                 <Controller
                   name="body.organization_name"
                   control={methods.control}
@@ -225,13 +225,13 @@ export function ImpressumPageEditor() {
           )}
         </div>
 
-        <div className="sticky bottom-0 z-40 -mx-4 -mb-4 mt-8 flex items-center justify-between border-t border-zinc-200 bg-white/80 px-4 py-4 backdrop-blur-md sm:-mx-6 sm:-mb-6 sm:px-6">
+        <div className="sticky bottom-0 z-40 -mx-4 -mb-4 mt-8 flex items-center justify-between border-t border-admin-border bg-admin-surface/80 px-4 py-4 backdrop-blur-md sm:-mx-6 sm:-mb-6 sm:px-6">
           <div className="flex items-center gap-3">
             {isDirty ? (
-              <span className="flex items-center gap-1.5 text-xs font-medium text-amber-600">
+              <span className="flex items-center gap-1.5 text-xs font-medium text-admin-warning">
                 <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500"></span>
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-admin-warning opacity-75"></span>
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-admin-warning"></span>
                 </span>
                 Unsaved changes
               </span>

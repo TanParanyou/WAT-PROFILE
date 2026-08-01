@@ -30,17 +30,17 @@ export function WebsiteSectionList({
           >
             <span className="min-w-0 text-left">
               <span className="block truncate text-sm font-medium">{section.section_key}</span>
-              <span className="mt-1 block font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+              <span className="mt-1 block font-mono text-[11px] uppercase tracking-[0.18em] opacity-80">
                 {section.section_type} · {titleCount}/3 locales
               </span>
             </span>
             <span
               className={cn(
                 "shrink-0 font-mono text-[11px] uppercase tracking-[0.18em]",
-                health.tone === "ready" && "text-emerald-700",
-                health.tone === "warn" && "text-amber-700",
-                health.tone === "draft" && "text-zinc-700",
-                health.tone === "muted" && "text-zinc-400",
+                health.tone === "ready" && (activeSectionId === section.id ? "text-admin-on-action" : "text-admin-success"),
+                health.tone === "warn" && (activeSectionId === section.id ? "text-admin-on-action" : "text-admin-warning"),
+                health.tone === "draft" && (activeSectionId === section.id ? "text-admin-on-action" : "text-admin-body"),
+                health.tone === "muted" && (activeSectionId === section.id ? "text-admin-on-action" : "text-admin-muted"),
               )}
             >
               {health.label}

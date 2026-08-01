@@ -24,8 +24,8 @@ export function WebsitePagesList({
 
   if (error) {
     return (
-      <div className="flex flex-col items-center gap-4 border border-red-200 bg-red-50 p-8 text-center">
-        <p className="text-red-600">Error loading pages: {error.message}</p>
+      <div className="flex flex-col items-center gap-4 border border-admin-danger-border bg-admin-danger-surface p-8 text-center rounded-xl">
+        <p className="text-admin-danger">Error loading pages: {error.message}</p>
         <Button onClick={onRetry} variant="secondary">
           Retry
         </Button>
@@ -40,26 +40,26 @@ export function WebsitePagesList({
   );
 
   if (!activePages.length) {
-    return <div className="border border-dashed border-zinc-300 bg-white p-6 text-sm text-zinc-500">No pages yet.</div>;
+    return <div className="border border-dashed border-admin-border bg-admin-surface p-6 text-sm text-admin-muted rounded-xl">No pages yet.</div>;
   }
 
   return (
-    <div className="divide-y divide-zinc-200 border border-zinc-200 bg-white">
+    <div className="divide-y divide-admin-border border border-admin-border bg-admin-surface rounded-xl overflow-hidden">
       {activePages.map((page) => (
         <LocaleLink
           key={page.id}
           href={`/admin/website/pages/${page.page_key}`}
-          className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-zinc-50"
+          className="flex items-center justify-between gap-4 px-4 py-3 hover:bg-admin-surface-muted transition-colors"
         >
           <div className="min-w-0">
-            <div className="truncate font-medium text-zinc-950">{page.page_key}</div>
-            <div className="truncate text-sm text-zinc-500">{page.slug}</div>
+            <div className="truncate font-medium text-admin-foreground">{page.page_key}</div>
+            <div className="truncate text-sm text-admin-muted">{page.slug}</div>
             <div className="mt-2 flex flex-wrap items-center gap-3">
               <LanguageCompleteness value={page.title} />
-              <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-zinc-400">
+              <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-admin-muted">
                 {page.sections.length} sections
               </span>
-              <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-zinc-400">
+              <span className="font-mono text-[11px] uppercase tracking-[0.14em] text-admin-muted">
                 Updated {new Date(page.updated_at).toLocaleDateString()}
               </span>
             </div>

@@ -201,14 +201,14 @@ export function PrivacyPageEditor() {
   return (
     <FormProvider {...methods}>
       <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-        <div className="flex flex-col gap-4 border-b border-zinc-200 pb-4 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 border-b border-admin-border pb-4 sm:flex-row sm:items-center sm:justify-between">
           <div>
-            <h1 className="text-xl font-semibold text-zinc-950">Privacy Policy Editor</h1>
-            <p className="text-sm text-zinc-500">Manage website privacy policy sections and translations.</p>
+            <h1 className="text-xl font-semibold text-admin-foreground">Privacy Policy Editor</h1>
+            <p className="text-sm text-admin-muted">Manage website privacy policy sections and translations.</p>
           </div>
         </div>
 
-        <div className="flex flex-col gap-4 border-b border-zinc-200 pb-3 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-4 border-b border-admin-border pb-3 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-wrap gap-2">
             <Button
               type="button"
@@ -229,23 +229,23 @@ export function PrivacyPageEditor() {
               SEO Settings
             </Button>
           </div>
-          <div className="flex items-center gap-3 text-xs text-zinc-500">
+          <div className="flex items-center gap-3 text-xs text-admin-muted">
             <span>Status:</span>
-            <span className="rounded border border-emerald-200 bg-emerald-50 px-2 py-0.5 font-mono font-medium uppercase tracking-wider text-emerald-700">
+            <span className="rounded border border-admin-success-border bg-admin-success-surface px-2 py-0.5 font-mono font-medium uppercase tracking-wider text-admin-success">
               {pageData?.status || "published"}
             </span>
           </div>
         </div>
 
         {Object.keys(errors).length > 0 ? (
-          <div className="rounded border border-red-200 bg-red-50 p-3 text-xs text-red-700">
+          <div className="rounded-lg border border-admin-danger-border bg-admin-danger-surface p-3 text-xs text-admin-danger">
             Please fix the validation errors before saving.
           </div>
         ) : null}
 
         <div className="space-y-4">
           {activeTab === "content" ? (
-            <div className="space-y-6 rounded-xl border border-zinc-200 bg-white p-6">
+            <div className="space-y-6 rounded-xl border border-admin-border bg-admin-surface p-6">
               <div className="grid gap-6 md:grid-cols-2">
                 <Input type="date" label="Last Updated Date" {...methods.register("body.last_updated")} />
                 <Controller
@@ -257,9 +257,9 @@ export function PrivacyPageEditor() {
                 />
               </div>
 
-              <div className="border-t border-zinc-100 pt-6">
+              <div className="border-t border-admin-border pt-6">
                 <div className="mb-4 flex items-center justify-between">
-                  <h2 className="text-base font-semibold text-zinc-950">Policy Sections</h2>
+                  <h2 className="text-base font-semibold text-admin-foreground">Policy Sections</h2>
                   <Button
                     type="button"
                     variant="outline"
@@ -273,13 +273,13 @@ export function PrivacyPageEditor() {
 
                 <div className="space-y-6">
                   {fields.map((field, index) => (
-                    <div key={field.id} className="relative rounded-xl border border-zinc-200 bg-zinc-50/50 p-6">
+                    <div key={field.id} className="relative rounded-xl border border-admin-border bg-admin-surface-muted p-6">
                       <div className="absolute right-4 top-4 flex items-center gap-1">
                         <button
                           type="button"
                           onClick={() => index > 0 && swap(index, index - 1)}
                           disabled={index === 0}
-                          className="p-1 text-zinc-400 transition-colors hover:text-zinc-600 disabled:cursor-not-allowed disabled:opacity-30"
+                          className="p-1 text-admin-muted transition-colors hover:text-admin-foreground disabled:cursor-not-allowed disabled:opacity-30"
                         >
                           <ArrowUp size={16} />
                         </button>
@@ -287,21 +287,21 @@ export function PrivacyPageEditor() {
                           type="button"
                           onClick={() => index < fields.length - 1 && swap(index, index + 1)}
                           disabled={index === fields.length - 1}
-                          className="p-1 text-zinc-400 transition-colors hover:text-zinc-600 disabled:cursor-not-allowed disabled:opacity-30"
+                          className="p-1 text-admin-muted transition-colors hover:text-admin-foreground disabled:cursor-not-allowed disabled:opacity-30"
                         >
                           <ArrowDown size={16} />
                         </button>
                         <button
                           type="button"
                           onClick={() => remove(index)}
-                          className="ml-2 p-1 text-zinc-400 transition-colors hover:text-red-600"
+                          className="ml-2 p-1 text-admin-muted transition-colors hover:text-admin-danger"
                         >
                           <Trash2 size={16} />
                         </button>
                       </div>
 
                       <div className="space-y-4 pr-24">
-                        <div className="font-mono text-xs text-zinc-400">Section #{index + 1}</div>
+                        <div className="font-mono text-xs text-admin-muted">Section #{index + 1}</div>
                         <Controller
                           name={`body.sections.${index}.title`}
                           control={control}
@@ -327,7 +327,7 @@ export function PrivacyPageEditor() {
                   ))}
 
                   {fields.length === 0 ? (
-                    <div className="rounded-xl border border-dashed border-zinc-300 py-8 text-center text-sm text-zinc-500">
+                    <div className="rounded-xl border border-dashed border-admin-border py-8 text-center text-sm text-admin-muted">
                       No policy sections added yet. Click "Add Section" to begin.
                     </div>
                   ) : null}
@@ -339,13 +339,13 @@ export function PrivacyPageEditor() {
           )}
         </div>
 
-        <div className="sticky bottom-0 z-40 -mx-4 -mb-4 mt-8 flex items-center justify-between border-t border-zinc-200 bg-white/80 px-4 py-4 backdrop-blur-md sm:-mx-6 sm:-mb-6 sm:px-6">
+        <div className="sticky bottom-0 z-40 -mx-4 -mb-4 mt-8 flex items-center justify-between border-t border-admin-border bg-admin-surface/80 px-4 py-4 backdrop-blur-md sm:-mx-6 sm:-mb-6 sm:px-6">
           <div className="flex items-center gap-3">
             {isDirty ? (
-              <span className="flex items-center gap-1.5 text-xs font-medium text-amber-600">
+              <span className="flex items-center gap-1.5 text-xs font-medium text-admin-warning">
                 <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-amber-400 opacity-75"></span>
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-amber-500"></span>
+                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-admin-warning opacity-75"></span>
+                  <span className="relative inline-flex h-2 w-2 rounded-full bg-admin-warning"></span>
                 </span>
                 Unsaved changes
               </span>

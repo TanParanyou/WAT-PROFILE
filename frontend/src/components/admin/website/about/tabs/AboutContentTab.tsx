@@ -14,10 +14,10 @@ export function AboutContentTab({ disabled = false }: AboutContentTabProps) {
   return (
     <div className="space-y-6">
       {/* Hero Section */}
-      <div className="space-y-4 bg-white border border-zinc-200 p-4">
+      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-xl">
         <div>
-          <h2 className="text-sm font-semibold text-zinc-950">Hero Banner Section</h2>
-          <p className="text-xs text-zinc-500">Header of the about page.</p>
+          <h2 className="text-sm font-semibold text-admin-foreground">Hero Banner Section</h2>
+          <p className="text-xs text-admin-muted">Header of the about page.</p>
         </div>
 
         <LocalizedTextFields
@@ -43,10 +43,10 @@ export function AboutContentTab({ disabled = false }: AboutContentTabProps) {
       </div>
 
       {/* History Section */}
-      <div className="space-y-4 bg-white border border-zinc-200 p-4">
+      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-xl">
         <div>
-          <h2 className="text-sm font-semibold text-zinc-950">History & Background</h2>
-          <p className="text-xs text-zinc-500">Main descriptive history of the temple.</p>
+          <h2 className="text-sm font-semibold text-admin-foreground">History & Background</h2>
+          <p className="text-xs text-admin-muted">Main descriptive history of the temple.</p>
         </div>
 
         <LocalizedTextFields
@@ -76,9 +76,9 @@ export function AboutContentTab({ disabled = false }: AboutContentTabProps) {
             id="show_timeline"
             {...register("content.show_timeline")}
             disabled={disabled}
-            className="h-4 w-4 rounded border-zinc-300 text-zinc-950 focus:ring-zinc-950"
+            className="h-4 w-4 rounded border-admin-control-border bg-admin-surface text-admin-action focus:ring-admin-focus"
           />
-          <label htmlFor="show_timeline" className="text-sm font-medium text-zinc-700 select-none">
+          <label htmlFor="show_timeline" className="text-sm font-medium text-admin-foreground select-none">
             Show History Timeline
           </label>
         </div>

@@ -22,10 +22,10 @@ export function AboutHistoryTab({ disabled = false }: AboutHistoryTabProps) {
   return (
     <div className="space-y-6">
       {/* Administration Section */}
-      <div className="space-y-4 bg-white border border-zinc-200 p-4">
+      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-xl">
         <div>
-          <h2 className="text-sm font-semibold text-zinc-950">Administration</h2>
-          <p className="text-xs text-zinc-500">Board information and structure.</p>
+          <h2 className="text-sm font-semibold text-admin-foreground">Administration</h2>
+          <p className="text-xs text-admin-muted">Board information and structure.</p>
         </div>
 
         <LocalizedTextFields
@@ -55,10 +55,10 @@ export function AboutHistoryTab({ disabled = false }: AboutHistoryTabProps) {
       </div>
 
       {/* History Section */}
-      <div className="space-y-4 bg-white border border-zinc-200 p-4">
+      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-xl">
         <div>
-          <h2 className="text-sm font-semibold text-zinc-950">History & Heritage</h2>
-          <p className="text-xs text-zinc-500">Temple's history and background story.</p>
+          <h2 className="text-sm font-semibold text-admin-foreground">History & Heritage</h2>
+          <p className="text-xs text-admin-muted">Temple's history and background story.</p>
         </div>
 
         <LocalizedTextFields

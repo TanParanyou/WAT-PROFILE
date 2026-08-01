@@ -14,10 +14,10 @@ export function AboutSanghaTab({ disabled = false }: AboutSanghaTabProps) {
   return (
     <div className="space-y-6">
       {/* Sangha Section */}
-      <div className="space-y-4 bg-white border border-zinc-200 p-4">
+      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-xl">
         <div>
-          <h2 className="text-sm font-semibold text-zinc-950">Sangha & Monks Introduction</h2>
-          <p className="text-xs text-zinc-500">Mission and background of the monks.</p>
+          <h2 className="text-sm font-semibold text-admin-foreground">Sangha & Monks Introduction</h2>
+          <p className="text-xs text-admin-muted">Mission and background of the monks.</p>
         </div>
 
         <LocalizedTextFields

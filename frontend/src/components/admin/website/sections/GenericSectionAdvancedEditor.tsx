@@ -51,10 +51,10 @@ export function GenericSectionAdvancedEditor({
   }, [form, onPreviewDraftChange]);
 
   return (
-    <form className="space-y-4 border border-zinc-200 bg-zinc-50 p-4" onSubmit={form.handleSubmit(onSubmit)}>
+    <form className="space-y-4 border border-admin-border bg-admin-surface-muted p-4 rounded-xl" onSubmit={form.handleSubmit(onSubmit)}>
       <div>
-        <div className="text-sm font-medium text-zinc-950">{section.section_key}</div>
-        <div className="text-xs text-zinc-500">
+        <div className="text-sm font-medium text-admin-foreground">{section.section_key}</div>
+        <div className="text-xs text-admin-muted">
           {section.section_type} · {activeLocale.toUpperCase()}
         </div>
       </div>
@@ -68,7 +68,7 @@ export function GenericSectionAdvancedEditor({
       />
       <JsonTextareaField label="Body JSON" name={"body"} control={form.control} disabled={isSaving} />
       <JsonTextareaField label="Settings JSON" name={"settings"} control={form.control} disabled={isSaving} />
-      {error ? <p className="text-sm text-red-600">{error.message}</p> : null}
+      {error ? <p className="text-sm text-admin-danger">{error.message}</p> : null}
       <div className="flex justify-end">
         <Button type="submit" isLoading={isSaving}>
           Save section

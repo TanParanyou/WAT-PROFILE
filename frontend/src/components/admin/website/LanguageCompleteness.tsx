@@ -10,7 +10,7 @@ export function LanguageCompleteness({ value }: { value: Partial<LocalizedText> 
   ] as const;
   const filled = items.filter(([, text]) => Boolean(text && text.trim())).length;
   return (
-    <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">
+    <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-admin-muted">
       {filled}/3
     </div>
   );

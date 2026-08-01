@@ -58,25 +58,25 @@ export function WebsiteSeoTab({
 
   return (
     <div className="space-y-4">
-      <div className="border border-zinc-200 bg-zinc-50 p-3">
-        <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-zinc-500">{t("seoScore")}</div>
-        <div className="mt-1 text-2xl font-semibold text-zinc-950">{health.score}%</div>
+      <div className="border border-admin-border bg-admin-surface-muted p-3 rounded-lg">
+        <div className="font-mono text-[11px] uppercase tracking-[0.18em] text-admin-muted">{t("seoScore")}</div>
+        <div className="mt-1 text-2xl font-semibold text-admin-foreground">{health.score}%</div>
         {health.warnings.length ? (
-          <ul className="mt-2 list-disc pl-5 text-sm text-amber-700">
+          <ul className="mt-2 list-disc pl-5 text-sm text-admin-warning">
             {health.warnings.map((warning) => (
               <li key={warning}>{warning}</li>
             ))}
           </ul>
         ) : (
-          <p className="mt-2 text-sm text-emerald-700">{t("seoBasicsReady")}</p>
+          <p className="mt-2 text-sm text-admin-success">{t("seoBasicsReady")}</p>
         )}
       </div>
       <SeoPreviewPanel page={page} locale={locale} />
-      <form className="space-y-4 border border-zinc-200 bg-white p-4" onSubmit={form.handleSubmit(onSubmit)}>
+      <form className="space-y-4 border border-admin-border bg-admin-surface p-4 rounded-xl" onSubmit={form.handleSubmit(onSubmit)}>
         <div className="flex items-start justify-between gap-3">
           <div>
-            <h2 className="text-sm font-semibold text-zinc-950">{t("seoTitle")}</h2>
-            <p className="text-xs text-zinc-500">Search metadata and index controls for the public page.</p>
+            <h2 className="text-sm font-semibold text-admin-foreground">{t("seoTitle")}</h2>
+            <p className="text-xs text-admin-muted">Search metadata and index controls for the public page.</p>
           </div>
           <Button type="submit" size="sm" isLoading={isSaving}>
             {t("saveSeo")}
@@ -106,7 +106,7 @@ export function WebsiteSeoTab({
           rows={3}
         />
         <Switch label="Noindex" disabled={isSaving} {...form.register("seo.noindex" as never)} />
-        {error ? <p className="text-sm text-red-600">{error.message}</p> : null}
+        {error ? <p className="text-sm text-admin-danger">{error.message}</p> : null}
       </form>
     </div>
   );

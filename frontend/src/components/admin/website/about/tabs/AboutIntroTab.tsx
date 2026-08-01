@@ -23,10 +23,10 @@ export function AboutIntroTab({ disabled = false }: AboutIntroTabProps) {
   return (
     <div className="space-y-6">
       {/* Hero Section */}
-      <div className="space-y-4 bg-white border border-zinc-200 p-4">
+      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-xl">
         <div>
-          <h2 className="text-sm font-semibold text-zinc-950">Hero Section</h2>
-          <p className="text-xs text-zinc-500">Header title and subtitle for the About page.</p>
+          <h2 className="text-sm font-semibold text-admin-foreground">Hero Section</h2>
+          <p className="text-xs text-admin-muted">Header title and subtitle for the About page.</p>
         </div>
 
         <LocalizedTextFields
@@ -52,10 +52,10 @@ export function AboutIntroTab({ disabled = false }: AboutIntroTabProps) {
       </div>
 
       {/* Intro Section */}
-      <div className="space-y-4 bg-white border border-zinc-200 p-4">
+      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-xl">
         <div>
-          <h2 className="text-sm font-semibold text-zinc-950">Introduction</h2>
-          <p className="text-xs text-zinc-500">Basic intro text and details.</p>
+          <h2 className="text-sm font-semibold text-admin-foreground">Introduction</h2>
+          <p className="text-xs text-admin-muted">Basic intro text and details.</p>
         </div>
 
         <LocalizedTextFields
@@ -102,10 +102,10 @@ export function AboutIntroTab({ disabled = false }: AboutIntroTabProps) {
       </div>
 
       {/* Objectives Section */}
-      <div className="space-y-4 bg-white border border-zinc-200 p-4">
+      <div className="space-y-4 bg-admin-surface border border-admin-border p-4 rounded-xl">
         <div>
-          <h2 className="text-sm font-semibold text-zinc-950">Objectives / Vision</h2>
-          <p className="text-xs text-zinc-500">Vision, mission quote, and core message.</p>
+          <h2 className="text-sm font-semibold text-admin-foreground">Objectives / Vision</h2>
+          <p className="text-xs text-admin-muted">Vision, mission quote, and core message.</p>
         </div>
 
         <LocalizedTextFields
