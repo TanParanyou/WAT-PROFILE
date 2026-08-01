@@ -1,17 +1,18 @@
 "use client";
 
-import React, { useState } from "react";
-import { Upload, X, Eye } from "lucide-react";
+import React, { useState, useRef, useCallback } from "react";
+import { Upload, X, Eye, Loader2, AlertCircle } from "lucide-react";
 import { useTranslations } from "next-intl";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
-import { MediaPickerDialog } from "./media/MediaPickerDialog";
+import { mediaService } from "@/services/mediaService";
 
 interface ImageUploadProps {
   label?: string;
   value?: string | File;
   onChange: (value: string | File) => void;
   className?: string;
+  autoUpload?: boolean; // If true (default), uploads file to server immediately
 }
 
 export function ImageUpload({
@@ -19,23 +20,111 @@ export function ImageUpload({
   value,
   onChange,
   className = "",
+  autoUpload = true,
 }: ImageUploadProps) {
   const t = useTranslations("Admin");
-  const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [uploadError, setUploadError] = useState<string | null>(null);
+  const [isDragging, setIsDragging] = useState(false);
+  const [localPreview, setLocalPreview] = useState<string | null>(null);
 
-  const handleSelect = (url: string) => {
-    onChange(url);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = useCallback(
+    async (file: File) => {
+      setUploadError(null);
+
+      // Validate file type
+      if (!file.type.startsWith("image/")) {
+        setUploadError("กรุณาเลือกไฟล์รูปภาพเท่านั้น");
+        return;
+      }
+
+      // Validate file size (5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setUploadError("ขนาดไฟล์ต้องไม่เกิน 5MB");
+        return;
+      }
+
+      // Create instant local preview
+      const objectUrl = URL.createObjectURL(file);
+      setLocalPreview(objectUrl);
+
+      if (autoUpload) {
+        setIsUploading(true);
+        try {
+          const url = await mediaService.uploadImage(file);
+          onChange(url);
+          setLocalPreview(null);
+        } catch (err: unknown) {
+          const message =
+            err instanceof Error
+              ? err.message
+              : "อัปโหลดรูปภาพไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
+          setUploadError(message);
+        } finally {
+          setIsUploading(false);
+        }
+      } else {
+        onChange(file);
+      }
+    },
+    [autoUpload, onChange]
+  );
+
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (files && files.length > 0) {
+      handleFile(files[0]);
+    }
   };
 
   const handleRemove = () => {
     onChange("");
+    setLocalPreview(null);
+    setUploadError(null);
+    if (fileInputRef.current) {
+      fileInputRef.current.value = "";
+    }
   };
 
-  const previewSrc = value instanceof File ? "" : value; // Since MediaPickerDialog handles upload, we'll only see URLs now (Files are handled directly to URL inside MediaPickerDialog)
+  const previewSrc =
+    localPreview || (typeof value === "string" && value.trim() ? value.trim() : "");
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragging(false);
+    const files = e.dataTransfer.files;
+    if (files && files.length > 0) {
+      handleFile(files[0]);
+    }
+  };
 
   return (
-    <div className={`space-y-2 ${className}`}>
+    <div className={`space-y-2 font-sans ${className}`}>
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="image/jpeg,image/png,image/webp,image/gif"
+        className="hidden"
+        onChange={handleInputChange}
+        disabled={isUploading}
+      />
+
       {label && (
         <label className="text-sm font-medium text-admin-body flex items-center min-h-[24px]">
           {label}
@@ -44,44 +133,86 @@ export function ImageUpload({
 
       {previewSrc ? (
         <div className="relative inline-block group/preview">
-          <img
-            src={previewSrc}
-            alt="Preview"
-            className="h-36 w-36 object-cover rounded-none border border-admin-border"
-          />
-          <button
-            type="button"
-            onClick={() => setIsLightboxOpen(true)}
-            className="absolute inset-0 bg-black/40 text-admin-on-action rounded-none flex items-center justify-center opacity-0 group-hover/preview:opacity-100 transition-opacity focus-visible:outline-2 focus-visible:outline-admin-focus"
-            title="ดูภาพขนาดเต็ม"
-          >
-            <Eye size={20} strokeWidth={1.5} />
-          </button>
-          <button
-            type="button"
-            onClick={handleRemove}
-            className="absolute -top-2 -right-2 h-6 w-6 bg-admin-danger hover:brightness-90 text-admin-on-action rounded-full flex items-center justify-center shadow-md transition-colors z-10 focus-visible:outline-2 focus-visible:outline-admin-focus"
-            title="ลบรูปภาพ"
-          >
-            <X size={14} />
-          </button>
+          <div className="relative h-36 w-36 overflow-hidden border border-admin-border bg-admin-surface-muted">
+            <img
+              src={previewSrc}
+              alt="Preview"
+              className="h-full w-full object-cover rounded-none"
+              onError={(e) => {
+                (e.target as HTMLImageElement).src =
+                  "https://placehold.co/200x200?text=Invalid+Image";
+              }}
+            />
+
+            {isUploading && (
+              <div className="absolute inset-0 bg-admin-surface/80 flex flex-col items-center justify-center">
+                <Loader2 size={24} className="animate-spin text-admin-action" />
+                <span className="text-[10px] text-admin-action font-medium mt-1">
+                  กำลังอัปโหลด...
+                </span>
+              </div>
+            )}
+          </div>
+
+          {!isUploading && (
+            <>
+              <button
+                type="button"
+                onClick={() => setIsLightboxOpen(true)}
+                className="absolute inset-0 bg-black/40 text-admin-on-action rounded-none flex items-center justify-center opacity-0 group-hover/preview:opacity-100 transition-opacity focus-visible:outline-2 focus-visible:outline-admin-focus"
+                title="ดูภาพขนาดเต็ม"
+              >
+                <Eye size={20} strokeWidth={1.5} />
+              </button>
+              <button
+                type="button"
+                onClick={handleRemove}
+                className="absolute -top-2 -right-2 h-6 w-6 bg-admin-danger hover:brightness-90 text-admin-on-action rounded-none flex items-center justify-center shadow-md transition-colors z-10 focus-visible:outline-2 focus-visible:outline-admin-focus"
+                title="ลบรูปภาพ"
+              >
+                <X size={14} />
+              </button>
+            </>
+          )}
         </div>
       ) : (
-        <button
-          type="button"
-          onClick={() => setIsModalOpen(true)}
-          className="flex flex-col items-center justify-center w-36 h-36 border-2 border-dashed border-admin-control-border rounded-none bg-admin-surface hover:border-admin-focus hover:bg-admin-selected transition-all focus-visible:outline-2 focus-visible:outline-admin-focus group"
+        <div
+          onClick={() => fileInputRef.current?.click()}
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className={`flex flex-col items-center justify-center w-36 h-36 border-2 border-dashed ${
+            isDragging
+              ? "border-admin-focus bg-admin-focus/10 ring-2 ring-admin-focus"
+              : "border-admin-control-border bg-admin-surface hover:border-admin-focus hover:bg-admin-selected"
+          } rounded-none transition-all cursor-pointer group`}
         >
-          <Upload size={20} className="text-admin-muted group-hover:text-admin-action mb-1 transition-colors" />
-          <span className="text-xs text-admin-muted group-hover:text-admin-selected-foreground font-medium">เพิ่มรูปภาพ</span>
-        </button>
+          {isUploading ? (
+            <div className="flex flex-col items-center justify-center">
+              <Loader2 size={20} className="animate-spin text-admin-action mb-1" />
+              <span className="text-[10px] text-admin-action font-medium">กำลังอัปโหลด...</span>
+            </div>
+          ) : (
+            <>
+              <Upload
+                size={20}
+                className="text-admin-muted group-hover:text-admin-action mb-1 transition-colors"
+              />
+              <span className="text-xs text-admin-muted group-hover:text-admin-selected-foreground font-medium">
+                {t("gallery.upload") || "เลือกไฟล์จากเครื่อง"}
+              </span>
+              <span className="text-[9px] text-admin-muted mt-0.5">ลากไฟล์มาวางได้</span>
+            </>
+          )}
+        </div>
       )}
 
-      <MediaPickerDialog
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
-        onSelect={handleSelect}
-      />
+      {uploadError && (
+        <p className="text-xs text-admin-danger flex items-center gap-1 mt-1">
+          <AlertCircle size={12} />
+          <span>{uploadError}</span>
+        </p>
+      )}
 
       {previewSrc && (
         <Lightbox

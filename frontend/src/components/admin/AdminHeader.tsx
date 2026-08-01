@@ -65,8 +65,19 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
           className="flex items-center gap-2 text-sm p-1.5 rounded-lg hover:bg-admin-surface-muted transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus group"
           title={t("profile")}
         >
-          <div className="h-8 w-8 rounded-full bg-admin-surface-muted border border-admin-border flex items-center justify-center text-admin-body group-hover:border-admin-action group-hover:text-admin-action transition-colors">
-            <User size={16} />
+          <div className="h-8 w-8 rounded-full bg-admin-surface-muted border border-admin-border flex items-center justify-center text-admin-body group-hover:border-admin-action group-hover:text-admin-action transition-colors overflow-hidden flex-shrink-0">
+            {user?.avatar_url ? (
+              <img
+                src={user.avatar_url}
+                alt={user.name || "User Avatar"}
+                className="h-full w-full object-cover"
+                onError={(e) => {
+                  (e.currentTarget as HTMLElement).style.display = "none";
+                }}
+              />
+            ) : (
+              <User size={16} />
+            )}
           </div>
           <div className="hidden sm:block text-left">
             <p className="font-medium text-admin-foreground group-hover:text-admin-action transition-colors leading-tight">

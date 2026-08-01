@@ -1,6 +1,8 @@
 package services
 
 import (
+	"strconv"
+
 	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"gorm.io/gorm"
@@ -20,10 +22,14 @@ type MonkListOptions struct {
 }
 
 var monkSortColumns = map[string]string{
-	"display_order": "monks.display_order",
-	"name":          "monks.name->>'th'",
-	"status":        "monks.is_active",
-	"created_at":    "monks.created_at",
+	"id":              "monks.id",
+	"display_order":   "monks.display_order",
+	"name":            "monks.name->>'th'",
+	"position":        "monks.position",
+	"pansa":           "monks.ordination_date",
+	"ordination_date": "monks.ordination_date",
+	"status":          "monks.is_active",
+	"created_at":      "monks.created_at",
 }
 
 // ListAdmin returns a paginated list of monks for admin management
@@ -86,10 +92,16 @@ func (s *MonkService) ListActive() ([]models.Monk, error) {
 	return monks, err
 }
 
-// GetBySlug returns a single active monk by slug
+// GetBySlug returns a single active monk by slug or ID
 func (s *MonkService) GetBySlug(slug string) (*models.Monk, error) {
 	var monk models.Monk
-	err := s.db.Where("slug = ? AND is_active = ?", slug, true).First(&monk).Error
+	query := s.db.Where("is_active = ?", true)
+	if id, err := strconv.Atoi(slug); err == nil {
+		query = query.Where("slug = ? OR id = ?", slug, id)
+	} else {
+		query = query.Where("slug = ?", slug)
+	}
+	err := query.First(&monk).Error
 	if err != nil {
 		return nil, err
 	}

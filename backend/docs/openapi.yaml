@@ -343,6 +343,8 @@ paths:
                 email:
                   type: string
                   format: email
+                avatar_url:
+                  type: string
                 current_password:
                   type: string
                 new_password:
@@ -1854,6 +1856,8 @@ components:
         email:
           type: string
         name:
+          type: string
+        avatar_url:
           type: string
         role:
           $ref: '#/components/schemas/Role'

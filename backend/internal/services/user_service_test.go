@@ -48,8 +48,9 @@ func TestUserService_UpdateProfile(t *testing.T) {
 	}
 	defer db.Delete(&user)
 
-	t.Run("successfully update name and email without password", func(t *testing.T) {
-		updated, err := svc.UpdateProfile(user.ID, "New Admin", "profile-new@wat.local", "", "")
+	t.Run("successfully update name, email, and avatar without password", func(t *testing.T) {
+		avatar := "https://example.com/avatar.jpg"
+		updated, err := svc.UpdateProfile(user.ID, "New Admin", "profile-new@wat.local", &avatar, "", "")
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
@@ -59,17 +60,20 @@ func TestUserService_UpdateProfile(t *testing.T) {
 		if updated.Email != "profile-new@wat.local" {
 			t.Fatalf("expected email to be 'profile-new@wat.local', got '%s'", updated.Email)
 		}
+		if updated.AvatarURL != avatar {
+			t.Fatalf("expected avatar_url to be '%s', got '%s'", avatar, updated.AvatarURL)
+		}
 	})
 
 	t.Run("fail to update password if current password is wrong", func(t *testing.T) {
-		_, err := svc.UpdateProfile(user.ID, "New Admin", "profile-new@wat.local", "WrongPassword", "NewPassword123")
+		_, err := svc.UpdateProfile(user.ID, "New Admin", "profile-new@wat.local", nil, "WrongPassword", "NewPassword123")
 		if err == nil {
 			t.Fatal("expected error with wrong current password, got nil")
 		}
 	})
 
 	t.Run("successfully update password with valid current password", func(t *testing.T) {
-		updated, err := svc.UpdateProfile(user.ID, "New Admin", "profile-new@wat.local", "OldPassword123", "NewPassword123")
+		updated, err := svc.UpdateProfile(user.ID, "New Admin", "profile-new@wat.local", nil, "OldPassword123", "NewPassword123")
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}

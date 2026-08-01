@@ -569,7 +569,7 @@ export function EventEditor({ id }: EventEditorProps) {
             </div>
 
             {/* Right Column: Sticky Live Previews Panel */}
-            <div className="lg:col-span-5 sticky top-6 self-start space-y-6">
+            <div className="hidden lg:block lg:col-span-5 sticky top-6 self-start space-y-6">
               <EventCardPreview
                 title={watch("title")}
                 location={watch("location")}

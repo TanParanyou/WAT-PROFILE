@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { User, Shield, Key, Save, CheckCircle2 } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { ImageInputPreview } from "@/components/admin/ImageInputPreview";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/Loading";
@@ -17,6 +18,7 @@ export default function ProfilePage() {
 
   const [name, setName] = useState("");
   const [email, setEmail] = useState("");
+  const [avatarUrl, setAvatarUrl] = useState("");
   const [currentPassword, setCurrentPassword] = useState("");
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
@@ -36,6 +38,7 @@ export default function ProfilePage() {
     if (user) {
       setName(user.name || "");
       setEmail(user.email || "");
+      setAvatarUrl(user.avatar_url || "");
     }
   }, [user]);
 
@@ -87,6 +90,7 @@ export default function ProfilePage() {
       await updateProfile({
         name: name.trim(),
         email: email.trim(),
+        avatar_url: avatarUrl.trim(),
         ...(newPassword
           ? {
               current_password: currentPassword,
@@ -134,6 +138,17 @@ export default function ProfilePage() {
                 {t("profile.subtitle")}
               </p>
             </div>
+          </div>
+
+          {/* Profile Avatar Input with live preview and inline actions */}
+          <div>
+            <ImageInputPreview
+              label={t("profile.avatar")}
+              description={t("profile.avatarHelper")}
+              value={avatarUrl}
+              onChange={setAvatarUrl}
+              variant="avatar"
+            />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">

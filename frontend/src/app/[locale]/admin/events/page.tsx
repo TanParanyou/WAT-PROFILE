@@ -178,7 +178,7 @@ export default function EventsListPage() {
         <div className="flex gap-2">
           <button
             type="button"
-            onClick={() => setPreviewUrl(`/events/${row.id}`)}
+            onClick={() => setPreviewUrl(`/events/${row.slug || row.id}`)}
             className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
             title={t("website.viewPublic")}
           >

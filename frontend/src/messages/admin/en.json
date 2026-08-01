@@ -499,6 +499,8 @@
       "subtitle": "Manage your personal account details and password",
       "generalInfo": "General Information",
       "security": "Security & Password",
+      "avatar": "Profile Avatar",
+      "avatarHelper": "Upload an image from your device or enter an image URL",
       "name": "Full Name",
       "email": "Email Address",
       "role": "Role / Permission Level",
@@ -519,6 +521,26 @@
       "emailRequired": "Email is required",
       "nameRequired": "Name is required",
       "invalidEmail": "Invalid email format"
+    },
+
+    "imageInput": {
+      "uploadImage": "Upload Image",
+      "chooseFile": "Choose File",
+      "dragDropOrClick": "Drag & drop an image or click to upload",
+      "uploading": "Uploading...",
+      "uploadSuccess": "Image uploaded successfully",
+      "uploadFailed": "Image upload failed. Please try again.",
+      "fileSizeExceeded": "File size must not exceed 5MB",
+      "invalidFileType": "Only image files (JPG, PNG, WebP, GIF) are supported",
+      "urlPlaceholder": "https://... or upload from your device",
+      "expand": "Expand Image",
+      "clear": "Clear Image",
+      "copyUrl": "Copy Link",
+      "copied": "Copied!",
+      "replace": "Replace Image",
+      "invalidImage": "Failed to load image",
+      "checkUrlOrUpload": "Please check image URL or choose a file to upload",
+      "ready": "Image Ready"
     },
 
     "roles": {

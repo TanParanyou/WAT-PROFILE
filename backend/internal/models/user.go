@@ -13,6 +13,7 @@ type User struct {
 	Email         string     `gorm:"size:255;uniqueIndex;not null" json:"email"`
 	PasswordHash  string     `gorm:"size:255;not null" json:"-"` // Never return password in JSON
 	Name          string     `gorm:"size:255;not null" json:"name"`
+	AvatarURL     string     `gorm:"size:500" json:"avatar_url,omitempty"`
 	RoleID        *uuid.UUID `gorm:"type:uuid" json:"role_id"`
 	Role          *Role      `gorm:"foreignKey:RoleID" json:"role,omitempty"`
 	EmailVerified bool       `gorm:"default:false" json:"email_verified"`

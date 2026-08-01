@@ -124,6 +124,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             ...user,
             name: data.name ?? user.name,
             email: data.email ?? user.email,
+            avatar_url: data.avatar_url !== undefined ? data.avatar_url : user.avatar_url,
           }
         : mockAdminUser;
       setUser(updated);

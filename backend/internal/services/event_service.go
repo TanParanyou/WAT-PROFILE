@@ -1,6 +1,8 @@
 package services
 
 import (
+	"strconv"
+
 	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"gorm.io/gorm"
@@ -110,15 +112,19 @@ func (s *EventService) ListActive(limit int) ([]models.Event, error) {
 	return events, err
 }
 
-// GetBySlug returns a single active event by slug
+// GetBySlug returns a single active event by slug or ID
 func (s *EventService) GetBySlug(slug string) (*models.Event, error) {
 	var event models.Event
 	preloadSchedules := func(db *gorm.DB) *gorm.DB {
 		return db.Order("display_order ASC")
 	}
-	err := s.db.Where("slug = ? AND is_active = ?", slug, true).
-		Preload("Schedules", preloadSchedules).
-		First(&event).Error
+	query := s.db.Where("is_active = ?", true).Preload("Schedules", preloadSchedules)
+	if id, err := strconv.Atoi(slug); err == nil {
+		query = query.Where("slug = ? OR id = ?", slug, id)
+	} else {
+		query = query.Where("slug = ?", slug)
+	}
+	err := query.First(&event).Error
 	if err != nil {
 		return nil, err
 	}

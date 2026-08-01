@@ -152,10 +152,11 @@ func (h *AuthHandler) GetProfile(c *fiber.Ctx) error {
 
 // UpdateProfileRequest defines request body for updating current user profile
 type UpdateProfileRequest struct {
-	Name            string `json:"name"`
-	Email           string `json:"email"`
-	CurrentPassword string `json:"current_password,omitempty"`
-	NewPassword     string `json:"new_password,omitempty"`
+	Name            string  `json:"name"`
+	Email           string  `json:"email"`
+	AvatarURL       *string `json:"avatar_url,omitempty"`
+	CurrentPassword string  `json:"current_password,omitempty"`
+	NewPassword     string  `json:"new_password,omitempty"`
 }
 
 // UpdateProfile godoc
@@ -179,6 +180,10 @@ func (h *AuthHandler) UpdateProfile(c *fiber.Ctx) error {
 
 	req.Name = strings.TrimSpace(req.Name)
 	req.Email = strings.TrimSpace(req.Email)
+	if req.AvatarURL != nil {
+		trimmed := strings.TrimSpace(*req.AvatarURL)
+		req.AvatarURL = &trimmed
+	}
 
 	if req.Email != "" && !utils.ValidateEmail(req.Email) {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid email format")
@@ -190,7 +195,7 @@ func (h *AuthHandler) UpdateProfile(c *fiber.Ctx) error {
 		}
 	}
 
-	updatedUser, err := h.userService.UpdateProfile(user.ID, req.Name, req.Email, req.CurrentPassword, req.NewPassword)
+	updatedUser, err := h.userService.UpdateProfile(user.ID, req.Name, req.Email, req.AvatarURL, req.CurrentPassword, req.NewPassword)
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}

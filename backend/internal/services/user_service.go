@@ -162,8 +162,8 @@ func (s *UserService) BulkDelete(ids []uuid.UUID, currentUserID uuid.UUID) error
 	return s.db.Where("id IN ?", ids).Delete(&models.User{}).Error
 }
 
-// UpdateProfile allows a user to update their own profile (name, email) and optionally their password
-func (s *UserService) UpdateProfile(userID uuid.UUID, name, email, currentPassword, newPassword string) (*models.User, error) {
+// UpdateProfile allows a user to update their own profile (name, email, avatar_url) and optionally their password
+func (s *UserService) UpdateProfile(userID uuid.UUID, name, email string, avatarURL *string, currentPassword, newPassword string) (*models.User, error) {
 	var user models.User
 	if err := s.db.Preload("Role").Where("id = ?", userID).First(&user).Error; err != nil {
 		return nil, errors.New("user not found")
@@ -183,6 +183,10 @@ func (s *UserService) UpdateProfile(userID uuid.UUID, name, email, currentPasswo
 
 	if name != "" {
 		user.Name = name
+	}
+
+	if avatarURL != nil {
+		user.AvatarURL = *avatarURL
 	}
 
 	// Handle password change if newPassword is provided

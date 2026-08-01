@@ -16,6 +16,7 @@ export interface User {
   id: string;
   email: string;
   name: string;
+  avatar_url?: string;
   role_id: string | null;
   role?: Role;
   email_verified: boolean;
@@ -43,6 +44,7 @@ export interface RefreshResponse {
 export interface UpdateProfileRequest {
   name?: string;
   email?: string;
+  avatar_url?: string;
   current_password?: string;
   new_password?: string;
 }

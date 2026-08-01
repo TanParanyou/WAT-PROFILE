@@ -45,7 +45,7 @@ export default function MonksListPage() {
       defaultSort: "pansa",
       defaultOrder: "desc",
       multi: ["status"],
-      allowedSorts: ["id", "name", "position", "pansa", "created_at"],
+      allowedSorts: ["id", "name", "position", "pansa", "ordination_date", "display_order", "status", "created_at"],
     },
   });
 
@@ -165,7 +165,7 @@ export default function MonksListPage() {
         <div className="flex gap-1.5">
           <button
             type="button"
-            onClick={() => setPreviewUrl(`/monks/${row.slug}`)}
+            onClick={() => setPreviewUrl(`/monks/${row.slug || row.id}`)}
             className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
             title="ดูหน้าเว็บสาธารณะ"
           >

@@ -322,7 +322,7 @@ export function MonkEditor({ id }: MonkEditorProps) {
             </div>
 
             {/* Right Column: Sticky Live Previews Panel */}
-            <div className="lg:col-span-5 sticky top-6 self-start space-y-6">
+            <div className="hidden lg:block lg:col-span-5 sticky top-6 self-start space-y-6">
               <MonkCardPreview
                 name={watch("name")}
                 title={watch("title")}

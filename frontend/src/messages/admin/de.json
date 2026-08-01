@@ -499,6 +499,8 @@
       "subtitle": "Verwalten Sie Ihre persönlichen Kontodaten und Ihr Passwort",
       "generalInfo": "Allgemeine Informationen",
       "security": "Sicherheit & Passwort",
+      "avatar": "Profilbild",
+      "avatarHelper": "Laden Sie ein Bild von Ihrem Gerät hoch oder geben Sie eine Bild-URL ein",
       "name": "Vollständiger Name",
       "email": "E-Mail-Adresse",
       "role": "Rolle / Berechtigungsstufe",
@@ -520,7 +522,25 @@
       "nameRequired": "Name ist erforderlich",
       "invalidEmail": "Ungültiges E-Mail-Format"
     },
-
+    "imageInput": {
+      "uploadImage": "Bild hochladen",
+      "chooseFile": "Datei auswählen",
+      "dragDropOrClick": "Bild hierher ziehen oder zum Hochladen klicken",
+      "uploading": "Wird hochgeladen...",
+      "uploadSuccess": "Bild erfolgreich hochgeladen",
+      "uploadFailed": "Hochladen fehlgeschlagen. Bitte versuchen Sie es erneut.",
+      "fileSizeExceeded": "Dateigröße darf 5MB nicht überschreiten",
+      "invalidFileType": "Nur Bilddateien (JPG, PNG, WebP, GIF) werden unterstützt",
+      "urlPlaceholder": "https://... oder von Ihrem Gerät hochladen",
+      "expand": "Bild vergrößern",
+      "clear": "Bild entfernen",
+      "copyUrl": "Link kopieren",
+      "copied": "Kopiert!",
+      "replace": "Bild ersetzen",
+      "invalidImage": "Bild konnte nicht geladen werden",
+      "checkUrlOrUpload": "Bitte URL überprüfen oder neue Datei hochladen",
+      "ready": "Bild bereit"
+    },
     "roles": {
       "title": "Rollen",
       "create": "Rolle erstellen",

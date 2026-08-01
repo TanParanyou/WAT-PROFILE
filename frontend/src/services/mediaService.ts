@@ -29,11 +29,30 @@ export const mediaService = {
     });
 
     const media = res.data.data?.media;
-    if (!media) {
-      throw new Error("Upload succeeded but media record was not returned");
+    if (media) {
+      return media;
     }
 
-    return media;
+    const url = res.data.data?.url;
+    if (url) {
+      return {
+        id: "",
+        url,
+        filename: file.name,
+        original_filename: file.name,
+        mime_type: file.type,
+        size: file.size,
+        created_at: new Date().toISOString(),
+        updated_at: new Date().toISOString(),
+      } as Media;
+    }
+
+    throw new Error("Upload succeeded but media record was not returned");
+  },
+
+  async uploadImage(file: File): Promise<string> {
+    const media = await this.upload(file);
+    return media.url;
   },
 
   async updateMetadata(id: string, metadata: MediaMetadata): Promise<Media> {

@@ -278,7 +278,7 @@ export function ContactContentForm() {
               </div>
 
               {/* Right Sticky Preview Panel */}
-              <div className="lg:col-span-5 sticky top-6 self-start space-y-6">
+              <div className="hidden lg:block lg:col-span-5 sticky top-6 self-start space-y-6">
                 <ContactDetailsPreview
                   title={watchedTitle}
                   description={watchedDescription}
@@ -341,7 +341,7 @@ export function ContactContentForm() {
                 />
               </div>
 
-              <div className="lg:col-span-5 sticky top-6 self-start space-y-6">
+              <div className="hidden lg:block lg:col-span-5 sticky top-6 self-start space-y-6">
                 <OpeningHoursPreview openingHours={watchedOpeningHours} />
               </div>
             </div>
@@ -395,7 +395,7 @@ export function ContactContentForm() {
                 </div>
               </div>
 
-              <div className="lg:col-span-5 sticky top-6 self-start space-y-6">
+              <div className="hidden lg:block lg:col-span-5 sticky top-6 self-start space-y-6">
                 <MapEmbedPreview
                   embedUrl={watchedMap?.embed_url}
                   directionsUrl={watchedMap?.directions_url}
@@ -493,7 +493,7 @@ export function ContactContentForm() {
                 </div>
               </div>
 
-              <div className="lg:col-span-5 sticky top-6 self-start space-y-6">
+              <div className="hidden lg:block lg:col-span-5 sticky top-6 self-start space-y-6">
                 <TravelGuidePreview transport={watchedTransport} />
               </div>
             </div>
@@ -584,7 +584,7 @@ export function ContactContentForm() {
                 </div>
               </div>
 
-              <div className="lg:col-span-5 sticky top-6 self-start space-y-6">
+              <div className="hidden lg:block lg:col-span-5 sticky top-6 self-start space-y-6">
                 <SocialsPreview socials={watchedSocials} />
               </div>
             </div>
@@ -669,7 +669,7 @@ export function ContactContentForm() {
                 />
               </div>
 
-              <div className="lg:col-span-5 sticky top-6 self-start space-y-6">
+              <div className="hidden lg:block lg:col-span-5 sticky top-6 self-start space-y-6">
                 <BankCardPreview
                   bankName={watchedBank?.bank_name}
                   accountName={watchedBank?.account_name}
@@ -731,7 +731,7 @@ export function ContactContentForm() {
                 </div>
               </div>
 
-              <div className="lg:col-span-5 sticky top-6 self-start space-y-6">
+              <div className="hidden lg:block lg:col-span-5 sticky top-6 self-start space-y-6">
                 <ContactFormPreview
                   enabled={watchedContactForm?.enabled}
                   successMessage={watchedContactForm?.success_message}
@@ -818,7 +818,7 @@ export function ContactContentForm() {
                 />
               </div>
 
-              <div className="lg:col-span-5 sticky top-6 self-start space-y-6">
+              <div className="hidden lg:block lg:col-span-5 sticky top-6 self-start space-y-6">
                 <GoogleSearchPreview
                   seoTitle={watchedSeo?.title}
                   pageTitle={watchedTitle}

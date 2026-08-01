@@ -39,10 +39,14 @@ func (h *MonkHandler) GetAdminMonks(c *fiber.Ctx) error {
 		DefaultSort:  "display_order",
 		DefaultOrder: "asc",
 		AllowedSort: map[string]string{
-			"display_order": "display_order",
-			"name":          "name",
-			"status":        "status",
-			"created_at":    "created_at",
+			"id":              "id",
+			"display_order":   "display_order",
+			"name":            "name",
+			"position":        "position",
+			"pansa":           "pansa",
+			"ordination_date": "ordination_date",
+			"status":          "status",
+			"created_at":      "created_at",
 		},
 	})
 	if err != nil {
