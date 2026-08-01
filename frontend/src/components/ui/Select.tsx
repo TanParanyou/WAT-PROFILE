@@ -31,7 +31,7 @@ const Select = React.forwardRef<HTMLSelectElement, SelectProps>(
                     ref={ref}
                     required={required}
                     className={cn(
-                        'min-h-11 w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground',
+                        'min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground',
                         'focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus',
                         'disabled:cursor-not-allowed disabled:bg-admin-surface-muted disabled:text-admin-muted',
                         error && 'border-admin-danger focus-visible:border-admin-danger focus-visible:outline-admin-danger',

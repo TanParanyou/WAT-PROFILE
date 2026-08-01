@@ -12,7 +12,7 @@ Public preview content remains governed by the repository-root `DESIGN.md`.
 - Status UI uses `admin-success`, `admin-warning`, `admin-danger`, or `admin-info`.
 
 ## Shape and hierarchy
-- Default controls and panels use `rounded-lg`; compact icon controls may use `rounded-md`.
+- Default controls, panels, cards, inputs, and CTAs use `rounded-none` (0px corner radius) matching the public client design system.
 - Primary actions use `admin-action`; destructive actions use `admin-danger`.
 - Focus is always visible through `admin-focus`; minimum target height is 44px.
 - Use spacing, borders, and muted surfaces before shadows.
