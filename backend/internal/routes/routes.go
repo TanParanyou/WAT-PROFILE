@@ -78,6 +78,8 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	auth.Post("/login", authHandler.Login)
 	auth.Post("/refresh", authHandler.RefreshToken)
 	auth.Get("/me", middleware.AuthRequired, authHandler.GetProfile)
+	auth.Put("/me", middleware.AuthRequired, authHandler.UpdateProfile)
+
 
 	// ============ MEMBER ROUTES (Auth Required, No Admin) ============
 	member := api.Group("/member", middleware.AuthRequired)

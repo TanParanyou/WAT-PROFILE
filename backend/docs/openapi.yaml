@@ -326,6 +326,43 @@ paths:
                         $ref: '#/components/schemas/User'
         '401':
           $ref: '#/components/responses/Unauthorized'
+    put:
+      tags: [Auth]
+      summary: Update current user profile
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                email:
+                  type: string
+                  format: email
+                current_password:
+                  type: string
+                new_password:
+                  type: string
+      responses:
+        '200':
+          description: User profile updated
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
 
   # ==================== MEMBER ====================
   /member/register:

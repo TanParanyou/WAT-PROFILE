@@ -16,6 +16,21 @@ import type { ContactContentFormData } from "@/types/public-content";
 import type { MultiLangText } from "@/types/api";
 import { useTranslations } from "next-intl";
 
+import {
+  TestLinkButton,
+  TestPhoneButton,
+  TestEmailButton,
+  UrlImageInputWithPreview,
+  MapEmbedPreview,
+  GoogleSearchPreview,
+  BankCardPreview,
+  SocialsPreview,
+  ContactDetailsPreview,
+  OpeningHoursPreview,
+  TravelGuidePreview,
+  ContactFormPreview,
+} from "@/components/admin/preview";
+
 export function ContactContentForm() {
   const t = useTranslations("Admin.publicContent");
   const { data: contactData, isLoading } = useContactContentQuery();
@@ -86,6 +101,20 @@ export function ContactContentForm() {
     control,
     name: "body.transport.public_transport",
   });
+
+  // Watch form fields for real-time previews
+  const watchedTitle = watch("title");
+  const watchedDescription = watch("description");
+  const watchedAddress = watch("body.address");
+  const watchedPhone = watch("body.phone");
+  const watchedEmail = watch("body.email");
+  const watchedOpeningHours = watch("body.opening_hours");
+  const watchedMap = watch("body.map");
+  const watchedTransport = watch("body.transport");
+  const watchedSocials = watch("body.socials");
+  const watchedBank = watch("body.bank");
+  const watchedContactForm = watch("body.contact_form");
+  const watchedSeo = watch("seo");
 
   useEffect(() => {
     if (contactData) {
@@ -168,9 +197,12 @@ export function ContactContentForm() {
           {/* Form Content per tab */}
           <div className="bg-admin-surface p-6 rounded-none border border-admin-border space-y-6">
             
+            {/* 1. DETAILS TAB */}
             {activeTab === "details" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("contact.detailsHeading")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">
+                  {t("contact.detailsHeading")}
+                </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -219,7 +251,10 @@ export function ContactContentForm() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-admin-body">{t("contact.phone")}</label>
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-medium text-admin-body">{t("contact.phone")}</label>
+                      <TestPhoneButton phone={watchedPhone} />
+                    </div>
                     <input
                       type="text"
                       {...methods.register("body.phone")}
@@ -228,7 +263,10 @@ export function ContactContentForm() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-admin-body">{t("contact.email")}</label>
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-medium text-admin-body">{t("contact.email")}</label>
+                      <TestEmailButton email={watchedEmail} />
+                    </div>
                     <input
                       type="text"
                       {...methods.register("body.email")}
@@ -238,12 +276,24 @@ export function ContactContentForm() {
                     {errors.body?.email && <p className="text-sm text-admin-danger mt-1">{errors.body.email.message}</p>}
                   </div>
                 </div>
+
+                {/* Details Tab Live Preview */}
+                <ContactDetailsPreview
+                  title={watchedTitle}
+                  description={watchedDescription}
+                  address={watchedAddress}
+                  phone={watchedPhone}
+                  email={watchedEmail}
+                />
               </div>
             )}
 
+            {/* 2. OPENING HOURS TAB */}
             {activeTab === "opening" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("contact.hoursHeadingDesc")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">
+                  {t("contact.hoursHeadingDesc")}
+                </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -286,12 +336,18 @@ export function ContactContentForm() {
                     />
                   )}
                 />
+
+                {/* Opening Hours Live Preview */}
+                <OpeningHoursPreview openingHours={watchedOpeningHours} />
               </div>
             )}
 
+            {/* 3. MAP TAB */}
             {activeTab === "map" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("contact.mapHeadingDesc")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">
+                  {t("contact.mapHeadingDesc")}
+                </h3>
                 
                 <Controller
                   name="body.map.name"
@@ -319,7 +375,10 @@ export function ContactContentForm() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-admin-body">{t("contact.mapDirections")}</label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-admin-body">{t("contact.mapDirections")}</label>
+                    <TestLinkButton href={watchedMap?.directions_url} label="ทดสอบลิงก์นำทาง" />
+                  </div>
                   <input
                     type="text"
                     {...methods.register("body.map.directions_url")}
@@ -328,12 +387,22 @@ export function ContactContentForm() {
                   />
                   {errors.body?.map?.directions_url && <p className="text-sm text-admin-danger mt-1">{errors.body.map.directions_url.message}</p>}
                 </div>
+
+                {/* Map Live Preview Component */}
+                <MapEmbedPreview
+                  embedUrl={watchedMap?.embed_url}
+                  directionsUrl={watchedMap?.directions_url}
+                  mapName={watchedMap?.name}
+                />
               </div>
             )}
 
+            {/* 4. TRAVEL TAB */}
             {activeTab === "travel" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("contact.travelHeadingDesc")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">
+                  {t("contact.travelHeadingDesc")}
+                </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -413,16 +482,25 @@ export function ContactContentForm() {
                     )}
                   </div>
                 </div>
+
+                {/* Travel Live Preview */}
+                <TravelGuidePreview transport={watchedTransport} />
               </div>
             )}
 
+            {/* 5. SOCIALS TAB */}
             {activeTab === "socials" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("contact.socialsHeading")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">
+                  {t("contact.socialsHeading")}
+                </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-admin-body">Facebook URL</label>
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-medium text-admin-body">Facebook URL</label>
+                      <TestLinkButton href={watchedSocials?.facebook} label="ทดสอบเปิด Facebook" />
+                    </div>
                     <input
                       type="text"
                       {...methods.register("body.socials.facebook")}
@@ -433,7 +511,10 @@ export function ContactContentForm() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-admin-body">Instagram URL</label>
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-medium text-admin-body">Instagram URL</label>
+                      <TestLinkButton href={watchedSocials?.instagram} label="ทดสอบเปิด Instagram" />
+                    </div>
                     <input
                       type="text"
                       {...methods.register("body.socials.instagram")}
@@ -446,7 +527,10 @@ export function ContactContentForm() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-admin-body">Facebook Messenger URL</label>
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-medium text-admin-body">Facebook Messenger URL</label>
+                      <TestLinkButton href={watchedSocials?.messenger} label="ทดสอบเปิด Messenger" />
+                    </div>
                     <input
                       type="text"
                       {...methods.register("body.socials.messenger")}
@@ -457,7 +541,13 @@ export function ContactContentForm() {
                   </div>
 
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-admin-body">LINE ID / Add URL</label>
+                    <div className="flex items-center justify-between">
+                      <label className="text-sm font-medium text-admin-body">LINE ID / Add URL</label>
+                      <TestLinkButton
+                        href={watchedSocials?.line?.startsWith("http") ? watchedSocials?.line : `https://line.me/R/ti/p/${watchedSocials?.line}`}
+                        label="ทดสอบเปิด LINE"
+                      />
+                    </div>
                     <input
                       type="text"
                       {...methods.register("body.socials.line")}
@@ -468,7 +558,10 @@ export function ContactContentForm() {
                 </div>
 
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-admin-body">YouTube Channel URL</label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-admin-body">YouTube Channel URL</label>
+                    <TestLinkButton href={watchedSocials?.youtube} label="ทดสอบเปิด YouTube" />
+                  </div>
                   <input
                     type="text"
                     {...methods.register("body.socials.youtube")}
@@ -477,12 +570,18 @@ export function ContactContentForm() {
                   />
                   {errors.body?.socials?.youtube && <p className="text-sm text-admin-danger mt-1">{errors.body.socials.youtube.message}</p>}
                 </div>
+
+                {/* Social Buttons Live Preview */}
+                <SocialsPreview socials={watchedSocials} />
               </div>
             )}
 
+            {/* 6. BANK TAB */}
             {activeTab === "bank" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("contact.bankHeadingDesc")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">
+                  {t("contact.bankHeadingDesc")}
+                </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -538,17 +637,40 @@ export function ContactContentForm() {
                     />
                   </div>
                 </div>
-                <div className="space-y-1">
-                  <label className="text-sm font-medium text-admin-body">{t("contact.qrImageUrl")}</label>
-                  <input type="url" {...methods.register("body.bank.qr_image_url")} placeholder="https://..." className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus" />
-                  {errors.body?.bank?.qr_image_url && <p className="mt-1 text-sm text-admin-danger">{errors.body.bank.qr_image_url.message}</p>}
-                </div>
+
+                {/* QR Image Input with MediaPicker & Lightbox Preview */}
+                <Controller
+                  name="body.bank.qr_image_url"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <UrlImageInputWithPreview
+                      label={t("contact.qrImageUrl")}
+                      value={field.value}
+                      onChange={field.onChange}
+                      description="อัปโหลดหรือระบุ URL รูปภาพ QR Code สำหรับสแกนโอนเงินบริจาค"
+                      error={fieldState.error?.message}
+                    />
+                  )}
+                />
+
+                {/* Bank Card Live Preview */}
+                <BankCardPreview
+                  bankName={watchedBank?.bank_name}
+                  accountName={watchedBank?.account_name}
+                  accountNumber={watchedBank?.account_number}
+                  iban={watchedBank?.iban}
+                  bic={watchedBank?.bic}
+                  qrImageUrl={watchedBank?.qr_image_url}
+                />
               </div>
             )}
 
+            {/* 7. FORM TAB */}
             {activeTab === "form" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("contact.formHeading")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">
+                  {t("contact.formHeading")}
+                </h3>
                 
                 <div className="flex items-center gap-2">
                   <input
@@ -578,7 +700,10 @@ export function ContactContentForm() {
                 />
 
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-admin-body">ลิงก์หน้านโยบายความเป็นส่วนตัว (Privacy Page Link)</label>
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-admin-body">ลิงก์หน้านโยบายความเป็นส่วนตัว (Privacy Page Link)</label>
+                    <TestLinkButton href={watchedContactForm?.privacy_page_link} label="ทดสอบเปิดลิงก์" />
+                  </div>
                   <input
                     type="text"
                     {...methods.register("body.contact_form.privacy_page_link")}
@@ -586,12 +711,22 @@ export function ContactContentForm() {
                     className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                   />
                 </div>
+
+                {/* Contact Form Live Mockup Preview */}
+                <ContactFormPreview
+                  enabled={watchedContactForm?.enabled}
+                  successMessage={watchedContactForm?.success_message}
+                  privacyPageLink={watchedContactForm?.privacy_page_link}
+                />
               </div>
             )}
 
+            {/* 8. SEO TAB */}
             {activeTab === "seo" && (
               <div className="space-y-6">
-                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">{t("seo.title")}</h3>
+                <h3 className="text-lg font-medium text-admin-foreground border-b border-admin-border pb-2">
+                  {t("seo.title")}
+                </h3>
                 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <Controller
@@ -646,15 +781,31 @@ export function ContactContentForm() {
                   </div>
                 </div>
 
-                <div className="space-y-1">
-                  <label className="text-sm font-medium text-admin-body">{t("seo.ogImage")}</label>
-                  <input
-                    type="text"
-                    {...methods.register("seo.og_image")}
-                    placeholder="https://example.com/image.jpg"
-                    className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
-                  />
-                </div>
+                {/* OG Image Input with MediaPicker & Lightbox Preview */}
+                <Controller
+                  name="seo.og_image"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <UrlImageInputWithPreview
+                      label={t("seo.ogImage")}
+                      value={field.value}
+                      onChange={field.onChange}
+                      description="รูปภาพตัวอย่างสำหรับแสดงเมื่อแชร์ลิงก์เพจบน Facebook, LINE หรือโซเชียลมีเดีย"
+                      error={fieldState.error?.message}
+                    />
+                  )}
+                />
+
+                {/* Google Search & Social Share Live Preview */}
+                <GoogleSearchPreview
+                  seoTitle={watchedSeo?.title}
+                  pageTitle={watchedTitle}
+                  seoDescription={watchedSeo?.description}
+                  pageDescription={watchedDescription}
+                  canonicalUrl={watchedSeo?.canonical_url}
+                  noindex={watchedSeo?.noindex}
+                  ogImage={watchedSeo?.og_image}
+                />
               </div>
             )}
 
@@ -671,4 +822,5 @@ export function ContactContentForm() {
     </FormProvider>
   );
 }
+
 export default ContactContentForm;

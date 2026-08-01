@@ -12,13 +12,16 @@ import (
 
 type AuthHandler struct {
 	authService *services.AuthService
+	userService *services.UserService
 }
 
 func NewAuthHandler(db *gorm.DB) *AuthHandler {
 	return &AuthHandler{
 		authService: services.NewAuthService(db),
+		userService: services.NewUserService(db),
 	}
 }
+
 
 // Register godoc
 // @Summary Register a new user
@@ -146,3 +149,52 @@ func (h *AuthHandler) GetProfile(c *fiber.Ctx) error {
 
 	return utils.SuccessResponse(c, user)
 }
+
+// UpdateProfileRequest defines request body for updating current user profile
+type UpdateProfileRequest struct {
+	Name            string `json:"name"`
+	Email           string `json:"email"`
+	CurrentPassword string `json:"current_password,omitempty"`
+	NewPassword     string `json:"new_password,omitempty"`
+}
+
+// UpdateProfile godoc
+// @Summary Update current user profile
+// @Tags auth
+// @Accept json
+// @Produce json
+// @Security BearerAuth
+// @Success 200 {object} map[string]interface{}
+// @Router /api/v1/auth/me [put]
+func (h *AuthHandler) UpdateProfile(c *fiber.Ctx) error {
+	user, err := middleware.GetCurrentUser(c)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusUnauthorized, "Unauthorized")
+	}
+
+	var req UpdateProfileRequest
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	req.Name = strings.TrimSpace(req.Name)
+	req.Email = strings.TrimSpace(req.Email)
+
+	if req.Email != "" && !utils.ValidateEmail(req.Email) {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid email format")
+	}
+
+	if req.NewPassword != "" {
+		if err := utils.ValidateMinLength(req.NewPassword, 8, "new_password"); err != nil {
+			return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+		}
+	}
+
+	updatedUser, err := h.userService.UpdateProfile(user.ID, req.Name, req.Email, req.CurrentPassword, req.NewPassword)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+
+	return utils.SuccessResponse(c, updatedUser)
+}
+

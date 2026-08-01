@@ -2,7 +2,6 @@ package seo
 
 import (
 	"fmt"
-	"strings"
 
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 )
@@ -31,8 +30,8 @@ func ValidateMap(raw models.JSONMap) error {
 	}
 	for _, key := range []string{"og_image", "canonical_url"} {
 		if value, ok := raw[key]; ok {
-			if text, valid := value.(string); !valid || strings.TrimSpace(text) == "" {
-				return fmt.Errorf("seo.%s must be a non-empty string", key)
+			if _, valid := value.(string); !valid {
+				return fmt.Errorf("seo.%s must be a string", key)
 			}
 		}
 	}

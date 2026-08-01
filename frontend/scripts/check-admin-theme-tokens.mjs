@@ -9,6 +9,16 @@ const publicPreviewOwners = new Set([
   "src/components/admin/website/DevicePreviewFrame.tsx",
   "src/components/admin/website/WebsitePreviewPanel.tsx",
   "src/components/admin/rich-text/RichTextContent.tsx",
+  "src/components/admin/preview/TestLinkButton.tsx",
+  "src/components/admin/preview/UrlImageInputWithPreview.tsx",
+  "src/components/admin/preview/MapEmbedPreview.tsx",
+  "src/components/admin/preview/GoogleSearchPreview.tsx",
+  "src/components/admin/preview/BankCardPreview.tsx",
+  "src/components/admin/preview/SocialsPreview.tsx",
+  "src/components/admin/preview/ContactDetailsPreview.tsx",
+  "src/components/admin/preview/OpeningHoursPreview.tsx",
+  "src/components/admin/preview/TravelGuidePreview.tsx",
+  "src/components/admin/preview/ContactFormPreview.tsx",
 ]);
 const findings = [];
 

@@ -7,6 +7,12 @@ import { RichTextEditor } from "./RichTextEditor";
 
 type RichTextLocale = { code: string; label: string };
 
+const DEFAULT_RICH_TEXT_PLACEHOLDERS: Record<string, string> = {
+  th: "เขียนคำอธิบาย...",
+  en: "Write description...",
+  de: "Beschreibung schreiben...",
+};
+
 type MultiLangRichTextProps = {
   label: string;
   locales: RichTextLocale[];
@@ -15,6 +21,7 @@ type MultiLangRichTextProps = {
   onChange: (value: LocalizedRichText) => void;
   disabled?: boolean;
   required?: boolean;
+  placeholder?: string | Record<string, string>;
   error?: string;
 };
 
@@ -26,6 +33,7 @@ export function MultiLangRichText({
   onChange,
   disabled = false,
   required = false,
+  placeholder,
   error,
 }: MultiLangRichTextProps) {
   const [selectedLocale, setSelectedLocale] = useState(defaultLocale);
@@ -37,6 +45,16 @@ export function MultiLangRichText({
     () => getLocalizedRichText(safeValue, activeLocale, defaultLocale),
     [activeLocale, defaultLocale, safeValue],
   );
+
+  const activePlaceholder = useMemo(() => {
+    if (typeof placeholder === "object" && placeholder !== null) {
+      return placeholder[activeLocale] || placeholder.th || placeholder.en || "";
+    }
+    if (typeof placeholder === "string" && placeholder) {
+      return placeholder;
+    }
+    return DEFAULT_RICH_TEXT_PLACEHOLDERS[activeLocale] || `${label} (${activeLocale.toUpperCase()})`;
+  }, [placeholder, activeLocale, label]);
 
   const handleEditorChange = (doc: RichTextDocument) => {
     onChange({
@@ -74,6 +92,7 @@ export function MultiLangRichText({
         value={activeDocument}
         onChange={handleEditorChange}
         disabled={disabled}
+        placeholder={activePlaceholder}
         error={error}
       />
     </div>

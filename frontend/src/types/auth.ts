@@ -40,6 +40,14 @@ export interface RefreshResponse {
   access_token: string;
 }
 
+export interface UpdateProfileRequest {
+  name?: string;
+  email?: string;
+  current_password?: string;
+  new_password?: string;
+}
+
+
 // Permission action types
 export type PermissionAction = "read" | "create" | "update" | "delete";
 

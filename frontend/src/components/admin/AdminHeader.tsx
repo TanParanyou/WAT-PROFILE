@@ -2,6 +2,7 @@
 
 import React from "react";
 import { LogOut, User, Menu } from "lucide-react";
+import { Link } from "@/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminLocale } from "@/hooks/useAdminLocale";
 import { useTranslations } from "next-intl";
@@ -41,12 +42,16 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
           <span className="text-sm font-medium text-admin-muted hidden sm:block">
             {t("language")}:
           </span>
-          <div className="flex bg-admin-surface-muted border border-admin-border rounded-none p-1">
+          <div className="flex border border-admin-control-border rounded overflow-hidden">
             {["th", "en", "de"].map((l) => (
               <button
                 key={l}
                 onClick={() => changeLocale(l)}
-                className={`px-2 py-1 text-xs rounded-none transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus ${locale === l ? "bg-admin-selected text-admin-selected-foreground font-medium" : "text-admin-muted hover:text-admin-foreground"}`}
+                className={`px-3 py-1 text-xs font-medium uppercase transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus ${
+                  locale === l
+                    ? "bg-admin-action text-admin-on-action"
+                    : "bg-admin-surface text-admin-muted hover:bg-admin-surface-muted hover:text-admin-foreground"
+                }`}
               >
                 {l.toUpperCase()}
               </button>
@@ -54,16 +59,23 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
           </div>
         </div>
 
-        {/* User info */}
-        <div className="flex items-center gap-2 text-sm">
-          <div className="h-8 w-8 rounded-full bg-admin-surface-muted border border-admin-border flex items-center justify-center text-admin-body">
+        {/* User info / Profile Link */}
+        <Link
+          href="/admin/profile"
+          className="flex items-center gap-2 text-sm p-1.5 rounded-lg hover:bg-admin-surface-muted transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus group"
+          title={t("profile")}
+        >
+          <div className="h-8 w-8 rounded-full bg-admin-surface-muted border border-admin-border flex items-center justify-center text-admin-body group-hover:border-admin-action group-hover:text-admin-action transition-colors">
             <User size={16} />
           </div>
-          <div className="hidden sm:block">
-            <p className="font-medium text-admin-foreground">{user?.name}</p>
-            <p className="text-xs text-admin-muted">{user?.role?.name}</p>
+          <div className="hidden sm:block text-left">
+            <p className="font-medium text-admin-foreground group-hover:text-admin-action transition-colors leading-tight">
+              {user?.name}
+            </p>
+            <p className="text-xs text-admin-muted leading-tight">{user?.role?.name}</p>
           </div>
-        </div>
+        </Link>
+
 
         {/* Logout */}
         <button

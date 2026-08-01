@@ -1,5 +1,5 @@
 import api from './api';
-import type { LoginRequest, LoginResponse, RefreshResponse, User } from '@/types/auth';
+import type { LoginRequest, LoginResponse, RefreshResponse, UpdateProfileRequest, User } from '@/types/auth';
 import type { ApiResponse } from '@/types/api';
 
 const authService = {
@@ -18,6 +18,12 @@ const authService = {
         const res = await api.get<ApiResponse<User>>('/auth/me');
         return res.data.data!;
     },
+
+    async updateProfile(data: UpdateProfileRequest): Promise<User> {
+        const res = await api.put<ApiResponse<User>>('/auth/me', data);
+        return res.data.data!;
+    },
+
 
     async refreshToken(): Promise<string> {
         const refreshToken = localStorage.getItem('refresh_token');

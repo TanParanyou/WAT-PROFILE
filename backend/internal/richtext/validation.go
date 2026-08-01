@@ -12,32 +12,37 @@ import (
 
 // Allowed Node Types
 const (
-	NodeDoc             = "doc"
-	NodeParagraph       = "paragraph"
-	NodeHeading         = "heading"
-	NodeBulletList      = "bulletList"
-	NodeOrderedList     = "orderedList"
-	NodeListItem        = "listItem"
-	NodeBlockquote      = "blockquote"
-	NodeHorizontalRule  = "horizontalRule"
-	NodeImage           = "image"
-	NodeText            = "text"
+	NodeDoc            = "doc"
+	NodeParagraph      = "paragraph"
+	NodeHeading        = "heading"
+	NodeBulletList     = "bulletList"
+	NodeOrderedList    = "orderedList"
+	NodeListItem       = "listItem"
+	NodeBlockquote     = "blockquote"
+	NodeHorizontalRule = "horizontalRule"
+	NodeHardBreak      = "hardBreak"
+	NodeCodeBlock      = "codeBlock"
+	NodeImage          = "image"
+	NodeText           = "text"
 )
 
 // Allowed Mark Types
 const (
-	MarkBold   = "bold"
-	MarkItalic = "italic"
-	MarkStrike = "strike"
-	MarkLink   = "link"
+	MarkBold      = "bold"
+	MarkItalic    = "italic"
+	MarkStrike    = "strike"
+	MarkUnderline = "underline"
+	MarkCode      = "code"
+	MarkTextStyle = "textStyle"
+	MarkLink      = "link"
 )
 
 type Node struct {
-	Type    string           `json:"type"`
-	Content []Node           `json:"content,omitempty"`
-	Text    string           `json:"text,omitempty"`
-	Attrs   map[string]any   `json:"attrs,omitempty"`
-	Marks   []Mark           `json:"marks,omitempty"`
+	Type    string         `json:"type"`
+	Content []Node         `json:"content,omitempty"`
+	Text    string         `json:"text,omitempty"`
+	Attrs   map[string]any `json:"attrs,omitempty"`
+	Marks   []Mark         `json:"marks,omitempty"`
 }
 
 type Mark struct {
@@ -52,7 +57,7 @@ func ValidateLocalized(rt models.LocalizedRichText) error {
 		if len(raw) == 0 || string(raw) == "null" {
 			continue
 		}
-		
+
 		// Attempt to parse raw JSON into a Tiptap JSONContent node
 		var node Node
 		if err := json.Unmarshal(raw, &node); err != nil {
@@ -78,13 +83,13 @@ func ValidateNode(n Node, path string) error {
 	}
 
 	switch n.Type {
-	case NodeDoc, NodeParagraph, NodeBulletList, NodeOrderedList, NodeListItem, NodeBlockquote, NodeHorizontalRule, NodeText:
+	case NodeDoc, NodeParagraph, NodeBulletList, NodeOrderedList, NodeListItem, NodeBlockquote, NodeHorizontalRule, NodeHardBreak, NodeCodeBlock, NodeText:
 		// Basic node types allowed, check contents later
 	case NodeHeading:
-		// heading levels 2 and 3 only
+		// heading levels 1 to 6 allowed
 		level, ok := n.Attrs["level"].(float64)
-		if !ok || (level != 2 && level != 3) {
-			return fmt.Errorf("%s.attrs.level: heading level must be 2 or 3", path)
+		if !ok || level < 1 || level > 6 {
+			return fmt.Errorf("%s.attrs.level: heading level must be between 1 and 6", path)
 		}
 	case NodeImage:
 		// image must have src with http, https, or internal /
@@ -103,11 +108,11 @@ func ValidateNode(n Node, path string) error {
 	for i, m := range n.Marks {
 		markPath := fmt.Sprintf("%s.marks[%d]", path, i)
 		switch m.Type {
-		case MarkBold, MarkItalic, MarkStrike:
+		case MarkBold, MarkItalic, MarkStrike, MarkUnderline, MarkCode, MarkTextStyle:
 			// basic marks allowed
 		case MarkLink:
 			href, ok := m.Attrs["href"].(string)
-			if !ok || href == "" {
+			if !ok || strings.TrimSpace(href) == "" {
 				return fmt.Errorf("%s.attrs.href: link href must be a non-empty string", markPath)
 			}
 			if err := validateURL(href, fmt.Sprintf("%s.attrs.href", markPath)); err != nil {
@@ -130,12 +135,13 @@ func ValidateNode(n Node, path string) error {
 }
 
 func validateURL(rawURL string, path string) error {
+	rawURL = strings.TrimSpace(rawURL)
 	if strings.HasPrefix(rawURL, "/") {
 		// Absolute internal path, allowed
 		return nil
 	}
-	if strings.HasPrefix(rawURL, "mailto:") {
-		// Mailto link, allowed
+	if strings.HasPrefix(rawURL, "mailto:") || strings.HasPrefix(rawURL, "tel:") {
+		// Mailto and Tel links allowed
 		return nil
 	}
 	u, err := url.Parse(rawURL)

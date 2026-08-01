@@ -14,11 +14,11 @@ const iconMap: Record<TType, ElementType> = {
 };
 
 const toneMap: Record<TType, string> = {
-    success: 'border-admin-success/30 bg-admin-success-surface text-admin-foreground',
-    error: 'border-admin-danger/30 bg-admin-danger-surface text-admin-foreground',
-    warning: 'border-admin-warning/30 bg-admin-warning-surface text-admin-foreground',
-    info: 'border-admin-info/30 bg-admin-info-surface text-admin-foreground',
-    loading: 'border-admin-border bg-admin-surface-muted text-admin-foreground',
+    success: 'border-admin-border border-l-admin-success border-l-[6px] bg-admin-surface text-admin-foreground shadow-xl',
+    error: 'border-admin-border border-l-admin-danger border-l-[6px] bg-admin-surface text-admin-foreground shadow-xl',
+    warning: 'border-admin-border border-l-admin-warning border-l-[6px] bg-admin-surface text-admin-foreground shadow-xl',
+    info: 'border-admin-border border-l-admin-info border-l-[6px] bg-admin-surface text-admin-foreground shadow-xl',
+    loading: 'border-admin-border border-l-admin-muted border-l-[6px] bg-admin-surface text-admin-foreground shadow-xl',
 };
 
 const iconToneMap: Record<TType, string> = {
@@ -45,7 +45,7 @@ export function ToastContainer() {
                         role="status"
                         aria-live={toast.type === 'error' ? 'assertive' : 'polite'}
                         className={cn(
-                            'pointer-events-auto flex items-start gap-3 rounded-none border px-4 py-3 shadow-lg backdrop-blur-sm',
+                            'pointer-events-auto flex items-start gap-3 rounded-md border px-4 py-3 backdrop-blur-sm',
                             toneMap[toast.type],
                         )}
                     >

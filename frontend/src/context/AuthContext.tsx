@@ -8,7 +8,7 @@ import React, {
   useCallback,
 } from "react";
 import authService from "@/services/authService";
-import type { User, LoginRequest } from "@/types/auth";
+import type { User, LoginRequest, UpdateProfileRequest } from "@/types/auth";
 
 interface AuthContextType {
   user: User | null;
@@ -17,7 +17,9 @@ interface AuthContextType {
   login: (data: LoginRequest) => Promise<void>;
   logout: () => void;
   refreshUser: () => Promise<void>;
+  updateProfile: (data: UpdateProfileRequest) => Promise<User>;
 }
+
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -115,6 +117,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setUser(null);
   };
 
+  const updateProfile = async (data: UpdateProfileRequest): Promise<User> => {
+    if (skipAdminAuth) {
+      const updated: User = user
+        ? {
+            ...user,
+            name: data.name ?? user.name,
+            email: data.email ?? user.email,
+          }
+        : mockAdminUser;
+      setUser(updated);
+      return updated;
+    }
+
+    const updated = await authService.updateProfile(data);
+    setUser(updated);
+    return updated;
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -124,11 +144,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         login,
         logout,
         refreshUser,
+        updateProfile,
       }}
     >
       {children}
     </AuthContext.Provider>
   );
+
 }
 
 export function useAuthContext() {

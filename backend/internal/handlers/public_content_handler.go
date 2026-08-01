@@ -110,7 +110,7 @@ func (h *PublicContentHandler) GetPrivacy(c *fiber.Ctx) error {
 func (h *PublicContentHandler) SavePrivacy(c *fiber.Ctx) error {
 	var input publiccontent.PrivacyContent
 	if err := c.BodyParser(&input); err != nil {
-		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid payload")
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid payload: "+err.Error())
 	}
 
 	if err := publiccontent.ValidatePrivacyContent(&input); err != nil {

@@ -161,3 +161,49 @@ func (s *UserService) BulkDelete(ids []uuid.UUID, currentUserID uuid.UUID) error
 	}
 	return s.db.Where("id IN ?", ids).Delete(&models.User{}).Error
 }
+
+// UpdateProfile allows a user to update their own profile (name, email) and optionally their password
+func (s *UserService) UpdateProfile(userID uuid.UUID, name, email, currentPassword, newPassword string) (*models.User, error) {
+	var user models.User
+	if err := s.db.Preload("Role").Where("id = ?", userID).First(&user).Error; err != nil {
+		return nil, errors.New("user not found")
+	}
+
+	// Email uniqueness check if email is changed
+	if email != "" && email != user.Email {
+		var count int64
+		if err := s.db.Model(&models.User{}).Where("email = ? AND id != ?", email, userID).Count(&count).Error; err != nil {
+			return nil, err
+		}
+		if count > 0 {
+			return nil, errors.New("email already in use")
+		}
+		user.Email = email
+	}
+
+	if name != "" {
+		user.Name = name
+	}
+
+	// Handle password change if newPassword is provided
+	if newPassword != "" {
+		if currentPassword == "" {
+			return nil, errors.New("current password is required to set a new password")
+		}
+		if !utils.CheckPasswordHash(currentPassword, user.PasswordHash) {
+			return nil, errors.New("incorrect current password")
+		}
+		hashedPassword, err := utils.HashPassword(newPassword)
+		if err != nil {
+			return nil, err
+		}
+		user.PasswordHash = hashedPassword
+	}
+
+	if err := s.db.Save(&user).Error; err != nil {
+		return nil, err
+	}
+
+	return &user, nil
+}
+
