@@ -18,8 +18,7 @@ import { AdminPageSizeSelect } from "@/components/admin/list/AdminPageSizeSelect
 export interface Column<T> {
   header: string;
   accessorKey?: keyof T;
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  cell?: (value: any, row: T) => React.ReactNode;
+  cell?: (value: unknown, row: T) => React.ReactNode;
   className?: string;
   sortable?: boolean;
 }

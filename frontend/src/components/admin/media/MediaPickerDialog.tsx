@@ -12,6 +12,7 @@ import {
   AdminActiveFilterChips,
   AdminListEmptyState,
   AdminListErrorState,
+  AdminListToolbar,
 } from "@/components/admin/list";
 
 type MediaPickerDialogProps = {
@@ -168,9 +169,9 @@ export function MediaPickerDialog({
             className="hidden"
           />
 
-          {/* Search Toolbar using existing AdminSearchInput & Filter Chips */}
-          <div className="space-y-2">
-            <div className="flex items-center gap-2">
+          <AdminListToolbar
+            activeFilterCount={0}
+            search={
               <AdminSearchInput
                 value={searchQuery}
                 isDebouncing={false}
@@ -179,15 +180,17 @@ export function MediaPickerDialog({
                 onSubmit={(val) => setSearchQuery(val)}
                 onClear={() => setSearchQuery("")}
               />
-            </div>
-            {activeChips.length > 0 && (
-              <AdminActiveFilterChips
-                filters={activeChips}
-                onRemove={() => setSearchQuery("")}
-                onClear={() => setSearchQuery("")}
-              />
-            )}
-          </div>
+            }
+            activeFilters={
+              activeChips.length > 0 ? (
+                <AdminActiveFilterChips
+                  filters={activeChips}
+                  onRemove={() => setSearchQuery("")}
+                  onClear={() => setSearchQuery("")}
+                />
+              ) : undefined
+            }
+          />
 
           {/* Main List Content */}
           {error ? (

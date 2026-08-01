@@ -21,6 +21,7 @@ export interface UseAdminListStateOptions<TFilters extends AdminFilterRecord> {
 export interface AdminListActions<TFilters extends AdminFilterRecord> {
   setSearch(value: string, immediate?: boolean): void;
   setFilter<K extends keyof TFilters>(key: K, value: TFilters[K]): void;
+  setFilters(updates: Partial<TFilters>): void;
   removeFilterValue<K extends keyof TFilters>(key: K, value: string): void;
   clearFilters(): void;
   setSort(key: string): void;
@@ -134,6 +135,29 @@ export function useAdminListState<TFilters extends AdminFilterRecord>(
     [params, updateUrl],
   );
 
+  const setFilters = useCallback(
+    (updates: Partial<TFilters>) => {
+      const nextFilters = { ...params.filters };
+      for (const [key, value] of Object.entries(updates)) {
+        if (
+          value === undefined ||
+          (Array.isArray(value) && value.length === 0) ||
+          (typeof value === "string" && value === "")
+        ) {
+          delete nextFilters[key as keyof TFilters];
+        } else {
+          nextFilters[key as keyof TFilters] = value as TFilters[keyof TFilters];
+        }
+      }
+      updateUrl({
+        ...params,
+        filters: nextFilters,
+        page: 1,
+      });
+    },
+    [params, updateUrl]
+  );
+
   const removeFilterValue = useCallback(
     <K extends keyof TFilters>(key: K, valueToRemove: string) => {
       const currentValue = params.filters[key];
@@ -224,6 +248,7 @@ export function useAdminListState<TFilters extends AdminFilterRecord>(
     actions: {
       setSearch,
       setFilter,
+      setFilters,
       removeFilterValue,
       clearFilters,
       setSort,

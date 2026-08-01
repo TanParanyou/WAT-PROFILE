@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState } from "react";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { PermissionButton } from "@/components/admin/PermissionButton";
@@ -26,15 +26,25 @@ import {
 } from "@/schemas/donation.schema";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
-import { exportToCsv } from "@/utils/exportToCsv";
+import { useAdminListState } from "@/features/admin-list/useAdminListState";
+import { useAdminListQuery } from "@/features/admin-list/useAdminListQuery";
+import type { AdminFilterRecord, AdminFilterDefinition } from "@/features/admin-list/types";
+import { AdminListToolbar } from "@/components/admin/list/AdminListToolbar";
+import { AdminSearchInput } from "@/components/admin/list/AdminSearchInput";
+import { AdminMultiSelectFilter } from "@/components/admin/list/AdminMultiSelectFilter";
+import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components/admin/list/AdminActiveFilterChips";
+import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
+import { exportToCsv } from "@/services/adminListExportService";
 import { Icons } from "@/components/ui/Icons";
 
 const emptyLang: MultiLangText = { th: "", en: "", de: "" };
 
+interface DonationCategoryFilters extends AdminFilterRecord {
+  status: string[];
+}
+
 export default function DonationCategoriesPage() {
   const t = useTranslations("Admin");
-  const [categories, setCategories] = useState<DonationCategory[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const { isOpen, open, close } = useModal();
   const { confirm, ConfirmDialog } = useConfirm();
@@ -43,6 +53,39 @@ export default function DonationCategoriesPage() {
   const selectedIds = useRowSelection();
 
   const [editingId, setEditingId] = useState<number | null>(null);
+
+  const listState = useAdminListState<DonationCategoryFilters>({
+    schema: {
+      defaultSort: "display_order",
+      defaultOrder: "asc",
+      multi: ["status"],
+      allowedSorts: ["id", "name", "display_order", "is_active", "created_at"],
+    },
+  });
+
+  const listQuery = useAdminListQuery<DonationCategory, DonationCategoryFilters>({
+    queryKey: ["admin", "donation_categories"],
+    params: listState.params,
+    fetcher: (params) => donationCategoryAdminService.getPaginated(params),
+    setPage: listState.actions.setPage,
+  });
+
+  const filterDefinitions: AdminFilterDefinition<DonationCategoryFilters>[] = [
+    {
+      key: "status",
+      kind: "multi",
+      label: "สถานะ",
+      options: [
+        { value: "active", label: "Active" },
+        { value: "inactive", label: "Inactive" },
+      ],
+    },
+  ];
+
+  const activeChips: AdminActiveFilterChip[] = [];
+  for (const s of listState.params.filters.status || []) {
+    activeChips.push({ key: "status", value: s, label: `สถานะ: ${s}` });
+  }
 
   const {
     register,
@@ -60,23 +103,6 @@ export default function DonationCategoriesPage() {
       is_active: true,
     },
   });
-
-  const loadCategories = async () => {
-    setIsLoading(true);
-    try {
-      const result = await donationCategoryAdminService.getAll();
-      setCategories(result.data);
-    } catch (err: unknown) {
-      handleApiError(err);
-    } finally {
-      setIsLoading(false);
-    }
-  };
-
-  useEffect(() => {
-    loadCategories();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
 
   const handleOpenCreate = () => {
     setEditingId(null);
@@ -116,7 +142,7 @@ export default function DonationCategoriesPage() {
         toast.success(t("common.success"));
       }
       close();
-      loadCategories();
+      listQuery.refetch();
     } catch (err: unknown) {
       handleApiError(err, setError);
     } finally {
@@ -134,10 +160,9 @@ export default function DonationCategoriesPage() {
           await donationCategoryAdminService.delete(id);
           toast.success(t("common.success"));
           selectedIds.clearSelection();
-          loadCategories();
+          listQuery.refetch();
         } catch (err: unknown) {
           handleApiError(err);
-
           throw err;
         }
       },
@@ -157,10 +182,9 @@ export default function DonationCategoriesPage() {
           );
           toast.success(t("common.success"));
           selectedIds.clearSelection();
-          loadCategories();
+          listQuery.refetch();
         } catch (err: unknown) {
           handleApiError(err);
-
           throw err;
         }
       },
@@ -168,25 +192,19 @@ export default function DonationCategoriesPage() {
   };
 
   const handleExportCsv = () => {
-    const exportData = categories.map((cat) => ({
-      id: cat.id,
-      "name.th": cat.name?.th || "",
-      "name.en": cat.name?.en || "",
-      "description.th": cat.description?.th || "",
-      "description.en": cat.description?.en || "",
-      display_order: cat.display_order || 0,
-      is_active: cat.is_active ? "Active" : "Inactive",
-    }));
-
-    exportToCsv("donation_categories_export", exportData, [
-      { label: "ID", key: "id" },
-      { label: "Name (TH)", key: "name.th" },
-      { label: "Name (EN)", key: "name.en" },
-      { label: "Description (TH)", key: "description.th" },
-      { label: "Description (EN)", key: "description.en" },
-      { label: "Display Order", key: "display_order" },
-      { label: "Status", key: "is_active" },
-    ]);
+    exportToCsv(
+      listQuery.rows,
+      [
+        { header: "ID", accessor: (item) => item.id },
+        { header: "Name (TH)", accessor: (item) => item.name?.th || "" },
+        { header: "Name (EN)", accessor: (item) => item.name?.en || "" },
+        { header: "Description (TH)", accessor: (item) => item.description?.th || "" },
+        { header: "Description (EN)", accessor: (item) => item.description?.en || "" },
+        { header: "Display Order", accessor: (item) => item.display_order || 0 },
+        { header: "Status", accessor: (item) => (item.is_active ? "Active" : "Inactive") },
+      ],
+      "donation_categories_export"
+    );
   };
 
   const columns: Column<DonationCategory>[] = [
@@ -240,7 +258,7 @@ export default function DonationCategoriesPage() {
   ];
 
   return (
-    <div>
+    <div className="space-y-6">
       <AdminPageHeader
         title="หมวดหมู่การบริจาค"
         breadcrumbs={[
@@ -248,23 +266,49 @@ export default function DonationCategoriesPage() {
           { label: "หมวดหมู่" },
         ]}
         actions={
-          <div className="flex gap-2">
-            <Button
-              onClick={handleExportCsv}
-              variant="outline"
-              icon={<Icons.Download size={14} />}
-              className="shadow-sm"
-            >
-              Export CSV
-            </Button>
-            <PermissionButton
-              resource="donations"
-              action="create"
-              icon={<Icons.Plus size={14} />}
-              onClick={handleOpenCreate}
-            >
-              เพิ่มหมวดหมู่
-            </PermissionButton>
+          <PermissionButton
+            resource="donations"
+            action="create"
+            icon={<Icons.Plus size={14} />}
+            onClick={handleOpenCreate}
+          >
+            เพิ่มหมวดหมู่
+          </PermissionButton>
+        }
+      />
+
+      <AdminListToolbar
+        activeFilterCount={activeChips.length}
+        search={
+          <AdminSearchInput
+            value={listState.draftSearch}
+            isDebouncing={listState.isDebouncing}
+            onChange={(val) => listState.actions.setSearch(val)}
+            onSubmit={(val) => listState.actions.setSearch(val, true)}
+            onClear={() => listState.actions.setSearch("", true)}
+          />
+        }
+        primaryFilters={
+          <AdminMultiSelectFilter
+            label="สถานะ"
+            options={filterDefinitions[0].options || []}
+            values={listState.params.filters.status || []}
+            onChange={(val) => listState.actions.setFilter("status", val)}
+          />
+        }
+        activeFilters={
+          <div className="flex items-center justify-between">
+            <AdminActiveFilterChips
+              filters={activeChips}
+              onRemove={(key, val) => listState.actions.removeFilterValue(key as keyof DonationCategoryFilters, val)}
+              onClear={listState.actions.clearFilters}
+            />
+            <AdminListExportButton
+              isExporting={false}
+              completed={0}
+              total={listQuery.pagination.total}
+              onExport={handleExportCsv}
+            />
           </div>
         }
       />
@@ -286,9 +330,13 @@ export default function DonationCategoriesPage() {
 
       <DataTable
         columns={columns}
-        data={categories}
-        isLoading={isLoading}
-        hidePagination={true}
+        data={listQuery.rows}
+        pagination={listQuery.pagination}
+        sorting={{ key: listState.params.sort || "display_order", order: listState.params.order }}
+        isLoading={listQuery.isLoading}
+        onPageChange={listState.actions.setPage}
+        onLimitChange={listState.actions.setLimit}
+        onSort={(field) => listState.actions.setSort(field)}
         selectable={true}
         selectedIds={selectedIds.selectedIds as Set<string | number>}
         onSelect={(id) => selectedIds.toggleSelection(id)}

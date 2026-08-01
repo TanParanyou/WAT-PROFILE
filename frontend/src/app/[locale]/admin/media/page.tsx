@@ -22,8 +22,8 @@ import { useQuery } from "@tanstack/react-query";
 interface MediaFilters extends AdminFilterRecord {
   mime_type: string[];
   folder: string[];
-  created_from?: string;
-  created_to?: string;
+  from?: string;
+  to?: string;
 }
 
 export default function MediaLibraryPage() {
@@ -37,7 +37,7 @@ export default function MediaLibraryPage() {
       defaultSort: "created_at",
       defaultOrder: "desc",
       multi: ["mime_type", "folder"],
-      single: ["created_from", "created_to"],
+      single: ["from", "to"],
       allowedSorts: ["id", "filename", "size", "created_at"],
     },
   });
@@ -76,11 +76,11 @@ export default function MediaLibraryPage() {
   for (const f of listState.params.filters.folder || []) {
     activeChips.push({ key: "folder", value: f, label: `Folder: ${f}` });
   }
-  if (listState.params.filters.created_from) {
-    activeChips.push({ key: "created_from", value: listState.params.filters.created_from, label: `ตั้งแต่วันที่: ${listState.params.filters.created_from}` });
+  if (listState.params.filters.from) {
+    activeChips.push({ key: "from", value: listState.params.filters.from, label: `ตั้งแต่วันที่: ${listState.params.filters.from}` });
   }
-  if (listState.params.filters.created_to) {
-    activeChips.push({ key: "created_to", value: listState.params.filters.created_to, label: `ถึงวันที่: ${listState.params.filters.created_to}` });
+  if (listState.params.filters.to) {
+    activeChips.push({ key: "to", value: listState.params.filters.to, label: `ถึงวันที่: ${listState.params.filters.to}` });
   }
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -204,11 +204,13 @@ export default function MediaLibraryPage() {
         >
           <AdminDateRangeFilter
             label="ช่วงวันที่อัปโหลด"
-            from={listState.params.filters.created_from}
-            to={listState.params.filters.created_to}
+            from={listState.params.filters.from}
+            to={listState.params.filters.to}
             onChange={({ from, to }) => {
-              listState.actions.setFilter("created_from", from);
-              listState.actions.setFilter("created_to", to);
+              listState.actions.setFilters({
+                from: from,
+                to: to,
+              });
             }}
           />
         </AdminListToolbar>

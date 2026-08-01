@@ -23,10 +23,13 @@ export function JsonTextareaField<T extends FieldValues>({
   const [text, setText] = useState(() => stringifyJson(field.value));
   const [parseError, setParseError] = useState<string | null>(null);
 
-  useEffect(() => {
+  // Keep track of the last field value we synced with to derive state
+  const [lastValue, setLastValue] = useState(field.value);
+  if (field.value !== lastValue) {
+    setLastValue(field.value);
     setText(stringifyJson(field.value));
     setParseError(null);
-  }, [field.value]);
+  }
 
   const handleBlur = () => {
     field.onBlur();

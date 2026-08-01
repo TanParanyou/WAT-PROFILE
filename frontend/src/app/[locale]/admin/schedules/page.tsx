@@ -266,7 +266,7 @@ export default function SchedulesPage() {
       header: t("schedules.type"),
       accessorKey: "schedule_type",
       sortable: true,
-      cell: (v) => getTypeLabel(v),
+      cell: (v) => getTypeLabel(v as string),
     },
     {
       header: t("schedules.day"),

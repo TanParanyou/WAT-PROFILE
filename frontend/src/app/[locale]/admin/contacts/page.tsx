@@ -31,8 +31,8 @@ import { exportToCsv } from "@/services/adminListExportService";
 interface ContactFilters extends AdminFilterRecord {
   status: string[];
   subject: string[];
-  created_from?: string;
-  created_to?: string;
+  from?: string;
+  to?: string;
 }
 
 export default function ContactsPage() {
@@ -62,7 +62,7 @@ export default function ContactsPage() {
       defaultSort: "created_at",
       defaultOrder: "desc",
       multi: ["status", "subject"],
-      single: ["created_from", "created_to"],
+      single: ["from", "to"],
       allowedSorts: ["id", "name", "email", "subject", "inquiry_type", "status", "created_at"],
     },
   });
@@ -106,11 +106,11 @@ export default function ContactsPage() {
   for (const sb of listState.params.filters.subject || []) {
     activeChips.push({ key: "subject", value: sb, label: `หัวข้อ: ${sb}` });
   }
-  if (listState.params.filters.created_from) {
-    activeChips.push({ key: "created_from", value: listState.params.filters.created_from, label: `ตั้งแต่วันที่: ${listState.params.filters.created_from}` });
+  if (listState.params.filters.from) {
+    activeChips.push({ key: "from", value: listState.params.filters.from, label: `ตั้งแต่วันที่: ${listState.params.filters.from}` });
   }
-  if (listState.params.filters.created_to) {
-    activeChips.push({ key: "created_to", value: listState.params.filters.created_to, label: `ถึงวันที่: ${listState.params.filters.created_to}` });
+  if (listState.params.filters.to) {
+    activeChips.push({ key: "to", value: listState.params.filters.to, label: `ถึงวันที่: ${listState.params.filters.to}` });
   }
 
   const handleViewReply = (contact: ContactInquiry) => {
@@ -222,7 +222,8 @@ export default function ContactsPage() {
           closed: t("contacts.closed"),
           archived: "Archived",
         };
-        return <StatusBadge label={map[v] || v} />;
+        const val = v as string;
+        return <StatusBadge label={map[val] || val} />;
       },
     },
     {
@@ -316,11 +317,13 @@ export default function ContactsPage() {
         >
           <AdminDateRangeFilter
             label="ช่วงวันที่ติดต่อ"
-            from={listState.params.filters.created_from}
-            to={listState.params.filters.created_to}
+            from={listState.params.filters.from}
+            to={listState.params.filters.to}
             onChange={({ from, to }) => {
-              listState.actions.setFilter("created_from", from);
-              listState.actions.setFilter("created_to", to);
+              listState.actions.setFilters({
+                from: from,
+                to: to,
+              });
             }}
           />
         </AdminListToolbar>

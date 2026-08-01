@@ -28,8 +28,8 @@ import { useQuery } from "@tanstack/react-query";
 interface RegistrationFilters extends AdminFilterRecord {
   status: string[];
   event: string[];
-  created_from?: string;
-  created_to?: string;
+  from?: string;
+  to?: string;
 }
 
 export default function RegistrationsPage() {
@@ -52,7 +52,7 @@ export default function RegistrationsPage() {
       defaultSort: "created_at",
       defaultOrder: "desc",
       multi: ["status", "event"],
-      single: ["created_from", "created_to"],
+      single: ["from", "to"],
       allowedSorts: ["id", "name", "email", "event_title", "status", "created_at"],
     },
   });
@@ -106,11 +106,11 @@ export default function RegistrationsPage() {
     const eTitle = eventsData?.find((e) => String(e.id) === eId)?.title?.th || eId;
     activeChips.push({ key: "event", value: eId, label: `กิจกรรม: ${eTitle}` });
   }
-  if (listState.params.filters.created_from) {
-    activeChips.push({ key: "created_from", value: listState.params.filters.created_from, label: `ตั้งแต่วันที่: ${listState.params.filters.created_from}` });
+  if (listState.params.filters.from) {
+    activeChips.push({ key: "from", value: listState.params.filters.from, label: `ตั้งแต่วันที่: ${listState.params.filters.from}` });
   }
-  if (listState.params.filters.created_to) {
-    activeChips.push({ key: "created_to", value: listState.params.filters.created_to, label: `ถึงวันที่: ${listState.params.filters.created_to}` });
+  if (listState.params.filters.to) {
+    activeChips.push({ key: "to", value: listState.params.filters.to, label: `ถึงวันที่: ${listState.params.filters.to}` });
   }
 
   const handleDelete = async (id: number) => {
@@ -314,11 +314,13 @@ export default function RegistrationsPage() {
         >
           <AdminDateRangeFilter
             label="ช่วงวันที่ลงทะเบียน"
-            from={listState.params.filters.created_from}
-            to={listState.params.filters.created_to}
+            from={listState.params.filters.from}
+            to={listState.params.filters.to}
             onChange={({ from, to }) => {
-              listState.actions.setFilter("created_from", from);
-              listState.actions.setFilter("created_to", to);
+              listState.actions.setFilters({
+                from: from,
+                to: to,
+              });
             }}
           />
         </AdminListToolbar>

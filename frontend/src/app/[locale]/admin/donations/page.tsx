@@ -29,8 +29,8 @@ interface DonationFilters extends AdminFilterRecord {
   status: string[];
   category: string[];
   channel: string[];
-  created_from?: string;
-  created_to?: string;
+  from?: string;
+  to?: string;
 }
 
 export default function DonationsPage() {
@@ -44,7 +44,7 @@ export default function DonationsPage() {
       defaultSort: "created_at",
       defaultOrder: "desc",
       multi: ["status", "category", "channel"],
-      single: ["created_from", "created_to"],
+      single: ["from", "to"],
       allowedSorts: ["id", "receipt_number", "donor_name", "amount", "donation_method", "donation_date", "status", "created_at"],
     },
   });
@@ -97,11 +97,11 @@ export default function DonationsPage() {
   for (const ch of listState.params.filters.channel || []) {
     activeChips.push({ key: "channel", value: ch, label: `ช่องทาง: ${ch}` });
   }
-  if (listState.params.filters.created_from) {
-    activeChips.push({ key: "created_from", value: listState.params.filters.created_from, label: `ตั้งแต่วันที่: ${listState.params.filters.created_from}` });
+  if (listState.params.filters.from) {
+    activeChips.push({ key: "from", value: listState.params.filters.from, label: `ตั้งแต่วันที่: ${listState.params.filters.from}` });
   }
-  if (listState.params.filters.created_to) {
-    activeChips.push({ key: "created_to", value: listState.params.filters.created_to, label: `ถึงวันที่: ${listState.params.filters.created_to}` });
+  if (listState.params.filters.to) {
+    activeChips.push({ key: "to", value: listState.params.filters.to, label: `ถึงวันที่: ${listState.params.filters.to}` });
   }
 
   const handleDelete = async (id: number) => {
@@ -177,7 +177,7 @@ export default function DonationsPage() {
       sortable: true,
       cell: (v, row) => (
         <div>
-          <span className="font-medium">{v}</span>
+          <span className="font-medium">{v as React.ReactNode}</span>
           {row.is_anonymous && (
             <span className="ml-1 text-xs text-gray-500">
               {t("donations.anonymous")}
@@ -301,11 +301,13 @@ export default function DonationsPage() {
           />
           <AdminDateRangeFilter
             label="ช่วงวันที่บริจาค"
-            from={listState.params.filters.created_from}
-            to={listState.params.filters.created_to}
+            from={listState.params.filters.from}
+            to={listState.params.filters.to}
             onChange={({ from, to }) => {
-              listState.actions.setFilter("created_from", from);
-              listState.actions.setFilter("created_to", to);
+              listState.actions.setFilters({
+                from: from,
+                to: to,
+              });
             }}
           />
         </AdminListToolbar>

@@ -31,7 +31,7 @@ export function DateRangePicker({
   };
 
   return (
-    <div className={cn('space-y-1 w-full', className)}>
+    <div className={cn('flex flex-col gap-1.5 w-full', className)}>
       {label && (
         <label className="text-sm font-medium text-gray-700 flex items-center min-h-[24px]">
           {label}
@@ -41,15 +41,14 @@ export function DateRangePicker({
       <div className="relative">
         <DatePicker
           selectsRange={true}
-          selected={value.from || undefined}
-          startDate={value.from || undefined}
-          endDate={value.to || undefined}
+          startDate={value.from ?? null}
+          endDate={value.to ?? null}
           onChange={handleChange}
           dateFormat="dd/MM/yyyy"
           placeholderText="เลือกช่วงเวลา"
           isClearable={true}
           className={cn(
-            'w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400',
+            'w-full h-10 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400',
             'focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500',
             'disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed',
             error && 'border-red-500 focus:ring-red-500/50 focus:border-red-500'

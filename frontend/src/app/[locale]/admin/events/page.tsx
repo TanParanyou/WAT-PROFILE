@@ -32,8 +32,8 @@ import { exportToCsv } from "@/services/adminListExportService";
 interface EventFilters extends AdminFilterRecord {
   status: string[];
   type: string[];
-  start_from?: string;
-  start_to?: string;
+  from?: string;
+  to?: string;
 }
 
 export default function EventsListPage() {
@@ -49,7 +49,7 @@ export default function EventsListPage() {
       defaultSort: "start_date",
       defaultOrder: "desc",
       multi: ["status", "type"],
-      single: ["start_from", "start_to"],
+      single: ["from", "to"],
       allowedSorts: ["id", "title", "event_type", "start_date", "end_date", "created_at"],
     },
   });
@@ -92,11 +92,11 @@ export default function EventsListPage() {
   for (const tp of listState.params.filters.type || []) {
     activeChips.push({ key: "type", value: tp, label: `ประเภท: ${tp}` });
   }
-  if (listState.params.filters.start_from) {
-    activeChips.push({ key: "start_from", value: listState.params.filters.start_from, label: `ตั้งแต่วันที่: ${listState.params.filters.start_from}` });
+  if (listState.params.filters.from) {
+    activeChips.push({ key: "from", value: listState.params.filters.from, label: `ตั้งแต่วันที่: ${listState.params.filters.from}` });
   }
-  if (listState.params.filters.start_to) {
-    activeChips.push({ key: "start_to", value: listState.params.filters.start_to, label: `ถึงวันที่: ${listState.params.filters.start_to}` });
+  if (listState.params.filters.to) {
+    activeChips.push({ key: "to", value: listState.params.filters.to, label: `ถึงวันที่: ${listState.params.filters.to}` });
   }
 
   const handleDelete = async (id: number) => {
@@ -268,11 +268,13 @@ export default function EventsListPage() {
       >
         <AdminDateRangeFilter
           label="ช่วงวันที่กิจกรรม"
-          from={listState.params.filters.start_from}
-          to={listState.params.filters.start_to}
+          from={listState.params.filters.from}
+          to={listState.params.filters.to}
           onChange={({ from, to }) => {
-            listState.actions.setFilter("start_from", from);
-            listState.actions.setFilter("start_to", to);
+            listState.actions.setFilters({
+              from: from,
+              to: to,
+            });
           }}
         />
       </AdminListToolbar>

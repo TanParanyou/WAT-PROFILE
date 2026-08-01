@@ -22,8 +22,8 @@ import { useQuery } from "@tanstack/react-query";
 interface AuditLogFilters extends AdminFilterRecord {
   action: string[];
   entity_type: string[];
-  created_from?: string;
-  created_to?: string;
+  from?: string;
+  to?: string;
 }
 
 export default function AuditLogsPage() {
@@ -34,7 +34,7 @@ export default function AuditLogsPage() {
       defaultSort: "created_at",
       defaultOrder: "desc",
       multi: ["action", "entity_type"],
-      single: ["created_from", "created_to"],
+      single: ["from", "to"],
       allowedSorts: ["id", "action", "entity_type", "created_at"],
     },
   });
@@ -73,11 +73,11 @@ export default function AuditLogsPage() {
   for (const ent of listState.params.filters.entity_type || []) {
     activeChips.push({ key: "entity_type", value: ent, label: `Entity: ${ent}` });
   }
-  if (listState.params.filters.created_from) {
-    activeChips.push({ key: "created_from", value: listState.params.filters.created_from, label: `ตั้งแต่วันที่: ${listState.params.filters.created_from}` });
+  if (listState.params.filters.from) {
+    activeChips.push({ key: "from", value: listState.params.filters.from, label: `ตั้งแต่วันที่: ${listState.params.filters.from}` });
   }
-  if (listState.params.filters.created_to) {
-    activeChips.push({ key: "created_to", value: listState.params.filters.created_to, label: `ถึงวันที่: ${listState.params.filters.created_to}` });
+  if (listState.params.filters.to) {
+    activeChips.push({ key: "to", value: listState.params.filters.to, label: `ถึงวันที่: ${listState.params.filters.to}` });
   }
 
   const handleExportCsv = () => {
@@ -236,11 +236,13 @@ export default function AuditLogsPage() {
         >
           <AdminDateRangeFilter
             label="ช่วงวันที่"
-            from={listState.params.filters.created_from}
-            to={listState.params.filters.created_to}
+            from={listState.params.filters.from}
+            to={listState.params.filters.to}
             onChange={({ from, to }) => {
-              listState.actions.setFilter("created_from", from);
-              listState.actions.setFilter("created_to", to);
+              listState.actions.setFilters({
+                from: from,
+                to: to,
+              });
             }}
           />
         </AdminListToolbar>
