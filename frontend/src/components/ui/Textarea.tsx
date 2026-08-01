@@ -13,7 +13,7 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
     return (
       <div className="space-y-1">
         {label && (
-          <label htmlFor={id} className="text-sm font-medium text-gray-700">
+          <label htmlFor={id} className="text-sm font-medium text-admin-body flex items-center min-h-[24px]">
             {label}
           </label>
         )}
@@ -21,16 +21,16 @@ const Textarea = React.forwardRef<HTMLTextAreaElement, TextareaProps>(
           id={id}
           rows={rows}
           className={cn(
-            "w-full rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm text-gray-900 placeholder-gray-400",
-            "focus:outline-none focus:ring-2 focus:ring-amber-500/50 focus:border-amber-500",
-            "disabled:bg-gray-50 disabled:text-gray-500 disabled:cursor-not-allowed resize-y",
-            error && "border-red-500 focus:ring-red-500/50 focus:border-red-500",
+            "w-full rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted",
+            "focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus",
+            "disabled:cursor-not-allowed disabled:bg-admin-surface-muted disabled:text-admin-muted resize-y",
+            error && "border-admin-danger focus-visible:border-admin-danger focus-visible:outline-admin-danger",
             className
           )}
           ref={ref}
           {...props}
         />
-        {error && <p className="text-sm text-red-600">{error}</p>}
+        {error && <p className="text-sm text-admin-danger">{error}</p>}
       </div>
     );
   }

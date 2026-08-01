@@ -16,17 +16,17 @@ const Checkbox = React.forwardRef<HTMLInputElement, CheckboxProps>(
                     <input
                         type="checkbox"
                         className={cn(
-                            'h-4 w-4 rounded border-gray-300 text-amber-600 focus:ring-amber-500',
+                            'h-4 w-4 rounded border-admin-control-border text-admin-action focus:ring-admin-focus focus-visible:outline-2 focus-visible:outline-admin-focus',
                             className
                         )}
                         ref={ref}
                         {...props}
                     />
                     {label && (
-                        <span className="text-sm text-gray-700">{label}</span>
+                        <span className="text-sm text-admin-body">{label}</span>
                     )}
                 </label>
-                {error && <p className="text-sm text-red-600">{error}</p>}
+                {error && <p className="text-sm text-admin-danger">{error}</p>}
             </div>
         );
     }

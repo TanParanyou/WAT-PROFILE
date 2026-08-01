@@ -21,18 +21,18 @@ const Switch = React.forwardRef<HTMLInputElement, SwitchProps>(
                             {...props}
                         />
                         <div className={cn(
-                            "w-9 h-5 bg-gray-200 rounded-full transition-colors duration-200 ease-in-out",
-                            "peer-checked:bg-amber-600 peer-focus:ring-2 peer-focus:ring-amber-500 peer-focus:ring-offset-2",
+                            "w-9 h-5 bg-admin-surface-muted border border-admin-control-border rounded-full transition-colors duration-200 ease-in-out",
+                            "peer-checked:bg-admin-action peer-focus-visible:ring-2 peer-focus-visible:ring-admin-focus peer-focus-visible:ring-offset-2",
                             "peer-disabled:opacity-50 peer-disabled:cursor-not-allowed",
                             className
                         )}></div>
-                        <div className="absolute left-0.5 top-0.5 w-4 h-4 bg-white rounded-full transition-transform duration-200 ease-in-out shadow-sm peer-checked:translate-x-4 peer-disabled:opacity-50"></div>
+                        <div className="absolute left-0.5 top-0.5 w-4 h-4 bg-admin-surface rounded-full transition-transform duration-200 ease-in-out shadow-sm peer-checked:translate-x-4 peer-disabled:opacity-50"></div>
                     </div>
                     {label && (
-                        <span className="text-sm font-medium text-gray-700">{label}</span>
+                        <span className="text-sm font-medium text-admin-body">{label}</span>
                     )}
                 </label>
-                {error && <p className="text-sm text-red-600">{error}</p>}
+                {error && <p className="text-sm text-admin-danger">{error}</p>}
             </div>
         );
     }
