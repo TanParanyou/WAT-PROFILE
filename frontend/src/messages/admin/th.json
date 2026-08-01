@@ -537,6 +537,32 @@
       "processing": "กำลังประมวลผล...",
       "defaultError": "เกิดข้อผิดพลาดในการครอปรูปภาพ",
       "loadError": "ไม่สามารถโหลดรูปภาพได้จาก URL"
+    },
+    "list": {
+      "searchPlaceholder": "ค้นหา...",
+      "search": "ค้นหา",
+      "clearAll": "ล้างการเลือกทั้งหมด",
+      "exportCsv": "ส่งออก CSV",
+      "exporting": "กำลังส่งออก ({completed}/{total})",
+      "noMatches": "ไม่พบข้อมูลที่ตรงกับการค้นหา",
+      "empty": "ไม่มีข้อมูล",
+      "retry": "ลองอีกครั้ง",
+      "moreFilters": "ตัวกรองเพิ่มเติม",
+      "rowsPerPage": "แถวต่อหน้า"
+    }
+  },
+  "admin": {
+    "list": {
+      "searchPlaceholder": "ค้นหา...",
+      "search": "ค้นหา",
+      "clearAll": "ล้างการเลือกทั้งหมด",
+      "exportCsv": "ส่งออก CSV",
+      "exporting": "กำลังส่งออก ({completed}/{total})",
+      "noMatches": "ไม่พบข้อมูลที่ตรงกับการค้นหา",
+      "empty": "ไม่มีข้อมูล",
+      "retry": "ลองอีกครั้ง",
+      "moreFilters": "ตัวกรองเพิ่มเติม",
+      "rowsPerPage": "แถวต่อหน้า"
     }
   }
 }

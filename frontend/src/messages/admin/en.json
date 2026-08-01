@@ -537,6 +537,32 @@
       "processing": "Processing...",
       "defaultError": "An error occurred while cropping the image",
       "loadError": "Failed to load image from URL"
+    },
+    "list": {
+      "searchPlaceholder": "Search...",
+      "search": "Search",
+      "clearAll": "Clear all",
+      "exportCsv": "Export CSV",
+      "exporting": "Exporting ({completed}/{total})",
+      "noMatches": "No matching records found",
+      "empty": "No data available",
+      "retry": "Retry",
+      "moreFilters": "More filters",
+      "rowsPerPage": "Rows per page"
+    }
+  },
+  "admin": {
+    "list": {
+      "searchPlaceholder": "Search...",
+      "search": "Search",
+      "clearAll": "Clear all",
+      "exportCsv": "Export CSV",
+      "exporting": "Exporting ({completed}/{total})",
+      "noMatches": "No matching records found",
+      "empty": "No data available",
+      "retry": "Retry",
+      "moreFilters": "More filters",
+      "rowsPerPage": "Rows per page"
     }
   }
 }

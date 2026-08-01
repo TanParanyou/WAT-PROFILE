@@ -537,6 +537,32 @@
       "processing": "Wird verarbeitet...",
       "defaultError": "Beim Zuschneiden des Bildes ist ein Fehler aufgetreten",
       "loadError": "Bild konnte nicht von URL geladen werden"
+    },
+    "list": {
+      "searchPlaceholder": "Suchen...",
+      "search": "Suchen",
+      "clearAll": "Alle löschen",
+      "exportCsv": "CSV exportieren",
+      "exporting": "Wird exportiert ({completed}/{total})",
+      "noMatches": "Keine übereinstimmenden Einträge gefunden",
+      "empty": "Keine Daten verfügbar",
+      "retry": "Wiederholen",
+      "moreFilters": "Weitere Filter",
+      "rowsPerPage": "Zeilen pro Seite"
+    }
+  },
+  "admin": {
+    "list": {
+      "searchPlaceholder": "Suchen...",
+      "search": "Suchen",
+      "clearAll": "Alle löschen",
+      "exportCsv": "CSV exportieren",
+      "exporting": "Wird exportiert ({completed}/{total})",
+      "noMatches": "Keine übereinstimmenden Einträge gefunden",
+      "empty": "Keine Daten verfügbar",
+      "retry": "Wiederholen",
+      "moreFilters": "Weitere Filter",
+      "rowsPerPage": "Zeilen pro Seite"
     }
   }
 }
