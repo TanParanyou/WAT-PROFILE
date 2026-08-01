@@ -123,11 +123,11 @@ export function DataTable<T>({
 
   return (
     <div className={cn("w-full space-y-4", className)}>
-      <div className="w-full rounded-lg border border-gray-200 bg-white shadow-sm overflow-hidden">
+      <div className="w-full rounded-lg border border-admin-border bg-admin-surface overflow-hidden">
         <div className="overflow-x-auto">
           <table className="w-full text-left text-sm">
             {/* Header */}
-            <thead className="border-b border-gray-200 bg-gray-50 text-xs uppercase text-gray-500">
+            <thead className="border-b border-admin-border bg-admin-surface-muted text-xs uppercase text-admin-muted">
               <tr>
                 {selectable && (
                   <th className="px-6 py-3 w-[50px]">
@@ -149,7 +149,7 @@ export function DataTable<T>({
                       key={idx}
                       className={cn(
                         "px-6 py-3 font-medium whitespace-nowrap",
-                        isSortable && "cursor-pointer hover:text-gray-700",
+                        isSortable && "cursor-pointer hover:text-admin-foreground",
                         col.className,
                       )}
                       onClick={() =>
@@ -162,7 +162,7 @@ export function DataTable<T>({
                           <ArrowUpDown
                             className={cn(
                               "h-3 w-3",
-                              isSorted ? "text-amber-600" : "opacity-30",
+                              isSorted ? "text-admin-action" : "opacity-30",
                             )}
                           />
                         )}
@@ -174,7 +174,7 @@ export function DataTable<T>({
             </thead>
 
             {/* Body */}
-            <tbody className="divide-y divide-gray-100">
+            <tbody className="divide-y divide-admin-border">
               {isLoading ? (
                 <tr>
                   <td
@@ -194,8 +194,8 @@ export function DataTable<T>({
                     <tr
                       key={rowId}
                       className={cn(
-                        "hover:bg-gray-50 transition-colors",
-                        isRowSelected(row) && "bg-amber-50/50",
+                        "hover:bg-admin-surface-muted transition-colors",
+                        isRowSelected(row) && "bg-admin-selected",
                       )}
                     >
                       {selectable && (
@@ -213,7 +213,7 @@ export function DataTable<T>({
                         <td
                           key={colIdx}
                           className={cn(
-                            "px-6 py-4 whitespace-nowrap text-gray-700",
+                            "px-6 py-4 whitespace-nowrap text-admin-body",
                             col.className,
                           )}
                         >
@@ -236,7 +236,7 @@ export function DataTable<T>({
                 <tr>
                   <td
                     colSpan={columns.length + (selectable ? 1 : 0)}
-                    className="h-32 text-center text-gray-400"
+                    className="h-32 text-center text-admin-muted"
                   >
                     ไม่พบข้อมูล
                   </td>
@@ -248,20 +248,20 @@ export function DataTable<T>({
 
         {/* Pagination */}
         {!hidePagination && (
-          <div className="flex flex-col sm:flex-row items-center justify-between border-t border-gray-200 bg-gray-50 px-6 py-3 gap-3">
-            <div className="flex flex-wrap items-center gap-4 text-xs text-gray-500">
+          <div className="flex flex-col sm:flex-row items-center justify-between border-t border-admin-border bg-admin-surface-muted px-6 py-3 gap-3">
+            <div className="flex flex-wrap items-center gap-4 text-xs text-admin-muted">
               {totalItems > 0 ? (
                 <span>
                   แสดง{" "}
-                  <span className="font-medium text-gray-700">
+                  <span className="font-medium text-admin-foreground">
                     {(page - 1) * limit + 1}
                   </span>{" "}
                   ถึง{" "}
-                  <span className="font-medium text-gray-700">
+                  <span className="font-medium text-admin-foreground">
                     {Math.min(page * limit, totalItems)}
                   </span>{" "}
                   จาก{" "}
-                  <span className="font-medium text-gray-700">
+                  <span className="font-medium text-admin-foreground">
                     {totalItems}
                   </span>{" "}
                   รายการ
@@ -282,21 +282,21 @@ export function DataTable<T>({
               <button
                 onClick={() => onPageChange?.(1)}
                 disabled={page === 1 || totalPages === 0 || isLoading}
-                className="p-1.5 rounded border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-1.5 rounded border border-admin-control-border bg-admin-surface text-admin-muted hover:bg-admin-surface-muted hover:text-admin-foreground disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-admin-focus"
               >
                 <ChevronsLeft className="h-4 w-4" />
               </button>
               <button
                 onClick={() => onPageChange?.(page - 1)}
                 disabled={page === 1 || totalPages === 0 || isLoading}
-                className="p-1.5 rounded border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-1.5 rounded border border-admin-control-border bg-admin-surface text-admin-muted hover:bg-admin-surface-muted hover:text-admin-foreground disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-admin-focus"
               >
                 <ChevronLeft className="h-4 w-4" />
               </button>
 
               {getPageNumbers().map((p, i) =>
                 p === "..." ? (
-                  <span key={i} className="px-2 text-gray-400">
+                  <span key={i} className="px-2 text-admin-muted">
                     ...
                   </span>
                 ) : (
@@ -304,10 +304,10 @@ export function DataTable<T>({
                     key={i}
                     onClick={() => onPageChange?.(p as number)}
                     className={cn(
-                      "h-8 w-8 rounded text-sm",
+                      "h-8 w-8 rounded text-sm focus-visible:outline-2 focus-visible:outline-admin-focus",
                       page === p
-                        ? "bg-amber-600 text-white font-medium"
-                        : "border border-gray-300 bg-white text-gray-600 hover:bg-gray-50",
+                        ? "bg-admin-action text-admin-on-action font-medium"
+                        : "border border-admin-control-border bg-admin-surface text-admin-body hover:bg-admin-surface-muted",
                     )}
                   >
                     {p}
@@ -318,14 +318,14 @@ export function DataTable<T>({
               <button
                 onClick={() => onPageChange?.(page + 1)}
                 disabled={page >= totalPages || totalPages === 0 || isLoading}
-                className="p-1.5 rounded border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-1.5 rounded border border-admin-control-border bg-admin-surface text-admin-muted hover:bg-admin-surface-muted hover:text-admin-foreground disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-admin-focus"
               >
                 <ChevronRight className="h-4 w-4" />
               </button>
               <button
                 onClick={() => onPageChange?.(totalPages)}
                 disabled={page >= totalPages || totalPages === 0 || isLoading}
-                className="p-1.5 rounded border border-gray-300 bg-white text-gray-500 hover:bg-gray-50 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="p-1.5 rounded border border-admin-control-border bg-admin-surface text-admin-muted hover:bg-admin-surface-muted hover:text-admin-foreground disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-admin-focus"
               >
                 <ChevronsRight className="h-4 w-4" />
               </button>

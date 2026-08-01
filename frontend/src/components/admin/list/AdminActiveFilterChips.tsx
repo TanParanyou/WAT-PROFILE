@@ -26,18 +26,18 @@ export function AdminActiveFilterChips({
   if (filters.length === 0) return null;
 
   return (
-    <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-gray-100">
+    <div className="flex flex-wrap items-center gap-2 pt-2 border-t border-admin-border">
       {filters.map((chip, index) => (
         <span
           key={`${chip.key}-${chip.value}-${index}`}
-          className="inline-flex items-center gap-1.5 rounded-full bg-amber-50 px-3 py-1 text-xs font-medium text-amber-800 border border-amber-200/60"
+          className="inline-flex items-center gap-1.5 rounded-full bg-admin-selected px-3 py-1 text-xs font-medium text-admin-selected-foreground border border-admin-control-border"
         >
           <span>{chip.label}</span>
           <button
             type="button"
             onClick={() => onRemove(chip.key, chip.value)}
             aria-label={`ลบ ตัวกรอง ${chip.label}`}
-            className="flex items-center justify-center w-4 h-4 rounded-full hover:bg-amber-200/60 text-amber-700 transition-colors focus:outline-none focus:ring-1 focus:ring-amber-500"
+            className="flex items-center justify-center w-4 h-4 rounded-full hover:bg-admin-surface-muted text-admin-selected-foreground transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
           >
             <X className="h-3 w-3" />
           </button>
@@ -46,7 +46,7 @@ export function AdminActiveFilterChips({
       <button
         type="button"
         onClick={onClear}
-        className="text-xs font-medium text-gray-500 hover:text-amber-600 hover:underline px-2 py-1 transition-colors"
+        className="text-xs font-medium text-admin-muted hover:text-admin-foreground hover:underline px-2 py-1 transition-colors"
       >
         {t("clearAll")}
       </button>

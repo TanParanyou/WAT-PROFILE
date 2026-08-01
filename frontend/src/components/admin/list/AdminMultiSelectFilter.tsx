@@ -59,7 +59,7 @@ export function AdminMultiSelectFilter({
 
   return (
     <div className="relative flex flex-col gap-1.5 min-w-[180px]" ref={containerRef}>
-      <label htmlFor={filterId} className="text-sm font-medium text-gray-700 min-h-[24px] flex items-center">
+      <label htmlFor={filterId} className="text-sm font-medium text-admin-body min-h-[24px] flex items-center">
         {label}
       </label>
       <button
@@ -67,32 +67,32 @@ export function AdminMultiSelectFilter({
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "flex items-center justify-between w-full h-[40px] rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-amber-500/50",
-          isOpen ? "ring-2 ring-amber-500/50 border-amber-500" : ""
+          "flex items-center justify-between w-full min-h-11 rounded-lg border border-admin-control-border bg-admin-surface px-3 py-2 text-sm focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus",
+          isOpen ? "border-admin-focus" : ""
         )}
       >
-        <span className="truncate text-gray-700">
+        <span className="truncate text-admin-foreground">
           {selectedCount === 0 ? "ทั้งหมด" : `เลือกแล้ว ${selectedCount} รายการ`}
         </span>
-        <ChevronDown className={cn("h-4 w-4 text-gray-400 transition-transform", isOpen && "rotate-180")} />
+        <ChevronDown className={cn("h-4 w-4 text-admin-muted transition-transform", isOpen && "rotate-180")} />
       </button>
 
       {isOpen && (
-        <div className="absolute top-[calc(100%+4px)] left-0 z-50 flex w-full flex-col rounded-lg border border-gray-200 bg-white p-2 text-sm shadow-lg max-h-56 overflow-y-auto min-w-[200px]">
+        <div className="absolute top-[calc(100%+4px)] left-0 z-50 flex w-full flex-col rounded-lg border border-admin-border bg-admin-surface p-2 text-sm max-h-56 overflow-y-auto min-w-[200px]">
           {options.length > 10 && (
             <div className="relative mb-2">
-              <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-gray-400" />
+              <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-admin-muted" />
               <input
                 type="text"
                 value={optionSearch}
                 onChange={(e) => setOptionSearch(e.target.value)}
                 placeholder="ค้นหาตัวเลือก..."
-                className="w-full rounded border border-gray-200 py-1 pl-8 pr-2 text-xs focus:border-amber-500 focus:outline-none"
+                className="w-full rounded border border-admin-control-border bg-admin-surface py-1 pl-8 pr-2 text-xs text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-admin-focus"
               />
             </div>
           )}
           {filteredOptions.length === 0 ? (
-            <span className="py-2 text-center text-xs text-gray-400">
+            <span className="py-2 text-center text-xs text-admin-muted">
               ไม่พบตัวเลือก
             </span>
           ) : (
@@ -102,7 +102,7 @@ export function AdminMultiSelectFilter({
                 return (
                   <label
                     key={opt.value}
-                    className="flex min-h-[32px] cursor-pointer items-center gap-2 rounded px-2 hover:bg-gray-50 text-sm text-gray-700 select-none"
+                    className="flex min-h-[32px] cursor-pointer items-center gap-2 rounded px-2 hover:bg-admin-surface-muted text-sm text-admin-body select-none"
                   >
                     <Checkbox
                       checked={isChecked}

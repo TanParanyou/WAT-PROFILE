@@ -35,14 +35,14 @@ export function AdminSearchInput({
   return (
     <div className="flex flex-col gap-1.5 flex-1 min-w-[200px] max-w-md">
       {label && (
-        <label className="text-sm font-medium text-gray-700 min-h-[24px] flex items-center">
+        <label className="text-sm font-medium text-admin-body min-h-[24px] flex items-center">
           {label}
         </label>
       )}
       <div className="relative flex items-center w-full">
-        <div className="absolute left-3 flex items-center pointer-events-none text-gray-400">
+        <div className="absolute left-3 flex items-center pointer-events-none text-admin-muted">
           {isDebouncing ? (
-            <Loader2 className="h-4 w-4 animate-spin text-amber-600" />
+            <Loader2 className="h-4 w-4 animate-spin text-admin-action" />
           ) : (
             <Search className="h-4 w-4" />
           )}
@@ -54,7 +54,7 @@ export function AdminSearchInput({
           onKeyDown={handleKeyDown}
           placeholder={placeholder ?? t("searchPlaceholder")}
           aria-label={t("search")}
-          className="w-full h-10 pl-9 pr-16 text-sm border border-gray-300 rounded-lg bg-white text-gray-900 focus:outline-none focus:ring-2 focus:ring-amber-500 focus:border-amber-500 transition-colors"
+          className="min-h-11 w-full pl-9 pr-20 text-sm border border-admin-control-border rounded-lg bg-admin-surface text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus transition-colors"
         />
         <div className="absolute right-1 flex items-center gap-1">
           {value && (
@@ -62,7 +62,7 @@ export function AdminSearchInput({
               type="button"
               onClick={onClear}
               aria-label={t("clearAll")}
-              className="flex items-center justify-center w-8 h-8 rounded-md text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500"
+              className="flex items-center justify-center w-8 h-8 rounded-md text-admin-muted hover:text-admin-foreground hover:bg-admin-surface-muted transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
             >
               <X className="h-4 w-4" />
             </button>
@@ -71,7 +71,7 @@ export function AdminSearchInput({
             type="button"
             onClick={() => onSubmit(value)}
             aria-label={t("search")}
-            className="flex items-center justify-center w-8 h-8 rounded-md text-gray-500 hover:text-amber-600 hover:bg-amber-50 transition-colors focus:outline-none focus:ring-2 focus:ring-amber-500"
+            className="flex items-center justify-center w-8 h-8 rounded-md text-admin-muted hover:text-admin-foreground hover:bg-admin-surface-muted transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
           >
             <Search className="h-4 w-4" />
           </button>

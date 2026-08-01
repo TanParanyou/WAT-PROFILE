@@ -18,14 +18,14 @@ export function AdminPageSizeSelect({
 
   return (
     <div className="flex items-center gap-2">
-      <label htmlFor={selectId} className="text-xs text-gray-500 font-medium">
+      <label htmlFor={selectId} className="text-xs text-admin-muted font-medium">
         {t("rowsPerPage")}
       </label>
       <select
         id={selectId}
         value={value}
         onChange={(e) => onChange(Number(e.target.value) as AdminPageSize)}
-        className="h-8 rounded border border-gray-300 bg-white px-2 text-xs font-medium text-gray-700 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-amber-500"
+        className="h-8 rounded border border-admin-control-border bg-admin-surface px-2 text-xs font-medium text-admin-body hover:bg-admin-surface-muted focus-visible:outline-2 focus-visible:outline-admin-focus"
       >
         {ADMIN_PAGE_SIZES.map((size) => (
           <option key={size} value={size}>
