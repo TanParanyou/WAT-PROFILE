@@ -1,6 +1,0 @@
-./load.go
-./normalize.go
-./richtext.go
-./snapshot_types.go
-./source_types.go
-./sql.go
