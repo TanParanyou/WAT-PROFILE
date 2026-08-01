@@ -511,6 +511,32 @@
       "active": "เปิดใช้งาน",
       "enableRegistration": "เปิดลงทะเบียน",
       "selectOption": "เลือก..."
+    },
+    "mediaPicker": {
+      "title": "คลังสื่อ (Media Library)",
+      "description": "เลือกรูปภาพที่เคยอัปโหลดไว้แล้วในระบบแกลเลอรี หรือคลิกอัปโหลดรูปภาพใหม่จากคอมพิวเตอร์ของคุณ",
+      "uploadNew": "อัปโหลดรูปใหม่",
+      "uploading": "กำลังอัปโหลด...",
+      "fetchError": "ไม่สามารถดึงรูปภาพจากคลังได้",
+      "uploadError": "อัปโหลดรูปภาพไม่สำเร็จ",
+      "invalidType": "กรุณาเลือกไฟล์รูปภาพเท่านั้น",
+      "fileSizeExceeded": "ไฟล์ต้องมีขนาดไม่เกิน 5MB",
+      "loading": "กำลังโหลดรูปภาพ...",
+      "empty": "ไม่พบรูปภาพในคลังสื่อ",
+      "crop": "ครอป",
+      "cropTooltip": "ครอบตัดรูปภาพนี้"
+    },
+    "cropDialog": {
+      "title": "ครอบตัดรูปภาพ (Crop Image)",
+      "aspectRatio": "อัตราส่วนภาพ:",
+      "aspectFree": "อิสระ",
+      "rotateLeft": "หมุนทวนเข็ม 90°",
+      "rotateRight": "หมุนตามเข็ม 90°",
+      "cancel": "ยกเลิก",
+      "applyAndUpload": "ตกลงและอัปโหลด",
+      "processing": "กำลังประมวลผล...",
+      "defaultError": "เกิดข้อผิดพลาดในการครอปรูปภาพ",
+      "loadError": "ไม่สามารถโหลดรูปภาพได้จาก URL"
     }
   }
 }

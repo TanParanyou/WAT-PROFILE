@@ -511,6 +511,32 @@
       "active": "Active",
       "enableRegistration": "Enable Registration",
       "selectOption": "Select..."
+    },
+    "mediaPicker": {
+      "title": "Media Library",
+      "description": "Select an existing image from the gallery or upload a new image from your computer.",
+      "uploadNew": "Upload New Image",
+      "uploading": "Uploading...",
+      "fetchError": "Failed to fetch images from library",
+      "uploadError": "Failed to upload image",
+      "invalidType": "Please select an image file only",
+      "fileSizeExceeded": "File size must not exceed 5MB",
+      "loading": "Loading images...",
+      "empty": "No images found in media library",
+      "crop": "Crop",
+      "cropTooltip": "Crop this image"
+    },
+    "cropDialog": {
+      "title": "Crop Image",
+      "aspectRatio": "Aspect Ratio:",
+      "aspectFree": "Free",
+      "rotateLeft": "Rotate counterclockwise 90°",
+      "rotateRight": "Rotate clockwise 90°",
+      "cancel": "Cancel",
+      "applyAndUpload": "Crop & Upload",
+      "processing": "Processing...",
+      "defaultError": "An error occurred while cropping the image",
+      "loadError": "Failed to load image from URL"
     }
   }
 }

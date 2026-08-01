@@ -511,6 +511,32 @@
       "active": "Aktiv",
       "enableRegistration": "Anmeldung aktivieren",
       "selectOption": "Auswählen..."
+    },
+    "mediaPicker": {
+      "title": "Medienbibliothek",
+      "description": "Wählen Sie ein hochgeladenes Bild aus der Galerie aus oder laden Sie ein neues Bild von Ihrem Computer hoch.",
+      "uploadNew": "Neues Bild hochladen",
+      "uploading": "Wird hochgeladen...",
+      "fetchError": "Bilder konnten nicht aus der Bibliothek geladen werden",
+      "uploadError": "Bild konnte nicht hochgeladen werden",
+      "invalidType": "Bitte wählen Sie nur eine Bilddatei aus",
+      "fileSizeExceeded": "Dateigröße darf 5 MB nicht überschreiten",
+      "loading": "Bilder werden geladen...",
+      "empty": "Keine Bilder in der Medienbibliothek gefunden",
+      "crop": "Zuschneiden",
+      "cropTooltip": "Dieses Bild zuschneiden"
+    },
+    "cropDialog": {
+      "title": "Bild zuschneiden",
+      "aspectRatio": "Seitenverhältnis:",
+      "aspectFree": "Frei",
+      "rotateLeft": "90° gegen den Uhrzeigersinn drehen",
+      "rotateRight": "90° im Uhrzeigersinn drehen",
+      "cancel": "Abbrechen",
+      "applyAndUpload": "Zuschneiden & Hochladen",
+      "processing": "Wird verarbeitet...",
+      "defaultError": "Beim Zuschneiden des Bildes ist ein Fehler aufgetreten",
+      "loadError": "Bild konnte nicht von URL geladen werden"
     }
   }
 }

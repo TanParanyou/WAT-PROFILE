@@ -5,6 +5,7 @@ import { Upload, Loader2, Crop } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { mediaService } from "@/services/mediaService";
+import { useTranslations } from "next-intl";
 import { ImageCropDialog } from "./ImageCropDialog";
 
 type MediaPickerDialogProps = {
@@ -18,6 +19,7 @@ export function MediaPickerDialog({
   onClose,
   onSelect,
 }: MediaPickerDialogProps) {
+  const t = useTranslations("Admin.mediaPicker");
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [galleryImages, setGalleryImages] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState(false);
@@ -49,7 +51,7 @@ export function MediaPickerDialog({
       );
       setGalleryImages(urls);
     } catch {
-      setError("ไม่สามารถดึงรูปภาพจากคลังได้");
+      setError(t("fetchError"));
     } finally {
       setIsLoading(false);
     }
@@ -60,12 +62,12 @@ export function MediaPickerDialog({
     if (!file) return;
 
     if (!file.type.startsWith("image/")) {
-      setError("กรุณาเลือกไฟล์รูปภาพเท่านั้น");
+      setError(t("invalidType"));
       return;
     }
 
     if (file.size > 5 * 1024 * 1024) {
-      setError("ไฟล์ต้องมีขนาดไม่เกิน 5MB");
+      setError(t("fileSizeExceeded"));
       return;
     }
 
@@ -101,7 +103,7 @@ export function MediaPickerDialog({
       onSelect(uploaded.url);
       onClose();
     } catch {
-      setError("อัปโหลดรูปภาพไม่สำเร็จ");
+      setError(t("uploadError"));
     } finally {
       setIsUploading(false);
     }
@@ -112,13 +114,13 @@ export function MediaPickerDialog({
       <Modal
         isOpen={isOpen}
         onClose={onClose}
-        title="คลังสื่อ (Media Library)"
+        title={t("title")}
         size="lg"
       >
         <div className="space-y-4 font-sans text-sm">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 border-b border-zinc-100 pb-3">
             <p className="text-xs text-zinc-500">
-              เลือกรูปภาพที่เคยอัปโหลดไว้แล้วในระบบแกลเลอรี หรือคลิกอัปโหลดรูปภาพใหม่จากคอมพิวเตอร์ของคุณ
+              {t("description")}
             </p>
             <Button
               type="button"
@@ -129,7 +131,7 @@ export function MediaPickerDialog({
               className="shrink-0"
               disabled={isUploading}
             >
-              {isUploading ? "กำลังอัปโหลด..." : "อัปโหลดรูปใหม่"}
+              {isUploading ? t("uploading") : t("uploadNew")}
             </Button>
           </div>
 
@@ -146,11 +148,11 @@ export function MediaPickerDialog({
           {isLoading ? (
             <div className="flex flex-col items-center justify-center py-12">
               <Loader2 className="animate-spin text-zinc-400 mb-2" size={32} />
-              <span className="text-sm text-zinc-500">กำลังโหลดรูปภาพ...</span>
+              <span className="text-sm text-zinc-500">{t("loading")}</span>
             </div>
           ) : galleryImages.length === 0 ? (
             <div className="text-center py-12 border-2 border-dashed border-zinc-200 rounded-xl bg-zinc-50/50">
-              <span className="text-sm text-zinc-400">ไม่พบรูปภาพในคลังสื่อ</span>
+              <span className="text-sm text-zinc-400">{t("empty")}</span>
             </div>
           ) : (
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-[360px] overflow-y-auto pr-1">
@@ -175,10 +177,10 @@ export function MediaPickerDialog({
                       type="button"
                       onClick={(e) => handleOpenCropForGallery(url, e)}
                       className="p-1.5 bg-white/90 hover:bg-white text-zinc-800 rounded-md shadow-sm transition-colors text-xs flex items-center gap-1 font-medium"
-                      title="ครอบตัดรูปภาพนี้"
+                      title={t("cropTooltip")}
                     >
                       <Crop size={14} className="text-amber-600" />
-                      <span>ครอป</span>
+                      <span>{t("crop")}</span>
                     </button>
                   </div>
                 </div>

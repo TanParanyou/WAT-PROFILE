@@ -5,6 +5,7 @@ import Cropper, { Point, Area } from "react-easy-crop";
 import { RotateCw, RotateCcw, ZoomIn, ZoomOut, Loader2 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
+import { useTranslations } from "next-intl";
 import { getCroppedImg, PixelCrop } from "./cropUtils";
 
 interface ImageCropDialogProps {
@@ -20,13 +21,6 @@ type AspectRatioOption = {
   value: number | undefined;
 };
 
-const ASPECT_RATIOS: AspectRatioOption[] = [
-  { label: "อิสระ", value: undefined },
-  { label: "1:1", value: 1 },
-  { label: "4:3", value: 4 / 3 },
-  { label: "16:9", value: 16 / 9 },
-];
-
 export function ImageCropDialog({
   isOpen,
   imageSrc,
@@ -34,6 +28,7 @@ export function ImageCropDialog({
   onClose,
   onCropComplete,
 }: ImageCropDialogProps) {
+  const t = useTranslations("Admin.cropDialog");
   const [crop, setCrop] = useState<Point>({ x: 0, y: 0 });
   const [zoom, setZoom] = useState(1);
   const [rotation, setRotation] = useState(0);
@@ -41,6 +36,13 @@ export function ImageCropDialog({
   const [croppedAreaPixels, setCroppedAreaPixels] = useState<PixelCrop | null>(null);
   const [isProcessing, setIsProcessing] = useState(false);
   const [error, setError] = useState<string>("");
+
+  const aspectRatios: AspectRatioOption[] = [
+    { label: t("aspectFree"), value: undefined },
+    { label: "1:1", value: 1 },
+    { label: "4:3", value: 4 / 3 },
+    { label: "16:9", value: 16 / 9 },
+  ];
 
   const onCropChange = (crop: Point) => {
     setCrop(crop);
@@ -78,7 +80,7 @@ export function ImageCropDialog({
       );
       await onCropComplete(croppedFile);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : "เกิดข้อผิดพลาดในการครอปรูปภาพ";
+      const msg = err instanceof Error ? err.message : t("defaultError");
       setError(msg);
       console.error("Failed to crop image:", msg);
     } finally {
@@ -90,7 +92,7 @@ export function ImageCropDialog({
     <Modal
       isOpen={isOpen}
       onClose={onClose}
-      title="ครอบตัดรูปภาพ (Crop Image)"
+      title={t("title")}
       size="lg"
     >
       <div className="space-y-4 font-sans text-sm">
@@ -115,9 +117,9 @@ export function ImageCropDialog({
         <div className="space-y-3 bg-zinc-50 p-3 rounded-lg border border-zinc-200">
           {/* Aspect Ratio */}
           <div className="flex flex-wrap items-center justify-between gap-2">
-            <span className="text-xs font-medium text-zinc-600">อัตราส่วนภาพ:</span>
+            <span className="text-xs font-medium text-zinc-600">{t("aspectRatio")}</span>
             <div className="flex items-center gap-1.5">
-              {ASPECT_RATIOS.map((option, idx) => (
+              {aspectRatios.map((option, idx) => (
                 <button
                   key={idx}
                   type="button"
@@ -158,7 +160,7 @@ export function ImageCropDialog({
                 type="button"
                 onClick={handleRotateLeft}
                 className="p-1.5 bg-white border border-zinc-200 hover:bg-zinc-100 rounded-md text-zinc-700 transition-colors flex items-center gap-1 text-xs"
-                title="หมุนทวนเข็ม 90°"
+                title={t("rotateLeft")}
               >
                 <RotateCcw size={14} />
                 <span>-90°</span>
@@ -167,7 +169,7 @@ export function ImageCropDialog({
                 type="button"
                 onClick={handleRotateRight}
                 className="p-1.5 bg-white border border-zinc-200 hover:bg-zinc-100 rounded-md text-zinc-700 transition-colors flex items-center gap-1 text-xs"
-                title="หมุนตามเข็ม 90°"
+                title={t("rotateRight")}
               >
                 <RotateCw size={14} />
                 <span>+90°</span>
@@ -185,7 +187,7 @@ export function ImageCropDialog({
             onClick={onClose}
             disabled={isProcessing}
           >
-            ยกเลิก
+            {t("cancel")}
           </Button>
           <Button
             type="button"
@@ -195,7 +197,7 @@ export function ImageCropDialog({
             disabled={isProcessing}
             icon={isProcessing ? <Loader2 size={14} className="animate-spin" /> : undefined}
           >
-            {isProcessing ? "กำลังประมวลผล..." : "ตกลงและอัปโหลด"}
+            {isProcessing ? t("processing") : t("applyAndUpload")}
           </Button>
         </div>
       </div>
