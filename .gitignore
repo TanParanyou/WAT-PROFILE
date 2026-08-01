@@ -28,6 +28,7 @@ backend/tmp/
 backend/bin/
 backend/main
 backend/.go-cache/
+backend/.cache/
 
 # misc
 .DS_Store

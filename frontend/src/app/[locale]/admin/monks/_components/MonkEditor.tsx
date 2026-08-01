@@ -20,7 +20,7 @@ import { useTranslations } from "next-intl";
 import { useForm, Controller, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { monkSchema, type MonkFormData } from "@/schemas/monk.schema";
-import { Save, ArrowLeft } from "lucide-react";
+import { Save, ArrowLeft, Eye, X } from "lucide-react";
 import { useAppOptions } from "@/hooks/useAppOptions";
 import { hasLegacyLocalizedRichText, normalizeLocalizedRichText } from "@/lib/rich-text/document";
 import { richTextMigrationService } from "@/services/richTextMigrationService";
@@ -58,6 +58,7 @@ export function MonkEditor({ id }: MonkEditorProps) {
   const { handleApiError } = useApiError();
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(isEditMode);
+  const [isMobilePreviewOpen, setIsMobilePreviewOpen] = useState(false);
 
   const { getMonkPositionOptions } = useAppOptions();
   const positionOptions = getMonkPositionOptions();
@@ -194,6 +195,20 @@ export function MonkEditor({ id }: MonkEditorProps) {
               <p className="text-sm text-admin-muted">
                 {isEditMode ? t("monks.editDesc") : t("monks.createDesc")}
               </p>
+            </div>
+
+            {/* Mobile Preview Button */}
+            <div className="lg:hidden">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsMobilePreviewOpen(true)}
+                icon={<Eye size={16} />}
+                className="w-full sm:w-auto text-admin-action border-admin-action hover:bg-admin-action-surface"
+              >
+                ดูพรีวิวแบบเรียลไทม์
+              </Button>
             </div>
           </div>
 
@@ -375,6 +390,45 @@ export function MonkEditor({ id }: MonkEditorProps) {
             </Button>
           </div>
         </div>
+
+        {/* Mobile Preview Drawer Modal */}
+        {isMobilePreviewOpen && (
+          <div className="fixed inset-0 z-50 flex flex-col bg-admin-surface p-4 lg:hidden overflow-y-auto space-y-4">
+            <div className="flex items-center justify-between border-b border-admin-border pb-3 sticky top-0 bg-admin-surface z-10 py-1">
+              <div className="flex items-center gap-2">
+                <Eye size={18} className="text-admin-action" />
+                <h3 className="text-base font-semibold text-admin-foreground">
+                  พรีวิวการแสดงผล (Mobile Preview)
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsMobilePreviewOpen(false)}
+                className="p-1.5 text-admin-muted hover:text-admin-foreground rounded-none border border-admin-border bg-admin-surface-muted transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="space-y-6 pt-2 pb-8">
+              <MonkCardPreview
+                name={watch("name")}
+                title={watch("title")}
+                position={watch("position")}
+                ordinationDate={watch("ordination_date")}
+                imageUrl={watch("image_url")}
+                isActive={watch("is_active")}
+              />
+
+              <GoogleSearchPreview
+                seoTitle={watch("name")}
+                pageTitle={watch("name")}
+                canonicalUrl={`/monks/${watch("slug") || "monk-name"}`}
+                ogImage={typeof watch("image_url") === "string" ? watch("image_url") : ""}
+              />
+            </div>
+          </div>
+        )}
       </form>
     </FormProvider>
   );

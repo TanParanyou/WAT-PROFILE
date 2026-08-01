@@ -20,7 +20,7 @@ import { useTranslations } from "next-intl";
 import { useForm, Controller, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { eventSchema, type EventFormData } from "@/schemas/event.schema";
-import { FileText, MapPin, Save, ArrowLeft } from "lucide-react";
+import { FileText, MapPin, Save, ArrowLeft, Eye, X } from "lucide-react";
 import { EventScheduleEditor } from "@/components/admin/events/EventScheduleEditor";
 import { useAppOptions } from "@/hooks/useAppOptions";
 import { fromZonedTime, formatInTimeZone } from "date-fns-tz";
@@ -69,6 +69,7 @@ export function EventEditor({ id }: EventEditorProps) {
   const { handleApiError } = useApiError();
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(isEditMode);
+  const [isMobilePreviewOpen, setIsMobilePreviewOpen] = useState(false);
   const { getEventTypeOptions } = useAppOptions();
   const eventTypeOptions = getEventTypeOptions();
 
@@ -315,6 +316,20 @@ export function EventEditor({ id }: EventEditorProps) {
               <p className="text-sm text-admin-muted">
                 {isEditMode ? t("events.editDesc") : t("events.createDesc")}
               </p>
+            </div>
+
+            {/* Mobile Preview Button */}
+            <div className="lg:hidden">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => setIsMobilePreviewOpen(true)}
+                icon={<Eye size={16} />}
+                className="w-full sm:w-auto text-admin-action border-admin-action hover:bg-admin-action-surface"
+              >
+                ดูพรีวิวแบบเรียลไทม์
+              </Button>
             </div>
           </div>
 
@@ -626,6 +641,49 @@ export function EventEditor({ id }: EventEditorProps) {
             </Button>
           </div>
         </div>
+
+        {/* Mobile Preview Drawer Modal */}
+        {isMobilePreviewOpen && (
+          <div className="fixed inset-0 z-50 flex flex-col bg-admin-surface p-4 lg:hidden overflow-y-auto space-y-4">
+            <div className="flex items-center justify-between border-b border-admin-border pb-3 sticky top-0 bg-admin-surface z-10 py-1">
+              <div className="flex items-center gap-2">
+                <Eye size={18} className="text-admin-action" />
+                <h3 className="text-base font-semibold text-admin-foreground">
+                  พรีวิวการแสดงผล (Mobile Preview)
+                </h3>
+              </div>
+              <button
+                type="button"
+                onClick={() => setIsMobilePreviewOpen(false)}
+                className="p-1.5 text-admin-muted hover:text-admin-foreground rounded-none border border-admin-border bg-admin-surface-muted transition-colors"
+              >
+                <X size={20} />
+              </button>
+            </div>
+
+            <div className="space-y-6 pt-2 pb-8">
+              <EventCardPreview
+                title={watch("title")}
+                location={watch("location")}
+                startDate={watch("start_date")}
+                endDate={watch("end_date")}
+                startTime={watch("start_time")}
+                endTime={watch("end_time")}
+                eventType={watch("event_type")}
+                imageUrl={watch("image_url")}
+                registrationEnabled={watch("registration_enabled")}
+                schedule={watch("schedule")}
+              />
+
+              <GoogleSearchPreview
+                seoTitle={watch("title")}
+                pageTitle={watch("title")}
+                canonicalUrl={`/events/${watch("slug") || "event-name"}`}
+                ogImage={typeof watch("image_url") === "string" ? watch("image_url") : ""}
+              />
+            </div>
+          </div>
+        )}
       </form>
     </FormProvider>
   );
