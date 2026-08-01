@@ -11,16 +11,25 @@ export async function createImage(
   let imageSrc = url;
   let cleanup = () => {};
 
-  if (!url.startsWith("data:") && !url.startsWith("blob:")) {
+  if (url.startsWith("http://") || url.startsWith("https://")) {
     try {
-      const response = await fetch(url, { mode: "cors" });
+      // Use Next.js image proxy endpoint to bypass cross-origin CORS limitations for Canvas
+      const proxiedUrl = `/_next/image?url=${encodeURIComponent(url)}&w=1920&q=95`;
+      const response = await fetch(proxiedUrl);
       if (response.ok) {
         const blob = await response.blob();
         imageSrc = URL.createObjectURL(blob);
         cleanup = () => URL.revokeObjectURL(imageSrc);
+      } else {
+        // Fallback: try fetching direct CORS URL
+        const directResponse = await fetch(url, { mode: "cors" });
+        if (directResponse.ok) {
+          const blob = await directResponse.blob();
+          imageSrc = URL.createObjectURL(blob);
+          cleanup = () => URL.revokeObjectURL(imageSrc);
+        }
       }
     } catch {
-      // Fallback to direct url if fetch fails
       imageSrc = url;
     }
   }
@@ -32,9 +41,13 @@ export async function createImage(
       cleanup();
       reject(new Error(`ไม่สามารถโหลดรูปภาพได้จาก URL: ${url}`));
     });
-    if (!imageSrc.startsWith("data:") && !imageSrc.startsWith("blob:")) {
+
+    if (imageSrc.startsWith("blob:") || imageSrc.startsWith("data:")) {
+      // Same-origin blob/data URL does not require crossOrigin attribute
+    } else {
       image.setAttribute("crossOrigin", "anonymous");
     }
+
     image.src = imageSrc;
   });
 }
