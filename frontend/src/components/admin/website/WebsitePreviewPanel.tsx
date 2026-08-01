@@ -63,7 +63,7 @@ function PreviewContactForm({ locale }: { locale: string }) {
       </div>
       <PreviewField label={labels.subject} />
       <PreviewField label={labels.message} textarea />
-      <div className="inline-flex h-11 items-center border border-zinc-950 bg-zinc-950 px-4 text-sm font-medium text-white">
+      <div className="inline-flex h-11 items-center border border-site-action bg-site-action px-4 text-sm font-medium text-site-on-action">
         {labels.submit}
       </div>
     </div>
@@ -73,12 +73,12 @@ function PreviewContactForm({ locale }: { locale: string }) {
 function PreviewField({ label, textarea = false }: { label: string; textarea?: boolean }) {
   return (
     <div>
-      <div className="text-sm font-medium text-zinc-700">{label}</div>
+      <div className="text-sm font-medium text-site-foreground">{label}</div>
       <div
         className={
           textarea
-            ? "mt-2 min-h-32 border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-400"
-            : "mt-2 h-11 border border-zinc-200 bg-white px-3 py-2.5 text-sm text-zinc-400"
+            ? "mt-2 min-h-32 border border-site-border bg-site-canvas px-3 py-2.5 text-sm text-site-muted"
+            : "mt-2 h-11 border border-site-border bg-site-canvas px-3 py-2.5 text-sm text-site-muted"
         }
       />
     </div>
