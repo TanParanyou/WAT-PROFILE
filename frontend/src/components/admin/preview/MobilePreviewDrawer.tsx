@@ -3,6 +3,7 @@
 import React, { useState } from "react";
 import { Eye, X } from "lucide-react";
 import { Button } from "@/components/ui/Button";
+import { MobilePreviewButton } from "./MobilePreviewButton";
 
 interface MobilePreviewDrawerProps {
   title?: string;
@@ -20,18 +21,7 @@ export function MobilePreviewDrawer({
   return (
     <>
       {/* Mobile Preview Trigger Button */}
-      <div className="lg:hidden">
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => setIsOpen(true)}
-          icon={<Eye size={16} />}
-          className="w-full sm:w-auto text-admin-action border-admin-action hover:bg-admin-action-surface"
-        >
-          {buttonLabel}
-        </Button>
-      </div>
+      <MobilePreviewButton onClick={() => setIsOpen(true)} />
 
       {/* Mobile Preview Drawer Modal */}
       {isOpen && (
