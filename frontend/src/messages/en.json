@@ -10,7 +10,11 @@
         "openMenu": "Open navigation menu",
         "closeMenu": "Close navigation menu",
         "primaryNavigation": "Primary navigation",
-        "languageNavigation": "Choose language"
+        "languageNavigation": "Choose language",
+        "theme": "Choose theme",
+        "themeSystem": "System",
+        "themeLight": "Light",
+        "themeDark": "Dark"
     },
     "Footer": {
         "aboutUs": "About Us",

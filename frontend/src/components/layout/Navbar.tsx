@@ -8,6 +8,7 @@ import { Link, usePathname } from "@/navigation";
 import { usePublicSiteSettings } from "@/features/public/settings/PublicSiteSettingsProvider";
 import { getLocalizedText } from "@/utils/i18n";
 import { siteConfig } from "@/config/site.config";
+import { PublicThemeSwitcher } from "@/components/public/theme/PublicThemeSwitcher";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
 const languageOptions = [
@@ -68,7 +69,8 @@ export default function Navbar() {
           })}
         </nav>
 
-        <div className="hidden items-center lg:flex" aria-label={t("languageNavigation")}>
+        <div className="hidden items-center gap-3 lg:flex">
+          <PublicThemeSwitcher />
           <LanguageSwitcher />
         </div>
 
@@ -120,6 +122,11 @@ export default function Navbar() {
                   </Link>
                 ))}
               </div>
+            </div>
+
+            <div className="mt-6 flex flex-col gap-3" aria-label={t("theme")}>
+              <span className="text-sm font-medium text-site-muted">{t("theme")}</span>
+              <PublicThemeSwitcher className="w-full [&>button]:flex-1" />
             </div>
           </nav>
         </div>

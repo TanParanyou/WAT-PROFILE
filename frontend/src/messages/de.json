@@ -10,7 +10,11 @@
         "openMenu": "Navigationsmenü öffnen",
         "closeMenu": "Navigationsmenü schließen",
         "primaryNavigation": "Hauptnavigation",
-        "languageNavigation": "Sprache auswählen"
+        "languageNavigation": "Sprache auswählen",
+        "theme": "Darstellung auswählen",
+        "themeSystem": "System",
+        "themeLight": "Hell",
+        "themeDark": "Dunkel"
     },
     "Footer": {
         "aboutUs": "Über Uns",

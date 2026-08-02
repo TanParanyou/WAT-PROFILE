@@ -52,6 +52,12 @@ source of truth for public-facing visual decisions.
 - Do not use raw colour values or theme-specific names in public TSX modules.
   A future visual theme changes the `.public-theme` variables, not each caller.
 - Keep Admin/CMS colours independent from the public theme.
+- Public visitors can choose `System`, `Light`, or `Dark` from the navigation.
+  The choice is stored under `wat-public-theme` and uses the `data-public-theme`
+  attribute, so it does not change the Admin preference (`wat-admin-theme`).
+- Dark mode uses a warm charcoal canvas (`#1C1A17`), pale register ink, and a
+  restrained terracotta accent. Do not mechanically invert images or introduce
+  a separate dark colour vocabulary in page components.
 
 ## Typography
 

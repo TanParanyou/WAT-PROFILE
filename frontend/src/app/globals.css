@@ -220,6 +220,24 @@
     color-scheme: light;
 }
 
+/* Public dark mode stays warm and paper-like so photography remains the visual anchor. */
+[data-public-theme="dark"] .public-theme,
+[data-public-theme="dark"].public-theme {
+    color-scheme: dark;
+    --public-canvas: #1c1a17;
+    --public-foreground: #f8f1e6;
+    --public-body: #e5dace;
+    --public-muted: #b6a99d;
+    --public-surface: #2a2621;
+    --public-border: #6f6257;
+    --public-divider: #464039;
+    --public-action: #f8f1e6;
+    --public-action-hover: #fffaf2;
+    --public-on-action: #1c1a17;
+    --public-accent: #d9925d;
+    --public-focus: #e3a272;
+}
+
 .admin-theme {
     color-scheme: light;
     --admin-canvas: #fffef2;

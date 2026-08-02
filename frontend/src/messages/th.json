@@ -10,7 +10,11 @@
         "openMenu": "เปิดเมนูนำทาง",
         "closeMenu": "ปิดเมนูนำทาง",
         "primaryNavigation": "เมนูหลัก",
-        "languageNavigation": "เลือกภาษา"
+        "languageNavigation": "เลือกภาษา",
+        "theme": "เลือกธีม",
+        "themeSystem": "ตามระบบ",
+        "themeLight": "สว่าง",
+        "themeDark": "มืด"
     },
     "Footer": {
         "aboutUs": "เกี่ยวกับวัด",
