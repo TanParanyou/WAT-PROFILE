@@ -126,7 +126,7 @@ export default function Navbar() {
 
             <div className="mt-6 flex flex-col gap-3" aria-label={t("theme")}>
               <span className="text-sm font-medium text-site-muted">{t("theme")}</span>
-              <PublicThemeSwitcher className="w-full [&>button]:flex-1" />
+              <PublicThemeSwitcher className="w-full" variant="full" />
             </div>
           </nav>
         </div>

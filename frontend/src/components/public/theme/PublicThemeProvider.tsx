@@ -1,17 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
-import { ThemeProvider, useTheme } from "next-themes";
-
-function PublicThemeScope({ children }: { children: ReactNode }) {
-  const { resolvedTheme } = useTheme();
-
-  return (
-    <div data-public-theme={resolvedTheme ?? "light"} className="contents">
-      {children}
-    </div>
-  );
-}
+import { ThemeProvider } from "next-themes";
 
 export function PublicThemeProvider({ children }: { children: ReactNode }) {
   return (
@@ -22,7 +12,7 @@ export function PublicThemeProvider({ children }: { children: ReactNode }) {
       storageKey="wat-public-theme"
       disableTransitionOnChange
     >
-      <PublicThemeScope>{children}</PublicThemeScope>
+      {children}
     </ThemeProvider>
   );
 }
