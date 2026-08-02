@@ -250,7 +250,8 @@
 }
 
 /* Admin dark mode is intentionally scoped below the Admin route seam. */
-[data-admin-theme="dark"] .admin-theme {
+[data-admin-theme="dark"] .admin-theme,
+[data-admin-theme="dark"].admin-theme {
     color-scheme: dark;
     --admin-canvas: #18181b;
     --admin-surface: #27272a;

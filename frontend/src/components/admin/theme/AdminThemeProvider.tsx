@@ -2,6 +2,17 @@
 
 import type { ReactNode } from "react";
 import { ThemeProvider } from "next-themes";
+import { useTheme } from "next-themes";
+
+function AdminThemeScope({ children }: { children: ReactNode }) {
+  const { resolvedTheme } = useTheme();
+
+  return (
+    <div data-admin-theme={resolvedTheme ?? "light"} className="contents">
+      {children}
+    </div>
+  );
+}
 
 export function AdminThemeProvider({ children }: { children: ReactNode }) {
   return (
@@ -12,7 +23,7 @@ export function AdminThemeProvider({ children }: { children: ReactNode }) {
       storageKey="wat-admin-theme"
       disableTransitionOnChange
     >
-      {children}
+      <AdminThemeScope>{children}</AdminThemeScope>
     </ThemeProvider>
   );
 }
