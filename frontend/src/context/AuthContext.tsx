@@ -48,6 +48,7 @@ const mockAdminUser: User = {
       audit_logs: "all",
       website: "all",
     },
+    admin_access: true,
     is_active: true,
     created_at: "2026-01-01T00:00:00.000Z",
     updated_at: "2026-01-01T00:00:00.000Z",

@@ -7,9 +7,15 @@ export interface Role {
   name: string;
   description: string;
   permissions: PermissionsMap;
+  admin_access: boolean;
   is_active: boolean;
   created_at: string;
   updated_at: string;
+}
+
+export interface AdminAuthResponse {
+  access_token: string;
+  user: User;
 }
 
 export interface User {
@@ -66,4 +72,5 @@ export type PermissionResource =
   | "users"
   | "registrations"
   | "audit_logs"
-  | "website";
+  | "website"
+  | "dashboard";
