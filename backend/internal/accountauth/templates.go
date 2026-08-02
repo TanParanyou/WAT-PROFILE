@@ -73,6 +73,23 @@ var emailCopy = map[string]map[string]EmailCopy{
 			Action:  "Passwort zurücksetzen",
 		},
 	},
+	"password_reset_google": {
+		"th": {
+			Subject: "รีเซ็ตรหัสผ่านสำหรับบัญชี Google",
+			Body:    "สวัสดี {{.DisplayName}},\n\nเราได้รับคำขอให้รีเซ็ตรหัสผ่านสำหรับบัญชีนี้ บัญชีของคุณลงชื่อเข้าใช้ด้วย Google จึงไม่มีรหัสผ่านให้รีเซ็ต คุณยังคงลงชื่อเข้าใช้ด้วย Google ได้ตามปกติ หากคุณไม่ได้ร้องขอ คุณสามารถเพิกเฉยต่ออีเมลนี้ได้",
+			Action:  "ลงชื่อเข้าใช้ด้วย Google",
+		},
+		"en": {
+			Subject: "Password reset for your Google account",
+			Body:    "Hello {{.DisplayName}},\n\nWe received a request to reset the password for this account. Your account signs in with Google, so there is no password to reset. You can continue signing in with Google as usual. If you did not request this, you can safely ignore this email.",
+			Action:  "Sign in with Google",
+		},
+		"de": {
+			Subject: "Passwort zurücksetzen für Ihr Google-Konto",
+			Body:    "Hallo {{.DisplayName}},\n\nwir haben eine Anfrage zum Zurücksetzen des Passworts für dieses Konto erhalten. Ihr Konto meldet sich mit Google an, daher gibt es kein Passwort zum Zurücksetzen. Sie können sich wie gewohnt mit Google anmelden. Wenn Sie das nicht angefordert haben, können Sie diese E-Mail ignorieren.",
+			Action:  "Mit Google anmelden",
+		},
+	},
 	"password_changed": {
 		"th": {
 			Subject: "รหัสผ่านของคุณถูกเปลี่ยนแล้ว",

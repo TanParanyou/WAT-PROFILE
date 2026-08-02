@@ -23,6 +23,15 @@ const (
 	maxDisplayName = 80
 )
 
+// validatePasswordLength enforces the 12-128 character password policy shared
+// by registration and password reset.
+func validatePasswordLength(password string) error {
+	if len(password) < minPasswordLen || len(password) > maxPasswordLen {
+		return accountauth.NewFieldError(accountauth.CodeValidation, "password", "Password must be between 12 and 128 characters.")
+	}
+	return nil
+}
+
 // RegisterPasswordInput is the validated input for password registration.
 type RegisterPasswordInput struct {
 	Email       string
