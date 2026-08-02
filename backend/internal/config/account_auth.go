@@ -26,6 +26,7 @@ type AccountAuthConfig struct {
 	GoogleClientID    string
 	GoogleSecret      string
 	GoogleRedirectURL string
+	GoogleFlowSecret  string
 	AccessTTL         time.Duration
 	RefreshTTL        time.Duration
 	EmailMode         string
@@ -103,6 +104,10 @@ func LoadAccountAuthConfig() (AccountAuthConfig, error) {
 	cfg.GoogleRedirectURL = os.Getenv("GOOGLE_REDIRECT_URL")
 	if cfg.GoogleClientID == "" || cfg.GoogleSecret == "" || cfg.GoogleRedirectURL == "" {
 		return cfg, fmt.Errorf("GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET, and GOOGLE_REDIRECT_URL are required when PUBLIC_ACCOUNT_AUTH_ENABLED=true")
+	}
+	cfg.GoogleFlowSecret = os.Getenv("GOOGLE_FLOW_SECRET")
+	if cfg.GoogleFlowSecret == "" {
+		return cfg, fmt.Errorf("GOOGLE_FLOW_SECRET is required when PUBLIC_ACCOUNT_AUTH_ENABLED=true")
 	}
 
 	// Access TTL: 15-minute default, must be parseable duration.

@@ -116,7 +116,7 @@ type GoogleVerifier interface {
 	// given state/nonce.
 	AuthorizationURL(state, nonce, challenge string) string
 	// VerifyCallback exchanges the code with PKCE and validates the ID token.
-	VerifyCallback(ctx context.Context, code, verifier string) (GoogleIdentity, error)
+	VerifyCallback(ctx context.Context, code, verifier, nonce string) (GoogleIdentity, error)
 }
 
 // SecurityRecorder records allow-listed security events. Persistence failure

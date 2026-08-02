@@ -15,6 +15,7 @@ func TestLoadAccountAuthConfigRejectsCaptureInProduction(t *testing.T) {
 	t.Setenv("GOOGLE_CLIENT_ID", "test-client-id")
 	t.Setenv("GOOGLE_CLIENT_SECRET", "test-secret")
 	t.Setenv("GOOGLE_REDIRECT_URL", "https://api.watloungporsai.de/api/v1/accounts/google/callback")
+	t.Setenv("GOOGLE_FLOW_SECRET", "test-secret")
 	t.Setenv("AUTH_EMAIL_DELIVERY_MODE", "capture")
 	_, err := LoadAccountAuthConfig()
 	if err == nil || !strings.Contains(err.Error(), "capture") {
@@ -45,6 +46,7 @@ func TestLoadAccountAuthConfigDefaults(t *testing.T) {
 	t.Setenv("GOOGLE_CLIENT_ID", "test-client-id")
 	t.Setenv("GOOGLE_CLIENT_SECRET", "test-secret")
 	t.Setenv("GOOGLE_REDIRECT_URL", "http://localhost:8080/api/v1/accounts/google/callback")
+	t.Setenv("GOOGLE_FLOW_SECRET", "test-secret")
 	t.Setenv("AUTH_EMAIL_DELIVERY_MODE", "capture")
 	cfg, err := LoadAccountAuthConfig()
 	if err != nil {
@@ -77,6 +79,7 @@ func TestLoadAccountAuthConfigRejectsHttpProductionURLs(t *testing.T) {
 	t.Setenv("GOOGLE_CLIENT_ID", "test-client-id")
 	t.Setenv("GOOGLE_CLIENT_SECRET", "test-secret")
 	t.Setenv("GOOGLE_REDIRECT_URL", "https://api.watloungporsai.de/api/v1/accounts/google/callback")
+	t.Setenv("GOOGLE_FLOW_SECRET", "test-secret")
 	t.Setenv("AUTH_EMAIL_DELIVERY_MODE", "resend")
 	t.Setenv("RESEND_API_KEY", "re_test")
 	t.Setenv("ACCOUNT_EMAIL_FROM", "no-reply@watloungporsai.de")
