@@ -45,6 +45,25 @@ func TestAdminOriginGuardAllowsConfiguredOrigin(t *testing.T) {
 	}
 }
 
+func TestAdminOriginGuardAllowsSameOrigin(t *testing.T) {
+	app := fiber.New()
+	app.Post("/", AdminOriginGuard([]string{"https://admin.example"}), func(c *fiber.Ctx) error {
+		return c.SendStatus(fiber.StatusOK)
+	})
+
+	req := httptest.NewRequest("POST", "/", strings.NewReader(`{}`))
+	req.Host = "localhost:8082"
+	req.Header.Set("Content-Type", "application/json")
+	req.Header.Set("Origin", "http://localhost:8082")
+	res, err := app.Test(req)
+	if err != nil {
+		t.Fatalf("request failed: %v", err)
+	}
+	if res.StatusCode != fiber.StatusOK {
+		t.Fatalf("status = %d, want %d", res.StatusCode, fiber.StatusOK)
+	}
+}
+
 func TestAdminOriginGuardAllowsMissingOrigin(t *testing.T) {
 	app := fiber.New()
 	app.Post("/", AdminOriginGuard([]string{"https://admin.example"}), func(c *fiber.Ctx) error {

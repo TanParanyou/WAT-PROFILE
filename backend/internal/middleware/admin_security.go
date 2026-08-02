@@ -23,11 +23,25 @@ func AdminOriginGuard(allowed []string) fiber.Handler {
 		if _, ok := allowedSet[origin]; ok {
 			return c.Next()
 		}
+		if sameOrigin(c, origin) {
+			return c.Next()
+		}
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"success": false,
 			"error":   "Origin not allowed",
 		})
 	}
+}
+
+// sameOrigin reports whether origin matches the request's own scheme+host.
+// Same-origin requests come from a page served by this API itself, so they
+// are not a cross-site CSRF risk even when not listed in the allowlist.
+func sameOrigin(c *fiber.Ctx, origin string) bool {
+	host := c.Get("Host")
+	if host == "" {
+		return false
+	}
+	return origin == c.Protocol()+"://"+host
 }
 
 // AdminSecurityHeaders sets no-store and hardened response headers on Admin
