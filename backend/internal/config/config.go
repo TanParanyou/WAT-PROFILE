@@ -69,6 +69,11 @@ func MigrateModels() error {
 		// Core models
 		&models.Role{},
 		&models.User{},
+		&models.AccountProfile{},
+		&models.AuthIdentity{},
+		&models.AuthSession{},
+		&models.AuthActionToken{},
+		&models.AuthSecurityEvent{},
 		&models.RefreshToken{},
 		&models.PasswordReset{},
 		&models.AdminSession{},

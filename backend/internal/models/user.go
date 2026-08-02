@@ -9,18 +9,19 @@ import (
 
 // User represents an authenticated user
 type User struct {
-	ID            uuid.UUID  `gorm:"type:uuid;default:gen_random_uuid();primaryKey" json:"id"`
-	Email         string     `gorm:"size:255;uniqueIndex;not null" json:"email"`
-	PasswordHash  string     `gorm:"size:255;not null" json:"-"` // Never return password in JSON
-	Name          string     `gorm:"size:255;not null" json:"name"`
-	AvatarURL     string     `gorm:"size:500" json:"avatar_url,omitempty"`
-	RoleID        *uuid.UUID `gorm:"type:uuid" json:"role_id"`
-	Role          *Role      `gorm:"foreignKey:RoleID" json:"role,omitempty"`
-	EmailVerified bool       `gorm:"default:false" json:"email_verified"`
-	IsActive      bool       `gorm:"default:true" json:"is_active"`
-	LastLoginAt   *time.Time `json:"last_login_at"`
-	CreatedAt     time.Time  `json:"created_at"`
-	UpdatedAt     time.Time  `json:"updated_at"`
+	ID            uuid.UUID     `gorm:"type:uuid;default:gen_random_uuid();primaryKey" json:"id"`
+	Email         string        `gorm:"size:255;uniqueIndex;not null" json:"email"`
+	PasswordHash  *string       `gorm:"size:255" json:"-"` // Never return password in JSON; nil for Google-only accounts
+	Name          string        `gorm:"size:255;not null" json:"name"`
+	AvatarURL     string        `gorm:"size:500" json:"avatar_url,omitempty"`
+	RoleID        *uuid.UUID    `gorm:"type:uuid" json:"role_id"`
+	Role          *Role         `gorm:"foreignKey:RoleID" json:"role,omitempty"`
+	EmailVerified bool          `gorm:"default:false" json:"email_verified"`
+	IsActive      bool          `gorm:"default:true" json:"is_active"`
+	AccountStatus AccountStatus `gorm:"size:32;not null;default:active" json:"account_status"`
+	LastLoginAt   *time.Time    `json:"last_login_at"`
+	CreatedAt     time.Time     `json:"created_at"`
+	UpdatedAt     time.Time     `json:"updated_at"`
 }
 
 // BeforeCreate hook to generate UUID

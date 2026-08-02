@@ -58,7 +58,7 @@ func createTestAdminSessionUser(t *testing.T, db *gorm.DB, role *models.Role) *m
 	user := models.User{
 		ID:           uuid.New(),
 		Email:        "revoke-" + uuid.NewString() + "@wat.local",
-		PasswordHash: hashed,
+		PasswordHash: &hashed,
 		Name:         "Revoke Admin",
 		RoleID:       &role.ID,
 		IsActive:     true,
@@ -77,7 +77,7 @@ func TestUserService_UpdateProfile(t *testing.T) {
 	user := models.User{
 		ID:           uuid.New(),
 		Email:        "profile-test@wat.local",
-		PasswordHash: hashed,
+		PasswordHash: &hashed,
 		Name:         "Old Admin",
 		IsActive:     true,
 	}
@@ -115,7 +115,7 @@ func TestUserService_UpdateProfile(t *testing.T) {
 		if err != nil {
 			t.Fatalf("expected no error, got %v", err)
 		}
-		if !utils.CheckPasswordHash("NewPassword123", updated.PasswordHash) {
+		if updated.PasswordHash == nil || !utils.CheckPasswordHash("NewPassword123", *updated.PasswordHash) {
 			t.Fatal("expected password hash to match new password")
 		}
 	})
@@ -187,7 +187,7 @@ func TestAdminSessionRevocationAdminSetPassword(t *testing.T) {
 		t.Fatalf("login: %v", err)
 	}
 
-	user.PasswordHash = ""
+	user.PasswordHash = nil
 	if err := svc.Update(user, "AdminSetPassword1"); err != nil {
 		t.Fatalf("update: %v", err)
 	}

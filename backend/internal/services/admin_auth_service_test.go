@@ -60,7 +60,7 @@ func createAdminAuthUser(t *testing.T, db *gorm.DB, role *models.Role, active bo
 	user := models.User{
 		ID:           uuid.New(),
 		Email:        fmt.Sprintf("admin-%s@wat.local", uuid.New().String()),
-		PasswordHash: hashed,
+		PasswordHash: &hashed,
 		Name:         "Admin Tester",
 		IsActive:     active,
 	}

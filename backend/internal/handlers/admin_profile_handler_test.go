@@ -168,7 +168,7 @@ func createAdminProfileUser(t *testing.T, db *gorm.DB, withProfileUpdate bool) *
 	}
 	user := models.User{
 		Email:        "admin-profile-" + uuid.NewString() + "@wat.local",
-		PasswordHash: hash,
+		PasswordHash: &hash,
 		Name:         "Admin Profile User",
 		RoleID:       &role.ID,
 		IsActive:     true,

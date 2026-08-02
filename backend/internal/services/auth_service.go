@@ -32,9 +32,10 @@ func (s *AuthService) Register(email, password, name string) (*models.User, erro
 	}
 
 	// Create user
+	hashedPasswordValue := hashedPassword
 	user := models.User{
 		Email:        email,
-		PasswordHash: hashedPassword,
+		PasswordHash: &hashedPasswordValue,
 		Name:         name,
 	}
 
@@ -59,7 +60,7 @@ func (s *AuthService) Login(email, password string) (string, string, *models.Use
 	}
 
 	// Verify password
-	if !utils.CheckPasswordHash(password, user.PasswordHash) {
+	if user.PasswordHash == nil || !utils.CheckPasswordHash(password, *user.PasswordHash) {
 		return "", "", nil, errors.New("invalid credentials")
 	}
 

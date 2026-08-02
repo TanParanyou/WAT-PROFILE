@@ -80,7 +80,7 @@ func (s *AdminAuthService) LoginAdmin(email, password, ip, userAgent string) (*A
 		return nil, ErrAdminCredentials
 	}
 
-	if !s.eligible(&user) || !utils.CheckPasswordHash(password, user.PasswordHash) {
+	if !s.eligible(&user) || user.PasswordHash == nil || !utils.CheckPasswordHash(password, *user.PasswordHash) {
 		return nil, ErrAdminCredentials
 	}
 

@@ -56,7 +56,7 @@ func createAdminHandlerUser(t *testing.T, db *gorm.DB) *models.User {
 	user := models.User{
 		ID:           uuid.New(),
 		Email:        "admin-" + uuid.New().String() + "@wat.local",
-		PasswordHash: hash,
+		PasswordHash: &hash,
 		Name:         "Test Admin",
 		RoleID:       &role.ID,
 		IsActive:     true,

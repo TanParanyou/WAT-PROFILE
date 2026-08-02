@@ -161,9 +161,10 @@ func seedAdminUser() {
 	}
 
 	// Create admin user
+	hashedPasswordValue := hashedPassword
 	admin := models.User{
 		Email:         adminEmail,
-		PasswordHash:  hashedPassword,
+		PasswordHash:  &hashedPasswordValue,
 		Name:          adminName,
 		RoleID:        &adminRole.ID,
 		EmailVerified: true,

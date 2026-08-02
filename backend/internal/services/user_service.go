@@ -119,7 +119,7 @@ func (s *UserService) Create(user *models.User, password string) error {
 	if err != nil {
 		return err
 	}
-	user.PasswordHash = hashedPassword
+	user.PasswordHash = &hashedPassword
 
 	return s.db.Create(user).Error
 }
@@ -140,7 +140,7 @@ func (s *UserService) Update(user *models.User, newPassword string) error {
 		if err != nil {
 			return err
 		}
-		user.PasswordHash = hashedPassword
+		user.PasswordHash = &hashedPassword
 		passwordChanged = true
 	}
 
@@ -222,14 +222,14 @@ func (s *UserService) UpdateProfile(userID uuid.UUID, name, email string, avatar
 		if currentPassword == "" {
 			return nil, errors.New("current password is required to set a new password")
 		}
-		if !utils.CheckPasswordHash(currentPassword, user.PasswordHash) {
+		if user.PasswordHash == nil || !utils.CheckPasswordHash(currentPassword, *user.PasswordHash) {
 			return nil, errors.New("incorrect current password")
 		}
 		hashedPassword, err := utils.HashPassword(newPassword)
 		if err != nil {
 			return nil, err
 		}
-		user.PasswordHash = hashedPassword
+		user.PasswordHash = &hashedPassword
 		passwordChanged = true
 	}
 
