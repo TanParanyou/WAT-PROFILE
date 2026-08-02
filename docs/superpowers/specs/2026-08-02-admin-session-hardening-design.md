@@ -64,7 +64,11 @@ An account is eligible for Admin login only when all of these conditions hold:
 
 - the user exists and is active;
 - the assigned role exists and is active; and
-- the role grants at least one recognized Admin resource action.
+- the role has the explicit server-owned `admin_access` capability enabled.
+
+Admin eligibility must not be inferred from permission resource names because Member and
+Admin permissions currently share resources such as `events` and `gallery`. The explicit
+capability permits custom Admin roles without relying on a hard-coded role name.
 
 Failed login responses do not reveal whether the email exists, the password is wrong,
 or the account lacks Admin eligibility.
@@ -163,6 +167,11 @@ passwords, JWTs, cookie values, credential hashes, or secret-bearing request bod
 Add a new reversible numbered migration and matching GORM models for
 `admin_sessions` and `admin_session_refresh_history`. Do not modify an existing
 migration.
+
+The same migration adds `roles.admin_access BOOLEAN NOT NULL DEFAULT FALSE` and enables
+it for the existing `admin`, `editor`, and `accountant` roles. The `member` role remains
+false. The GORM role model and frontend role contract expose this capability; only the
+backend uses it as an authorization boundary.
 
 The table contains:
 
@@ -315,7 +324,8 @@ Admin auth context and permission helpers.
 ### Backend unit and service tests
 
 - Admin eligibility for active and inactive users and roles.
-- Accounts with and without recognized Admin permissions.
+- Roles with and without the explicit Admin-access capability, including a Member role
+  that shares resource permission names.
 - Access token audience, expiry, signing algorithm, and required claims.
 - Credential generation and one-way hashing.
 - Session creation, expiry, rotation, revocation, and reuse detection.
@@ -382,6 +392,8 @@ confirmed non-production environment.
 
 - Admin access and refresh credentials never appear in browser persistent storage.
 - Only access tokens with a valid Admin audience reach Admin handlers.
+- Only users whose active role explicitly enables `admin_access` can obtain or use an
+  Admin session.
 - The server can revoke the current Admin session and all Admin sessions for a user.
 - Refresh credentials rotate, only hashes are persisted, and out-of-window reuse revokes
   the affected session.
