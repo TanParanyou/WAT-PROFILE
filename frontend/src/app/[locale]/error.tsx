@@ -1,8 +1,9 @@
 'use client';
 
 import { useEffect } from 'react';
-import { AlertCircle, RefreshCw } from 'lucide-react';
+import { AlertCircle, RefreshCw, Home } from 'lucide-react';
 import { useTranslations } from 'next-intl';
+import { Link } from '@/navigation';
 
 export default function Error({
     error,
@@ -18,25 +19,35 @@ export default function Error({
     }, [error]);
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center px-4">
-            <div className="text-center max-w-md">
-                <div className="w-20 h-20 bg-red-100 dark:bg-red-900/20 text-red-600 rounded-full flex items-center justify-center mx-auto mb-6">
-                    <AlertCircle size={40} />
+        <div className="flex min-h-screen items-center justify-center bg-site-canvas px-4 py-16 text-site-foreground">
+            <div className="mx-auto max-w-md text-center">
+                <div className="mx-auto mb-6 flex size-16 items-center justify-center border border-site-border bg-site-surface text-site-accent">
+                    <AlertCircle size={32} />
                 </div>
-                <h2 className="text-2xl font-heading font-bold text-gray-900 dark:text-white mb-3">
+                <h2 className="mb-3 font-heading text-2xl font-medium text-site-foreground">
                     {t('title')}
                 </h2>
-                <p className="text-gray-600 dark:text-gray-400 mb-8">
+                <p className="mb-8 text-sm leading-relaxed text-site-muted">
                     {t('description')}
                 </p>
-                <button
-                    onClick={reset}
-                    className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-primary/90 transition-colors"
-                >
-                    <RefreshCw size={18} />
-                    {t('retry')}
-                </button>
+                <div className="flex flex-wrap items-center justify-center gap-3">
+                    <button
+                        onClick={reset}
+                        className="inline-flex min-h-11 items-center justify-center gap-2 border border-site-border bg-site-action px-6 py-3 text-sm font-medium text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
+                    >
+                        <RefreshCw size={18} />
+                        {t('retry')}
+                    </button>
+                    <Link
+                        href="/"
+                        className="inline-flex min-h-11 items-center justify-center gap-2 border border-site-border bg-site-canvas px-6 py-3 text-sm font-medium text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
+                    >
+                        <Home size={18} />
+                        {t('backToHome')}
+                    </Link>
+                </div>
             </div>
         </div>
     );
 }
+

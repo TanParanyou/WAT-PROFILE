@@ -76,7 +76,7 @@ export default function Navbar() {
 
         <button
           type="button"
-          className="relative z-50 inline-flex size-11 items-center justify-center border border-site-border focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus lg:hidden"
+          className="relative z-50 inline-flex size-11 items-center justify-center border border-site-border bg-site-canvas hover:bg-site-surface transition-colors focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus lg:hidden"
           onClick={() => setIsOpen((open) => !open)}
           aria-expanded={isOpen}
           aria-controls="public-navigation"
@@ -114,7 +114,7 @@ export default function Navbar() {
                     aria-current={locale === language.code ? "page" : undefined}
                     className={`flex-1 border py-3 text-center text-sm font-semibold transition-all focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus ${
                       locale === language.code 
-                        ? "border-site-border bg-site-action text-site-on-action"
+                        ? "border-site-border bg-site-action text-site-on-action hover:bg-site-action-hover"
                         : "border-site-border bg-site-canvas text-site-foreground hover:bg-site-surface"
                     }`}
                   >

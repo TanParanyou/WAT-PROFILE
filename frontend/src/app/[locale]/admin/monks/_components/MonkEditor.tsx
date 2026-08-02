@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "@/navigation";
 import { MultiLangInput } from "@/components/admin/MultiLangInput";
 import { MultiLangRichText } from "@/components/admin/rich-text/MultiLangRichText";
-import { ImageUpload } from "@/components/admin/ImageUpload";
+import { MediaImagePicker } from "@/components/admin/media/MediaImagePicker";
 import { Input } from "@/components/ui/Input";
 import { DatePicker } from "@/components/ui/DatePicker";
 import { Select } from "@/components/ui/Select";
@@ -308,9 +308,9 @@ export function MonkEditor({ id }: MonkEditorProps) {
                 name="image_url"
                 render={({ field }) => (
                   <div className="space-y-1">
-                    <ImageUpload
+                    <MediaImagePicker
                       label={t("monks.form.image")}
-                      value={field.value || ""}
+                      value={(field.value as string) || ""}
                       onChange={field.onChange}
                     />
                     {getFieldError(errors.image_url) && (

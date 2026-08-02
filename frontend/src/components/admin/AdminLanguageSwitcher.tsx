@@ -3,8 +3,7 @@
 import { useState, useRef, useEffect } from "react";
 import { Globe, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
-import { Link, usePathname } from "@/navigation";
-import { useLocale } from "next-intl";
+import { useAdminLocale } from "@/hooks/useAdminLocale";
 
 const languageOptions = [
   { code: "th", label: "ไทย", fullName: "ภาษาไทย" },
@@ -12,11 +11,10 @@ const languageOptions = [
   { code: "de", label: "Deutsch", fullName: "Deutsch" },
 ] as const;
 
-export function LanguageSwitcher() {
+export function AdminLanguageSwitcher() {
   const [isOpen, setIsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const locale = useLocale();
-  const pathname = usePathname();
+  const { locale, changeLocale } = useAdminLocale();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -33,8 +31,9 @@ export function LanguageSwitcher() {
   return (
     <div className="relative" ref={dropdownRef}>
       <button
+        type="button"
         onClick={() => setIsOpen(!isOpen)}
-        className="flex min-h-11 items-center gap-1.5 border border-site-border bg-site-canvas px-3 py-0 text-sm font-medium text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
+        className="flex min-h-11 items-center gap-1.5 border border-admin-control-border bg-admin-surface px-3 py-0 text-sm font-medium text-admin-foreground transition-colors hover:bg-admin-surface-muted focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus"
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
@@ -49,24 +48,26 @@ export function LanguageSwitcher() {
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 8 }}
             transition={{ duration: 0.2 }}
-            className="absolute right-0 mt-2 w-40 origin-top-right overflow-hidden border border-site-border bg-site-canvas focus:outline-none"
+            className="absolute right-0 mt-2 w-40 origin-top-right overflow-hidden border border-admin-border bg-admin-surface shadow-lg focus:outline-none z-50"
           >
             <div className="p-1">
               {languageOptions.map((language) => (
-                <Link
+                <button
                   key={language.code}
-                  href={pathname}
-                  locale={language.code}
-                  onClick={() => setIsOpen(false)}
+                  type="button"
+                  onClick={() => {
+                    changeLocale(language.code);
+                    setIsOpen(false);
+                  }}
                   className={`flex w-full items-center justify-between px-3 py-2.5 text-sm transition-colors ${
                     locale === language.code
-                      ? "bg-site-action font-medium text-site-on-action hover:bg-site-action-hover"
-                      : "text-site-foreground hover:bg-site-surface"
+                      ? "bg-admin-action font-medium text-admin-on-action hover:bg-admin-action-hover"
+                      : "text-admin-foreground hover:bg-admin-surface-muted"
                   }`}
                 >
                   <span>{language.label}</span>
                   {locale === language.code && <Check size={16} />}
-                </Link>
+                </button>
               ))}
             </div>
           </motion.div>

@@ -4,8 +4,8 @@ import React, { useState } from "react";
 import { LogOut, User, Menu } from "lucide-react";
 import { Link, useRouter } from "@/navigation";
 import { useAuth } from "@/hooks/useAuth";
-import { useAdminLocale } from "@/hooks/useAdminLocale";
 import { useTranslations } from "next-intl";
+import { AdminLanguageSwitcher } from "@/components/admin/AdminLanguageSwitcher";
 import { AdminThemeSwitcher } from "@/components/admin/theme/AdminThemeSwitcher";
 
 interface AdminHeaderProps {
@@ -14,7 +14,6 @@ interface AdminHeaderProps {
 
 export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
   const { user, logout } = useAuth();
-  const { locale, changeLocale } = useAdminLocale();
   const t = useTranslations("Admin.header");
   const router = useRouter();
   const [isLoggingOut, setIsLoggingOut] = useState(false);
@@ -45,28 +44,7 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
 
       <div className="flex items-center gap-4">
         <AdminThemeSwitcher className="hidden md:flex" />
-
-        {/* Language Switcher */}
-        <div className="flex items-center gap-2 border-r border-admin-border pr-4 mr-1">
-          <span className="text-sm font-medium text-admin-muted hidden sm:block">
-            {t("language")}:
-          </span>
-          <div className="flex border border-admin-control-border rounded overflow-hidden">
-            {["th", "en", "de"].map((l) => (
-              <button
-                key={l}
-                onClick={() => changeLocale(l)}
-                className={`px-3 py-1 text-xs font-medium uppercase transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus ${
-                  locale === l
-                    ? "bg-admin-action text-admin-on-action"
-                    : "bg-admin-surface text-admin-muted hover:bg-admin-surface-muted hover:text-admin-foreground"
-                }`}
-              >
-                {l.toUpperCase()}
-              </button>
-            ))}
-          </div>
-        </div>
+        <AdminLanguageSwitcher />
 
         {/* User info / Profile Link */}
         <Link

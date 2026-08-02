@@ -63,7 +63,7 @@ export function MultiLangInput({
               className={cn(
                 "px-3 py-1 text-xs font-medium uppercase transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus",
                 activeLang === lang.key
-                  ? "bg-admin-action text-admin-on-action"
+                  ? "bg-admin-action text-admin-on-action hover:bg-admin-action-hover"
                   : "bg-admin-surface text-admin-muted hover:bg-admin-surface-muted hover:text-admin-foreground",
               )}
             >

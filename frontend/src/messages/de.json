@@ -303,7 +303,8 @@
     "ErrorPage": {
         "title": "Ein Fehler ist aufgetreten",
         "description": "Es tut uns leid, es ist ein Fehler aufgetreten. Bitte versuchen Sie es erneut.",
-        "retry": "Erneut versuchen"
+        "retry": "Erneut versuchen",
+        "backToHome": "Zurück zur Startseite"
     },
     "NotFoundPage": {
         "title": "Seite nicht gefunden",

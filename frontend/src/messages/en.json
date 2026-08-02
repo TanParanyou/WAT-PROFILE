@@ -303,7 +303,8 @@
     "ErrorPage": {
         "title": "An error occurred",
         "description": "Sorry, something went wrong. Please try again.",
-        "retry": "Try again"
+        "retry": "Try again",
+        "backToHome": "Go to Homepage"
     },
     "NotFoundPage": {
         "title": "Page Not Found",

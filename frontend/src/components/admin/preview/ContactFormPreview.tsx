@@ -52,7 +52,7 @@ export function ContactFormPreview({
                 onClick={() => setLang(l)}
                 className={`px-2.5 py-0.5 text-xs font-medium uppercase transition-colors ${
                   lang === l
-                    ? "bg-admin-action text-admin-on-action"
+                    ? "bg-admin-action text-admin-on-action hover:bg-admin-action-hover"
                     : "bg-admin-surface text-admin-muted hover:bg-admin-surface-muted"
                 }`}
               >
@@ -95,7 +95,7 @@ export function ContactFormPreview({
 
             <div className="flex items-center justify-between pt-1 text-[11px] text-admin-muted">
               <span>{t("privacyAcceptText", { link: privacyPageLink || "/privacy" })}</span>
-              <button type="button" className="px-4 py-1.5 bg-admin-action text-admin-on-action text-xs font-medium">
+              <button type="button" className="px-4 py-1.5 bg-admin-action text-admin-on-action hover:bg-admin-action-hover transition-colors text-xs font-medium">
                 {t("submitForm")}
               </button>
             </div>

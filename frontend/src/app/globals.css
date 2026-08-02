@@ -210,7 +210,7 @@
     --public-border: #333333;
     --public-divider: #e4e9ea;
     --public-action: #333333;
-    --public-action-hover: #242424;
+    --public-action-hover: #1a1a1a;
     --public-on-action: #fffef2;
     --public-accent: #945c26;
     --public-focus: #945c26;
@@ -232,7 +232,7 @@
     --public-border: #6f6257;
     --public-divider: #464039;
     --public-action: #f8f1e6;
-    --public-action-hover: #fffaf2;
+    --public-action-hover: #ffffff;
     --public-on-action: #1c1a17;
     --public-accent: #d9925d;
     --public-focus: #e3a272;
@@ -249,7 +249,7 @@
     --admin-border: #e2d8c9;
     --admin-control-border: #333333;
     --admin-action: #333333;
-    --admin-action-hover: #242424;
+    --admin-action-hover: #1a1a1a;
     --admin-on-action: #fffef2;
     --admin-selected: #f7ecdd;
     --admin-selected-foreground: #945c26;
@@ -387,6 +387,31 @@
         font-family: var(--font-heading), sans-serif;
         font-weight: 700;
         line-height: 1.2;
+    }
+
+    button,
+    [role="button"] {
+        cursor: pointer;
+        transition-property: color, background-color, border-color, text-decoration-color, fill, stroke, opacity, box-shadow, transform, filter;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: 150ms;
+    }
+
+    button:not(:disabled):hover,
+    [role="button"]:not(:disabled):hover {
+        filter: brightness(0.92);
+        opacity: 0.92;
+    }
+
+    button:not(:disabled):active,
+    [role="button"]:not(:disabled):active {
+        transform: translateY(1px);
+        filter: brightness(0.85);
+    }
+
+    button:disabled,
+    [role="button"][aria-disabled="true"] {
+        cursor: not-allowed;
     }
 }
 

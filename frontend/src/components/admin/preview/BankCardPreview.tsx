@@ -52,7 +52,7 @@ export function BankCardPreview({
               onClick={() => setLang(l)}
               className={`px-2.5 py-0.5 text-xs font-medium uppercase transition-colors ${
                 lang === l
-                  ? "bg-admin-action text-admin-on-action"
+                  ? "bg-admin-action text-admin-on-action hover:bg-admin-action-hover"
                   : "bg-admin-surface text-admin-muted hover:bg-admin-surface-muted"
               }`}
             >

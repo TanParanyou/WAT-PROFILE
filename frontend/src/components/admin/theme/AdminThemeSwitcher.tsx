@@ -59,7 +59,7 @@ export function AdminThemeSwitcher({ className }: AdminThemeSwitcherProps) {
             className={cn(
               "flex min-h-10 min-w-10 items-center justify-center gap-1 px-2 text-xs font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus",
               selected
-                ? "bg-admin-action text-admin-on-action"
+                ? "bg-admin-action text-admin-on-action hover:bg-admin-action-hover"
                 : "text-admin-muted hover:bg-admin-surface-muted hover:text-admin-foreground",
             )}
           >

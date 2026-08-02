@@ -15,11 +15,11 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
-    primary: "bg-admin-action text-admin-on-action hover:bg-admin-action-hover",
-    secondary: "bg-admin-surface-muted text-admin-body hover:bg-admin-border",
-    danger: "bg-admin-danger text-admin-on-action hover:brightness-90",
-    ghost: "text-admin-body hover:bg-admin-surface-muted",
-    outline: "border border-admin-control-border bg-admin-surface text-admin-body hover:bg-admin-surface-muted",
+    primary: "bg-admin-action text-admin-on-action hover:bg-admin-action-hover hover:brightness-110 active:scale-[0.98]",
+    secondary: "bg-admin-surface-muted text-admin-body hover:bg-admin-border active:scale-[0.98]",
+    danger: "bg-admin-danger text-admin-on-action hover:brightness-90 active:scale-[0.98]",
+    ghost: "text-admin-body hover:bg-admin-surface-muted active:scale-[0.98]",
+    outline: "border border-admin-control-border bg-admin-surface text-admin-body hover:bg-admin-surface-muted active:scale-[0.98]",
 };
 
 const sizeClasses: Record<ButtonSize, string> = {

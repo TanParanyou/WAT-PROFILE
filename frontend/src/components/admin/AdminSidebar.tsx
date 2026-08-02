@@ -156,7 +156,7 @@ export function AdminSidebar({
           className={cn(
             "flex items-center gap-3 px-3 py-2.5 rounded-none text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus min-h-11",
             isActive("/admin")
-              ? "bg-admin-selected text-admin-selected-foreground font-medium"
+              ? "bg-admin-selected text-admin-selected-foreground font-medium hover:bg-admin-selected/80"
               : "text-admin-body hover:bg-admin-surface-muted hover:text-admin-foreground",
           )}
           title={collapsed && !mobileOpen ? t("dashboard") : undefined}
@@ -199,7 +199,7 @@ export function AdminSidebar({
                       className={cn(
                         "flex items-center gap-3 px-3 py-2 rounded-none text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus min-h-11",
                         active
-                          ? "bg-admin-selected text-admin-selected-foreground font-medium"
+                          ? "bg-admin-selected text-admin-selected-foreground font-medium hover:bg-admin-selected/80"
                           : "text-admin-body hover:bg-admin-surface-muted hover:text-admin-foreground",
                       )}
                       title={!showLabel ? t(item.labelKey) : undefined}

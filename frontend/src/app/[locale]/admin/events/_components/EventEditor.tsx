@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useRouter } from "@/navigation";
 import { MultiLangInput } from "@/components/admin/MultiLangInput";
 import { MultiLangRichText } from "@/components/admin/rich-text/MultiLangRichText";
-import { ImageUpload } from "@/components/admin/ImageUpload";
+import { MediaImagePicker } from "@/components/admin/media/MediaImagePicker";
 import { Input } from "@/components/ui/Input";
 import { TimePicker } from "@/components/ui/TimePicker";
 import { Select } from "@/components/ui/Select";
@@ -417,9 +417,9 @@ export function EventEditor({ id }: EventEditorProps) {
                     name="image_url"
                     render={({ field }) => (
                       <div className="space-y-1">
-                        <ImageUpload
+                        <MediaImagePicker
                           label={t("events.form.image")}
-                          value={field.value || ""}
+                          value={(field.value as string) || ""}
                           onChange={field.onChange}
                         />
                         {getFieldError(errors.image_url) && (

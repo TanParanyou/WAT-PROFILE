@@ -8,7 +8,11 @@ function AdminThemeScope({ children }: { children: ReactNode }) {
   const { resolvedTheme } = useTheme();
 
   return (
-    <div data-admin-theme={resolvedTheme ?? "light"} className="contents">
+    <div
+      data-admin-theme={resolvedTheme ?? "light"}
+      className="contents"
+      suppressHydrationWarning
+    >
       {children}
     </div>
   );

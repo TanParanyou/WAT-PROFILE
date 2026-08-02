@@ -8,21 +8,23 @@ export default function NotFound() {
     const t = useTranslations('NotFoundPage');
 
     return (
-        <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950 flex items-center justify-center px-4">
-            <div className="text-center max-w-md">
-                <div className="w-20 h-20 bg-primary/10 text-primary rounded-full flex items-center justify-center mx-auto mb-6">
-                    <Search size={40} />
+        <div className="flex min-h-screen items-center justify-center bg-site-canvas px-4 py-16 text-site-foreground">
+            <div className="mx-auto max-w-md text-center">
+                <div className="mx-auto mb-6 flex size-16 items-center justify-center border border-site-border bg-site-surface text-site-foreground">
+                    <Search size={32} />
                 </div>
-                <h1 className="text-6xl font-heading font-bold text-primary mb-4">404</h1>
-                <h2 className="text-2xl font-heading font-bold text-gray-900 dark:text-white mb-3">
+                <h1 className="mb-2 font-heading text-6xl font-medium tracking-tight text-site-foreground">
+                    404
+                </h1>
+                <h2 className="mb-3 font-heading text-2xl font-medium text-site-foreground">
                     {t('title')}
                 </h2>
-                <p className="text-gray-600 dark:text-gray-400 mb-8">
+                <p className="mb-8 text-sm leading-relaxed text-site-muted">
                     {t('description')}
                 </p>
                 <Link
                     href="/"
-                    className="inline-flex items-center gap-2 bg-primary text-white px-6 py-3 rounded-xl font-bold hover:bg-primary/90 transition-colors"
+                    className="inline-flex min-h-11 items-center justify-center gap-2 border border-site-border bg-site-action px-6 py-3 text-sm font-medium text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
                 >
                     <Home size={18} />
                     {t('backToHome')}
@@ -31,3 +33,4 @@ export default function NotFound() {
         </div>
     );
 }
+

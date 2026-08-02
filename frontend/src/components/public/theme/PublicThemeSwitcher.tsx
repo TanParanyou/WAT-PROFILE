@@ -98,7 +98,7 @@ export function PublicThemeSwitcher({ className, variant = "compact" }: PublicTh
                 className={cn(
                   "flex min-h-11 w-full items-center gap-3 px-3 text-left text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-[-2px] focus-visible:outline-site-focus",
                   selected
-                    ? "bg-site-action text-site-on-action"
+                    ? "bg-site-action text-site-on-action hover:bg-site-action-hover"
                     : "text-site-foreground hover:bg-site-surface",
                 )}
               >

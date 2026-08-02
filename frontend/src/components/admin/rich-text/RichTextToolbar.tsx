@@ -148,7 +148,7 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
     p-1.5 rounded text-admin-body transition-colors
     focus-visible:outline-2 focus-visible:outline-admin-focus
     disabled:cursor-not-allowed disabled:opacity-40
-    ${isActive ? "bg-admin-selected text-admin-selected-foreground font-bold" : "hover:bg-admin-border hover:text-admin-foreground"}
+    ${isActive ? "bg-admin-selected text-admin-selected-foreground font-bold hover:bg-admin-selected/80" : "hover:bg-admin-border hover:text-admin-foreground"}
   `.trim();
 
   const getTitle = (key: string, isAvailable = true) => {
