@@ -30,6 +30,19 @@ func AdminOriginGuard(allowed []string) fiber.Handler {
 	}
 }
 
+// AdminSecurityHeaders sets no-store and hardened response headers on Admin
+// responses so browsers and proxies never cache privileged content.
+func AdminSecurityHeaders() fiber.Handler {
+	return func(c *fiber.Ctx) error {
+		c.Set("Cache-Control", "no-store")
+		c.Set("X-Content-Type-Options", "nosniff")
+		c.Set("Referrer-Policy", "no-referrer")
+		c.Set("Permissions-Policy", "camera=(), microphone=(), geolocation=()")
+		c.Set("Content-Security-Policy", "frame-ancestors 'none'")
+		return c.Next()
+	}
+}
+
 // ParseAdminAllowedOrigins parses a comma-separated list of explicit origins.
 // Wildcard origins are rejected because they cannot be combined safely with
 // credentialed requests.

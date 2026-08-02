@@ -119,7 +119,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	member.Get("/registrations", registrationHandler.GetMyRegistrations)
 
 	// ============ ADMIN ROUTES (Admin Auth + Per-Resource Permissions) ============
-	admin := api.Group("/admin", middleware.AdminAuthRequired(db))
+	admin := api.Group("/admin", middleware.AdminAuthRequired(db), middleware.AdminSecurityHeaders())
 	registerAdminRoutes(admin, adminRouteDefinitions(), adminHandlerMap(db, r2))
 }
 

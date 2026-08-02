@@ -78,10 +78,28 @@ GET  /api/v1/public/gallery/categories  # Gallery categories
 
 ```
 POST /api/v1/auth/register           # Register new user
-POST /api/v1/auth/login              # Login
-POST /api/v1/auth/refresh            # Refresh access token
+POST /api/v1/auth/login              # Login (Member)
+POST /api/v1/auth/refresh            # Refresh access token (Member)
 GET  /api/v1/auth/me                 # Get current user (Protected)
 ```
+
+### Admin Auth Endpoints
+
+Admin sessions use a separate, hardened flow. The refresh credential is a
+rotating opaque token stored only as a SHA-256 hash server-side and delivered
+exclusively via the `wat_admin_refresh` HttpOnly cookie
+(path `/api/v1/auth/admin`, SameSite=Strict, Secure outside local development).
+It is never returned in a JSON body.
+
+```
+POST /api/v1/auth/admin/login        # Admin login (5 req/min per IP)
+POST /api/v1/auth/admin/refresh      # Rotate Admin session (cookie)
+POST /api/v1/auth/admin/logout       # Revoke Admin session (cookie)
+```
+
+Every Admin route requires both an `aud=admin` access token and a
+`dashboard:read` (or resource-scoped) permission. Role eligibility is driven by
+`roles.admin_access = true`, never by role name or permission presence.
 
 ### Admin Endpoints (Auth + Admin Role Required)
 
@@ -149,12 +167,40 @@ Response:
 }
 ```
 
-### 4. Create Event (Admin)
+### 4. Admin Login
+
+```bash
+curl -X POST http://localhost:8080/api/v1/auth/admin/login \
+  -H "Content-Type: application/json" \
+  -H "Origin: http://localhost:3000" \
+  -d '{
+    "email": "admin@watloungporsai.de",
+    "password": "password123"
+  }'
+```
+
+Response (the refresh credential is set as the HttpOnly `wat_admin_refresh`
+cookie and is never present in the JSON body):
+```json
+{
+  "success": true,
+  "data": {
+    "access_token": "eyJhbGc...",
+    "user": { "id": "...", "email": "admin@watloungporsai.de", "role": { "admin_access": true } }
+  }
+}
+```
+
+The Admin access token must be kept only in memory; do not store it in
+`localStorage` or `sessionStorage`. Use `/api/v1/auth/admin/refresh` to rotate
+the session and `/api/v1/auth/admin/logout` to revoke it.
+
+### 5. Create Event (Admin)
 
 ```bash
 curl -X POST http://localhost:8080/api/v1/admin/events \
   -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
+  -H "Authorization: Bearer YOUR_ADMIN_ACCESS_TOKEN" \
   -d '{
     "slug": "meditation-retreat-2024",
     "title": {
@@ -173,7 +219,7 @@ curl -X POST http://localhost:8080/api/v1/admin/events \
   }'
 ```
 
-### 5. Get Public Events
+### 6. Get Public Events
 
 ```bash
 curl http://localhost:8080/api/v1/public/events
@@ -236,10 +282,18 @@ docker-compose up -d
 
 ## 🔐 Security
 
-- JWT tokens expire in 15 minutes (access) / 7 days (refresh)
+- JWT tokens expire in 15 minutes (access) / 7 days (Member refresh)
+- Admin access tokens are short-lived, carry `aud=admin`, and are held only in
+  client memory
+- Admin refresh credentials rotate on every refresh, are stored server-side
+  only as SHA-256 hashes, and are delivered via an HttpOnly cookie
+- Password changes or account deactivation revoke all active Admin sessions
+- Reuse of a rotated Admin refresh credential revokes the session
 - Passwords hashed with bcrypt
-- CORS enabled for specified origins only
-- Admin-only routes protected by middleware
+- CORS enabled for specified origins only; Admin auth endpoints additionally
+  reject non-allowed `Origin` headers
+- Admin-only routes protected by audience-verified middleware plus
+  per-resource permissions (including `dashboard:read`)
 
 ---
 

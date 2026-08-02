@@ -366,6 +366,114 @@ paths:
           $ref: '#/components/responses/Unauthorized'
 
 
+  # ==================== ADMIN AUTH ====================
+  /auth/admin/login:
+    post:
+      tags: [Admin Auth]
+      summary: Admin login
+      description: >-
+        Rate limited to 5 requests per minute per IP. On success sets the
+        `wat_admin_refresh` HttpOnly cookie (path `/api/v1/auth/admin`,
+        SameSite=Strict, Secure outside local development) carrying the rotating
+        refresh credential. The refresh credential is never returned in JSON;
+        only the short-lived Admin access token and user are returned.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminLoginInput'
+      responses:
+        '200':
+          description: Login successful
+          headers:
+            Set-Cookie:
+              description: HttpOnly `wat_admin_refresh` session cookie
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/AdminAuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Invalid admin credentials
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+                  - properties:
+                      code:
+                        type: string
+                        example: ADMIN_INVALID_CREDENTIALS
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  /auth/admin/refresh:
+    post:
+      tags: [Admin Auth]
+      summary: Rotate the Admin session
+      description: >-
+        Reads the `wat_admin_refresh` cookie and rotates the session credential,
+        returning a fresh Admin access token. Multiple concurrent refreshes
+        within the grace window are supported. Reuse of an already-rotated
+        credential outside the grace window revokes the session.
+      responses:
+        '200':
+          description: Session rotated
+          headers:
+            Set-Cookie:
+              description: Rotated `wat_admin_refresh` session cookie
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/AdminAuthResponse'
+        '401':
+          description: Invalid, expired, or revoked Admin session
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+                  - properties:
+                      code:
+                        type: string
+                        example: ADMIN_SESSION_INVALID
+
+  /auth/admin/logout:
+    post:
+      tags: [Admin Auth]
+      summary: Revoke the Admin session and clear the cookie
+      description: >-
+        Revokes the session server-side (idempotent) and always clears the
+        `wat_admin_refresh` cookie, even when the credential is invalid or
+        expired.
+      responses:
+        '200':
+          description: Logged out
+          headers:
+            Set-Cookie:
+              description: Cleared `wat_admin_refresh` session cookie
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+
+
   # ==================== MEMBER ====================
   /member/register:
     post:
@@ -444,13 +552,36 @@ paths:
           description: Registrations list
 
   # ==================== ADMIN - Users & Roles ====================
+  /admin/dashboard/stats:
+    get:
+      tags: [Admin - Dashboard]
+      summary: Get admin dashboard statistics
+      description: Requires the `dashboard:read` permission.
+      security:
+        - AdminBearerAuth: []
+      responses:
+        '200':
+          description: Dashboard statistics
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
   /admin/users:
     get:
       tags: [Admin - Users]
       summary: List users (admin)
       description: Query parameters support repeated values for multi-select (OR within filter, AND across filters), e.g. `?status=active&status=inactive`.
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/PageParam'
         - $ref: '#/components/parameters/LimitParam'
@@ -493,7 +624,7 @@ paths:
       summary: List roles (admin)
       description: Query parameters support repeated values for multi-select.
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/PageParam'
         - $ref: '#/components/parameters/LimitParam'
@@ -528,7 +659,7 @@ paths:
       tags: [Admin - Audit Logs]
       summary: Get distinct audit log actions and entity types
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       responses:
         '200':
           description: Distinct filter options for audit logs
@@ -539,7 +670,7 @@ paths:
       summary: List audit logs (admin)
       description: Query parameters support repeated values for multi-select.
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/PageParam'
         - $ref: '#/components/parameters/LimitParam'
@@ -591,7 +722,7 @@ paths:
       summary: List all events (admin)
       description: Query parameters support repeated values for multi-select, e.g. `?status=active&status=inactive`.
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/PageParam'
         - $ref: '#/components/parameters/LimitParam'
@@ -633,7 +764,7 @@ paths:
       tags: [Admin - Events]
       summary: Create event
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       requestBody:
         required: true
         content:
@@ -649,7 +780,7 @@ paths:
       tags: [Admin - Events]
       summary: Update event
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/IdParam'
       requestBody:
@@ -665,7 +796,7 @@ paths:
       tags: [Admin - Events]
       summary: Delete event
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/IdParam'
       responses:
@@ -679,7 +810,7 @@ paths:
       summary: List all monks (admin)
       description: Query parameters support repeated values for multi-select.
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/PageParam'
         - $ref: '#/components/parameters/LimitParam'
@@ -711,7 +842,7 @@ paths:
       tags: [Admin - Monks]
       summary: Create monk
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       requestBody:
         required: true
         content:
@@ -727,7 +858,7 @@ paths:
       tags: [Admin - Monks]
       summary: Update monk
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/IdParam'
       requestBody:
@@ -743,7 +874,7 @@ paths:
       tags: [Admin - Monks]
       summary: Delete monk
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/IdParam'
       responses:
@@ -757,7 +888,7 @@ paths:
       summary: List gallery (admin)
       description: Query parameters support repeated values for multi-select.
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/PageParam'
         - $ref: '#/components/parameters/LimitParam'
@@ -805,7 +936,7 @@ paths:
       tags: [Admin - Gallery]
       summary: Create gallery item
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       requestBody:
         required: true
         content:
@@ -821,7 +952,7 @@ paths:
       tags: [Admin - Gallery]
       summary: Update gallery item
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/IdParam'
       requestBody:
@@ -837,7 +968,7 @@ paths:
       tags: [Admin - Gallery]
       summary: Delete gallery item
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/IdParam'
       responses:
@@ -850,7 +981,7 @@ paths:
       summary: List gallery categories (admin)
       description: Query parameters support repeated values for multi-select.
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/PageParam'
         - $ref: '#/components/parameters/LimitParam'
@@ -882,7 +1013,7 @@ paths:
       tags: [Admin - Gallery]
       summary: Create gallery category
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       requestBody:
         required: true
         content:
@@ -898,7 +1029,7 @@ paths:
       tags: [Admin - Gallery]
       summary: Update gallery category
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/IdParam'
       requestBody:
@@ -917,7 +1048,7 @@ paths:
       tags: [Admin - Media]
       summary: Upload an image to object storage and persist a Media record
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       requestBody:
         required: true
         content:
@@ -948,7 +1079,7 @@ paths:
       tags: [Admin - Media]
       summary: Get distinct media categories and mime types
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       responses:
         '200':
           description: Distinct media filter options
@@ -959,7 +1090,7 @@ paths:
       summary: List uploaded media
       description: Query parameters support repeated values for multi-select.
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/PageParam'
         - $ref: '#/components/parameters/LimitParam'
@@ -1011,7 +1142,7 @@ paths:
       tags: [Admin - Media]
       summary: Update media metadata
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/MediaIdParam'
       requestBody:
@@ -1039,7 +1170,7 @@ paths:
       tags: [Admin - Media]
       summary: Delete media record
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/MediaIdParam'
       responses:
@@ -1055,7 +1186,7 @@ paths:
       summary: List schedules (admin)
       description: Query parameters support repeated values for multi-select.
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/PageParam'
         - $ref: '#/components/parameters/LimitParam'
@@ -1107,7 +1238,7 @@ paths:
       summary: List website CMS pages (admin)
       description: Query parameters support repeated values for multi-select.
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/PageParam'
         - $ref: '#/components/parameters/LimitParam'
@@ -1139,7 +1270,7 @@ paths:
       tags: [Admin - Schedules]
       summary: Create schedule
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       requestBody:
         required: true
         content:
@@ -1155,7 +1286,7 @@ paths:
       tags: [Admin - Schedules]
       summary: Update schedule
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/IdParam'
       requestBody:
@@ -1171,7 +1302,7 @@ paths:
       tags: [Admin - Schedules]
       summary: Delete schedule
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/IdParam'
       responses:
@@ -1184,7 +1315,7 @@ paths:
       tags: [Admin - Donations]
       summary: Get distinct donation payment methods, currencies, and categories
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       responses:
         '200':
           description: Distinct donation filter options
@@ -1195,7 +1326,7 @@ paths:
       summary: List donations
       description: Query parameters support repeated values for multi-select.
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/PageParam'
         - $ref: '#/components/parameters/LimitParam'
@@ -1255,7 +1386,7 @@ paths:
       tags: [Admin - Donations]
       summary: Get donation statistics
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       responses:
         '200':
           description: Donation stats
@@ -1282,7 +1413,7 @@ paths:
       tags: [Admin - Donations]
       summary: Update donation
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/IdParam'
       requestBody:
@@ -1298,7 +1429,7 @@ paths:
       tags: [Admin - Donations]
       summary: Delete donation
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/IdParam'
       responses:
@@ -1311,7 +1442,7 @@ paths:
       summary: List donation categories (admin)
       description: Query parameters support repeated values for multi-select.
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/PageParam'
         - $ref: '#/components/parameters/LimitParam'
@@ -1343,7 +1474,7 @@ paths:
       tags: [Admin - Donations]
       summary: Create donation category
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       requestBody:
         required: true
         content:
@@ -1359,7 +1490,7 @@ paths:
       tags: [Admin - Donations]
       summary: Update donation category
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/IdParam'
       requestBody:
@@ -1375,7 +1506,7 @@ paths:
       tags: [Admin - Donations]
       summary: Delete donation category
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/IdParam'
       responses:
@@ -1389,7 +1520,7 @@ paths:
       summary: List members
       description: Query parameters support repeated values for multi-select.
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/PageParam'
         - $ref: '#/components/parameters/LimitParam'
@@ -1433,7 +1564,7 @@ paths:
       tags: [Admin - Members]
       summary: Get member by ID
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/IdParam'
       responses:
@@ -1443,7 +1574,7 @@ paths:
       tags: [Admin - Members]
       summary: Update member
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/IdParam'
       requestBody:
@@ -1463,7 +1594,7 @@ paths:
       summary: List event registrations
       description: Query parameters support repeated values for multi-select.
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/PageParam'
         - $ref: '#/components/parameters/LimitParam'
@@ -1507,7 +1638,7 @@ paths:
       tags: [Admin - Registrations]
       summary: Update registration status
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/IdParam'
       requestBody:
@@ -1534,7 +1665,7 @@ paths:
       summary: List contact inquiries
       description: Query parameters support repeated values for multi-select.
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/PageParam'
         - $ref: '#/components/parameters/LimitParam'
@@ -1578,7 +1709,7 @@ paths:
       tags: [Admin - Contacts]
       summary: Update contact status
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/IdParam'
       requestBody:
@@ -1602,7 +1733,7 @@ paths:
       tags: [Admin - Contacts]
       summary: Delete contact inquiry
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - $ref: '#/components/parameters/IdParam'
       responses:
@@ -1615,7 +1746,7 @@ paths:
       tags: [Admin - Settings]
       summary: Get all settings
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       parameters:
         - name: category
           in: query
@@ -1628,7 +1759,7 @@ paths:
       tags: [Admin - Settings]
       summary: Batch update settings
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       requestBody:
         required: true
         content:
@@ -1654,7 +1785,7 @@ paths:
       tags: [Admin - Settings]
       summary: Upsert a single setting
       security:
-        - BearerAuth: []
+        - AdminBearerAuth: []
       requestBody:
         required: true
         content:
@@ -1671,6 +1802,14 @@ components:
       type: http
       scheme: bearer
       bearerFormat: JWT
+    AdminBearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >-
+        Short-lived Admin access token with audience `admin`. Issued only by
+        `/auth/admin/login` and `/auth/admin/refresh`. Held only in memory by
+        the client; never stored in browser storage.
 
   parameters:
     IdParam:
@@ -1759,6 +1898,12 @@ components:
         application/json:
           schema:
             $ref: '#/components/schemas/ErrorResponse'
+    Forbidden:
+      description: Forbidden
+      content:
+        application/json:
+          schema:
+            $ref: '#/components/schemas/ErrorResponse'
     TooManyRequests:
       description: Too many requests
       content:
@@ -1804,6 +1949,15 @@ components:
         data:
           type: object
 
+    MessageResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        message:
+          type: string
+
     ErrorResponse:
       type: object
       properties:
@@ -1812,6 +1966,15 @@ components:
           example: false
         error:
           type: string
+        code:
+          type: string
+          description: >-
+            Machine-readable error code. Admin auth codes:
+            `ADMIN_INVALID_CREDENTIALS`, `ADMIN_SESSION_INVALID`,
+            `ADMIN_SESSION_REUSED`.
+        trace_id:
+          type: string
+          description: Request trace ID for correlating logs
 
     # ===== Auth =====
     RegisterInput:
@@ -1844,6 +2007,29 @@ components:
           type: string
         refresh_token:
           type: string
+        user:
+          $ref: '#/components/schemas/User'
+
+    AdminLoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    AdminAuthResponse:
+      type: object
+      description: >-
+        Admin login/refresh response. Contains only the in-memory access token
+        and user; the refresh credential travels in the HttpOnly
+        `wat_admin_refresh` cookie and is never serialized here.
+      properties:
+        access_token:
+          type: string
+          description: Short-lived Admin access token (audience `admin`)
         user:
           $ref: '#/components/schemas/User'
 
@@ -1886,6 +2072,17 @@ components:
           type: string
         description:
           type: string
+        permissions:
+          type: object
+          additionalProperties:
+            type: string
+          description: 'Resource-to-action permission map, e.g. `{ "dashboard": "read" }`'
+        admin_access:
+          type: boolean
+          description: >-
+            Whether the role may use the Admin API. Admin sessions are granted
+            only when `admin_access` is true; it is never inferred from the role
+            name or permissions.
         is_active:
           type: boolean
 
