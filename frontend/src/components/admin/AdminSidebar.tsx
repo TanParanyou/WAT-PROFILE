@@ -31,6 +31,7 @@ import { cn } from "@/utils/cn";
 import { useTranslations } from "next-intl";
 import type { PermissionResource } from "@/types/auth";
 import type { LucideIcon } from "lucide-react";
+import { AdminThemeSwitcher } from "@/components/admin/theme/AdminThemeSwitcher";
 
 interface SidebarItem {
   labelKey: string;
@@ -212,6 +213,10 @@ export function AdminSidebar({
             </div>
           );
         })}
+
+        <div className="mt-4 border-t border-admin-border pt-3 lg:hidden">
+          <AdminThemeSwitcher className="w-full justify-center" />
+        </div>
       </nav>
     </aside>
   );

@@ -5,6 +5,7 @@ const roots = ["src/app/[locale]/admin", "src/components/admin", "src/components
 const deferred = new Set([]);
 const forbiddenPalette = /(?:bg|text|border|divide|outline|ring)-(?:white(?:\/[0-9]{1,3})?|black(?![\/])|(?:gray|zinc|slate|amber)-(?:[0-9]{2,3})(?:\/[0-9]{1,3})?)|#[0-9a-fA-F]{3,8}/g;
 const forbiddenPublicTheme = /(?:bg|text|border|divide|outline|ring)-site-[a-z-]+(?:\/[0-9]{1,3})?/g;
+const forbiddenDarkVariant = /\bdark:[^\s"'`]+/g;
 const publicPreviewOwners = new Set([
   "src/components/admin/website/DevicePreviewFrame.tsx",
   "src/components/admin/website/WebsitePreviewPanel.tsx",
@@ -36,7 +37,8 @@ async function visit(path) {
       if (publicPreviewOwners.has(child)) return;
       const matches = line.match(forbiddenPalette) ?? [];
       const publicMatches = line.match(forbiddenPublicTheme) ?? [];
-      const violations = [...matches, ...publicMatches];
+      const darkMatches = line.match(forbiddenDarkVariant) ?? [];
+      const violations = [...matches, ...publicMatches, ...darkMatches];
       if (violations.length > 0) {
         findings.push(`${child}:${index + 1}: ${violations.join(", ")}`);
       }

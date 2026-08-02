@@ -6,6 +6,7 @@ import { AuthProvider } from "@/context/AuthContext";
 import { AdminAuthGuard } from "@/components/admin/AdminAuthGuard";
 import { AdminLayout } from "@/components/admin/AdminLayout";
 import AdminIntlProvider from "@/components/admin/AdminIntlProvider";
+import { AdminThemeProvider } from "@/components/admin/theme/AdminThemeProvider";
 
 export default function AdminRootLayout({
   children,
@@ -20,23 +21,27 @@ export default function AdminRootLayout({
 
   if (isLoginPage) {
     return (
-      <div className="admin-theme min-h-screen bg-admin-canvas text-admin-foreground">
-        <AuthProvider>
-          <AdminIntlProvider>{children}</AdminIntlProvider>
-        </AuthProvider>
-      </div>
+      <AdminThemeProvider>
+        <div className="admin-theme min-h-screen bg-admin-canvas text-admin-foreground">
+          <AuthProvider>
+            <AdminIntlProvider>{children}</AdminIntlProvider>
+          </AuthProvider>
+        </div>
+      </AdminThemeProvider>
     );
   }
 
   return (
-    <div className="admin-theme min-h-screen bg-admin-canvas text-admin-foreground">
-      <AuthProvider>
-        <AdminAuthGuard>
-          <AdminIntlProvider>
-            <AdminLayout>{children}</AdminLayout>
-          </AdminIntlProvider>
-        </AdminAuthGuard>
-      </AuthProvider>
-    </div>
+    <AdminThemeProvider>
+      <div className="admin-theme min-h-screen bg-admin-canvas text-admin-foreground">
+        <AuthProvider>
+          <AdminAuthGuard>
+            <AdminIntlProvider>
+              <AdminLayout>{children}</AdminLayout>
+            </AdminIntlProvider>
+          </AdminAuthGuard>
+        </AuthProvider>
+      </div>
+    </AdminThemeProvider>
   );
 }

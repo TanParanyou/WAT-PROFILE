@@ -221,6 +221,7 @@
 }
 
 .admin-theme {
+    color-scheme: light;
     --admin-canvas: #fffef2;
     --admin-surface: #ffffff;
     --admin-surface-muted: #f7ecdd;
@@ -246,6 +247,33 @@
 
     background: var(--admin-canvas);
     color: var(--admin-foreground);
+}
+
+/* Admin dark mode is intentionally scoped below the Admin route seam. */
+[data-admin-theme="dark"] .admin-theme {
+    color-scheme: dark;
+    --admin-canvas: #18181b;
+    --admin-surface: #27272a;
+    --admin-surface-muted: #3f3f46;
+    --admin-foreground: #fafafa;
+    --admin-body: #e4e4e7;
+    --admin-muted: #a1a1aa;
+    --admin-border: #3f3f46;
+    --admin-control-border: #52525b;
+    --admin-action: #f59e0b;
+    --admin-action-hover: #fbbf24;
+    --admin-on-action: #18181b;
+    --admin-selected: #451a03;
+    --admin-selected-foreground: #fcd34d;
+    --admin-focus: #fbbf24;
+    --admin-success: #86efac;
+    --admin-success-surface: #052e16;
+    --admin-warning: #fcd34d;
+    --admin-warning-surface: #451a03;
+    --admin-danger: #fca5a5;
+    --admin-danger-surface: #450a0a;
+    --admin-info: #93c5fd;
+    --admin-info-surface: #172554;
 }
 
 .dark {

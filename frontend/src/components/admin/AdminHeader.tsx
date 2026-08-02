@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useAdminLocale } from "@/hooks/useAdminLocale";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
+import { AdminThemeSwitcher } from "@/components/admin/theme/AdminThemeSwitcher";
 
 interface AdminHeaderProps {
   onMenuClick: () => void;
@@ -37,6 +38,8 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
       <div className="hidden lg:block" />
 
       <div className="flex items-center gap-4">
+        <AdminThemeSwitcher className="hidden md:flex" />
+
         {/* Language Switcher */}
         <div className="flex items-center gap-2 border-r border-admin-border pr-4 mr-1">
           <span className="text-sm font-medium text-admin-muted hidden sm:block">

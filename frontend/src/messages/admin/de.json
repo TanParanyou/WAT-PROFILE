@@ -70,6 +70,10 @@
       "logout": "Abmelden",
       "language": "Sprache",
       "profile": "Profil",
+      "theme": "Design",
+      "themeSystem": "System",
+      "themeLight": "Hell",
+      "themeDark": "Dunkel",
       "th": "ไทย",
       "en": "English",
       "de": "Deutsch"

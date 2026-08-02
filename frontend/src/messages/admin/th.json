@@ -70,6 +70,10 @@
       "logout": "ออกจากระบบ",
       "language": "ภาษา",
       "profile": "โปรไฟล์",
+      "theme": "ธีม",
+      "themeSystem": "ตามระบบ",
+      "themeLight": "สว่าง",
+      "themeDark": "มืด",
       "th": "ไทย",
       "en": "English",
       "de": "Deutsch"
