@@ -9,6 +9,8 @@ import (
 	"net/mail"
 	"strings"
 	"time"
+
+	"github.com/google/uuid"
 )
 
 // Code is a stable machine-readable error code returned to clients. The
@@ -170,4 +172,54 @@ func IsSafeRedirectHost(host string, allowedHosts []string) bool {
 		}
 	}
 	return false
+}
+
+// ErrorCode extracts the stable machine-readable code from an error. Unknown
+// or non-account errors map to CodeUnknown so handlers always return a stable
+// envelope code.
+func ErrorCode(err error) Code {
+	if err == nil {
+		return CodeUnknown
+	}
+	var accountErr *Error
+	if errors.As(err, &accountErr) {
+		return accountErr.Code
+	}
+	return CodeUnknown
+}
+
+// ClientInfo is coarse client context captured from the HTTP request. It is
+// used for session metadata and security events; the full IP is never stored.
+type ClientInfo struct {
+	IP        string
+	UserAgent string
+}
+
+// LoginPasswordInput carries the credentials and client context for a password
+// sign-in attempt.
+type LoginPasswordInput struct {
+	Email    string
+	Password string
+	Client   ClientInfo
+}
+
+// SessionResult is the result of creating or rotating a session. Token hashes
+// are never included; only the one-time raw values are returned.
+type SessionResult struct {
+	AccessToken  string
+	RefreshToken string
+	ExpiresIn    time.Duration
+}
+
+// SessionSummary is the public, redacted view of one session for the session
+// list. The token hash is never serialized.
+type SessionSummary struct {
+	ID               uuid.UUID `json:"id"`
+	Current          bool      `json:"current"`
+	UserAgentSummary string    `json:"user_agent_summary,omitempty"`
+	IPPrefix         string    `json:"ip_prefix,omitempty"`
+	CreatedAt        time.Time `json:"created_at"`
+	LastUsedAt       time.Time `json:"last_used_at"`
+	ExpiresAt        time.Time `json:"expires_at"`
+	TokenHash        string    `json:"-"` // Never serialize the refresh-token hash
 }
