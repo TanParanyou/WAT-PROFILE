@@ -30,13 +30,26 @@ type AdminAuthResponse struct {
 // AdminAuthHandler exposes Admin login, refresh, and logout.
 type AdminAuthHandler struct {
 	adminService *services.AdminAuthService
+	auditService *services.AuditService
 }
 
 // NewAdminAuthHandler wires the Admin session service into HTTP handlers.
 func NewAdminAuthHandler(db *gorm.DB) *AdminAuthHandler {
 	return &AdminAuthHandler{
 		adminService: services.NewAdminAuthService(db, time.Now),
+		auditService: services.NewAuditService(db),
 	}
+}
+
+// adminSessionIDFromCredential extracts the session UUID from an opaque refresh
+// credential for audit attribution. It returns an empty string when the
+// credential is malformed.
+func adminSessionIDFromCredential(credential string) string {
+	sessionID, _, err := utils.ParseAdminRefreshCredential(credential)
+	if err != nil {
+		return ""
+	}
+	return sessionID.String()
 }
 
 func adminCookieSecure() bool {
@@ -89,9 +102,11 @@ func (h *AdminAuthHandler) Login(c *fiber.Ctx) error {
 
 	result, err := h.adminService.LoginAdmin(req.Email, req.Password, c.IP(), c.Get("User-Agent"))
 	if err != nil {
+		_ = h.auditService.LogSecurityEvent(c, "admin.login.failure", "credentials_or_eligibility", "admin_auth", "")
 		return utils.CodedErrorResponse(c, fiber.StatusUnauthorized, "ADMIN_INVALID_CREDENTIALS", "Invalid email or password")
 	}
 
+	_ = h.auditService.LogSecurityEvent(c, "admin.login.success", "login_success", "admin_auth", result.SessionID.String())
 	h.setAdminRefreshCookie(c, result.RefreshCredential)
 	return utils.SuccessResponse(c, AdminAuthResponse{
 		AccessToken: result.AccessToken,
@@ -110,7 +125,9 @@ func (h *AdminAuthHandler) Refresh(c *fiber.Ctx) error {
 	result, err := h.adminService.RefreshAdmin(credential)
 	if err != nil {
 		h.clearAdminRefreshCookie(c)
+		sessionID := adminSessionIDFromCredential(credential)
 		if errors.Is(err, services.ErrAdminSessionReused) {
+			_ = h.auditService.LogSecurityEvent(c, "admin.session.reuse_detected", "session_reuse", "admin_session", sessionID)
 			return utils.CodedErrorResponse(c, fiber.StatusUnauthorized, "ADMIN_SESSION_REUSED", "Admin session reuse detected")
 		}
 		return utils.CodedErrorResponse(c, fiber.StatusUnauthorized, "ADMIN_SESSION_INVALID", "Admin session is invalid or expired")
@@ -127,9 +144,13 @@ func (h *AdminAuthHandler) Refresh(c *fiber.Ctx) error {
 // presented credential is invalid or already expired.
 func (h *AdminAuthHandler) Logout(c *fiber.Ctx) error {
 	credential := c.Cookies(adminRefreshCookie)
+	sessionID := adminSessionIDFromCredential(credential)
 	if credential != "" {
-		_ = h.adminService.RevokeAdminSession(credential, "logout")
+		if err := h.adminService.RevokeAdminSession(credential, "logout"); err == nil {
+			_ = h.auditService.LogSecurityEvent(c, "admin.session.revoked", "session_revoked", "admin_session", sessionID)
+		}
 	}
+	_ = h.auditService.LogSecurityEvent(c, "admin.logout", "logout", "admin_auth", sessionID)
 	h.clearAdminRefreshCookie(c)
 	return utils.MessageResponse(c, "Logged out successfully")
 }

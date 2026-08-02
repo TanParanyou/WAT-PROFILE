@@ -2,6 +2,7 @@ package services
 
 import (
 	"errors"
+	"time"
 
 	"github.com/google/uuid"
 	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
@@ -123,7 +124,9 @@ func (s *UserService) Create(user *models.User, password string) error {
 	return s.db.Create(user).Error
 }
 
-// Update saves changes to a user, conditionally hashing password if provided
+// Update saves changes to a user, conditionally hashing password if provided.
+// Password changes and account disablement revoke all active Admin sessions in
+// the same transaction.
 func (s *UserService) Update(user *models.User, newPassword string) error {
 	// Check email uniqueness if email changed
 	var existingUser models.User
@@ -131,15 +134,39 @@ func (s *UserService) Update(user *models.User, newPassword string) error {
 		return errors.New("email already exists")
 	}
 
+	passwordChanged := false
 	if newPassword != "" {
 		hashedPassword, err := utils.HashPassword(newPassword)
 		if err != nil {
 			return err
 		}
 		user.PasswordHash = hashedPassword
+		passwordChanged = true
 	}
 
-	return s.db.Save(user).Error
+	var current models.User
+	if err := s.db.Select("is_active").Where("id = ?", user.ID).First(&current).Error; err != nil {
+		return err
+	}
+
+	reason := ""
+	switch {
+	case passwordChanged:
+		reason = "password_changed"
+	case current.IsActive && !user.IsActive:
+		reason = "account_disabled"
+	}
+
+	if reason == "" {
+		return s.db.Save(user).Error
+	}
+
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Save(user).Error; err != nil {
+			return err
+		}
+		return revokeAllAdminSessionsTx(tx, user.ID, reason, time.Now())
+	})
 }
 
 // Delete removes a user by ID, preventing self-deletion (handled in handler usually, but added protection here)
@@ -190,6 +217,7 @@ func (s *UserService) UpdateProfile(userID uuid.UUID, name, email string, avatar
 	}
 
 	// Handle password change if newPassword is provided
+	passwordChanged := false
 	if newPassword != "" {
 		if currentPassword == "" {
 			return nil, errors.New("current password is required to set a new password")
@@ -202,6 +230,22 @@ func (s *UserService) UpdateProfile(userID uuid.UUID, name, email string, avatar
 			return nil, err
 		}
 		user.PasswordHash = hashedPassword
+		passwordChanged = true
+	}
+
+	if passwordChanged {
+		// A password change revokes every active Admin session in the same
+		// transaction so stolen refresh credentials stop working immediately.
+		err := s.db.Transaction(func(tx *gorm.DB) error {
+			if err := tx.Save(&user).Error; err != nil {
+				return err
+			}
+			return revokeAllAdminSessionsTx(tx, userID, "password_changed", time.Now())
+		})
+		if err != nil {
+			return nil, err
+		}
+		return &user, nil
 	}
 
 	if err := s.db.Save(&user).Error; err != nil {

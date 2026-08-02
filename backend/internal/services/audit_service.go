@@ -1,6 +1,7 @@
 package services
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -50,6 +51,68 @@ func (s *AuditService) LogAction(c *fiber.Ctx, action string, entityType string,
 		EntityType: entityType,
 		EntityID:   entityID,
 		Changes:    models.JSONMap(changes),
+		IPAddress:  ipAddress,
+		UserAgent:  userAgent,
+		TraceID:    traceID,
+		CreatedAt:  time.Now(),
+	}
+
+	return s.db.Create(&auditLog).Error
+}
+
+// allowedSecurityAuditCategories is the allowlist of reason categories that may
+// be stored for security-relevant Admin authentication events. Free-form or
+// secret-bearing data must never be written through this path.
+var allowedSecurityAuditCategories = map[string]bool{
+	"credentials_or_eligibility": true,
+	"login_success":              true,
+	"logout":                     true,
+	"session_revoked":            true,
+	"session_reuse":              true,
+	"sessions_revoked":           true,
+}
+
+const maxSecurityAuditUserAgentLength = 512
+
+// LogSecurityEvent records a security-relevant Admin authentication event with a
+// bounded, allowlisted reason category. Credentials, passwords, JWTs, cookie
+// values, credential hashes, and secret-bearing request bodies are never
+// persisted.
+func (s *AuditService) LogSecurityEvent(c *fiber.Ctx, action, category, entityType, entityID string) error {
+	if !allowedSecurityAuditCategories[category] {
+		return fmt.Errorf("security audit category not allowed: %s", category)
+	}
+
+	var userID *uuid.UUID
+	ipAddress := ""
+	userAgent := ""
+	traceID := ""
+
+	if c != nil {
+		if val := c.Locals("user_id"); val != nil {
+			if uidStr, ok := val.(string); ok {
+				if uid, err := uuid.Parse(uidStr); err == nil {
+					userID = &uid
+				}
+			} else if uid, ok := val.(uuid.UUID); ok {
+				userID = &uid
+			}
+		}
+		ipAddress = c.IP()
+		userAgent = truncateString(string(c.Request().Header.UserAgent()), maxSecurityAuditUserAgentLength)
+		if val, ok := c.Locals("trace_id").(string); ok && val != "" {
+			traceID = val
+		} else {
+			traceID = c.GetRespHeader("X-Trace-Id")
+		}
+	}
+
+	auditLog := models.AuditLog{
+		UserID:     userID,
+		Action:     action,
+		EntityType: entityType,
+		EntityID:   entityID,
+		Changes:    models.JSONMap{"category": category},
 		IPAddress:  ipAddress,
 		UserAgent:  userAgent,
 		TraceID:    traceID,

@@ -11,14 +11,16 @@ import (
 )
 
 type AuthHandler struct {
-	authService *services.AuthService
-	userService *services.UserService
+	authService  *services.AuthService
+	userService  *services.UserService
+	auditService *services.AuditService
 }
 
 func NewAuthHandler(db *gorm.DB) *AuthHandler {
 	return &AuthHandler{
-		authService: services.NewAuthService(db),
-		userService: services.NewUserService(db),
+		authService:  services.NewAuthService(db),
+		userService:  services.NewUserService(db),
+		auditService: services.NewAuditService(db),
 	}
 }
 
@@ -198,6 +200,10 @@ func (h *AuthHandler) UpdateProfile(c *fiber.Ctx) error {
 	updatedUser, err := h.userService.UpdateProfile(user.ID, req.Name, req.Email, req.AvatarURL, req.CurrentPassword, req.NewPassword)
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+
+	if req.NewPassword != "" {
+		_ = h.auditService.LogSecurityEvent(c, "admin.sessions.revoked", "sessions_revoked", "admin_auth", user.ID.String())
 	}
 
 	return utils.SuccessResponse(c, updatedUser)

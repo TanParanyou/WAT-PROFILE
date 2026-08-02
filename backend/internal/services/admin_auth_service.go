@@ -259,8 +259,14 @@ func (s *AdminAuthService) RevokeAdminSession(rawCredential, reason string) erro
 
 // RevokeAllAdminSessions revokes every active Admin session for the user.
 func (s *AdminAuthService) RevokeAllAdminSessions(userID uuid.UUID, reason string) error {
-	now := s.timeNow()
-	return s.db.Model(&models.AdminSession{}).
+	return revokeAllAdminSessionsTx(s.db, userID, reason, s.timeNow())
+}
+
+// revokeAllAdminSessionsTx revokes every active Admin session for the user
+// within the supplied transaction so callers can pair revocation with the
+// security change that caused it.
+func revokeAllAdminSessionsTx(tx *gorm.DB, userID uuid.UUID, reason string, now time.Time) error {
+	return tx.Model(&models.AdminSession{}).
 		Where("user_id = ? AND revoked_at IS NULL", userID).
 		Updates(map[string]interface{}{
 			"revoked_at":        now,

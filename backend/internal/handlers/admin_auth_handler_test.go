@@ -30,7 +30,7 @@ func testAdminHandlerDB(t *testing.T) *gorm.DB {
 	if err != nil {
 		t.Fatalf("failed to connect to test database: %v", err)
 	}
-	if err := db.AutoMigrate(&models.Role{}, &models.User{}, &models.AdminSession{}, &models.AdminSessionRefreshHistory{}); err != nil {
+	if err := db.AutoMigrate(&models.Role{}, &models.User{}, &models.AdminSession{}, &models.AdminSessionRefreshHistory{}, &models.AuditLog{}); err != nil {
 		t.Fatalf("failed to migrate test database: %v", err)
 	}
 	return db

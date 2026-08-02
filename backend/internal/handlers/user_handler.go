@@ -13,12 +13,14 @@ import (
 )
 
 type UserHandler struct {
-	userService *services.UserService
+	userService  *services.UserService
+	auditService *services.AuditService
 }
 
 func NewUserHandler(db *gorm.DB) *UserHandler {
 	return &UserHandler{
-		userService: services.NewUserService(db),
+		userService:  services.NewUserService(db),
+		auditService: services.NewAuditService(db),
 	}
 }
 
@@ -157,11 +159,16 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 	if req.Name != "" {
 		user.Name = req.Name
 	}
+	wasActive := user.IsActive
 	user.RoleID = req.RoleID
 	user.IsActive = req.IsActive
 
 	if err := h.userService.Update(user, req.Password); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+
+	if req.Password != "" || (wasActive && !user.IsActive) {
+		_ = h.auditService.LogSecurityEvent(c, "admin.sessions.revoked", "sessions_revoked", "admin_auth", user.ID.String())
 	}
 
 	return utils.SuccessResponse(c, user)
