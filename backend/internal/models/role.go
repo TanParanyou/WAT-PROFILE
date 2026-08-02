@@ -52,6 +52,7 @@ type Role struct {
 	Description string         `gorm:"size:255" json:"description"`
 	Permissions PermissionsMap `gorm:"type:jsonb" json:"permissions"` // {"users": "crud", "posts": "read"}
 	IsActive    bool           `gorm:"default:true" json:"is_active"`
+	AdminAccess bool           `gorm:"default:false;not null" json:"admin_access"` // grants Admin login eligibility
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
 }

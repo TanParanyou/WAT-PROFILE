@@ -71,6 +71,8 @@ func MigrateModels() error {
 		&models.User{},
 		&models.RefreshToken{},
 		&models.PasswordReset{},
+		&models.AdminSession{},
+		&models.AdminSessionRefreshHistory{},
 		&models.Setting{},
 		&models.Media{},
 		&models.ContentPage{},

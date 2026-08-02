@@ -53,6 +53,7 @@ func seedRoles() {
 			Name:        "admin",
 			Description: "System administrator with full access",
 			Permissions: models.PermissionsMap{
+				"dashboard":  "read",
 				"events":     "all",
 				"monks":      "all",
 				"gallery":    "all",
@@ -65,12 +66,14 @@ func seedRoles() {
 				"website":    "all",
 				"audit_logs": "all",
 			},
-			IsActive: true,
+			IsActive:    true,
+			AdminAccess: true,
 		},
 		{
 			Name:        "editor",
 			Description: "Content editor - manages events, monks, gallery, schedules",
 			Permissions: models.PermissionsMap{
+				"dashboard": "read",
 				"events":    "all",
 				"monks":     "all",
 				"gallery":   "all",
@@ -78,16 +81,19 @@ func seedRoles() {
 				"contacts":  "read",
 				"website":   "all",
 			},
-			IsActive: true,
+			IsActive:    true,
+			AdminAccess: true,
 		},
 		{
 			Name:        "accountant",
 			Description: "Finance manager - manages donations and views members",
 			Permissions: models.PermissionsMap{
+				"dashboard": "read",
 				"donations": "all",
 				"members":   "read",
 			},
-			IsActive: true,
+			IsActive:    true,
+			AdminAccess: true,
 		},
 		{
 			Name:        "member",
@@ -99,7 +105,8 @@ func seedRoles() {
 				"donations":     "create",
 				"registrations": "create",
 			},
-			IsActive: true,
+			IsActive:    true,
+			AdminAccess: false,
 		},
 	}
 
