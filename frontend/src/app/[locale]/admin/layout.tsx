@@ -35,11 +35,11 @@ export default function AdminRootLayout({
     <AdminThemeProvider>
       <div className="admin-theme min-h-screen bg-admin-canvas text-admin-foreground">
         <AuthProvider>
-          <AdminAuthGuard>
-            <AdminIntlProvider>
+          <AdminIntlProvider>
+            <AdminAuthGuard>
               <AdminLayout>{children}</AdminLayout>
-            </AdminIntlProvider>
-          </AdminAuthGuard>
+            </AdminAuthGuard>
+          </AdminIntlProvider>
         </AuthProvider>
       </div>
     </AdminThemeProvider>

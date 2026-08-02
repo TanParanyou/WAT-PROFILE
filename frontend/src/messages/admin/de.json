@@ -63,8 +63,7 @@
       "users": "Benutzer",
       "roles": "Rollen",
       "registrations": "Anmeldungen",
-      "audit_logs": "Audit-Logs",
-      "settings": "Einstellungen"
+      "audit_logs": "Audit-Logs"
     },
     "header": {
       "logout": "Abmelden",
@@ -692,6 +691,9 @@
       "monkDefaultTitle": "Rang / Titel",
       "monkOrdinationLabel": "Ordinationsdatum: {date}",
       "monkBioHeading": "Zusammenfassung der Biografie"
+    },
+    "actions": {
+      "save": "Speichern"
     }
   },
   "admin": {

@@ -7,7 +7,9 @@ import {
 import type { AdminAuthResponse } from "@/types/auth";
 import type { ApiResponse } from "@/types/api";
 
-export const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+const configuredBase = process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080";
+
+export const API_BASE = configuredBase.replace(/\/+$/, "");
 
 const ADMIN_AUTH_PATHS = ["/auth/admin/login", "/auth/admin/refresh", "/auth/admin/logout"];
 

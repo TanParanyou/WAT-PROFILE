@@ -63,8 +63,7 @@
       "users": "Users",
       "roles": "Roles",
       "registrations": "Registrations",
-      "audit_logs": "Audit Logs",
-      "settings": "Settings"
+      "audit_logs": "Audit Logs"
     },
     "header": {
       "logout": "Logout",
@@ -530,7 +529,6 @@
       "nameRequired": "Name is required",
       "invalidEmail": "Invalid email format"
     },
-
     "imageInput": {
       "uploadImage": "Upload Image",
       "chooseFile": "Choose File",
@@ -550,7 +548,6 @@
       "checkUrlOrUpload": "Please check image URL or choose a file to upload",
       "ready": "Image Ready"
     },
-
     "roles": {
       "title": "Roles",
       "create": "Create Role",
@@ -694,6 +691,9 @@
       "monkDefaultTitle": "Rank / Title",
       "monkOrdinationLabel": "Ordination Date: {date}",
       "monkBioHeading": "Biography Summary"
+    },
+    "actions": {
+      "save": "Save"
     }
   },
   "admin": {

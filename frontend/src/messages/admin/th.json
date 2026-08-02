@@ -63,8 +63,7 @@
       "users": "ผู้ใช้งาน",
       "roles": "บทบาท",
       "registrations": "ลงทะเบียน",
-      "audit_logs": "บันทึกการใช้งาน",
-      "settings": "ตั้งค่า"
+      "audit_logs": "บันทึกการใช้งาน"
     },
     "header": {
       "logout": "ออกจากระบบ",
@@ -530,7 +529,6 @@
       "nameRequired": "กรุณากรอกชื่อ",
       "invalidEmail": "รูปแบบอีเมลไม่ถูกต้อง"
     },
-
     "imageInput": {
       "uploadImage": "อัปโหลดรูปภาพ",
       "chooseFile": "เลือกไฟล์จากเครื่อง",
@@ -550,7 +548,6 @@
       "checkUrlOrUpload": "กรุณาตรวจสอบ URL หรือเลือกอัปโหลดไฟล์ใหม่",
       "ready": "รูปภาพพร้อมใช้งาน"
     },
-
     "roles": {
       "title": "บทบาท",
       "create": "สร้างบทบาท",
@@ -694,6 +691,9 @@
       "monkDefaultTitle": "สมณศักดิ์/ตำแหน่ง",
       "monkOrdinationLabel": "วันที่อุปสมบท: {date}",
       "monkBioHeading": "ประวัติโดยย่อ"
+    },
+    "actions": {
+      "save": "บันทึก"
     }
   },
   "admin": {
