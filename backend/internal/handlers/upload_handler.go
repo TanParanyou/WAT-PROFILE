@@ -1,6 +1,8 @@
 package handlers
 
 import (
+	"context"
+	"mime/multipart"
 	"path/filepath"
 	"strings"
 
@@ -12,9 +14,18 @@ import (
 	"gorm.io/gorm"
 )
 
+// maxUploadFileSize is the largest accepted image upload (20 MiB). The Fiber
+// BodyLimit is configured slightly larger to leave room for multipart overhead.
+const maxUploadFileSize = 20 * 1024 * 1024
+
+// fileUploader uploads a file to storage and returns its public URL.
+type fileUploader interface {
+	UploadFile(ctx context.Context, file multipart.File, filename string, contentType string) (string, error)
+}
+
 type UploadHandler struct {
 	db *gorm.DB
-	r2 *storage.R2Service
+	r2 fileUploader
 }
 
 func NewUploadHandler(db *gorm.DB, r2 *storage.R2Service) *UploadHandler {
@@ -47,11 +58,11 @@ func (h *UploadHandler) UploadFile(c *fiber.Ctx) error {
 		})
 	}
 
-	// เช็คขนาดไฟล์ (5MB)
-	if file.Size > 5*1024*1024 {
+	// เช็คขนาดไฟล์ (20MB)
+	if file.Size > maxUploadFileSize {
 		return c.Status(fiber.StatusRequestEntityTooLarge).JSON(fiber.Map{
 			"success": false,
-			"error":   "File size must be less than 5MB",
+			"error":   "File size must be less than 20MB",
 		})
 	}
 

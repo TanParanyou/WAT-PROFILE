@@ -64,6 +64,12 @@ func NewAdminAuthService(db *gorm.DB, timeNow func() time.Time) *AdminAuthServic
 	}
 }
 
+// SessionTTL returns the configured Admin session lifetime, used to match the
+// refresh cookie expiry to the server-side session.
+func (s *AdminAuthService) SessionTTL() time.Duration {
+	return s.expiry
+}
+
 // LoginAdmin authenticates an eligible Admin and creates a session in one
 // transaction. The session stores only the SHA-256 hash of the secret.
 func (s *AdminAuthService) LoginAdmin(email, password, ip, userAgent string) (*AdminAuthResult, error) {

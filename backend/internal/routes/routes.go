@@ -1,12 +1,33 @@
 package routes
 
 import (
+	"os"
+	"strings"
+
 	"github.com/gofiber/fiber/v2"
 	"github.com/watloungporsai/wat-profile-backend/internal/handlers"
 	"github.com/watloungporsai/wat-profile-backend/internal/middleware"
 	"github.com/watloungporsai/wat-profile-backend/internal/storage"
 	"gorm.io/gorm"
 )
+
+// adminAllowedOrigins returns the explicit origin allowlist for Admin auth
+// cookie endpoints. It falls back to ALLOWED_ORIGINS when ADMIN_ALLOWED_ORIGINS
+// is unset. Wildcard origins are rejected by the parser.
+func adminAllowedOrigins() []string {
+	value := os.Getenv("ADMIN_ALLOWED_ORIGINS")
+	if strings.TrimSpace(value) == "" {
+		value = os.Getenv("ALLOWED_ORIGINS")
+	}
+	if strings.TrimSpace(value) == "" {
+		value = "http://localhost:3000"
+	}
+	origins, err := middleware.ParseAdminAllowedOrigins(value)
+	if err != nil {
+		return nil
+	}
+	return origins
+}
 
 func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	// API v1
@@ -79,6 +100,16 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	auth.Post("/refresh", authHandler.RefreshToken)
 	auth.Get("/me", middleware.AuthRequired, authHandler.GetProfile)
 	auth.Put("/me", middleware.AuthRequired, authHandler.UpdateProfile)
+
+	// ============ ADMIN AUTH ROUTES (Origin-Guarded, Cookie-Based) ============
+	// These endpoints are deliberately separate from the member /auth group.
+	// They never accept credentials from JSON; the refresh credential lives in
+	// a path-restricted HttpOnly cookie.
+	adminAuthHandler := handlers.NewAdminAuthHandler(db)
+	adminAuth := api.Group("/auth/admin", middleware.AdminOriginGuard(adminAllowedOrigins()))
+	adminAuth.Post("/login", adminAuthHandler.Login)
+	adminAuth.Post("/refresh", adminAuthHandler.Refresh)
+	adminAuth.Post("/logout", adminAuthHandler.Logout)
 
 
 	// ============ MEMBER ROUTES (Auth Required, No Admin) ============

@@ -50,6 +50,10 @@ func main() {
 
 	// สร้าง Fiber app
 	app := fiber.New(fiber.Config{
+		BodyLimit:    25 * 1024 * 1024, // 25 MiB, room for 20 MiB uploads + multipart overhead
+		ReadTimeout:  60 * time.Second,
+		WriteTimeout: 60 * time.Second,
+		IdleTimeout:  120 * time.Second,
 		ErrorHandler: func(c *fiber.Ctx, err error) error {
 			code := fiber.StatusInternalServerError
 			message := "Internal Server Error"
@@ -109,6 +113,16 @@ func main() {
 	app.Use("/api/v1/auth/register", limiter.New(limiter.Config{
 		Max:        5,
 		Expiration: 1 * time.Minute,
+	}))
+	app.Use("/api/v1/auth/admin/login", limiter.New(limiter.Config{
+		Max:        5,
+		Expiration: 1 * time.Minute,
+		LimitReached: func(c *fiber.Ctx) error {
+			return c.Status(fiber.StatusTooManyRequests).JSON(fiber.Map{
+				"success": false,
+				"error":   "Too many requests. Please try again later.",
+			})
+		},
 	}))
 	app.Use("/api/v1/public/contact", limiter.New(limiter.Config{
 		Max:        5,
