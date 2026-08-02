@@ -4,7 +4,8 @@ import (
 	"github.com/gofiber/fiber/v2"
 )
 
-// AdminOnly middleware ensures user has admin role
+// AdminOnly middleware ensures the user's role grants admin access. Eligibility
+// is determined by roles.admin_access, never by role name.
 func AdminOnly(c *fiber.Ctx) error {
 	user, err := GetCurrentUser(c)
 	if err != nil {
@@ -14,8 +15,7 @@ func AdminOnly(c *fiber.Ctx) error {
 		})
 	}
 
-	// Check if user is admin
-	if !user.IsAdmin() {
+	if user.Role == nil || !user.Role.AdminAccess {
 		return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 			"success": false,
 			"error":   "Admin access required",

@@ -45,13 +45,6 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	contactHandler := handlers.NewContactHandler(db)
 	settingsHandler := handlers.NewSettingsHandler(db)
 	contentHandler := handlers.NewContentHandler(db)
-	uploadHandler := handlers.NewUploadHandler(db, r2)
-	mediaHandler := handlers.NewMediaHandler(db)
-	dashboardHandler := handlers.NewDashboardHandler(db)
-	userHandler := handlers.NewUserHandler(db)
-	roleHandler := handlers.NewRoleHandler(db)
-	auditHandler := handlers.NewAuditLogHandler(db)
-	richTextMigrationHandler := handlers.NewRichTextMigrationHandler(db)
 	publicContentHandler := handlers.NewPublicContentHandler(db)
 	eventAlertHandler := handlers.NewEventAlertHandler(db)
 
@@ -111,7 +104,6 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	adminAuth.Post("/refresh", adminAuthHandler.Refresh)
 	adminAuth.Post("/logout", adminAuthHandler.Logout)
 
-
 	// ============ MEMBER ROUTES (Auth Required, No Admin) ============
 	member := api.Group("/member", middleware.AuthRequired)
 
@@ -126,135 +118,290 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 	// Member registrations
 	member.Get("/registrations", registrationHandler.GetMyRegistrations)
 
-	// ============ ADMIN ROUTES (Auth Required + Per-Resource Permissions) ============
-	admin := api.Group("/admin", middleware.AuthRequired)
+	// ============ ADMIN ROUTES (Admin Auth + Per-Resource Permissions) ============
+	admin := api.Group("/admin", middleware.AdminAuthRequired(db))
+	registerAdminRoutes(admin, adminRouteDefinitions(), adminHandlerMap(db, r2))
+}
 
-	// Dashboard Stats
-	admin.Get("/dashboard/stats", dashboardHandler.GetDashboardStats)
+// AdminRouteDefinition declares one Admin endpoint together with its required
+// resource/action permission and the handler key that resolves it. It is the
+// single source of truth for the Admin route registry.
+type AdminRouteDefinition struct {
+	Method     string
+	Path       string
+	Resource   string
+	Action     string
+	HandlerKey string
+}
 
-	// Audit Logs
-	admin.Get("/audit-logs/filter-options", middleware.PermissionRequired("audit_logs", "read"), auditHandler.GetFilterOptions)
-	admin.Get("/audit-logs", middleware.PermissionRequired("audit_logs", "read"), auditHandler.GetAuditLogs)
+// registerAdminRoutes registers every Admin route from the definition slice,
+// always wrapping each handler with PermissionRequired. Unknown handler keys
+// panic so a typo in the registry cannot silently drop protection.
+func registerAdminRoutes(group fiber.Router, definitions []AdminRouteDefinition, handlers map[string]fiber.Handler) {
+	for _, definition := range definitions {
+		handler, ok := handlers[definition.HandlerKey]
+		if !ok {
+			panic("missing admin handler: " + definition.HandlerKey)
+		}
+		group.Add(definition.Method, definition.Path,
+			middleware.PermissionRequired(definition.Resource, definition.Action), handler)
+	}
+}
 
-	// Events Management
-	admin.Get("/events", middleware.PermissionRequired("events", "read"), eventHandler.GetAdminEvents)
-	admin.Get("/events/:id", middleware.PermissionRequired("events", "read"), eventHandler.GetEventByID)
-	admin.Post("/events", middleware.PermissionRequired("events", "create"), eventHandler.CreateEvent)
-	admin.Put("/events/:id", middleware.PermissionRequired("events", "update"), eventHandler.UpdateEvent)
-	admin.Delete("/events/bulk", middleware.PermissionRequired("events", "delete"), eventHandler.BulkDeleteEvents)
-	admin.Delete("/events/:id", middleware.PermissionRequired("events", "delete"), eventHandler.DeleteEvent)
+// adminRouteDefinitions returns every Admin route as data. Registration order
+// is significant: static paths (for example /gallery/categories) and /bulk
+// routes must be declared before their parameterized siblings.
+func adminRouteDefinitions() []AdminRouteDefinition {
+	return []AdminRouteDefinition{
+		// Dashboard
+		{Method: fiber.MethodGet, Path: "/dashboard/stats", Resource: "dashboard", Action: "read", HandlerKey: "dashboard.stats"},
 
-	// Monks Management
-	admin.Get("/monks", middleware.PermissionRequired("monks", "read"), monkHandler.GetAdminMonks)
-	admin.Get("/monks/:id", middleware.PermissionRequired("monks", "read"), monkHandler.GetMonkByID)
-	admin.Post("/monks", middleware.PermissionRequired("monks", "create"), monkHandler.CreateMonk)
-	admin.Put("/monks/:id", middleware.PermissionRequired("monks", "update"), monkHandler.UpdateMonk)
-	admin.Delete("/monks/bulk", middleware.PermissionRequired("monks", "delete"), monkHandler.BulkDeleteMonks)
-	admin.Delete("/monks/:id", middleware.PermissionRequired("monks", "delete"), monkHandler.DeleteMonk)
+		// Audit Logs
+		{Method: fiber.MethodGet, Path: "/audit-logs/filter-options", Resource: "audit_logs", Action: "read", HandlerKey: "audit.filterOptions"},
+		{Method: fiber.MethodGet, Path: "/audit-logs", Resource: "audit_logs", Action: "read", HandlerKey: "audit.list"},
 
-	// Gallery Management
-	admin.Get("/gallery", middleware.PermissionRequired("gallery", "read"), galleryHandler.GetAdminGalleries)
-	admin.Get("/gallery/categories", middleware.PermissionRequired("gallery", "read"), galleryHandler.GetAdminCategories)
-	admin.Get("/gallery/:id", middleware.PermissionRequired("gallery", "read"), galleryHandler.GetGalleryByID)
-	admin.Post("/gallery", middleware.PermissionRequired("gallery", "create"), galleryHandler.CreateGallery)
-	admin.Put("/gallery/:id", middleware.PermissionRequired("gallery", "update"), galleryHandler.UpdateGallery)
-	admin.Delete("/gallery/bulk", middleware.PermissionRequired("gallery", "delete"), galleryHandler.BulkDeleteGalleries)
-	admin.Delete("/gallery/:id", middleware.PermissionRequired("gallery", "delete"), galleryHandler.DeleteGallery)
-	admin.Post("/gallery/categories", middleware.PermissionRequired("gallery", "create"), galleryHandler.CreateCategory)
-	admin.Put("/gallery/categories/:id", middleware.PermissionRequired("gallery", "update"), galleryHandler.UpdateCategory)
-	admin.Delete("/gallery/categories/bulk", middleware.PermissionRequired("gallery", "delete"), galleryHandler.BulkDeleteCategories)
+		// Events Management
+		{Method: fiber.MethodGet, Path: "/events", Resource: "events", Action: "read", HandlerKey: "events.list"},
+		{Method: fiber.MethodGet, Path: "/events/:id", Resource: "events", Action: "read", HandlerKey: "events.get"},
+		{Method: fiber.MethodPost, Path: "/events", Resource: "events", Action: "create", HandlerKey: "events.create"},
+		{Method: fiber.MethodPut, Path: "/events/:id", Resource: "events", Action: "update", HandlerKey: "events.update"},
+		{Method: fiber.MethodDelete, Path: "/events/bulk", Resource: "events", Action: "delete", HandlerKey: "events.bulkDelete"},
+		{Method: fiber.MethodDelete, Path: "/events/:id", Resource: "events", Action: "delete", HandlerKey: "events.delete"},
 
-	// Upload Management
-	admin.Post("/upload", middleware.PermissionRequired("gallery", "create"), uploadHandler.UploadFile)
-	admin.Get("/media/filter-options", middleware.PermissionRequired("gallery", "read"), mediaHandler.GetFilterOptions)
-	admin.Get("/media", middleware.PermissionRequired("gallery", "read"), mediaHandler.GetMedia)
-	admin.Put("/media/:id", middleware.PermissionRequired("gallery", "update"), mediaHandler.UpdateMedia)
-	admin.Delete("/media/:id", middleware.PermissionRequired("gallery", "delete"), mediaHandler.DeleteMedia)
+		// Monks Management
+		{Method: fiber.MethodGet, Path: "/monks", Resource: "monks", Action: "read", HandlerKey: "monks.list"},
+		{Method: fiber.MethodGet, Path: "/monks/:id", Resource: "monks", Action: "read", HandlerKey: "monks.get"},
+		{Method: fiber.MethodPost, Path: "/monks", Resource: "monks", Action: "create", HandlerKey: "monks.create"},
+		{Method: fiber.MethodPut, Path: "/monks/:id", Resource: "monks", Action: "update", HandlerKey: "monks.update"},
+		{Method: fiber.MethodDelete, Path: "/monks/bulk", Resource: "monks", Action: "delete", HandlerKey: "monks.bulkDelete"},
+		{Method: fiber.MethodDelete, Path: "/monks/:id", Resource: "monks", Action: "delete", HandlerKey: "monks.delete"},
 
-	// Schedule Management
-	admin.Get("/schedules", middleware.PermissionRequired("schedules", "read"), scheduleHandler.GetAdminSchedules)
-	admin.Get("/schedules/:id", middleware.PermissionRequired("schedules", "read"), scheduleHandler.GetScheduleByID)
-	admin.Post("/schedules", middleware.PermissionRequired("schedules", "create"), scheduleHandler.CreateSchedule)
-	admin.Put("/schedules/:id", middleware.PermissionRequired("schedules", "update"), scheduleHandler.UpdateSchedule)
-	admin.Delete("/schedules/bulk", middleware.PermissionRequired("schedules", "delete"), scheduleHandler.BulkDeleteSchedules)
-	admin.Delete("/schedules/:id", middleware.PermissionRequired("schedules", "delete"), scheduleHandler.DeleteSchedule)
+		// Gallery Management
+		{Method: fiber.MethodGet, Path: "/gallery", Resource: "gallery", Action: "read", HandlerKey: "gallery.list"},
+		{Method: fiber.MethodGet, Path: "/gallery/categories", Resource: "gallery", Action: "read", HandlerKey: "gallery.categories.list"},
+		{Method: fiber.MethodGet, Path: "/gallery/:id", Resource: "gallery", Action: "read", HandlerKey: "gallery.get"},
+		{Method: fiber.MethodPost, Path: "/gallery", Resource: "gallery", Action: "create", HandlerKey: "gallery.create"},
+		{Method: fiber.MethodPut, Path: "/gallery/:id", Resource: "gallery", Action: "update", HandlerKey: "gallery.update"},
+		{Method: fiber.MethodDelete, Path: "/gallery/bulk", Resource: "gallery", Action: "delete", HandlerKey: "gallery.bulkDelete"},
+		{Method: fiber.MethodDelete, Path: "/gallery/:id", Resource: "gallery", Action: "delete", HandlerKey: "gallery.delete"},
+		{Method: fiber.MethodPost, Path: "/gallery/categories", Resource: "gallery", Action: "create", HandlerKey: "gallery.categories.create"},
+		{Method: fiber.MethodPut, Path: "/gallery/categories/:id", Resource: "gallery", Action: "update", HandlerKey: "gallery.categories.update"},
+		{Method: fiber.MethodDelete, Path: "/gallery/categories/bulk", Resource: "gallery", Action: "delete", HandlerKey: "gallery.categories.bulkDelete"},
 
-	// Donation Management
-	admin.Get("/donations/filter-options", middleware.PermissionRequired("donations", "read"), donationHandler.GetFilterOptions)
-	admin.Get("/donations/stats", middleware.PermissionRequired("donations", "read"), donationHandler.GetDonationStats)
-	admin.Get("/donations", middleware.PermissionRequired("donations", "read"), donationHandler.GetDonations)
-	admin.Get("/donations/:id", middleware.PermissionRequired("donations", "read"), donationHandler.GetDonationByID)
-	admin.Put("/donations/:id", middleware.PermissionRequired("donations", "update"), donationHandler.UpdateDonation)
-	admin.Delete("/donations/bulk", middleware.PermissionRequired("donations", "delete"), donationHandler.BulkDeleteDonations)
-	admin.Delete("/donations/:id", middleware.PermissionRequired("donations", "delete"), donationHandler.DeleteDonation)
-	admin.Get("/donation-categories", middleware.PermissionRequired("donations", "read"), donationHandler.GetAdminDonationCategories)
-	admin.Post("/donation-categories", middleware.PermissionRequired("donations", "create"), donationHandler.CreateDonationCategory)
-	admin.Put("/donation-categories/:id", middleware.PermissionRequired("donations", "update"), donationHandler.UpdateDonationCategory)
-	admin.Delete("/donation-categories/bulk", middleware.PermissionRequired("donations", "delete"), donationHandler.BulkDeleteDonationCategories)
-	admin.Delete("/donation-categories/:id", middleware.PermissionRequired("donations", "delete"), donationHandler.DeleteDonationCategory)
+		// Upload Management
+		{Method: fiber.MethodPost, Path: "/upload", Resource: "gallery", Action: "create", HandlerKey: "upload.create"},
+		{Method: fiber.MethodGet, Path: "/media/filter-options", Resource: "gallery", Action: "read", HandlerKey: "media.filterOptions"},
+		{Method: fiber.MethodGet, Path: "/media", Resource: "gallery", Action: "read", HandlerKey: "media.list"},
+		{Method: fiber.MethodPut, Path: "/media/:id", Resource: "gallery", Action: "update", HandlerKey: "media.update"},
+		{Method: fiber.MethodDelete, Path: "/media/:id", Resource: "gallery", Action: "delete", HandlerKey: "media.delete"},
 
-	// Member Management
-	admin.Get("/members", middleware.PermissionRequired("members", "read"), memberHandler.GetMembers)
-	admin.Get("/members/:id", middleware.PermissionRequired("members", "read"), memberHandler.GetMember)
-	admin.Put("/members/:id", middleware.PermissionRequired("members", "update"), memberHandler.UpdateMember)
-	admin.Delete("/members/bulk", middleware.PermissionRequired("members", "delete"), memberHandler.BulkDeleteMembers)
+		// Schedule Management
+		{Method: fiber.MethodGet, Path: "/schedules", Resource: "schedules", Action: "read", HandlerKey: "schedules.list"},
+		{Method: fiber.MethodGet, Path: "/schedules/:id", Resource: "schedules", Action: "read", HandlerKey: "schedules.get"},
+		{Method: fiber.MethodPost, Path: "/schedules", Resource: "schedules", Action: "create", HandlerKey: "schedules.create"},
+		{Method: fiber.MethodPut, Path: "/schedules/:id", Resource: "schedules", Action: "update", HandlerKey: "schedules.update"},
+		{Method: fiber.MethodDelete, Path: "/schedules/bulk", Resource: "schedules", Action: "delete", HandlerKey: "schedules.bulkDelete"},
+		{Method: fiber.MethodDelete, Path: "/schedules/:id", Resource: "schedules", Action: "delete", HandlerKey: "schedules.delete"},
 
-	// Event Registration Management
-	admin.Get("/registrations", middleware.PermissionRequired("events", "read"), registrationHandler.GetRegistrations)
-	admin.Put("/registrations/:id/status", middleware.PermissionRequired("events", "update"), registrationHandler.UpdateRegistrationStatus)
-	admin.Delete("/registrations/bulk", middleware.PermissionRequired("events", "delete"), registrationHandler.BulkDeleteRegistrations)
+		// Donation Management
+		{Method: fiber.MethodGet, Path: "/donations/filter-options", Resource: "donations", Action: "read", HandlerKey: "donations.filterOptions"},
+		{Method: fiber.MethodGet, Path: "/donations/stats", Resource: "donations", Action: "read", HandlerKey: "donations.stats"},
+		{Method: fiber.MethodGet, Path: "/donations", Resource: "donations", Action: "read", HandlerKey: "donations.list"},
+		{Method: fiber.MethodGet, Path: "/donations/:id", Resource: "donations", Action: "read", HandlerKey: "donations.get"},
+		{Method: fiber.MethodPut, Path: "/donations/:id", Resource: "donations", Action: "update", HandlerKey: "donations.update"},
+		{Method: fiber.MethodDelete, Path: "/donations/bulk", Resource: "donations", Action: "delete", HandlerKey: "donations.bulkDelete"},
+		{Method: fiber.MethodDelete, Path: "/donations/:id", Resource: "donations", Action: "delete", HandlerKey: "donations.delete"},
+		{Method: fiber.MethodGet, Path: "/donation-categories", Resource: "donations", Action: "read", HandlerKey: "donationCategories.list"},
+		{Method: fiber.MethodPost, Path: "/donation-categories", Resource: "donations", Action: "create", HandlerKey: "donationCategories.create"},
+		{Method: fiber.MethodPut, Path: "/donation-categories/:id", Resource: "donations", Action: "update", HandlerKey: "donationCategories.update"},
+		{Method: fiber.MethodDelete, Path: "/donation-categories/bulk", Resource: "donations", Action: "delete", HandlerKey: "donationCategories.bulkDelete"},
+		{Method: fiber.MethodDelete, Path: "/donation-categories/:id", Resource: "donations", Action: "delete", HandlerKey: "donationCategories.delete"},
 
-	// Contact Management
-	admin.Get("/contacts", middleware.PermissionRequired("contacts", "read"), contactHandler.GetContacts)
-	admin.Put("/contacts/:id/status", middleware.PermissionRequired("contacts", "update"), contactHandler.UpdateContactStatus)
-	admin.Delete("/contacts/bulk", middleware.PermissionRequired("contacts", "delete"), contactHandler.BulkDeleteContacts)
-	admin.Delete("/contacts/:id", middleware.PermissionRequired("contacts", "delete"), contactHandler.DeleteContact)
+		// Member Management
+		{Method: fiber.MethodGet, Path: "/members", Resource: "members", Action: "read", HandlerKey: "members.list"},
+		{Method: fiber.MethodGet, Path: "/members/:id", Resource: "members", Action: "read", HandlerKey: "members.get"},
+		{Method: fiber.MethodPut, Path: "/members/:id", Resource: "members", Action: "update", HandlerKey: "members.update"},
+		{Method: fiber.MethodDelete, Path: "/members/bulk", Resource: "members", Action: "delete", HandlerKey: "members.bulkDelete"},
 
-	// Settings Management
-	admin.Get("/settings", middleware.PermissionRequired("settings", "read"), settingsHandler.GetAllSettings)
-	admin.Put("/settings", middleware.PermissionRequired("settings", "update"), settingsHandler.UpdateSettings)
-	admin.Post("/settings", middleware.PermissionRequired("settings", "create"), settingsHandler.UpsertSetting)
-	admin.Get("/event-alert", middleware.PermissionRequired("settings", "read"), eventAlertHandler.Get)
-	admin.Put("/event-alert", middleware.PermissionRequired("settings", "update"), eventAlertHandler.Save)
+		// Event Registration Management
+		{Method: fiber.MethodGet, Path: "/registrations", Resource: "events", Action: "read", HandlerKey: "registrations.list"},
+		{Method: fiber.MethodPut, Path: "/registrations/:id/status", Resource: "events", Action: "update", HandlerKey: "registrations.updateStatus"},
+		{Method: fiber.MethodDelete, Path: "/registrations/bulk", Resource: "events", Action: "delete", HandlerKey: "registrations.bulkDelete"},
 
-	// Public Content Pages Management
-	admin.Get("/about", middleware.PermissionRequired("website", "read"), publicContentHandler.GetAbout)
-	admin.Put("/about", middleware.PermissionRequired("website", "update"), publicContentHandler.SaveAbout)
-	admin.Get("/contact", middleware.PermissionRequired("website", "read"), publicContentHandler.GetContact)
-	admin.Put("/contact", middleware.PermissionRequired("website", "update"), publicContentHandler.SaveContact)
-	admin.Get("/privacy", middleware.PermissionRequired("website", "read"), publicContentHandler.GetPrivacy)
-	admin.Put("/privacy", middleware.PermissionRequired("website", "update"), publicContentHandler.SavePrivacy)
-	admin.Get("/impressum", middleware.PermissionRequired("website", "read"), publicContentHandler.GetImpressum)
-	admin.Put("/impressum", middleware.PermissionRequired("website", "update"), publicContentHandler.SaveImpressum)
+		// Contact Management
+		{Method: fiber.MethodGet, Path: "/contacts", Resource: "contacts", Action: "read", HandlerKey: "contacts.list"},
+		{Method: fiber.MethodPut, Path: "/contacts/:id/status", Resource: "contacts", Action: "update", HandlerKey: "contacts.updateStatus"},
+		{Method: fiber.MethodDelete, Path: "/contacts/bulk", Resource: "contacts", Action: "delete", HandlerKey: "contacts.bulkDelete"},
+		{Method: fiber.MethodDelete, Path: "/contacts/:id", Resource: "contacts", Action: "delete", HandlerKey: "contacts.delete"},
 
-	// Website CMS
-	admin.Get("/website/pages", middleware.PermissionRequired("website", "read"), contentHandler.ListAdminPages)
-	admin.Get("/website/pages/:pageKey", middleware.PermissionRequired("website", "read"), contentHandler.GetPage)
-	admin.Put("/website/pages/:id", middleware.PermissionRequired("website", "update"), contentHandler.UpdatePageDraft)
-	admin.Post("/website/pages/:id/publish", middleware.PermissionRequired("website", "update"), contentHandler.PublishPage)
-	admin.Put("/website/pages/:pageId/sections/reorder", middleware.PermissionRequired("website", "update"), contentHandler.ReorderSections)
-	admin.Post("/website/pages/:pageId/sections", middleware.PermissionRequired("website", "update"), contentHandler.CreateSection)
-	admin.Put("/website/sections/:id", middleware.PermissionRequired("website", "update"), contentHandler.UpdateSectionDraft)
-	admin.Post("/website/sections/:id/archive", middleware.PermissionRequired("website", "update"), contentHandler.ArchiveSection)
-	admin.Post("/website/sections/:id/restore", middleware.PermissionRequired("website", "update"), contentHandler.RestoreSection)
-	admin.Post("/website/sections/:id/duplicate", middleware.PermissionRequired("website", "update"), contentHandler.DuplicateSection)
+		// Settings Management
+		{Method: fiber.MethodGet, Path: "/settings", Resource: "settings", Action: "read", HandlerKey: "settings.list"},
+		{Method: fiber.MethodPut, Path: "/settings", Resource: "settings", Action: "update", HandlerKey: "settings.update"},
+		{Method: fiber.MethodPost, Path: "/settings", Resource: "settings", Action: "create", HandlerKey: "settings.create"},
+		{Method: fiber.MethodGet, Path: "/event-alert", Resource: "settings", Action: "read", HandlerKey: "settings.eventAlert.get"},
+		{Method: fiber.MethodPut, Path: "/event-alert", Resource: "settings", Action: "update", HandlerKey: "settings.eventAlert.save"},
 
-	// RichText Migrations
-	admin.Post("/rich-text/migrations", middleware.PermissionRequired("website", "update"), richTextMigrationHandler.Migrate)
+		// Public Content Pages Management
+		{Method: fiber.MethodGet, Path: "/about", Resource: "website", Action: "read", HandlerKey: "website.about.get"},
+		{Method: fiber.MethodPut, Path: "/about", Resource: "website", Action: "update", HandlerKey: "website.about.save"},
+		{Method: fiber.MethodGet, Path: "/contact", Resource: "website", Action: "read", HandlerKey: "website.contact.get"},
+		{Method: fiber.MethodPut, Path: "/contact", Resource: "website", Action: "update", HandlerKey: "website.contact.save"},
+		{Method: fiber.MethodGet, Path: "/privacy", Resource: "website", Action: "read", HandlerKey: "website.privacy.get"},
+		{Method: fiber.MethodPut, Path: "/privacy", Resource: "website", Action: "update", HandlerKey: "website.privacy.save"},
+		{Method: fiber.MethodGet, Path: "/impressum", Resource: "website", Action: "read", HandlerKey: "website.impressum.get"},
+		{Method: fiber.MethodPut, Path: "/impressum", Resource: "website", Action: "update", HandlerKey: "website.impressum.save"},
 
-	// User Management
-	admin.Get("/users", middleware.PermissionRequired("users", "read"), userHandler.GetUsers)
-	admin.Get("/users/:id", middleware.PermissionRequired("users", "read"), userHandler.GetUser)
-	admin.Post("/users", middleware.PermissionRequired("users", "create"), userHandler.CreateUser)
-	admin.Put("/users/:id", middleware.PermissionRequired("users", "update"), userHandler.UpdateUser)
-	admin.Delete("/users/bulk", middleware.PermissionRequired("users", "delete"), userHandler.BulkDeleteUsers)
-	admin.Delete("/users/:id", middleware.PermissionRequired("users", "delete"), userHandler.DeleteUser)
+		// Website CMS
+		{Method: fiber.MethodGet, Path: "/website/pages", Resource: "website", Action: "read", HandlerKey: "cms.pages.list"},
+		{Method: fiber.MethodGet, Path: "/website/pages/:pageKey", Resource: "website", Action: "read", HandlerKey: "cms.pages.get"},
+		{Method: fiber.MethodPut, Path: "/website/pages/:id", Resource: "website", Action: "update", HandlerKey: "cms.pages.update"},
+		{Method: fiber.MethodPost, Path: "/website/pages/:id/publish", Resource: "website", Action: "update", HandlerKey: "cms.pages.publish"},
+		{Method: fiber.MethodPut, Path: "/website/pages/:pageId/sections/reorder", Resource: "website", Action: "update", HandlerKey: "cms.pages.reorder"},
+		{Method: fiber.MethodPost, Path: "/website/pages/:pageId/sections", Resource: "website", Action: "update", HandlerKey: "cms.sections.create"},
+		{Method: fiber.MethodPut, Path: "/website/sections/:id", Resource: "website", Action: "update", HandlerKey: "cms.sections.update"},
+		{Method: fiber.MethodPost, Path: "/website/sections/:id/archive", Resource: "website", Action: "update", HandlerKey: "cms.sections.archive"},
+		{Method: fiber.MethodPost, Path: "/website/sections/:id/restore", Resource: "website", Action: "update", HandlerKey: "cms.sections.restore"},
+		{Method: fiber.MethodPost, Path: "/website/sections/:id/duplicate", Resource: "website", Action: "update", HandlerKey: "cms.sections.duplicate"},
 
-	// Role Management (reuse "users" permission resource)
-	admin.Get("/roles", middleware.PermissionRequired("users", "read"), roleHandler.GetRoles)
-	admin.Get("/roles/:id", middleware.PermissionRequired("users", "read"), roleHandler.GetRole)
-	admin.Post("/roles", middleware.PermissionRequired("users", "create"), roleHandler.CreateRole)
-	admin.Put("/roles/:id", middleware.PermissionRequired("users", "update"), roleHandler.UpdateRole)
-	admin.Delete("/roles/bulk", middleware.PermissionRequired("users", "delete"), roleHandler.BulkDeleteRoles)
-	admin.Delete("/roles/:id", middleware.PermissionRequired("users", "delete"), roleHandler.DeleteRole)
+		// RichText Migrations
+		{Method: fiber.MethodPost, Path: "/rich-text/migrations", Resource: "website", Action: "update", HandlerKey: "richtext.migrate"},
+
+		// User Management
+		{Method: fiber.MethodGet, Path: "/users", Resource: "users", Action: "read", HandlerKey: "users.list"},
+		{Method: fiber.MethodGet, Path: "/users/:id", Resource: "users", Action: "read", HandlerKey: "users.get"},
+		{Method: fiber.MethodPost, Path: "/users", Resource: "users", Action: "create", HandlerKey: "users.create"},
+		{Method: fiber.MethodPut, Path: "/users/:id", Resource: "users", Action: "update", HandlerKey: "users.update"},
+		{Method: fiber.MethodDelete, Path: "/users/bulk", Resource: "users", Action: "delete", HandlerKey: "users.bulkDelete"},
+		{Method: fiber.MethodDelete, Path: "/users/:id", Resource: "users", Action: "delete", HandlerKey: "users.delete"},
+
+		// Role Management (reuse "users" permission resource)
+		{Method: fiber.MethodGet, Path: "/roles", Resource: "users", Action: "read", HandlerKey: "roles.list"},
+		{Method: fiber.MethodGet, Path: "/roles/:id", Resource: "users", Action: "read", HandlerKey: "roles.get"},
+		{Method: fiber.MethodPost, Path: "/roles", Resource: "users", Action: "create", HandlerKey: "roles.create"},
+		{Method: fiber.MethodPut, Path: "/roles/:id", Resource: "users", Action: "update", HandlerKey: "roles.update"},
+		{Method: fiber.MethodDelete, Path: "/roles/bulk", Resource: "users", Action: "delete", HandlerKey: "roles.bulkDelete"},
+		{Method: fiber.MethodDelete, Path: "/roles/:id", Resource: "users", Action: "delete", HandlerKey: "roles.delete"},
+	}
+}
+
+// adminHandlerMap resolves every Admin route handler key to the handler
+// function that backs it.
+func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service) map[string]fiber.Handler {
+	eventHandler := handlers.NewEventHandler(db)
+	monkHandler := handlers.NewMonkHandler(db)
+	galleryHandler := handlers.NewGalleryHandler(db)
+	scheduleHandler := handlers.NewScheduleHandler(db)
+	donationHandler := handlers.NewDonationHandler(db)
+	memberHandler := handlers.NewMemberHandler(db)
+	registrationHandler := handlers.NewRegistrationHandler(db)
+	contactHandler := handlers.NewContactHandler(db)
+	settingsHandler := handlers.NewSettingsHandler(db)
+	contentHandler := handlers.NewContentHandler(db)
+	uploadHandler := handlers.NewUploadHandler(db, r2)
+	mediaHandler := handlers.NewMediaHandler(db)
+	dashboardHandler := handlers.NewDashboardHandler(db)
+	userHandler := handlers.NewUserHandler(db)
+	roleHandler := handlers.NewRoleHandler(db)
+	auditHandler := handlers.NewAuditLogHandler(db)
+	richTextMigrationHandler := handlers.NewRichTextMigrationHandler(db)
+	publicContentHandler := handlers.NewPublicContentHandler(db)
+	eventAlertHandler := handlers.NewEventAlertHandler(db)
+
+	return map[string]fiber.Handler{
+		"dashboard.stats":               dashboardHandler.GetDashboardStats,
+		"audit.filterOptions":           auditHandler.GetFilterOptions,
+		"audit.list":                    auditHandler.GetAuditLogs,
+		"events.list":                   eventHandler.GetAdminEvents,
+		"events.get":                    eventHandler.GetEventByID,
+		"events.create":                 eventHandler.CreateEvent,
+		"events.update":                 eventHandler.UpdateEvent,
+		"events.bulkDelete":             eventHandler.BulkDeleteEvents,
+		"events.delete":                 eventHandler.DeleteEvent,
+		"monks.list":                    monkHandler.GetAdminMonks,
+		"monks.get":                     monkHandler.GetMonkByID,
+		"monks.create":                  monkHandler.CreateMonk,
+		"monks.update":                  monkHandler.UpdateMonk,
+		"monks.bulkDelete":              monkHandler.BulkDeleteMonks,
+		"monks.delete":                  monkHandler.DeleteMonk,
+		"gallery.list":                  galleryHandler.GetAdminGalleries,
+		"gallery.categories.list":       galleryHandler.GetAdminCategories,
+		"gallery.get":                   galleryHandler.GetGalleryByID,
+		"gallery.create":                galleryHandler.CreateGallery,
+		"gallery.update":                galleryHandler.UpdateGallery,
+		"gallery.bulkDelete":            galleryHandler.BulkDeleteGalleries,
+		"gallery.delete":                galleryHandler.DeleteGallery,
+		"gallery.categories.create":     galleryHandler.CreateCategory,
+		"gallery.categories.update":     galleryHandler.UpdateCategory,
+		"gallery.categories.bulkDelete": galleryHandler.BulkDeleteCategories,
+		"upload.create":                 uploadHandler.UploadFile,
+		"media.filterOptions":           mediaHandler.GetFilterOptions,
+		"media.list":                    mediaHandler.GetMedia,
+		"media.update":                  mediaHandler.UpdateMedia,
+		"media.delete":                  mediaHandler.DeleteMedia,
+		"schedules.list":                scheduleHandler.GetAdminSchedules,
+		"schedules.get":                 scheduleHandler.GetScheduleByID,
+		"schedules.create":              scheduleHandler.CreateSchedule,
+		"schedules.update":              scheduleHandler.UpdateSchedule,
+		"schedules.bulkDelete":          scheduleHandler.BulkDeleteSchedules,
+		"schedules.delete":              scheduleHandler.DeleteSchedule,
+		"donations.filterOptions":       donationHandler.GetFilterOptions,
+		"donations.stats":               donationHandler.GetDonationStats,
+		"donations.list":                donationHandler.GetDonations,
+		"donations.get":                 donationHandler.GetDonationByID,
+		"donations.update":              donationHandler.UpdateDonation,
+		"donations.bulkDelete":          donationHandler.BulkDeleteDonations,
+		"donations.delete":              donationHandler.DeleteDonation,
+		"donationCategories.list":       donationHandler.GetAdminDonationCategories,
+		"donationCategories.create":     donationHandler.CreateDonationCategory,
+		"donationCategories.update":     donationHandler.UpdateDonationCategory,
+		"donationCategories.bulkDelete": donationHandler.BulkDeleteDonationCategories,
+		"donationCategories.delete":     donationHandler.DeleteDonationCategory,
+		"members.list":                  memberHandler.GetMembers,
+		"members.get":                   memberHandler.GetMember,
+		"members.update":                memberHandler.UpdateMember,
+		"members.bulkDelete":            memberHandler.BulkDeleteMembers,
+		"registrations.list":            registrationHandler.GetRegistrations,
+		"registrations.updateStatus":    registrationHandler.UpdateRegistrationStatus,
+		"registrations.bulkDelete":      registrationHandler.BulkDeleteRegistrations,
+		"contacts.list":                 contactHandler.GetContacts,
+		"contacts.updateStatus":         contactHandler.UpdateContactStatus,
+		"contacts.bulkDelete":           contactHandler.BulkDeleteContacts,
+		"contacts.delete":               contactHandler.DeleteContact,
+		"settings.list":                 settingsHandler.GetAllSettings,
+		"settings.update":               settingsHandler.UpdateSettings,
+		"settings.create":               settingsHandler.UpsertSetting,
+		"settings.eventAlert.get":       eventAlertHandler.Get,
+		"settings.eventAlert.save":      eventAlertHandler.Save,
+		"website.about.get":             publicContentHandler.GetAbout,
+		"website.about.save":            publicContentHandler.SaveAbout,
+		"website.contact.get":           publicContentHandler.GetContact,
+		"website.contact.save":          publicContentHandler.SaveContact,
+		"website.privacy.get":           publicContentHandler.GetPrivacy,
+		"website.privacy.save":          publicContentHandler.SavePrivacy,
+		"website.impressum.get":         publicContentHandler.GetImpressum,
+		"website.impressum.save":        publicContentHandler.SaveImpressum,
+		"cms.pages.list":                contentHandler.ListAdminPages,
+		"cms.pages.get":                 contentHandler.GetPage,
+		"cms.pages.update":              contentHandler.UpdatePageDraft,
+		"cms.pages.publish":             contentHandler.PublishPage,
+		"cms.pages.reorder":             contentHandler.ReorderSections,
+		"cms.sections.create":           contentHandler.CreateSection,
+		"cms.sections.update":           contentHandler.UpdateSectionDraft,
+		"cms.sections.archive":          contentHandler.ArchiveSection,
+		"cms.sections.restore":          contentHandler.RestoreSection,
+		"cms.sections.duplicate":        contentHandler.DuplicateSection,
+		"richtext.migrate":              richTextMigrationHandler.Migrate,
+		"users.list":                    userHandler.GetUsers,
+		"users.get":                     userHandler.GetUser,
+		"users.create":                  userHandler.CreateUser,
+		"users.update":                  userHandler.UpdateUser,
+		"users.bulkDelete":              userHandler.BulkDeleteUsers,
+		"users.delete":                  userHandler.DeleteUser,
+		"roles.list":                    roleHandler.GetRoles,
+		"roles.get":                     roleHandler.GetRole,
+		"roles.create":                  roleHandler.CreateRole,
+		"roles.update":                  roleHandler.UpdateRole,
+		"roles.bulkDelete":              roleHandler.BulkDeleteRoles,
+		"roles.delete":                  roleHandler.DeleteRole,
+	}
 }
