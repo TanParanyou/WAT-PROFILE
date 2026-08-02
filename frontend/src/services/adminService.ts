@@ -1,4 +1,4 @@
-import api from "./api";
+import api from "./adminApi";
 import type { ApiResponse, PaginatedResponse } from "@/types/api";
 import type { AdminListParams } from "@/features/admin-list/types";
 import { serializeAdminListParams } from "@/features/admin-list/url";

@@ -2,6 +2,7 @@
 
 import React, { useEffect } from 'react';
 import { useRouter } from "@/navigation";
+import { useTranslations } from 'next-intl';
 import { useAuth } from '@/hooks/useAuth';
 import { PageLoading } from '@/components/ui/Loading';
 
@@ -15,6 +16,7 @@ interface AdminAuthGuardProps {
  */
 export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
     const { user, isLoading, isAuthenticated } = useAuth();
+    const t = useTranslations("Admin");
     const router = useRouter();
 
     useEffect(() => {
@@ -27,7 +29,7 @@ export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
     if (isLoading) {
         return (
             <div className="min-h-screen flex items-center justify-center bg-admin-canvas">
-                <PageLoading text="กำลังตรวจสอบสิทธิ์..." />
+                <PageLoading text={t("auth.checkingAccess")} />
             </div>
         );
     }

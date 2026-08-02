@@ -1,4 +1,4 @@
-import api from "./api";
+import api from "./adminApi";
 
 export type RichTextMigrationPayload = {
   resource: "event" | "monk" | "content_page";

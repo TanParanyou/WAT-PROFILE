@@ -7,6 +7,8 @@ import React, {
   useEffect,
   useCallback,
 } from "react";
+import adminAuthService from "@/services/adminAuthService";
+import { setAdminAuthLostHandler } from "@/services/adminAuthStore";
 import authService from "@/services/authService";
 import type { User, LoginRequest, UpdateProfileRequest } from "@/types/auth";
 
@@ -14,12 +16,12 @@ interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
+  sessionExpired: boolean;
   login: (data: LoginRequest) => Promise<void>;
-  logout: () => void;
+  logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   updateProfile: (data: UpdateProfileRequest) => Promise<User>;
 }
-
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
@@ -63,8 +65,9 @@ const mockAdminUser: User = {
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(skipAdminAuth ? mockAdminUser : null);
   const [isLoading, setIsLoading] = useState(!skipAdminAuth);
+  const [sessionExpired, setSessionExpired] = useState(false);
 
-  // โหลด user จาก token ตอนเริ่ม
+  // โหลด admin session จาก refresh credential ตอนเริ่ม
   const refreshUser = useCallback(async () => {
     if (skipAdminAuth) {
       setUser(mockAdminUser);
@@ -72,15 +75,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
 
     try {
-      if (typeof window !== "undefined" && authService.isAuthenticated()) {
-        const profile = await authService.getProfile();
-        setUser(profile);
-      } else {
-        setUser(null);
-      }
+      const result = await adminAuthService.refresh();
+      setSessionExpired(false);
+      setUser(result.user);
     } catch {
       setUser(null);
-      authService.logout();
     }
   }, []);
 
@@ -98,23 +97,35 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [refreshUser]);
 
+  useEffect(() => {
+    if (skipAdminAuth) return;
+
+    setAdminAuthLostHandler(() => {
+      setUser(null);
+      setSessionExpired(true);
+    });
+    return () => setAdminAuthLostHandler(null);
+  }, []);
+
   const login = async (data: LoginRequest) => {
     if (skipAdminAuth) {
       setUser(mockAdminUser);
       return;
     }
 
-    const result = await authService.login(data);
+    const result = await adminAuthService.login(data);
+    setSessionExpired(false);
     setUser(result.user);
   };
 
-  const logout = () => {
+  const logout = async () => {
     if (skipAdminAuth) {
       setUser(mockAdminUser);
       return;
     }
 
-    authService.logout();
+    await adminAuthService.logout();
+    setSessionExpired(false);
     setUser(null);
   };
 
@@ -143,6 +154,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         user,
         isLoading,
         isAuthenticated: !!user,
+        sessionExpired,
         login,
         logout,
         refreshUser,
@@ -152,7 +164,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
-
 }
 
 export function useAuthContext() {

@@ -1,4 +1,4 @@
-import api from "./api";
+import api from "./adminApi";
 import { publicApi } from "./publicService";
 import type { ApiResponse, PaginatedResponse } from "@/types/api";
 import type { AdminListParams } from "@/features/admin-list/types";
@@ -13,12 +13,7 @@ import type {
   ReorderContentSectionsRequest,
 } from "@/types/website-cms";
 import mockPages from "@/data/website-cms.json";
-import {
-  contentPageToPublishedPreview,
-  createSectionTemplate,
-  duplicateSectionTemplate,
-  reorderSectionsByIds,
-} from "@/utils/websiteCms";
+import { contentPageToPublishedPreview } from "@/utils/websiteCms";
 
 const useMockWebsiteCms = process.env.NEXT_PUBLIC_WEBSITE_CMS_SOURCE !== "api";
 const pages = mockPages as ContentPage[];
@@ -37,10 +32,6 @@ function unwrapApiResponse<T>(response: ApiResponse<T>, fallbackMessage: string)
 
 function clonePage(page: ContentPage) {
   return structuredClone(page);
-}
-
-function cloneSection(section: ContentSection) {
-  return structuredClone(section);
 }
 
 function normalizeSection(section: ContentSection): ContentSection {

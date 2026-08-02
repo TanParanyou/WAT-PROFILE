@@ -1,4 +1,4 @@
-import api from "./api";
+import api from "./adminApi";
 import type { ApiResponse } from "@/types/api";
 import type { Media, MediaMetadata } from "@/types/entities";
 import { createAdminService } from "./adminService";

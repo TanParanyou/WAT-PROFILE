@@ -78,6 +78,9 @@
       "en": "English",
       "de": "Deutsch"
     },
+    "auth": {
+      "checkingAccess": "Checking access..."
+    },
     "common": {
       "create": "Create",
       "edit": "Edit",
@@ -491,7 +494,8 @@
       "password": "Password",
       "submit": "Sign In",
       "invalidCredentials": "Invalid email or password",
-      "genericError": "An error occurred. Please try again"
+      "genericError": "An error occurred. Please try again",
+      "sessionExpired": "Session expired. Please sign in again"
     },
     "users": {
       "title": "Users",

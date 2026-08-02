@@ -2,10 +2,12 @@
 
 import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
+import axios from "axios";
 import { useRouter } from "@/navigation";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/hooks/useAuth";
+import type { ApiResponse } from "@/types/api";
 
 export default function AdminLoginPage() {
   const t = useTranslations("Admin");
@@ -13,7 +15,7 @@ export default function AdminLoginPage() {
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
   const [isLoading, setIsLoading] = useState(false);
-  const { login, isAuthenticated, isLoading: authLoading } = useAuth();
+  const { login, isAuthenticated, isLoading: authLoading, sessionExpired } = useAuth();
   const router = useRouter();
 
   // ถ้า login แล้ว redirect ไป dashboard
@@ -32,16 +34,13 @@ export default function AdminLoginPage() {
       await login({ email, password });
       router.push("/admin");
     } catch (err) {
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      const axiosError = err as any;
-      const status = axiosError?.response?.status;
-      const errData = axiosError?.response?.data;
-      const message = errData?.message || errData?.error;
-
-      if (status === 401) {
-        setError(t("login.invalidCredentials"));
-      } else if (message) {
-        setError(message);
+      if (axios.isAxiosError<ApiResponse<never>>(err)) {
+        const code = err.response?.data?.code;
+        if (code === "ADMIN_INVALID_CREDENTIALS") {
+          setError(t("login.invalidCredentials"));
+        } else {
+          setError(t("login.genericError"));
+        }
       } else {
         setError(t("login.genericError"));
       }
@@ -88,6 +87,12 @@ export default function AdminLoginPage() {
             {error && (
               <div className="bg-admin-danger-surface border border-admin-danger/20 text-admin-danger text-sm rounded-none px-4 py-3">
                 {error}
+              </div>
+            )}
+
+            {!error && sessionExpired && (
+              <div className="bg-admin-warning-surface border border-admin-warning/20 text-admin-warning text-sm rounded-none px-4 py-3">
+                {t("login.sessionExpired")}
               </div>
             )}
 

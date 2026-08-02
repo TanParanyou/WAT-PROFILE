@@ -78,6 +78,9 @@
       "en": "English",
       "de": "Deutsch"
     },
+    "auth": {
+      "checkingAccess": "กำลังตรวจสอบสิทธิ์..."
+    },
     "common": {
       "create": "สร้างใหม่",
       "edit": "แก้ไข",
@@ -491,7 +494,8 @@
       "password": "รหัสผ่าน",
       "submit": "เข้าสู่ระบบ",
       "invalidCredentials": "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
-      "genericError": "เกิดข้อผิดพลาด กรุณาลองใหม่"
+      "genericError": "เกิดข้อผิดพลาด กรุณาลองใหม่",
+      "sessionExpired": "เซสชันหมดอายุ กรุณาเข้าสู่ระบบอีกครั้ง"
     },
     "users": {
       "title": "ผู้ใช้งาน",

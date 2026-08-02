@@ -78,6 +78,9 @@
       "en": "English",
       "de": "Deutsch"
     },
+    "auth": {
+      "checkingAccess": "Zugriff wird geprüft..."
+    },
     "common": {
       "create": "Erstellen",
       "edit": "Bearbeiten",
@@ -491,7 +494,8 @@
       "password": "Passwort",
       "submit": "Anmelden",
       "invalidCredentials": "Ungültige E-Mail oder Passwort",
-      "genericError": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut"
+      "genericError": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut",
+      "sessionExpired": "Sitzung abgelaufen. Bitte melden Sie sich erneut an"
     },
     "users": {
       "title": "Benutzer",

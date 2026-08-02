@@ -1,12 +1,11 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { LogOut, User, Menu } from "lucide-react";
-import { Link } from "@/navigation";
+import { Link, useRouter } from "@/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useAdminLocale } from "@/hooks/useAdminLocale";
 import { useTranslations } from "next-intl";
-import { useLocale } from "next-intl";
 import { AdminThemeSwitcher } from "@/components/admin/theme/AdminThemeSwitcher";
 
 interface AdminHeaderProps {
@@ -16,12 +15,19 @@ interface AdminHeaderProps {
 export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
   const { user, logout } = useAuth();
   const { locale, changeLocale } = useAdminLocale();
-  const currentLocale = useLocale();
   const t = useTranslations("Admin.header");
+  const router = useRouter();
+  const [isLoggingOut, setIsLoggingOut] = useState(false);
 
-  const handleLogout = () => {
-    logout();
-    window.location.href = `/${currentLocale}/admin/login`;
+  const handleLogout = async () => {
+    if (isLoggingOut) return;
+    setIsLoggingOut(true);
+    try {
+      await logout();
+      router.push("/admin/login");
+    } finally {
+      setIsLoggingOut(false);
+    }
   };
 
   return (
@@ -94,7 +100,8 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
         {/* Logout */}
         <button
           onClick={handleLogout}
-          className="p-2 rounded-none hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus min-h-11 min-w-11 flex items-center justify-center"
+          disabled={isLoggingOut}
+          className="p-2 rounded-none hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus min-h-11 min-w-11 flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed"
           title={t("logout")}
         >
           <LogOut size={18} />

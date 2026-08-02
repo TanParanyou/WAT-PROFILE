@@ -1,6 +1,6 @@
 import { createAdminService } from "./adminService";
 import type { AuditLog } from "@/types/auditLog";
-import api from "./api";
+import api from "./adminApi";
 
 const baseAuditLogService = createAdminService<AuditLog>("audit-logs");
 

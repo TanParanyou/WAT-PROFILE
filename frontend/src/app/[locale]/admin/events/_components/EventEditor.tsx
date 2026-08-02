@@ -12,7 +12,7 @@ import { Switch } from "@/components/ui/Switch";
 import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/Loading";
 import { eventAdminService } from "@/services/adminService";
-import api from "@/services/api";
+import api from "@/services/adminApi";
 import { useToast } from "@/hooks/useToast";
 import { useApiError } from "@/hooks/useApiError";
 import type { MultiLangText } from "@/types/api";

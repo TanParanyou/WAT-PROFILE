@@ -10,7 +10,7 @@ import { Select } from "@/components/ui/Select";
 import { Switch } from "@/components/ui/Switch";
 import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/Loading";
-import api from "@/services/api";
+import api from "@/services/adminApi";
 import {
   galleryAdminService,
   galleryCategoryAdminService,

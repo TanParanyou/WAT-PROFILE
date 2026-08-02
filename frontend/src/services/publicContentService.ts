@@ -1,4 +1,4 @@
-import api from "./api";
+import api from "./adminApi";
 import { publicApi } from "./publicService";
 import type { ApiResponse } from "@/types/api";
 import type {
