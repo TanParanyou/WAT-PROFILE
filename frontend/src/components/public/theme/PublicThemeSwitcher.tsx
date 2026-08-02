@@ -1,12 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState, useSyncExternalStore } from "react";
+import { useEffect, useRef, useState } from "react";
 import { Check, ChevronDown, Monitor, Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
 import { useTranslations } from "next-intl";
 import { cn } from "@/utils/cn";
-
-type PublicThemeMode = "system" | "light" | "dark";
+import { usePublicTheme, type PublicThemeMode } from "./PublicThemeProvider";
 
 interface PublicThemeSwitcherProps {
   className?: string;
@@ -26,13 +24,8 @@ const modes: Array<{
 export function PublicThemeSwitcher({ className, variant = "compact" }: PublicThemeSwitcherProps) {
   const [isOpen, setIsOpen] = useState(false);
   const wrapperRef = useRef<HTMLDivElement>(null);
-  const { theme, setTheme } = useTheme();
+  const { theme, mounted, setTheme } = usePublicTheme();
   const t = useTranslations("Navbar");
-  const mounted = useSyncExternalStore(
-    () => () => undefined,
-    () => true,
-    () => false,
-  );
 
   useEffect(() => {
     if (!isOpen) return;

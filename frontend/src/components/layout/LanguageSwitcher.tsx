@@ -34,7 +34,7 @@ export function LanguageSwitcher() {
     <div className="relative" ref={dropdownRef}>
       <button
         onClick={() => setIsOpen(!isOpen)}
-        className="flex items-center gap-1.5 border border-site-border bg-site-canvas px-3 py-1.5 text-sm font-medium text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
+        className="flex min-h-11 items-center gap-1.5 border border-site-border bg-site-canvas px-3 py-0 text-sm font-medium text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
         aria-expanded={isOpen}
         aria-haspopup="true"
       >
