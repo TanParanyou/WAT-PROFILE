@@ -52,3 +52,7 @@ func (h *AdminSessionRefreshHistory) BeforeCreate(tx *gorm.DB) error {
 	}
 	return nil
 }
+
+func (h *AdminSessionRefreshHistory) TableName() string {
+	return "admin_session_refresh_history"
+}
