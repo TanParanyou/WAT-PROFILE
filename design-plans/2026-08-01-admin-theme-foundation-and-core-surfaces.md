@@ -1,24 +1,27 @@
 # Admin Theme Foundation and Core Surfaces Implementation Plan
 
-> **For implementation agents:** Execute this plan task-by-task in order. Steps use checkbox (`- [ ]`) syntax for tracking. Review the rendered Admin surface after every task.
+> **For implementation agents:** Execute this plan task-by-task in order. Steps use checkbox (`- [ ]`) syntax for tracking. Review every rendered Admin surface in explicit Light and Dark after each task; check System against both OS preferences at each completion gate.
 
-**Written against:** `83da51938331f04016590873f54c3d7b0776940a`
+**Written against:** `35f775ca81cf750d21dca1bba8d9d2f1f8c1cfe4`
 
-**Goal:** Give the Admin application one independently configurable semantic theme and migrate its shared shell, controls, tables, forms, and feedback surfaces without changing business behavior.
+**Goal:** Give the Admin application an independently configurable semantic theme with `System`, `Light`, and `Dark` modes, then migrate its shared shell, controls, tables, forms, and feedback surfaces without changing business behavior.
 
-**Architecture:** Add an `.admin-theme` seam at the Admin route layout and expose role-based Tailwind utilities through `@theme inline`. Shared UI owners consume those roles; route modules inherit them instead of naming Tailwind palette colors. The initial token values preserve the current neutral/amber appearance, so this is a maintainability migration rather than a visual redesign.
+**Architecture:** Wrap Admin routes with `AdminThemeProvider`, using the installed `next-themes` package to resolve and persist `system | light | dark` through `data-admin-theme` and storage key `wat-admin-theme`. `.admin-theme` remains the only Admin palette seam; light values live on `.admin-theme` and dark values override them through `[data-admin-theme="dark"] .admin-theme`. Role-based Tailwind utilities are exposed through `@theme inline`. Shared UI owners consume those roles instead of palette names, and no distributed `dark:` variants are introduced. Public routes and Website CMS preview remain governed by `.public-theme`.
 
-**Tech Stack:** Next.js 16 App Router, React 19, strict TypeScript, Tailwind CSS 4, next-intl, React Hook Form, TanStack Query.
+**Tech Stack:** Next.js 16 App Router, React 19, strict TypeScript, Tailwind CSS 4, next-themes, next-intl, React Hook Form, TanStack Query.
 
 ## Global Constraints
 
 - Preserve Admin API, permission, route, query, DTO, form, and mutation behavior.
 - Keep Admin theme ownership independent from `.public-theme`.
+- Implement exactly three Admin preferences: `system`, `light`, and `dark`; default to `system` and persist to `wat-admin-theme`.
+- Use `data-admin-theme` for Admin theme resolution. Do not add a global `.dark` owner or distributed `dark:` utilities.
+- Follow `docs/superpowers/specs/2026-08-02-admin-dark-theme-design.md` as the approved behavior contract.
 - Preserve `th`, `en`, and `de`; do not add hard-coded user-facing copy.
 - Do not add dependencies.
 - Do not use `any`, `as any`, `@ts-ignore`, or native `alert()`.
 - Keep current component interfaces unless a task explicitly defines an additive variant.
-- Use semantic roles in Admin TSX; do not use raw hex values or palette names such as `gray-*`, `zinc-*`, or `amber-*` for structural UI.
+- Use semantic roles in Admin TSX; do not use raw hex values or palette names such as `gray-*`, `zinc-*`, `slate-*`, `amber-*`, `red-*`, `green-*`, `blue-*`, or `cyan-*` for structural UI.
 - Status colors are consumed through `admin-success`, `admin-warning`, `admin-danger`, and `admin-info` roles.
 - Portals must carry `.admin-theme`; CSS variables scoped to the route wrapper do not inherit through `createPortal(..., document.body)`.
 - Preserve existing user changes. At plan creation, uncommitted changes overlap `DataTable`, `DateRangePicker`, Admin list filters, and several Admin pages; inspect and rebase those diffs before editing.
@@ -52,6 +55,9 @@ Create the `.admin-theme` seam and a source guard first. It has the highest leve
 
 - `frontend/src/app/globals.css`: Tailwind semantic role registration and `.admin-theme` values.
 - `frontend/src/app/[locale]/admin/layout.tsx`: Admin theme boundary, including Login.
+- `frontend/src/components/admin/theme/AdminThemeProvider.tsx`: Admin-only `next-themes` configuration.
+- `frontend/src/components/admin/theme/AdminThemeSwitcher.tsx`: localized System/Light/Dark control.
+- `frontend/src/messages/admin/{th,en,de}.json`: theme switcher copy.
 - `frontend/ADMIN_DESIGN.md`: Admin-only visual contract and token usage rules.
 - `frontend/AGENTS.md`: Route Admin UI work to `ADMIN_DESIGN.md`.
 - `frontend/scripts/check-admin-theme-tokens.mjs`: Migration guard against structural palette literals.
@@ -67,6 +73,7 @@ Create the `.admin-theme` seam and a source guard first. It has the highest leve
 
 - Create: `frontend/ADMIN_DESIGN.md`
 - Create: `frontend/scripts/check-admin-theme-tokens.mjs`
+- Create: `frontend/src/components/admin/theme/AdminThemeProvider.tsx`
 - Modify: `frontend/src/app/globals.css`
 - Modify: `frontend/src/app/[locale]/admin/layout.tsx`
 - Modify: `frontend/AGENTS.md`
@@ -90,6 +97,11 @@ Public preview content remains governed by the repository-root `DESIGN.md`.
 
 ## Theme seam
 - `.admin-theme` in `src/app/globals.css` is the only Admin palette owner.
+- Admin supports `system`, `light`, and `dark`; `next-themes` resolves them through
+  `data-admin-theme` and stores the preference as `wat-admin-theme`.
+- Light tokens live on `.admin-theme`; dark values override the same roles through
+  `[data-admin-theme="dark"] .admin-theme`.
+- Do not use global `.dark` ownership or distributed `dark:` utilities.
 - TSX consumes role utilities (`bg-admin-surface`, `text-admin-foreground`,
   `border-admin-border`, `bg-admin-action`) rather than palette utilities.
 - Structural UI does not use raw hex, `gray-*`, `zinc-*`, or `amber-*` classes.
@@ -138,10 +150,11 @@ Add a separate inline theme block in `globals.css`:
 }
 ```
 
-Define `.admin-theme` using current Tailwind variables so the migration preserves today's appearance:
+Define `.admin-theme` using current Tailwind variables so Light mode preserves today's appearance:
 
 ```css
 .admin-theme {
+    color-scheme: light;
     --admin-canvas: var(--color-gray-50);
     --admin-surface: var(--color-white);
     --admin-surface-muted: var(--color-gray-100);
@@ -168,21 +181,74 @@ Define `.admin-theme` using current Tailwind variables so the migration preserve
     background: var(--admin-canvas);
     color: var(--admin-foreground);
 }
+
+[data-admin-theme="dark"] .admin-theme {
+    color-scheme: dark;
+    --admin-canvas: var(--color-zinc-950);
+    --admin-surface: var(--color-zinc-900);
+    --admin-surface-muted: var(--color-zinc-800);
+    --admin-foreground: var(--color-zinc-50);
+    --admin-body: var(--color-zinc-200);
+    --admin-muted: var(--color-zinc-400);
+    --admin-border: var(--color-zinc-800);
+    --admin-control-border: var(--color-zinc-700);
+    --admin-action: var(--color-amber-500);
+    --admin-action-hover: var(--color-amber-400);
+    --admin-on-action: var(--color-zinc-950);
+    --admin-selected: var(--color-amber-950);
+    --admin-selected-foreground: var(--color-amber-300);
+    --admin-focus: var(--color-amber-400);
+    --admin-success: var(--color-green-300);
+    --admin-success-surface: var(--color-green-950);
+    --admin-warning: var(--color-amber-300);
+    --admin-warning-surface: var(--color-amber-950);
+    --admin-danger: var(--color-red-300);
+    --admin-danger-surface: var(--color-red-950);
+    --admin-info: var(--color-blue-300);
+    --admin-info-surface: var(--color-blue-950);
+}
 ```
 
-- [ ] **Step 3: Apply the theme to authenticated and login routes**
+- [ ] **Step 3: Add the Admin-only theme provider**
 
-Wrap both return branches in `admin/layout.tsx` with:
+Create `AdminThemeProvider.tsx`:
 
 ```tsx
-<div className="admin-theme min-h-screen bg-admin-canvas text-admin-foreground">
-  {/* existing providers and route content */}
-</div>
+"use client";
+
+import { ThemeProvider } from "next-themes";
+import type { ReactNode } from "react";
+
+export function AdminThemeProvider({ children }: { children: ReactNode }) {
+  return (
+    <ThemeProvider
+      attribute="data-admin-theme"
+      defaultTheme="system"
+      enableSystem
+      storageKey="wat-admin-theme"
+      disableTransitionOnChange
+    >
+      {children}
+    </ThemeProvider>
+  );
+}
+```
+
+- [ ] **Step 4: Apply the provider and theme to authenticated and login routes**
+
+Wrap both return branches in `admin/layout.tsx` with the provider outside the semantic boundary:
+
+```tsx
+<AdminThemeProvider>
+  <div className="admin-theme min-h-screen bg-admin-canvas text-admin-foreground">
+    {/* existing providers and route content */}
+  </div>
+</AdminThemeProvider>
 ```
 
 Do not attach `.admin-theme` to `<body>` because public and Admin routes share the locale layout.
 
-- [ ] **Step 4: Add a migration guard**
+- [ ] **Step 5: Add a migration guard**
 
 Create `scripts/check-admin-theme-tokens.mjs`:
 
@@ -195,8 +261,9 @@ const deferred = new Set([
   "src/app/[locale]/admin/website",
   "src/components/admin/website",
 ]);
-const forbiddenPalette = /(?:bg|text|border|divide|outline|ring)-(?:(?:white|black)(?:\/[0-9]{1,3})?|(?:gray|zinc|slate|amber)-(?:[0-9]{2,3})(?:\/[0-9]{1,3})?)|#[0-9a-fA-F]{3,8}/g;
+const forbiddenPalette = /(?:bg|text|border|divide|outline|ring)-(?:(?:white|black)(?:\/[0-9]{1,3})?|(?:gray|zinc|slate|amber|red|green|blue|cyan)-(?:[0-9]{2,3})(?:\/[0-9]{1,3})?)|#[0-9a-fA-F]{3,8}/g;
 const forbiddenPublicTheme = /(?:bg|text|border|divide|outline|ring)-site-[a-z-]+(?:\/[0-9]{1,3})?/g;
+const forbiddenDarkVariant = /\bdark:[^\s"'`]+/g;
 const publicPreviewOwners = new Set([
   "src/components/admin/website/DevicePreviewFrame.tsx",
   "src/components/admin/website/WebsitePreviewPanel.tsx",
@@ -215,7 +282,8 @@ async function visit(path) {
       const publicMatches = publicPreviewOwners.has(child)
         ? []
         : (line.match(forbiddenPublicTheme) ?? []);
-      const violations = [...matches, ...publicMatches];
+      const darkMatches = line.match(forbiddenDarkVariant) ?? [];
+      const violations = [...matches, ...publicMatches, ...darkMatches];
       if (violations.length > 0) {
         findings.push(`${child}:${index + 1}: ${violations.join(", ")}`);
       }
@@ -232,9 +300,9 @@ if (findings.length > 0) {
 }
 ```
 
-Add `"lint:admin-theme": "node scripts/check-admin-theme-tokens.mjs"` to `package.json`. Keep the script failing until Task 6 completes; use its decreasing finding count as the migration measure. The two Website CMS directories remain explicitly deferred until the companion plan removes those entries.
+Add `"lint:admin-theme": "node scripts/check-admin-theme-tokens.mjs"` to `package.json`. Keep the script failing until Task 7 completes; use its decreasing finding count as the migration measure. The two Website CMS directories remain explicitly deferred until the companion plan removes those entries.
 
-- [ ] **Step 5: Verify the seam compiles**
+- [ ] **Step 6: Verify the seam compiles**
 
 Run:
 
@@ -244,18 +312,74 @@ cd frontend
 npm run build
 ```
 
-Expected: both commands exit `0`; compiled Admin utilities refer directly to `var(--admin-*)`.
+Expected: both commands exit `0`; compiled Admin utilities refer directly to `var(--admin-*)`. Manually force `data-admin-theme="light"` and `data-admin-theme="dark"` in DevTools and confirm canvas, text, controls, focus, and status roles resolve without changing Public pages.
 
-- [ ] **Step 6: Commit the foundation**
+- [ ] **Step 7: Commit the foundation**
 
 ```bash
-git add frontend/ADMIN_DESIGN.md frontend/AGENTS.md frontend/package.json frontend/scripts/check-admin-theme-tokens.mjs frontend/src/app/globals.css 'frontend/src/app/[locale]/admin/layout.tsx'
+git add frontend/ADMIN_DESIGN.md frontend/AGENTS.md frontend/package.json frontend/scripts/check-admin-theme-tokens.mjs frontend/src/app/globals.css 'frontend/src/app/[locale]/admin/layout.tsx' frontend/src/components/admin/theme/AdminThemeProvider.tsx
 git commit -m "refactor(admin): establish semantic theme seam"
 ```
 
 ---
 
-### Task 2: Migrate shared controls
+### Task 2: Add the localized Admin theme switcher
+
+**Files:**
+
+- Create: `frontend/src/components/admin/theme/AdminThemeSwitcher.tsx`
+- Modify: `frontend/src/components/admin/AdminHeader.tsx`
+- Modify: `frontend/src/messages/admin/th.json`
+- Modify: `frontend/src/messages/admin/en.json`
+- Modify: `frontend/src/messages/admin/de.json`
+
+**Interfaces:**
+
+```ts
+type AdminThemeMode = "system" | "light" | "dark";
+
+interface AdminThemeSwitcherProps {
+  className?: string;
+}
+```
+
+- [ ] **Step 1: Add complete localized labels**
+
+Add keys under `Admin.header`: `theme`, `themeSystem`, `themeLight`, and `themeDark` in all three locale files. Use `ธีม / ตามระบบ / สว่าง / มืด`, `Theme / System / Light / Dark`, and `Design / System / Hell / Dunkel` respectively.
+
+- [ ] **Step 2: Build an accessible three-state control**
+
+Use `useTheme()` from `next-themes`, `Monitor`, `Sun`, and `Moon` icons, and a mounted guard because the persisted client preference is unavailable during server rendering. Render three buttons with localized accessible names, `aria-pressed={theme === mode}`, a minimum 44px target, and semantic `admin-*` utilities only. Calling `setTheme(mode)` is the only state change; do not add Zustand, API persistence, or route query parameters.
+
+The control must expose the saved preference (`theme`), not `resolvedTheme`, so users can see that `System` remains selected while the OS resolves to Light or Dark. `resolvedTheme` may be used only for descriptive text or an icon if needed.
+
+- [ ] **Step 3: Place it in AdminHeader**
+
+Place the switcher near the locale/user controls. Preserve mobile layout, locale switching, logout, and keyboard order. During the mounted guard, render a fixed-size neutral placeholder so hydration does not shift the header.
+
+- [ ] **Step 4: Verify theme behavior**
+
+Verify all of the following on `/th/admin`, `/en/admin`, and `/de/admin`:
+
+- Explicit Light and Dark update immediately.
+- System follows both OS Light and OS Dark changes.
+- Reload and a new Admin tab preserve `wat-admin-theme`.
+- Login and authenticated routes resolve the same preference.
+- Public routes do not render `.admin-theme` or Admin colors. A document-level `data-admin-theme` left during client navigation is harmless because Admin variables exist only below `.admin-theme`; verify there is no visual leakage.
+- Keyboard focus, pressed state, and localized accessible names are visible and correct.
+
+Run scoped ESLint, `./node_modules/.bin/tsc --noEmit`, and `npm run build`.
+
+- [ ] **Step 5: Commit the switcher**
+
+```bash
+git add frontend/src/components/admin/theme/AdminThemeSwitcher.tsx frontend/src/components/admin/AdminHeader.tsx frontend/src/messages/admin
+git commit -m "feat(admin): add system light and dark themes"
+```
+
+---
+
+### Task 3: Migrate shared controls
 
 **Files:**
 
@@ -319,7 +443,7 @@ npx eslint src/components/ui/Button.tsx src/components/ui/Input.tsx src/componen
 ./node_modules/.bin/tsc --noEmit
 ```
 
-Expected: no errors in touched files; type-check exits `0`.
+Expected: no errors in touched files; type-check exits `0`. Render default, hover, focus, disabled, invalid, checked, and loading states in explicit Light and Dark; text, icons, borders, and focus indicators must retain readable contrast.
 
 - [ ] **Step 5: Commit controls**
 
@@ -330,7 +454,7 @@ git commit -m "refactor(admin): migrate shared controls to theme roles"
 
 ---
 
-### Task 3: Migrate the Admin shell and navigation
+### Task 4: Migrate the Admin shell and navigation
 
 **Files:**
 
@@ -379,7 +503,7 @@ Manual matrix:
 - Mobile open/close Sidebar
 - Active navigation, language switch, logout, error page
 
-Run scoped ESLint and `./node_modules/.bin/tsc --noEmit`.
+Repeat the matrix in explicit Light and Dark, then check one representative route in System/OS Light and System/OS Dark. Run scoped ESLint and `./node_modules/.bin/tsc --noEmit`.
 
 - [ ] **Step 5: Commit shell migration**
 
@@ -390,7 +514,7 @@ git commit -m "refactor(admin): theme application shell"
 
 ---
 
-### Task 4: Migrate list and table owners
+### Task 5: Migrate list and table owners
 
 **Files:**
 
@@ -424,7 +548,7 @@ Filters delegate to shared field roles. Active chips use selected roles; destruc
 
 - [ ] **Step 4: Verify a representative list set**
 
-Test Events, Registrations, Donations, Members, Contacts, and Audit Logs at desktop and 375px. Exercise search, filters, sorting, page-size, pagination, row selection, bulk action confirmation, loading, empty, and error states.
+Test Events, Registrations, Donations, Members, Contacts, and Audit Logs at desktop and 375px in explicit Light and Dark. Exercise search, filters, sorting, page-size, pagination, row selection, bulk action confirmation, loading, empty, and error states.
 
 - [ ] **Step 5: Commit list owners**
 
@@ -435,7 +559,7 @@ git commit -m "refactor(admin): theme list and table owners"
 
 ---
 
-### Task 5: Migrate form, feedback, and overlay owners
+### Task 6: Migrate form, feedback, and overlay owners
 
 **Files:**
 
@@ -499,7 +623,7 @@ Keep text labels; color must not be the only status signal.
 
 - [ ] **Step 5: Verify form and overlay states**
 
-Test create/edit forms for Events, Monks, and Users; open modal, drawer, media picker, validation errors, toast types, dirty state, save loading, and delete confirmation.
+Test create/edit forms for Events, Monks, and Users in explicit Light and Dark; open modal, drawer, media picker, validation errors, toast types, dirty state, save loading, and delete confirmation. Confirm portaled surfaces change with the Admin preference and never fall back to Light tokens while the page is Dark.
 
 - [ ] **Step 6: Commit form and feedback owners**
 
@@ -510,7 +634,7 @@ git commit -m "refactor(admin): theme form and feedback owners"
 
 ---
 
-### Task 6: Migrate core Admin route consumers and close the guard
+### Task 7: Migrate core Admin route consumers and close the guard
 
 **Files:**
 
@@ -521,7 +645,7 @@ git commit -m "refactor(admin): theme form and feedback owners"
 
 **Interfaces:**
 
-- Consume Tasks 1–5 semantic owners.
+- Consume Tasks 1–6 semantic owners.
 - Preserve every route's data, permissions, mutations, translations, and navigation.
 - Produce zero structural palette violations in the core Admin scope.
 
@@ -566,11 +690,13 @@ Expected: scoped lint has no new errors; TypeScript and build exit `0`. If full-
 Manual matrix:
 
 - Locales: `th`, `en`, `de`.
+- Theme preferences: explicit Light, explicit Dark, System with OS Light, System with OS Dark, and reload persistence.
 - Widths: `375`, `768`, `1440`.
 - Shell: login, expanded/collapsed Sidebar, mobile navigation.
 - Lists: loading, empty, data, error, sort, filter, pagination, selection.
 - Forms: create, edit loading, validation, dirty, save, delete confirmation.
 - Feedback: success, warning, danger, info, modal, drawer, toast.
+- Accessibility: WCAG AA contrast for body text and controls, visible keyboard focus, and non-color status cues in both palettes.
 
 - [ ] **Step 5: Commit route migration**
 
@@ -582,6 +708,8 @@ git commit -m "refactor(admin): complete core theme migration"
 ## Completion Gate
 
 - `.admin-theme` is the only Admin palette seam.
+- Admin offers localized `System`, `Light`, and `Dark` preferences and persists the selection as `wat-admin-theme`.
+- Dark mode is expressed by semantic token overrides; migrated Admin TSX contains no structural `dark:` utilities.
 - Public pages and Admin pages can change palettes independently.
 - Shared primitives express all structural, action, focus, and status states.
 - `npm run lint:admin-theme`, scoped ESLint, type-check, and production build pass.

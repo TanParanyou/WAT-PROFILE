@@ -1,21 +1,23 @@
 # Admin Website CMS Theme Migration Implementation Plan
 
-> **For implementation agents:** Complete `design-plans/2026-08-01-admin-theme-foundation-and-core-surfaces.md` first. Execute one task at a time and verify both editor chrome and embedded Public preview at each checkpoint.
+> **For implementation agents:** Complete `design-plans/2026-08-01-admin-theme-foundation-and-core-surfaces.md` first. Execute one task at a time and verify editor chrome in explicit Light, explicit Dark, and System mode while checking the embedded Public preview at each checkpoint.
 
-**Written against:** `83da51938331f04016590873f54c3d7b0776940a`
+**Written against:** `35f775ca81cf750d21dca1bba8d9d2f1f8c1cfe4`
 
-**Goal:** Migrate Website CMS editor chrome to the Admin semantic theme while keeping its embedded Public preview governed exclusively by the Public theme.
+**Goal:** Migrate Website CMS editor chrome to the Admin semantic theme so it follows the selected `System`, `Light`, or `Dark` Admin preference, while keeping its embedded Public preview governed exclusively by the current Public theme.
 
-**Architecture:** Website CMS consumes the shared Admin shell, controls, feedback, and status roles established by the foundation plan. `DevicePreviewFrame` becomes the explicit seam between Admin chrome and Public preview: the frame uses `admin-*`; rendered preview content is wrapped in `.public-theme` and uses `site-*`. Editor state, DTOs, preview draft mapping, and API behavior remain unchanged.
+**Architecture:** Website CMS consumes the shared Admin shell, controls, feedback, and status roles established by the foundation plan, so editor chrome automatically resolves the Admin `data-admin-theme`. `DevicePreviewFrame` is the explicit seam between Admin chrome and Public preview: the frame uses `admin-*`; rendered preview content is wrapped in `.public-theme` and uses `site-*`. Admin Dark mode must not recolor the preview, and this plan does not add a Public Dark mode or preview theme selector. Editor state, DTOs, preview draft mapping, and API behavior remain unchanged.
 
-**Tech Stack:** Next.js 16 App Router, React 19, strict TypeScript, Tailwind CSS 4, next-intl, React Hook Form, Zod, Zustand, TanStack Query.
+**Tech Stack:** Next.js 16 App Router, React 19, strict TypeScript, Tailwind CSS 4, next-themes, next-intl, React Hook Form, Zod, Zustand, TanStack Query.
 
 ## Global Constraints
 
 - Complete the Admin foundation plan first.
 - Preserve Website CMS API, schemas, stores, preview draft logic, permissions, save, publish, archive, restore, duplicate, and reorder behavior.
 - Admin editor chrome uses only semantic `admin-*` theme utilities.
+- Editor chrome must be legible in explicit Light, explicit Dark, System/OS Light, and System/OS Dark without local `dark:` utilities.
 - Public preview content uses `.public-theme` plus `site-*` utilities; never map Public preview to Admin colors.
+- The Public preview remains the current Public theme in every Admin mode; do not add a Public Dark option as part of this migration.
 - Preserve `th`, `en`, and `de` behavior and messages.
 - Do not add dependencies.
 - Do not introduce or expand `any`, `as any`, `@ts-ignore`, hard-coded user-facing copy, or direct HTTP calls.
@@ -32,7 +34,7 @@
 - **Design sources:** `frontend/ADMIN_DESIGN.md` produced by the foundation plan, repository `DESIGN.md` for Public preview, `frontend/AGENTS.md`, and `.agents/skills/website-cms-frontend/SKILL.md` at execution time.
 - **Documented decisions:** Admin chrome is task-focused; Public preview must accurately reflect the Public site; CMS data and editor state retain their existing owners.
 - **Governing owners and consumers:** `WebsitePageEditorShell`, `WebsiteEditorToolbar`, `WebsiteEditorTabs`, Website section editors, `WebsitePreviewPanel`, and `DevicePreviewFrame`.
-- **Explicit exceptions:** Public preview pixels inside `DevicePreviewFrame` intentionally do not inherit Admin theme values.
+- **Explicit exceptions:** Public preview pixels inside `DevicePreviewFrame` intentionally do not inherit Admin theme values, including when Admin resolves to Dark.
 
 ### Findings
 
@@ -100,7 +102,7 @@ The preview submit control uses `bg-site-action text-site-on-action`. Do not use
 
 - [ ] **Step 4: Verify the boundary**
 
-Inspect Home, About, Contact, and one generic page in draft and published mode at mobile, tablet, and desktop preview sizes. Confirm editor chrome changes with `.admin-theme`; preview colors still match the real Public route.
+Inspect Home, About, Contact, and one generic page in draft and published mode at mobile, tablet, and desktop preview sizes. Repeat in explicit Admin Light and Dark. Confirm frame chrome changes with Admin tokens while preview colors remain unchanged and still match the real Public route. Also verify System once with OS Light and once with OS Dark.
 
 Run:
 
@@ -159,7 +161,7 @@ Back uses ghost, View Public uses outline, Publish uses primary. All retain load
 
 - [ ] **Step 4: Verify workspace states**
 
-Exercise content/SEO/settings/advanced tabs; three locales; draft/published; mobile/tablet/desktop preview; unsaved, saving, saved, publishing, published, and error states.
+Exercise content/SEO/settings/advanced tabs; three locales; draft/published; mobile/tablet/desktop preview; unsaved, saving, saved, publishing, published, and error states in explicit Admin Light and Dark. Check System against OS Light and Dark at least once. The preview pixels must not change when only the Admin preference changes.
 
 - [ ] **Step 5: Commit workspace chrome**
 
@@ -220,6 +222,8 @@ Manual matrix:
 - Save page, save section, publish, create, reorder, duplicate, archive, restore.
 - Dirty guard on tab, locale, section, and route change.
 - Thai, English, German fields and preview.
+- Explicit Admin Light and Dark for every editor family; System with OS Light and Dark on one representative editor.
+- Switch Admin modes while previewing the same draft and confirm preview canvas, foreground, border, action, and image overlays remain identical.
 
 - [ ] **Step 6: Commit CMS consumers**
 
@@ -276,7 +280,7 @@ Expected: theme guard and build exit `0`; scoped lint/type-check introduce no ne
 
 - [ ] **Step 4: Compare preview with real Public pages**
 
-For Home, About, Contact, and one generic page, compare CMS draft preview against the corresponding Public route at `390`, `760`, and `1120` preview widths. Verify canvas, foreground, surface, border, action, accent, and image-header contrast.
+For Home, About, Contact, and one generic page, compare CMS draft preview against the corresponding Public route at `390`, `760`, and `1120` preview widths. Run the comparison once with Admin Light and once with Admin Dark. Verify canvas, foreground, surface, border, action, accent, and image-header contrast are identical across Admin modes.
 
 - [ ] **Step 5: Commit migration completion**
 
@@ -288,7 +292,9 @@ git commit -m "chore(cms): enforce admin theme boundary"
 ## Completion Gate
 
 - Website CMS chrome uses Admin semantic roles exclusively.
+- Website CMS chrome follows explicit Light, explicit Dark, and System-resolved Admin themes without local `dark:` utilities.
 - Embedded Public preview resolves `.public-theme` independently and visually matches real Public routes.
+- Changing the Admin preference never recolors the embedded Public preview.
 - No editor behavior, API contract, permission, locale, save, publish, or section lifecycle changed.
 - Admin theme guard covers core Admin and Website CMS.
 - Scoped lint, type-check, production build, and manual preview matrix are complete.

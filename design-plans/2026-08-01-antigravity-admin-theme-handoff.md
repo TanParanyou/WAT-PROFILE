@@ -16,6 +16,7 @@ Before editing, read completely:
 - frontend/AGENTS.md
 - frontend/ADMIN_DESIGN.md if it already exists
 - DESIGN.md for the Public preview boundary
+- docs/superpowers/specs/2026-08-02-admin-dark-theme-design.md
 - .agents/skills/building-admin-forms/SKILL.md
 - both implementation plans above
 
@@ -38,12 +39,18 @@ classes in migrated Admin TSX.
 
 Critical architecture rules:
 - .admin-theme is the only Admin palette seam.
+- Admin supports exactly System, Light, and Dark; default to System and persist the
+  preference with next-themes under wat-admin-theme.
+- AdminThemeProvider resolves the preference through data-admin-theme. Light tokens
+  live on .admin-theme and Dark overrides the same semantic roles in globals.css.
+- Do not add a global .dark owner or distribute dark: utilities through Admin TSX.
 - Admin components consume role-based admin-* utilities.
 - .public-theme and site-* remain the Public website owners.
 - Modal and Drawer portals must carry .admin-theme because they render under body.
 - Website CMS editor chrome uses Admin theme roles.
 - Website CMS preview content is wrapped by .public-theme and must visually match
-  the real Public route; never apply Admin colors to preview content.
+  the real Public route in every Admin mode; never apply Admin colors to preview
+  content and do not add Public Dark mode in this migration.
 - Keep Thai, English, and German complete.
 - Preserve loading, empty, error, selected, disabled, focus, dirty, saving, publishing,
   confirmation, and permission states.
@@ -59,13 +66,14 @@ At completion, return a report containing:
 5. manual routes/viewports/states verified;
 6. remaining pre-existing failures or blockers;
 7. confirmation that Public and Admin themes can be changed independently.
+8. confirmation that System follows OS Light/Dark and the preference survives reload.
 ```
 
 ## Mission
 
-Create a maintainable Admin design-system seam comparable to the existing Public theme system, while keeping the two products visually and technically independent.
+Create a maintainable Admin design-system seam with persisted `System`, `Light`, and `Dark` modes, while keeping Admin and Public visually and technically independent.
 
-This is a maintainability migration first. Initial Admin token values preserve the current neutral and amber appearance. A future Admin redesign should require changing `.admin-theme` values and shared variants rather than editing route modules.
+This is a maintainability migration first. Light mode preserves the current neutral and amber appearance; Dark mode uses the approved semantic overrides. A future Admin redesign should require changing `.admin-theme` values and shared variants rather than editing route modules.
 
 ## Required reading order
 
@@ -73,8 +81,9 @@ This is a maintainability migration first. Initial Admin token values preserve t
 2. `frontend/AGENTS.md` — frontend architecture and localization rules.
 3. `.agents/skills/building-admin-forms/SKILL.md` — Admin form interaction contract.
 4. `DESIGN.md` — Public theme contract, needed for CMS preview separation.
-5. `design-plans/2026-08-01-admin-theme-foundation-and-core-surfaces.md`.
-6. `design-plans/2026-08-01-admin-website-cms-theme-migration.md`.
+5. `docs/superpowers/specs/2026-08-02-admin-dark-theme-design.md` — approved theme behavior.
+6. `design-plans/2026-08-01-admin-theme-foundation-and-core-surfaces.md`.
+7. `design-plans/2026-08-01-admin-website-cms-theme-migration.md`.
 
 If `frontend/ADMIN_DESIGN.md` exists when execution starts, read it after `frontend/AGENTS.md`; Task 1 creates it otherwise.
 
@@ -92,14 +101,15 @@ Known overlap at handoff time includes Admin list pages, list filters, media pic
 
 ### Phase 1: Admin foundation and core surfaces
 
-Execute Tasks 1–6 in the foundation plan:
+Execute Tasks 1–7 in the foundation plan:
 
 1. Theme seam and migration guard.
-2. Shared controls.
-3. Admin shell and navigation.
-4. List and table owners.
-5. Form, feedback, and overlay owners.
-6. Core Admin route consumers and closing the core guard.
+2. Localized System/Light/Dark switcher.
+3. Shared controls.
+4. Admin shell and navigation.
+5. List and table owners.
+6. Form, feedback, and overlay owners.
+7. Core Admin route consumers and closing the core guard.
 
 Do not start Phase 2 until all foundation completion-gate items pass.
 
@@ -122,6 +132,8 @@ Execute Tasks 1–4 in the CMS plan:
 | Website CMS embedded preview | `.public-theme` | `site-*` |
 
 - `globals.css` owns values; TSX owns semantic roles only.
+- `AdminThemeProvider` owns Admin preference resolution through `data-admin-theme`; `wat-admin-theme` is the only persistence key.
+- Admin TSX must not use structural `dark:` variants; both palettes come from semantic tokens.
 - Shared primitives own control states; routes compose them.
 - Semantic status roles retain visible labels or icons; color is not the only signal.
 - Portaled Admin UI must re-establish `.admin-theme` at the portal root.
@@ -143,13 +155,14 @@ Run scoped ESLint against touched Admin paths. Full-repository lint may contain 
 Minimum manual matrix:
 
 - Locales: Thai, English, German.
+- Preferences: explicit Light, explicit Dark, System with OS Light, System with OS Dark, reload, and a second Admin tab.
 - Widths: 375px, 768px, 1440px.
 - Shell: Login, expanded/collapsed Sidebar, mobile Sidebar, language switch.
 - Lists: loading, empty, error, data, sorting, filtering, pagination, selection.
 - Forms: create, edit loading, validation, dirty, saving, destructive confirmation.
 - Feedback: success, warning, danger, info, modal, drawer, toast.
-- CMS: page manager, all editor tabs, draft/published modes, three preview devices.
-- Preview comparison: Home, About, Contact, and a generic content page against their real Public routes.
+- CMS: page manager, all editor tabs, draft/published modes, three preview devices in Admin Light and Dark.
+- Preview comparison: Home, About, Contact, and a generic content page against their real Public routes; pixels remain unchanged when switching only the Admin mode.
 
 ## Stop conditions
 
@@ -167,9 +180,10 @@ Stop the current task and report before continuing when:
 The handoff is complete only when:
 
 - Admin palette values can change from `.admin-theme` without route-by-route edits;
+- localized System, Light, and Dark controls work, System follows OS preference, and `wat-admin-theme` survives reload;
+- no migrated Admin TSX relies on structural `dark:` utilities;
 - Public palette values can change from `.public-theme` without changing Admin chrome;
-- CMS preview still uses the Public theme;
+- CMS preview still uses the current Public theme in every Admin mode;
 - the Admin theme guard covers core Admin and Website CMS;
 - scoped lint, type-check, and production build results are reported accurately;
 - no unrelated user work was removed or overwritten.
-
