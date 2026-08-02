@@ -1,6 +1,6 @@
 import { z } from "zod";
 import { publicApi } from "@/services/publicService";
-import api from "@/services/api";
+import adminApi from "@/services/adminApi";
 import { useQuery } from "@tanstack/react-query";
 import { unwrapApiData, type ApiSuccess } from "../shared/api-types";
 
@@ -13,12 +13,12 @@ export async function fetchEventAlertSettings(): Promise<EventAlertSettings> {
   return eventAlertSettingsSchema.parse(unwrapApiData(response.data));
 }
 export async function fetchAdminEventAlertSettings(): Promise<EventAlertSettings> {
-  const response = await api.get<{ data: EventAlertSettings }>("/admin/event-alert");
+  const response = await adminApi.get<{ data: EventAlertSettings }>("/admin/event-alert");
   return eventAlertSettingsSchema.parse(response.data.data);
 }
 export async function saveAdminEventAlertSettings(value: EventAlertSettings): Promise<EventAlertSettings> {
   const payload = eventAlertSettingsSchema.parse(value);
-  const response = await api.put<{ data: EventAlertSettings }>("/admin/event-alert", payload);
+  const response = await adminApi.put<{ data: EventAlertSettings }>("/admin/event-alert", payload);
   return eventAlertSettingsSchema.parse(response.data.data);
 }
 

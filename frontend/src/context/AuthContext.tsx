@@ -9,7 +9,6 @@ import React, {
 } from "react";
 import adminAuthService from "@/services/adminAuthService";
 import { setAdminAuthLostHandler } from "@/services/adminAuthStore";
-import authService from "@/services/authService";
 import type { User, LoginRequest, UpdateProfileRequest } from "@/types/auth";
 
 interface AuthContextType {
@@ -143,7 +142,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       return updated;
     }
 
-    const updated = await authService.updateProfile(data);
+    const updated = await adminAuthService.updateProfile(data);
     setUser(updated);
     return updated;
   };

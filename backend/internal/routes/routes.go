@@ -156,6 +156,9 @@ func adminRouteDefinitions() []AdminRouteDefinition {
 		// Dashboard
 		{Method: fiber.MethodGet, Path: "/dashboard/stats", Resource: "dashboard", Action: "read", HandlerKey: "dashboard.stats"},
 
+		// Admin Self-Profile
+		{Method: fiber.MethodPut, Path: "/me", Resource: "profile", Action: "update", HandlerKey: "profile.update"},
+
 		// Audit Logs
 		{Method: fiber.MethodGet, Path: "/audit-logs/filter-options", Resource: "audit_logs", Action: "read", HandlerKey: "audit.filterOptions"},
 		{Method: fiber.MethodGet, Path: "/audit-logs", Resource: "audit_logs", Action: "read", HandlerKey: "audit.list"},
@@ -397,6 +400,7 @@ func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service) map[string]fiber.Handle
 		"users.update":                  userHandler.UpdateUser,
 		"users.bulkDelete":              userHandler.BulkDeleteUsers,
 		"users.delete":                  userHandler.DeleteUser,
+		"profile.update":                userHandler.UpdateAdminProfile,
 		"roles.list":                    roleHandler.GetRoles,
 		"roles.get":                     roleHandler.GetRole,
 		"roles.create":                  roleHandler.CreateRole,

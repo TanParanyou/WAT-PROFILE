@@ -575,6 +575,41 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
 
+  /admin/me:
+    put:
+      tags: [Admin - Self Service]
+      summary: Update the authenticated admin's own profile
+      description: >-
+        Updates the signed-in admin's own name, email, avatar, or password.
+        Requires the `profile:update` permission. When a new password is
+        supplied the current password must match and every existing admin
+        session for the user is revoked.
+      security:
+        - AdminBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminProfileUpdateInput'
+      responses:
+        '200':
+          description: Updated admin profile
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/User'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
   /admin/users:
     get:
       tags: [Admin - Users]
@@ -2085,6 +2120,28 @@ components:
             name or permissions.
         is_active:
           type: boolean
+
+    AdminProfileUpdateInput:
+      type: object
+      description: >-
+        Self-service profile update for the signed-in admin. Supply
+        `current_password` and `new_password` together to rotate the password;
+        this revokes all other admin sessions for the user.
+      properties:
+        name:
+          type: string
+        email:
+          type: string
+        avatar_url:
+          type: string
+          nullable: true
+        current_password:
+          type: string
+          description: Required when setting a new password.
+        new_password:
+          type: string
+          minLength: 8
+          description: Required when rotating the password.
 
     MediaMetadata:
       type: object

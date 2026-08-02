@@ -1,6 +1,11 @@
 import adminApi from "./adminApi";
 import { setAdminAccessToken } from "./adminAuthStore";
-import type { AdminAuthResponse, LoginRequest } from "@/types/auth";
+import type {
+  AdminAuthResponse,
+  LoginRequest,
+  UpdateProfileRequest,
+  User,
+} from "@/types/auth";
 import type { ApiResponse } from "@/types/api";
 
 const adminAuthService = {
@@ -35,6 +40,15 @@ const adminAuthService = {
     } finally {
       setAdminAccessToken(null);
     }
+  },
+
+  async updateProfile(data: UpdateProfileRequest): Promise<User> {
+    const res = await adminApi.put<ApiResponse<User>>("/admin/me", data);
+    const user = res.data.data;
+    if (!user) {
+      throw new Error("Admin profile update response missing data");
+    }
+    return user;
   },
 };
 

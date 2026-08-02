@@ -6,6 +6,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
+	"github.com/watloungporsai/wat-profile-backend/internal/middleware"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
@@ -172,6 +173,48 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 	}
 
 	return utils.SuccessResponse(c, user)
+}
+
+// UpdateAdminProfile - Admin: Update own profile (name/email/avatar/password).
+// Password changes revoke all of the caller's admin sessions via the service.
+func (h *UserHandler) UpdateAdminProfile(c *fiber.Ctx) error {
+	user, err := middleware.GetCurrentUser(c)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusUnauthorized, "Unauthorized")
+	}
+
+	var req UpdateProfileRequest
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	req.Name = strings.TrimSpace(req.Name)
+	req.Email = strings.TrimSpace(req.Email)
+	if req.AvatarURL != nil {
+		trimmed := strings.TrimSpace(*req.AvatarURL)
+		req.AvatarURL = &trimmed
+	}
+
+	if req.Email != "" && !utils.ValidateEmail(req.Email) {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid email format")
+	}
+
+	if req.NewPassword != "" {
+		if err := utils.ValidateMinLength(req.NewPassword, 8, "new_password"); err != nil {
+			return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+		}
+	}
+
+	updatedUser, err := h.userService.UpdateProfile(user.ID, req.Name, req.Email, req.AvatarURL, req.CurrentPassword, req.NewPassword)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+
+	if req.NewPassword != "" {
+		_ = h.auditService.LogSecurityEvent(c, "admin.sessions.revoked", "sessions_revoked", "admin_auth", user.ID.String())
+	}
+
+	return utils.SuccessResponse(c, updatedUser)
 }
 
 // DeleteUser - Admin: Delete user
