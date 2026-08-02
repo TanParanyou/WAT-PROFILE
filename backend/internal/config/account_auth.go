@@ -21,6 +21,7 @@ type RateLimit struct {
 // no secrets are required.
 type AccountAuthConfig struct {
 	Enabled           bool
+	Environment       string
 	FrontendURL       string
 	GoogleClientID    string
 	GoogleSecret      string
@@ -52,6 +53,7 @@ const (
 func LoadAccountAuthConfig() (AccountAuthConfig, error) {
 	cfg := AccountAuthConfig{
 		Enabled:     os.Getenv("PUBLIC_ACCOUNT_AUTH_ENABLED") == "true",
+		Environment: os.Getenv("ENV"),
 		FrontendURL: strings.TrimRight(os.Getenv("PUBLIC_ACCOUNT_FRONTEND_URL"), "/"),
 		EmailMode:   os.Getenv("AUTH_EMAIL_DELIVERY_MODE"),
 		AccessTTL:   defaultAccessTTL,
