@@ -21,7 +21,7 @@ export function RichTextContent({
   const html = sanitizeHtml(generateHTML(document, richTextExtensions));
 
   const editorStyles = [
-    "font-sans text-base text-site-foreground",
+    "font-sans text-base text-current",
     "[&_p]:my-2",
     "[&_strong]:font-bold",
     "[&_em]:italic",

@@ -108,6 +108,8 @@
         "missionTitle": "Mission",
         "missionDesc": "Wir streben danach, durch religiöse Aktivitäten, Bildung und sozialen Dienst eine friedliche, glückliche und weise Gesellschaft zu schaffen.",
         "contents": "Auf dieser Seite",
+        "foundedLabel": "Gegründet",
+        "locationLabel": "Standort",
         "sections": {"intro": "Einleitung", "objective": "Ziel", "administration": "Verwaltung", "history": "Geschichte", "buildings": "Gebäude", "sangha": "Sangha"}
     },
     "ContactPage": {
