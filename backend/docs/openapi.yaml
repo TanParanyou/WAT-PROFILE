@@ -41,7 +41,12 @@ tags:
   - name: Member
     description: Member profile & actions (Auth required)
   - name: Account
-    description: Public account sign-in, sessions, profile & Google sign-in (feature-gated by PUBLIC_ACCOUNT_AUTH_ENABLED)
+    description: >-
+      Public account sign-in, sessions, profile & Google sign-in (feature-gated by
+      PUBLIC_ACCOUNT_AUTH_ENABLED). Security-relevant account operations (registration,
+      verification, login success/failure, refresh reuse, recovery, Google link, session
+      revoke, closure) are recorded as allow-listed security events with a coarse IP
+      prefix and trace ID; event persistence never fails the user operation.
   - name: Admin - Users
     description: Users management (Admin only)
   - name: Admin - Roles
