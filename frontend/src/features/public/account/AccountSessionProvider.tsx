@@ -1,0 +1,126 @@
+"use client";
+
+import {
+  createContext,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+import type { ReactNode } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { accountKeys, useAccount } from "./queries";
+import {
+  loginAccount,
+  logoutAccount,
+  logoutAllAccounts,
+  restoreSession,
+  setMemoryAccessToken,
+} from "./api";
+import type { Account } from "./types";
+
+const ACCOUNT_FEATURE_ENABLED =
+  process.env.NEXT_PUBLIC_PUBLIC_ACCOUNT_AUTH_ENABLED === "true";
+
+export type AccountSessionStatus = "loading" | "anonymous" | "authenticated";
+
+export interface AccountSessionValue {
+  status: AccountSessionStatus;
+  account: Account | null;
+  login: (email: string, password: string) => Promise<void>;
+  logout: () => Promise<void>;
+  logoutAll: () => Promise<void>;
+}
+
+const AccountSessionContext = createContext<AccountSessionValue | null>(null);
+
+export function AccountSessionProvider({ children }: { children: ReactNode }) {
+  const queryClient = useQueryClient();
+  const [status, setStatus] = useState<AccountSessionStatus>(
+    ACCOUNT_FEATURE_ENABLED ? "loading" : "anonymous",
+  );
+
+  // Restore the session by refreshing once; on success the account query below
+  // re-fetches with the restored access token (held in module memory). Remote
+  // data lives in TanStack Query.
+  useEffect(() => {
+    if (!ACCOUNT_FEATURE_ENABLED) return;
+    let cancelled = false;
+
+    async function restore() {
+      try {
+        // Rotate the session using the HttpOnly refresh cookie. The fresh
+        // access token is held in module memory by the API client; the account
+        // query below then re-fetches with it.
+        await restoreSession();
+        if (cancelled) return;
+        setStatus("authenticated");
+        await queryClient.invalidateQueries({ queryKey: accountKeys.current() });
+      } catch {
+        if (!cancelled) setStatus("anonymous");
+      }
+    }
+
+    void restore();
+    return () => {
+      cancelled = true;
+    };
+  }, [queryClient]);
+
+  const accountQuery = useAccount({ enabled: ACCOUNT_FEATURE_ENABLED && status === "authenticated" });
+
+  const login = useCallback(
+    async (email: string, password: string) => {
+      await loginAccount(email, password);
+      setStatus("authenticated");
+      await queryClient.invalidateQueries({ queryKey: accountKeys.current() });
+    },
+    [queryClient],
+  );
+
+  const logout = useCallback(async () => {
+    try {
+      await logoutAccount();
+    } finally {
+      setMemoryAccessToken(null);
+      setStatus("anonymous");
+      queryClient.removeQueries({ queryKey: accountKeys.current() });
+      queryClient.removeQueries({ queryKey: accountKeys.sessions() });
+    }
+  }, [queryClient]);
+
+  const logoutAll = useCallback(async () => {
+    try {
+      await logoutAllAccounts();
+    } finally {
+      setMemoryAccessToken(null);
+      setStatus("anonymous");
+      queryClient.removeQueries({ queryKey: accountKeys.current() });
+      queryClient.removeQueries({ queryKey: accountKeys.sessions() });
+    }
+  }, [queryClient]);
+
+  const value = useMemo<AccountSessionValue>(
+    () => ({
+      status,
+      account: accountQuery.data ?? null,
+      login,
+      logout,
+      logoutAll,
+    }),
+    [status, accountQuery.data, login, logout, logoutAll],
+  );
+
+  return (
+    <AccountSessionContext.Provider value={value}>{children}</AccountSessionContext.Provider>
+  );
+}
+
+export function useAccountSession(): AccountSessionValue {
+  const context = useContext(AccountSessionContext);
+  if (!context) {
+    throw new Error("useAccountSession must be used within AccountSessionProvider");
+  }
+  return context;
+}

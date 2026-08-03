@@ -1,0 +1,79 @@
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import {
+  closeAccount,
+  fetchAccount,
+  fetchSessions,
+  logoutAccount,
+  logoutAllAccounts,
+  revokeAccountSession,
+  updateAccountProfile,
+} from "./api";
+import { toPublicQueryError, shouldRetryPublicQuery } from "../shared/query-error";
+import type { Account, AccountProfileUpdateInput } from "./types";
+
+export const accountKeys = {
+  current: () => ["account", "current"] as const,
+  sessions: () => ["account", "sessions"] as const,
+};
+
+export function useAccount(options?: { enabled?: boolean }) {
+  return useQuery({
+    queryKey: accountKeys.current(),
+    queryFn: fetchAccount,
+    staleTime: 60_000,
+    retry: shouldRetryPublicQuery,
+    enabled: options?.enabled ?? true,
+  });
+}
+
+export function useAccountSessions(enabled?: boolean) {
+  return useQuery({
+    queryKey: accountKeys.sessions(),
+    queryFn: fetchSessions,
+    staleTime: 30_000,
+    retry: shouldRetryPublicQuery,
+    enabled: enabled ?? false,
+  });
+}
+
+export function useUpdateAccountProfile() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (input: AccountProfileUpdateInput) => updateAccountProfile(input),
+    onSuccess: (account: Account) => {
+      queryClient.setQueryData(accountKeys.current(), account);
+    },
+  });
+}
+
+export function useRevokeAccountSession() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (sessionId: string) => revokeAccountSession(sessionId),
+    onSuccess: () => {
+      queryClient.invalidateQueries({ queryKey: accountKeys.sessions() });
+    },
+  });
+}
+
+export function useCloseAccount() {
+  return useMutation({
+    mutationFn: (password: string) => closeAccount(password),
+  });
+}
+
+export function useLogoutAccount() {
+  return useMutation({
+    mutationFn: logoutAccount,
+  });
+}
+
+export function useLogoutAllAccounts() {
+  return useMutation({
+    mutationFn: logoutAllAccounts,
+  });
+}
+
+export function toAccountQueryError(error: unknown) {
+  return toPublicQueryError(error);
+}
