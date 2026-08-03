@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/watloungporsai/wat-profile-backend/internal/config"
 	"github.com/watloungporsai/wat-profile-backend/internal/handlers"
 	"github.com/watloungporsai/wat-profile-backend/internal/middleware"
 	"github.com/watloungporsai/wat-profile-backend/internal/storage"
@@ -29,7 +30,10 @@ func adminAllowedOrigins() []string {
 	return origins
 }
 
-func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
+// SetupRoutes registers all API routes. accountCfg controls whether the public
+// account API is mounted; when disabled, account routes 404 and the legacy
+// anonymous /auth/register stays enabled.
+func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg config.AccountAuthConfig) {
 	// API v1
 	api := app.Group("/api/v1")
 
@@ -88,11 +92,27 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service) {
 
 	// ============ AUTH ROUTES ============
 	auth := api.Group("/auth")
-	auth.Post("/register", authHandler.Register)
+	// While the public account module is enabled, the legacy anonymous
+	// register endpoint is disabled; visitors register via /accounts/register.
+	if !accountCfg.Enabled {
+		auth.Post("/register", authHandler.Register)
+	}
 	auth.Post("/login", authHandler.Login)
 	auth.Post("/refresh", authHandler.RefreshToken)
 	auth.Get("/me", middleware.AuthRequired, authHandler.GetProfile)
 	auth.Put("/me", middleware.AuthRequired, authHandler.UpdateProfile)
+
+	// ============ PUBLIC ACCOUNT ROUTES ============
+	if accountCfg.Enabled {
+		accountHandler, err := handlers.NewAccountAuthHandler(db, accountCfg)
+		if err != nil {
+			// Fail loudly: an enabled module that cannot build would otherwise
+			// silently 404 every account route.
+			panic("failed to build public account handler: " + err.Error())
+		} else {
+			handlers.RegisterAccountRoutes(api, accountHandler, adminAllowedOrigins())
+		}
+	}
 
 	// ============ ADMIN AUTH ROUTES (Origin-Guarded, Cookie-Based) ============
 	// These endpoints are deliberately separate from the member /auth group.

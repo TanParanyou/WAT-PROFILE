@@ -33,9 +33,11 @@ const (
 
 // GoogleCompletion is the result of CompleteGoogle.
 type GoogleCompletion struct {
-	Status  GoogleCompletionStatus
-	Session accountauth.SessionResult
-	UserID  uuid.UUID
+	Status   GoogleCompletionStatus
+	Session  accountauth.SessionResult
+	UserID   uuid.UUID
+	Locale   string
+	ReturnTo string
 }
 
 // GoogleStartResult is the result of StartGoogle.
@@ -194,7 +196,7 @@ func (s *AccountGoogleService) CompleteGoogle(ctx context.Context, code, flowCoo
 		if err != nil {
 			return GoogleCompletion{}, err
 		}
-		return GoogleCompletion{Status: GoogleCompletionSignedIn, Session: session, UserID: linked.UserID}, nil
+		return GoogleCompletion{Status: GoogleCompletionSignedIn, Session: session, UserID: linked.UserID, Locale: flow.Locale, ReturnTo: flow.ReturnTo}, nil
 	}
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
 		return GoogleCompletion{}, err
@@ -211,7 +213,7 @@ func (s *AccountGoogleService) CompleteGoogle(ctx context.Context, code, flowCoo
 		if err != nil {
 			return GoogleCompletion{}, err
 		}
-		return GoogleCompletion{Status: GoogleCompletionCreated, Session: user.session, UserID: user.userID}, nil
+		return GoogleCompletion{Status: GoogleCompletionCreated, Session: user.session, UserID: user.userID, Locale: flow.Locale, ReturnTo: flow.ReturnTo}, nil
 	}
 	if err != nil {
 		return GoogleCompletion{}, err
@@ -254,7 +256,7 @@ func (s *AccountGoogleService) CompleteGoogle(ctx context.Context, code, flowCoo
 	}
 
 	s.sendLinkApprovalEmail(ctx, existing, identity, flow.Locale, raw)
-	return GoogleCompletion{Status: GoogleCompletionApprovalSent, UserID: existing.ID}, nil
+	return GoogleCompletion{Status: GoogleCompletionApprovalSent, UserID: existing.ID, Locale: flow.Locale, ReturnTo: flow.ReturnTo}, nil
 }
 
 // ConfirmGoogleLink approves a pending google link using a single-use action

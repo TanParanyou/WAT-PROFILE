@@ -40,6 +40,8 @@ tags:
     description: Site settings (Public)
   - name: Member
     description: Member profile & actions (Auth required)
+  - name: Account
+    description: Public account sign-in, sessions, profile & Google sign-in (feature-gated by PUBLIC_ACCOUNT_AUTH_ENABLED)
   - name: Admin - Users
     description: Users management (Admin only)
   - name: Admin - Roles
@@ -472,6 +474,495 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/MessageResponse'
+
+
+  # ==================== PUBLIC ACCOUNTS ====================
+  # The public account API is only mounted when PUBLIC_ACCOUNT_AUTH_ENABLED=true.
+  # These routes never create or mutate Member records: accounts are role-less.
+  # Public access tokens carry audience `public-account` and are rejected by the
+  # Admin API (see AdminBearerAuth).
+  /accounts/register:
+    post:
+      tags: [Account]
+      summary: Register a public account with email verification
+      description: >-
+        Creates a pending-verification account. A single-use verification email
+        is sent to the address; the account cannot sign in until verified.
+        Rate limit: 5 per 15 minutes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountRegisterInput'
+      responses:
+        '200':
+          description: Registration accepted; verification email sent
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Email already registered
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  /accounts/verify-email:
+    post:
+      tags: [Account]
+      summary: Verify an email address with a single-use token
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountTokenInput'
+      responses:
+        '200':
+          description: Email verified
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /accounts/resend-verification:
+    post:
+      tags: [Account]
+      summary: Resend the verification email
+      description: 'Rate limit: 3 per 1 hour. Responds generically to avoid leaking account existence.'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountEmailInput'
+      responses:
+        '200':
+          description: Accepted; email sent if the address exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  /accounts/login:
+    post:
+      tags: [Account]
+      summary: Sign in with email and password
+      description: >-
+        Returns the short-lived access token (audience `public-account`) in the
+        body and sets the rotating refresh token in the HttpOnly `wat_public_refresh`
+        cookie (Path /api/v1/accounts). The refresh token is never returned in
+        the body. Rate limit: 10 per 15 minutes.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountLoginInput'
+      responses:
+        '200':
+          description: Signed in
+          headers:
+            Set-Cookie:
+              description: HttpOnly `wat_public_refresh` refresh cookie
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountSessionResponse'
+        '401':
+          description: Invalid credentials or unverified email
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  /accounts/refresh:
+    post:
+      tags: [Account]
+      summary: Rotate the session using the refresh cookie
+      description: >-
+        Requires the `wat_public_refresh` HttpOnly cookie and an allowed Origin.
+        Returns a new access token and rotates the refresh token. Reuse of an
+        already-rotated token revokes the whole session family.
+      responses:
+        '200':
+          description: Session rotated
+          headers:
+            Set-Cookie:
+              description: Rotated `wat_public_refresh` cookie
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountSessionResponse'
+        '401':
+          description: Session invalid, expired, or reused
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  /accounts/forgot-password:
+    post:
+      tags: [Account]
+      summary: Request a password reset link
+      description: >-
+        Always responds generically to avoid leaking account existence. Rate
+        limit: 5 per 1 hour. Google-only accounts receive a neutral message.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountEmailInput'
+      responses:
+        '200':
+          description: Accepted; reset link sent if the address exists
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  /accounts/reset-password:
+    post:
+      tags: [Account]
+      summary: Reset the password with a single-use token
+      description: Consumes the token, replaces the password hash, and revokes all sessions.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountResetPasswordInput'
+      responses:
+        '200':
+          description: Password reset
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /accounts/google/start:
+    get:
+      tags: [Account]
+      summary: Begin Google sign-in
+      description: >-
+        Creates a short-lived signed flow state (PKCE + nonce) and returns the
+        Google authorization URL. Sets the HttpOnly `wat_google_flow` cookie
+        (Path /api/v1/accounts/google, 10 minute TTL). Rate limit: 20 per 15 minutes.
+      parameters:
+        - name: locale
+          in: query
+          required: false
+          schema:
+            type: string
+            example: en
+        - name: return_to
+          in: query
+          required: false
+          schema:
+            type: string
+            example: /account
+      responses:
+        '200':
+          description: Google authorization URL issued
+          headers:
+            Set-Cookie:
+              description: HttpOnly `wat_google_flow` flow cookie
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountGoogleStartResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
+  /accounts/google/callback:
+    get:
+      tags: [Account]
+      summary: Complete Google sign-in
+      description: >-
+        Verifies state, PKCE, nonce, and the Google identity, then redirects the
+        browser to the frontend. Never includes tokens in the redirect URL.
+        Outcomes: 302 to `{frontend}/{locale}{return_to}` on sign-in (sets the
+        refresh cookie), 302 to `{frontend}/{locale}/account/link?status=approval_sent`
+        when an existing email needs approval, or 302 to
+        `{frontend}/en/account/login?error={code}` on failure.
+      parameters:
+        - name: code
+          in: query
+          required: true
+          schema:
+            type: string
+        - name: state
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '302':
+          description: Redirect to the frontend (never contains tokens)
+          headers:
+            Location:
+              description: Frontend redirect target
+              schema:
+                type: string
+            Set-Cookie:
+              description: Refresh cookie on success, cleared flow cookie otherwise
+              schema:
+                type: string
+
+  /accounts/google/link/confirm:
+    post:
+      tags: [Account]
+      summary: Confirm linking a Google identity to an existing email
+      description: >-
+        Consumes the single-use link-approval token emailed to the existing
+        account and returns a new session. Never links silently.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountTokenInput'
+      responses:
+        '200':
+          description: Google identity linked; session started
+          headers:
+            Set-Cookie:
+              description: HttpOnly `wat_public_refresh` refresh cookie
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountSessionResponse'
+        '401':
+          description: Token invalid, expired, or already used
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /accounts/logout:
+    post:
+      tags: [Account]
+      summary: Sign out and revoke the current session
+      description: >-
+        Requires a public-account access token and an allowed Origin. Revokes the
+        session family and clears the `wat_public_refresh` cookie.
+      security:
+        - PublicAccountBearerAuth: []
+      responses:
+        '200':
+          description: Logged out
+          headers:
+            Set-Cookie:
+              description: Cleared `wat_public_refresh` cookie
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /accounts/logout-all:
+    post:
+      tags: [Account]
+      summary: Sign out of every session
+      description: Revokes all sessions for the account and clears the refresh cookie.
+      security:
+        - PublicAccountBearerAuth: []
+      responses:
+        '200':
+          description: Logged out everywhere
+          headers:
+            Set-Cookie:
+              description: Cleared `wat_public_refresh` cookie
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /account:
+    get:
+      tags: [Account]
+      summary: Get the signed-in account profile
+      security:
+        - PublicAccountBearerAuth: []
+      responses:
+        '200':
+          description: Account profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountProfileResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Account disabled or closed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /account/profile:
+    patch:
+      tags: [Account]
+      summary: Update the account profile
+      security:
+        - PublicAccountBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountProfileUpdateInput'
+      responses:
+        '200':
+          description: Updated profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountProfileResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /account/sessions:
+    get:
+      tags: [Account]
+      summary: List active sessions
+      security:
+        - PublicAccountBearerAuth: []
+      responses:
+        '200':
+          description: Session list (hashes never serialized)
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountSessionsResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /account/sessions/{id}:
+    delete:
+      tags: [Account]
+      summary: Revoke one session
+      security:
+        - PublicAccountBearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Session revoked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /account/close:
+    post:
+      tags: [Account]
+      summary: Close the account
+      description: >-
+        Requires recent authentication (auth_time within 10 minutes) and the
+        password for password accounts. Revokes all sessions, marks the account
+        closed, and prevents further sign-in. Never hard-deletes rows.
+      security:
+        - PublicAccountBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountCloseInput'
+      responses:
+        '200':
+          description: Account closed
+          headers:
+            Set-Cookie:
+              description: Cleared `wat_public_refresh` cookie
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Re-authentication required
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
 
   # ==================== MEMBER ====================
@@ -1844,7 +2335,18 @@ components:
       description: >-
         Short-lived Admin access token with audience `admin`. Issued only by
         `/auth/admin/login` and `/auth/admin/refresh`. Held only in memory by
-        the client; never stored in browser storage.
+        the client; never stored in browser storage. Public-account tokens
+        (audience `public-account`) are rejected with 401, and accounts without
+        an active Admin role are rejected with 403.
+    PublicAccountBearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: >-
+        Short-lived public-account access token with audience `public-account`.
+        Issued by `/accounts/login`, `/accounts/refresh`, and the Google
+        sign-in flows. Rejected by the Admin API (see AdminBearerAuth); Admin
+        tokens cannot be used here.
 
   parameters:
     IdParam:
@@ -2006,7 +2508,24 @@ components:
           description: >-
             Machine-readable error code. Admin auth codes:
             `ADMIN_INVALID_CREDENTIALS`, `ADMIN_SESSION_INVALID`,
-            `ADMIN_SESSION_REUSED`.
+            `ADMIN_SESSION_REUSED`. Public account codes:
+            `AUTH_INVALID_CREDENTIALS`, `AUTH_EMAIL_VERIFICATION_REQUIRED`,
+            `AUTH_TOKEN_INVALID_OR_EXPIRED`, `AUTH_RATE_LIMITED`,
+            `AUTH_ACCOUNT_DISABLED`, `AUTH_REAUTH_REQUIRED`,
+            `AUTH_EMAIL_ALREADY_REGISTERED`, `AUTH_VALIDATION`,
+            `AUTH_INTERNAL`.
+        field_errors:
+          type: array
+          description: >-
+            Field-level validation failures, present for `AUTH_VALIDATION`
+            responses from the public account API.
+          items:
+            type: object
+            properties:
+              field:
+                type: string
+              message:
+                type: string
         trace_id:
           type: string
           description: Request trace ID for correlating logs
@@ -2067,6 +2586,187 @@ components:
           description: Short-lived Admin access token (audience `admin`)
         user:
           $ref: '#/components/schemas/User'
+
+    # ===== Public Account =====
+    AccountRegisterInput:
+      type: object
+      required: [email, password, display_name, locale]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+          minLength: 12
+          maxLength: 128
+        display_name:
+          type: string
+          minLength: 2
+          maxLength: 80
+        locale:
+          type: string
+          enum: [th, en, de]
+
+    AccountLoginInput:
+      type: object
+      required: [email, password]
+      properties:
+        email:
+          type: string
+          format: email
+        password:
+          type: string
+
+    AccountEmailInput:
+      type: object
+      required: [email, locale]
+      properties:
+        email:
+          type: string
+          format: email
+        locale:
+          type: string
+          enum: [th, en, de]
+
+    AccountTokenInput:
+      type: object
+      required: [token]
+      properties:
+        token:
+          type: string
+          description: Single-use action token (from email link)
+
+    AccountResetPasswordInput:
+      type: object
+      required: [token, new_password]
+      properties:
+        token:
+          type: string
+        new_password:
+          type: string
+          minLength: 12
+          maxLength: 128
+
+    AccountCloseInput:
+      type: object
+      required: [password]
+      properties:
+        password:
+          type: string
+          description: Current password; required to confirm account closure
+
+    AccountSessionResponse:
+      type: object
+      description: >-
+        Public account session start/rotation response. Contains only the
+        short-lived access token; the rotating refresh token travels in the
+        HttpOnly `wat_public_refresh` cookie and is never serialized here.
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            access_token:
+              type: string
+              description: Short-lived access token (audience `public-account`)
+            expires_in:
+              type: integer
+              description: Access token lifetime in seconds
+
+    AccountGoogleStartResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            authorization_url:
+              type: string
+              description: Google OAuth authorization URL (browser redirect)
+
+    AccountProfileResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            id:
+              type: string
+              format: uuid
+            email:
+              type: string
+              format: email
+            email_verified:
+              type: boolean
+            account_status:
+              type: string
+              enum: [pending_verification, active, disabled, closed]
+            display_name:
+              type: string
+            avatar_url:
+              type: string
+            preferred_locale:
+              type: string
+              enum: [th, en, de]
+            providers:
+              type: array
+              items:
+                type: string
+              description: Linked identity providers, e.g. `password`, `google`
+
+    AccountProfileUpdateInput:
+      type: object
+      properties:
+        display_name:
+          type: string
+          minLength: 2
+          maxLength: 80
+        avatar_url:
+          type: string
+        preferred_locale:
+          type: string
+          enum: [th, en, de]
+
+    AccountSessionsResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            sessions:
+              type: array
+              description: Session summaries; token hashes are never serialized
+              items:
+                type: object
+                properties:
+                  id:
+                    type: string
+                    format: uuid
+                  current:
+                    type: boolean
+                  user_agent_summary:
+                    type: string
+                  ip_prefix:
+                    type: string
+                  created_at:
+                    type: string
+                    format: date-time
+                  last_used_at:
+                    type: string
+                    format: date-time
+                  expires_at:
+                    type: string
+                    format: date-time
 
     User:
       type: object

@@ -48,6 +48,17 @@ func main() {
 	}
 	log.Info().Msg("Database migration completed")
 
+	// Public account auth configuration (feature-gated)
+	accountCfg, err := config.LoadAccountAuthConfig()
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to load public account auth configuration")
+	}
+	if accountCfg.Enabled {
+		log.Info().Msg("Public account auth enabled")
+	} else {
+		log.Info().Msg("Public account auth disabled")
+	}
+
 	// สร้าง Fiber app
 	app := fiber.New(fiber.Config{
 		BodyLimit:    25 * 1024 * 1024, // 25 MiB, room for 20 MiB uploads + multipart overhead
@@ -129,6 +140,37 @@ func main() {
 		Expiration: 1 * time.Minute,
 	}))
 
+	// Rate limiting for the public account API — one limiter per surface so a
+	// burst on one endpoint never starves the others. Returns the stable
+	// AUTH_RATE_LIMITED code without confirming account existence.
+	if accountCfg.Enabled {
+		accountLimiters := []struct {
+			path string
+			rl   config.RateLimit
+		}{
+			{"/api/v1/accounts/register", accountCfg.RegisterLimit},
+			{"/api/v1/accounts/login", accountCfg.LoginLimit},
+			{"/api/v1/accounts/resend-verification", accountCfg.ResendLimit},
+			{"/api/v1/accounts/forgot-password", accountCfg.ForgotLimit},
+			{"/api/v1/accounts/refresh", accountCfg.RefreshLimit},
+			{"/api/v1/accounts/google/start", accountCfg.GoogleLimit},
+			{"/api/v1/accounts/google/callback", accountCfg.GoogleLimit},
+		}
+		for _, l := range accountLimiters {
+			app.Use(l.path, limiter.New(limiter.Config{
+				Max:        l.rl.Limit,
+				Expiration: l.rl.Window,
+				LimitReached: func(c *fiber.Ctx) error {
+					return c.Status(fiber.StatusTooManyRequests).JSON(fiber.Map{
+						"success": false,
+						"error":   "Too many requests. Please try again later.",
+						"code":    "AUTH_RATE_LIMITED",
+					})
+				},
+			}))
+		}
+	}
+
 	// Health check
 	app.Get("/health", func(c *fiber.Ctx) error {
 		return c.JSON(fiber.Map{
@@ -153,7 +195,7 @@ func main() {
 	}
 
 	// ตั้งค่า routes
-	routes.SetupRoutes(app, config.DB, r2Service)
+	routes.SetupRoutes(app, config.DB, r2Service, accountCfg)
 
 	// Graceful shutdown
 	port := getEnv("PORT", "8080")
