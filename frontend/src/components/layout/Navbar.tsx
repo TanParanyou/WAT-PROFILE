@@ -6,6 +6,7 @@ import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link, usePathname } from "@/navigation";
 import { usePublicSiteSettings } from "@/features/public/settings/PublicSiteSettingsProvider";
+import { useAccountSession } from "@/features/public/account/AccountSessionProvider";
 import { getLocalizedText } from "@/utils/i18n";
 import { siteConfig } from "@/config/site.config";
 import { PublicThemeSwitcher } from "@/components/public/theme/PublicThemeSwitcher";
@@ -17,6 +18,8 @@ const languageOptions = [
   { code: "de", label: "DE" },
 ] as const;
 
+const ACCOUNT_FEATURE_ENABLED = process.env.NEXT_PUBLIC_PUBLIC_ACCOUNT_AUTH_ENABLED === "true";
+
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
   const locale = useLocale();
@@ -24,6 +27,10 @@ export default function Navbar() {
   const t = useTranslations("Navbar");
   const tSite = useTranslations("Site");
   const settings = usePublicSiteSettings();
+  const accountSession = useAccountSession();
+
+  const accountHref =
+    accountSession.status === "authenticated" ? "/account" : "/account/login";
 
   const navLinks = [
     { name: t("home"), href: "/" },
@@ -33,6 +40,18 @@ export default function Navbar() {
     { name: t("gallery"), href: "/gallery" },
     { name: t("contact"), href: "/contact" },
   ];
+
+  const accountLink = ACCOUNT_FEATURE_ENABLED
+    ? {
+        name:
+          accountSession.status === "authenticated"
+            ? t("accountProfile")
+            : t("accountLogin"),
+        href: accountHref,
+      }
+    : null;
+
+  const allLinks = accountLink ? [...navLinks, accountLink] : navLinks;
 
   return (
     <header className="fixed top-0 z-50 w-full border-b border-site-border bg-site-canvas text-site-foreground">
@@ -54,7 +73,7 @@ export default function Navbar() {
         </Link>
 
         <nav className="hidden items-center gap-6 lg:flex" aria-label={t("primaryNavigation")}>
-          {navLinks.map((link) => {
+          {allLinks.map((link) => {
             const isActive = pathname === link.href;
             return (
               <Link
@@ -90,7 +109,7 @@ export default function Navbar() {
         <div id="public-navigation" className="border-t border-site-border bg-site-canvas px-6 py-6 sm:px-10 lg:hidden">
           <nav className="mx-auto max-w-7xl" aria-label={t("primaryNavigation")}>
             <div className="grid gap-1">
-              {navLinks.map((link) => (
+              {allLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}

@@ -85,3 +85,19 @@ export const sessionsEnvelopeSchema = z
       .strict(),
   })
   .strict();
+
+export const googleStartResponseSchema = z
+  .object({
+    success: z.literal(true),
+    data: z
+      .object({
+        authorization_url: z.string().min(1),
+      })
+      .strict(),
+  })
+  .strict();
+
+export function parseGoogleStartResponse(payload: unknown): { authorization_url: string } {
+  return googleStartResponseSchema.parse(payload).data;
+}
+

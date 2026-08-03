@@ -5,6 +5,7 @@ import {
   parseAccount,
   parseAccountEnvelope,
   parseAccountSessionResponse,
+  parseGoogleStartResponse,
   sessionsEnvelopeSchema,
 } from "./schema";
 import type {
@@ -148,6 +149,54 @@ export function toAccountApiError(error: unknown): AccountApiError {
 
 export async function loginAccount(email: string, password: string): Promise<AccountSessionResponse> {
   const response = await accountApi.post<unknown>("/accounts/login", { email, password });
+  const session = parseAccountSessionResponse(response.data);
+  memoryAccessToken = session.access_token;
+  return session;
+}
+
+/**
+ * Registers a new public account. The backend responds generically; callers
+ * must not surface account-existence details to the visitor.
+ */
+export async function registerAccount(input: {
+  email: string;
+  password: string;
+  display_name: string;
+  locale: string;
+}): Promise<void> {
+  await accountApi.post<unknown>("/accounts/register", input);
+}
+
+export async function verifyEmail(token: string): Promise<void> {
+  await accountApi.post<unknown>("/accounts/verify-email", { token });
+}
+
+export async function resendVerification(email: string, locale: string): Promise<void> {
+  await accountApi.post<unknown>("/accounts/resend-verification", { email, locale });
+}
+
+export async function forgotPassword(email: string, locale: string): Promise<void> {
+  await accountApi.post<unknown>("/accounts/forgot-password", { email, locale });
+}
+
+export async function resetPassword(token: string, newPassword: string): Promise<void> {
+  await accountApi.post<unknown>("/accounts/reset-password", { token, new_password: newPassword });
+}
+
+/**
+ * Starts the Google OAuth flow. The backend sets the HttpOnly flow cookie and
+ * returns the authorization URL; the browser must navigate to it directly.
+ */
+export async function startGoogle(locale: string, returnTo: string): Promise<string> {
+  const response = await accountApi.get<unknown>("/accounts/google/start", {
+    params: { locale, return_to: returnTo },
+  });
+  const parsed = parseGoogleStartResponse(response.data);
+  return parsed.authorization_url;
+}
+
+export async function confirmGoogleLink(token: string): Promise<AccountSessionResponse> {
+  const response = await accountApi.post<unknown>("/accounts/google/link/confirm", { token });
   const session = parseAccountSessionResponse(response.data);
   memoryAccessToken = session.access_token;
   return session;
