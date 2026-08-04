@@ -1,9 +1,12 @@
 package services
 
 import (
+	"context"
 	"testing"
+	"time"
 
 	"github.com/watloungporsai/wat-profile-backend/internal/accountauth"
+	"github.com/watloungporsai/wat-profile-backend/internal/models"
 )
 
 // TestSecurityEventDropsSecretsAndCoarsensIP verifies that the security-event
@@ -53,5 +56,29 @@ func TestBuildSecurityEventSanitizesClientInfo(t *testing.T) {
 
 	if event.IPPrefix != "" {
 		t.Errorf("invalid IP must yield an empty prefix, got %q", event.IPPrefix)
+	}
+}
+
+func TestPasswordLoginPersistsSecurityEventWithoutSecrets(t *testing.T) {
+	db := newAccountTestDB(t)
+	clock := fixedClockAt(fixedNow())
+	recorder := NewAccountSecurityService(db, clock)
+	sessions := NewAccountSessionService(db, clock, accountauth.NewOpaqueToken, testAccessIssuer(t), 30*24*time.Hour, recorder)
+	user := seedVerifiedPasswordAccount(t, db, "security-login@example.com")
+	client := accountauth.ClientInfo{IP: "203.0.113.42", TraceID: "trace-security-test"}
+	if _, err := sessions.LoginPassword(context.Background(), accountauth.LoginPasswordInput{
+		Email: user.Email, Password: "correct horse battery staple", Client: client,
+	}); err != nil {
+		t.Fatalf("login: %v", err)
+	}
+	var event models.AuthSecurityEvent
+	if err := db.Where("event_type = ? AND user_id = ?", "password_login", user.ID).Order("created_at DESC").First(&event).Error; err != nil {
+		t.Fatalf("security event not persisted: %v", err)
+	}
+	if event.Outcome != "success" || event.RequestTraceID != client.TraceID || event.IPPrefix != "203.0.113.0/24" {
+		t.Fatalf("unexpected security event: %+v", event)
+	}
+	if len(event.Metadata) != 0 {
+		t.Fatalf("security event should not contain credentials: %#v", event.Metadata)
 	}
 }

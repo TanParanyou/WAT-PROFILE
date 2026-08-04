@@ -30,10 +30,11 @@ type AccountRecoveryService struct {
 	tokenGen    accountauth.TokenGenerator
 	sessions    sessionLogoutAller
 	frontendURL string
+	security    accountauth.SecurityRecorder
 }
 
 // NewAccountRecoveryService builds the recovery service.
-func NewAccountRecoveryService(db *gorm.DB, sender accountauth.EmailSender, clock accountauth.Clock, tokenGen accountauth.TokenGenerator, sessions sessionLogoutAller) *AccountRecoveryService {
+func NewAccountRecoveryService(db *gorm.DB, sender accountauth.EmailSender, clock accountauth.Clock, tokenGen accountauth.TokenGenerator, sessions sessionLogoutAller, recorders ...accountauth.SecurityRecorder) *AccountRecoveryService {
 	return &AccountRecoveryService{
 		db:          db,
 		sender:      sender,
@@ -41,6 +42,7 @@ func NewAccountRecoveryService(db *gorm.DB, sender accountauth.EmailSender, cloc
 		tokenGen:    tokenGen,
 		sessions:    sessions,
 		frontendURL: strings.TrimRight(os.Getenv("PUBLIC_ACCOUNT_FRONTEND_URL"), "/"),
+		security:    pickSecurityRecorder(recorders),
 	}
 }
 
@@ -49,9 +51,13 @@ func NewAccountRecoveryService(db *gorm.DB, sender accountauth.EmailSender, cloc
 // account it issues a single-use reset token and sends the localized reset
 // email; for a Google-only account it sends a neutral informational email
 // without a link; for unknown, disabled, or closed accounts it does nothing.
-func (s *AccountRecoveryService) RequestPasswordReset(ctx context.Context, email, locale string) error {
+func (s *AccountRecoveryService) RequestPasswordReset(ctx context.Context, email, locale string, clients ...accountauth.ClientInfo) error {
 	normalized := accountauth.NormalizeEmail(email)
+	if !supportedLocale(locale) {
+		return accountauth.NewFieldError(accountauth.CodeValidation, "locale", "Unsupported locale.")
+	}
 	now := s.clock.Now()
+	client := firstClient(clients)
 
 	var user models.User
 	if err := s.db.WithContext(ctx).Where("email = ?", normalized).First(&user).Error; err != nil {
@@ -75,13 +81,21 @@ func (s *AccountRecoveryService) RequestPasswordReset(ctx context.Context, email
 	}
 
 	if !hasPassword {
-		return s.sendEmail(ctx, accountauth.EmailMessage{
+		err := s.sendEmail(ctx, accountauth.EmailMessage{
 			To:     user.Email,
 			Locale: locale,
 		}, "password_reset_google", accountauth.EmailTemplateVar{DisplayName: user.Name}, now)
+		s.security.Record(ctx, accountauth.SecurityEvent{UserID: user.ID.String(), EventType: "password_recovery_request", Outcome: "success", Provider: "google", IPPrefix: accountauth.CoarseIPPrefix(client.IP), TraceID: client.TraceID})
+		return err
 	}
 
-	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	var pending accountauth.EmailMessage
+	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&models.AuthActionToken{}).
+			Where("user_id = ? AND purpose = ? AND consumed_at IS NULL", user.ID, "reset_password").
+			Update("consumed_at", now).Error; err != nil {
+			return err
+		}
 		raw, hash, err := s.tokenGen()
 		if err != nil {
 			return err
@@ -97,17 +111,26 @@ func (s *AccountRecoveryService) RequestPasswordReset(ctx context.Context, email
 			return err
 		}
 		actionURL := s.frontendURL + "/" + locale + "/reset-password?token=" + raw
-		return s.sendEmail(ctx, accountauth.EmailMessage{
+		pending = accountauth.EmailMessage{
 			To:        user.Email,
 			Locale:    locale,
 			ActionURL: actionURL,
-		}, "password_reset", accountauth.EmailTemplateVar{DisplayName: user.Name, ActionURL: actionURL}, now)
+		}
+		return nil
 	})
+	if err != nil {
+		return err
+	}
+	// Mail rendering/delivery happens after commit; it must never hold a DB
+	// transaction open or make a committed reset appear to have failed.
+	_ = s.sendEmail(ctx, pending, "password_reset", accountauth.EmailTemplateVar{DisplayName: user.Name, ActionURL: pending.ActionURL}, now)
+	s.security.Record(ctx, accountauth.SecurityEvent{UserID: user.ID.String(), EventType: "password_recovery_request", Outcome: "success", Provider: "password", IPPrefix: accountauth.CoarseIPPrefix(client.IP), TraceID: client.TraceID})
+	return nil
 }
 
 // ResetPassword consumes the single-use reset token, replaces the password
 // identity hash, revokes every session, and sends a password-changed notice.
-func (s *AccountRecoveryService) ResetPassword(ctx context.Context, rawToken, newPassword string) error {
+func (s *AccountRecoveryService) ResetPassword(ctx context.Context, rawToken, newPassword string, clients ...accountauth.ClientInfo) error {
 	if err := validatePasswordLength(newPassword); err != nil {
 		return err
 	}
@@ -167,10 +190,19 @@ func (s *AccountRecoveryService) ResetPassword(ctx context.Context, rawToken, ne
 	if err := s.sessions.LogoutAll(ctx, user.ID); err != nil {
 		return err
 	}
-	return s.sendEmail(ctx, accountauth.EmailMessage{
+	err = s.sendEmail(ctx, accountauth.EmailMessage{
 		To:     user.Email,
 		Locale: "en",
 	}, "password_changed", accountauth.EmailTemplateVar{DisplayName: user.Name}, now)
+	s.security.Record(ctx, accountauth.SecurityEvent{UserID: user.ID.String(), EventType: "password_reset", Outcome: "success", Provider: "password", IPPrefix: accountauth.CoarseIPPrefix(firstClient(clients).IP), TraceID: firstClient(clients).TraceID})
+	return err
+}
+
+func firstClient(clients []accountauth.ClientInfo) accountauth.ClientInfo {
+	if len(clients) == 0 {
+		return accountauth.ClientInfo{}
+	}
+	return clients[0]
 }
 
 // sendEmail renders and sends a transactional email; delivery errors are

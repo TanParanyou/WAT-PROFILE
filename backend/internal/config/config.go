@@ -73,6 +73,7 @@ func MigrateModels() error {
 		&models.AuthIdentity{},
 		&models.AuthSession{},
 		&models.AuthActionToken{},
+		&models.AuthOAuthFlow{},
 		&models.AuthSecurityEvent{},
 		&models.RefreshToken{},
 		&models.PasswordReset{},

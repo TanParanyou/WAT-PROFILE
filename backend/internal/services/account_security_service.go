@@ -35,10 +35,18 @@ func BuildSecurityEvent(info accountauth.ClientInfo, meta map[string]any) accoun
 			metadata[key] = str
 		}
 	}
-	return accountauth.SecurityEvent{
+	event := accountauth.SecurityEvent{
 		IPPrefix: accountauth.CoarseIPPrefix(info.IP),
+		TraceID:  info.TraceID,
 		Metadata: metadata,
 	}
+	if provider, ok := metadata["provider"]; ok {
+		event.Provider = provider
+	}
+	if eventType, ok := metadata["event_type"]; ok {
+		event.EventType = eventType
+	}
+	return event
 }
 
 // AccountSecurityService records allow-listed security events to the audit

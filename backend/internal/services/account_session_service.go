@@ -56,11 +56,12 @@ type AccountSessionService struct {
 	tokenGen   accountauth.TokenGenerator
 	issuer     *accountauth.AccessTokenIssuer
 	refreshTTL time.Duration
+	security   accountauth.SecurityRecorder
 }
 
 // NewAccountSessionService builds the session service.
-func NewAccountSessionService(db *gorm.DB, clock accountauth.Clock, tokenGen accountauth.TokenGenerator, issuer *accountauth.AccessTokenIssuer, refreshTTL time.Duration) *AccountSessionService {
-	return &AccountSessionService{db: db, clock: clock, tokenGen: tokenGen, issuer: issuer, refreshTTL: refreshTTL}
+func NewAccountSessionService(db *gorm.DB, clock accountauth.Clock, tokenGen accountauth.TokenGenerator, issuer *accountauth.AccessTokenIssuer, refreshTTL time.Duration, recorders ...accountauth.SecurityRecorder) *AccountSessionService {
+	return &AccountSessionService{db: db, clock: clock, tokenGen: tokenGen, issuer: issuer, refreshTTL: refreshTTL, security: pickSecurityRecorder(recorders)}
 }
 
 // createdSession carries a newly created session row together with its plain
@@ -83,7 +84,9 @@ func (s *AccountSessionService) LoginPassword(ctx context.Context, in accountaut
 		// Bounded hash comparison so unknown-email and wrong-password paths
 		// have comparable timing and do not disclose account existence.
 		_ = utils.CheckPasswordHash(in.Password, ensureDummyHash())
-		return accountauth.SessionResult{}, accountauth.NewError(accountauth.CodeInvalidCredentials, "Incorrect email or password.")
+		err := accountauth.NewError(accountauth.CodeInvalidCredentials, "Incorrect email or password.")
+		s.recordSecurity(ctx, accountauth.SecurityEvent{EventType: "password_login", Outcome: "failure", Provider: "password", IPPrefix: accountauth.CoarseIPPrefix(in.Client.IP), TraceID: in.Client.TraceID})
+		return accountauth.SessionResult{}, err
 	}
 	if err != nil {
 		return accountauth.SessionResult{}, err
@@ -93,18 +96,24 @@ func (s *AccountSessionService) LoginPassword(ctx context.Context, in accountaut
 	err = s.db.WithContext(ctx).Where("user_id = ? AND provider = ?", user.ID, "password").First(&identity).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) || identity.CredentialHash == nil {
 		_ = utils.CheckPasswordHash(in.Password, ensureDummyHash())
-		return accountauth.SessionResult{}, accountauth.NewError(accountauth.CodeInvalidCredentials, "Incorrect email or password.")
+		err := accountauth.NewError(accountauth.CodeInvalidCredentials, "Incorrect email or password.")
+		s.recordSecurity(ctx, accountauth.SecurityEvent{UserID: user.ID.String(), EventType: "password_login", Outcome: "failure", Provider: "password", IPPrefix: accountauth.CoarseIPPrefix(in.Client.IP), TraceID: in.Client.TraceID})
+		return accountauth.SessionResult{}, err
 	}
 	if err != nil {
 		return accountauth.SessionResult{}, err
 	}
 
 	if !utils.CheckPasswordHash(in.Password, *identity.CredentialHash) {
-		return accountauth.SessionResult{}, accountauth.NewError(accountauth.CodeInvalidCredentials, "Incorrect email or password.")
+		err := accountauth.NewError(accountauth.CodeInvalidCredentials, "Incorrect email or password.")
+		s.recordSecurity(ctx, accountauth.SecurityEvent{UserID: user.ID.String(), EventType: "password_login", Outcome: "failure", Provider: "password", IPPrefix: accountauth.CoarseIPPrefix(in.Client.IP), TraceID: in.Client.TraceID})
+		return accountauth.SessionResult{}, err
 	}
 
 	if code := s.sessionStatusCode(user); code != "" {
-		return accountauth.SessionResult{}, accountauth.NewError(code, "This account is not allowed to sign in.")
+		err := accountauth.NewError(code, "This account is not allowed to sign in.")
+		s.recordSecurity(ctx, accountauth.SecurityEvent{UserID: user.ID.String(), EventType: "password_login", Outcome: "failure", Provider: "password", IPPrefix: accountauth.CoarseIPPrefix(in.Client.IP), TraceID: in.Client.TraceID})
+		return accountauth.SessionResult{}, err
 	}
 
 	now := s.clock.Now()
@@ -118,9 +127,12 @@ func (s *AccountSessionService) LoginPassword(ctx context.Context, in accountaut
 		if err != nil {
 			return err
 		}
-		result = accountauth.SessionResult{AccessToken: accessToken, RefreshToken: created.refreshToken, ExpiresIn: s.refreshTTL}
+		result = accountauth.SessionResult{AccessToken: accessToken, RefreshToken: created.refreshToken, ExpiresIn: s.issuer.TTL()}
 		return tx.Model(&models.User{}).Where("id = ?", user.ID).Update("last_login_at", now).Error
 	})
+	if err == nil {
+		s.recordSecurity(ctx, accountauth.SecurityEvent{UserID: user.ID.String(), EventType: "password_login", Outcome: "success", Provider: "password", IPPrefix: accountauth.CoarseIPPrefix(in.Client.IP), TraceID: in.Client.TraceID})
+	}
 	return result, err
 }
 
@@ -188,7 +200,7 @@ func (s *AccountSessionService) Refresh(ctx context.Context, rawRefresh string, 
 		if err != nil {
 			return err
 		}
-		result = accountauth.SessionResult{AccessToken: accessToken, RefreshToken: created.refreshToken, ExpiresIn: s.refreshTTL}
+		result = accountauth.SessionResult{AccessToken: accessToken, RefreshToken: created.refreshToken, ExpiresIn: s.issuer.TTL()}
 		return nil
 	})
 	if err != nil && reusedFamily != uuid.Nil {
@@ -202,6 +214,11 @@ func (s *AccountSessionService) Refresh(ctx context.Context, rawRefresh string, 
 			return accountauth.SessionResult{}, revokeErr
 		}
 	}
+	if err == nil {
+		s.recordSecurity(ctx, accountauth.SecurityEvent{EventType: "session_refresh", Outcome: "success", Provider: "password", IPPrefix: accountauth.CoarseIPPrefix(client.IP), TraceID: client.TraceID})
+	} else if reusedFamily != uuid.Nil {
+		s.recordSecurity(ctx, accountauth.SecurityEvent{EventType: "session_refresh_reuse", Outcome: "failure", Provider: "password", IPPrefix: accountauth.CoarseIPPrefix(client.IP), TraceID: client.TraceID})
+	}
 	return result, err
 }
 
@@ -212,7 +229,7 @@ func (s *AccountSessionService) Logout(ctx context.Context, userID uuid.UUID, ra
 	}
 	tokenHash := accountauth.HashOpaqueToken(rawRefresh)
 	now := s.clock.Now()
-	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var session models.AuthSession
 		if err := tx.Where("token_hash = ?", tokenHash).First(&session).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -225,14 +242,22 @@ func (s *AccountSessionService) Logout(ctx context.Context, userID uuid.UUID, ra
 		}
 		return s.revokeFamily(tx, session.FamilyID, logoutReason, now)
 	})
+	if err == nil {
+		s.recordSecurity(ctx, accountauth.SecurityEvent{UserID: userID.String(), EventType: "logout", Outcome: "success"})
+	}
+	return err
 }
 
 // LogoutAll revokes every active session of the user.
 func (s *AccountSessionService) LogoutAll(ctx context.Context, userID uuid.UUID) error {
 	now := s.clock.Now()
-	return s.db.WithContext(ctx).Model(&models.AuthSession{}).
+	err := s.db.WithContext(ctx).Model(&models.AuthSession{}).
 		Where("user_id = ? AND revoked_at IS NULL", userID).
 		Updates(map[string]any{"revoked_at": now, "revoked_reason": logoutAllReason, "updated_at": now}).Error
+	if err == nil {
+		s.recordSecurity(ctx, accountauth.SecurityEvent{UserID: userID.String(), EventType: "logout_all", Outcome: "success"})
+	}
+	return err
 }
 
 // ListSessions returns redacted session summaries for the user. The current
@@ -265,7 +290,7 @@ func (s *AccountSessionService) ListSessions(ctx context.Context, userID uuid.UU
 // unknown session ID returns an invalid-token error.
 func (s *AccountSessionService) RevokeSession(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID) error {
 	now := s.clock.Now()
-	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var session models.AuthSession
 		if err := tx.Where("id = ? AND user_id = ?", sessionID, userID).First(&session).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -275,6 +300,10 @@ func (s *AccountSessionService) RevokeSession(ctx context.Context, userID uuid.U
 		}
 		return s.revokeFamily(tx, session.FamilyID, userRevokeReason, now)
 	})
+	if err == nil {
+		s.recordSecurity(ctx, accountauth.SecurityEvent{UserID: userID.String(), EventType: "session_revoke", Outcome: "success"})
+	}
+	return err
 }
 
 // sessionStatusCode returns an error code when the user may not create or
@@ -319,4 +348,8 @@ func (s *AccountSessionService) revokeFamily(tx *gorm.DB, familyID uuid.UUID, re
 	return tx.Model(&models.AuthSession{}).
 		Where("family_id = ? AND revoked_at IS NULL", familyID).
 		Updates(map[string]any{"revoked_at": now, "revoked_reason": reason, "updated_at": now}).Error
+}
+
+func (s *AccountSessionService) recordSecurity(ctx context.Context, event accountauth.SecurityEvent) {
+	s.security.Record(ctx, event)
 }

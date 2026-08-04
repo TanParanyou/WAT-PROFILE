@@ -113,6 +113,27 @@ type AuthActionToken struct {
 	CreatedAt  time.Time  `json:"created_at"`
 }
 
+// AuthOAuthFlow stores short-lived Google OAuth state shared by all API
+// instances. The raw state is kept only in the signed browser cookie; the
+// database stores its one-way hash and consumes it atomically on callback.
+type AuthOAuthFlow struct {
+	ID        uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey" json:"-"`
+	StateHash string    `gorm:"size:64;uniqueIndex;not null" json:"-"`
+	Nonce     string    `gorm:"size:255;not null" json:"-"`
+	Verifier  string    `gorm:"size:255;not null" json:"-"`
+	Locale    string    `gorm:"size:2;not null" json:"-"`
+	ReturnTo  string    `gorm:"size:500;not null" json:"-"`
+	ExpiresAt time.Time `gorm:"not null;index" json:"-"`
+	CreatedAt time.Time `json:"-"`
+}
+
+func (f *AuthOAuthFlow) BeforeCreate(tx *gorm.DB) error {
+	if f.ID == uuid.Nil {
+		f.ID = uuid.New()
+	}
+	return nil
+}
+
 // BeforeCreate hook to generate UUID
 func (t *AuthActionToken) BeforeCreate(tx *gorm.DB) error {
 	if t.ID == uuid.Nil {

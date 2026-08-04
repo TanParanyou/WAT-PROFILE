@@ -8,6 +8,7 @@ import (
 	"io"
 	"net/http"
 	"net/http/httptest"
+	"net/url"
 	"os"
 	"strings"
 	"testing"
@@ -49,6 +50,7 @@ func accountHandlerTestDB(t *testing.T) *gorm.DB {
 		&models.AuthIdentity{},
 		&models.AuthSession{},
 		&models.AuthActionToken{},
+		&models.AuthOAuthFlow{},
 		&models.AuthSecurityEvent{},
 	); err != nil {
 		t.Fatalf("failed to migrate test database: %v", err)
@@ -238,6 +240,18 @@ func cookieValue(setCookie, name string) string {
 	return ""
 }
 
+func authorizationState(t *testing.T, resp *http.Response) string {
+	t.Helper()
+	body := decodeBody(t, resp)
+	data, _ := body["data"].(map[string]interface{})
+	raw, _ := data["authorization_url"].(string)
+	u, err := url.Parse(raw)
+	if err != nil {
+		t.Fatalf("parse authorization url: %v", err)
+	}
+	return u.Query().Get("state")
+}
+
 // TestLoginSetsHttpOnlyRefreshCookieWithoutReturningToken verifies the core
 // contract: login returns the access token in the body and the rotating
 // refresh token only inside a Secure HttpOnly cookie.
@@ -275,6 +289,9 @@ func TestLoginSetsHttpOnlyRefreshCookieWithoutReturningToken(t *testing.T) {
 	data, _ := body["data"].(map[string]interface{})
 	if data["access_token"] == nil || data["access_token"] == "" {
 		t.Fatalf("expected access_token in body, got %v", data["access_token"])
+	}
+	if expires, ok := data["expires_in"].(float64); !ok || expires != 900 {
+		t.Fatalf("expected access token expires_in=900 seconds, got %v", data["expires_in"])
 	}
 }
 
@@ -432,8 +449,9 @@ func TestAccountGoogleCallbackRedirectsWithoutTokens(t *testing.T) {
 		t.Fatalf("start failed: %d", startResp.StatusCode)
 	}
 	flowCookie := cookieValue(headerValue(startResp, "Set-Cookie"), "wat_google_flow")
+	state := authorizationState(t, startResp)
 
-	resp := performJSON(t, app, http.MethodGet, "/api/v1/accounts/google/callback?code=test-code&state=ignored", nil, map[string]string{
+	resp := performJSON(t, app, http.MethodGet, "/api/v1/accounts/google/callback?code=test-code&state="+url.QueryEscape(state), nil, map[string]string{
 		"Cookie": "wat_google_flow=" + flowCookie,
 	})
 	if resp.StatusCode != fiber.StatusFound {
@@ -457,8 +475,9 @@ func TestAccountGoogleCallbackApprovalRedirect(t *testing.T) {
 
 	startResp := performJSON(t, app, http.MethodGet, "/api/v1/accounts/google/start?locale=en", nil, nil)
 	flowCookie := cookieValue(headerValue(startResp, "Set-Cookie"), "wat_google_flow")
+	state := authorizationState(t, startResp)
 
-	resp := performJSON(t, app, http.MethodGet, "/api/v1/accounts/google/callback?code=test-code", nil, map[string]string{
+	resp := performJSON(t, app, http.MethodGet, "/api/v1/accounts/google/callback?code=test-code&state="+url.QueryEscape(state), nil, map[string]string{
 		"Cookie": "wat_google_flow=" + flowCookie,
 	})
 	if resp.StatusCode != fiber.StatusFound {

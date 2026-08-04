@@ -44,12 +44,13 @@ type AccountProfileService struct {
 	db       *gorm.DB
 	clock    accountauth.Clock
 	sessions sessionLogoutAller
+	security accountauth.SecurityRecorder
 }
 
 // NewAccountProfileService builds the profile service. The sessions dependency
 // revokes every session when an account is closed.
-func NewAccountProfileService(db *gorm.DB, clock accountauth.Clock, sessions sessionLogoutAller) *AccountProfileService {
-	return &AccountProfileService{db: db, clock: clock, sessions: sessions}
+func NewAccountProfileService(db *gorm.DB, clock accountauth.Clock, sessions sessionLogoutAller, recorders ...accountauth.SecurityRecorder) *AccountProfileService {
+	return &AccountProfileService{db: db, clock: clock, sessions: sessions, security: pickSecurityRecorder(recorders)}
 }
 
 // GetAccount returns the safe account view for the owner.
@@ -184,7 +185,11 @@ func (s *AccountProfileService) CloseAccount(ctx context.Context, userID uuid.UU
 		return err
 	}
 
-	return s.sessions.LogoutAll(ctx, userID)
+	if err := s.sessions.LogoutAll(ctx, userID); err != nil {
+		return err
+	}
+	s.security.Record(ctx, accountauth.SecurityEvent{UserID: userID.String(), EventType: "account_close", Outcome: "success"})
+	return nil
 }
 
 func checkPasswordAgainst(hash *string, password string) bool {

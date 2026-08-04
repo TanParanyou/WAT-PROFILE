@@ -40,6 +40,11 @@ func NewAccessTokenIssuer(secret []byte, clock Clock, ttl time.Duration) *Access
 	return &AccessTokenIssuer{secret: secret, clock: clock, ttl: ttl}
 }
 
+// TTL returns the configured lifetime of access tokens. Session responses use
+// this value for expires_in; refresh-token lifetime is communicated by the
+// HttpOnly cookie instead.
+func (i *AccessTokenIssuer) TTL() time.Duration { return i.ttl }
+
 // Issue signs a new access token for the given user and session. authTime is
 // the moment the user last authenticated, used for recent-authentication checks.
 func (i *AccessTokenIssuer) Issue(userID, sessionID uuid.UUID, authTime time.Time) (string, error) {

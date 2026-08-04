@@ -462,6 +462,25 @@ func TestResendVerificationUnknownEmailGeneric(t *testing.T) {
 	}
 }
 
+func TestResendVerificationRejectsUnsupportedLocaleWithoutInvalidatingToken(t *testing.T) {
+	db := newAccountTestDB(t)
+	sender := &fakeEmailSender{}
+	service := newRegistrationFixture(t, db, sender)
+	if err := service.RegisterPassword(context.Background(), RegisterPasswordInput{
+		Email: "locale-resend@example.com", Password: "correct horse battery staple",
+		DisplayName: "Visitor", Locale: "en",
+	}); err != nil {
+		t.Fatalf("register: %v", err)
+	}
+	firstToken := extractVerificationToken(t, sender)
+	if err := service.ResendVerification(context.Background(), "locale-resend@example.com", "fr"); accountauth.ErrorCode(err) != accountauth.CodeValidation {
+		t.Fatalf("expected locale validation error, got %v", err)
+	}
+	if err := service.VerifyEmail(context.Background(), firstToken); err != nil {
+		t.Fatalf("valid token must remain usable after invalid-locale resend: %v", err)
+	}
+}
+
 // extractVerificationToken returns the plaintext verification token from the
 // most recent captured verification email. Only hashes are stored in the
 // database, so tests recover the plaintext from the delivered action URL.

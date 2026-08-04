@@ -38,6 +38,7 @@ type RegisterPasswordInput struct {
 	Password    string
 	DisplayName string
 	Locale      string
+	Client      accountauth.ClientInfo
 }
 
 // pendingVerification carries the information needed to deliver the
@@ -59,16 +60,18 @@ type AccountRegistrationService struct {
 	clock       accountauth.Clock
 	tokenGen    accountauth.TokenGenerator
 	frontendURL string
+	security    accountauth.SecurityRecorder
 }
 
 // NewAccountRegistrationService builds the registration service.
-func NewAccountRegistrationService(db *gorm.DB, sender accountauth.EmailSender, clock accountauth.Clock, tokenGen accountauth.TokenGenerator) *AccountRegistrationService {
+func NewAccountRegistrationService(db *gorm.DB, sender accountauth.EmailSender, clock accountauth.Clock, tokenGen accountauth.TokenGenerator, recorders ...accountauth.SecurityRecorder) *AccountRegistrationService {
 	return &AccountRegistrationService{
 		db:          db,
 		sender:      sender,
 		clock:       clock,
 		tokenGen:    tokenGen,
 		frontendURL: strings.TrimRight(os.Getenv("PUBLIC_ACCOUNT_FRONTEND_URL"), "/"),
+		security:    pickSecurityRecorder(recorders),
 	}
 }
 
@@ -171,12 +174,14 @@ func (s *AccountRegistrationService) RegisterPassword(ctx context.Context, in Re
 		return nil
 	})
 	if err != nil {
+		s.security.Record(ctx, accountauth.SecurityEvent{EventType: "password_registration", Outcome: "failure", Provider: "password", IPPrefix: accountauth.CoarseIPPrefix(in.Client.IP), TraceID: in.Client.TraceID})
 		return err
 	}
 
 	if pending != nil {
 		s.sendEmail(ctx, *pending)
 	}
+	s.security.Record(ctx, accountauth.SecurityEvent{EventType: "password_registration", Outcome: "success", Provider: "password", IPPrefix: accountauth.CoarseIPPrefix(in.Client.IP), TraceID: in.Client.TraceID})
 	return nil
 }
 
@@ -226,6 +231,9 @@ func (s *AccountRegistrationService) VerifyEmail(ctx context.Context, rawToken s
 // generic accepted result so account existence is not disclosed.
 func (s *AccountRegistrationService) ResendVerification(ctx context.Context, email, locale string) error {
 	email = accountauth.NormalizeEmail(email)
+	if !supportedLocale(locale) {
+		return accountauth.NewFieldError(accountauth.CodeValidation, "locale", "Unsupported locale.")
+	}
 
 	var pending *pendingVerification
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {

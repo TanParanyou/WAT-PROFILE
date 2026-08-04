@@ -18,25 +18,25 @@ import (
 type Code string
 
 const (
-	CodeInvalidCredentials       Code = "AUTH_INVALID_CREDENTIALS"
-	CodeVerificationRequired     Code = "AUTH_EMAIL_VERIFICATION_REQUIRED"
-	CodeTokenInvalid             Code = "AUTH_TOKEN_INVALID_OR_EXPIRED"
-	CodeRateLimited              Code = "AUTH_RATE_LIMITED"
-	CodeAccountDisabled          Code = "AUTH_ACCOUNT_DISABLED"
-	CodeReauthRequired           Code = "AUTH_REAUTH_REQUIRED"
-	CodeEmailAlreadyRegistered   Code = "AUTH_EMAIL_ALREADY_REGISTERED"
-	CodeValidation               Code = "AUTH_VALIDATION"
-	CodeInternal                 Code = "AUTH_INTERNAL"
-	CodeUnknown                  Code = "AUTH_UNKNOWN"
+	CodeInvalidCredentials     Code = "AUTH_INVALID_CREDENTIALS"
+	CodeVerificationRequired   Code = "AUTH_EMAIL_VERIFICATION_REQUIRED"
+	CodeTokenInvalid           Code = "AUTH_TOKEN_INVALID_OR_EXPIRED"
+	CodeRateLimited            Code = "AUTH_RATE_LIMITED"
+	CodeAccountDisabled        Code = "AUTH_ACCOUNT_DISABLED"
+	CodeReauthRequired         Code = "AUTH_REAUTH_REQUIRED"
+	CodeEmailAlreadyRegistered Code = "AUTH_EMAIL_ALREADY_REGISTERED"
+	CodeValidation             Code = "AUTH_VALIDATION"
+	CodeInternal               Code = "AUTH_INTERNAL"
+	CodeUnknown                Code = "AUTH_UNKNOWN"
 )
 
 // Error is a typed domain error carrying a stable code and an optional field
 // map for form-level validation errors. Error() text is a safe English
 // fallback and never exposes secrets or account existence details.
 type Error struct {
-	Code    Code
-	Message string
-	Field   string // optional field name for form-level errors
+	Code       Code
+	Message    string
+	Field      string        // optional field name for form-level errors
 	RetryAfter time.Duration // optional rate-limit retry hint
 }
 
@@ -61,12 +61,12 @@ func NewFieldError(code Code, field, message string) *Error {
 
 // Sentinel errors for internal comparison without leaking typed details.
 var (
-	ErrInvalidCredentials = errors.New("invalid credentials")
-	ErrRateLimited        = errors.New("rate limited")
-	ErrTokenInvalid       = errors.New("token invalid or expired")
-	ErrAccountDisabled    = errors.New("account disabled")
+	ErrInvalidCredentials        = errors.New("invalid credentials")
+	ErrRateLimited               = errors.New("rate limited")
+	ErrTokenInvalid              = errors.New("token invalid or expired")
+	ErrAccountDisabled           = errors.New("account disabled")
 	ErrEmailVerificationRequired = errors.New("email verification required")
-	ErrReauthRequired     = errors.New("reauthentication required")
+	ErrReauthRequired            = errors.New("reauthentication required")
 )
 
 // Clock is an injectable time source so services are deterministic in tests.
@@ -85,11 +85,11 @@ type TokenGenerator func() (plain string, hash string, err error)
 // EmailMessage is a fully rendered, localized transactional message. It never
 // carries credentials or raw action tokens beyond the action URL itself.
 type EmailMessage struct {
-	To      string
-	Locale  string
-	Subject string
-	Body    string // plain-text body
-	HTML    string
+	To        string
+	Locale    string
+	Subject   string
+	Body      string // plain-text body
+	HTML      string
 	ActionURL string
 }
 
@@ -101,12 +101,12 @@ type EmailSender interface {
 // GoogleIdentity is the minimal verified identity extracted from a validated
 // Google ID token. It deliberately excludes Google access/refresh tokens.
 type GoogleIdentity struct {
-	Subject      string
-	Email        string
+	Subject       string
+	Email         string
 	EmailVerified bool
-	DisplayName  string
-	AvatarURL    string
-	Locale       string
+	DisplayName   string
+	AvatarURL     string
+	Locale        string
 }
 
 // GoogleVerifier validates Google authorization responses. Implementations are
@@ -127,13 +127,13 @@ type SecurityRecorder interface {
 
 // SecurityEvent is an allow-listed, pre-sanitized event.
 type SecurityEvent struct {
-	UserID   string
+	UserID    string
 	EventType string
-	Outcome  string // success | failure
-	Provider string
-	TraceID  string
-	IPPrefix string
-	Metadata map[string]string
+	Outcome   string // success | failure
+	Provider  string
+	TraceID   string
+	IPPrefix  string
+	Metadata  map[string]string
 }
 
 // NormalizeEmail lowercases and trims an email address for comparison.
@@ -193,6 +193,7 @@ func ErrorCode(err error) Code {
 type ClientInfo struct {
 	IP        string
 	UserAgent string
+	TraceID   string
 }
 
 // LoginPasswordInput carries the credentials and client context for a password

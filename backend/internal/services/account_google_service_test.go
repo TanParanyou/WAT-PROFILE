@@ -76,12 +76,21 @@ func startFlow(t *testing.T, f *googleFixture, locale, returnTo string) string {
 	return result.FlowCookie
 }
 
+func flowState(t *testing.T, flowCookie string) string {
+	t.Helper()
+	state, err := accountauth.ParseFlowCookie(flowCookie, []byte("test-flow-secret"))
+	if err != nil {
+		t.Fatalf("parse flow cookie: %v", err)
+	}
+	return state
+}
+
 func TestGoogleMatchingEmailRequiresApproval(t *testing.T) {
 	f := newGoogleFixture(t, accountauth.GoogleIdentity{Subject: "google-sub", Email: "known@example.com", EmailVerified: true})
 	seedVerifiedPasswordAccount(t, f.db, "known@example.com")
 
 	flowCookie := startFlow(t, f, "en", "/account")
-	result, err := f.svc.CompleteGoogle(context.Background(), "code", flowCookie, testClient())
+	result, err := f.svc.CompleteGoogle(context.Background(), "code", flowState(t, flowCookie), flowCookie, testClient())
 	if err != nil {
 		t.Fatalf("CompleteGoogle: %v", err)
 	}
@@ -112,7 +121,7 @@ func TestGoogleNewAccountCreatesActiveUser(t *testing.T) {
 	f := newGoogleFixture(t, accountauth.GoogleIdentity{Subject: "new-google-sub", Email: "New.User@Example.com", EmailVerified: true, DisplayName: "New User"})
 
 	flowCookie := startFlow(t, f, "de", "")
-	result, err := f.svc.CompleteGoogle(context.Background(), "code", flowCookie, testClient())
+	result, err := f.svc.CompleteGoogle(context.Background(), "code", flowState(t, flowCookie), flowCookie, testClient())
 	if err != nil {
 		t.Fatalf("CompleteGoogle: %v", err)
 	}
@@ -158,7 +167,7 @@ func TestGoogleExistingLinkedIdentitySignsIn(t *testing.T) {
 	f.db.Create(&models.AuthIdentity{UserID: user.ID, Provider: "google", ProviderSubject: "linked-sub", ProviderEmail: "linked@example.com"})
 
 	flowCookie := startFlow(t, f, "en", "/account")
-	result, err := f.svc.CompleteGoogle(context.Background(), "code", flowCookie, testClient())
+	result, err := f.svc.CompleteGoogle(context.Background(), "code", flowState(t, flowCookie), flowCookie, testClient())
 	if err != nil {
 		t.Fatalf("CompleteGoogle: %v", err)
 	}
@@ -180,7 +189,7 @@ func TestGoogleUnverifiedEmailRejected(t *testing.T) {
 	f := newGoogleFixture(t, accountauth.GoogleIdentity{Subject: "unverified-sub", Email: "unverified@example.com", EmailVerified: false})
 
 	flowCookie := startFlow(t, f, "en", "")
-	_, err := f.svc.CompleteGoogle(context.Background(), "code", flowCookie, testClient())
+	_, err := f.svc.CompleteGoogle(context.Background(), "code", flowState(t, flowCookie), flowCookie, testClient())
 	if err == nil || accountauth.ErrorCode(err) != accountauth.CodeTokenInvalid {
 		t.Fatalf("expected token-invalid error for unverified email, got %v", err)
 	}
@@ -191,7 +200,7 @@ func TestGoogleFlowExpiredRejected(t *testing.T) {
 	flowCookie := startFlow(t, f, "en", "")
 
 	expiredSvc := NewAccountGoogleService(f.db, fixedClockAt(fixedNow().Add(11*time.Minute)), accountauth.NewOpaqueToken, f.sender, f.verifier, f.sessions(), []byte("test-flow-secret"), "http://localhost:3000")
-	_, err := expiredSvc.CompleteGoogle(context.Background(), "code", flowCookie, testClient())
+	_, err := expiredSvc.CompleteGoogle(context.Background(), "code", flowState(t, flowCookie), flowCookie, testClient())
 	if err == nil || accountauth.ErrorCode(err) != accountauth.CodeTokenInvalid {
 		t.Fatalf("expected token-invalid for expired flow, got %v", err)
 	}
@@ -205,10 +214,10 @@ func TestGoogleFlowConsumedOnce(t *testing.T) {
 	f := newGoogleFixture(t, accountauth.GoogleIdentity{Subject: "once-sub", Email: "once@example.com", EmailVerified: true})
 	flowCookie := startFlow(t, f, "en", "")
 
-	if _, err := f.svc.CompleteGoogle(context.Background(), "code", flowCookie, testClient()); err != nil {
+	if _, err := f.svc.CompleteGoogle(context.Background(), "code", flowState(t, flowCookie), flowCookie, testClient()); err != nil {
 		t.Fatalf("first CompleteGoogle: %v", err)
 	}
-	_, err := f.svc.CompleteGoogle(context.Background(), "code", flowCookie, testClient())
+	_, err := f.svc.CompleteGoogle(context.Background(), "code", flowState(t, flowCookie), flowCookie, testClient())
 	if err == nil || accountauth.ErrorCode(err) != accountauth.CodeTokenInvalid {
 		t.Fatalf("expected token-invalid on flow reuse, got %v", err)
 	}
@@ -219,9 +228,39 @@ func TestGoogleTamperedFlowCookieRejected(t *testing.T) {
 	flowCookie := startFlow(t, f, "en", "")
 	tampered := flipLastByte(flowCookie)
 
-	_, err := f.svc.CompleteGoogle(context.Background(), "code", tampered, testClient())
+	_, err := f.svc.CompleteGoogle(context.Background(), "code", flowState(t, flowCookie), tampered, testClient())
 	if err == nil || accountauth.ErrorCode(err) != accountauth.CodeTokenInvalid {
 		t.Fatalf("expected token-invalid for tampered cookie, got %v", err)
+	}
+}
+
+func TestGoogleCallbackStateMustMatchCookieAndDoesNotConsumeOnMismatch(t *testing.T) {
+	f := newGoogleFixture(t, accountauth.GoogleIdentity{Subject: "state-sub", Email: "state@example.com", EmailVerified: true})
+	flowCookie := startFlow(t, f, "en", "")
+	state := flowState(t, flowCookie)
+	if _, err := f.svc.CompleteGoogle(context.Background(), "code", "wrong-state", flowCookie, testClient()); accountauth.ErrorCode(err) != accountauth.CodeTokenInvalid {
+		t.Fatalf("expected token-invalid for mismatched callback state, got %v", err)
+	}
+	if _, err := f.svc.CompleteGoogle(context.Background(), "code", state, flowCookie, testClient()); err != nil {
+		t.Fatalf("matching callback state should still consume a valid flow: %v", err)
+	}
+}
+
+func TestGoogleSignInPersistsCoarseSecurityContext(t *testing.T) {
+	f := newGoogleFixture(t, accountauth.GoogleIdentity{Subject: "audit-sub", Email: "audit@example.com", EmailVerified: true})
+	f.svc.security = NewAccountSecurityService(f.db, fixedClockAt(fixedNow()))
+	flowCookie := startFlow(t, f, "en", "")
+	client := accountauth.ClientInfo{IP: "203.0.113.42", TraceID: "google-trace-test"}
+	result, err := f.svc.CompleteGoogle(context.Background(), "code", flowState(t, flowCookie), flowCookie, client)
+	if err != nil {
+		t.Fatalf("CompleteGoogle: %v", err)
+	}
+	var event models.AuthSecurityEvent
+	if err := f.db.Where("event_type = ? AND user_id = ?", "google_sign_in", result.UserID).Order("created_at DESC").First(&event).Error; err != nil {
+		t.Fatalf("google security event not persisted: %v", err)
+	}
+	if event.Outcome != "success" || event.Provider != "google" || event.RequestTraceID != client.TraceID || event.IPPrefix != "203.0.113.0/24" {
+		t.Fatalf("unexpected google security event: %+v", event)
 	}
 }
 
@@ -250,7 +289,10 @@ func TestStartGooglePreservesLocale(t *testing.T) {
 	if err != nil {
 		t.Fatalf("parse flow cookie: %v", err)
 	}
-	flow, ok := f.store.Take(context.Background(), state)
+	flow, ok, err := f.store.Take(context.Background(), state)
+	if err != nil {
+		t.Fatalf("take flow: %v", err)
+	}
 	if !ok {
 		t.Fatal("flow not found in store")
 	}
@@ -373,7 +415,7 @@ func TestGoogleDisabledAccountRejected(t *testing.T) {
 	f.db.Model(&user).Updates(map[string]interface{}{"account_status": string(models.AccountStatusDisabled)})
 
 	flowCookie := startFlow(t, f, "en", "")
-	_, err := f.svc.CompleteGoogle(context.Background(), "code", flowCookie, testClient())
+	_, err := f.svc.CompleteGoogle(context.Background(), "code", flowState(t, flowCookie), flowCookie, testClient())
 	if err == nil || accountauth.ErrorCode(err) != accountauth.CodeAccountDisabled {
 		t.Fatalf("expected account-disabled error, got %v", err)
 	}

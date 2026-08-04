@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"crypto/hmac"
 	"errors"
 	"net/url"
 	"strings"
@@ -12,6 +13,7 @@ import (
 	"github.com/jackc/pgx/v5/pgconn"
 	"golang.org/x/oauth2"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/watloungporsai/wat-profile-backend/internal/accountauth"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
@@ -26,9 +28,9 @@ const (
 type GoogleCompletionStatus string
 
 const (
-	GoogleCompletionCreated       GoogleCompletionStatus = "created"
-	GoogleCompletionSignedIn      GoogleCompletionStatus = "signed_in"
-	GoogleCompletionApprovalSent  GoogleCompletionStatus = "approval_sent"
+	GoogleCompletionCreated      GoogleCompletionStatus = "created"
+	GoogleCompletionSignedIn     GoogleCompletionStatus = "signed_in"
+	GoogleCompletionApprovalSent GoogleCompletionStatus = "approval_sent"
 )
 
 // GoogleCompletion is the result of CompleteGoogle.
@@ -58,7 +60,7 @@ type googleFlowData struct {
 // googleFlowStore persists short-lived OAuth flow state.
 type googleFlowStore interface {
 	Put(ctx context.Context, state string, flow googleFlowData) error
-	Take(ctx context.Context, state string) (googleFlowData, bool)
+	Take(ctx context.Context, state string) (googleFlowData, bool, error)
 }
 
 // memoryGoogleFlowStore is a non-persistent flow store for local/testing use.
@@ -77,35 +79,79 @@ func (s *memoryGoogleFlowStore) Put(ctx context.Context, state string, flow goog
 	return nil
 }
 
-func (s *memoryGoogleFlowStore) Take(ctx context.Context, state string) (googleFlowData, bool) {
+func (s *memoryGoogleFlowStore) Take(ctx context.Context, state string) (googleFlowData, bool, error) {
 	s.mu.Lock()
 	defer s.mu.Unlock()
 	flow, ok := s.flows[state]
 	if !ok {
-		return googleFlowData{}, false
+		return googleFlowData{}, false, nil
 	}
 	delete(s.flows, state)
-	return flow, true
+	return flow, true, nil
+}
+
+// postgresGoogleFlowStore keeps OAuth state in the shared database so a
+// callback can land on any API instance and a process restart cannot orphan a
+// flow. Take deletes under a row lock, making consumption one-time.
+type postgresGoogleFlowStore struct {
+	db    *gorm.DB
+	clock accountauth.Clock
+}
+
+func (s *postgresGoogleFlowStore) Put(ctx context.Context, state string, flow googleFlowData) error {
+	return s.db.WithContext(ctx).Create(&models.AuthOAuthFlow{
+		StateHash: accountauth.HashOpaqueToken(state),
+		Nonce:     flow.Nonce,
+		Verifier:  flow.Verifier,
+		Locale:    flow.Locale,
+		ReturnTo:  flow.ReturnTo,
+		ExpiresAt: flow.ExpiresAt,
+	}).Error
+}
+
+func (s *postgresGoogleFlowStore) Take(ctx context.Context, state string) (googleFlowData, bool, error) {
+	var flow googleFlowData
+	ok := false
+	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var row models.AuthOAuthFlow
+		err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
+			Where("state_hash = ? AND expires_at > ?", accountauth.HashOpaqueToken(state), s.clock.Now()).
+			First(&row).Error
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil
+		}
+		if err != nil {
+			return err
+		}
+		if err := tx.Delete(&row).Error; err != nil {
+			return err
+		}
+		flow = googleFlowData{Nonce: row.Nonce, Verifier: row.Verifier, Locale: row.Locale, ReturnTo: row.ReturnTo, ExpiresAt: row.ExpiresAt}
+		ok = true
+		return nil
+	})
+	return flow, ok, err
 }
 
 // AccountGoogleService implements Google authorization-code + PKCE sign-in,
 // new-account creation, and approval-based linking to an existing email.
 type AccountGoogleService struct {
-	db         *gorm.DB
-	clock      accountauth.Clock
-	tokenGen   accountauth.TokenGenerator
-	sender     accountauth.EmailSender
-	verifier   accountauth.GoogleVerifier
-	sessions   *AccountSessionService
-	flows      googleFlowStore
-	flowSecret []byte
+	db          *gorm.DB
+	clock       accountauth.Clock
+	tokenGen    accountauth.TokenGenerator
+	sender      accountauth.EmailSender
+	verifier    accountauth.GoogleVerifier
+	sessions    *AccountSessionService
+	flows       googleFlowStore
+	flowSecret  []byte
 	frontendURL string
+	security    accountauth.SecurityRecorder
 }
 
 // NewAccountGoogleService builds the Google auth service. The flow store
-// defaults to an in-memory implementation; callers may swap s.flows for a
-// persistent store before first use.
-func NewAccountGoogleService(db *gorm.DB, clock accountauth.Clock, tokenGen accountauth.TokenGenerator, sender accountauth.EmailSender, verifier accountauth.GoogleVerifier, sessions *AccountSessionService, flowSecret []byte, frontendURL string) *AccountGoogleService {
+// defaults to a PostgreSQL-backed implementation; tests and isolated local
+// flows may swap s.flows for memoryGoogleFlowStore.
+func NewAccountGoogleService(db *gorm.DB, clock accountauth.Clock, tokenGen accountauth.TokenGenerator, sender accountauth.EmailSender, verifier accountauth.GoogleVerifier, sessions *AccountSessionService, flowSecret []byte, frontendURL string, recorders ...accountauth.SecurityRecorder) *AccountGoogleService {
 	return &AccountGoogleService{
 		db:          db,
 		clock:       clock,
@@ -113,9 +159,10 @@ func NewAccountGoogleService(db *gorm.DB, clock accountauth.Clock, tokenGen acco
 		sender:      sender,
 		verifier:    verifier,
 		sessions:    sessions,
-		flows:       &memoryGoogleFlowStore{flows: map[string]googleFlowData{}},
+		flows:       &postgresGoogleFlowStore{db: db, clock: clock},
 		flowSecret:  flowSecret,
 		frontendURL: frontendURL,
+		security:    pickSecurityRecorder(recorders),
 	}
 }
 
@@ -165,24 +212,36 @@ func (s *AccountGoogleService) StartGoogle(ctx context.Context, locale, returnTo
 
 // CompleteGoogle verifies the callback and signs in, creates, or starts
 // approval linking for the matching account.
-func (s *AccountGoogleService) CompleteGoogle(ctx context.Context, code, flowCookie string, client accountauth.ClientInfo) (GoogleCompletion, error) {
+func (s *AccountGoogleService) CompleteGoogle(ctx context.Context, code, callbackState, flowCookie string, client accountauth.ClientInfo) (GoogleCompletion, error) {
 	state, err := accountauth.ParseFlowCookie(flowCookie, s.flowSecret)
 	if err != nil {
+		s.recordGoogleSecurity(ctx, "failure", "", client)
 		return GoogleCompletion{}, accountauth.NewError(accountauth.CodeTokenInvalid, "The sign-in link is invalid or has expired.")
 	}
-	flow, ok := s.flows.Take(ctx, state)
+	if callbackState == "" || !hmac.Equal([]byte(state), []byte(callbackState)) {
+		s.recordGoogleSecurity(ctx, "failure", "", client)
+		return GoogleCompletion{}, accountauth.NewError(accountauth.CodeTokenInvalid, "The sign-in link is invalid or has expired.")
+	}
+	flow, ok, err := s.flows.Take(ctx, state)
+	if err != nil {
+		return GoogleCompletion{}, err
+	}
 	if !ok {
+		s.recordGoogleSecurity(ctx, "failure", "", client)
 		return GoogleCompletion{}, accountauth.NewError(accountauth.CodeTokenInvalid, "The sign-in link is invalid or has expired.")
 	}
 	if s.clock.Now().After(flow.ExpiresAt) {
+		s.recordGoogleSecurity(ctx, "failure", "", client)
 		return GoogleCompletion{}, accountauth.NewError(accountauth.CodeTokenInvalid, "The sign-in link is invalid or has expired.")
 	}
 
 	identity, err := s.verifier.VerifyCallback(ctx, code, flow.Verifier, flow.Nonce)
 	if err != nil {
+		s.recordGoogleSecurity(ctx, "failure", "", client)
 		return GoogleCompletion{}, accountauth.NewError(accountauth.CodeTokenInvalid, "The sign-in link is invalid or has expired.")
 	}
 	if !identity.EmailVerified {
+		s.recordGoogleSecurity(ctx, "failure", "", client)
 		return GoogleCompletion{}, accountauth.NewError(accountauth.CodeTokenInvalid, "Google could not verify this email address.")
 	}
 
@@ -196,6 +255,7 @@ func (s *AccountGoogleService) CompleteGoogle(ctx context.Context, code, flowCoo
 		if err != nil {
 			return GoogleCompletion{}, err
 		}
+		s.recordGoogleSecurity(ctx, "success", linked.UserID.String(), client)
 		return GoogleCompletion{Status: GoogleCompletionSignedIn, Session: session, UserID: linked.UserID, Locale: flow.Locale, ReturnTo: flow.ReturnTo}, nil
 	}
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
@@ -213,6 +273,7 @@ func (s *AccountGoogleService) CompleteGoogle(ctx context.Context, code, flowCoo
 		if err != nil {
 			return GoogleCompletion{}, err
 		}
+		s.recordGoogleSecurity(ctx, "success", user.userID.String(), client)
 		return GoogleCompletion{Status: GoogleCompletionCreated, Session: user.session, UserID: user.userID, Locale: flow.Locale, ReturnTo: flow.ReturnTo}, nil
 	}
 	if err != nil {
@@ -256,6 +317,7 @@ func (s *AccountGoogleService) CompleteGoogle(ctx context.Context, code, flowCoo
 	}
 
 	s.sendLinkApprovalEmail(ctx, existing, identity, flow.Locale, raw)
+	s.recordGoogleSecurity(ctx, "success", existing.ID.String(), client)
 	return GoogleCompletion{Status: GoogleCompletionApprovalSent, UserID: existing.ID, Locale: flow.Locale, ReturnTo: flow.ReturnTo}, nil
 }
 
@@ -328,14 +390,22 @@ func (s *AccountGoogleService) ConfirmGoogleLink(ctx context.Context, actionToke
 		session = accountauth.SessionResult{
 			AccessToken:  accessToken,
 			RefreshToken: created.refreshToken,
-			ExpiresIn:    s.sessions.refreshTTL,
+			ExpiresIn:    s.sessions.issuer.TTL(),
 		}
 		return nil
 	})
 	if err != nil {
 		return accountauth.SessionResult{}, err
 	}
+	s.recordGoogleSecurity(ctx, "success", "", client)
 	return session, nil
+}
+
+func (s *AccountGoogleService) recordGoogleSecurity(ctx context.Context, outcome, userID string, client accountauth.ClientInfo) {
+	s.security.Record(ctx, accountauth.SecurityEvent{
+		UserID: userID, EventType: "google_sign_in", Outcome: outcome, Provider: "google",
+		TraceID: client.TraceID, IPPrefix: accountauth.CoarseIPPrefix(client.IP),
+	})
 }
 
 // googleAccountResult carries the created account and its session.
@@ -394,7 +464,7 @@ func (s *AccountGoogleService) createGoogleAccount(ctx context.Context, identity
 			session: accountauth.SessionResult{
 				AccessToken:  accessToken,
 				RefreshToken: created.refreshToken,
-				ExpiresIn:    s.sessions.refreshTTL,
+				ExpiresIn:    s.sessions.issuer.TTL(),
 			},
 		}
 		return tx.Model(&models.User{}).Where("id = ?", user.ID).Update("last_login_at", now).Error
@@ -420,7 +490,7 @@ func (s *AccountGoogleService) sessionForUser(ctx context.Context, userID uuid.U
 		session = accountauth.SessionResult{
 			AccessToken:  accessToken,
 			RefreshToken: created.refreshToken,
-			ExpiresIn:    s.sessions.refreshTTL,
+			ExpiresIn:    s.sessions.issuer.TTL(),
 		}
 		return tx.Model(&models.User{}).Where("id = ?", userID).Update("last_login_at", now).Error
 	})

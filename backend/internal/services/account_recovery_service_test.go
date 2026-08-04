@@ -105,6 +105,38 @@ func TestRequestPasswordResetSendsEmail(t *testing.T) {
 	}
 }
 
+func TestRequestPasswordResetInvalidatesPreviousToken(t *testing.T) {
+	svc, sender, db, _ := newRecoveryFixture(t)
+	seedVerifiedPasswordAccount(t, db, "rotate-reset@example.com")
+	first := issueResetToken(t, svc, sender, "rotate-reset@example.com")
+	second := issueResetToken(t, svc, sender, "rotate-reset@example.com")
+	if first == second {
+		t.Fatal("expected reset token rotation")
+	}
+	if err := svc.ResetPassword(context.Background(), first, "a much better passphrase"); accountauth.ErrorCode(err) != accountauth.CodeTokenInvalid {
+		t.Fatalf("expected prior reset token to be invalid, got %v", err)
+	}
+	if err := svc.ResetPassword(context.Background(), second, "a much better passphrase"); err != nil {
+		t.Fatalf("latest reset token should remain usable: %v", err)
+	}
+}
+
+func TestRequestPasswordResetRejectsUnsupportedLocaleBeforeIssuingToken(t *testing.T) {
+	svc, sender, db, _ := newRecoveryFixture(t)
+	seedVerifiedPasswordAccount(t, db, "invalid-locale@example.com")
+	if err := svc.RequestPasswordReset(context.Background(), "invalid-locale@example.com", "fr"); accountauth.ErrorCode(err) != accountauth.CodeValidation {
+		t.Fatalf("expected locale validation error, got %v", err)
+	}
+	if sender.count() != 0 {
+		t.Fatalf("unsupported locale must not send email, got %d", sender.count())
+	}
+	var tokens int64
+	db.Model(&models.AuthActionToken{}).Where("purpose = ?", "reset_password").Count(&tokens)
+	if tokens != 0 {
+		t.Fatalf("unsupported locale must not issue reset token, got %d", tokens)
+	}
+}
+
 func TestRequestPasswordResetGenericForUnknownEmail(t *testing.T) {
 	svc, sender, _, _ := newRecoveryFixture(t)
 	if err := svc.RequestPasswordReset(context.Background(), "nobody@example.com", "en"); err != nil {

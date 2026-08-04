@@ -53,15 +53,16 @@ func NewAccountAuthHandler(db *gorm.DB, cfg config.AccountAuthConfig) (*AccountA
 	secret := []byte(os.Getenv("JWT_SECRET"))
 	clock := accountauth.SystemClock{}
 	issuer := accountauth.NewAccessTokenIssuer(secret, clock, cfg.AccessTTL)
-	sessions := services.NewAccountSessionService(db, clock, accountauth.NewOpaqueToken, issuer, cfg.RefreshTTL)
+	security := services.NewAccountSecurityService(db, clock)
+	sessions := services.NewAccountSessionService(db, clock, accountauth.NewOpaqueToken, issuer, cfg.RefreshTTL, security)
 
 	return &AccountAuthHandler{
 		db:           db,
-		registration: services.NewAccountRegistrationService(db, sender, clock, accountauth.NewOpaqueToken),
+		registration: services.NewAccountRegistrationService(db, sender, clock, accountauth.NewOpaqueToken, security),
 		sessions:     sessions,
-		recovery:     services.NewAccountRecoveryService(db, sender, clock, accountauth.NewOpaqueToken, sessions),
-		profile:      services.NewAccountProfileService(db, clock, sessions),
-		google:       services.NewAccountGoogleService(db, clock, accountauth.NewOpaqueToken, sender, verifier, sessions, []byte(cfg.GoogleFlowSecret), cfg.FrontendURL),
+		recovery:     services.NewAccountRecoveryService(db, sender, clock, accountauth.NewOpaqueToken, sessions, security),
+		profile:      services.NewAccountProfileService(db, clock, sessions, security),
+		google:       services.NewAccountGoogleService(db, clock, accountauth.NewOpaqueToken, sender, verifier, sessions, []byte(cfg.GoogleFlowSecret), cfg.FrontendURL, security),
 		cfg:          cfg,
 		secret:       secret,
 	}, nil
@@ -71,7 +72,15 @@ func (h *AccountAuthHandler) clientInfo(c *fiber.Ctx) accountauth.ClientInfo {
 	return accountauth.ClientInfo{
 		IP:        c.IP(),
 		UserAgent: c.Get("User-Agent"),
+		TraceID:   traceID(c),
 	}
+}
+
+func traceID(c *fiber.Ctx) string {
+	if id, ok := c.Locals("trace_id").(string); ok && id != "" {
+		return id
+	}
+	return c.GetRespHeader("X-Trace-Id")
 }
 
 // publicRefreshCookieOptions returns the shared cookie configuration so set and
@@ -144,9 +153,10 @@ func (h *AccountAuthHandler) respondAccountError(c *fiber.Ctx, err error) error 
 	}
 
 	envelope := fiber.Map{
-		"success": false,
-		"error":   msg,
-		"code":    code,
+		"success":  false,
+		"error":    msg,
+		"code":     code,
+		"trace_id": traceID(c),
 	}
 	if code == accountauth.CodeValidation {
 		var ae *accountauth.Error
@@ -176,6 +186,7 @@ func (h *AccountAuthHandler) Register(c *fiber.Ctx) error {
 		Password:    req.Password,
 		DisplayName: req.DisplayName,
 		Locale:      req.Locale,
+		Client:      h.clientInfo(c),
 	})
 	if err != nil {
 		return h.respondAccountError(c, err)
@@ -235,7 +246,7 @@ func (h *AccountAuthHandler) Login(c *fiber.Ctx) error {
 	h.setRefreshCookie(c, result.RefreshToken)
 	return utils.SuccessResponse(c, fiber.Map{
 		"access_token": result.AccessToken,
-		"expires_in":   result.ExpiresIn,
+		"expires_in":   int64(result.ExpiresIn / time.Second),
 	})
 }
 
@@ -253,7 +264,7 @@ func (h *AccountAuthHandler) Refresh(c *fiber.Ctx) error {
 	h.setRefreshCookie(c, result.RefreshToken)
 	return utils.SuccessResponse(c, fiber.Map{
 		"access_token": result.AccessToken,
-		"expires_in":   result.ExpiresIn,
+		"expires_in":   int64(result.ExpiresIn / time.Second),
 	})
 }
 
@@ -266,7 +277,7 @@ func (h *AccountAuthHandler) ForgotPassword(c *fiber.Ctx) error {
 	if err := c.BodyParser(&req); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
 	}
-	if err := h.recovery.RequestPasswordReset(c.UserContext(), req.Email, req.Locale); err != nil {
+	if err := h.recovery.RequestPasswordReset(c.UserContext(), req.Email, req.Locale, h.clientInfo(c)); err != nil {
 		return h.respondAccountError(c, err)
 	}
 	return utils.MessageResponse(c, "If that email is registered, a reset link has been sent")
@@ -281,7 +292,7 @@ func (h *AccountAuthHandler) ResetPassword(c *fiber.Ctx) error {
 	if err := c.BodyParser(&req); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
 	}
-	if err := h.recovery.ResetPassword(c.UserContext(), req.Token, req.NewPassword); err != nil {
+	if err := h.recovery.ResetPassword(c.UserContext(), req.Token, req.NewPassword, h.clientInfo(c)); err != nil {
 		return h.respondAccountError(c, err)
 	}
 	return utils.MessageResponse(c, "Password reset")
@@ -402,7 +413,7 @@ func (h *AccountAuthHandler) GoogleCallback(c *fiber.Ctx) error {
 	code := c.Query("code")
 	flowCookie := c.Cookies(googleFlowCookie)
 
-	completion, err := h.google.CompleteGoogle(c.UserContext(), code, flowCookie, h.clientInfo(c))
+	completion, err := h.google.CompleteGoogle(c.UserContext(), code, c.Query("state"), flowCookie, h.clientInfo(c))
 	h.clearGoogleFlowCookie(c)
 	if err != nil {
 		authCode := accountauth.ErrorCode(err)
@@ -440,7 +451,7 @@ func (h *AccountAuthHandler) GoogleLinkConfirm(c *fiber.Ctx) error {
 	h.setRefreshCookie(c, result.RefreshToken)
 	return utils.SuccessResponse(c, fiber.Map{
 		"access_token": result.AccessToken,
-		"expires_in":   result.ExpiresIn,
+		"expires_in":   int64(result.ExpiresIn / time.Second),
 	})
 }
 
