@@ -11,6 +11,7 @@ import {
   validatePassword,
   validateDisplayName,
 } from "@/features/public/account/validation";
+import { PasswordInput } from "./PasswordInput";
 
 const inputBase =
   "mt-2 min-h-11 w-full border border-site-border bg-site-canvas px-3 py-2.5 text-base text-site-foreground outline-none transition-colors placeholder:text-site-muted focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus";
@@ -209,10 +210,9 @@ export function RegisterForm() {
           <label className={labelBase} htmlFor="register-password">
             {t("register.passwordLabel")}
           </label>
-          <input
+          <PasswordInput
             id="register-password"
             name="password"
-            type="password"
             autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

@@ -22,6 +22,14 @@ func (s *Service) Get() (Settings, error) {
 	}
 	var result Settings
 	if err := json.Unmarshal([]byte(row.Value), &result); err != nil { return Settings{}, err }
+	
+	if result.EventID != 0 {
+		var event models.Event
+		if err := s.db.Select("slug").Where("id = ?", result.EventID).First(&event).Error; err == nil {
+			result.EventSlug = event.Slug
+		}
+	}
+	
 	return result, result.Validate()
 }
 

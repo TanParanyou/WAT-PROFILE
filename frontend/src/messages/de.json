@@ -115,6 +115,10 @@
         "sections": {"intro": "Einleitung", "objective": "Ziel", "administration": "Verwaltung", "history": "Geschichte", "buildings": "Gebäude", "sangha": "Sangha"}
     },
     "Account": {
+        "title": "Benutzerkonto",
+        "subtitle": "Verwalten Sie Ihr Profil, Ihre Anmeldemethoden und Sicherheitseinstellungen.",
+        "showPassword": "Passwort anzeigen",
+        "hidePassword": "Passwort verbergen",
         "login": {
             "title": "Anmelden",
             "subtitle": "Melden Sie sich an, um Ihr Konto und Ihre Sitzungen zu verwalten.",

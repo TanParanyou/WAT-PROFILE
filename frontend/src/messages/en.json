@@ -115,6 +115,10 @@
         "sections": {"intro": "Introduction", "objective": "Objective", "administration": "Administration", "history": "History", "buildings": "Buildings", "sangha": "Sangha"}
     },
     "Account": {
+        "title": "User Account",
+        "subtitle": "Manage your profile, sign-in methods, and security settings.",
+        "showPassword": "Show password",
+        "hidePassword": "Hide password",
         "login": {
             "title": "Sign in",
             "subtitle": "Sign in to manage your account and sessions.",

@@ -172,7 +172,7 @@ export default function SettingsPage() {
           <Switch id="event-alert-enabled" label={t("settings.eventAlertEnabled")} checked={alert.enabled} onChange={(e) => setAlert({ ...alert, enabled: e.target.checked })} />
           <label className="block text-sm font-medium text-admin-body">{t("settings.eventToDisplay")}
             <select className="mt-1 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-admin-focus" value={alert.event_id} onChange={(e) => setAlert({ ...alert, event_id: Number(e.target.value) })}>
-              <option value={0}>{t("settings.selectEvent")}</option>{events.map((event) => <option key={event.id} value={event.id}>{event.title.th || event.title.en}</option>)}
+              <option value={0}>อัตโนมัติ (กิจกรรมที่ใกล้จะถึง)</option>{events.map((event) => <option key={event.id} value={event.id}>{event.title.th || event.title.en}</option>)}
             </select>
           </label>
           <Input id="alert-delay" label={t("settings.delaySeconds")} type="number" min={0} max={30} value={alert.delay_seconds} onChange={(e) => setAlert({ ...alert, delay_seconds: Number(e.target.value) })} />

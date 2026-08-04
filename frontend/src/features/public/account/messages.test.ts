@@ -34,20 +34,21 @@ test("normalizeAccountEmail trims and lowercases", () => {
   assert.equal(normalizeAccountEmail(""), "");
 });
 
-test("validatePassword enforces 12-128 characters", () => {
-  assert.equal(validatePassword("short"), false);
-  assert.equal(validatePassword("a".repeat(11)), false);
-  assert.equal(validatePassword("a".repeat(12)), true);
-  assert.equal(validatePassword("a".repeat(128)), true);
-  assert.equal(validatePassword("a".repeat(129)), false);
+test("validatePassword enforces required and 12-128 characters", () => {
+  assert.equal(validatePassword(""), "passwordRequired");
+  assert.equal(validatePassword("short"), "passwordMin");
+  assert.equal(validatePassword("a".repeat(11)), "passwordMin");
+  assert.equal(validatePassword("a".repeat(12)), null);
+  assert.equal(validatePassword("a".repeat(128)), null);
+  assert.equal(validatePassword("a".repeat(129)), "passwordMax");
 });
 
-test("validateDisplayName trims and enforces 2-80 characters", () => {
-  assert.equal(validateDisplayName("  "), false);
-  assert.equal(validateDisplayName("x"), false);
-  assert.equal(validateDisplayName("  xy  "), true);
-  assert.equal(validateDisplayName("a".repeat(80)), true);
-  assert.equal(validateDisplayName("a".repeat(81)), false);
+test("validateDisplayName trims and enforces required and 2-80 characters", () => {
+  assert.equal(validateDisplayName("  "), "displayNameRequired");
+  assert.equal(validateDisplayName("x"), "displayNameMin");
+  assert.equal(validateDisplayName("  xy  "), null);
+  assert.equal(validateDisplayName("a".repeat(80)), null);
+  assert.equal(validateDisplayName("a".repeat(81)), "displayNameMax");
 });
 
 test("validateReturnTo allows only empty or safe same-site paths", () => {

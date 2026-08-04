@@ -9,6 +9,7 @@ import { startGoogle } from "@/features/public/account/api";
 import { useAccountSession } from "@/features/public/account/AccountSessionProvider";
 import { toAccountApiError } from "@/features/public/account/api";
 import { normalizeAccountEmail } from "@/features/public/account/validation";
+import { PasswordInput } from "./PasswordInput";
 
 const inputBase =
   "mt-2 min-h-11 w-full border border-site-border bg-site-canvas px-3 py-2.5 text-base text-site-foreground outline-none transition-colors placeholder:text-site-muted focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus";
@@ -120,10 +121,9 @@ export function LoginForm() {
           <label className={labelBase} htmlFor="login-password">
             {t("login.passwordLabel")}
           </label>
-          <input
+          <PasswordInput
             id="login-password"
             name="password"
-            type="password"
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

@@ -103,7 +103,8 @@ func (s *EventService) ListActive(limit int) ([]models.Event, error) {
 		return db.Order("display_order ASC")
 	}
 	query := s.db.Where("is_active = ?", true).
-		Order("start_date DESC").
+		Where("end_date >= CURRENT_DATE").
+		Order("start_date ASC").
 		Preload("Schedules", preloadSchedules)
 	if limit > 0 {
 		query = query.Limit(limit)

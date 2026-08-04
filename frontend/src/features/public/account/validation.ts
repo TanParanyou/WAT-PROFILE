@@ -10,15 +10,24 @@ export function normalizeAccountEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
-/** Validates a raw password against the 12-128 length bounds. */
-export function validatePassword(password: string): boolean {
-  return password.length >= MIN_PASSWORD_LENGTH && password.length <= MAX_PASSWORD_LENGTH;
+export type PasswordValidationError = "passwordRequired" | "passwordMin" | "passwordMax";
+export type DisplayNameValidationError = "displayNameRequired" | "displayNameMin" | "displayNameMax";
+
+/** Validates a raw password against required and length bounds. Returns error key or null if valid. */
+export function validatePassword(password: string): PasswordValidationError | null {
+  if (!password) return "passwordRequired";
+  if (password.length < MIN_PASSWORD_LENGTH) return "passwordMin";
+  if (password.length > MAX_PASSWORD_LENGTH) return "passwordMax";
+  return null;
 }
 
-/** Validates a display name after trimming, within the 2-80 bounds. */
-export function validateDisplayName(displayName: string): boolean {
+/** Validates a display name after trimming, within required and length bounds. Returns error key or null if valid. */
+export function validateDisplayName(displayName: string): DisplayNameValidationError | null {
   const trimmed = displayName.trim();
-  return trimmed.length >= MIN_DISPLAY_NAME_LENGTH && trimmed.length <= MAX_DISPLAY_NAME_LENGTH;
+  if (!trimmed) return "displayNameRequired";
+  if (trimmed.length < MIN_DISPLAY_NAME_LENGTH) return "displayNameMin";
+  if (trimmed.length > MAX_DISPLAY_NAME_LENGTH) return "displayNameMax";
+  return null;
 }
 
 /**

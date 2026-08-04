@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Calendar, Clock, MapPin, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/navigation";
-import { usePublicEventsQuery } from "@/features/public/events/queries";
+import { usePublicEventQuery, usePublicEventsQuery } from "@/features/public/events/queries";
 import { getLocalizedText } from "@/features/public/events/mappers";
 import { getLocalizedPlainText } from "@/features/public/shared/rich-text";
 import { formatDateRange, formatTimeRange } from "@/utils/formatters";
@@ -15,11 +15,22 @@ import { useEventAlertSettingsQuery } from "@/features/public/event-alert/api";
 export default function EventAlertModal() {
   const locale = useLocale();
   const t = useTranslations("EventsSection");
-  const query = usePublicEventsQuery(3);
   const settingsQuery = useEventAlertSettingsQuery();
   const settings = settingsQuery.data;
+  
+  const specificEventQuery = usePublicEventQuery(settings?.event_slug ?? "");
+  const nearestEventQuery = usePublicEventsQuery(1);
+  
+  let event = undefined;
+  if (settings?.enabled) {
+    if (settings.event_slug) {
+      event = specificEventQuery.data;
+    } else {
+      event = nearestEventQuery.data?.[0];
+    }
+  }
+
   const [isOpen, setIsOpen] = useState(false);
-  const event = settings?.event_id ? query.data?.find((item) => item.id === settings.event_id) : undefined;
 
   useEffect(() => {
     if (!settings?.enabled || !event || typeof window === "undefined") return;

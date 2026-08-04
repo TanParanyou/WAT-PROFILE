@@ -13,6 +13,7 @@ import {
   useCloseAccount,
 } from "@/features/public/account/queries";
 import { toAccountApiError } from "@/features/public/account/api";
+import { PasswordInput } from "./PasswordInput";
 import { validateDisplayName } from "@/features/public/account/validation";
 import type { AccountLocale } from "@/features/public/account/types";
 
@@ -246,10 +247,9 @@ export function ProfileForm() {
               <label className={labelBase} htmlFor="close-password">
                 {t("account.closePasswordLabel")}
               </label>
-              <input
+              <PasswordInput
                 id="close-password"
                 name="password"
-                type="password"
                 autoComplete="current-password"
                 value={closePassword}
                 onChange={(e) => setClosePassword(e.target.value)}

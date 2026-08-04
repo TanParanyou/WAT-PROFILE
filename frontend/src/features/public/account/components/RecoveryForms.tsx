@@ -13,6 +13,7 @@ import {
   resendVerification,
   toAccountApiError,
 } from "@/features/public/account/api";
+import { PasswordInput } from "./PasswordInput";
 import {
   normalizeAccountEmail,
   validatePassword,
@@ -181,10 +182,9 @@ export function ResetPasswordForm() {
           <label className={labelBase} htmlFor="reset-password">
             {t("resetPassword.passwordLabel")}
           </label>
-          <input
+          <PasswordInput
             id="reset-password"
             name="password"
-            type="password"
             autoComplete="new-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

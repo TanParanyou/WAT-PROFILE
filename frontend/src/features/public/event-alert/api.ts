@@ -5,7 +5,7 @@ import { useQuery } from "@tanstack/react-query";
 import { unwrapApiData, type ApiSuccess } from "../shared/api-types";
 
 export const eventAlertSettingsSchema = z.object({
-  enabled: z.boolean(), event_id: z.number().int().nonnegative(), delay_seconds: z.number().int().min(0).max(30), dismiss_hours: z.number().int().min(1).max(720),
+  enabled: z.boolean(), event_id: z.number().int().nonnegative(), event_slug: z.string().optional(), delay_seconds: z.number().int().min(0).max(30), dismiss_hours: z.number().int().min(1).max(720),
 });
 export type EventAlertSettings = z.infer<typeof eventAlertSettingsSchema>;
 export async function fetchEventAlertSettings(): Promise<EventAlertSettings> {

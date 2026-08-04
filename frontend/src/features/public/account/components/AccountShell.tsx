@@ -10,7 +10,7 @@ import { useTranslations } from "next-intl";
 export function AccountShell({ children }: { children: ReactNode }) {
   const t = useTranslations("Account");
   return (
-    <div className="mx-auto w-full max-w-xl px-4 py-10 sm:px-6 lg:px-8">
+    <div className="mx-auto w-full max-w-xl px-4 pb-10 pt-28 sm:px-6 lg:px-8">
       <div className="space-y-8">
         <header className="space-y-2">
           <h1 className="font-heading text-3xl font-bold text-site-foreground">{t("title")}</h1>
