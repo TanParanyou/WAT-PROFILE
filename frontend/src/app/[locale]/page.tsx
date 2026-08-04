@@ -1,8 +1,12 @@
 import { getTranslations } from "next-intl/server";
 import type { Metadata } from "next";
 import { websiteCmsPublicService } from "@/services/websiteCmsService";
-import HomeContent from "./(client)/HomeContent";
 import ClientLayout from "./(client)/layout";
+import HeroSection from "@/components/home/HeroSection";
+import WelcomeSection from "@/components/home/WelcomeSection";
+import EventsSection from "@/components/home/EventsSection";
+import DonationSection from "@/components/home/DonationSection";
+import EventAlertModal from "@/components/home/EventAlertModal";
 import { siteConfig } from "@/config/site.config";
 import { getLocalizedText } from "@/utils/localizedText";
 
@@ -32,10 +36,17 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   };
 }
 
-export default async function PublicHomePage() {
+export default async function PublicHomePage({ params }: { params: Promise<{ locale: string }> }) {
+  const { locale } = await params;
   return (
     <ClientLayout>
-      <HomeContent />
+      <div className="flex min-h-screen flex-col">
+        <HeroSection />
+        <WelcomeSection />
+        <EventsSection locale={locale} />
+        <DonationSection />
+        <EventAlertModal />
+      </div>
     </ClientLayout>
   );
 }

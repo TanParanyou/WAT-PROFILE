@@ -4,6 +4,9 @@ import { siteConfig } from '@/config/site.config';
 import EventsContent from './EventsContent';
 import { fetchPublishedPageMetadata } from '@/features/public/seo/api';
 import { buildPublicMetadata, normalizeSeo } from '@/features/public/seo/metadata';
+import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query';
+import { fetchPublicEvents, fetchPublicSchedules } from '@/features/public/events/api';
+import { publicEventsKeys } from '@/features/public/events/queries';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
     const { locale } = await params;
@@ -13,6 +16,24 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     return buildPublicMetadata({ locale, pathname: `/${locale}/events`, seo: normalizeSeo(page?.seo), content: { title: page ? page.title[locale as keyof typeof page.title] ?? '' : '', description: page ? page.description[locale as keyof typeof page.description] ?? '' : '' }, messages: { title: t('title'), description: t('subtitle') }, site: { name: siteConfig.siteName.th, description: siteConfig.seo.defaultDescription, image: siteConfig.seo.defaultOgImage } });
 }
 
-export default function EventsPage() {
-    return <EventsContent />;
+export default async function EventsPage() {
+    const queryClient = new QueryClient();
+
+    // Prefetch events and schedules for hydration
+    await Promise.all([
+        queryClient.prefetchQuery({
+            queryKey: publicEventsKeys.list(),
+            queryFn: () => fetchPublicEvents(),
+        }),
+        queryClient.prefetchQuery({
+            queryKey: publicEventsKeys.schedules(),
+            queryFn: () => fetchPublicSchedules(),
+        })
+    ]);
+
+    return (
+        <HydrationBoundary state={dehydrate(queryClient)}>
+            <EventsContent />
+        </HydrationBoundary>
+    );
 }
