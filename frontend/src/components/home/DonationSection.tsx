@@ -9,8 +9,9 @@ import { getLocalizedText } from "@/utils/localizedText";
 import { PublicImage } from "@/components/public/media/PublicImage";
 import { QueryErrorState } from "@/components/public/states/QueryErrorState";
 import { EmptyState } from "@/components/public/states/EmptyState";
+import { STATIC_ASSETS } from "@/constants/assets";
 
-const donationFallbackImage = "/images/og-image.jpg";
+const donationFallbackImage = STATIC_ASSETS.DONATION.FALLBACK;
 
 export default function DonationSection() {
   const t = useTranslations("DonationSection");

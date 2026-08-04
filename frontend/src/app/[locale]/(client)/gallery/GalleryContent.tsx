@@ -16,8 +16,9 @@ import {
   usePublicGalleryQuery,
 } from "@/features/public/gallery/queries";
 import type { PublicContentPage } from "@/types/website-cms";
+import { STATIC_ASSETS } from "@/constants/assets";
 
-const galleryFallbackImage = "/images/og-image.jpg";
+const galleryFallbackImage = STATIC_ASSETS.GALLERY.FALLBACK;
 
 export default function GalleryContent({ cmsPage }: { cmsPage: PublicContentPage | null }) {
   const t = useTranslations("GalleryPage");

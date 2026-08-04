@@ -258,7 +258,7 @@
           "de": "Ein ruhiger Ort fuer Praxis und Gemeinschaft."
         },
         "body": {
-          "image": "/images/temple/hero.jpg"
+          "image": "/images/hero-bg.jpg"
         },
         "settings": {
           "align": "center"
@@ -276,7 +276,7 @@
           "de": "Ein ruhiger Ort fuer Praxis und Gemeinschaft."
         },
         "published_body": {
-          "image": "/images/temple/hero.jpg"
+          "image": "/images/hero-bg.jpg"
         },
         "published_settings": {
           "align": "center"

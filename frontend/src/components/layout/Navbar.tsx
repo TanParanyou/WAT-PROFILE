@@ -9,6 +9,7 @@ import { usePublicSiteSettings } from "@/features/public/settings/PublicSiteSett
 import { useAccountSession } from "@/features/public/account/AccountSessionProvider";
 import { getLocalizedText } from "@/utils/i18n";
 import { siteConfig } from "@/config/site.config";
+import { STATIC_ASSETS } from "@/constants/assets";
 import { PublicThemeSwitcher } from "@/components/public/theme/PublicThemeSwitcher";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 
@@ -59,10 +60,11 @@ export default function Navbar() {
         <Link href="/" className="relative z-50 flex min-w-0 items-center gap-3 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus">
           <span className="relative flex size-11 shrink-0 items-center justify-center overflow-hidden border border-site-border bg-site-canvas">
             <Image
-              src={settings.logoUrl || "/images/icon/logo.png"}
+              src={settings.logoUrl || STATIC_ASSETS.LOGO.DEFAULT}
               alt={getLocalizedText(siteConfig.siteName, locale)}
               fill
               sizes="44px"
+              priority
               className="object-cover"
             />
           </span>

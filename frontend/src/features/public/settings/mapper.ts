@@ -45,7 +45,7 @@ export function mapPublicSiteSettings(raw: Record<string, string>, fallback = ge
       instagram: raw.instagram_url || fallback.social.instagram,
       line: raw.line_url || fallback.social.line,
     },
-    logoUrl: raw.logo_url || fallback.logoUrl,
+    logoUrl: (raw.logo_url && raw.logo_url.trim()) ? raw.logo_url.trim() : fallback.logoUrl,
     socialSidebarPosition: position,
   };
 }

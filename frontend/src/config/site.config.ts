@@ -1,3 +1,5 @@
+import { STATIC_ASSETS } from '@/constants/assets';
+
 export type Locale = 'th' | 'en' | 'de';
 
 export type LocalizedText = {
@@ -139,8 +141,8 @@ export const siteConfig: SiteConfig = {
     locales: ['th', 'en', 'de'],
 
     logo: {
-        light: '/images/logo-light.svg', // Placeholder
-        dark: '/images/logo-dark.svg',   // Placeholder
+        light: STATIC_ASSETS.LOGO.LIGHT,
+        dark: STATIC_ASSETS.LOGO.DARK,
     },
 
     theme: {
@@ -159,7 +161,7 @@ export const siteConfig: SiteConfig = {
         defaultTitle: 'วัดหลวงพ่อใส | Wat Loung Por Sai',
         defaultDescription:
             'วัดหลวงพ่อใส - ศูนย์รวมจิตใจชาวพุทธ เผยแผ่พระพุทธศาสนา และจัดกิจกรรมทางศาสนา',
-        defaultOgImage: '/images/og-image.jpg',
+        defaultOgImage: STATIC_ASSETS.OG_IMAGE,
         keywords: [
             'วัดหลวงพ่อใส',
             'Wat Loung Por Sai',

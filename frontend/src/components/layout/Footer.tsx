@@ -6,6 +6,7 @@ import { Link } from '@/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { usePublicSiteSettings } from '@/features/public/settings/PublicSiteSettingsProvider';
 import { getLocalizedText } from '@/utils/localizedText';
+import { STATIC_ASSETS } from '@/constants/assets';
 
 export default function Footer() {
     const t = useTranslations('Footer');
@@ -27,7 +28,7 @@ export default function Footer() {
                     <div>
                         <div className="flex items-center gap-2 mb-6">
                             <div className="relative h-10 w-10 overflow-hidden border border-site-border bg-site-canvas">
-                                <Image src={settings.logoUrl || '/images/icon/logo.png'} alt="" fill sizes="40px" className="object-contain p-1" />
+                                <Image src={settings.logoUrl || STATIC_ASSETS.LOGO.DEFAULT} alt="" fill sizes="40px" className="object-contain p-1" />
                             </div>
                             <span className="font-heading text-xl font-medium text-site-foreground">
                                 {tSite('name')}
