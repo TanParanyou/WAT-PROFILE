@@ -1,0 +1,103 @@
+- generic [active] [ref=f6e1]:
+  - generic [ref=f6e268]:
+    - complementary [ref=f6e269]:
+      - generic [ref=f6e270]:
+        - generic [ref=f6e271]: WAT Admin
+        - button [ref=f6e272]
+      - navigation [ref=f6e275]:
+        - link "แดชบอร์ด" [ref=f6e276] [cursor=pointer]:
+          - /url: /th/admin
+        - generic [ref=f6e283]:
+          - generic [ref=f6e284]: ข้อมูลเว็บไซต์
+          - generic [ref=f6e285]:
+            - link "เกี่ยวกับวัด" [ref=f6e286] [cursor=pointer]:
+              - /url: /th/admin/about
+            - link "ติดต่อเรา" [ref=f6e290] [cursor=pointer]:
+              - /url: /th/admin/contact
+            - link "ข้อมูลทางกฎหมาย" [ref=f6e294] [cursor=pointer]:
+              - /url: /th/admin/impressum
+            - link "นโยบายความเป็นส่วนตัว" [ref=f6e299] [cursor=pointer]:
+              - /url: /th/admin/privacy
+            - link "คลังสื่อ" [ref=f6e304] [cursor=pointer]:
+              - /url: /th/admin/media
+        - generic [ref=f6e308]:
+          - generic [ref=f6e309]: การจัดการวัด
+          - generic [ref=f6e310]:
+            - link "กิจกรรม" [ref=f6e311] [cursor=pointer]:
+              - /url: /th/admin/events
+            - link "ลงทะเบียน" [ref=f6e315] [cursor=pointer]:
+              - /url: /th/admin/registrations
+            - link "ตารางเวลา" [ref=f6e320] [cursor=pointer]:
+              - /url: /th/admin/schedules
+            - link "แกลเลอรี" [ref=f6e325] [cursor=pointer]:
+              - /url: /th/admin/gallery
+            - link "พระสงฆ์" [ref=f6e331] [cursor=pointer]:
+              - /url: /th/admin/monks
+        - generic [ref=f6e338]:
+          - generic [ref=f6e339]: การเงินและชุมชน
+          - generic [ref=f6e340]:
+            - link "สมาชิก" [ref=f6e341] [cursor=pointer]:
+              - /url: /th/admin/members
+            - link "เงินบริจาค" [ref=f6e347] [cursor=pointer]:
+              - /url: /th/admin/donations
+            - link "รายงานผู้ติดต่อ" [ref=f6e351] [cursor=pointer]:
+              - /url: /th/admin/contacts
+        - generic [ref=f6e356]:
+          - generic [ref=f6e357]: ระบบและสิทธิ์การใช้งาน
+          - generic [ref=f6e358]:
+            - link "ผู้ใช้งาน" [ref=f6e359] [cursor=pointer]:
+              - /url: /th/admin/users
+            - link "บทบาท" [ref=f6e373] [cursor=pointer]:
+              - /url: /th/admin/roles
+            - link "บันทึกการใช้งาน" [ref=f6e377] [cursor=pointer]:
+              - /url: /th/admin/audit-logs
+            - link "ตั้งค่า" [ref=f6e381] [cursor=pointer]:
+              - /url: /th/admin/settings
+    - generic [ref=f6e386]:
+      - banner [ref=f6e387]:
+        - generic [ref=f6e388]:
+          - group "ธีม" [ref=f6e389]:
+            - button "ตามระบบ" [pressed] [ref=f6e390]
+            - button "สว่าง" [ref=f6e394]
+            - button "มืด" [ref=f6e402]
+          - generic [ref=f6e406]:
+            - generic [ref=f6e407]: "ภาษา:"
+            - generic [ref=f6e408]:
+              - button "TH" [ref=f6e409]
+              - button "EN" [ref=f6e410]
+              - button "DE" [ref=f6e411]
+          - link [ref=f6e412] [cursor=pointer]:
+            - /url: /th/admin/profile
+            - generic [ref=f6e417]:
+              - paragraph [ref=f6e418]: Wat Admin
+              - paragraph [ref=f6e419]: admin
+          - button "ออกจากระบบ" [ref=f6e420]
+      - main [ref=f6e424]:
+        - generic [ref=f6e425]:
+          - generic [ref=f6e426]:
+            - heading "สวัสดี, Wat Admin" [level=1] [ref=f6e427]
+            - paragraph [ref=f6e428]: ยินดีต้อนรับสู่ระบบจัดการวัด
+          - generic [ref=f6e429]:
+            - link [ref=f6e430] [cursor=pointer]:
+              - /url: /th/admin/events
+              - paragraph [ref=f6e436]: กิจกรรม
+            - link [ref=f6e439] [cursor=pointer]:
+              - /url: /th/admin/monks
+              - paragraph [ref=f6e448]: พระสงฆ์
+            - link [ref=f6e451] [cursor=pointer]:
+              - /url: /th/admin/gallery
+              - paragraph [ref=f6e459]: อัลบั้มภาพ
+            - link [ref=f6e462] [cursor=pointer]:
+              - /url: /th/admin/schedules
+              - paragraph [ref=f6e469]: ตารางเวลา
+            - link [ref=f6e472] [cursor=pointer]:
+              - /url: /th/admin/donations
+              - paragraph [ref=f6e478]: การบริจาค
+            - link [ref=f6e481] [cursor=pointer]:
+              - /url: /th/admin/members
+              - paragraph [ref=f6e489]: สมาชิก
+            - link [ref=f6e492] [cursor=pointer]:
+              - /url: /th/admin/contacts
+              - paragraph [ref=f6e499]: ข้อความติดต่อ
+  - button "Open Next.js Dev Tools" [ref=f6e14] [cursor=pointer]
+  - alert [ref=f6e18]

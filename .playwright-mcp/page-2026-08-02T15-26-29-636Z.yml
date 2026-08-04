@@ -1,0 +1,23 @@
+- generic [active] [ref=f6e1]:
+  - generic [ref=f6e247]:
+    - generic [ref=f6e248]:
+      - heading "WAT Admin" [level=1] [ref=f6e249]
+      - paragraph [ref=f6e250]: เข้าสู่ระบบจัดการ
+    - generic [ref=f6e252]:
+      - generic [ref=f6e253]:
+        - generic [ref=f6e254]:
+          - text: อีเมล
+          - generic [ref=f6e255]: "*"
+        - textbox "อีเมล *" [ref=f6e257]:
+          - /placeholder: admin
+      - generic [ref=f6e258]:
+        - generic [ref=f6e259]:
+          - text: รหัสผ่าน
+          - generic [ref=f6e260]: "*"
+        - generic [ref=f6e261]:
+          - textbox "รหัสผ่าน *" [ref=f6e262]:
+            - /placeholder: ••••••••
+          - button [ref=f6e263]
+      - button "เข้าสู่ระบบ" [ref=f6e267]
+  - button "Open Next.js Dev Tools" [ref=f6e14] [cursor=pointer]
+  - alert [ref=f6e18]

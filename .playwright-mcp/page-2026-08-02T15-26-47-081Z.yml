@@ -1,0 +1,4 @@
+- generic [active] [ref=f7e1]:
+  - paragraph [ref=f7e8]: กำลังตรวจสอบสิทธิ์...
+  - button "Open Next.js Dev Tools" [ref=f7e14] [cursor=pointer]
+  - alert [ref=f7e18]
