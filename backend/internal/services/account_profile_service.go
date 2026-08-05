@@ -105,11 +105,8 @@ func (s *AccountProfileService) UpdateProfile(ctx context.Context, userID uuid.U
 	if !supportedLocale(in.PreferredLocale) {
 		return AccountView{}, accountauth.NewFieldError(accountauth.CodeValidation, "locale", "Unsupported locale.")
 	}
-	if in.AvatarURL != "" {
-		parsed, err := url.Parse(in.AvatarURL)
-		if err != nil || (parsed.Scheme != "http" && parsed.Scheme != "https") || parsed.Host == "" {
-			return AccountView{}, accountauth.NewFieldError(accountauth.CodeValidation, "avatar_url", "Avatar URL must be a valid http(s) URL.")
-		}
+	if err := validateAvatarURL(in.AvatarURL); err != nil {
+		return AccountView{}, err
 	}
 
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
@@ -122,7 +119,11 @@ func (s *AccountProfileService) UpdateProfile(ctx context.Context, userID uuid.U
 			return err
 		}
 		profile.DisplayName = displayName
-		profile.AvatarURL = in.AvatarURL
+		// Avatar changes go through SetAvatarURL after a server-side upload. Do
+		// not erase a stored avatar when a profile form updates another field.
+		if in.AvatarURL != "" {
+			profile.AvatarURL = in.AvatarURL
+		}
 		profile.PreferredLocale = in.PreferredLocale
 		profile.UpdatedAt = s.clock.Now()
 		return tx.Save(&profile).Error
@@ -134,6 +135,43 @@ func (s *AccountProfileService) UpdateProfile(ctx context.Context, userID uuid.U
 		return AccountView{}, err
 	}
 	return s.GetAccount(ctx, userID)
+}
+
+// SetAvatarURL persists a server-generated avatar URL. Keeping this operation
+// separate from UpdateProfile prevents clients from choosing arbitrary storage
+// keys while still allowing existing OAuth avatar URLs to remain readable.
+func (s *AccountProfileService) SetAvatarURL(ctx context.Context, userID uuid.UUID, avatarURL string) (AccountView, error) {
+	if err := validateAvatarURL(avatarURL); err != nil {
+		return AccountView{}, err
+	}
+
+	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var profile models.AccountProfile
+		if err := tx.First(&profile, "user_id = ?", userID).Error; err != nil {
+			return err
+		}
+		profile.AvatarURL = avatarURL
+		profile.UpdatedAt = s.clock.Now()
+		return tx.Save(&profile).Error
+	})
+	if err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return AccountView{}, accountauth.NewError(accountauth.CodeTokenInvalid, "Account not found.")
+		}
+		return AccountView{}, err
+	}
+	return s.GetAccount(ctx, userID)
+}
+
+func validateAvatarURL(avatarURL string) error {
+	if avatarURL == "" {
+		return nil
+	}
+	parsed, err := url.Parse(avatarURL)
+	if err != nil || (parsed.Scheme != "http" && parsed.Scheme != "https") || parsed.Host == "" {
+		return accountauth.NewFieldError(accountauth.CodeValidation, "avatar_url", "Avatar URL must be a valid http(s) URL.")
+	}
+	return nil
 }
 
 // CloseAccount marks the account closed after a recent authentication (at most

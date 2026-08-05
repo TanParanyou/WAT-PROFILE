@@ -1,7 +1,15 @@
 package handlers
 
 import (
+	"context"
 	"errors"
+	"fmt"
+	"image"
+	_ "image/jpeg"
+	_ "image/png"
+	"io"
+	"mime/multipart"
+	"net/http"
 	"os"
 	"time"
 
@@ -11,6 +19,7 @@ import (
 	"github.com/watloungporsai/wat-profile-backend/internal/config"
 	"github.com/watloungporsai/wat-profile-backend/internal/middleware"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
+	"github.com/watloungporsai/wat-profile-backend/internal/storage"
 	"github.com/watloungporsai/wat-profile-backend/pkg/logger"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
 	"gorm.io/gorm"
@@ -23,25 +32,28 @@ const (
 	publicRefreshCookie = "wat_public_refresh"
 	publicCookiePath    = "/api/v1/accounts"
 	// googleFlowCookie carries the signed short-lived Google OAuth flow state.
-	googleFlowCookie = "wat_google_flow"
-	googleCookiePath = "/api/v1/accounts/google"
+	googleFlowCookie   = "wat_google_flow"
+	googleCookiePath   = "/api/v1/accounts/google"
+	maxAvatarFileSize  = 5 * 1024 * 1024
+	maxAvatarDimension = 4096
 )
 
 // AccountAuthHandler exposes the public account API: registration, password
 // sign-in, rotating sessions, recovery, profile, and Google sign-in.
 type AccountAuthHandler struct {
-	db           *gorm.DB
-	registration *services.AccountRegistrationService
-	sessions     *services.AccountSessionService
-	recovery     *services.AccountRecoveryService
-	profile      *services.AccountProfileService
-	google       *services.AccountGoogleService
-	cfg          config.AccountAuthConfig
-	secret       []byte
+	db            *gorm.DB
+	registration  *services.AccountRegistrationService
+	sessions      *services.AccountSessionService
+	recovery      *services.AccountRecoveryService
+	profile       *services.AccountProfileService
+	google        *services.AccountGoogleService
+	avatarStorage fileUploader
+	cfg           config.AccountAuthConfig
+	secret        []byte
 }
 
 // NewAccountAuthHandler wires the public account services into HTTP handlers.
-func NewAccountAuthHandler(db *gorm.DB, cfg config.AccountAuthConfig) (*AccountAuthHandler, error) {
+func NewAccountAuthHandler(db *gorm.DB, cfg config.AccountAuthConfig, r2 *storage.R2Service) (*AccountAuthHandler, error) {
 	sender, err := services.NewAccountEmailSender(cfg)
 	if err != nil {
 		return nil, err
@@ -58,15 +70,23 @@ func NewAccountAuthHandler(db *gorm.DB, cfg config.AccountAuthConfig) (*AccountA
 	sessions := services.NewAccountSessionService(db, clock, accountauth.NewOpaqueToken, issuer, cfg.RefreshTTL, security)
 
 	return &AccountAuthHandler{
-		db:           db,
-		registration: services.NewAccountRegistrationService(db, sender, clock, accountauth.NewOpaqueToken, security),
-		sessions:     sessions,
-		recovery:     services.NewAccountRecoveryService(db, sender, clock, accountauth.NewOpaqueToken, sessions, security),
-		profile:      services.NewAccountProfileService(db, clock, sessions, security),
-		google:       services.NewAccountGoogleService(db, clock, accountauth.NewOpaqueToken, sender, verifier, sessions, []byte(cfg.GoogleFlowSecret), cfg.FrontendURL, security),
-		cfg:          cfg,
-		secret:       secret,
+		db:            db,
+		registration:  services.NewAccountRegistrationService(db, sender, clock, accountauth.NewOpaqueToken, security),
+		sessions:      sessions,
+		recovery:      services.NewAccountRecoveryService(db, sender, clock, accountauth.NewOpaqueToken, sessions, security),
+		profile:       services.NewAccountProfileService(db, clock, sessions, security),
+		google:        services.NewAccountGoogleService(db, clock, accountauth.NewOpaqueToken, sender, verifier, sessions, []byte(cfg.GoogleFlowSecret), cfg.FrontendURL, security),
+		avatarStorage: avatarStorageFromR2(r2),
+		cfg:           cfg,
+		secret:        secret,
 	}, nil
+}
+
+func avatarStorageFromR2(r2 *storage.R2Service) fileUploader {
+	if r2 == nil {
+		return nil
+	}
+	return r2
 }
 
 func (h *AccountAuthHandler) clientInfo(c *fiber.Ctx) accountauth.ClientInfo {
@@ -277,6 +297,32 @@ func (h *AccountAuthHandler) Refresh(c *fiber.Ctx) error {
 	})
 }
 
+// Reauthenticate verifies the current password and returns a fresh access
+// token for the existing session. It does not rotate or create a refresh
+// session; it only updates the token's auth_time for sensitive actions.
+func (h *AccountAuthHandler) Reauthenticate(c *fiber.Ctx) error {
+	var req struct {
+		Password string `json:"password"`
+	}
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	rawSessionID, ok := c.Locals("session_id").(string)
+	sessionID, err := uuid.Parse(rawSessionID)
+	if !ok || err != nil {
+		return utils.CodedErrorResponse(c, fiber.StatusUnauthorized, string(accountauth.CodeTokenInvalid), "The session is invalid or has expired.")
+	}
+	result, err := h.sessions.ReauthenticatePassword(c.UserContext(), mustLocalsUserID(c), sessionID, req.Password)
+	if err != nil {
+		return h.respondAccountError(c, err)
+	}
+	return utils.SuccessResponse(c, fiber.Map{
+		"access_token": result.AccessToken,
+		"expires_in":   int64(result.ExpiresIn / time.Second),
+	})
+}
+
 // ForgotPassword handles POST /api/v1/accounts/forgot-password.
 func (h *AccountAuthHandler) ForgotPassword(c *fiber.Ctx) error {
 	var req struct {
@@ -348,6 +394,101 @@ func (h *AccountAuthHandler) UpdateProfile(c *fiber.Ctx) error {
 		return h.respondAccountError(c, err)
 	}
 	return utils.SuccessResponse(c, account)
+}
+
+type fileDeleter interface {
+	DeleteFile(ctx context.Context, filename string) error
+}
+
+// UploadAvatar handles POST /api/v1/account/avatar. The account endpoint has
+// its own validation and storage namespace; it must never reuse the admin
+// gallery upload route.
+func (h *AccountAuthHandler) UploadAvatar(c *fiber.Ctx) error {
+	if h.avatarStorage == nil {
+		return h.respondAccountError(c, accountauth.NewError(accountauth.CodeInternal, "Avatar storage is not configured."))
+	}
+
+	file, err := c.FormFile("file")
+	if err != nil {
+		return h.respondAccountError(c, accountauth.NewFieldError(accountauth.CodeValidation, "file", "An avatar image is required."))
+	}
+	if file.Size <= 0 || file.Size > maxAvatarFileSize {
+		return h.respondAccountError(c, accountauth.NewFieldError(accountauth.CodeValidation, "file", fmt.Sprintf("Avatar image must be smaller than %d MB.", maxAvatarFileSize/(1024*1024))))
+	}
+
+	src, err := file.Open()
+	if err != nil {
+		return h.respondAccountError(c, accountauth.NewError(accountauth.CodeInternal, "Failed to open avatar image."))
+	}
+	defer src.Close()
+
+	contentType, format, err := inspectAvatar(src)
+	if err != nil {
+		return h.respondAccountError(c, accountauth.NewFieldError(accountauth.CodeValidation, "file", "Use a valid JPEG or PNG image."))
+	}
+	if format != "jpeg" && format != "png" {
+		return h.respondAccountError(c, accountauth.NewFieldError(accountauth.CodeValidation, "file", "Use a valid JPEG or PNG image."))
+	}
+
+	if _, err := src.Seek(0, io.SeekStart); err != nil {
+		return h.respondAccountError(c, accountauth.NewError(accountauth.CodeInternal, "Failed to read avatar image."))
+	}
+	config, _, err := image.DecodeConfig(src)
+	if err != nil || config.Width <= 0 || config.Height <= 0 || config.Width > maxAvatarDimension || config.Height > maxAvatarDimension {
+		return h.respondAccountError(c, accountauth.NewFieldError(accountauth.CodeValidation, "file", fmt.Sprintf("Avatar dimensions must be no larger than %d×%d pixels.", maxAvatarDimension, maxAvatarDimension)))
+	}
+	if _, err := src.Seek(0, io.SeekStart); err != nil {
+		return h.respondAccountError(c, accountauth.NewError(accountauth.CodeInternal, "Failed to read avatar image."))
+	}
+
+	userID := mustLocalsUserID(c)
+	extension := "." + format
+	if format == "jpeg" {
+		extension = ".jpg"
+	}
+	objectKey := fmt.Sprintf("accounts/%s/avatar/%s%s", userID.String(), uuid.NewString(), extension)
+	avatarURL, err := h.avatarStorage.UploadFile(c.UserContext(), src, objectKey, contentType)
+	if err != nil {
+		logger.Log.Error().Err(err).Str("user_id", userID.String()).Msg("failed to upload account avatar")
+		return h.respondAccountError(c, accountauth.NewError(accountauth.CodeInternal, "Failed to upload avatar image."))
+	}
+
+	account, err := h.profile.SetAvatarURL(c.UserContext(), userID, avatarURL)
+	if err != nil {
+		if deleter, ok := h.avatarStorage.(fileDeleter); ok {
+			if deleteErr := deleter.DeleteFile(c.UserContext(), objectKey); deleteErr != nil {
+				logger.Log.Error().Err(deleteErr).Str("object_key", objectKey).Msg("failed to clean up account avatar object")
+			}
+		}
+		return h.respondAccountError(c, err)
+	}
+
+	return utils.SuccessResponse(c, account)
+}
+
+func inspectAvatar(src multipart.File) (string, string, error) {
+	header := make([]byte, 512)
+	n, err := src.Read(header)
+	if err != nil && err != io.EOF && err != io.ErrUnexpectedEOF {
+		return "", "", err
+	}
+	if n == 0 {
+		return "", "", errors.New("empty avatar image")
+	}
+	contentType := http.DetectContentType(header[:n])
+	switch contentType {
+	case "image/jpeg", "image/png":
+	default:
+		return "", "", errors.New("unsupported avatar content type")
+	}
+	if _, err := src.Seek(0, io.SeekStart); err != nil {
+		return "", "", err
+	}
+	_, format, err := image.DecodeConfig(src)
+	if err != nil {
+		return "", "", err
+	}
+	return contentType, format, nil
 }
 
 // ListSessions handles GET /api/v1/account/sessions.
@@ -478,6 +619,7 @@ func RegisterAccountRoutes(api fiber.Router, h *AccountAuthHandler, allowedOrigi
 	accounts.Post("/resend-verification", h.ResendVerification)
 	accounts.Post("/login", h.Login)
 	accounts.Post("/refresh", middleware.AccountOriginGuard(allowedOrigins), h.Refresh)
+	accounts.Post("/reauthenticate", middleware.AccountOriginGuard(allowedOrigins), middleware.PublicAccountRequired(h.db, h.secret), h.Reauthenticate)
 	accounts.Post("/forgot-password", h.ForgotPassword)
 	accounts.Post("/reset-password", h.ResetPassword)
 	accounts.Post("/logout", middleware.AccountOriginGuard(allowedOrigins), middleware.PublicAccountRequired(h.db, h.secret), h.Logout)
@@ -489,6 +631,7 @@ func RegisterAccountRoutes(api fiber.Router, h *AccountAuthHandler, allowedOrigi
 	account := api.Group("/account", middleware.PublicAccountRequired(h.db, h.secret))
 	account.Get("/", h.GetAccount)
 	account.Patch("/profile", h.UpdateProfile)
+	account.Post("/avatar", h.UploadAvatar)
 	account.Get("/sessions", h.ListSessions)
 	account.Delete("/sessions/:id", h.RevokeSession)
 	account.Post("/close", h.CloseAccount)

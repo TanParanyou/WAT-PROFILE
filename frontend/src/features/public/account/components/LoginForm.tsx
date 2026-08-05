@@ -3,12 +3,13 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
-import { Link } from "@/navigation";
+import { Link, useRouter } from "@/navigation";
 import { Loader2, AlertCircle, User } from "lucide-react";
 import { startGoogle } from "@/features/public/account/api";
 import { useAccountSession } from "@/features/public/account/AccountSessionProvider";
 import { toAccountApiError } from "@/features/public/account/api";
 import { useAccountErrorMessage } from "@/features/public/account/hooks";
+import { useGoogleRedirect } from "../hooks/useGoogleRedirect";
 import { normalizeAccountEmail } from "@/features/public/account/validation";
 import { PasswordInput } from "./PasswordInput";
 
@@ -21,18 +22,19 @@ export function LoginForm() {
   const t = useTranslations("Account");
   const getErrorMessage = useAccountErrorMessage();
   const locale = useLocale();
+  const router = useRouter();
   const { login } = useAccountSession();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
   const [fieldError, setFieldError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
-  const [googleUrl, setGoogleUrl] = useState<string | null>(null);
+  const { redirecting, markRedirecting } = useGoogleRedirect();
 
   const handleGoogle = async () => {
     try {
       const url = await startGoogle(locale, "/account");
-      setGoogleUrl(url);
+      markRedirecting();
       window.location.assign(url);
     } catch {
       setFormError(t("google.unexpected"));
@@ -53,6 +55,7 @@ export function LoginForm() {
     setSubmitting(true);
     try {
       await login(normalized, password);
+      router.replace("/account");
     } catch (err) {
       const apiError = toAccountApiError(err);
       setFormError(getErrorMessage(apiError));
@@ -78,10 +81,10 @@ export function LoginForm() {
       <button
         type="button"
         onClick={handleGoogle}
-        disabled={submitting || googleUrl !== null}
+        disabled={submitting || redirecting}
         className="inline-flex min-h-11 w-full items-center justify-center gap-2 border border-site-border bg-site-canvas px-6 py-[13px] font-semibold text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {googleUrl ? (
+        {redirecting ? (
           <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
         ) : (
           <User className="h-5 w-5" aria-hidden />

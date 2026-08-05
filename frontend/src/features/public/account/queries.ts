@@ -6,6 +6,7 @@ import {
   logoutAccount,
   logoutAllAccounts,
   revokeAccountSession,
+  uploadAccountAvatar,
   updateAccountProfile,
 } from "./api";
 import { toPublicQueryError, shouldRetryPublicQuery } from "../shared/query-error";
@@ -40,6 +41,16 @@ export function useUpdateAccountProfile() {
   const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (input: AccountProfileUpdateInput) => updateAccountProfile(input),
+    onSuccess: (account: Account) => {
+      queryClient.setQueryData(accountKeys.current(), account);
+    },
+  });
+}
+
+export function useUploadAccountAvatar() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (file: File) => uploadAccountAvatar(file),
     onSuccess: (account: Account) => {
       queryClient.setQueryData(accountKeys.current(), account);
     },

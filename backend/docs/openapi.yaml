@@ -632,6 +632,34 @@ paths:
         '429':
           $ref: '#/components/responses/TooManyRequests'
 
+  /accounts/reauthenticate:
+    post:
+      tags: [Account]
+      summary: Reauthenticate the current password session
+      description: >-
+        Requires the current public-account access token and password. Returns
+        a fresh access token with a new auth_time for sensitive actions without
+        creating or rotating a refresh session.
+      security:
+        - PublicAccountBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountReauthenticateInput'
+      responses:
+        '200':
+          description: Reauthenticated
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountSessionResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
   /accounts/forgot-password:
     post:
       tags: [Account]
@@ -884,6 +912,48 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+
+  /account/avatar:
+    post:
+      tags: [Account]
+      summary: Upload a profile avatar
+      description: >-
+        Validates and stores a JPEG or PNG avatar for the signed-in account.
+        The client prepares the crop, while the server verifies the image bytes,
+        dimensions, and size before storing it.
+      security:
+        - PublicAccountBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [file]
+              properties:
+                file:
+                  type: string
+                  format: binary
+                  description: JPEG or PNG image, maximum 5 MiB and 4096×4096 pixels
+      responses:
+        '200':
+          description: Updated account profile with the stored avatar URL
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountProfileResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '413':
+          description: Avatar exceeds the size limit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /account/sessions:
     get:
@@ -2659,6 +2729,14 @@ components:
         password:
           type: string
           description: Current password; required to confirm account closure
+
+    AccountReauthenticateInput:
+      type: object
+      required: [password]
+      properties:
+        password:
+          type: string
+          description: Current password used to establish recent authentication
 
     AccountSessionResponse:
       type: object

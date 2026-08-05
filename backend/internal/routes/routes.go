@@ -104,7 +104,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 
 	// ============ PUBLIC ACCOUNT ROUTES ============
 	if accountCfg.Enabled {
-		accountHandler, err := handlers.NewAccountAuthHandler(db, accountCfg)
+		accountHandler, err := handlers.NewAccountAuthHandler(db, accountCfg, r2)
 		if err != nil {
 			// Fail loudly: an enabled module that cannot build would otherwise
 			// silently 404 every account route.

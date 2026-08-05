@@ -153,6 +153,25 @@ func TestUpdateProfileTrimsDisplayName(t *testing.T) {
 	}
 }
 
+func TestUpdateProfilePreservesAvatarWhenProfileFormOmitsIt(t *testing.T) {
+	svc, _, db := newProfileFixture(t)
+	user := seedProfileAccount(t, db, "preserve-avatar@example.com", "Avatar Person", "en")
+	if err := db.Model(&models.AccountProfile{}).Where("user_id = ?", user.ID).Update("avatar_url", "https://cdn.example/original.jpg").Error; err != nil {
+		t.Fatalf("seed avatar url: %v", err)
+	}
+
+	view, err := svc.UpdateProfile(context.Background(), user.ID, UpdateProfileInput{
+		DisplayName:     "Updated Person",
+		PreferredLocale: "en",
+	})
+	if err != nil {
+		t.Fatalf("UpdateProfile: %v", err)
+	}
+	if view.AvatarURL != "https://cdn.example/original.jpg" {
+		t.Fatalf("expected avatar url to be preserved, got %q", view.AvatarURL)
+	}
+}
+
 func TestUpdateProfileRejectsTooShortDisplayName(t *testing.T) {
 	svc, _, db := newProfileFixture(t)
 	user := seedProfileAccount(t, db, "short@example.com", "Valid Name", "en")

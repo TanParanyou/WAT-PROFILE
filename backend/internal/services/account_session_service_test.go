@@ -82,6 +82,12 @@ func testClient() accountauth.ClientInfo {
 	return accountauth.ClientInfo{IP: "203.0.113.42", UserAgent: "Mozilla/5.0 (Test Browser)"}
 }
 
+type advancingTestClock struct {
+	now time.Time
+}
+
+func (c *advancingTestClock) Now() time.Time { return c.now }
+
 func assertSessionCount(t *testing.T, db *gorm.DB, want int64) {
 	t.Helper()
 	var count int64
@@ -130,6 +136,50 @@ func TestRefreshRotatesAndRejectsReuse(t *testing.T) {
 	}
 	assertFamilyRevoked(t, service.db, firstSession.FamilyID)
 	assertSessionCount(t, service.db, 2)
+}
+
+func TestReauthenticatePasswordIssuesFreshAccessToken(t *testing.T) {
+	clock := &advancingTestClock{now: fixedNow()}
+	db := newAccountTestDB(t)
+	issuer := accountauth.NewAccessTokenIssuer([]byte("test-secret"), clock, 15*time.Minute)
+	service := NewAccountSessionService(db, clock, accountauth.NewOpaqueToken, issuer, 30*24*time.Hour)
+	seedVerifiedPasswordAccount(t, db, "reauth@example.com")
+
+	_, session := loginVerifiedAccountAs(t, service, "reauth@example.com", "correct horse battery staple")
+	clock.now = clock.now.Add(11 * time.Minute)
+
+	result, err := service.ReauthenticatePassword(
+		context.Background(),
+		session.UserID,
+		session.ID,
+		"correct horse battery staple",
+	)
+	if err != nil {
+		t.Fatalf("reauthenticate password: %v", err)
+	}
+	claims, err := accountauth.VerifyPublicAccountToken(result.AccessToken, []byte("test-secret"))
+	if err != nil {
+		t.Fatalf("verify reauthenticated access token: %v", err)
+	}
+	if claims.AuthTime != clock.now.Unix() {
+		t.Fatalf("expected fresh auth_time %d, got %d", clock.now.Unix(), claims.AuthTime)
+	}
+	if claims.SessionID != session.ID.String() {
+		t.Fatalf("expected existing session %s, got %s", session.ID, claims.SessionID)
+	}
+}
+
+func TestReauthenticatePasswordRejectsRevokedSession(t *testing.T) {
+	service := newSessionFixture(t)
+	user := seedVerifiedPasswordAccount(t, service.db, "revoked-reauth@example.com")
+	_, session := loginVerifiedAccountAs(t, service, user.Email, "correct horse battery staple")
+
+	if err := service.RevokeSession(context.Background(), user.ID, session.ID); err != nil {
+		t.Fatalf("revoke session: %v", err)
+	}
+	if _, err := service.ReauthenticatePassword(context.Background(), user.ID, session.ID, "correct horse battery staple"); err == nil || accountauth.ErrorCode(err) != accountauth.CodeTokenInvalid {
+		t.Fatalf("expected invalid token for revoked session, got %v", err)
+	}
 }
 
 // TestLoginPasswordWrongPasswordGeneric ensures wrong password returns the

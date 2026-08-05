@@ -118,7 +118,32 @@ function isKnownCode(code: string): code is AccountErrorCode {
   return (KNOWN_CODES as readonly string[]).includes(code);
 }
 
+function isAccountApiError(error: unknown): error is AccountApiError {
+  if (typeof error !== "object" || error === null) return false;
+
+  const candidate = error as Record<string, unknown>;
+  if (
+    typeof candidate.code !== "string" ||
+    !isKnownCode(candidate.code) ||
+    typeof candidate.message !== "string" ||
+    typeof candidate.status !== "number" ||
+    !Array.isArray(candidate.fieldErrors)
+  ) {
+    return false;
+  }
+
+  return candidate.fieldErrors.every((fieldError) => {
+    if (typeof fieldError !== "object" || fieldError === null) return false;
+    const candidateFieldError = fieldError as Record<string, unknown>;
+    return typeof candidateFieldError.field === "string" && typeof candidateFieldError.message === "string";
+  });
+}
+
 export function toAccountApiError(error: unknown): AccountApiError {
+  if (isAccountApiError(error)) {
+    return error;
+  }
+
   if (axios.isAxiosError(error)) {
     const status = error.response?.status ?? 0;
     const payload = error.response?.data;
@@ -222,6 +247,13 @@ export async function restoreSession(): Promise<string> {
   return token;
 }
 
+export async function reauthenticateAccount(password: string): Promise<AccountSessionResponse> {
+  const response = await accountApi.post<unknown>("/accounts/reauthenticate", { password });
+  const session = parseAccountSessionResponse(response.data);
+  memoryAccessToken = session.access_token;
+  return session;
+}
+
 export async function fetchAccount(): Promise<Account> {
   const response = await accountApi.get<unknown>("/account");
   return parseAccountEnvelope(response.data);
@@ -241,6 +273,15 @@ export async function updateAccountProfile(
   input: AccountProfileUpdateInput,
 ): Promise<Account> {
   const response = await accountApi.patch<unknown>("/account/profile", input);
+  return parseAccountEnvelope(response.data);
+}
+
+export async function uploadAccountAvatar(file: File): Promise<Account> {
+  const formData = new FormData();
+  formData.append("file", file, file.name);
+  const response = await accountApi.post<unknown>("/account/avatar", formData, {
+    headers: { "Content-Type": "multipart/form-data" },
+  });
   return parseAccountEnvelope(response.data);
 }
 

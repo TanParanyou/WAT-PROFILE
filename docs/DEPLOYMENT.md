@@ -63,7 +63,8 @@ Public account auth (backend):
 - `AUTH_EMAIL_DELIVERY_MODE` — `capture` (development only; forbidden in production)
   or `resend`; `resend` requires `RESEND_API_KEY` and `ACCOUNT_EMAIL_FROM`
 - `AUTH_REGISTER_LIMIT`, `AUTH_LOGIN_LIMIT`, `AUTH_VERIFY_RESEND_LIMIT`,
-  `AUTH_FORGOT_PASSWORD_LIMIT`, `AUTH_REFRESH_LIMIT`, `AUTH_GOOGLE_LIMIT`
+  `AUTH_FORGOT_PASSWORD_LIMIT`, `AUTH_REFRESH_LIMIT`, `AUTH_GOOGLE_LIMIT`,
+  `AUTH_AVATAR_UPLOAD_LIMIT`
 - `ADMIN_COOKIE_SECURE` — `true` in production (public refresh cookie is `Secure`
   when the environment is production)
 

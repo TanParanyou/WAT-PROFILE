@@ -155,6 +155,7 @@ func main() {
 			{"/api/v1/accounts/refresh", accountCfg.RefreshLimit},
 			{"/api/v1/accounts/google/start", accountCfg.GoogleLimit},
 			{"/api/v1/accounts/google/callback", accountCfg.GoogleLimit},
+			{"/api/v1/account/avatar", accountCfg.AvatarLimit},
 		}
 		for _, l := range accountLimiters {
 			app.Use(l.path, limiter.New(limiter.Config{

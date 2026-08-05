@@ -40,10 +40,11 @@ type AccountAuthConfig struct {
 	ForgotLimit   RateLimit
 	RefreshLimit  RateLimit
 	GoogleLimit   RateLimit
+	AvatarLimit   RateLimit
 }
 
 const (
-	defaultAccessTTL = 15 * time.Minute
+	defaultAccessTTL  = 15 * time.Minute
 	defaultRefreshTTL = 30 * 24 * time.Hour
 )
 
@@ -53,18 +54,19 @@ const (
 // adopted the module keep working.
 func LoadAccountAuthConfig() (AccountAuthConfig, error) {
 	cfg := AccountAuthConfig{
-		Enabled:     os.Getenv("PUBLIC_ACCOUNT_AUTH_ENABLED") == "true",
-		Environment: os.Getenv("ENV"),
-		FrontendURL: strings.TrimRight(os.Getenv("PUBLIC_ACCOUNT_FRONTEND_URL"), "/"),
-		EmailMode:   os.Getenv("AUTH_EMAIL_DELIVERY_MODE"),
-		AccessTTL:   defaultAccessTTL,
-		RefreshTTL:  defaultRefreshTTL,
+		Enabled:       os.Getenv("PUBLIC_ACCOUNT_AUTH_ENABLED") == "true",
+		Environment:   os.Getenv("ENV"),
+		FrontendURL:   strings.TrimRight(os.Getenv("PUBLIC_ACCOUNT_FRONTEND_URL"), "/"),
+		EmailMode:     os.Getenv("AUTH_EMAIL_DELIVERY_MODE"),
+		AccessTTL:     defaultAccessTTL,
+		RefreshTTL:    defaultRefreshTTL,
 		RegisterLimit: RateLimit{5, 15 * time.Minute},
 		LoginLimit:    RateLimit{10, 15 * time.Minute},
 		ResendLimit:   RateLimit{3, time.Hour},
 		ForgotLimit:   RateLimit{5, time.Hour},
 		RefreshLimit:  RateLimit{60, time.Minute},
 		GoogleLimit:   RateLimit{20, 15 * time.Minute},
+		AvatarLimit:   RateLimit{12, time.Hour},
 	}
 	if cfg.AccessTTL == 0 {
 		cfg.AccessTTL = defaultAccessTTL
@@ -158,6 +160,9 @@ func LoadAccountAuthConfig() (AccountAuthConfig, error) {
 		return cfg, err
 	}
 	if err := applyLimit(&cfg.GoogleLimit, "AUTH_GOOGLE_LIMIT"); err != nil {
+		return cfg, err
+	}
+	if err := applyLimit(&cfg.AvatarLimit, "AUTH_AVATAR_UPLOAD_LIMIT"); err != nil {
 		return cfg, err
 	}
 

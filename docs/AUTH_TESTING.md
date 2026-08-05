@@ -25,7 +25,7 @@ Copy `backend/.env.example` to `backend/.env` and set:
 | `ACCOUNT_EMAIL_FROM` | if `resend` | Verified sender address |
 | `AUTH_ACCESS_TOKEN_EXPIRY` | no | Access token TTL (default `15m`) |
 | `AUTH_REFRESH_TOKEN_EXPIRY` | no | Refresh token TTL (default `30d`) |
-| `AUTH_REGISTER_LIMIT` / `AUTH_LOGIN_LIMIT` / `AUTH_VERIFY_RESEND_LIMIT` / `AUTH_FORGOT_PASSWORD_LIMIT` / `AUTH_REFRESH_LIMIT` / `AUTH_GOOGLE_LIMIT` | no | Per-surface rate limits |
+| `AUTH_REGISTER_LIMIT` / `AUTH_LOGIN_LIMIT` / `AUTH_VERIFY_RESEND_LIMIT` / `AUTH_FORGOT_PASSWORD_LIMIT` / `AUTH_REFRESH_LIMIT` / `AUTH_GOOGLE_LIMIT` / `AUTH_AVATAR_UPLOAD_LIMIT` | no | Per-surface rate limits |
 | `ADMIN_COOKIE_SECURE` | prod | `true` in production |
 
 Placeholders only in this document — never real secrets.

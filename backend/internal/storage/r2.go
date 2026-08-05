@@ -67,3 +67,13 @@ func (s *R2Service) UploadFile(ctx context.Context, file multipart.File, filenam
 	url := fmt.Sprintf("%s/%s", s.publicURL, filename)
 	return url, nil
 }
+
+// DeleteFile removes an object by its storage key. It is used to clean up
+// objects when a later persistence step fails after a successful upload.
+func (s *R2Service) DeleteFile(ctx context.Context, filename string) error {
+	_, err := s.client.DeleteObject(ctx, &s3.DeleteObjectInput{
+		Bucket: aws.String(s.bucket),
+		Key:    aws.String(filename),
+	})
+	return err
+}

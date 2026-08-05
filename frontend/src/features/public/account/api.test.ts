@@ -7,6 +7,7 @@ import {
   fetchAccount,
   getMemoryAccessToken,
   loginAccount,
+  reauthenticateAccount,
   resetAccountClientForTests,
   toAccountApiError,
 } from "./api";
@@ -90,6 +91,24 @@ test("login stores the access token in memory only", async () => {
   assert.equal(getMemoryAccessToken(), token);
 });
 
+test("reauthentication replaces the in-memory access token", async () => {
+  const token = "fresh-reauthenticated-token";
+  accountApi.defaults.adapter = async (config) => {
+    assert.equal(config.url, "/accounts/reauthenticate");
+    return {
+      data: { success: true, data: { access_token: token, expires_in: 900 } },
+      status: 200,
+      statusText: "OK",
+      headers: {},
+      config,
+    };
+  };
+
+  const session = await reauthenticateAccount("a-very-long-password-123");
+  assert.equal(session.access_token, token);
+  assert.equal(getMemoryAccessToken(), token);
+});
+
 test("two concurrent 401s trigger exactly one refresh", async () => {
   const refreshHandler = async () => {
     // Small delay so both 401 responses land before the first refresh resolves.
@@ -133,6 +152,26 @@ test("toAccountApiError maps validation field errors without any", () => {
   assert.equal(apiError.code, "AUTH_VALIDATION");
   assert.equal(apiError.status, 400);
   assert.deepEqual(apiError.fieldErrors, [{ field: "email", message: "Invalid email" }]);
+});
+
+test("toAccountApiError preserves an already-normalized invalid credentials error", () => {
+  const apiError = toAccountApiError({
+    isAxiosError: true,
+    response: {
+      status: 401,
+      data: {
+        success: false,
+        code: "AUTH_INVALID_CREDENTIALS",
+        error: "Incorrect email or password.",
+        trace_id: "572534c4-4579-4f94-b5c4-9280ceb36430",
+      },
+    },
+  });
+
+  const normalizedAgain = toAccountApiError(apiError);
+  assert.equal(normalizedAgain.code, "AUTH_INVALID_CREDENTIALS");
+  assert.equal(normalizedAgain.message, "Incorrect email or password.");
+  assert.equal(normalizedAgain.status, 401);
 });
 
 test("toAccountApiError falls back to AUTH_UNKNOWN for unparseable payloads", () => {

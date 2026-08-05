@@ -222,6 +222,65 @@ func (s *AccountSessionService) Refresh(ctx context.Context, rawRefresh string, 
 	return result, err
 }
 
+// ReauthenticatePassword verifies the password for the current session and
+// issues a new access token with a fresh auth_time. It does not create or
+// rotate a refresh session; callers keep the existing session family.
+func (s *AccountSessionService) ReauthenticatePassword(ctx context.Context, userID, sessionID uuid.UUID, password string) (accountauth.SessionResult, error) {
+	now := s.clock.Now()
+	var result accountauth.SessionResult
+	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var session models.AuthSession
+		if err := tx.Where("id = ? AND user_id = ? AND revoked_at IS NULL", sessionID, userID).First(&session).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return accountauth.NewError(accountauth.CodeTokenInvalid, "The session is invalid or has expired.")
+			}
+			return err
+		}
+		if now.After(session.ExpiresAt) {
+			return accountauth.NewError(accountauth.CodeTokenInvalid, "The session is invalid or has expired.")
+		}
+
+		var user models.User
+		if err := tx.First(&user, "id = ?", userID).Error; err != nil {
+			return err
+		}
+		if code := s.sessionStatusCode(user); code != "" {
+			return accountauth.NewError(code, "This account is not allowed to sign in.")
+		}
+
+		var identity models.AuthIdentity
+		err := tx.Where("user_id = ? AND provider = 'password'", userID).First(&identity).Error
+		if errors.Is(err, gorm.ErrRecordNotFound) || identity.CredentialHash == nil {
+			return accountauth.NewError(accountauth.CodeInvalidCredentials, "Incorrect email or password.")
+		}
+		if err != nil {
+			return err
+		}
+		if !utils.CheckPasswordHash(password, *identity.CredentialHash) {
+			return accountauth.NewError(accountauth.CodeInvalidCredentials, "Incorrect email or password.")
+		}
+
+		accessToken, err := s.issuer.Issue(userID, sessionID, now)
+		if err != nil {
+			return err
+		}
+		if err := tx.Model(&models.AuthSession{}).Where("id = ?", sessionID).Updates(map[string]any{
+			"last_used_at": now,
+			"updated_at":   now,
+		}).Error; err != nil {
+			return err
+		}
+		result = accountauth.SessionResult{AccessToken: accessToken, ExpiresIn: s.issuer.TTL()}
+		return nil
+	})
+	if err == nil {
+		s.recordSecurity(ctx, accountauth.SecurityEvent{UserID: userID.String(), EventType: "password_reauth", Outcome: "success"})
+	} else if accountauth.ErrorCode(err) == accountauth.CodeInvalidCredentials {
+		s.recordSecurity(ctx, accountauth.SecurityEvent{UserID: userID.String(), EventType: "password_reauth", Outcome: "failure"})
+	}
+	return result, err
+}
+
 // Logout revokes the token family of the presented refresh token.
 func (s *AccountSessionService) Logout(ctx context.Context, userID uuid.UUID, rawRefresh string) error {
 	if rawRefresh == "" {

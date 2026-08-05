@@ -65,7 +65,7 @@ func TestLoadAccountAuthConfigDefaults(t *testing.T) {
 		t.Fatal("expected non-secure cookies in development")
 	}
 	if cfg.RegisterLimit.Limit != 5 || cfg.LoginLimit.Limit != 10 || cfg.ResendLimit.Limit != 3 ||
-		cfg.ForgotLimit.Limit != 5 || cfg.RefreshLimit.Limit != 60 || cfg.GoogleLimit.Limit != 20 {
+		cfg.ForgotLimit.Limit != 5 || cfg.RefreshLimit.Limit != 60 || cfg.GoogleLimit.Limit != 20 || cfg.AvatarLimit.Limit != 12 {
 		t.Fatalf("unexpected default limiter windows: %+v", cfg)
 	}
 }

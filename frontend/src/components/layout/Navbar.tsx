@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, X } from "lucide-react";
+import { Menu, UserRound, X } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
@@ -12,6 +12,7 @@ import { siteConfig } from "@/config/site.config";
 import { STATIC_ASSETS } from "@/constants/assets";
 import { PublicThemeSwitcher } from "@/components/public/theme/PublicThemeSwitcher";
 import { LanguageSwitcher } from "./LanguageSwitcher";
+import { AccountAvatar } from "@/features/public/account/components/AccountAvatar";
 
 const languageOptions = [
   { code: "th", label: "ไทย" },
@@ -42,17 +43,8 @@ export default function Navbar() {
     { name: t("contact"), href: "/contact" },
   ];
 
-  const accountLink = ACCOUNT_FEATURE_ENABLED
-    ? {
-        name:
-          accountSession.status === "authenticated"
-            ? t("accountProfile")
-            : t("accountLogin"),
-        href: accountHref,
-      }
-    : null;
-
-  const allLinks = accountLink ? [...navLinks, accountLink] : navLinks;
+  const accountLabel =
+    accountSession.status === "authenticated" ? t("accountProfile") : t("accountLogin");
 
   return (
     <header className="fixed top-0 z-50 w-full border-b border-site-border bg-site-canvas text-site-foreground">
@@ -75,7 +67,7 @@ export default function Navbar() {
         </Link>
 
         <nav className="hidden items-center gap-6 lg:flex" aria-label={t("primaryNavigation")}>
-          {allLinks.map((link) => {
+          {navLinks.map((link) => {
             const isActive = pathname === link.href;
             return (
               <Link
@@ -91,27 +83,55 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
+          {ACCOUNT_FEATURE_ENABLED ? (
+            <Link
+              href={accountHref}
+              className="inline-flex min-h-11 items-center gap-2 border border-site-border bg-site-canvas px-3 text-sm font-semibold text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus"
+            >
+              {accountSession.status === "authenticated" && accountSession.account ? (
+                <AccountAvatar account={accountSession.account} size="sm" />
+              ) : (
+                <UserRound className="size-5" aria-hidden="true" />
+              )}
+              <span>{accountLabel}</span>
+            </Link>
+          ) : null}
           <PublicThemeSwitcher />
           <LanguageSwitcher />
         </div>
 
-        <button
-          type="button"
-          className="relative z-50 inline-flex size-11 items-center justify-center border border-site-border bg-site-canvas hover:bg-site-surface transition-colors focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus lg:hidden"
-          onClick={() => setIsOpen((open) => !open)}
-          aria-expanded={isOpen}
-          aria-controls="public-navigation"
-          aria-label={isOpen ? t("closeMenu") : t("openMenu")}
-        >
-          {isOpen ? <X size={24} aria-hidden="true" /> : <Menu size={24} aria-hidden="true" />}
-        </button>
+        <div className="flex items-center gap-2 lg:hidden">
+          {ACCOUNT_FEATURE_ENABLED ? (
+            <Link
+              href={accountHref}
+              className="inline-flex size-11 items-center justify-center border border-site-border bg-site-canvas transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus"
+              aria-label={accountLabel}
+            >
+              {accountSession.status === "authenticated" && accountSession.account ? (
+                <AccountAvatar account={accountSession.account} size="sm" />
+              ) : (
+                <UserRound className="size-5" aria-hidden="true" />
+              )}
+            </Link>
+          ) : null}
+          <button
+            type="button"
+            className="relative z-50 inline-flex size-11 items-center justify-center border border-site-border bg-site-canvas transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
+            onClick={() => setIsOpen((open) => !open)}
+            aria-expanded={isOpen}
+            aria-controls="public-navigation"
+            aria-label={isOpen ? t("closeMenu") : t("openMenu")}
+          >
+            {isOpen ? <X size={24} aria-hidden="true" /> : <Menu size={24} aria-hidden="true" />}
+          </button>
+        </div>
       </div>
 
       {isOpen ? (
         <div id="public-navigation" className="border-t border-site-border bg-site-canvas px-6 py-6 sm:px-10 lg:hidden">
           <nav className="mx-auto max-w-7xl" aria-label={t("primaryNavigation")}>
             <div className="grid gap-1">
-              {allLinks.map((link) => (
+              {navLinks.map((link) => (
                 <Link
                   key={link.href}
                   href={link.href}

@@ -15,6 +15,7 @@ import {
   loginAccount,
   logoutAccount,
   logoutAllAccounts,
+  reauthenticateAccount,
   restoreSession,
   setMemoryAccessToken,
 } from "./api";
@@ -29,7 +30,10 @@ export interface AccountSessionValue {
   status: AccountSessionStatus;
   account: Account | null;
   accountLoading: boolean;
+  accountError: unknown;
+  retryAccount: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
+  reauthenticate: (password: string) => Promise<void>;
   logout: () => Promise<void>;
   logoutAll: () => Promise<void>;
 }
@@ -70,6 +74,11 @@ export function AccountSessionProvider({ children }: { children: ReactNode }) {
   }, [queryClient]);
 
   const accountQuery = useAccount({ enabled: ACCOUNT_FEATURE_ENABLED && status === "authenticated" });
+  const { refetch: refetchAccount } = accountQuery;
+
+  const retryAccount = useCallback(async () => {
+    await refetchAccount();
+  }, [refetchAccount]);
 
   const login = useCallback(
     async (email: string, password: string) => {
@@ -79,6 +88,10 @@ export function AccountSessionProvider({ children }: { children: ReactNode }) {
     },
     [queryClient],
   );
+
+  const reauthenticate = useCallback(async (password: string) => {
+    await reauthenticateAccount(password);
+  }, []);
 
   const logout = useCallback(async () => {
     try {
@@ -107,11 +120,24 @@ export function AccountSessionProvider({ children }: { children: ReactNode }) {
       status,
       account: accountQuery.data ?? null,
       accountLoading: accountQuery.isPending,
+      accountError: accountQuery.error,
+      retryAccount,
       login,
+      reauthenticate,
       logout,
       logoutAll,
     }),
-    [status, accountQuery.data, accountQuery.isPending, login, logout, logoutAll],
+    [
+      status,
+      accountQuery.data,
+      accountQuery.isPending,
+      accountQuery.error,
+      retryAccount,
+      login,
+      reauthenticate,
+      logout,
+      logoutAll,
+    ],
   );
 
   return (

@@ -7,6 +7,7 @@ import { Link } from "@/navigation";
 import { Loader2, AlertCircle, CheckCircle, UserPlus } from "lucide-react";
 import { registerAccount, startGoogle, toAccountApiError } from "@/features/public/account/api";
 import { useAccountErrorMessage } from "@/features/public/account/hooks";
+import { useGoogleRedirect } from "../hooks/useGoogleRedirect";
 import {
   normalizeAccountEmail,
   validatePassword,
@@ -30,7 +31,7 @@ export function RegisterForm() {
   const [formError, setFormError] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [googleUrl, setGoogleUrl] = useState<string | null>(null);
+  const { redirecting, markRedirecting } = useGoogleRedirect();
   const errorSummaryRef = useRef<HTMLDivElement>(null);
 
   const focusErrorSummary = () => {
@@ -40,7 +41,7 @@ export function RegisterForm() {
   const handleGoogle = async () => {
     try {
       const url = await startGoogle(locale, "/account");
-      setGoogleUrl(url);
+      markRedirecting();
       window.location.assign(url);
     } catch {
       setFormError(t("google.unexpected"));
@@ -152,10 +153,10 @@ export function RegisterForm() {
       <button
         type="button"
         onClick={handleGoogle}
-        disabled={submitting || googleUrl !== null}
+        disabled={submitting || redirecting}
         className="inline-flex min-h-11 w-full items-center justify-center gap-2 border border-site-border bg-site-canvas px-6 py-[13px] font-semibold text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-60"
       >
-        {googleUrl ? (
+        {redirecting ? (
           <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
         ) : (
           <UserPlus className="h-5 w-5" aria-hidden />

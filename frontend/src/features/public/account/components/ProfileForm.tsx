@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
 import { Link } from "@/navigation";
@@ -12,26 +12,38 @@ import {
   useUpdateAccountProfile,
   useCloseAccount,
 } from "@/features/public/account/queries";
-import { toAccountApiError } from "@/features/public/account/api";
+import { startGoogle, toAccountApiError } from "@/features/public/account/api";
 import { useAccountErrorMessage } from "@/features/public/account/hooks";
 import { PasswordInput } from "./PasswordInput";
+import { AvatarUpload } from "./AvatarUpload";
+import { AccountTabs, type AccountTab } from "./AccountTabs";
+import { useUnsavedChanges } from "../hooks/useUnsavedChanges";
+import { useGoogleRedirect } from "../hooks/useGoogleRedirect";
 import { validateDisplayName } from "@/features/public/account/validation";
 import type { AccountLocale } from "@/features/public/account/types";
 
 const inputBase =
   "mt-2 min-h-11 w-full border border-site-border bg-site-canvas px-3 py-2.5 text-base text-site-foreground outline-none transition-colors placeholder:text-site-muted focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus";
 const labelBase = "block text-sm font-semibold text-text-800";
+const primaryActionClass =
+  "inline-flex min-h-11 w-full items-center justify-center gap-2 bg-site-action px-6 py-[13px] font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus sm:w-auto";
+const secondaryActionClass =
+  "inline-flex min-h-11 w-full items-center justify-center gap-2 border border-site-border bg-site-canvas px-6 py-[13px] font-semibold text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus sm:w-auto";
 const locales = ["th", "en", "de"] as const;
+
+interface ProfileBaseline {
+  displayName: string;
+  preferredLocale: AccountLocale;
+}
 
 export function ProfileForm() {
   const t = useTranslations("Account");
   const getErrorMessage = useAccountErrorMessage();
   const locale = useLocale();
-  const { status, account, accountLoading, logout } = useAccountSession();
+  const { status, account, accountLoading, accountError, retryAccount, reauthenticate, logout } = useAccountSession();
   const updateProfile = useUpdateAccountProfile();
   const closeAccount = useCloseAccount();
   const [displayName, setDisplayName] = useState(account?.display_name ?? "");
-  const [avatarUrl, setAvatarUrl] = useState(account?.avatar_url ?? "");
   const [preferredLocale, setPreferredLocale] = useState<AccountLocale>(account?.preferred_locale ?? (locale as AccountLocale));
   const [formError, setFormError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
@@ -39,6 +51,43 @@ export function ProfileForm() {
   const [closePassword, setClosePassword] = useState("");
   const [closing, setClosing] = useState(false);
   const [confirmClose, setConfirmClose] = useState(false);
+  const { redirecting, markRedirecting } = useGoogleRedirect();
+  const [activeTab, setActiveTab] = useState<AccountTab>("profile");
+  const [initializedAccountId, setInitializedAccountId] = useState<string | null>(null);
+  const [baseline, setBaseline] = useState<ProfileBaseline | null>(null);
+  const localeLabels: Record<AccountLocale, string> = {
+    th: t("account.localeThai"),
+    en: t("account.localeEnglish"),
+    de: t("account.localeGerman"),
+  };
+
+  useEffect(() => {
+    if (!account) {
+      setInitializedAccountId(null);
+      setBaseline(null);
+      return;
+    }
+    if (account.id === initializedAccountId) return;
+
+    setDisplayName(account.display_name);
+    setPreferredLocale(account.preferred_locale);
+    setBaseline({
+      displayName: account.display_name,
+      preferredLocale: account.preferred_locale,
+    });
+    setActiveTab("profile");
+    setFormError(null);
+    setSaved(false);
+    setInitializedAccountId(account.id);
+  }, [account, initializedAccountId]);
+
+  const isDirty =
+    baseline !== null &&
+    (displayName !== baseline.displayName || preferredLocale !== baseline.preferredLocale);
+  const { confirmNavigation } = useUnsavedChanges({
+    isDirty,
+    message: t("account.unsavedBody"),
+  });
 
   if (status === "loading" || (status === "authenticated" && accountLoading)) {
     return (
@@ -48,18 +97,40 @@ export function ProfileForm() {
     );
   }
 
+  if (status === "anonymous") {
+    return (
+      <section aria-labelledby="account-access-title" className="space-y-4">
+        <div>
+          <h2 id="account-access-title" className="font-heading text-xl font-bold text-site-foreground">
+            {t("account.accessTitle")}
+          </h2>
+          <p className="mt-2 text-sm text-site-muted">{t("account.accessBody")}</p>
+        </div>
+        <div className="flex flex-col gap-3 sm:flex-row">
+          <Link href="/account/login" className={primaryActionClass}>
+            {t("account.loginAction")}
+          </Link>
+          <Link href="/account/register" className={secondaryActionClass}>
+            {t("account.registerAction")}
+          </Link>
+        </div>
+      </section>
+    );
+  }
+
   if (!account) {
     return (
       <div className="space-y-4">
-        <div role="alert" className="border border-red-700 bg-red-50 p-3 text-sm text-red-700">
+        <div
+          role={accountError ? "alert" : "status"}
+          aria-live={accountError ? undefined : "polite"}
+          className="border border-red-700 bg-red-50 p-3 text-sm text-red-700"
+        >
           {t("account.loadError")}
         </div>
-        <Link
-          href="/account/login"
-          className="inline-flex min-h-11 items-center justify-center bg-site-action px-6 py-[13px] font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
-        >
-          {t("login.submit")}
-        </Link>
+        <button type="button" onClick={() => void retryAccount()} className={primaryActionClass}>
+          {t("account.retry")}
+        </button>
       </div>
     );
   }
@@ -97,8 +168,9 @@ export function ProfileForm() {
     );
   }
 
-  const handleSave = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const saveProfile = async () => {
+    if (saving) return;
+
     setFormError(null);
     setSaved(false);
 
@@ -107,18 +179,16 @@ export function ProfileForm() {
       setFormError(t(`validation.${nameError}`));
       return;
     }
-    if (avatarUrl && !/^https?:\/\/.+/.test(avatarUrl)) {
-      setFormError(t("validation.avatarUrlInvalid"));
-      return;
-    }
-
+    const nextDisplayName = displayName.trim();
     setSaving(true);
     try {
       await updateProfile.mutateAsync({
-        display_name: displayName.trim(),
-        avatar_url: avatarUrl.trim(),
+        display_name: nextDisplayName,
+        avatar_url: account.avatar_url,
         preferred_locale: preferredLocale,
       });
+      setDisplayName(nextDisplayName);
+      setBaseline({ displayName: nextDisplayName, preferredLocale });
       setSaved(true);
     } catch (err) {
       const apiError = toAccountApiError(err);
@@ -128,19 +198,59 @@ export function ProfileForm() {
     }
   };
 
-  const handleClose = async (e: React.FormEvent) => {
-    e.preventDefault();
+  const handleSave = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    await saveProfile();
+  };
+
+  const handleDiscard = () => {
+    if (!baseline) return;
+    setDisplayName(baseline.displayName);
+    setPreferredLocale(baseline.preferredLocale);
     setFormError(null);
-    if (!closePassword) {
+    setSaved(false);
+  };
+
+  const handleTabChange = (tab: AccountTab): boolean => {
+    if (tab === activeTab) return true;
+    if (!confirmNavigation()) return false;
+    setActiveTab(tab);
+    return true;
+  };
+
+  const handleLogout = async () => {
+    if (!confirmNavigation()) return;
+    await logout();
+  };
+
+  const handleGoogleReauthentication = async () => {
+    setFormError(null);
+    try {
+      const url = await startGoogle(locale, "/account");
+      markRedirecting();
+      window.location.assign(url);
+    } catch {
+      setFormError(t("google.unexpected"));
+    }
+  };
+
+  const handleClose = async (event: FormEvent<HTMLFormElement>) => {
+    event.preventDefault();
+    setFormError(null);
+    if (account.providers.includes("password") && !closePassword) {
       setFormError(t("validation.passwordCurrentRequired"));
       return;
     }
     setClosing(true);
     try {
+      if (account.providers.includes("password")) {
+        await reauthenticate(closePassword);
+      }
       await closeAccount.mutateAsync(closePassword);
     } catch (err) {
       const apiError = toAccountApiError(err);
       setFormError(getErrorMessage(apiError));
+    } finally {
       setClosing(false);
     }
   };
@@ -167,144 +277,233 @@ export function ProfileForm() {
         </div>
       )}
 
-      <section className="space-y-4">
-        <h2 className="font-heading text-xl font-bold text-site-foreground">{t("account.title")}</h2>
-        <dl className="grid gap-3 text-sm sm:grid-cols-2">
-          <div>
-            <dt className="font-semibold text-text-800">{t("account.emailLabel")}</dt>
-            <dd className="text-site-muted">{account.email}</dd>
-          </div>
-          <div>
-            <dt className="font-semibold text-text-800">{t("account.statusLabel")}</dt>
-            <dd className="text-site-muted">{t(`account.status${capitalize(account.account_status)}`)}</dd>
-          </div>
-        </dl>
-      </section>
+      <AccountTabs activeTab={activeTab} onChange={handleTabChange} isDirty={isDirty} />
 
-      <form className="space-y-5" onSubmit={handleSave} noValidate>
-        <div>
-          <label className={labelBase} htmlFor="profile-display-name">
-            {t("account.displayNameLabel")}
-          </label>
-          <input
-            id="profile-display-name"
-            name="display_name"
-            type="text"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
-            className={inputBase}
-          />
-        </div>
-        <div>
-          <label className={labelBase} htmlFor="profile-avatar-url">
-            {t("account.avatarUrlLabel")}
-          </label>
-          <input
-            id="profile-avatar-url"
-            name="avatar_url"
-            type="url"
-            value={avatarUrl}
-            onChange={(e) => setAvatarUrl(e.target.value)}
-            placeholder={t("account.avatarUrlPlaceholder")}
-            className={inputBase}
-          />
-        </div>
-        <div>
-          <label className={labelBase} htmlFor="profile-locale">
-            {t("account.localeLabel")}
-          </label>
-          <select
-            id="profile-locale"
-            name="preferred_locale"
-            value={preferredLocale}
-            onChange={(e) => setPreferredLocale(e.target.value as AccountLocale)}
-            className={inputBase}
+      <div className="grid items-start">
+        <form
+          className={`col-start-1 row-start-1 space-y-5 ${tabPanelVisibilityClass(activeTab, "profile")}`}
+          onSubmit={handleSave}
+          aria-hidden={activeTab !== "profile"}
+          noValidate
+        >
+          <section
+            id="account-tabpanel-profile"
+            role="tabpanel"
+            aria-labelledby="account-tab-profile"
+            tabIndex={0}
+            className="space-y-5 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
           >
-            {locales.map((code) => (
-              <option key={code} value={code}>
-                {code}
-              </option>
-            ))}
-          </select>
-        </div>
-        <button
-          type="submit"
-          disabled={saving}
-          className="inline-flex min-h-11 w-full items-center justify-center gap-2 bg-site-action px-6 py-[13px] font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-60"
-        >
-          {saving && <Loader2 className="h-5 w-5 animate-spin" aria-hidden />}
-          {t("account.save")}
-        </button>
-      </form>
-
-      <div className="flex flex-col gap-3 sm:flex-row">
-        <Link
-          href="/account/sessions"
-          className="inline-flex min-h-11 items-center justify-center gap-2 border border-site-border bg-site-canvas px-6 py-[13px] font-semibold text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
-        >
-          {t("account.sessionsLink")}
-        </Link>
-        <button
-          type="button"
-          onClick={() => void logout()}
-          className="inline-flex min-h-11 items-center justify-center gap-2 border border-site-border bg-site-canvas px-6 py-[13px] font-semibold text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
-        >
-          <LogOut className="h-5 w-5" aria-hidden />
-          {t("account.logout")}
-        </button>
-      </div>
-
-      <section className="space-y-4 border-t border-site-border pt-6">
-        <h2 className="font-heading text-lg font-bold text-site-foreground">{t("account.closeLabel")}</h2>
-        <p className="text-sm text-site-muted">{t("account.closeIntro")}</p>
-        {!confirmClose ? (
-          <button
-            type="button"
-            onClick={() => setConfirmClose(true)}
-            className="inline-flex min-h-11 items-center justify-center gap-2 border border-red-700 bg-site-canvas px-6 py-[13px] font-semibold text-red-700 transition-colors hover:bg-red-50 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
-          >
-            {t("account.closeButton")}
-          </button>
-        ) : (
-          <form className="space-y-4" onSubmit={handleClose} noValidate>
-            <p className="text-sm text-site-muted">{t("account.closeConfirm")}</p>
             <div>
-              <label className={labelBase} htmlFor="close-password">
-                {t("account.closePasswordLabel")}
+              <h2 className="font-heading text-xl font-bold text-site-foreground">
+                {t("account.profileSection")}
+              </h2>
+              <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+                <div>
+                  <dt className="font-semibold text-text-800">{t("account.emailLabel")}</dt>
+                  <dd className="text-site-muted">{account.email}</dd>
+                </div>
+                <div>
+                  <dt className="font-semibold text-text-800">{t("account.statusLabel")}</dt>
+                  <dd className="text-site-muted">{t(`account.status${capitalize(account.account_status)}`)}</dd>
+                </div>
+              </dl>
+            </div>
+            <AvatarUpload account={account} onUploaded={() => setSaved(true)} />
+            <div>
+              <label className={labelBase} htmlFor="profile-display-name">
+                {t("account.displayNameLabel")}
               </label>
-              <PasswordInput
-                id="close-password"
-                name="password"
-                autoComplete="current-password"
-                value={closePassword}
-                onChange={(e) => setClosePassword(e.target.value)}
+              <input
+                id="profile-display-name"
+                name="display_name"
+                type="text"
+                value={displayName}
+                onChange={(event) => setDisplayName(event.target.value)}
                 className={inputBase}
               />
             </div>
+          </section>
+        </form>
+
+        <form
+          className={`col-start-1 row-start-1 space-y-5 ${tabPanelVisibilityClass(activeTab, "preferences")}`}
+          onSubmit={handleSave}
+          aria-hidden={activeTab !== "preferences"}
+          noValidate
+        >
+          <section
+            id="account-tabpanel-preferences"
+            role="tabpanel"
+            aria-labelledby="account-tab-preferences"
+            tabIndex={0}
+            className="space-y-5 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
+          >
+            <h2 className="font-heading text-xl font-bold text-site-foreground">
+              {t("account.languageSection")}
+            </h2>
+            <div>
+              <label className={labelBase} htmlFor="profile-locale">
+                {t("account.localeLabel")}
+              </label>
+              <select
+                id="profile-locale"
+                name="preferred_locale"
+                value={preferredLocale}
+                onChange={(event) => setPreferredLocale(event.target.value as AccountLocale)}
+                className={inputBase}
+              >
+                {locales.map((code) => (
+                  <option key={code} value={code}>
+                    {localeLabels[code]}
+                  </option>
+                ))}
+              </select>
+            </div>
+          </section>
+        </form>
+
+        <section
+          className={`col-start-1 row-start-1 ${tabPanelVisibilityClass(activeTab, "security")}`}
+          aria-hidden={activeTab !== "security"}
+        >
+          <section
+            id="account-tabpanel-security"
+            role="tabpanel"
+            aria-labelledby="account-tab-security"
+            tabIndex={0}
+            className="space-y-8 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
+          >
+            <section aria-labelledby="account-sessions-title" className="space-y-4">
+            <div>
+              <h2 id="account-sessions-title" className="font-heading text-xl font-bold text-site-foreground">
+                {t("account.sessionsSection")}
+              </h2>
+            </div>
             <div className="flex flex-col gap-3 sm:flex-row">
-              <button
-                type="submit"
-                disabled={closing}
-                className="inline-flex min-h-11 items-center justify-center gap-2 bg-red-700 px-6 py-[13px] font-semibold text-white transition-colors hover:bg-red-800 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-60"
+              <Link
+                href="/account/sessions"
+                className={secondaryActionClass}
+                onClick={(event) => {
+                  if (!confirmNavigation()) event.preventDefault();
+                }}
               >
-                {closing && <Loader2 className="h-5 w-5 animate-spin" aria-hidden />}
-                {t("account.closeConfirm")}
-              </button>
-              <button
-                type="button"
-                onClick={() => setConfirmClose(false)}
-                className="inline-flex min-h-11 items-center justify-center gap-2 border border-site-border bg-site-canvas px-6 py-[13px] font-semibold text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
-              >
+                {t("account.sessionsLink")}
+              </Link>
+              <button type="button" onClick={() => void handleLogout()} className={secondaryActionClass}>
+                <LogOut className="h-5 w-5" aria-hidden />
                 {t("account.logout")}
               </button>
             </div>
-          </form>
-        )}
-      </section>
+            </section>
+
+            <section aria-labelledby="account-security-title" className="space-y-4 border-t border-site-border pt-6">
+            <div>
+              <h2 id="account-security-title" className="font-heading text-xl font-bold text-site-foreground">
+                {t("account.securitySection")}
+              </h2>
+              <h3 className="mt-4 font-semibold text-site-foreground">{t("account.closeLabel")}</h3>
+              <p className="mt-1 text-sm text-site-muted">{t("account.closeIntro")}</p>
+            </div>
+            {!confirmClose ? (
+              <button
+                type="button"
+                onClick={() => setConfirmClose(true)}
+                className="inline-flex min-h-11 items-center justify-center gap-2 border border-red-700 bg-site-canvas px-6 py-[13px] font-semibold text-red-700 transition-colors hover:bg-red-50 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
+              >
+                {t("account.closeButton")}
+              </button>
+            ) : account.providers.includes("password") ? (
+              <form className="space-y-4" onSubmit={handleClose} noValidate>
+                <p className="text-sm text-site-muted">{t("account.closeConfirm")}</p>
+                <div>
+                  <label className={labelBase} htmlFor="close-password">
+                    {t("account.closePasswordLabel")}
+                  </label>
+                  <PasswordInput
+                    id="close-password"
+                    name="password"
+                    autoComplete="current-password"
+                    value={closePassword}
+                    onChange={(event) => setClosePassword(event.target.value)}
+                    className={inputBase}
+                  />
+                </div>
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <button
+                    type="submit"
+                    disabled={closing}
+                    className="inline-flex min-h-11 items-center justify-center gap-2 bg-red-700 px-6 py-[13px] font-semibold text-white transition-colors hover:bg-red-800 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-60"
+                  >
+                    {closing && <Loader2 className="h-5 w-5 animate-spin" aria-hidden />}
+                    {t("account.closeConfirm")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmClose(false)}
+                    className={secondaryActionClass}
+                  >
+                    {t("account.cancel")}
+                  </button>
+                </div>
+              </form>
+            ) : (
+              <div className="space-y-4">
+                <p className="text-sm text-site-muted">{t("account.closeGoogleIntro")}</p>
+                <div className="flex flex-col gap-3 sm:flex-row">
+                  <button
+                    type="button"
+                    onClick={() => void handleGoogleReauthentication()}
+                    disabled={redirecting}
+                    className={primaryActionClass}
+                  >
+                    {redirecting && <Loader2 className="h-5 w-5 animate-spin" aria-hidden />}
+                    {redirecting ? t("google.redirecting") : t("google.continue")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setConfirmClose(false)}
+                    className={secondaryActionClass}
+                  >
+                    {t("account.cancel")}
+                  </button>
+                </div>
+              </div>
+            )}
+            </section>
+          </section>
+        </section>
+      </div>
+
+      {isDirty ? (
+        <div className="flex flex-col gap-4 border border-site-border bg-site-surface p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
+          <div className="min-w-0">
+            <p className="font-semibold text-site-foreground">{t("account.unsaved")}</p>
+            <p className="mt-1 text-sm text-site-muted">{t("account.unsavedBody")}</p>
+          </div>
+          <div className="flex flex-col gap-3 sm:shrink-0 sm:flex-row">
+            <button type="button" onClick={handleDiscard} className={secondaryActionClass}>
+              {t("account.discardChanges")}
+            </button>
+            <button
+              type="button"
+              onClick={() => void saveProfile()}
+              disabled={saving}
+              className={`${primaryActionClass} disabled:cursor-not-allowed disabled:opacity-60`}
+            >
+              {saving && <Loader2 className="h-5 w-5 animate-spin motion-reduce:animate-none" aria-hidden />}
+              {t("account.saveAndContinue")}
+            </button>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }
 
 function capitalize(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+function tabPanelVisibilityClass(activeTab: AccountTab, tab: AccountTab): string {
+  return activeTab === tab ? "visible" : "invisible pointer-events-none";
 }
