@@ -27,7 +27,7 @@ export function ProfileForm() {
   const t = useTranslations("Account");
   const getErrorMessage = useAccountErrorMessage();
   const locale = useLocale();
-  const { account, logout } = useAccountSession();
+  const { status, account, accountLoading, logout } = useAccountSession();
   const updateProfile = useUpdateAccountProfile();
   const closeAccount = useCloseAccount();
   const [displayName, setDisplayName] = useState(account?.display_name ?? "");
@@ -40,7 +40,29 @@ export function ProfileForm() {
   const [closing, setClosing] = useState(false);
   const [confirmClose, setConfirmClose] = useState(false);
 
-  if (!account) return null;
+  if (status === "loading" || (status === "authenticated" && accountLoading)) {
+    return (
+      <div role="status" aria-live="polite" className="text-sm text-site-muted">
+        {t("account.loading")}
+      </div>
+    );
+  }
+
+  if (!account) {
+    return (
+      <div className="space-y-4">
+        <div role="alert" className="border border-red-700 bg-red-50 p-3 text-sm text-red-700">
+          {t("account.loadError")}
+        </div>
+        <Link
+          href="/account/login"
+          className="inline-flex min-h-11 items-center justify-center bg-site-action px-6 py-[13px] font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
+        >
+          {t("login.submit")}
+        </Link>
+      </div>
+    );
+  }
 
   const isClosed = account.account_status === "closed";
   const isDisabled = account.account_status === "disabled";

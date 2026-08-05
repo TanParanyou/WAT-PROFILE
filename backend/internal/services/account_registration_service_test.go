@@ -5,6 +5,7 @@ import (
 	"errors"
 	"net/url"
 	"os"
+	"strings"
 	"sync"
 	"testing"
 	"time"
@@ -131,6 +132,9 @@ func TestRegisterPasswordCreatesNoTempleMember(t *testing.T) {
 	}
 	if sender.messages[0].To != "visitor@example.de" {
 		t.Fatalf("expected normalized recipient, got %q", sender.messages[0].To)
+	}
+	if !strings.Contains(sender.messages[0].ActionURL, "/de/account/verify-email?token=") {
+		t.Fatalf("verification URL must target the account route, got %q", sender.messages[0].ActionURL)
 	}
 
 	var user models.User

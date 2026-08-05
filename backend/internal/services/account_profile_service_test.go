@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 	"strings"
 	"testing"
 	"time"
@@ -62,6 +63,20 @@ func seedProfileAccount(t *testing.T, db *gorm.DB, email, displayName, locale st
 		t.Fatalf("create profile: %v", err)
 	}
 	return user
+}
+
+func TestAccountViewIncludesEmptyAvatarURLInJSON(t *testing.T) {
+	payload, err := json.Marshal(AccountView{AvatarURL: ""})
+	if err != nil {
+		t.Fatalf("marshal account view: %v", err)
+	}
+	var decoded map[string]any
+	if err := json.Unmarshal(payload, &decoded); err != nil {
+		t.Fatalf("decode account view: %v", err)
+	}
+	if _, ok := decoded["avatar_url"]; !ok {
+		t.Fatal("account view must include avatar_url even when it is empty")
+	}
 }
 
 func TestGetAccountReturnsSafeView(t *testing.T) {

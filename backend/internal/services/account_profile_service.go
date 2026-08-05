@@ -26,7 +26,7 @@ type AccountView struct {
 	EmailVerified   bool      `json:"email_verified"`
 	AccountStatus   string    `json:"account_status"`
 	DisplayName     string    `json:"display_name"`
-	AvatarURL       string    `json:"avatar_url,omitempty"`
+	AvatarURL       string    `json:"avatar_url"`
 	PreferredLocale string    `json:"preferred_locale"`
 	Providers       []string  `json:"providers"`
 }

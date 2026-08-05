@@ -285,7 +285,7 @@ func (s *AccountRegistrationService) issueVerificationToken(tx *gorm.DB, userID 
 		return nil, err
 	}
 
-	actionURL := s.frontendURL + "/" + locale + "/verify-email?token=" + plain
+	actionURL := s.frontendURL + "/" + locale + "/account/verify-email?token=" + plain
 	return &pendingVerification{to: email, locale: locale, displayName: displayName, actionURL: actionURL}, nil
 }
 

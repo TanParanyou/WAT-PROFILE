@@ -35,7 +35,7 @@ export default function Footer() {
                             </span>
                         </div>
                         <p className="mb-6 max-w-sm text-site-body">
-                            {getLocalizedText(settings.description, locale)}
+                            {t('description')}
                         </p>
                         <div className="flex gap-4">
                             <a

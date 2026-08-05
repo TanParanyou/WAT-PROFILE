@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"net/url"
+	"strings"
 	"testing"
 	"time"
 
@@ -50,6 +51,9 @@ func issueResetToken(t *testing.T, svc *AccountRecoveryService, sender *fakeEmai
 	last := sender.messages[sender.count()-1]
 	if last.ActionURL == "" {
 		t.Fatalf("expected reset email to carry an action URL")
+	}
+	if !strings.Contains(last.ActionURL, "/en/account/reset-password?token=") {
+		t.Fatalf("reset URL must target the account route, got %q", last.ActionURL)
 	}
 	return extractQueryParam(t, last.ActionURL, "token")
 }

@@ -8,7 +8,7 @@ export const accountSchema = z
     email_verified: z.boolean(),
     account_status: z.enum(["pending_verification", "active", "disabled", "closed"]),
     display_name: z.string().min(2).max(80),
-    avatar_url: z.string().url().or(z.literal("")),
+    avatar_url: z.string().url().or(z.literal("")).default(""),
     preferred_locale: z.enum(["th", "en", "de"]),
     providers: z.array(z.enum(["password", "google"])),
   })
@@ -101,4 +101,3 @@ export const googleStartResponseSchema = z
 export function parseGoogleStartResponse(payload: unknown): { authorization_url: string } {
   return googleStartResponseSchema.parse(payload).data;
 }
-

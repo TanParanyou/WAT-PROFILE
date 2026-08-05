@@ -28,6 +28,7 @@ export type AccountSessionStatus = "loading" | "anonymous" | "authenticated";
 export interface AccountSessionValue {
   status: AccountSessionStatus;
   account: Account | null;
+  accountLoading: boolean;
   login: (email: string, password: string) => Promise<void>;
   logout: () => Promise<void>;
   logoutAll: () => Promise<void>;
@@ -105,11 +106,12 @@ export function AccountSessionProvider({ children }: { children: ReactNode }) {
     () => ({
       status,
       account: accountQuery.data ?? null,
+      accountLoading: accountQuery.isPending,
       login,
       logout,
       logoutAll,
     }),
-    [status, accountQuery.data, login, logout, logoutAll],
+    [status, accountQuery.data, accountQuery.isPending, login, logout, logoutAll],
   );
 
   return (

@@ -26,6 +26,16 @@ test("accountSchema accepts an avatar URL", () => {
   assert.equal(result.success, true);
 });
 
+test("accountSchema accepts a backend response without an empty avatar URL", () => {
+  const { avatar_url: _avatarUrl, ...backendAccount } = validAccount;
+  void _avatarUrl;
+  const result = accountSchema.safeParse(backendAccount);
+  assert.equal(result.success, true);
+  if (result.success) {
+    assert.equal(result.data.avatar_url, "");
+  }
+});
+
 test("accountSchema rejects private fields (strict)", () => {
   const result = accountSchema.safeParse({ ...validAccount, member_code: "WLP-1" });
   assert.equal(result.success, false);

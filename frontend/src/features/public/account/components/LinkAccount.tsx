@@ -28,16 +28,24 @@ export function LinkAccountContent() {
 
   if (state === "approval_sent") {
     return (
-      <div
-        role="status"
-        aria-live="polite"
-        className="flex items-start gap-2 border border-emerald-700 bg-emerald-50 p-3 text-sm text-emerald-700"
-      >
-        <CheckCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
-        <div>
-          <p className="font-semibold">{t("link.approvalSentTitle")}</p>
-          <p className="mt-1">{t("link.approvalSentBody")}</p>
+      <div className="space-y-4">
+        <div
+          role="status"
+          aria-live="polite"
+          className="flex items-start gap-2 border border-emerald-700 bg-emerald-50 p-3 text-sm text-emerald-700"
+        >
+          <CheckCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
+          <div>
+            <p className="font-semibold">{t("link.approvalSentTitle")}</p>
+            <p className="mt-1">{t("link.approvalSentBody")}</p>
+          </div>
         </div>
+        <Link
+          href="/account/login"
+          className="inline-flex min-h-11 items-center justify-center bg-site-action px-6 py-[13px] font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
+        >
+          {t("link.loginLink")}
+        </Link>
       </div>
     );
   }

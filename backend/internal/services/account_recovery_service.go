@@ -110,7 +110,7 @@ func (s *AccountRecoveryService) RequestPasswordReset(ctx context.Context, email
 		if err := tx.Create(&token).Error; err != nil {
 			return err
 		}
-		actionURL := s.frontendURL + "/" + locale + "/reset-password?token=" + raw
+		actionURL := s.frontendURL + "/" + locale + "/account/reset-password?token=" + raw
 		pending = accountauth.EmailMessage{
 			To:        user.Email,
 			Locale:    locale,
