@@ -12,12 +12,14 @@ import {
 } from "@/features/public/account/queries";
 import { useAccountSession } from "@/features/public/account/AccountSessionProvider";
 import { toAccountApiError } from "@/features/public/account/api";
+import { useAccountErrorMessage } from "@/features/public/account/hooks";
 
 const actionButton =
   "inline-flex min-h-11 items-center justify-center gap-2 border border-site-border bg-site-canvas px-4 py-[10px] text-sm font-semibold text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-60";
 
 export function SessionList() {
   const t = useTranslations("Account");
+  const getErrorMessage = useAccountErrorMessage();
   const { account } = useAccountSession();
   const sessionsQuery = useAccountSessions(Boolean(account));
   const revoke = useRevokeAccountSession();
@@ -32,7 +34,8 @@ export function SessionList() {
       await revoke.mutateAsync(id);
       setRevokedId(id);
     } catch (err) {
-      setFormError(toAccountApiError(err).message);
+      const apiError = toAccountApiError(err);
+      setFormError(getErrorMessage(apiError));
     }
   };
 
@@ -41,7 +44,8 @@ export function SessionList() {
     try {
       await logoutAll.mutateAsync();
     } catch (err) {
-      setFormError(toAccountApiError(err).message);
+      const apiError = toAccountApiError(err);
+      setFormError(getErrorMessage(apiError));
     }
   };
 

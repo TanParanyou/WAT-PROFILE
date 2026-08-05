@@ -13,6 +13,7 @@ import {
   resendVerification,
   toAccountApiError,
 } from "@/features/public/account/api";
+import { useAccountErrorMessage } from "@/features/public/account/hooks";
 import { PasswordInput } from "./PasswordInput";
 import {
   normalizeAccountEmail,
@@ -53,6 +54,7 @@ function SuccessBanner({ title, body }: { title: string; body: string }) {
 
 export function ForgotPasswordForm() {
   const t = useTranslations("Account");
+  const getErrorMessage = useAccountErrorMessage();
   const locale = useLocale();
   const [email, setEmail] = useState("");
   const [formError, setFormError] = useState<string | null>(null);
@@ -72,7 +74,8 @@ export function ForgotPasswordForm() {
       await forgotPassword(normalized, locale);
       setSubmitted(true);
     } catch (err) {
-      setFormError(toAccountApiError(err).message);
+      const apiError = toAccountApiError(err);
+      setFormError(getErrorMessage(apiError));
     } finally {
       setSubmitting(false);
     }
@@ -128,6 +131,7 @@ export function ForgotPasswordForm() {
 
 export function ResetPasswordForm() {
   const t = useTranslations("Account");
+  const getErrorMessage = useAccountErrorMessage();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
   const [password, setPassword] = useState("");
@@ -152,7 +156,8 @@ export function ResetPasswordForm() {
       await resetPassword(token, password);
       setSubmitted(true);
     } catch (err) {
-      setFormError(toAccountApiError(err).message);
+      const apiError = toAccountApiError(err);
+      setFormError(getErrorMessage(apiError));
     } finally {
       setSubmitting(false);
     }
@@ -207,11 +212,12 @@ export function ResetPasswordForm() {
 
 export function VerifyEmailContent() {
   const t = useTranslations("Account");
+  const getErrorMessage = useAccountErrorMessage();
   const locale = useLocale();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
   const [email, setEmail] = useState("");
-  const [state, setState] = useState<"verifying" | "success" | "invalid">("verifying");
+  const [state, setState] = useState<"verifying" | "success" | "invalid" | "resend">("verifying");
   const [resendSent, setResendSent] = useState(false);
   const [resendSubmitting, setResendSubmitting] = useState(false);
   const [resendError, setResendError] = useState<string | null>(null);
@@ -221,7 +227,7 @@ export function VerifyEmailContent() {
     if (ranRef.current) return;
     ranRef.current = true;
     if (!token) {
-      setState("invalid");
+      setState("resend");
       return;
     }
     verifyEmail(token)
@@ -261,7 +267,8 @@ export function VerifyEmailContent() {
       await resendVerification(email, locale);
       setResendSent(true);
     } catch (err) {
-      setResendError(toAccountApiError(err).message);
+      const apiError = toAccountApiError(err);
+      setResendError(getErrorMessage(apiError));
     } finally {
       setResendSubmitting(false);
     }
@@ -273,7 +280,8 @@ export function VerifyEmailContent() {
         <SuccessBanner title={t("verifyEmail.resendSent")} body={t("forgotPassword.successBody")} />
       ) : (
         <>
-          <ErrorBanner message={t("verifyEmail.invalidBody")} />
+          {state === "invalid" && <ErrorBanner message={t("verifyEmail.invalidBody")} />}
+          {state === "resend" && <p className="text-sm text-site-muted">{t("verifyEmail.resendIntro")}</p>}
           {resendError && <ErrorBanner message={resendError} />}
           <div>
             <label className={labelBase} htmlFor="verify-email">

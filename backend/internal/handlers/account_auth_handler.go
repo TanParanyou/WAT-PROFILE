@@ -11,6 +11,7 @@ import (
 	"github.com/watloungporsai/wat-profile-backend/internal/config"
 	"github.com/watloungporsai/wat-profile-backend/internal/middleware"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
+	"github.com/watloungporsai/wat-profile-backend/pkg/logger"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
 	"gorm.io/gorm"
 )
@@ -132,6 +133,14 @@ type fieldError struct {
 func (h *AccountAuthHandler) respondAccountError(c *fiber.Ctx, err error) error {
 	code := accountauth.ErrorCode(err)
 	msg := err.Error()
+	if code == accountauth.CodeUnknown || code == accountauth.CodeInternal {
+		logger.Log.Error().
+			Err(err).
+			Str("trace_id", traceID(c)).
+			Str("method", c.Method()).
+			Str("path", c.Path()).
+			Msg("public account auth operation failed")
+	}
 
 	status := fiber.StatusInternalServerError
 	switch code {

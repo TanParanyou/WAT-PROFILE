@@ -60,6 +60,7 @@ export const accountErrorEnvelopeSchema = z
     error: z.string(),
     code: z.string(),
     field_errors: z.array(fieldErrorSchema).optional(),
+    trace_id: z.string().optional(),
   })
   .strict();
 

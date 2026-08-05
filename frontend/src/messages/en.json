@@ -142,13 +142,19 @@
             "emailPlaceholder": "you@example.com",
             "passwordLabel": "Password",
             "passwordPlaceholder": "At least 12 characters",
+            "passwordHint": "Your password must be 12–128 characters.",
             "localeLabel": "Preferred language",
             "submit": "Create account",
             "google": "Continue with Google",
+            "requirementsTitle": "Before you create your account",
+            "emailHint": "Use an email address you can access. We will send the verification link there.",
+            "verificationHint": "Confirm your email within 30 minutes. The link expires after that; check your Spam or Junk folder if you do not see the email.",
+            "googleHint": "You can use Google instead of setting a password.",
             "loginPrompt": "Already have an account?",
             "loginLink": "Sign in",
             "successTitle": "Check your inbox",
-            "successBody": "We sent a verification link to your email. Open it to activate your account."
+            "successBody": "We sent a verification link to your email. Confirm it within 30 minutes; the link expires after that. If you do not see the email, check your Spam or Junk folder.",
+            "verificationResendLink": "Did not receive the email? Resend the verification email"
         },
         "verifyEmail": {
             "title": "Verify your email",
@@ -159,6 +165,7 @@
             "loginLink": "Go to sign in",
             "invalidTitle": "Link invalid or expired",
             "invalidBody": "This verification link is no longer valid. Request a new one below.",
+            "resendIntro": "Enter the email used to register and we will send a new verification link if the account is registered.",
             "resendLabel": "Email",
             "resendSubmit": "Resend verification email",
             "resendSent": "If the address is registered, a new verification email has been sent."

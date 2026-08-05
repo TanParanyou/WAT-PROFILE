@@ -8,6 +8,7 @@ import { Loader2, AlertCircle, User } from "lucide-react";
 import { startGoogle } from "@/features/public/account/api";
 import { useAccountSession } from "@/features/public/account/AccountSessionProvider";
 import { toAccountApiError } from "@/features/public/account/api";
+import { useAccountErrorMessage } from "@/features/public/account/hooks";
 import { normalizeAccountEmail } from "@/features/public/account/validation";
 import { PasswordInput } from "./PasswordInput";
 
@@ -18,6 +19,7 @@ const errorText = "mt-1 text-sm text-red-700";
 
 export function LoginForm() {
   const t = useTranslations("Account");
+  const getErrorMessage = useAccountErrorMessage();
   const locale = useLocale();
   const { login } = useAccountSession();
   const [email, setEmail] = useState("");
@@ -53,7 +55,7 @@ export function LoginForm() {
       await login(normalized, password);
     } catch (err) {
       const apiError = toAccountApiError(err);
-      setFormError(apiError.message);
+      setFormError(getErrorMessage(apiError));
     } finally {
       setSubmitting(false);
     }

@@ -13,6 +13,7 @@ import {
   useCloseAccount,
 } from "@/features/public/account/queries";
 import { toAccountApiError } from "@/features/public/account/api";
+import { useAccountErrorMessage } from "@/features/public/account/hooks";
 import { PasswordInput } from "./PasswordInput";
 import { validateDisplayName } from "@/features/public/account/validation";
 import type { AccountLocale } from "@/features/public/account/types";
@@ -24,6 +25,7 @@ const locales = ["th", "en", "de"] as const;
 
 export function ProfileForm() {
   const t = useTranslations("Account");
+  const getErrorMessage = useAccountErrorMessage();
   const locale = useLocale();
   const { account, logout } = useAccountSession();
   const updateProfile = useUpdateAccountProfile();
@@ -98,7 +100,7 @@ export function ProfileForm() {
       setSaved(true);
     } catch (err) {
       const apiError = toAccountApiError(err);
-      setFormError(apiError.message);
+      setFormError(getErrorMessage(apiError));
     } finally {
       setSaving(false);
     }
@@ -115,7 +117,8 @@ export function ProfileForm() {
     try {
       await closeAccount.mutateAsync(closePassword);
     } catch (err) {
-      setFormError(toAccountApiError(err).message);
+      const apiError = toAccountApiError(err);
+      setFormError(getErrorMessage(apiError));
       setClosing(false);
     }
   };

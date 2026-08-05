@@ -142,13 +142,19 @@
             "emailPlaceholder": "you@example.com",
             "passwordLabel": "Passwort",
             "passwordPlaceholder": "Mindestens 12 Zeichen",
+            "passwordHint": "Das Passwort muss 12–128 Zeichen lang sein.",
             "localeLabel": "Bevorzugte Sprache",
             "submit": "Konto erstellen",
             "google": "Mit Google fortfahren",
+            "requirementsTitle": "Bevor Sie Ihr Konto erstellen",
+            "emailHint": "Verwenden Sie eine E-Mail-Adresse, auf die Sie zugreifen können. Wir senden den Bestätigungslink dorthin.",
+            "verificationHint": "Bestätigen Sie Ihre E-Mail innerhalb von 30 Minuten. Danach läuft der Link ab. Prüfen Sie den Spam- oder Junk-Ordner, wenn Sie die E-Mail nicht sehen.",
+            "googleHint": "Sie können Google verwenden, statt ein Passwort festzulegen.",
             "loginPrompt": "Sie haben bereits ein Konto?",
             "loginLink": "Anmelden",
             "successTitle": "Prüfen Sie Ihren Posteingang",
-            "successBody": "Wir haben Ihnen einen Bestätigungslink per E-Mail gesendet. Öffnen Sie ihn, um Ihr Konto zu aktivieren."
+            "successBody": "Wir haben Ihnen einen Bestätigungslink per E-Mail gesendet. Bestätigen Sie ihn innerhalb von 30 Minuten; danach läuft der Link ab. Wenn Sie die E-Mail nicht sehen, prüfen Sie den Spam- oder Junk-Ordner.",
+            "verificationResendLink": "Keine E-Mail erhalten? Bestätigungs-E-Mail erneut senden"
         },
         "verifyEmail": {
             "title": "E-Mail bestätigen",
@@ -159,6 +165,7 @@
             "loginLink": "Zur Anmeldung",
             "invalidTitle": "Link ungültig oder abgelaufen",
             "invalidBody": "Dieser Bestätigungslink ist nicht mehr gültig. Fordern Sie unten einen neuen an.",
+            "resendIntro": "Geben Sie die bei der Registrierung verwendete E-Mail ein. Wenn das Konto registriert ist, senden wir einen neuen Bestätigungslink.",
             "resendLabel": "E-Mail",
             "resendSubmit": "Bestätigungs-E-Mail erneut senden",
             "resendSent": "Wenn die Adresse registriert ist, wurde eine neue Bestätigungs-E-Mail gesendet."

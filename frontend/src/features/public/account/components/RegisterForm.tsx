@@ -6,6 +6,7 @@ import { useLocale } from "next-intl";
 import { Link } from "@/navigation";
 import { Loader2, AlertCircle, CheckCircle, UserPlus } from "lucide-react";
 import { registerAccount, startGoogle, toAccountApiError } from "@/features/public/account/api";
+import { useAccountErrorMessage } from "@/features/public/account/hooks";
 import {
   normalizeAccountEmail,
   validatePassword,
@@ -20,6 +21,7 @@ const errorText = "mt-1 text-sm text-red-700";
 
 export function RegisterForm() {
   const t = useTranslations("Account");
+  const getErrorMessage = useAccountErrorMessage();
   const locale = useLocale();
   const [email, setEmail] = useState("");
   const [displayName, setDisplayName] = useState("");
@@ -87,9 +89,9 @@ export function RegisterForm() {
           if (fe.field === "display_name") mapped.displayName = fe.message;
         }
         setFieldErrors(mapped);
-        setFormError(apiError.code === "AUTH_VALIDATION" ? null : apiError.message);
+        setFormError(apiError.code === "AUTH_VALIDATION" ? null : getErrorMessage(apiError));
       } else {
-        setFormError(apiError.message);
+        setFormError(getErrorMessage(apiError));
       }
       focusErrorSummary();
     } finally {
@@ -111,6 +113,14 @@ export function RegisterForm() {
             <p className="mt-1">{t("register.successBody")}</p>
           </div>
         </div>
+        <p>
+          <Link
+            href="/account/verify-email"
+            className="font-medium text-text-900 underline decoration-primary/40 underline-offset-4"
+          >
+            {t("register.verificationResendLink")}
+          </Link>
+        </p>
         <p>
           <Link
             href="/account/login"
@@ -157,6 +167,19 @@ export function RegisterForm() {
         <div className="absolute inset-0 flex items-center" aria-hidden>
           <div className="w-full border-t border-site-border" />
         </div>
+      </div>
+
+      <div
+        role="note"
+        aria-labelledby="register-requirements-title"
+        className="space-y-1 border border-site-border bg-site-surface p-3 text-sm text-site-muted"
+      >
+        <p id="register-requirements-title" className="font-semibold text-site-foreground">
+          {t("register.requirementsTitle")}
+        </p>
+        <p>{t("register.emailHint")}</p>
+        <p>{t("register.verificationHint")}</p>
+        <p>{t("register.googleHint")}</p>
       </div>
 
       <form className="space-y-5" onSubmit={handleSubmit} noValidate>
@@ -219,8 +242,13 @@ export function RegisterForm() {
             placeholder={t("register.passwordPlaceholder")}
             className={inputBase}
             aria-invalid={fieldErrors.password ? true : undefined}
-            aria-describedby={fieldErrors.password ? "register-password-error" : undefined}
+            aria-describedby={
+              fieldErrors.password ? "register-password-hint register-password-error" : "register-password-hint"
+            }
           />
+          <p id="register-password-hint" className="mt-1 text-sm text-site-muted">
+            {t("register.passwordHint")}
+          </p>
           {fieldErrors.password && (
             <p id="register-password-error" className={errorText}>
               {fieldErrors.password}
