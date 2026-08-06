@@ -352,6 +352,7 @@ export function ProfileForm() {
                 value={preferredLocale}
                 onChange={(event) => setPreferredLocale(event.target.value as AccountLocale)}
                 className={inputBase}
+                aria-describedby="profile-locale-description"
               >
                 {locales.map((code) => (
                   <option key={code} value={code}>
@@ -359,6 +360,9 @@ export function ProfileForm() {
                   </option>
                 ))}
               </select>
+              <p id="profile-locale-description" className="mt-2 max-w-prose text-sm leading-6 text-site-muted">
+                {t("account.localeDescription")}
+              </p>
             </div>
           </section>
         </form>

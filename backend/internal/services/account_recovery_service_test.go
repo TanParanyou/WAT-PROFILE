@@ -117,10 +117,10 @@ func TestRequestPasswordResetInvalidatesPreviousToken(t *testing.T) {
 	if first == second {
 		t.Fatal("expected reset token rotation")
 	}
-	if err := svc.ResetPassword(context.Background(), first, "a much better passphrase"); accountauth.ErrorCode(err) != accountauth.CodeTokenInvalid {
+	if err := svc.ResetPassword(context.Background(), first, "Abcdefghijk1"); accountauth.ErrorCode(err) != accountauth.CodeTokenInvalid {
 		t.Fatalf("expected prior reset token to be invalid, got %v", err)
 	}
-	if err := svc.ResetPassword(context.Background(), second, "a much better passphrase"); err != nil {
+	if err := svc.ResetPassword(context.Background(), second, "Abcdefghijk1"); err != nil {
 		t.Fatalf("latest reset token should remain usable: %v", err)
 	}
 }
@@ -177,7 +177,7 @@ func TestResetPasswordRevokesAllSessions(t *testing.T) {
 	user := seedVerifiedPasswordAccount(t, db, "reset@example.com")
 	raw := issueResetToken(t, svc, sender, "reset@example.com")
 
-	if err := svc.ResetPassword(context.Background(), raw, "a much better passphrase"); err != nil {
+	if err := svc.ResetPassword(context.Background(), raw, "Abcdefghijk1"); err != nil {
 		t.Fatalf("ResetPassword: %v", err)
 	}
 	if len(stub.calls) != 1 || stub.calls[0] != user.ID {
@@ -193,7 +193,7 @@ func TestResetPasswordRevokesAllSessions(t *testing.T) {
 	if err := db.Where("user_id = ? AND provider = ?", user.ID, "password").First(&identity).Error; err != nil {
 		t.Fatalf("load identity: %v", err)
 	}
-	if identity.CredentialHash == nil || !checkHashMatches("a much better passphrase", *identity.CredentialHash) {
+	if identity.CredentialHash == nil || !checkHashMatches("Abcdefghijk1", *identity.CredentialHash) {
 		t.Fatalf("password hash was not replaced")
 	}
 	// password-changed notification email
@@ -220,7 +220,7 @@ func TestResetPasswordExpiredRejected(t *testing.T) {
 	raw := extractQueryParam(t, sender.messages[0].ActionURL, "token")
 
 	expiredSvc := NewAccountRecoveryService(db, sender, fixedClockAt(fixedNow().Add(31*time.Minute)), accountauth.NewOpaqueToken, stub)
-	if err := expiredSvc.ResetPassword(context.Background(), raw, "a much better passphrase"); err == nil {
+	if err := expiredSvc.ResetPassword(context.Background(), raw, "Abcdefghijk1"); err == nil {
 		t.Fatalf("expected expired token rejection")
 	} else if accountauth.ErrorCode(err) != accountauth.CodeTokenInvalid {
 		t.Fatalf("expected CodeTokenInvalid, got %v", accountauth.ErrorCode(err))
@@ -241,7 +241,7 @@ func TestResetPasswordRaceSingleUse(t *testing.T) {
 	results := make(chan error, 2)
 	for i := 0; i < 2; i++ {
 		go func() {
-			results <- svc.ResetPassword(context.Background(), raw, "a much better passphrase")
+			results <- svc.ResetPassword(context.Background(), raw, "Abcdefghijk1")
 		}()
 	}
 	successes := 0
@@ -263,6 +263,9 @@ func TestResetPasswordBounds(t *testing.T) {
 	if err := svc.ResetPassword(context.Background(), raw, "short"); err == nil {
 		t.Fatalf("expected short password rejection")
 	}
+	if err := svc.ResetPassword(context.Background(), raw, "abcdefghijkl!"); err == nil {
+		t.Fatalf("expected password with only two character groups to be rejected")
+	}
 	tooLong := make([]byte, 129)
 	for i := range tooLong {
 		tooLong[i] = 'a'
@@ -278,7 +281,7 @@ func TestResetPasswordGoogleOnlyRejected(t *testing.T) {
 
 	// google-only flow sends an informational email; there is no token, so a
 	// fabricated token must fail generically.
-	if err := svc.ResetPassword(context.Background(), "fabricated-token", "a much better passphrase"); err == nil {
+	if err := svc.ResetPassword(context.Background(), "fabricated-token", "Abcdefghijk1"); err == nil {
 		t.Fatalf("expected reset to fail for google-only account")
 	}
 	_ = sender

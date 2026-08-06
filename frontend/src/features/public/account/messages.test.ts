@@ -4,6 +4,7 @@ import en from "../../../messages/en.json";
 import th from "../../../messages/th.json";
 import de from "../../../messages/de.json";
 import {
+  inspectPassword,
   normalizeAccountEmail,
   validateDisplayName,
   validatePassword,
@@ -34,13 +35,28 @@ test("normalizeAccountEmail trims and lowercases", () => {
   assert.equal(normalizeAccountEmail(""), "");
 });
 
-test("validatePassword enforces required and 12-128 characters", () => {
+test("validatePassword enforces length and three of four character groups", () => {
   assert.equal(validatePassword(""), "passwordRequired");
   assert.equal(validatePassword("short"), "passwordMin");
   assert.equal(validatePassword("a".repeat(11)), "passwordMin");
-  assert.equal(validatePassword("a".repeat(12)), null);
-  assert.equal(validatePassword("a".repeat(128)), null);
+  assert.equal(validatePassword("abcdefghij1!"), null);
+  assert.equal(validatePassword("abcdefghijkl!"), "passwordComplexity");
+  assert.equal(validatePassword("a".repeat(128) + "1!"), "passwordMax");
   assert.equal(validatePassword("a".repeat(129)), "passwordMax");
+  assert.equal(validatePassword("Abcdefghij 1!"), null);
+  assert.equal(validatePassword("Abcdefghijk "), "passwordComplexity");
+});
+
+test("inspectPassword counts Unicode characters and exposes requirement state", () => {
+  const requirements = inspectPassword("ก".repeat(9) + "A1!");
+
+  assert.equal(requirements.length, 12);
+  assert.equal(requirements.hasLowercase, false);
+  assert.equal(requirements.hasUppercase, true);
+  assert.equal(requirements.hasNumber, true);
+  assert.equal(requirements.hasSpecial, true);
+  assert.equal(requirements.characterGroups, 3);
+  assert.equal(requirements.valid, true);
 });
 
 test("validateDisplayName trims and enforces required and 2-80 characters", () => {

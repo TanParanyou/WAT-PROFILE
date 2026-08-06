@@ -114,7 +114,7 @@ func TestRegisterPasswordCreatesNoTempleMember(t *testing.T) {
 
 	err := service.RegisterPassword(context.Background(), RegisterPasswordInput{
 		Email:       " Visitor@Example.DE ",
-		Password:    "correct horse battery staple",
+		Password:    "Abcdefghijk1",
 		DisplayName: "Visitor",
 		Locale:      "de",
 	})
@@ -185,12 +185,28 @@ func TestRegisterPasswordRejectsShortPassword(t *testing.T) {
 	}
 }
 
+func TestRegisterPasswordRejectsPasswordWithTooFewCharacterGroups(t *testing.T) {
+	db := newAccountTestDB(t)
+	service := newRegistrationFixture(t, db, &fakeEmailSender{})
+
+	err := service.RegisterPassword(context.Background(), RegisterPasswordInput{
+		Email: "visitor@example.com", Password: "abcdefghijkl!", DisplayName: "Visitor", Locale: "en",
+	})
+	if err == nil {
+		t.Fatal("expected password with only two character groups to be rejected")
+	}
+	var authErr *accountauth.Error
+	if !errors.As(err, &authErr) || authErr.Code != accountauth.CodeValidation || authErr.Field != "password" {
+		t.Fatalf("expected password validation error, got %v", err)
+	}
+}
+
 func TestRegisterPasswordRejectsUnsupportedLocale(t *testing.T) {
 	db := newAccountTestDB(t)
 	service := newRegistrationFixture(t, db, &fakeEmailSender{})
 
 	err := service.RegisterPassword(context.Background(), RegisterPasswordInput{
-		Email: "visitor@example.com", Password: "correct horse battery staple",
+		Email: "visitor@example.com", Password: "Abcdefghijk1",
 		DisplayName: "Visitor", Locale: "fr",
 	})
 	if err == nil {
@@ -206,7 +222,7 @@ func TestRegisterPasswordRejectsDisplayNameTooShort(t *testing.T) {
 	service := newRegistrationFixture(t, db, &fakeEmailSender{})
 
 	err := service.RegisterPassword(context.Background(), RegisterPasswordInput{
-		Email: "visitor@example.com", Password: "correct horse battery staple",
+		Email: "visitor@example.com", Password: "Abcdefghijk1",
 		DisplayName: "   ", Locale: "en",
 	})
 	if err == nil {
@@ -223,7 +239,7 @@ func TestRegisterPasswordDuplicateUnverifiedEmailResends(t *testing.T) {
 	service := newRegistrationFixture(t, db, sender)
 
 	input := RegisterPasswordInput{
-		Email: "visitor@example.com", Password: "correct horse battery staple",
+		Email: "visitor@example.com", Password: "Abcdefghijk1",
 		DisplayName: "Visitor", Locale: "en",
 	}
 	if err := service.RegisterPassword(context.Background(), input); err != nil {
@@ -251,7 +267,7 @@ func TestRegisterPasswordActiveDuplicateEmailRejected(t *testing.T) {
 	service := newRegistrationFixture(t, db, &fakeEmailSender{})
 
 	if err := service.RegisterPassword(context.Background(), RegisterPasswordInput{
-		Email: "visitor@example.com", Password: "correct horse battery staple",
+		Email: "visitor@example.com", Password: "Abcdefghijk1",
 		DisplayName: "Visitor", Locale: "en",
 	}); err != nil {
 		t.Fatalf("first register: %v", err)
@@ -268,7 +284,7 @@ func TestRegisterPasswordActiveDuplicateEmailRejected(t *testing.T) {
 	}
 
 	err := service.RegisterPassword(context.Background(), RegisterPasswordInput{
-		Email: "visitor@example.com", Password: "correct horse battery staple",
+		Email: "visitor@example.com", Password: "Abcdefghijk1",
 		DisplayName: "Visitor", Locale: "en",
 	})
 	if err == nil {
@@ -286,7 +302,7 @@ func TestRegisterPasswordDeliveryFailureLeavesAccountPending(t *testing.T) {
 	service := newRegistrationFixture(t, db, sender)
 
 	err := service.RegisterPassword(context.Background(), RegisterPasswordInput{
-		Email: "visitor@example.com", Password: "correct horse battery staple",
+		Email: "visitor@example.com", Password: "Abcdefghijk1",
 		DisplayName: "Visitor", Locale: "en",
 	})
 	if err != nil {
@@ -316,7 +332,7 @@ func TestRegisterPasswordTransactionRollback(t *testing.T) {
 	service := NewAccountRegistrationService(db, sender, fixedClockAt(fixedNow()), failingGen)
 
 	err := service.RegisterPassword(context.Background(), RegisterPasswordInput{
-		Email: "visitor@example.com", Password: "correct horse battery staple",
+		Email: "visitor@example.com", Password: "Abcdefghijk1",
 		DisplayName: "Visitor", Locale: "en",
 	})
 	if err == nil {
@@ -339,7 +355,7 @@ func TestVerifyEmailActivatesAccount(t *testing.T) {
 	service := newRegistrationFixture(t, db, sender)
 
 	if err := service.RegisterPassword(context.Background(), RegisterPasswordInput{
-		Email: "visitor@example.com", Password: "correct horse battery staple",
+		Email: "visitor@example.com", Password: "Abcdefghijk1",
 		DisplayName: "Visitor", Locale: "en",
 	}); err != nil {
 		t.Fatalf("register: %v", err)
@@ -373,7 +389,7 @@ func TestVerifyEmailExpiredToken(t *testing.T) {
 	service := newRegistrationFixture(t, db, sender)
 
 	if err := service.RegisterPassword(context.Background(), RegisterPasswordInput{
-		Email: "visitor@example.com", Password: "correct horse battery staple",
+		Email: "visitor@example.com", Password: "Abcdefghijk1",
 		DisplayName: "Visitor", Locale: "en",
 	}); err != nil {
 		t.Fatalf("register: %v", err)
@@ -399,7 +415,7 @@ func TestVerifyEmailRaceSingleUse(t *testing.T) {
 	service := newRegistrationFixture(t, db, sender)
 
 	if err := service.RegisterPassword(context.Background(), RegisterPasswordInput{
-		Email: "visitor@example.com", Password: "correct horse battery staple",
+		Email: "visitor@example.com", Password: "Abcdefghijk1",
 		DisplayName: "Visitor", Locale: "en",
 	}); err != nil {
 		t.Fatalf("register: %v", err)
@@ -435,7 +451,7 @@ func TestResendVerificationInvalidatesPriorToken(t *testing.T) {
 	service := newRegistrationFixture(t, db, sender)
 
 	if err := service.RegisterPassword(context.Background(), RegisterPasswordInput{
-		Email: "visitor@example.com", Password: "correct horse battery staple",
+		Email: "visitor@example.com", Password: "Abcdefghijk1",
 		DisplayName: "Visitor", Locale: "en",
 	}); err != nil {
 		t.Fatalf("register: %v", err)
@@ -477,7 +493,7 @@ func TestResendVerificationRejectsUnsupportedLocaleWithoutInvalidatingToken(t *t
 	sender := &fakeEmailSender{}
 	service := newRegistrationFixture(t, db, sender)
 	if err := service.RegisterPassword(context.Background(), RegisterPasswordInput{
-		Email: "locale-resend@example.com", Password: "correct horse battery staple",
+		Email: "locale-resend@example.com", Password: "Abcdefghijk1",
 		DisplayName: "Visitor", Locale: "en",
 	}); err != nil {
 		t.Fatalf("register: %v", err)

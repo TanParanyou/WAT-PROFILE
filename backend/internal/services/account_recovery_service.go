@@ -131,7 +131,7 @@ func (s *AccountRecoveryService) RequestPasswordReset(ctx context.Context, email
 // ResetPassword consumes the single-use reset token, replaces the password
 // identity hash, revokes every session, and sends a password-changed notice.
 func (s *AccountRecoveryService) ResetPassword(ctx context.Context, rawToken, newPassword string, clients ...accountauth.ClientInfo) error {
-	if err := validatePasswordLength(newPassword); err != nil {
+	if err := accountauth.ValidatePasswordPolicy(newPassword); err != nil {
 		return err
 	}
 	if rawToken == "" {

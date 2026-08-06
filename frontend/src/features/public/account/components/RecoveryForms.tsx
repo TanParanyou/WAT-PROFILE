@@ -15,7 +15,9 @@ import {
 } from "@/features/public/account/api";
 import { useAccountErrorMessage } from "@/features/public/account/hooks";
 import { PasswordInput } from "./PasswordInput";
+import { PasswordRequirements } from "./PasswordRequirements";
 import {
+  inspectPassword,
   normalizeAccountEmail,
   validatePassword,
 } from "@/features/public/account/validation";
@@ -24,9 +26,10 @@ const inputBase =
   "mt-2 min-h-11 w-full border border-site-border bg-site-canvas px-3 py-2.5 text-base text-site-foreground outline-none transition-colors placeholder:text-site-muted focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus";
 const labelBase = "block text-sm font-semibold text-text-800";
 
-function ErrorBanner({ message }: { message: string }) {
+function ErrorBanner({ message, id }: { message: string; id?: string }) {
   return (
     <div
+      id={id}
       role="alert"
       className="flex items-start gap-2 border border-red-700 bg-red-50 p-3 text-sm text-red-700"
     >
@@ -135,15 +138,19 @@ export function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
   const [password, setPassword] = useState("");
+  const [passwordError, setPasswordError] = useState(false);
   const [formError, setFormError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
+  const passwordRequirements = inspectPassword(password);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
+    setPasswordError(false);
     const pwError = validatePassword(password);
     if (pwError) {
+      setPasswordError(true);
       setFormError(t(`validation.${pwError}`));
       return;
     }
@@ -157,6 +164,7 @@ export function ResetPasswordForm() {
       setSubmitted(true);
     } catch (err) {
       const apiError = toAccountApiError(err);
+      setPasswordError(apiError.code === "AUTH_VALIDATION");
       setFormError(getErrorMessage(apiError));
     } finally {
       setSubmitting(false);
@@ -181,7 +189,7 @@ export function ResetPasswordForm() {
 
   return (
     <div className="space-y-5">
-      {formError && <ErrorBanner message={formError} />}
+      {formError && <ErrorBanner id="reset-password-error" message={formError} />}
       <form className="space-y-5" onSubmit={handleSubmit} noValidate>
         <div>
           <label className={labelBase} htmlFor="reset-password">
@@ -192,10 +200,16 @@ export function ResetPasswordForm() {
             name="password"
             autoComplete="new-password"
             value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            onChange={(e) => {
+              setPassword(e.target.value);
+              setPasswordError(false);
+            }}
             placeholder={t("resetPassword.passwordPlaceholder")}
             className={inputBase}
+            aria-invalid={passwordError ? true : undefined}
+            aria-describedby={`reset-password-requirements${formError ? " reset-password-error" : ""}`}
           />
+          <PasswordRequirements id="reset-password-requirements" requirements={passwordRequirements} />
         </div>
         <button
           type="submit"

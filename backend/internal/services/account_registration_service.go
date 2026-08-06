@@ -17,20 +17,9 @@ import (
 
 const (
 	actionTokenTTL = 30 * time.Minute
-	minPasswordLen = 12
-	maxPasswordLen = 128
 	minDisplayName = 2
 	maxDisplayName = 80
 )
-
-// validatePasswordLength enforces the 12-128 character password policy shared
-// by registration and password reset.
-func validatePasswordLength(password string) error {
-	if len(password) < minPasswordLen || len(password) > maxPasswordLen {
-		return accountauth.NewFieldError(accountauth.CodeValidation, "password", "Password must be between 12 and 128 characters.")
-	}
-	return nil
-}
 
 // RegisterPasswordInput is the validated input for password registration.
 type RegisterPasswordInput struct {
@@ -99,8 +88,8 @@ func (s *AccountRegistrationService) RegisterPassword(ctx context.Context, in Re
 	if !accountauth.ValidEmail(email) {
 		return accountauth.NewFieldError(accountauth.CodeValidation, "email", "Enter a valid email address.")
 	}
-	if len(in.Password) < minPasswordLen || len(in.Password) > maxPasswordLen {
-		return accountauth.NewFieldError(accountauth.CodeValidation, "password", "Password must be between 12 and 128 characters.")
+	if err := accountauth.ValidatePasswordPolicy(in.Password); err != nil {
+		return err
 	}
 	if len(displayName) < minDisplayName || len(displayName) > maxDisplayName {
 		return accountauth.NewFieldError(accountauth.CodeValidation, "display_name", "Display name must be between 2 and 80 characters.")

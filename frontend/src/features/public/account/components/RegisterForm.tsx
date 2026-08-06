@@ -9,11 +9,13 @@ import { registerAccount, startGoogle, toAccountApiError } from "@/features/publ
 import { useAccountErrorMessage } from "@/features/public/account/hooks";
 import { useGoogleRedirect } from "../hooks/useGoogleRedirect";
 import {
+  inspectPassword,
   normalizeAccountEmail,
   validatePassword,
   validateDisplayName,
 } from "@/features/public/account/validation";
 import { PasswordInput } from "./PasswordInput";
+import { PasswordRequirements } from "./PasswordRequirements";
 
 const inputBase =
   "mt-2 min-h-11 w-full border border-site-border bg-site-canvas px-3 py-2.5 text-base text-site-foreground outline-none transition-colors placeholder:text-site-muted focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus";
@@ -33,6 +35,7 @@ export function RegisterForm() {
   const [submitted, setSubmitted] = useState(false);
   const { redirecting, markRedirecting } = useGoogleRedirect();
   const errorSummaryRef = useRef<HTMLDivElement>(null);
+  const passwordRequirements = inspectPassword(password);
 
   const focusErrorSummary = () => {
     requestAnimationFrame(() => errorSummaryRef.current?.focus());
@@ -243,10 +246,11 @@ export function RegisterForm() {
             placeholder={t("register.passwordPlaceholder")}
             className={inputBase}
             aria-invalid={fieldErrors.password ? true : undefined}
-            aria-describedby={
-              fieldErrors.password ? "register-password-hint register-password-error" : "register-password-hint"
-            }
+            aria-describedby={`register-password-requirements register-password-hint${
+              fieldErrors.password ? " register-password-error" : ""
+            }`}
           />
+          <PasswordRequirements id="register-password-requirements" requirements={passwordRequirements} />
           <p id="register-password-hint" className="mt-1 text-sm text-site-muted">
             {t("register.passwordHint")}
           </p>

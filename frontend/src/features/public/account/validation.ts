@@ -10,14 +10,61 @@ export function normalizeAccountEmail(email: string): string {
   return email.trim().toLowerCase();
 }
 
-export type PasswordValidationError = "passwordRequired" | "passwordMin" | "passwordMax";
+export interface PasswordPolicyResult {
+  length: number;
+  hasMinLength: boolean;
+  hasMaxLength: boolean;
+  hasLowercase: boolean;
+  hasUppercase: boolean;
+  hasNumber: boolean;
+  hasSpecial: boolean;
+  characterGroups: number;
+  valid: boolean;
+}
+
+export type PasswordValidationError =
+  | "passwordRequired"
+  | "passwordMin"
+  | "passwordMax"
+  | "passwordComplexity";
 export type DisplayNameValidationError = "displayNameRequired" | "displayNameMin" | "displayNameMax";
 
-/** Validates a raw password against required and length bounds. Returns error key or null if valid. */
+const lowercasePattern = new RegExp("\\p{Ll}", "u");
+const uppercasePattern = new RegExp("\\p{Lu}", "u");
+const numberPattern = new RegExp("\\p{N}", "u");
+const specialPattern = new RegExp("[^\\p{L}\\p{N}\\s]", "u");
+
+/** Inspects a raw password without trimming or normalizing it. */
+export function inspectPassword(password: string): PasswordPolicyResult {
+  const length = Array.from(password).length;
+  const hasMinLength = length >= MIN_PASSWORD_LENGTH;
+  const hasMaxLength = length <= MAX_PASSWORD_LENGTH;
+  const hasLowercase = lowercasePattern.test(password);
+  const hasUppercase = uppercasePattern.test(password);
+  const hasNumber = numberPattern.test(password);
+  const hasSpecial = specialPattern.test(password);
+  const characterGroups = [hasLowercase, hasUppercase, hasNumber, hasSpecial].filter(Boolean).length;
+
+  return {
+    length,
+    hasMinLength,
+    hasMaxLength,
+    hasLowercase,
+    hasUppercase,
+    hasNumber,
+    hasSpecial,
+    characterGroups,
+    valid: hasMinLength && hasMaxLength && characterGroups >= 3,
+  };
+}
+
+/** Validates a raw password against the creation/reset policy. */
 export function validatePassword(password: string): PasswordValidationError | null {
   if (!password) return "passwordRequired";
-  if (password.length < MIN_PASSWORD_LENGTH) return "passwordMin";
-  if (password.length > MAX_PASSWORD_LENGTH) return "passwordMax";
+  const requirements = inspectPassword(password);
+  if (!requirements.hasMinLength) return "passwordMin";
+  if (!requirements.hasMaxLength) return "passwordMax";
+  if (!requirements.valid) return "passwordComplexity";
   return null;
 }
 
