@@ -19,6 +19,8 @@ type User struct {
 	EmailVerified bool          `gorm:"default:false" json:"email_verified"`
 	IsActive      bool          `gorm:"default:true" json:"is_active"`
 	AccountStatus AccountStatus `gorm:"size:32;not null;default:active" json:"account_status"`
+	ClosedAt      *time.Time    `json:"closed_at,omitempty"`
+	PurgeAfter    *time.Time    `gorm:"index" json:"purge_after,omitempty"`
 	LastLoginAt   *time.Time    `json:"last_login_at"`
 	CreatedAt     time.Time     `json:"created_at"`
 	UpdatedAt     time.Time     `json:"updated_at"`

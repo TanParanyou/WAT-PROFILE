@@ -56,6 +56,7 @@ Public account auth (backend):
 - `PUBLIC_ACCOUNT_AUTH_ENABLED` — `true` mounts `/api/v1/accounts/*`, disables the
   legacy anonymous `/auth/register`, and enforces the extra config below
 - `PUBLIC_ACCOUNT_FRONTEND_URL` — frontend origin for redirects and email links
+- `PUBLIC_ACCOUNT_ALLOWED_ORIGINS` — explicit account cookie/OAuth origins; must be a subset of `ALLOWED_ORIGINS`
 - `GOOGLE_CLIENT_ID`, `GOOGLE_CLIENT_SECRET`, `GOOGLE_REDIRECT_URL` — Google OAuth;
   the redirect URL must be registered on the Google console
 - `GOOGLE_FLOW_SECRET` — HMAC key signing the OAuth flow cookie
@@ -95,6 +96,9 @@ Never place real values in this file or committed env examples.
   public-account API. Public accounts never create or modify `members` rows.
 - In production `AUTH_EMAIL_DELIVERY_MODE` must be `resend` (`capture` is forbidden)
   and the frontend/redirect URLs must be HTTPS.
+- When public account auth is enabled, `ENV` must be `development`, `staging`, or
+  `production`; staging and production require HTTPS origins, Resend delivery,
+  Secure cookies, and a non-placeholder 32-byte JWT secret.
 - Rate-limit surfaces are configured independently and share the `AUTH_RATE_LIMITED`
   error envelope.
 
@@ -119,6 +123,10 @@ Public account rollout (after the baseline steps above):
    full browser acceptance in `docs/AUTH_TESTING.md` (password + Google flows, session
    rotation/reuse, recovery, closure, TH/EN/DE, keyboard, mobile).
 5. Product owner approval before enabling the account entry in production navigation.
+
+Account retention: run `go run ./cmd/account-retention` from `backend/` daily
+with the production environment and R2 credentials. The command is idempotent,
+deletes due closed accounts after 30 days, and anonymizes retained security events.
 
 ## Rollback
 

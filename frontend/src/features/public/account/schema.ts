@@ -11,6 +11,7 @@ export const accountSchema = z
     avatar_url: z.string().url().or(z.literal("")).default(""),
     preferred_locale: z.enum(["th", "en", "de"]),
     providers: z.array(z.enum(["password", "google"])),
+    purge_after: z.string().datetime().optional(),
   })
   .strict();
 
@@ -45,6 +46,17 @@ export const accountEnvelopeSchema = z
 
 export function parseAccountEnvelope(payload: unknown): Account {
   return accountEnvelopeSchema.parse(payload).data;
+}
+
+export const accountClosureResponseSchema = z
+  .object({
+    success: z.literal(true),
+    data: z.object({ purge_after: z.string().datetime() }).strict(),
+  })
+  .strict();
+
+export function parseAccountClosureResponse(payload: unknown): { purge_after: string } {
+  return accountClosureResponseSchema.parse(payload).data;
 }
 
 export const fieldErrorSchema = z

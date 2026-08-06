@@ -124,6 +124,21 @@ var emailCopy = map[string]map[string]EmailCopy{
 			Action:  "Anmelden",
 		},
 	},
+	"change_email": {
+		"th": {Subject: "ยืนยันการเปลี่ยนอีเมล", Body: "สวัสดี {{.DisplayName}},\n\nกรุณายืนยันอีเมลใหม่ของคุณภายใน 30 นาที:\n\n{{.ActionURL}}", Action: "ยืนยันอีเมลใหม่"},
+		"en": {Subject: "Confirm your new email", Body: "Hello {{.DisplayName}},\n\nConfirm your new email address within 30 minutes:\n\n{{.ActionURL}}", Action: "Confirm email"},
+		"de": {Subject: "Neue E-Mail-Adresse bestätigen", Body: "Hallo {{.DisplayName}},\n\nbestätigen Sie Ihre neue E-Mail-Adresse innerhalb von 30 Minuten:\n\n{{.ActionURL}}", Action: "E-Mail bestätigen"},
+	},
+	"email_changed": {
+		"th": {Subject: "อีเมลบัญชีถูกเปลี่ยนแล้ว", Body: "สวัสดี {{.DisplayName}},\n\nอีเมลบัญชีของคุณถูกเปลี่ยนแล้ว หากไม่ใช่คุณ กรุณาติดต่อผู้ดูแลเว็บไซต์ทันที", Action: "เข้าสู่ระบบ"},
+		"en": {Subject: "Your account email changed", Body: "Hello {{.DisplayName}},\n\nYour account email was changed. If you did not do this, contact the website team immediately.", Action: "Sign in"},
+		"de": {Subject: "Ihre Konto-E-Mail wurde geändert", Body: "Hallo {{.DisplayName}},\n\nIhre Konto-E-Mail wurde geändert. Wenn Sie das nicht waren, wenden Sie sich sofort an das Website-Team.", Action: "Anmelden"},
+	},
+	"reopen_account": {
+		"th": {Subject: "กู้คืนบัญชีของคุณ", Body: "สวัสดี {{.DisplayName}},\n\nคลิกลิงก์เพื่อกู้คืนบัญชีภายใน 30 วัน:\n\n{{.ActionURL}}", Action: "กู้คืนบัญชี"},
+		"en": {Subject: "Restore your account", Body: "Hello {{.DisplayName}},\n\nClick the link to restore your account within 30 days:\n\n{{.ActionURL}}", Action: "Restore account"},
+		"de": {Subject: "Konto wiederherstellen", Body: "Hallo {{.DisplayName}},\n\nklicken Sie innerhalb von 30 Tagen auf den Link, um Ihr Konto wiederherzustellen:\n\n{{.ActionURL}}", Action: "Konto wiederherstellen"},
+	},
 }
 
 // RenderEmail renders the subject and plain-text body for a purpose and locale.

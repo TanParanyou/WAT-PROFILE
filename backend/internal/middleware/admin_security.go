@@ -1,10 +1,10 @@
 package middleware
 
 import (
-	"errors"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
+	securityutil "github.com/watloungporsai/wat-profile-backend/internal/security"
 )
 
 // AdminOriginGuard rejects admin auth requests whose Origin header is not
@@ -61,16 +61,8 @@ func AdminSecurityHeaders() fiber.Handler {
 // Wildcard origins are rejected because they cannot be combined safely with
 // credentialed requests.
 func ParseAdminAllowedOrigins(value string) ([]string, error) {
-	var origins []string
-	for _, part := range strings.Split(value, ",") {
-		part = strings.TrimSpace(part)
-		if part == "" {
-			continue
-		}
-		if strings.Contains(part, "*") {
-			return nil, errors.New("wildcard origins are not allowed for credentialed admin auth")
-		}
-		origins = append(origins, part)
+	if strings.TrimSpace(value) == "" {
+		return []string{}, nil
 	}
-	return origins, nil
+	return securityutil.ParseOrigins(value, false)
 }

@@ -80,8 +80,19 @@ export function useRevokeAccountSession() {
 }
 
 export function useCloseAccount() {
+  const queryClient = useQueryClient();
   return useMutation({
     mutationFn: (password: string) => closeAccount(password),
+    onSuccess: ({ purge_after }) => {
+      const current = queryClient.getQueryData<Account>(accountKeys.current());
+      if (current) {
+        queryClient.setQueryData(accountKeys.current(), {
+          ...current,
+          account_status: "closed",
+          purge_after,
+        });
+      }
+    },
   });
 }
 

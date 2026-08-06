@@ -38,6 +38,7 @@ type AccountProfile struct {
 	UserID          uuid.UUID `gorm:"type:uuid;not null;uniqueIndex" json:"user_id"`
 	DisplayName     string    `gorm:"size:80;not null" json:"display_name"`
 	AvatarURL       string    `gorm:"size:500" json:"avatar_url,omitempty"`
+	AvatarObjectKey string    `gorm:"size:600" json:"-"`
 	PreferredLocale string    `gorm:"size:2;not null" json:"preferred_locale"`
 	CreatedAt       time.Time `json:"created_at"`
 	UpdatedAt       time.Time `json:"updated_at"`

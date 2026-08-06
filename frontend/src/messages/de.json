@@ -118,6 +118,7 @@
     "Account": {
         "title": "Benutzerkonto",
         "subtitle": "Verwalten Sie Ihr Profil, Ihre Anmeldemethoden und Sicherheitseinstellungen.",
+        "back": "Zurück",
         "showPassword": "Passwort anzeigen",
         "hidePassword": "Passwort verbergen",
         "passwordPolicy": {
@@ -144,6 +145,7 @@
             "registerPrompt": "Noch kein Konto?",
             "registerLink": "Konto erstellen",
             "forgotLink": "Passwort vergessen?",
+            "reopenLink": "Geschlossenes Konto wiederherstellen",
             "verifyPrompt": "Prüfen Sie Ihren Posteingang und bestätigen Sie zuerst Ihre E-Mail."
         },
         "register": {
@@ -264,12 +266,14 @@
             "logoutAll": "Überall abmelden",
             "closeLabel": "Konto schließen",
             "closeButton": "Mein Konto schließen",
-            "closeIntro": "Beim Schließen des Kontos werden alle Sitzungen abgemeldet und eine künftige Anmeldung verhindert. Dies kann nicht rückgängig gemacht werden.",
+            "closeIntro": "Beim Schließen des Kontos werden alle Sitzungen sofort abgemeldet. Sie können es innerhalb von 30 Tagen über den E-Mail-Link wiederherstellen; danach werden die Kontodaten dauerhaft entfernt.",
             "closeGoogleIntro": "Dieses Konto verwendet Google zur Anmeldung. Bestätigen Sie Ihre Identität mit Google, bevor Sie das Konto schließen.",
             "closePasswordLabel": "Passwort",
             "closeConfirm": "Konto schließen",
             "closedTitle": "Konto geschlossen",
             "closedBody": "Ihr Konto ist geschlossen und kann sich nicht mehr anmelden.",
+            "closedPurgeBody": "Die endgültige Löschung ist für den {date} geplant.",
+            "closedReopenLink": "Link zur Kontowiederherstellung anfordern",
             "disabledTitle": "Konto deaktiviert",
             "disabledBody": "Ihr Konto wurde deaktiviert. Wenden Sie sich an das Tempelteam.",
             "providerIntro": "Verbinden Sie Google, um sich mit Ihrem Google-Konto anzumelden.",
@@ -280,7 +284,8 @@
             "providerDisconnect": "Google trennen",
             "providerDisconnectConfirm": "Geben Sie Ihr Passwort ein, um Google zu trennen.",
             "providerReauthTitle": "Passwort bestätigen",
-            "providerReauthBody": "Ihre Sitzung ist älter als 10 Minuten."
+            "providerReauthBody": "Ihre Sitzung ist älter als 10 Minuten.",
+            "credentialsTitle":"Anmeldedaten","passwordTitle":"Passwort","currentPasswordLabel":"Aktuelles Passwort","newPasswordLabel":"Neues Passwort","changePassword":"Passwort ändern","passwordChanged":"Passwort geändert","emailChangeTitle":"E-Mail ändern","newEmailLabel":"Neue E-Mail","requestEmailChange":"E-Mail-Änderung anfordern","emailConfirmationSent":"Prüfen Sie Ihre neue E-Mail zur Bestätigung.","emailChanged":"E-Mail geändert","emailChangedBody":"Ihre Sitzungen wurden beendet. Melden Sie sich mit Ihrer neuen E-Mail erneut an.","accountRestored":"Konto wiederhergestellt","accountRestoredBody":"Sie können sich wieder mit Ihren bisherigen Daten anmelden.","actionInvalid":"Dieser Link ist ungültig oder abgelaufen.","googleCredentialReauthTitle":"Mit Google bestätigen","googleCredentialReauthBody":"Google-only-Konten müssen sich mit Google bestätigen, bevor ein Passwort hinzugefügt oder die Konto-E-Mail geändert wird.","googleCredentialReauthAction":"Mit Google fortfahren","reopenRequestTitle":"Geschlossenes Konto wiederherstellen","reopenRequestBody":"Geben Sie die ursprüngliche Konto-E-Mail ein. Wenn die Wiederherstellung innerhalb von 30 Tagen noch möglich ist, senden wir einen einmaligen Link.","reopenRequestAction":"Wiederherstellungslink senden","reopenRequestSentTitle":"Posteingang prüfen","reopenRequestSentBody":"Wenn das Konto noch wiederhergestellt werden kann, wurde ein Wiederherstellungslink gesendet."
         },
         "sessions": {
             "title": "Aktive Sitzungen",

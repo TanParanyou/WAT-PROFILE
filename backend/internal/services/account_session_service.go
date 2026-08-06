@@ -281,6 +281,70 @@ func (s *AccountSessionService) ReauthenticatePassword(ctx context.Context, user
 	return result, err
 }
 
+// ChangePassword creates or replaces the password identity. Password users
+// must provide the current password; Google-only users must have a recent
+// Google assertion. Other sessions are revoked and the current session gets a
+// fresh access token.
+func (s *AccountSessionService) ChangePassword(ctx context.Context, userID, sessionID uuid.UUID, authTime time.Time, currentPassword, newPassword string) (accountauth.SessionResult, error) {
+	if err := accountauth.ValidatePasswordPolicy(newPassword); err != nil {
+		return accountauth.SessionResult{}, err
+	}
+	now := s.clock.Now()
+	var result accountauth.SessionResult
+	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var session models.AuthSession
+		if err := tx.Where("id = ? AND user_id = ? AND revoked_at IS NULL", sessionID, userID).First(&session).Error; err != nil {
+			return accountauth.NewError(accountauth.CodeTokenInvalid, "The session is invalid or has expired.")
+		}
+		var identity models.AuthIdentity
+		identityErr := tx.Where("user_id = ? AND provider = 'password'", userID).First(&identity).Error
+		if identityErr == nil && identity.CredentialHash != nil {
+			if currentPassword == "" || !utils.CheckPasswordHash(currentPassword, *identity.CredentialHash) {
+				return accountauth.NewError(accountauth.CodeInvalidCredentials, "Incorrect password.")
+			}
+		} else if identityErr != nil && !errors.Is(identityErr, gorm.ErrRecordNotFound) {
+			return identityErr
+		} else if now.Sub(authTime) > 10*time.Minute {
+			// Google-only accounts do not have a password to verify. Their
+			// current session must therefore carry a fresh Google assertion.
+			return accountauth.NewError(accountauth.CodeReauthRequired, "Please re-authenticate with Google to change your password.")
+		}
+		hash, err := utils.HashPassword(newPassword)
+		if err != nil {
+			return err
+		}
+		if identityErr == nil {
+			identity.CredentialHash = &hash
+			if err := tx.Save(&identity).Error; err != nil {
+				return err
+			}
+		} else {
+			identity = models.AuthIdentity{UserID: userID, Provider: "password", ProviderSubject: uuid.NewString(), CredentialHash: &hash}
+			var user models.User
+			if err := tx.First(&user, "id = ?", userID).Error; err != nil {
+				return err
+			}
+			identity.ProviderEmail = user.Email
+			if err := tx.Create(&identity).Error; err != nil {
+				return err
+			}
+		}
+		if err := tx.Model(&models.AuthSession{}).Where("user_id = ? AND id <> ? AND revoked_at IS NULL", userID, sessionID).Updates(map[string]any{"revoked_at": now, "revoked_reason": "password_changed", "updated_at": now}).Error; err != nil {
+			return err
+		}
+		access, err := s.issuer.Issue(userID, sessionID, now)
+		if err != nil {
+			return err
+		}
+		result = accountauth.SessionResult{AccessToken: access, ExpiresIn: s.issuer.TTL()}
+		return nil
+	})
+	if err == nil {
+		s.recordSecurity(ctx, accountauth.SecurityEvent{UserID: userID.String(), EventType: "password_changed", Outcome: "success", Provider: "password"})
+	}
+	return result, err
+}
+
 // Logout revokes the token family of the presented refresh token.
 func (s *AccountSessionService) Logout(ctx context.Context, userID uuid.UUID, rawRefresh string) error {
 	if rawRefresh == "" {

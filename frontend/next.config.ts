@@ -6,6 +6,12 @@ const withNextIntl = createNextIntlPlugin('./src/i18n.ts');
 if (process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_SKIP_ADMIN_AUTH === "true") {
   throw new Error("NEXT_PUBLIC_SKIP_ADMIN_AUTH must be false in production");
 }
+if (process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_PUBLIC_ACCOUNT_AUTH_ENABLED === "true") {
+  const apiUrl = process.env.NEXT_PUBLIC_API_URL;
+  if (!apiUrl || !apiUrl.startsWith("https://")) {
+    throw new Error("NEXT_PUBLIC_API_URL must be an HTTPS URL when public account auth is enabled in production");
+  }
+}
 
 const nextConfig: NextConfig = {
   images: {

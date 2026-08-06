@@ -110,7 +110,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 			// silently 404 every account route.
 			panic("failed to build public account handler: " + err.Error())
 		} else {
-			handlers.RegisterAccountRoutes(api, accountHandler, adminAllowedOrigins())
+			handlers.RegisterAccountRoutes(api, accountHandler, accountCfg.AllowedOrigins)
 		}
 	}
 

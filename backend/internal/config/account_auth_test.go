@@ -18,7 +18,7 @@ func TestLoadAccountAuthConfigRejectsCaptureInProduction(t *testing.T) {
 	t.Setenv("GOOGLE_FLOW_SECRET", "test-secret")
 	t.Setenv("AUTH_EMAIL_DELIVERY_MODE", "capture")
 	_, err := LoadAccountAuthConfig()
-	if err == nil || !strings.Contains(err.Error(), "capture") {
+	if err == nil || !strings.Contains(err.Error(), "resend") {
 		t.Fatalf("expected production capture mode rejection, got %v", err)
 	}
 }
@@ -48,6 +48,8 @@ func TestLoadAccountAuthConfigDefaults(t *testing.T) {
 	t.Setenv("GOOGLE_REDIRECT_URL", "http://localhost:8080/api/v1/accounts/google/callback")
 	t.Setenv("GOOGLE_FLOW_SECRET", "test-secret")
 	t.Setenv("AUTH_EMAIL_DELIVERY_MODE", "capture")
+	t.Setenv("ALLOWED_ORIGINS", "http://localhost:3000")
+	t.Setenv("PUBLIC_ACCOUNT_ALLOWED_ORIGINS", "http://localhost:3000")
 	cfg, err := LoadAccountAuthConfig()
 	if err != nil {
 		t.Fatalf("expected dev config to load with capture mode: %v", err)

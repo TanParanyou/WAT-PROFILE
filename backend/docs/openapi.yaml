@@ -708,6 +708,84 @@ paths:
         '401':
           $ref: '#/components/responses/Unauthorized'
 
+  /accounts/confirm-email-change:
+    post:
+      tags: [Account]
+      summary: Confirm a pending email change
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountTokenInput'
+      responses:
+        '200': { description: Email changed, content: { application/json: { schema: { $ref: '#/components/schemas/MessageResponse' } } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /accounts/reopen-request:
+    post:
+      tags: [Account]
+      summary: Request an account recovery link
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountEmailInput'
+      responses:
+        '200': { description: Generic response, content: { application/json: { schema: { $ref: '#/components/schemas/MessageResponse' } } } }
+
+  /accounts/reopen-confirm:
+    post:
+      tags: [Account]
+      summary: Restore a closed account
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountTokenInput'
+      responses:
+        '200': { description: Account restored, content: { application/json: { schema: { $ref: '#/components/schemas/MessageResponse' } } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /account/password:
+    post:
+      tags: [Account]
+      summary: Add or change the account password
+      security:
+        - PublicAccountBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountPasswordChangeInput'
+      responses:
+        '200':
+          description: Password changed and current access token renewed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountSessionResponse'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
+  /account/email-change:
+    post:
+      tags: [Account]
+      summary: Request an email change confirmation
+      security:
+        - PublicAccountBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountEmailChangeInput'
+      responses:
+        '200': { description: Confirmation sent, content: { application/json: { schema: { $ref: '#/components/schemas/MessageResponse' } } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+
   /accounts/google/start:
     get:
       tags: [Account]
@@ -1131,7 +1209,9 @@ paths:
       description: >-
         Requires recent authentication (auth_time within 10 minutes) and the
         password for password accounts. Revokes all sessions, marks the account
-        closed, and prevents further sign-in. Never hard-deletes rows.
+        closed, blanks the avatar, and schedules permanent deletion after 30
+        days. The account can be restored by a single-use email link before the
+        deadline.
       security:
         - PublicAccountBearerAuth: []
       requestBody:
@@ -1151,7 +1231,7 @@ paths:
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/MessageResponse'
+                $ref: '#/components/schemas/AccountClosureResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
         '401':
@@ -2870,6 +2950,30 @@ components:
           type: string
           description: Current password used to establish recent authentication
 
+    AccountPasswordChangeInput:
+      type: object
+      required: [new_password]
+      properties:
+        current_password:
+          type: string
+        new_password:
+          type: string
+          minLength: 12
+          maxLength: 128
+
+    AccountEmailChangeInput:
+      type: object
+      required: [new_email, locale]
+      properties:
+        current_password:
+          type: string
+        new_email:
+          type: string
+          format: email
+        locale:
+          type: string
+          enum: [th, en, de]
+
     AccountSessionResponse:
       type: object
       description: >-
@@ -2960,6 +3064,11 @@ components:
               items:
                 type: string
               description: Linked identity providers, e.g. `password`, `google`
+            purge_after:
+              type: string
+              format: date-time
+              nullable: true
+              description: Permanent deletion deadline for a closed account
 
     AccountProfileUpdateInput:
       type: object
@@ -2973,6 +3082,22 @@ components:
         preferred_locale:
           type: string
           enum: [th, en, de]
+
+    AccountClosureResponse:
+      type: object
+      required: [success, data]
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          required: [purge_after]
+          properties:
+            purge_after:
+              type: string
+              format: date-time
+              description: Permanent deletion deadline; the account can be restored before this time
 
     AccountSessionsResponse:
       type: object

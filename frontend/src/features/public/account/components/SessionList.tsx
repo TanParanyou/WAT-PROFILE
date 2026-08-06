@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { AlertCircle, ArrowLeft, CheckCircle, Loader2, LogOut, RefreshCw } from "lucide-react";
+import { AlertCircle, CheckCircle, Loader2, LogOut, RefreshCw } from "lucide-react";
 import { Link } from "@/navigation";
 import { useAccountSession } from "@/features/public/account/AccountSessionProvider";
 import { toAccountApiError } from "@/features/public/account/api";
@@ -68,14 +68,7 @@ export function SessionList() {
   };
 
   const pageHeader = (
-    <header className="space-y-4">
-      <Link
-        href="/account"
-        className="inline-flex min-h-11 items-center gap-2 text-sm font-semibold text-site-foreground underline decoration-site-accent underline-offset-4 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
-      >
-        <ArrowLeft className="h-4 w-4" aria-hidden="true" />
-        {t("sessions.backToAccount")}
-      </Link>
+    <header className="space-y-2">
       <div className="space-y-2">
         <p className="text-xs font-semibold uppercase tracking-[0.16em] text-site-accent">
           {t("sessions.pageEyebrow")}

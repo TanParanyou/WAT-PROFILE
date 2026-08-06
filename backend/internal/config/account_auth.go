@@ -7,6 +7,8 @@ import (
 	"strconv"
 	"strings"
 	"time"
+
+	securityutil "github.com/watloungporsai/wat-profile-backend/internal/security"
 )
 
 // RateLimit describes a per-window request allowance for one account-auth
@@ -33,6 +35,8 @@ type AccountAuthConfig struct {
 	CookieSecure      bool
 	ResendAPIKey      string
 	EmailFrom         string
+	AllowedOrigins    []string
+	CORSOrigins       []string
 
 	RegisterLimit RateLimit
 	LoginLimit    RateLimit
@@ -80,6 +84,9 @@ func LoadAccountAuthConfig() (AccountAuthConfig, error) {
 	}
 
 	env := os.Getenv("ENV")
+	if env != "development" && env != "staging" && env != "production" {
+		return cfg, fmt.Errorf("ENV must be development, staging, or production when PUBLIC_ACCOUNT_AUTH_ENABLED=true")
+	}
 
 	if cfg.FrontendURL == "" {
 		return cfg, fmt.Errorf("PUBLIC_ACCOUNT_FRONTEND_URL is required when PUBLIC_ACCOUNT_AUTH_ENABLED=true")
@@ -88,8 +95,8 @@ func LoadAccountAuthConfig() (AccountAuthConfig, error) {
 	if cfg.EmailMode == "" {
 		cfg.EmailMode = "capture"
 	}
-	if env == "production" && cfg.EmailMode == "capture" {
-		return cfg, fmt.Errorf("AUTH_EMAIL_DELIVERY_MODE=capture is not allowed when ENV=production")
+	if (env == "staging" || env == "production") && cfg.EmailMode != "resend" {
+		return cfg, fmt.Errorf("AUTH_EMAIL_DELIVERY_MODE=resend is required when ENV=%s", env)
 	}
 	if cfg.EmailMode == "resend" {
 		cfg.ResendAPIKey = os.Getenv("RESEND_API_KEY")
@@ -129,8 +136,8 @@ func LoadAccountAuthConfig() (AccountAuthConfig, error) {
 		cfg.RefreshTTL = d
 	}
 
-	// Production HTTPS invariants: frontend and Google callback URLs.
-	if env == "production" {
+	// Non-development HTTPS invariants: frontend, callback, and origins.
+	if env == "staging" || env == "production" {
 		for name, raw := range map[string]string{
 			"PUBLIC_ACCOUNT_FRONTEND_URL": cfg.FrontendURL,
 			"GOOGLE_REDIRECT_URL":         cfg.GoogleRedirectURL,
@@ -141,7 +148,35 @@ func LoadAccountAuthConfig() (AccountAuthConfig, error) {
 			}
 		}
 		cfg.CookieSecure = true
+		secret := os.Getenv("JWT_SECRET")
+		lowerSecret := strings.ToLower(secret)
+		if len(secret) < 32 || strings.Contains(lowerSecret, "change-this") || strings.Contains(lowerSecret, "your-super-secret") {
+			return cfg, fmt.Errorf("JWT_SECRET must be a non-placeholder value of at least 32 bytes when ENV=%s", env)
+		}
 	}
+
+	corsOrigins, err := securityutil.ParseOrigins(os.Getenv("ALLOWED_ORIGINS"), env != "development")
+	if err != nil {
+		return cfg, fmt.Errorf("invalid ALLOWED_ORIGINS: %w", err)
+	}
+	accountOrigins, err := securityutil.ParseOrigins(os.Getenv("PUBLIC_ACCOUNT_ALLOWED_ORIGINS"), env != "development")
+	if err != nil {
+		return cfg, fmt.Errorf("invalid PUBLIC_ACCOUNT_ALLOWED_ORIGINS: %w", err)
+	}
+	if len(accountOrigins) == 0 {
+		return cfg, fmt.Errorf("PUBLIC_ACCOUNT_ALLOWED_ORIGINS is required when PUBLIC_ACCOUNT_AUTH_ENABLED=true")
+	}
+	global := make(map[string]struct{}, len(corsOrigins))
+	for _, origin := range corsOrigins {
+		global[origin] = struct{}{}
+	}
+	for _, origin := range accountOrigins {
+		if _, ok := global[origin]; !ok {
+			return cfg, fmt.Errorf("PUBLIC_ACCOUNT_ALLOWED_ORIGINS origin %q must be included in ALLOWED_ORIGINS", origin)
+		}
+	}
+	cfg.AllowedOrigins = accountOrigins
+	cfg.CORSOrigins = corsOrigins
 
 	// Rate-limit windows are configurable through server-only env vars.
 	if err := applyLimit(&cfg.RegisterLimit, "AUTH_REGISTER_LIMIT"); err != nil {

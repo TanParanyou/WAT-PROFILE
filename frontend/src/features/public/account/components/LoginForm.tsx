@@ -165,6 +165,14 @@ export function LoginForm() {
             {t("login.forgotLink")}
           </Link>
         </p>
+        <p>
+          <Link
+            href="/account/reopen-request"
+            className="font-medium text-text-900 underline decoration-primary/40 underline-offset-4"
+          >
+            {t("login.reopenLink")}
+          </Link>
+        </p>
       </div>
     </div>
   );

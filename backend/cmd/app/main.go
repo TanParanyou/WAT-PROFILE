@@ -3,6 +3,7 @@ package main
 import (
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 	"time"
 
@@ -32,6 +33,10 @@ func main() {
 	if os.Getenv("JWT_SECRET") == "" {
 		log.Fatal().Msg("JWT_SECRET environment variable is required")
 	}
+	accountCfg, err := config.LoadAccountAuthConfig()
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to load public account auth configuration")
+	}
 
 	// เชื่อมต่อ database
 	if err := config.InitDatabase(); err != nil {
@@ -48,11 +53,7 @@ func main() {
 	}
 	log.Info().Msg("Database migration completed")
 
-	// Public account auth configuration (feature-gated)
-	accountCfg, err := config.LoadAccountAuthConfig()
-	if err != nil {
-		log.Fatal().Err(err).Msg("Failed to load public account auth configuration")
-	}
+	// Public account auth configuration was validated before database startup.
 	if accountCfg.Enabled {
 		log.Info().Msg("Public account auth enabled")
 	} else {
@@ -103,8 +104,12 @@ func main() {
 		ContextKey: "trace_id",
 	}))
 	app.Use(logger.FiberLogger()) // ใช้ zerolog แทน Fiber logger
+	allowOrigins := getEnv("ALLOWED_ORIGINS", "http://localhost:3000")
+	if accountCfg.Enabled {
+		allowOrigins = strings.Join(accountCfg.CORSOrigins, ",")
+	}
 	app.Use(cors.New(cors.Config{
-		AllowOrigins:     getEnv("ALLOWED_ORIGINS", "http://localhost:3000"),
+		AllowOrigins:     allowOrigins,
 		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
 		AllowHeaders:     "Origin,Content-Type,Accept,Authorization",
 		AllowCredentials: true,

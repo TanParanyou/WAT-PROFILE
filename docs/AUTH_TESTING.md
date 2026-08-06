@@ -16,6 +16,7 @@ Copy `backend/.env.example` to `backend/.env` and set:
 |---|---|---|
 | `PUBLIC_ACCOUNT_AUTH_ENABLED` | yes | `true` mounts the `/api/v1/accounts/*` routes and disables legacy `/auth/register` |
 | `PUBLIC_ACCOUNT_FRONTEND_URL` | yes | Frontend origin used for redirects and email links, e.g. `http://localhost:3000` |
+| `PUBLIC_ACCOUNT_ALLOWED_ORIGINS` | yes | Explicit account cookie origins; in local development use `http://localhost:3000` |
 | `GOOGLE_CLIENT_ID` | yes | Google OAuth client id |
 | `GOOGLE_CLIENT_SECRET` | yes | Google OAuth client secret |
 | `GOOGLE_REDIRECT_URL` | yes | Registered callback, e.g. `http://localhost:8080/api/v1/accounts/google/callback` |
@@ -55,12 +56,12 @@ docker run -d --name wat-profile-migrate-test \
 DATABASE_URL_TEST="postgres://postgres:testpass@127.0.0.1:55433/wat_profile_test?sslmode=disable"
 ```
 
-Apply the schema to a disposable database before each acceptance pass so no state leaks
-between runs:
+Apply the complete versioned schema to a disposable database before each acceptance pass
+so no state leaks between runs:
 
 ```bash
 createdb wat_profile_test  # once
-cd backend && psql "$DATABASE_URL_TEST" -f migrations/000025_add_public_account_auth.up.sql
+cd backend && DATABASE_URL="$DATABASE_URL_TEST" go run cmd/migrate/main.go up
 ```
 
 For migrations that have down files, verify both directions on a copy of the prior schema
@@ -103,11 +104,13 @@ Verify:
    (HttpOnly, SameSite=Lax) and an access token in the body only.
 6. Expect redirect to the account page showing email, status `Active`, and providers.
 7. Edit the display name and preferred locale; save; expect the updated values.
-8. Open `/en/account/sessions`; expect the current session flagged `Current`.
-9. Sign in from a second browser; expect two sessions. Revoke the second session and
+8. From Security, change the password and request an email change; confirm the
+   new email link and verify other sessions are revoked.
+9. Open `/en/account/sessions`; expect the current session flagged `Current`.
+10. Sign in from a second browser; expect two sessions. Revoke the second session and
    confirm it disappears.
-10. Click "Sign out". Expect the refresh cookie cleared and the profile page gone.
-11. Repeat the flow at `/th/register` and `/de/register` (see Locale checks).
+11. Click "Sign out". Expect the refresh cookie cleared and the profile page gone.
+12. Repeat the flow at `/th/register` and `/de/register` (see Locale checks).
 
 ### Session rotation and reuse detection
 
@@ -154,11 +157,14 @@ cd backend && GOTOOLCHAIN=local GOCACHE=/private/tmp/wat-profile-go-cache \
 ## 5. Closed and disabled accounts
 
 1. With a fresh session, open `/en/account`, scroll to "Close account", re-enter the
-   password, confirm. Expect the account closed screen and all sessions revoked.
+   password, confirm. Expect the account closed screen, a 30-day deletion date,
+   a recovery-link action, and all sessions revoked.
 2. Try to sign in again with that email: expect a generic invalid-credentials response.
-3. From the database (test only), set a second account `account_status='disabled'` and
+3. Open `/en/account/reopen-request`, submit the original email, and open the
+   single-use link. Expect the account active again without restoring old sessions.
+4. From the database (test only), set a second account `account_status='disabled'` and
    try to sign in: expect the disabled screen without security details.
-4. Confirm no `members` row was created for any public account:
+5. Confirm no `members` row was created for any public account:
 
    ```sql
    SELECT count(*) FROM members m

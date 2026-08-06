@@ -11,6 +11,7 @@ import (
 	"mime/multipart"
 	"net/http"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -18,6 +19,7 @@ import (
 	"github.com/watloungporsai/wat-profile-backend/internal/accountauth"
 	"github.com/watloungporsai/wat-profile-backend/internal/config"
 	"github.com/watloungporsai/wat-profile-backend/internal/middleware"
+	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
 	"github.com/watloungporsai/wat-profile-backend/internal/storage"
 	"github.com/watloungporsai/wat-profile-backend/pkg/logger"
@@ -46,6 +48,8 @@ type AccountAuthHandler struct {
 	sessions      *services.AccountSessionService
 	recovery      *services.AccountRecoveryService
 	profile       *services.AccountProfileService
+	credentials   *services.AccountCredentialsService
+	lifecycle     *services.AccountLifecycleService
 	google        *services.AccountGoogleService
 	avatarStorage fileUploader
 	cfg           config.AccountAuthConfig
@@ -75,6 +79,8 @@ func NewAccountAuthHandler(db *gorm.DB, cfg config.AccountAuthConfig, r2 *storag
 		sessions:      sessions,
 		recovery:      services.NewAccountRecoveryService(db, sender, clock, accountauth.NewOpaqueToken, sessions, security),
 		profile:       services.NewAccountProfileService(db, clock, sessions, security),
+		credentials:   services.NewAccountCredentialsService(db, sender, clock, accountauth.NewOpaqueToken, sessions, security),
+		lifecycle:     services.NewAccountLifecycleService(db, sender, clock, accountauth.NewOpaqueToken, security),
 		google:        services.NewAccountGoogleService(db, clock, accountauth.NewOpaqueToken, sender, verifier, sessions, []byte(cfg.GoogleFlowSecret), cfg.FrontendURL, security),
 		avatarStorage: avatarStorageFromR2(r2),
 		cfg:           cfg,
@@ -328,6 +334,85 @@ func (h *AccountAuthHandler) Reauthenticate(c *fiber.Ctx) error {
 	})
 }
 
+// ChangePassword adds or replaces the current account password identity.
+func (h *AccountAuthHandler) ChangePassword(c *fiber.Ctx) error {
+	var req struct {
+		CurrentPassword string `json:"current_password"`
+		NewPassword     string `json:"new_password"`
+	}
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+	rawSessionID, ok := c.Locals("session_id").(string)
+	sessionID, err := uuid.Parse(rawSessionID)
+	if !ok || err != nil {
+		return utils.CodedErrorResponse(c, fiber.StatusUnauthorized, string(accountauth.CodeTokenInvalid), "The session is invalid or has expired.")
+	}
+	authTime, _ := c.Locals("auth_time").(time.Time)
+	result, err := h.sessions.ChangePassword(c.UserContext(), mustLocalsUserID(c), sessionID, authTime, req.CurrentPassword, req.NewPassword)
+	if err != nil {
+		return h.respondAccountError(c, err)
+	}
+	return utils.SuccessResponse(c, fiber.Map{"access_token": result.AccessToken, "expires_in": int64(result.ExpiresIn / time.Second)})
+}
+
+func (h *AccountAuthHandler) RequestEmailChange(c *fiber.Ctx) error {
+	var req struct {
+		CurrentPassword string `json:"current_password"`
+		NewEmail        string `json:"new_email"`
+		Locale          string `json:"locale"`
+	}
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+	authTime, _ := c.Locals("auth_time").(time.Time)
+	if err := h.credentials.RequestEmailChange(c.UserContext(), mustLocalsUserID(c), authTime, req.CurrentPassword, req.NewEmail, req.Locale); err != nil {
+		return h.respondAccountError(c, err)
+	}
+	return utils.MessageResponse(c, "Email confirmation sent")
+}
+
+func (h *AccountAuthHandler) ConfirmEmailChange(c *fiber.Ctx) error {
+	var req struct {
+		Token string `json:"token"`
+	}
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+	if err := h.credentials.ConfirmEmailChange(c.UserContext(), req.Token); err != nil {
+		return h.respondAccountError(c, err)
+	}
+	h.clearRefreshCookie(c)
+	return utils.MessageResponse(c, "Email changed")
+}
+
+func (h *AccountAuthHandler) RequestReopen(c *fiber.Ctx) error {
+	var req struct {
+		Email  string `json:"email"`
+		Locale string `json:"locale"`
+	}
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+	if err := h.lifecycle.RequestReopen(c.UserContext(), req.Email, req.Locale); err != nil {
+		return h.respondAccountError(c, err)
+	}
+	return utils.MessageResponse(c, "If the account can be restored, a recovery link has been sent")
+}
+
+func (h *AccountAuthHandler) ConfirmReopen(c *fiber.Ctx) error {
+	var req struct {
+		Token string `json:"token"`
+	}
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+	if err := h.lifecycle.ConfirmReopen(c.UserContext(), req.Token); err != nil {
+		return h.respondAccountError(c, err)
+	}
+	return utils.MessageResponse(c, "Account restored")
+}
+
 // ForgotPassword handles POST /api/v1/accounts/forgot-password.
 func (h *AccountAuthHandler) ForgotPassword(c *fiber.Ctx) error {
 	var req struct {
@@ -447,6 +532,11 @@ func (h *AccountAuthHandler) UploadAvatar(c *fiber.Ctx) error {
 	}
 
 	userID := mustLocalsUserID(c)
+	var previousObjectKey string
+	var previousProfile models.AccountProfile
+	if err := h.db.WithContext(c.UserContext()).Where("user_id = ?", userID).First(&previousProfile).Error; err == nil {
+		previousObjectKey = previousProfile.AvatarObjectKey
+	}
 	extension := "." + format
 	if format == "jpeg" {
 		extension = ".jpg"
@@ -458,7 +548,7 @@ func (h *AccountAuthHandler) UploadAvatar(c *fiber.Ctx) error {
 		return h.respondAccountError(c, accountauth.NewError(accountauth.CodeInternal, "Failed to upload avatar image."))
 	}
 
-	account, err := h.profile.SetAvatarURL(c.UserContext(), userID, avatarURL)
+	account, err := h.profile.SetAvatar(c.UserContext(), userID, avatarURL, objectKey)
 	if err != nil {
 		if deleter, ok := h.avatarStorage.(fileDeleter); ok {
 			if deleteErr := deleter.DeleteFile(c.UserContext(), objectKey); deleteErr != nil {
@@ -466,6 +556,13 @@ func (h *AccountAuthHandler) UploadAvatar(c *fiber.Ctx) error {
 			}
 		}
 		return h.respondAccountError(c, err)
+	}
+	if previousObjectKey != "" && previousObjectKey != objectKey && strings.HasPrefix(previousObjectKey, "accounts/"+userID.String()+"/avatar/") {
+		if deleter, ok := h.avatarStorage.(fileDeleter); ok {
+			if deleteErr := deleter.DeleteFile(c.UserContext(), previousObjectKey); deleteErr != nil {
+				logger.Log.Warn().Err(deleteErr).Str("object_key", previousObjectKey).Msg("failed to delete previous account avatar")
+			}
+		}
 	}
 
 	return utils.SuccessResponse(c, account)
@@ -531,15 +628,33 @@ func (h *AccountAuthHandler) CloseAccount(c *fiber.Ctx) error {
 	if err := c.BodyParser(&req); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
 	}
-	authTime := time.Now()
-	if raw, ok := c.Locals("auth_time").(time.Time); ok {
-		authTime = raw
+	authTime, _ := c.Locals("auth_time").(time.Time)
+	userID := mustLocalsUserID(c)
+	var profile models.AccountProfile
+	_ = h.db.WithContext(c.UserContext()).Where("user_id = ?", userID).First(&profile).Error
+	previousObjectKey := profile.AvatarObjectKey
+	if err := h.profile.CloseAccount(c.UserContext(), userID, authTime, req.Password); err != nil {
+		return h.respondAccountError(c, err)
 	}
-	if err := h.profile.CloseAccount(c.UserContext(), mustLocalsUserID(c), authTime, req.Password); err != nil {
+	if previousObjectKey != "" && strings.HasPrefix(previousObjectKey, "accounts/"+userID.String()+"/avatar/") {
+		if deleter, ok := h.avatarStorage.(fileDeleter); ok {
+			if err := deleter.DeleteFile(c.UserContext(), previousObjectKey); err != nil {
+				logger.Log.Warn().Err(err).Str("object_key", previousObjectKey).Msg("failed to delete account avatar during closure")
+			} else {
+				// The profile URL is already blanked by CloseAccount. Clear the
+				// internal key only after the object store confirms deletion so the
+				// retention command can retry a failed delete.
+				_ = h.db.WithContext(c.UserContext()).Model(&models.AccountProfile{}).
+					Where("user_id = ?", userID).Update("avatar_object_key", "").Error
+			}
+		}
+	}
+	var user models.User
+	if err := h.db.WithContext(c.UserContext()).First(&user, "id = ?", userID).Error; err != nil {
 		return h.respondAccountError(c, err)
 	}
 	h.clearRefreshCookie(c)
-	return utils.MessageResponse(c, "Account closed")
+	return utils.SuccessResponse(c, fiber.Map{"purge_after": user.PurgeAfter})
 }
 
 // GoogleStart handles GET /api/v1/accounts/google/start.
@@ -683,6 +798,9 @@ func RegisterAccountRoutes(api fiber.Router, h *AccountAuthHandler, allowedOrigi
 	accounts.Post("/reauthenticate", middleware.AccountOriginGuard(allowedOrigins), middleware.PublicAccountRequired(h.db, h.secret), h.Reauthenticate)
 	accounts.Post("/forgot-password", h.ForgotPassword)
 	accounts.Post("/reset-password", h.ResetPassword)
+	accounts.Post("/confirm-email-change", h.ConfirmEmailChange)
+	accounts.Post("/reopen-request", h.RequestReopen)
+	accounts.Post("/reopen-confirm", h.ConfirmReopen)
 	accounts.Post("/logout", middleware.AccountOriginGuard(allowedOrigins), middleware.PublicAccountRequired(h.db, h.secret), h.Logout)
 	accounts.Post("/logout-all", middleware.AccountOriginGuard(allowedOrigins), middleware.PublicAccountRequired(h.db, h.secret), h.LogoutAll)
 	accounts.Get("/google/start", h.GoogleStart)
@@ -699,6 +817,8 @@ func RegisterAccountRoutes(api fiber.Router, h *AccountAuthHandler, allowedOrigi
 	account.Delete("/sessions/:id", h.RevokeSession)
 	account.Delete("/providers/google", h.GoogleUnlink)
 	account.Post("/close", h.CloseAccount)
+	account.Post("/password", h.ChangePassword)
+	account.Post("/email-change", h.RequestEmailChange)
 }
 
 func mustLocalsUserID(c *fiber.Ctx) uuid.UUID {

@@ -15,20 +15,22 @@ import (
 )
 
 const (
-	maxReauthAge = 10 * time.Minute
+	maxReauthAge      = 10 * time.Minute
+	accountPurgeDelay = 30 * 24 * time.Hour
 )
 
 // AccountView is the public-facing account DTO. It exposes only community-safe
 // fields and never touches temple-member private records.
 type AccountView struct {
-	ID              uuid.UUID `json:"id"`
-	Email           string    `json:"email"`
-	EmailVerified   bool      `json:"email_verified"`
-	AccountStatus   string    `json:"account_status"`
-	DisplayName     string    `json:"display_name"`
-	AvatarURL       string    `json:"avatar_url"`
-	PreferredLocale string    `json:"preferred_locale"`
-	Providers       []string  `json:"providers"`
+	ID              uuid.UUID  `json:"id"`
+	Email           string     `json:"email"`
+	EmailVerified   bool       `json:"email_verified"`
+	AccountStatus   string     `json:"account_status"`
+	DisplayName     string     `json:"display_name"`
+	AvatarURL       string     `json:"avatar_url"`
+	PreferredLocale string     `json:"preferred_locale"`
+	Providers       []string   `json:"providers"`
+	PurgeAfter      *time.Time `json:"purge_after,omitempty"`
 }
 
 // UpdateProfileInput is the validated input for a public profile update.
@@ -93,6 +95,7 @@ func (s *AccountProfileService) GetAccount(ctx context.Context, userID uuid.UUID
 		AvatarURL:       profile.AvatarURL,
 		PreferredLocale: profile.PreferredLocale,
 		Providers:       providers,
+		PurgeAfter:      user.PurgeAfter,
 	}, nil
 }
 
@@ -141,6 +144,11 @@ func (s *AccountProfileService) UpdateProfile(ctx context.Context, userID uuid.U
 // separate from UpdateProfile prevents clients from choosing arbitrary storage
 // keys while still allowing existing OAuth avatar URLs to remain readable.
 func (s *AccountProfileService) SetAvatarURL(ctx context.Context, userID uuid.UUID, avatarURL string) (AccountView, error) {
+	return s.SetAvatar(ctx, userID, avatarURL, "")
+}
+
+// SetAvatar persists the server-generated URL and its private object key.
+func (s *AccountProfileService) SetAvatar(ctx context.Context, userID uuid.UUID, avatarURL, objectKey string) (AccountView, error) {
 	if err := validateAvatarURL(avatarURL); err != nil {
 		return AccountView{}, err
 	}
@@ -151,6 +159,7 @@ func (s *AccountProfileService) SetAvatarURL(ctx context.Context, userID uuid.UU
 			return err
 		}
 		profile.AvatarURL = avatarURL
+		profile.AvatarObjectKey = objectKey
 		profile.UpdatedAt = s.clock.Now()
 		return tx.Save(&profile).Error
 	})
@@ -203,6 +212,9 @@ func (s *AccountProfileService) CloseAccount(ctx context.Context, userID uuid.UU
 
 		user.AccountStatus = models.AccountStatusClosed
 		user.IsActive = false
+		user.ClosedAt = &now
+		purgeAfter := now.Add(accountPurgeDelay)
+		user.PurgeAfter = &purgeAfter
 		user.UpdatedAt = now
 		if err := tx.Save(&user).Error; err != nil {
 			return err
@@ -213,6 +225,9 @@ func (s *AccountProfileService) CloseAccount(ctx context.Context, userID uuid.UU
 			return err
 		}
 		profile.AvatarURL = ""
+		// Keep the internal key until storage deletion succeeds. It is never
+		// exposed in AccountView and gives the retention command a safe fallback
+		// when an object store is temporarily unavailable during closure.
 		profile.UpdatedAt = now
 		return tx.Save(&profile).Error
 	})

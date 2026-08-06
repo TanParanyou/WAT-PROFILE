@@ -11,6 +11,7 @@ export interface Account {
   avatar_url: string;
   preferred_locale: AccountLocale;
   providers: readonly AccountProvider[];
+  purge_after?: string;
 }
 
 export interface AccountSession {

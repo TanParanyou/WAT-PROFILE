@@ -4,6 +4,7 @@ import {
   accountErrorEnvelopeSchema,
   parseAccount,
   parseAccountEnvelope,
+  parseAccountClosureResponse,
   parseAccountSessionResponse,
   parseGoogleLinkStatus,
   parseGoogleStartResponse,
@@ -288,6 +289,29 @@ export async function reauthenticateAccount(password: string): Promise<AccountSe
   return session;
 }
 
+export async function changePasswordAccount(currentPassword: string, newPassword: string): Promise<AccountSessionResponse> {
+  const response = await accountApi.post<unknown>("/account/password", { current_password: currentPassword, new_password: newPassword });
+  const session = parseAccountSessionResponse(response.data);
+  memoryAccessToken = session.access_token;
+  return session;
+}
+
+export async function requestEmailChange(newEmail: string, currentPassword: string, locale: string): Promise<void> {
+  await accountApi.post<unknown>("/account/email-change", { new_email: newEmail, current_password: currentPassword, locale });
+}
+
+export async function confirmEmailChange(token: string): Promise<void> {
+  await accountApi.post<unknown>("/accounts/confirm-email-change", { token });
+}
+
+export async function requestAccountReopen(email: string, locale: string): Promise<void> {
+  await accountApi.post<unknown>("/accounts/reopen-request", { email, locale });
+}
+
+export async function confirmAccountReopen(token: string): Promise<void> {
+  await accountApi.post<unknown>("/accounts/reopen-confirm", { token });
+}
+
 export async function fetchAccount(): Promise<Account> {
   const response = await accountApi.get<unknown>("/account");
   return parseAccountEnvelope(response.data);
@@ -319,9 +343,10 @@ export async function uploadAccountAvatar(file: File): Promise<Account> {
   return parseAccountEnvelope(response.data);
 }
 
-export async function closeAccount(password: string): Promise<void> {
-  await accountApi.post<unknown>("/account/close", { password });
+export async function closeAccount(password: string): Promise<{ purge_after: string }> {
+  const response = await accountApi.post<unknown>("/account/close", { password });
   memoryAccessToken = null;
+  return parseAccountClosureResponse(response.data);
 }
 
 export function parseAccountPayload(payload: unknown): Account {

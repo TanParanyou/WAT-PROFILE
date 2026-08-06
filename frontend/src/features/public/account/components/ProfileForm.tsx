@@ -15,6 +15,7 @@ import {
 import { startGoogle, toAccountApiError } from "@/features/public/account/api";
 import { useAccountErrorMessage } from "@/features/public/account/hooks";
 import { AccountProviderMethods } from "./AccountProviderMethods";
+import { CredentialForms } from "./CredentialForms";
 import { PasswordInput } from "./PasswordInput";
 import { AvatarUpload } from "./AvatarUpload";
 import { AccountTabs, type AccountTab } from "./AccountTabs";
@@ -149,6 +150,16 @@ export function ProfileForm() {
         <div>
           <p className="font-semibold">{t("account.closedTitle")}</p>
           <p className="mt-1">{t("account.closedBody")}</p>
+          {account.purge_after && (
+            <p className="mt-1">
+              {t("account.closedPurgeBody", {
+                date: new Intl.DateTimeFormat(locale, { dateStyle: "long" }).format(new Date(account.purge_after)),
+              })}
+            </p>
+          )}
+          <Link href="/account/reopen-request" className="mt-3 inline-block font-semibold underline">
+            {t("account.closedReopenLink")}
+          </Link>
         </div>
       </div>
     );
@@ -379,6 +390,7 @@ export function ProfileForm() {
             className="space-y-8 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
           >
             <AccountProviderMethods account={account} />
+            <CredentialForms />
             <section aria-labelledby="account-sessions-title" className="space-y-4">
             <div>
               <h2 id="account-sessions-title" className="font-heading text-xl font-bold text-site-foreground">

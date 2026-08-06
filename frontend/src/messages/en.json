@@ -118,6 +118,7 @@
     "Account": {
         "title": "User Account",
         "subtitle": "Manage your profile, sign-in methods, and security settings.",
+        "back": "Back",
         "showPassword": "Show password",
         "hidePassword": "Hide password",
         "passwordPolicy": {
@@ -144,6 +145,7 @@
             "registerPrompt": "No account yet?",
             "registerLink": "Create an account",
             "forgotLink": "Forgot password?",
+            "reopenLink": "Restore a closed account",
             "verifyPrompt": "Check your inbox and verify your email first."
         },
         "register": {
@@ -264,12 +266,14 @@
             "logoutAll": "Sign out everywhere",
             "closeLabel": "Close account",
             "closeButton": "Close my account",
-            "closeIntro": "Closing your account signs out every session and prevents future sign-in. This cannot be undone.",
+            "closeIntro": "Closing your account signs out every session immediately. You can restore it from the email link within 30 days; after that, account data is permanently removed.",
             "closeGoogleIntro": "This account uses Google to sign in. Confirm your identity with Google before closing the account.",
             "closePasswordLabel": "Password",
             "closeConfirm": "Close account",
             "closedTitle": "Account closed",
             "closedBody": "Your account is closed and can no longer sign in.",
+            "closedPurgeBody": "Permanent deletion is scheduled for {date}.",
+            "closedReopenLink": "Request an account recovery link",
             "disabledTitle": "Account disabled",
             "disabledBody": "Your account has been disabled. Contact the temple team for assistance.",
             "providerIntro": "Connect Google to sign in with your Google account.",
@@ -280,7 +284,8 @@
             "providerDisconnect": "Disconnect Google",
             "providerDisconnectConfirm": "Enter your password to disconnect Google.",
             "providerReauthTitle": "Confirm your password",
-            "providerReauthBody": "Your session is older than 10 minutes."
+            "providerReauthBody": "Your session is older than 10 minutes.",
+            "credentialsTitle":"Credentials","passwordTitle":"Password","currentPasswordLabel":"Current password","newPasswordLabel":"New password","changePassword":"Change password","passwordChanged":"Password changed","emailChangeTitle":"Change email","newEmailLabel":"New email","requestEmailChange":"Request email change","emailConfirmationSent":"Check your new email to confirm the change.","emailChanged":"Email changed","emailChangedBody":"Your sessions were signed out. Sign in again with your new email.","accountRestored":"Account restored","accountRestoredBody":"You can sign in again with your existing credentials.","actionInvalid":"This link is invalid or expired.","googleCredentialReauthTitle":"Confirm with Google","googleCredentialReauthBody":"Google-only accounts must confirm with Google before adding a password or changing the account email.","googleCredentialReauthAction":"Continue with Google","reopenRequestTitle":"Restore a closed account","reopenRequestBody":"Enter the original account email. If it is still within the 30-day recovery window, we will send a one-time restore link.","reopenRequestAction":"Send restore link","reopenRequestSentTitle":"Check your inbox","reopenRequestSentBody":"If the account can still be restored, a recovery link has been sent."
         },
         "sessions": {
             "title": "Active sessions",
