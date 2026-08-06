@@ -815,6 +815,130 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
 
+  /accounts/google/link/start:
+    get:
+      tags: [Account]
+      summary: Begin linking the current Google identity to this account
+      description: >-
+        Requires a signed-in public account and an allowed Origin. Creates a
+        short-lived signed flow state (PKCE + nonce) bound to the current
+        account and returns the Google authorization URL. Sets the HttpOnly
+        `wat_google_flow` cookie (Path /api/v1/accounts/google, 10 minute TTL).
+        Never links silently: the same verified Google email must approve the
+        link through the single-use email token. Anonymous login/register
+        behavior of `/accounts/google/start` is unchanged.
+      security:
+        - PublicAccountBearerAuth: []
+      parameters:
+        - name: locale
+          in: query
+          required: false
+          schema:
+            type: string
+            example: en
+        - name: return_to
+          in: query
+          required: false
+          schema:
+            type: string
+            example: /account
+      responses:
+        '200':
+          description: Google authorization URL issued for linking
+          headers:
+            Set-Cookie:
+              description: HttpOnly `wat_google_flow` flow cookie
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountGoogleStartResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Re-authentication required or account disabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '409':
+          description: Google identity already linked
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          description: Approval request pending (cooldown) or rate limited
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /accounts/google/link/status:
+    get:
+      tags: [Account]
+      summary: Get Google link status for the current account
+      description: >-
+        Requires a signed-in public account. Reports whether a Google identity
+        is connected and whether a link approval email is pending, including
+        the remaining cooldown before another approval email may be requested.
+        Token payloads and timestamps are never exposed.
+      security:
+        - PublicAccountBearerAuth: []
+      responses:
+        '200':
+          description: Google link status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GoogleLinkStatus'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Account disabled or closed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /account/providers/google:
+    delete:
+      tags: [Account]
+      summary: Disconnect the Google identity from this account
+      description: >-
+        Requires a signed-in public account, recent authentication (auth_time
+        within 10 minutes), and the current password from a password identity.
+        Removes only the Google identity; the password identity and all
+        sessions are untouched. Idempotent when no Google identity is present.
+      security:
+        - PublicAccountBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AccountReauthenticateInput'
+      responses:
+        '200':
+          description: Google identity disconnected
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          description: Re-authentication required or account disabled
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /accounts/logout:
     post:
       tags: [Account]
@@ -2588,7 +2712,15 @@ components:
             `AUTH_TOKEN_INVALID_OR_EXPIRED`, `AUTH_RATE_LIMITED`,
             `AUTH_ACCOUNT_DISABLED`, `AUTH_REAUTH_REQUIRED`,
             `AUTH_EMAIL_ALREADY_REGISTERED`, `AUTH_VALIDATION`,
+            `AUTH_GOOGLE_EMAIL_MISMATCH`, `AUTH_GOOGLE_IDENTITY_IN_USE`,
+            `AUTH_GOOGLE_ALREADY_LINKED`, `AUTH_GOOGLE_LINK_PENDING`,
             `AUTH_INTERNAL`.
+        retry_after_seconds:
+          type: integer
+          minimum: 0
+          description: >-
+            Seconds until the caller may retry, present for cooldown responses
+            such as `AUTH_GOOGLE_LINK_PENDING`.
         field_errors:
           type: array
           description: >-
@@ -2770,6 +2902,31 @@ components:
             authorization_url:
               type: string
               description: Google OAuth authorization URL (browser redirect)
+
+    GoogleLinkStatus:
+      type: object
+      description: >-
+        Google identity link state for the current account. Used by
+        `/accounts/google/link/status`.
+      properties:
+        success:
+          type: boolean
+          example: true
+        data:
+          type: object
+          properties:
+            connected:
+              type: boolean
+              description: Whether a Google identity is connected to the account
+            pending:
+              type: boolean
+              description: Whether a link-approval email is waiting on the account email
+            retry_after_seconds:
+              type: integer
+              minimum: 0
+              description: >-
+                Remaining seconds before another approval email may be
+                requested; zero when no approval is pending
 
     AccountProfileResponse:
       type: object

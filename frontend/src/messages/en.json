@@ -258,7 +258,16 @@
             "closedTitle": "Account closed",
             "closedBody": "Your account is closed and can no longer sign in.",
             "disabledTitle": "Account disabled",
-            "disabledBody": "Your account has been disabled. Contact the temple team for assistance."
+            "disabledBody": "Your account has been disabled. Contact the temple team for assistance.",
+            "providerIntro": "Connect Google to sign in with your Google account.",
+            "providerConnect": "Connect Google",
+            "providerPending": "Check your email to approve Google linking.",
+            "providerCooldown": "You can request another approval email in {seconds}s.",
+            "providersConnected": "Google connected",
+            "providerDisconnect": "Disconnect Google",
+            "providerDisconnectConfirm": "Enter your password to disconnect Google.",
+            "providerReauthTitle": "Confirm your password",
+            "providerReauthBody": "Your session is older than 10 minutes."
         },
         "sessions": {
             "title": "Active sessions",
@@ -326,6 +335,10 @@
             "AUTH_REAUTH_REQUIRED": "Please sign in again to continue.",
             "AUTH_EMAIL_ALREADY_REGISTERED": "An account with this email already exists.",
             "AUTH_VALIDATION": "Please correct the highlighted fields.",
+            "AUTH_GOOGLE_EMAIL_MISMATCH": "Use the same Google email as this account.",
+            "AUTH_GOOGLE_IDENTITY_IN_USE": "This Google account is already linked elsewhere.",
+            "AUTH_GOOGLE_ALREADY_LINKED": "Google is already connected.",
+            "AUTH_GOOGLE_LINK_PENDING": "A Google approval request is already pending.",
             "AUTH_INTERNAL": "Something went wrong. Please try again later.",
             "AUTH_UNKNOWN": "Something went wrong. Please try again later."
         }

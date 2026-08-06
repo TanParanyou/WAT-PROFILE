@@ -117,14 +117,21 @@ type AuthActionToken struct {
 // instances. The raw state is kept only in the signed browser cookie; the
 // database stores its one-way hash and consumes it atomically on callback.
 type AuthOAuthFlow struct {
-	ID        uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey" json:"-"`
-	StateHash string    `gorm:"size:64;uniqueIndex;not null" json:"-"`
-	Nonce     string    `gorm:"size:255;not null" json:"-"`
-	Verifier  string    `gorm:"size:255;not null" json:"-"`
-	Locale    string    `gorm:"size:2;not null" json:"-"`
-	ReturnTo  string    `gorm:"size:500;not null" json:"-"`
-	ExpiresAt time.Time `gorm:"not null;index" json:"-"`
-	CreatedAt time.Time `json:"-"`
+	ID         uuid.UUID  `gorm:"type:uuid;default:gen_random_uuid();primaryKey" json:"-"`
+	StateHash  string     `gorm:"size:64;uniqueIndex;not null" json:"-"`
+	Nonce      string     `gorm:"size:255;not null" json:"-"`
+	Verifier   string     `gorm:"size:255;not null" json:"-"`
+	Locale     string     `gorm:"size:2;not null" json:"-"`
+	ReturnTo   string     `gorm:"size:500;not null" json:"-"`
+	ExpiresAt  time.Time  `gorm:"not null;index" json:"-"`
+	LinkUserID *uuid.UUID `gorm:"type:uuid;index" json:"-"`
+	CreatedAt  time.Time  `json:"-"`
+}
+
+// TableName keeps GORM in agreement with the SQL migrations, which name the
+// table auth_oauth_flows rather than GORM's default auth_o_auth_flows.
+func (f *AuthOAuthFlow) TableName() string {
+	return "auth_oauth_flows"
 }
 
 func (f *AuthOAuthFlow) BeforeCreate(tx *gorm.DB) error {

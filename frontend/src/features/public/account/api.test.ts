@@ -5,11 +5,14 @@ import type { AxiosAdapter } from "axios";
 import {
   accountApi,
   fetchAccount,
+  fetchGoogleLinkStatus,
   getMemoryAccessToken,
   loginAccount,
   reauthenticateAccount,
   resetAccountClientForTests,
+  startGoogleLink,
   toAccountApiError,
+  unlinkGoogleAccount,
 } from "./api";
 import { accountSchema } from "./schema";
 
@@ -194,4 +197,77 @@ test("fetchAccount returns a schema-valid account", async () => {
 
   const account = await fetchAccount();
   assert.equal(accountSchema.safeParse(account).success, true);
+});
+
+test("startGoogleLink parses authorization URL", async () => {
+  let capturedUrl = "";
+  accountApi.defaults.adapter = async (config) => {
+    capturedUrl = config.url ?? "";
+    return {
+      data: { success: true, data: { authorization_url: "https://accounts.google.com/o/oauth2/v2/auth?state=xyz" } },
+      status: 200,
+      statusText: "OK",
+      headers: {},
+      config,
+    };
+  };
+
+  const url = await startGoogleLink("th", "/account");
+  assert.equal(capturedUrl, "/accounts/google/link/start");
+  assert.equal(url, "https://accounts.google.com/o/oauth2/v2/auth?state=xyz");
+});
+
+test("fetchGoogleLinkStatus parses cooldown seconds", async () => {
+  accountApi.defaults.adapter = async (config) => {
+    void config;
+    return {
+      data: { success: true, data: { connected: false, pending: true, retry_after_seconds: 42 } },
+      status: 200,
+      statusText: "OK",
+      headers: {},
+      config,
+    };
+  };
+
+  const status = await fetchGoogleLinkStatus();
+  assert.equal(status.connected, false);
+  assert.equal(status.pending, true);
+  assert.equal(status.retry_after_seconds, 42);
+});
+
+test("toAccountApiError preserves Google link retry hint", () => {
+  const apiError = toAccountApiError({
+    isAxiosError: true,
+    response: {
+      status: 429,
+      data: {
+        success: false,
+        error: "A Google approval request is already pending.",
+        code: "AUTH_GOOGLE_LINK_PENDING",
+        retry_after_seconds: 42,
+      },
+    },
+  });
+  assert.equal(apiError.code, "AUTH_GOOGLE_LINK_PENDING");
+  assert.equal(apiError.status, 429);
+  assert.equal(apiError.retryAfterSeconds, 42);
+});
+
+test("unlinkGoogleAccount sends a DELETE with the password body", async () => {
+  let capturedConfig: { url?: string; method?: string; data?: unknown } | null = null;
+  accountApi.defaults.adapter = async (config) => {
+    capturedConfig = { url: config.url, method: config.method, data: config.data };
+    return {
+      data: { success: true, message: "Google identity disconnected" },
+      status: 200,
+      statusText: "OK",
+      headers: {},
+      config,
+    };
+  };
+
+  await unlinkGoogleAccount("correct horse battery staple");
+  assert.equal(capturedConfig?.url, "/account/providers/google");
+  assert.equal(capturedConfig?.method, "delete");
+  assert.deepEqual(capturedConfig?.data, JSON.stringify({ password: "correct horse battery staple" }));
 });

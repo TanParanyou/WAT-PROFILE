@@ -5,6 +5,7 @@ import {
   parseAccount,
   parseAccountEnvelope,
   parseAccountSessionResponse,
+  parseGoogleLinkStatus,
   parseGoogleStartResponse,
   sessionsEnvelopeSchema,
 } from "./schema";
@@ -15,6 +16,7 @@ import type {
   AccountProfileUpdateInput,
   AccountSession,
   AccountSessionResponse,
+  GoogleLinkStatus,
 } from "./types";
 
 // Public-account access tokens are held ONLY in module memory. They are never
@@ -111,6 +113,10 @@ const KNOWN_CODES: readonly AccountErrorCode[] = [
   "AUTH_REAUTH_REQUIRED",
   "AUTH_EMAIL_ALREADY_REGISTERED",
   "AUTH_VALIDATION",
+  "AUTH_GOOGLE_EMAIL_MISMATCH",
+  "AUTH_GOOGLE_IDENTITY_IN_USE",
+  "AUTH_GOOGLE_ALREADY_LINKED",
+  "AUTH_GOOGLE_LINK_PENDING",
   "AUTH_INTERNAL",
 ];
 
@@ -149,12 +155,13 @@ export function toAccountApiError(error: unknown): AccountApiError {
     const payload = error.response?.data;
     const parsed = accountErrorEnvelopeSchema.safeParse(payload);
     if (parsed.success) {
-      const { code, error: message, field_errors } = parsed.data;
+      const { code, error: message, field_errors, retry_after_seconds } = parsed.data;
       return {
         code: isKnownCode(code) ? code : "AUTH_UNKNOWN",
         message,
         status,
         fieldErrors: field_errors ?? [],
+        retryAfterSeconds: retry_after_seconds ?? 0,
       };
     }
     return {
@@ -162,6 +169,7 @@ export function toAccountApiError(error: unknown): AccountApiError {
       message: error.message,
       status,
       fieldErrors: [],
+      retryAfterSeconds: 0,
     };
   }
   return {
@@ -169,6 +177,7 @@ export function toAccountApiError(error: unknown): AccountApiError {
     message: error instanceof Error ? error.message : "Unknown account API error",
     status: 0,
     fieldErrors: [],
+    retryAfterSeconds: 0,
   };
 }
 
@@ -218,6 +227,31 @@ export async function startGoogle(locale: string, returnTo: string): Promise<str
   });
   const parsed = parseGoogleStartResponse(response.data);
   return parsed.authorization_url;
+}
+
+/**
+ * Starts the authenticated Google-link OAuth flow for the current account.
+ * Uses the same signed flow cookie and authorization URL contract as the
+ * anonymous start; the target account is bound server-side to the signed-in
+ * user.
+ */
+export async function startGoogleLink(locale: string, returnTo: string): Promise<string> {
+  const response = await accountApi.get<unknown>("/accounts/google/link/start", {
+    params: { locale, return_to: returnTo },
+  });
+  const parsed = parseGoogleStartResponse(response.data);
+  return parsed.authorization_url;
+}
+
+export async function fetchGoogleLinkStatus(): Promise<GoogleLinkStatus> {
+  const response = await accountApi.get<unknown>("/accounts/google/link/status");
+  return parseGoogleLinkStatus(response.data);
+}
+
+export async function unlinkGoogleAccount(password: string): Promise<void> {
+  // The server verifies the password against the account's password identity
+  // inside the unlink transaction, so it must be sent in the request body.
+  await accountApi.delete<unknown>("/account/providers/google", { data: { password } });
 }
 
 export async function confirmGoogleLink(token: string): Promise<AccountSessionResponse> {

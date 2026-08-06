@@ -59,6 +59,7 @@ export const accountErrorEnvelopeSchema = z
     success: z.literal(false),
     error: z.string(),
     code: z.string(),
+    retry_after_seconds: z.number().int().nonnegative().optional(),
     field_errors: z.array(fieldErrorSchema).optional(),
     trace_id: z.string().optional(),
   })
@@ -100,4 +101,23 @@ export const googleStartResponseSchema = z
 
 export function parseGoogleStartResponse(payload: unknown): { authorization_url: string } {
   return googleStartResponseSchema.parse(payload).data;
+}
+
+export const googleLinkStatusSchema = z
+  .object({
+    success: z.literal(true),
+    data: z
+      .object({
+        connected: z.boolean(),
+        pending: z.boolean(),
+        retry_after_seconds: z.number().int().nonnegative(),
+      })
+      .strict(),
+  })
+  .strict();
+
+export type GoogleLinkStatusDto = z.infer<typeof googleLinkStatusSchema>;
+
+export function parseGoogleLinkStatus(payload: unknown): GoogleLinkStatusDto["data"] {
+  return googleLinkStatusSchema.parse(payload).data;
 }

@@ -258,7 +258,16 @@
             "closedTitle": "Konto geschlossen",
             "closedBody": "Ihr Konto ist geschlossen und kann sich nicht mehr anmelden.",
             "disabledTitle": "Konto deaktiviert",
-            "disabledBody": "Ihr Konto wurde deaktiviert. Wenden Sie sich an das Tempelteam."
+            "disabledBody": "Ihr Konto wurde deaktiviert. Wenden Sie sich an das Tempelteam.",
+            "providerIntro": "Verbinden Sie Google, um sich mit Ihrem Google-Konto anzumelden.",
+            "providerConnect": "Google verbinden",
+            "providerPending": "Prüfen Sie Ihre E-Mail, um die Google-Verknüpfung zu bestätigen.",
+            "providerCooldown": "Sie können in {seconds} Sekunden eine weitere Bestätigungs-E-Mail anfordern.",
+            "providersConnected": "Google verbunden",
+            "providerDisconnect": "Google trennen",
+            "providerDisconnectConfirm": "Geben Sie Ihr Passwort ein, um Google zu trennen.",
+            "providerReauthTitle": "Passwort bestätigen",
+            "providerReauthBody": "Ihre Sitzung ist älter als 10 Minuten."
         },
         "sessions": {
             "title": "Aktive Sitzungen",
@@ -326,6 +335,10 @@
             "AUTH_REAUTH_REQUIRED": "Melden Sie sich erneut an, um fortzufahren.",
             "AUTH_EMAIL_ALREADY_REGISTERED": "Ein Konto mit dieser E-Mail existiert bereits.",
             "AUTH_VALIDATION": "Bitte korrigieren Sie die markierten Felder.",
+            "AUTH_GOOGLE_EMAIL_MISMATCH": "Verwenden Sie dieselbe Google-E-Mail wie für dieses Konto.",
+            "AUTH_GOOGLE_IDENTITY_IN_USE": "Dieses Google-Konto ist bereits mit einem anderen Konto verknüpft.",
+            "AUTH_GOOGLE_ALREADY_LINKED": "Google ist bereits verbunden.",
+            "AUTH_GOOGLE_LINK_PENDING": "Eine Google-Freigabeanfrage ist bereits ausstehend.",
             "AUTH_INTERNAL": "Etwas ist schiefgelaufen. Bitte versuchen Sie es später erneut.",
             "AUTH_UNKNOWN": "Etwas ist schiefgelaufen. Bitte versuchen Sie es später erneut."
         }

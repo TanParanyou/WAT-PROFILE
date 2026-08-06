@@ -230,6 +230,47 @@ func (s *AccountProfileService) CloseAccount(ctx context.Context, userID uuid.UU
 	return nil
 }
 
+// UnlinkGoogle disconnects a linked Google identity after a recent
+// authentication and a valid password re-entry. The password identity is never
+// removed and unrelated sessions are never revoked. A Google identity that is
+// already absent is treated as an idempotent success.
+func (s *AccountProfileService) UnlinkGoogle(ctx context.Context, userID uuid.UUID, authTime time.Time, password string) error {
+	now := s.clock.Now()
+	if now.Sub(authTime) > maxReauthAge {
+		return accountauth.NewError(accountauth.CodeReauthRequired, "Please re-authenticate to disconnect Google.")
+	}
+
+	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var identity models.AuthIdentity
+		if err := tx.Where("user_id = ? AND provider = 'password'", userID).First(&identity).Error; err != nil {
+			if err == gorm.ErrRecordNotFound {
+				return accountauth.NewError(accountauth.CodeReauthRequired, "This account needs a password identity to disconnect Google.")
+			}
+			return err
+		}
+		if identity.CredentialHash == nil {
+			return accountauth.NewError(accountauth.CodeReauthRequired, "This account needs a password identity to disconnect Google.")
+		}
+		if password == "" {
+			return accountauth.NewError(accountauth.CodeReauthRequired, "Please re-enter your password to disconnect Google.")
+		}
+		if !checkPasswordAgainst(identity.CredentialHash, password) {
+			return accountauth.NewError(accountauth.CodeInvalidCredentials, "Incorrect password.")
+		}
+
+		if err := tx.Where("user_id = ? AND provider = 'google'", userID).Delete(&models.AuthIdentity{}).Error; err != nil {
+			return err
+		}
+		return nil
+	})
+	if err != nil {
+		return err
+	}
+
+	s.security.Record(ctx, accountauth.SecurityEvent{UserID: userID.String(), EventType: "google_unlink", Outcome: "success", Provider: "google"})
+	return nil
+}
+
 func checkPasswordAgainst(hash *string, password string) bool {
 	if hash == nil {
 		return false

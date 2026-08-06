@@ -170,10 +170,12 @@ func (h *AccountAuthHandler) respondAccountError(c *fiber.Ctx, err error) error 
 		status = fiber.StatusForbidden
 	case accountauth.CodeValidation:
 		status = fiber.StatusBadRequest
-	case accountauth.CodeEmailAlreadyRegistered:
+	case accountauth.CodeEmailAlreadyRegistered, accountauth.CodeGoogleIdentityInUse, accountauth.CodeGoogleAlreadyLinked:
 		status = fiber.StatusConflict
-	case accountauth.CodeRateLimited:
+	case accountauth.CodeRateLimited, accountauth.CodeGoogleLinkPending:
 		status = fiber.StatusTooManyRequests
+	case accountauth.CodeGoogleEmailMismatch:
+		status = fiber.StatusBadRequest
 	case accountauth.CodeInternal, accountauth.CodeUnknown:
 		msg = "An internal error occurred"
 	default:
@@ -187,8 +189,11 @@ func (h *AccountAuthHandler) respondAccountError(c *fiber.Ctx, err error) error 
 		"code":     code,
 		"trace_id": traceID(c),
 	}
+	var ae *accountauth.Error
+	if errors.As(err, &ae) && ae.RetryAfter > 0 {
+		envelope["retry_after_seconds"] = int64(ae.RetryAfter.Seconds())
+	}
 	if code == accountauth.CodeValidation {
-		var ae *accountauth.Error
 		if errors.As(err, &ae) && ae.Field != "" {
 			envelope["field_errors"] = []fieldError{{Field: ae.Field, Message: ae.Message}}
 		} else {
@@ -605,7 +610,63 @@ func (h *AccountAuthHandler) GoogleLinkConfirm(c *fiber.Ctx) error {
 	})
 }
 
-// RegisterAccountRoutes mounts the public account API on the given router.
+// GoogleLinkStart handles GET /api/v1/accounts/google/link/start. It binds the
+// OAuth state to the currently authenticated public account.
+func (h *AccountAuthHandler) GoogleLinkStart(c *fiber.Ctx) error {
+	locale := c.Query("locale", "en")
+	returnTo := c.Query("return_to")
+	authTime := time.Now()
+	if raw, ok := c.Locals("auth_time").(time.Time); ok {
+		authTime = raw
+	}
+	result, err := h.google.StartGoogleLink(c.UserContext(), mustLocalsUserID(c), authTime, locale, returnTo)
+	if err != nil {
+		return h.respondAccountError(c, err)
+	}
+	c.Cookie(&fiber.Cookie{
+		Name:     googleFlowCookie,
+		Value:    result.FlowCookie,
+		Path:     googleCookiePath,
+		HTTPOnly: true,
+		Secure:   h.cfg.CookieSecure,
+		SameSite: fiber.CookieSameSiteLaxMode,
+		MaxAge:   int((10 * time.Minute).Seconds()),
+	})
+	return utils.SuccessResponse(c, fiber.Map{"authorization_url": result.AuthorizationURL})
+}
+
+// GoogleLinkStatus handles GET /api/v1/accounts/google/link/status.
+func (h *AccountAuthHandler) GoogleLinkStatus(c *fiber.Ctx) error {
+	status, err := h.google.GoogleLinkStatus(c.UserContext(), mustLocalsUserID(c))
+	if err != nil {
+		return h.respondAccountError(c, err)
+	}
+	return utils.SuccessResponse(c, fiber.Map{
+		"connected":           status.Connected,
+		"pending":             status.Pending,
+		"retry_after_seconds": int64(status.RetryAfter.Seconds()),
+	})
+}
+
+// GoogleUnlink handles DELETE /api/v1/account/providers/google. The password
+// is verified server-side and is never logged.
+func (h *AccountAuthHandler) GoogleUnlink(c *fiber.Ctx) error {
+	var req struct {
+		Password string `json:"password"`
+	}
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+	authTime := time.Now()
+	if raw, ok := c.Locals("auth_time").(time.Time); ok {
+		authTime = raw
+	}
+	if err := h.profile.UnlinkGoogle(c.UserContext(), mustLocalsUserID(c), authTime, req.Password); err != nil {
+		return h.respondAccountError(c, err)
+	}
+	return utils.MessageResponse(c, "Google identity disconnected")
+}
+
 // It is a no-op when the handler or the feature flag is disabled, so callers
 // (routes.go and tests) get consistent 404 behavior.
 func RegisterAccountRoutes(api fiber.Router, h *AccountAuthHandler, allowedOrigins []string) {
@@ -625,6 +686,8 @@ func RegisterAccountRoutes(api fiber.Router, h *AccountAuthHandler, allowedOrigi
 	accounts.Post("/logout", middleware.AccountOriginGuard(allowedOrigins), middleware.PublicAccountRequired(h.db, h.secret), h.Logout)
 	accounts.Post("/logout-all", middleware.AccountOriginGuard(allowedOrigins), middleware.PublicAccountRequired(h.db, h.secret), h.LogoutAll)
 	accounts.Get("/google/start", h.GoogleStart)
+	accounts.Get("/google/link/start", middleware.AccountOriginGuard(allowedOrigins), middleware.PublicAccountRequired(h.db, h.secret), h.GoogleLinkStart)
+	accounts.Get("/google/link/status", middleware.PublicAccountRequired(h.db, h.secret), h.GoogleLinkStatus)
 	accounts.Get("/google/callback", middleware.AccountOriginGuard(allowedOrigins), h.GoogleCallback)
 	accounts.Post("/google/link/confirm", h.GoogleLinkConfirm)
 
@@ -634,6 +697,7 @@ func RegisterAccountRoutes(api fiber.Router, h *AccountAuthHandler, allowedOrigi
 	account.Post("/avatar", h.UploadAvatar)
 	account.Get("/sessions", h.ListSessions)
 	account.Delete("/sessions/:id", h.RevokeSession)
+	account.Delete("/providers/google", h.GoogleUnlink)
 	account.Post("/close", h.CloseAccount)
 }
 

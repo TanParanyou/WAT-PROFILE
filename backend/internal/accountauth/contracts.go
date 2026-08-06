@@ -28,6 +28,10 @@ const (
 	CodeValidation             Code = "AUTH_VALIDATION"
 	CodeInternal               Code = "AUTH_INTERNAL"
 	CodeUnknown                Code = "AUTH_UNKNOWN"
+	CodeGoogleEmailMismatch    Code = "AUTH_GOOGLE_EMAIL_MISMATCH"
+	CodeGoogleIdentityInUse    Code = "AUTH_GOOGLE_IDENTITY_IN_USE"
+	CodeGoogleAlreadyLinked    Code = "AUTH_GOOGLE_ALREADY_LINKED"
+	CodeGoogleLinkPending      Code = "AUTH_GOOGLE_LINK_PENDING"
 )
 
 // Error is a typed domain error carrying a stable code and an optional field

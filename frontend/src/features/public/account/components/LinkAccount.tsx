@@ -2,29 +2,47 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Link } from "@/navigation";
+import { Link, useRouter } from "@/navigation";
 import { useSearchParams } from "next/navigation";
 import { Loader2, AlertCircle, CheckCircle } from "lucide-react";
 import { confirmGoogleLink } from "@/features/public/account/api";
+import { useAccountSession } from "@/features/public/account/AccountSessionProvider";
 
 export function LinkAccountContent() {
   const t = useTranslations("Account");
   const searchParams = useSearchParams();
   const status = searchParams.get("status");
   const token = searchParams.get("token") ?? "";
+  const router = useRouter();
+  const { adoptCurrentSession } = useAccountSession();
   const [state, setState] = useState<"approval_sent" | "confirming" | "success" | "invalid">(
     status === "approval_sent" ? "approval_sent" : token ? "confirming" : "invalid",
   );
   const ranRef = useRef(false);
+  const redirectTimerRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    return () => {
+      if (redirectTimerRef.current !== null) {
+        window.clearTimeout(redirectTimerRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (ranRef.current) return;
     ranRef.current = true;
     if (state !== "confirming") return;
     confirmGoogleLink(token)
-      .then(() => setState("success"))
+      .then(async () => {
+        await adoptCurrentSession();
+        setState("success");
+        redirectTimerRef.current = window.setTimeout(() => {
+          router.replace("/account");
+        }, 900);
+      })
       .catch(() => setState("invalid"));
-  }, [state, token]);
+  }, [state, token, adoptCurrentSession, router]);
 
   if (state === "approval_sent") {
     return (

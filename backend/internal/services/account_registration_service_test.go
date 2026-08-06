@@ -62,6 +62,11 @@ func newAccountTestDB(t *testing.T) *gorm.DB {
 	if err != nil {
 		t.Fatalf("open test database: %v", err)
 	}
+	sqlDB, err := db.DB()
+	if err != nil {
+		t.Fatalf("get sql database: %v", err)
+	}
+	t.Cleanup(func() { _ = sqlDB.Close() })
 
 	if err := db.AutoMigrate(
 		&models.Role{},
@@ -71,6 +76,7 @@ func newAccountTestDB(t *testing.T) *gorm.DB {
 		&models.AuthIdentity{},
 		&models.AuthActionToken{},
 		&models.AuthSession{},
+		&models.AuthOAuthFlow{},
 		&models.AuthSecurityEvent{},
 	); err != nil {
 		t.Fatalf("migrate account auth models: %v", err)
@@ -79,7 +85,7 @@ func newAccountTestDB(t *testing.T) *gorm.DB {
 	// Every test shares one disposable database, so each test starts from an
 	// empty state. CASCADE also clears any rows referencing the tables above.
 	if err := db.Exec(
-		"TRUNCATE auth_security_events, auth_sessions, auth_action_tokens, auth_identities, account_profiles, members, users, roles RESTART IDENTITY CASCADE",
+		"TRUNCATE auth_security_events, auth_sessions, auth_action_tokens, auth_identities, auth_oauth_flows, account_profiles, members, users, roles RESTART IDENTITY CASCADE",
 	).Error; err != nil {
 		t.Fatalf("reset test tables: %v", err)
 	}

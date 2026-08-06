@@ -14,6 +14,7 @@ import {
 } from "@/features/public/account/queries";
 import { startGoogle, toAccountApiError } from "@/features/public/account/api";
 import { useAccountErrorMessage } from "@/features/public/account/hooks";
+import { AccountProviderMethods } from "./AccountProviderMethods";
 import { PasswordInput } from "./PasswordInput";
 import { AvatarUpload } from "./AvatarUpload";
 import { AccountTabs, type AccountTab } from "./AccountTabs";
@@ -373,6 +374,7 @@ export function ProfileForm() {
             tabIndex={0}
             className="space-y-8 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
           >
+            <AccountProviderMethods account={account} />
             <section aria-labelledby="account-sessions-title" className="space-y-4">
             <div>
               <h2 id="account-sessions-title" className="font-heading text-xl font-bold text-site-foreground">

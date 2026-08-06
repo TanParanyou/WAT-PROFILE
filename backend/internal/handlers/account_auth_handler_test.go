@@ -43,6 +43,11 @@ func accountHandlerTestDB(t *testing.T) *gorm.DB {
 	if err != nil {
 		t.Fatalf("failed to open test database: %v", err)
 	}
+	sqlDB, err := db.DB()
+	if err != nil {
+		t.Fatalf("failed to get sql database: %v", err)
+	}
+	t.Cleanup(func() { _ = sqlDB.Close() })
 	if err := db.AutoMigrate(
 		&models.Role{},
 		&models.User{},
@@ -504,6 +509,110 @@ func TestAccountGoogleCallbackInvalidFlowRedirectsWithError(t *testing.T) {
 	location := headerValue(resp, "Location")
 	if !strings.Contains(location, "/login?error=") {
 		t.Fatalf("expected login error redirect, got %q", location)
+	}
+}
+
+func loginAccessToken(t *testing.T, app *fiber.App, db *gorm.DB, email string) string {
+	t.Helper()
+	resp := performJSON(t, app, http.MethodPost, "/api/v1/accounts/login", map[string]string{
+		"email":    email,
+		"password": accountHandlerTestPassword,
+	}, nil)
+	if resp.StatusCode != fiber.StatusOK {
+		t.Fatalf("login failed: %d: %s", resp.StatusCode, bodyString(t, resp))
+	}
+	body := decodeBody(t, resp)
+	data, _ := body["data"].(map[string]interface{})
+	token, _ := data["access_token"].(string)
+	if token == "" {
+		t.Fatal("expected access token from login")
+	}
+	return token
+}
+
+func TestAccountGoogleLinkStartRequiresPublicAccount(t *testing.T) {
+	app, _ := newAccountHTTPTestApp(t, true)
+
+	resp := performJSON(t, app, http.MethodGet, "/api/v1/accounts/google/link/start", nil, map[string]string{
+		"Origin": accountHandlerTestOrigin,
+	})
+	if resp.StatusCode != fiber.StatusUnauthorized {
+		t.Fatalf("expected 401 without bearer token, got %d", resp.StatusCode)
+	}
+}
+
+func TestAccountGoogleLinkStartSetsFlowCookie(t *testing.T) {
+	app, db := newAccountHTTPTestApp(t, true)
+	seedAccountVerifiedUser(t, db, "link-start@example.com")
+	token := loginAccessToken(t, app, db, "link-start@example.com")
+
+	resp := performJSON(t, app, http.MethodGet, "/api/v1/accounts/google/link/start?locale=th&return_to=/account", nil, map[string]string{
+		"Origin":        accountHandlerTestOrigin,
+		"Authorization": "Bearer " + token,
+	})
+	if resp.StatusCode != fiber.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", resp.StatusCode, bodyString(t, resp))
+	}
+	setCookie := headerValue(resp, "Set-Cookie")
+	if !strings.Contains(setCookie, "wat_google_flow=") {
+		t.Fatalf("expected google flow cookie, got %q", setCookie)
+	}
+	body := decodeBody(t, resp)
+	data, _ := body["data"].(map[string]interface{})
+	url, _ := data["authorization_url"].(string)
+	if !strings.HasPrefix(url, "https://accounts.google.com/") {
+		t.Fatalf("expected authorization url, got %q", url)
+	}
+}
+
+func TestAccountGoogleLinkStatusReturnsTypedData(t *testing.T) {
+	app, db := newAccountHTTPTestApp(t, true)
+	seedAccountVerifiedUser(t, db, "link-status@example.com")
+	token := loginAccessToken(t, app, db, "link-status@example.com")
+
+	resp := performJSON(t, app, http.MethodGet, "/api/v1/accounts/google/link/status", nil, map[string]string{
+		"Authorization": "Bearer " + token,
+	})
+	if resp.StatusCode != fiber.StatusOK {
+		t.Fatalf("expected 200, got %d: %s", resp.StatusCode, bodyString(t, resp))
+	}
+	body := decodeBody(t, resp)
+	data, _ := body["data"].(map[string]interface{})
+	connected, _ := data["connected"].(bool)
+	if connected {
+		t.Fatal("expected connected=false for password-only account")
+	}
+	pending, _ := data["pending"].(bool)
+	if pending {
+		t.Fatal("expected pending=false with no approval token")
+	}
+	retry, ok := data["retry_after_seconds"].(float64)
+	if !ok || retry != 0 {
+		t.Fatalf("expected integer retry_after_seconds=0, got %v", data["retry_after_seconds"])
+	}
+}
+
+func TestAccountGoogleUnlinkRejectsStaleAuth(t *testing.T) {
+	app, db := newAccountHTTPTestApp(t, true)
+	user := seedAccountVerifiedUser(t, db, "link-unlink-stale@example.com")
+
+	issuer := accountauth.NewAccessTokenIssuer([]byte(accountHandlerTestSecret), accountauth.SystemClock{}, 15*time.Minute)
+	staleToken, err := issuer.Issue(user.ID, uuid.New(), time.Now().Add(-11*time.Minute))
+	if err != nil {
+		t.Fatalf("issue stale token: %v", err)
+	}
+
+	resp := performJSON(t, app, http.MethodDelete, "/api/v1/account/providers/google", map[string]string{
+		"password": accountHandlerTestPassword,
+	}, map[string]string{
+		"Authorization": "Bearer " + staleToken,
+	})
+	if resp.StatusCode != fiber.StatusForbidden {
+		t.Fatalf("expected 403 for stale auth, got %d: %s", resp.StatusCode, bodyString(t, resp))
+	}
+	body := decodeBody(t, resp)
+	if body["code"] != string(accountauth.CodeReauthRequired) {
+		t.Fatalf("expected code %q, got %v", accountauth.CodeReauthRequired, body["code"])
 	}
 }
 

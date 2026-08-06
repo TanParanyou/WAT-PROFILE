@@ -34,6 +34,7 @@ export interface AccountSessionValue {
   retryAccount: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   reauthenticate: (password: string) => Promise<void>;
+  adoptCurrentSession: () => Promise<void>;
   logout: () => Promise<void>;
   logoutAll: () => Promise<void>;
 }
@@ -93,6 +94,15 @@ export function AccountSessionProvider({ children }: { children: ReactNode }) {
     await reauthenticateAccount(password);
   }, []);
 
+  // Adopts a session whose access token was already placed in module memory by
+  // confirmGoogleLink (or an equivalent sign-in), then re-fetches the account
+  // with that token in the current tab.
+  const adoptCurrentSession = useCallback(async () => {
+    setStatus("authenticated");
+    await queryClient.invalidateQueries({ queryKey: accountKeys.current() });
+    await queryClient.invalidateQueries({ queryKey: accountKeys.googleLink() });
+  }, [queryClient]);
+
   const logout = useCallback(async () => {
     try {
       await logoutAccount();
@@ -124,6 +134,7 @@ export function AccountSessionProvider({ children }: { children: ReactNode }) {
       retryAccount,
       login,
       reauthenticate,
+      adoptCurrentSession,
       logout,
       logoutAll,
     }),
@@ -135,6 +146,7 @@ export function AccountSessionProvider({ children }: { children: ReactNode }) {
       retryAccount,
       login,
       reauthenticate,
+      adoptCurrentSession,
       logout,
       logoutAll,
     ],

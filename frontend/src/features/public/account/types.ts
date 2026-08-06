@@ -37,6 +37,10 @@ export type AccountErrorCode =
   | "AUTH_REAUTH_REQUIRED"
   | "AUTH_EMAIL_ALREADY_REGISTERED"
   | "AUTH_VALIDATION"
+  | "AUTH_GOOGLE_EMAIL_MISMATCH"
+  | "AUTH_GOOGLE_IDENTITY_IN_USE"
+  | "AUTH_GOOGLE_ALREADY_LINKED"
+  | "AUTH_GOOGLE_LINK_PENDING"
   | "AUTH_INTERNAL"
   | "AUTH_UNKNOWN";
 
@@ -50,6 +54,13 @@ export interface AccountApiError {
   message: string;
   status: number;
   fieldErrors: readonly AccountFieldError[];
+  retryAfterSeconds: number;
+}
+
+export interface GoogleLinkStatus {
+  connected: boolean;
+  pending: boolean;
+  retry_after_seconds: number;
 }
 
 export interface AccountProfileUpdateInput {

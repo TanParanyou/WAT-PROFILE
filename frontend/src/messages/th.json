@@ -258,7 +258,16 @@
             "closedTitle": "ปิดบัญชีแล้ว",
             "closedBody": "บัญชีของคุณถูกปิดและไม่สามารถเข้าสู่ระบบได้อีก",
             "disabledTitle": "บัญชีถูกระงับ",
-            "disabledBody": "บัญชีของคุณถูกระงับ กรุณาติดต่อทีมวัดเพื่อขอความช่วยเหลือ"
+            "disabledBody": "บัญชีของคุณถูกระงับ กรุณาติดต่อทีมวัดเพื่อขอความช่วยเหลือ",
+            "providerIntro": "เชื่อมต่อ Google เพื่อเข้าสู่ระบบด้วยบัญชี Google ของคุณ",
+            "providerConnect": "เชื่อมต่อ Google",
+            "providerPending": "ตรวจสอบอีเมลของคุณเพื่ออนุมัติการเชื่อมต่อ Google",
+            "providerCooldown": "คุณสามารถขออีเมลอนุมัติอีกครั้งได้ในอีก {seconds} วินาที",
+            "providersConnected": "เชื่อมต่อ Google แล้ว",
+            "providerDisconnect": "ยกเลิกการเชื่อมต่อ Google",
+            "providerDisconnectConfirm": "กรอกรหัสผ่านของคุณเพื่อยกเลิกการเชื่อมต่อ Google",
+            "providerReauthTitle": "ยืนยันรหัสผ่านของคุณ",
+            "providerReauthBody": "เซสชันของคุณเก่ากว่า 10 นาที"
         },
         "sessions": {
             "title": "เซสชันที่ใช้งานอยู่",
@@ -326,6 +335,10 @@
             "AUTH_REAUTH_REQUIRED": "กรุณาเข้าสู่ระบบอีกครั้งเพื่อดำเนินการต่อ",
             "AUTH_EMAIL_ALREADY_REGISTERED": "มีบัญชีที่ใช้อีเมลนี้อยู่แล้ว",
             "AUTH_VALIDATION": "กรุณาแก้ไขช่องที่มีเครื่องหมาย",
+            "AUTH_GOOGLE_EMAIL_MISMATCH": "ใช้บัญชี Google อีเมลเดียวกับบัญชีนี้",
+            "AUTH_GOOGLE_IDENTITY_IN_USE": "บัญชี Google นี้เชื่อมต่อกับบัญชีอื่นแล้ว",
+            "AUTH_GOOGLE_ALREADY_LINKED": "เชื่อมต่อ Google แล้ว",
+            "AUTH_GOOGLE_LINK_PENDING": "มีคำขออนุมัติ Google ที่รออยู่แล้ว",
             "AUTH_INTERNAL": "เกิดข้อผิดพลาด กรุณาลองใหม่ในภายหลัง",
             "AUTH_UNKNOWN": "เกิดข้อผิดพลาด กรุณาลองใหม่ในภายหลัง"
         }

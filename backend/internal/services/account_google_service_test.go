@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"errors"
 	"sync"
 	"testing"
 	"time"
@@ -278,6 +279,99 @@ func TestStartGoogleValidatesReturnTo(t *testing.T) {
 	}
 	if _, err := f.svc.StartGoogle(context.Background(), "en", ""); err != nil {
 		t.Fatalf("expected empty returnTo to be accepted, got %v", err)
+	}
+}
+
+func TestStartGoogleLinkRejectsStaleAuthentication(t *testing.T) {
+	f := newGoogleFixture(t, accountauth.GoogleIdentity{Subject: "link-stale-sub", Email: "link-stale@example.com", EmailVerified: true})
+	user := seedVerifiedPasswordAccount(t, f.db, "link-stale@example.com")
+
+	_, err := f.svc.StartGoogleLink(context.Background(), user.ID, fixedNow().Add(-11*time.Minute), "en", "/account")
+	if err == nil || accountauth.ErrorCode(err) != accountauth.CodeReauthRequired {
+		t.Fatalf("expected reauth-required for stale auth, got %v", err)
+	}
+	if got := rowCount(t, f.db, "auth_oauth_flows"); got != 0 {
+		t.Fatalf("expected no stored flow on stale auth, got %d", got)
+	}
+}
+
+func TestStartGoogleLinkRejectsAlreadyLinkedAccount(t *testing.T) {
+	f := newGoogleFixture(t, accountauth.GoogleIdentity{Subject: "link-already-sub", Email: "link-already@example.com", EmailVerified: true})
+	user := seedVerifiedPasswordAccount(t, f.db, "link-already@example.com")
+	f.db.Create(&models.AuthIdentity{UserID: user.ID, Provider: "google", ProviderSubject: "link-already-sub", ProviderEmail: "link-already@example.com"})
+
+	_, err := f.svc.StartGoogleLink(context.Background(), user.ID, fixedNow(), "en", "/account")
+	if err == nil || accountauth.ErrorCode(err) != accountauth.CodeGoogleAlreadyLinked {
+		t.Fatalf("expected already-linked error, got %v", err)
+	}
+}
+
+func TestStartGoogleLinkRejectsPendingCooldown(t *testing.T) {
+	f := newGoogleFixture(t, accountauth.GoogleIdentity{Subject: "link-pending-sub", Email: "link-pending@example.com", EmailVerified: true})
+	user := seedVerifiedPasswordAccount(t, f.db, "link-pending@example.com")
+	f.db.Create(&models.AuthActionToken{
+		UserID:    user.ID,
+		Purpose:   "link_identity",
+		TokenHash: accountauth.HashOpaqueToken("pending-link-token"),
+		Payload:   models.JSONMap{"provider": "google", "subject": "link-pending-sub"},
+		ExpiresAt: fixedNow().Add(30 * time.Minute),
+		CreatedAt: fixedNow().Add(-10 * time.Second),
+	})
+
+	_, err := f.svc.StartGoogleLink(context.Background(), user.ID, fixedNow(), "en", "/account")
+	if err == nil || accountauth.ErrorCode(err) != accountauth.CodeGoogleLinkPending {
+		t.Fatalf("expected link-pending error, got %v", err)
+	}
+	var accountErr *accountauth.Error
+	if !errors.As(err, &accountErr) {
+		t.Fatalf("expected typed account error, got %v", err)
+	}
+	if accountErr.RetryAfter <= 0 {
+		t.Fatalf("expected positive retry-after for pending cooldown, got %v", accountErr.RetryAfter)
+	}
+	if got := rowCount(t, f.db, "auth_oauth_flows"); got != 0 {
+		t.Fatalf("expected no second flow stored on cooldown, got %d", got)
+	}
+}
+
+func TestGoogleLinkStatusReportsConnectedAndPending(t *testing.T) {
+	f := newGoogleFixture(t, accountauth.GoogleIdentity{Subject: "status-sub", Email: "status@example.com", EmailVerified: true})
+	user := seedVerifiedPasswordAccount(t, f.db, "status@example.com")
+
+	status, err := f.svc.GoogleLinkStatus(context.Background(), user.ID)
+	if err != nil {
+		t.Fatalf("GoogleLinkStatus: %v", err)
+	}
+	if status.Connected || status.Pending {
+		t.Fatalf("expected clean initial status, got %+v", status)
+	}
+
+	f.db.Create(&models.AuthActionToken{
+		UserID:    user.ID,
+		Purpose:   "link_identity",
+		TokenHash: accountauth.HashOpaqueToken("status-link-token"),
+		Payload:   models.JSONMap{"provider": "google", "subject": "status-sub"},
+		ExpiresAt: fixedNow().Add(30 * time.Minute),
+		CreatedAt: fixedNow().Add(-10 * time.Second),
+	})
+	status, err = f.svc.GoogleLinkStatus(context.Background(), user.ID)
+	if err != nil {
+		t.Fatalf("GoogleLinkStatus: %v", err)
+	}
+	if !status.Pending {
+		t.Fatal("expected pending true with unconsumed link token")
+	}
+	if status.RetryAfter <= 0 {
+		t.Fatalf("expected positive retry-after for pending status, got %v", status.RetryAfter)
+	}
+
+	f.db.Create(&models.AuthIdentity{UserID: user.ID, Provider: "google", ProviderSubject: "status-sub", ProviderEmail: "status@example.com"})
+	status, err = f.svc.GoogleLinkStatus(context.Background(), user.ID)
+	if err != nil {
+		t.Fatalf("GoogleLinkStatus: %v", err)
+	}
+	if !status.Connected {
+		t.Fatal("expected connected true after google identity added")
 	}
 }
 

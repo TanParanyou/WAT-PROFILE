@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import {
   closeAccount,
   fetchAccount,
+  fetchGoogleLinkStatus,
   fetchSessions,
   logoutAccount,
   logoutAllAccounts,
@@ -15,6 +16,7 @@ import type { Account, AccountProfileUpdateInput } from "./types";
 export const accountKeys = {
   current: () => ["account", "current"] as const,
   sessions: () => ["account", "sessions"] as const,
+  googleLink: () => ["account", "google-link"] as const,
 };
 
 export function useAccount(options?: { enabled?: boolean }) {
@@ -34,6 +36,16 @@ export function useAccountSessions(enabled?: boolean) {
     staleTime: 30_000,
     retry: shouldRetryPublicQuery,
     enabled: enabled ?? false,
+  });
+}
+
+export function useGoogleLinkStatus(enabled?: boolean) {
+  return useQuery({
+    queryKey: accountKeys.googleLink(),
+    queryFn: fetchGoogleLinkStatus,
+    staleTime: 30_000,
+    retry: shouldRetryPublicQuery,
+    enabled: enabled ?? true,
   });
 }
 

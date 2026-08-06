@@ -324,3 +324,103 @@ func TestCloseAccountGoogleOnlyStaleAuthRejected(t *testing.T) {
 		t.Fatal("expected no revocation on stale auth")
 	}
 }
+
+func seedLinkedGoogleIdentity(t *testing.T, db *gorm.DB, userID uuid.UUID, subject, email string) {
+	t.Helper()
+	identity := models.AuthIdentity{
+		UserID:          userID,
+		Provider:        "google",
+		ProviderSubject: subject,
+		ProviderEmail:   accountauth.NormalizeEmail(email),
+		CredentialHash:  nil,
+	}
+	if err := db.Create(&identity).Error; err != nil {
+		t.Fatalf("create google identity: %v", err)
+	}
+}
+
+func TestUnlinkGoogleRequiresRecentAuthentication(t *testing.T) {
+	svc, _, db := newProfileFixture(t)
+	user := seedProfileAccount(t, db, "unlink-stale@example.com", "Stale Unlink", "en")
+	seedLinkedGoogleIdentity(t, db, user.ID, "unlink-stale-sub", user.Email)
+
+	err := svc.UnlinkGoogle(context.Background(), user.ID, fixedNow().Add(-11*time.Minute), "correct horse battery staple")
+	if err == nil || accountauth.ErrorCode(err) != accountauth.CodeReauthRequired {
+		t.Fatalf("expected reauth required for stale auth, got %v", err)
+	}
+	var googleCount int64
+	if err := db.Model(&models.AuthIdentity{}).Where("user_id = ? AND provider = 'google'", user.ID).Count(&googleCount).Error; err != nil {
+		t.Fatalf("count google identities: %v", err)
+	}
+	if googleCount != 1 {
+		t.Fatalf("expected google identity unchanged, got %d", googleCount)
+	}
+}
+
+func TestUnlinkGoogleRequiresPasswordIdentity(t *testing.T) {
+	svc, _, db := newProfileFixture(t)
+	user := seedGoogleOnlyAccount(t, db, "unlink-google-only@example.com")
+
+	err := svc.UnlinkGoogle(context.Background(), user.ID, fixedNow(), "")
+	if err == nil || accountauth.ErrorCode(err) != accountauth.CodeReauthRequired {
+		t.Fatalf("expected reauth required for account without password identity, got %v", err)
+	}
+	var googleCount int64
+	if err := db.Model(&models.AuthIdentity{}).Where("user_id = ? AND provider = 'google'", user.ID).Count(&googleCount).Error; err != nil {
+		t.Fatalf("count google identities: %v", err)
+	}
+	if googleCount != 1 {
+		t.Fatalf("expected google identity unchanged, got %d", googleCount)
+	}
+}
+
+func TestUnlinkGoogleRejectsIncorrectPassword(t *testing.T) {
+	svc, _, db := newProfileFixture(t)
+	user := seedProfileAccount(t, db, "unlink-wrongpass@example.com", "Wrong Pass Unlink", "en")
+	seedLinkedGoogleIdentity(t, db, user.ID, "unlink-wrongpass-sub", user.Email)
+
+	err := svc.UnlinkGoogle(context.Background(), user.ID, fixedNow(), "not the right password")
+	if err == nil || accountauth.ErrorCode(err) != accountauth.CodeInvalidCredentials {
+		t.Fatalf("expected invalid credentials, got %v", err)
+	}
+	var googleCount int64
+	if err := db.Model(&models.AuthIdentity{}).Where("user_id = ? AND provider = 'google'", user.ID).Count(&googleCount).Error; err != nil {
+		t.Fatalf("count google identities: %v", err)
+	}
+	if googleCount != 1 {
+		t.Fatalf("expected google identity retained on wrong password, got %d", googleCount)
+	}
+}
+
+func TestUnlinkGoogleRemovesOnlyGoogleIdentity(t *testing.T) {
+	svc, _, db := newProfileFixture(t)
+	svc.security = NewAccountSecurityService(db, fixedClockAt(fixedNow()))
+	user := seedProfileAccount(t, db, "unlink-ok@example.com", "Ok Unlink", "en")
+	seedLinkedGoogleIdentity(t, db, user.ID, "unlink-ok-sub", user.Email)
+
+	err := svc.UnlinkGoogle(context.Background(), user.ID, fixedNow(), "correct horse battery staple")
+	if err != nil {
+		t.Fatalf("UnlinkGoogle: %v", err)
+	}
+	var googleCount int64
+	if err := db.Model(&models.AuthIdentity{}).Where("user_id = ? AND provider = 'google'", user.ID).Count(&googleCount).Error; err != nil {
+		t.Fatalf("count google identities: %v", err)
+	}
+	if googleCount != 0 {
+		t.Fatalf("expected google identity removed, got %d", googleCount)
+	}
+	var passwordCount int64
+	if err := db.Model(&models.AuthIdentity{}).Where("user_id = ? AND provider = 'password'", user.ID).Count(&passwordCount).Error; err != nil {
+		t.Fatalf("count password identities: %v", err)
+	}
+	if passwordCount != 1 {
+		t.Fatalf("expected password identity retained, got %d", passwordCount)
+	}
+	var event models.AuthSecurityEvent
+	if err := db.Where("event_type = ? AND user_id = ?", "google_unlink", user.ID).Order("created_at DESC").First(&event).Error; err != nil {
+		t.Fatalf("google_unlink security event not persisted: %v", err)
+	}
+	if event.Outcome != "success" || event.Provider != "google" {
+		t.Fatalf("unexpected unlink security event: %+v", event)
+	}
+}
