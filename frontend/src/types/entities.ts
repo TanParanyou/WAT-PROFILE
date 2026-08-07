@@ -120,10 +120,21 @@ export interface Media {
   uploaded_by_id: string | null;
   uploaded_by?: User;
   alt_text: string;
+  alt_texts: MultiLangText;
   category: string;
   metadata: MediaMetadata | null;
+  deleted_at?: string | null;
+  deleted_by_id?: string | null;
+  purge_at?: string | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface MediaReference {
+  kind: string;
+  id: string;
+  label: string;
+  href: string;
 }
 
 // Schedule
@@ -175,6 +186,12 @@ export interface Donation {
   tax_receipt_sent_at: string | null;
   notes: string;
   status: string;
+  source: "self_reported" | "staff_recorded" | string;
+  communication_locale: "th" | "en" | "de" | string;
+  confirmed_at: string | null;
+  receipt_object_key?: string;
+  receipt_checksum?: string;
+  receipt_dispatched_at: string | null;
   created_by_id: string | null;
   created_at: string;
   updated_at: string;

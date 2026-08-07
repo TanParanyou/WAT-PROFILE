@@ -208,6 +208,32 @@ paths:
         '200':
           description: Donation categories
 
+  /public/donations:
+    post:
+      tags: [Donations]
+      summary: Submit a proof-backed donation report
+      description: Bank transfer and PayPal reports require a private proof file. Rate limited separately from account auth.
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              required: [amount, donation_method, donor_email, proof]
+              properties:
+                amount: {type: number, minimum: 0.01}
+                currency: {type: string, example: EUR}
+                donation_method: {type: string, enum: [bank_transfer, paypal]}
+                donor_name: {type: string}
+                donor_email: {type: string, format: email}
+                donor_phone: {type: string}
+                locale: {type: string, enum: [th, en, de]}
+                proof: {type: string, format: binary}
+      responses:
+        '201': {description: Donation report accepted}
+        '400': {$ref: '#/components/responses/BadRequest'}
+        '429': {$ref: '#/components/responses/TooManyRequests'}
+
   /public/contact:
     post:
       tags: [Contact]
@@ -522,6 +548,7 @@ paths:
     post:
       tags: [Account]
       summary: Verify an email address with a single-use token
+      description: 'Single-use verification endpoint. Rate limit: 10 per 15 minutes.'
       requestBody:
         required: true
         content:
@@ -537,6 +564,8 @@ paths:
                 $ref: '#/components/schemas/MessageResponse'
         '400':
           $ref: '#/components/responses/BadRequest'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
         '401':
           $ref: '#/components/responses/Unauthorized'
 
@@ -639,7 +668,7 @@ paths:
       description: >-
         Requires the current public-account access token and password. Returns
         a fresh access token with a new auth_time for sensitive actions without
-        creating or rotating a refresh session.
+        creating or rotating a refresh session. Rate limit: 5 per 15 minutes.
       security:
         - PublicAccountBearerAuth: []
       requestBody:
@@ -659,6 +688,8 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
   /accounts/forgot-password:
     post:
@@ -666,7 +697,8 @@ paths:
       summary: Request a password reset link
       description: >-
         Always responds generically to avoid leaking account existence. Rate
-        limit: 5 per 1 hour. Google-only accounts receive a neutral message.
+        limit: 5 per 1 hour. Google-only accounts receive a sign-in explanation
+        with a link to continue with Google.
       requestBody:
         required: true
         content:
@@ -689,7 +721,7 @@ paths:
     post:
       tags: [Account]
       summary: Reset the password with a single-use token
-      description: Consumes the token, replaces the password hash, and revokes all sessions.
+      description: 'Consumes the token, replaces the password hash, and revokes all sessions. Rate limit: 5 per 1 hour.'
       requestBody:
         required: true
         content:
@@ -707,11 +739,14 @@ paths:
           $ref: '#/components/responses/BadRequest'
         '401':
           $ref: '#/components/responses/Unauthorized'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
   /accounts/confirm-email-change:
     post:
       tags: [Account]
       summary: Confirm a pending email change
+      description: 'Single-use confirmation endpoint. Rate limit: 5 per 1 hour.'
       requestBody:
         required: true
         content:
@@ -721,11 +756,13 @@ paths:
       responses:
         '200': { description: Email changed, content: { application/json: { schema: { $ref: '#/components/schemas/MessageResponse' } } } }
         '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /accounts/reopen-request:
     post:
       tags: [Account]
       summary: Request an account recovery link
+      description: 'Generic response to avoid account enumeration. Rate limit: 5 per 1 hour.'
       requestBody:
         required: true
         content:
@@ -734,11 +771,13 @@ paths:
               $ref: '#/components/schemas/AccountEmailInput'
       responses:
         '200': { description: Generic response, content: { application/json: { schema: { $ref: '#/components/schemas/MessageResponse' } } } }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /accounts/reopen-confirm:
     post:
       tags: [Account]
       summary: Restore a closed account
+      description: 'Consumes a single-use recovery token. Rate limit: 5 per 1 hour.'
       requestBody:
         required: true
         content:
@@ -748,11 +787,13 @@ paths:
       responses:
         '200': { description: Account restored, content: { application/json: { schema: { $ref: '#/components/schemas/MessageResponse' } } } }
         '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /account/password:
     post:
       tags: [Account]
       summary: Add or change the account password
+      description: 'Requires recent authentication (auth_time within 10 minutes). Submit credentials to the shared re-authentication endpoint first; this mutation accepts only the new password. Rate limit: 5 per 1 hour.'
       security:
         - PublicAccountBearerAuth: []
       requestBody:
@@ -769,11 +810,13 @@ paths:
               schema:
                 $ref: '#/components/schemas/AccountSessionResponse'
         '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /account/email-change:
     post:
       tags: [Account]
       summary: Request an email change confirmation
+      description: 'Sends a single-use confirmation to the new address. Rate limit: 5 per 1 hour.'
       security:
         - PublicAccountBearerAuth: []
       requestBody:
@@ -785,6 +828,7 @@ paths:
       responses:
         '200': { description: Confirmation sent, content: { application/json: { schema: { $ref: '#/components/schemas/MessageResponse' } } } }
         '401': { $ref: '#/components/responses/Unauthorized' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /accounts/google/start:
     get:
@@ -865,7 +909,8 @@ paths:
       summary: Confirm linking a Google identity to an existing email
       description: >-
         Consumes the single-use link-approval token emailed to the existing
-        account and returns a new session. Never links silently.
+        account and returns a new session. Never links silently. Rate limit: 20
+        per 15 minutes.
       requestBody:
         required: true
         content:
@@ -892,6 +937,8 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '403':
           $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
   /accounts/google/link/start:
     get:
@@ -904,7 +951,8 @@ paths:
         `wat_google_flow` cookie (Path /api/v1/accounts/google, 10 minute TTL).
         Never links silently: the same verified Google email must approve the
         link through the single-use email token. Anonymous login/register
-        behavior of `/accounts/google/start` is unchanged.
+        behavior of `/accounts/google/start` is unchanged. Rate limit: 20 per
+        15 minutes.
       security:
         - PublicAccountBearerAuth: []
       parameters:
@@ -955,6 +1003,51 @@ paths:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
 
+  /accounts/google/reauth/start:
+    get:
+      tags: [Account]
+      summary: Begin Google re-authentication for the current account
+      description: >-
+        Requires a signed-in public account and an allowed Origin. Creates a
+        short-lived PKCE flow bound to the current account. The callback only
+        succeeds when the verified Google subject matches the identity already
+        connected to that account. Rate limit: 20 per 15 minutes.
+      security:
+        - PublicAccountBearerAuth: []
+      parameters:
+        - name: locale
+          in: query
+          required: false
+          schema:
+            type: string
+            example: en
+        - name: return_to
+          in: query
+          required: false
+          schema:
+            type: string
+            example: /account?tab=security&close=confirm
+      responses:
+        '200':
+          description: Google authorization URL issued for re-authentication
+          headers:
+            Set-Cookie:
+              description: HttpOnly `wat_google_flow` flow cookie
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountGoogleStartResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
+
   /accounts/google/link/status:
     get:
       tags: [Account]
@@ -988,17 +1081,19 @@ paths:
       summary: Disconnect the Google identity from this account
       description: >-
         Requires a signed-in public account, recent authentication (auth_time
-        within 10 minutes), and the current password from a password identity.
+        within 10 minutes). The re-authentication credential is submitted to
+        the shared re-authentication endpoint before this request.
         Removes only the Google identity; the password identity and all
         sessions are untouched. Idempotent when no Google identity is present.
+        Rate limit: 5 per 1 hour.
       security:
         - PublicAccountBearerAuth: []
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AccountReauthenticateInput'
+              $ref: '#/components/schemas/AccountEmptyInput'
       responses:
         '200':
           description: Google identity disconnected
@@ -1016,6 +1111,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
   /accounts/logout:
     post:
@@ -1122,7 +1219,8 @@ paths:
       description: >-
         Validates and stores a JPEG or PNG avatar for the signed-in account.
         The client prepares the crop, while the server verifies the image bytes,
-        dimensions, and size before storing it.
+        dimensions, and size before storing it. Rate limit: 12 per 1 hour;
+        failed old-object deletion is queued for retry.
       security:
         - PublicAccountBearerAuth: []
       requestBody:
@@ -1156,6 +1254,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
   /account/sessions:
     get:
@@ -1208,18 +1308,19 @@ paths:
       summary: Close the account
       description: >-
         Requires recent authentication (auth_time within 10 minutes) and the
-        password for password accounts. Revokes all sessions, marks the account
+        shared re-authentication flow for password or Google accounts. Revokes
+        all sessions, marks the account
         closed, blanks the avatar, and schedules permanent deletion after 30
         days. The account can be restored by a single-use email link before the
-        deadline.
+        deadline. Rate limit: 3 per 1 hour.
       security:
         - PublicAccountBearerAuth: []
       requestBody:
-        required: true
+        required: false
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/AccountCloseInput'
+              $ref: '#/components/schemas/AccountEmptyInput'
       responses:
         '200':
           description: Account closed
@@ -1242,6 +1343,8 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/ErrorResponse'
+        '429':
+          $ref: '#/components/responses/TooManyRequests'
 
 
   # ==================== MEMBER ====================
@@ -1882,12 +1985,32 @@ paths:
   /admin/media/filter-options:
     get:
       tags: [Admin - Media]
-      summary: Get distinct media categories and mime types
+      summary: Get distinct media categories, mime types, and locales missing alt text
       security:
         - AdminBearerAuth: []
       responses:
         '200':
           description: Distinct media filter options
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        type: object
+                        properties:
+                          categories:
+                            type: array
+                            items: {type: string}
+                          mime_types:
+                            type: array
+                            items: {type: string}
+                          alt_missing_locales:
+                            type: array
+                            items:
+                              type: string
+                              enum: [th, en, de]
 
   /admin/media:
     get:
@@ -1920,6 +2043,15 @@ paths:
             type: array
             items:
               type: string
+        - name: alt_missing
+          in: query
+          description: Locales whose alt text is missing (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [th, en, de]
         - name: uploader
           in: query
           description: Uploader ID filter (repeated string for multi-select)
@@ -1941,6 +2073,87 @@ paths:
                         type: array
                         items:
                           $ref: '#/components/schemas/Media'
+
+  /admin/media/trash:
+    get:
+      tags: [Admin - Media]
+      summary: List soft-deleted media
+      security:
+        - AdminBearerAuth: []
+      responses:
+        '200':
+          description: Soft-deleted media records
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/Media'
+
+  /admin/media/{id}/references:
+    get:
+      tags: [Admin - Media]
+      summary: List known content references to a media URL
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/MediaIdParam'
+      responses:
+        '200':
+          description: Media references
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/MediaReference'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/media/{id}/restore:
+    post:
+      tags: [Admin - Media]
+      summary: Restore media from Trash
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/MediaIdParam'
+      responses:
+        '200':
+          description: Media restored
+
+  /admin/media/{id}/purge:
+    post:
+      tags: [Admin - Media]
+      summary: Permanently delete media after explicit confirmation
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/MediaIdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [confirm]
+              properties:
+                confirm:
+                  type: boolean
+                  enum: [true]
+      responses:
+        '200':
+          description: Media permanently deleted
+        '409':
+          description: Explicit confirmation is required
 
   /admin/media/{id}:
     put:
@@ -2126,6 +2339,18 @@ paths:
           description: Distinct donation filter options
 
   /admin/donations:
+    post:
+      tags: [Admin - Donations]
+      summary: Record a cash donation as staff
+      security: [{AdminBearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/Donation'}
+      responses:
+        '201': {description: Donation recorded}
+        '400': {$ref: '#/components/responses/BadRequest'}
     get:
       tags: [Admin - Donations]
       summary: List donations
@@ -2241,6 +2466,36 @@ paths:
         '200':
           description: Donation deleted
 
+  /admin/donations/{id}/proof:
+    get:
+      tags: [Admin - Donations]
+      summary: Download a private donation proof
+      security: [{AdminBearerAuth: []}]
+      parameters: [{ $ref: '#/components/parameters/IdParam' }]
+      responses:
+        '200': {description: Private proof file}
+        '404': {$ref: '#/components/responses/NotFound'}
+
+  /admin/donations/{id}/confirm:
+    post:
+      tags: [Admin - Donations]
+      summary: Confirm a pending donation
+      security: [{AdminBearerAuth: []}]
+      parameters: [{ $ref: '#/components/parameters/IdParam' }]
+      responses:
+        '200': {description: Donation confirmed}
+        '409': {description: Donation is not pending}
+
+  /admin/donations/{id}/send-receipt:
+    post:
+      tags: [Admin - Donations]
+      summary: Queue delivery of the immutable PDF receipt
+      security: [{AdminBearerAuth: []}]
+      parameters: [{ $ref: '#/components/parameters/IdParam' }]
+      responses:
+        '200': {description: Receipt queued, dispatched, or already dispatched}
+        '409': {description: Donation is not confirmed}
+
   /admin/donation-categories:
     get:
       tags: [Admin - Donations]
@@ -2319,6 +2574,105 @@ paths:
           description: Category deleted
 
   # ==================== ADMIN - Members ====================
+  # ==================== ADMIN - Privacy Requests ====================
+  /admin/privacy-requests:
+    get:
+      tags: [Admin - Privacy]
+      summary: List personal data requests
+      security: [{AdminBearerAuth: []}]
+      responses:
+        '200': {description: Privacy request list}
+    post:
+      tags: [Admin - Privacy]
+      summary: Create a personal data request
+      security: [{AdminBearerAuth: []}]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: {$ref: '#/components/schemas/PersonalDataRequestInput'}
+      responses:
+        '201': {description: Request created}
+  /admin/privacy-requests/search:
+    get:
+      tags: [Admin - Privacy]
+      summary: Find minimised personal-data candidates
+      security: [{AdminBearerAuth: []}]
+      parameters:
+        - {name: email, in: query, schema: {type: string, format: email}}
+        - {name: member_code, in: query, schema: {type: string}}
+      responses:
+        '200': {description: Candidate list without secrets}
+  /admin/privacy-requests/{id}:
+    get:
+      tags: [Admin - Privacy]
+      summary: Get a personal data request
+      security: [{AdminBearerAuth: []}]
+      parameters: [{ $ref: '#/components/parameters/IdParam' }]
+      responses:
+        '200': {description: Request detail}
+  /admin/privacy-requests/{id}/verify:
+    post:
+      tags: [Admin - Privacy]
+      summary: Verify requester identity
+      security: [{AdminBearerAuth: []}]
+      parameters: [{ $ref: '#/components/parameters/IdParam' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [method, evidence]
+              properties:
+                method: {type: string, enum: [email, in_person]}
+                evidence: {type: string}
+      responses:
+        '200': {description: Request verified}
+  /admin/privacy-requests/{id}/send-verification:
+    post:
+      tags: [Admin - Privacy]
+      summary: Send an expiring email verification code
+      security: [{AdminBearerAuth: []}]
+      parameters: [{ $ref: '#/components/parameters/IdParam' }]
+      responses:
+        '200': {description: Verification email sent}
+        '503': {description: Email delivery is not configured}
+  /admin/privacy-requests/{id}/items:
+    post:
+      tags: [Admin - Privacy]
+      summary: Select discovered records and action
+      security: [{AdminBearerAuth: []}]
+      parameters: [{ $ref: '#/components/parameters/IdParam' }]
+      responses:
+        '200': {description: Selection saved}
+  /admin/privacy-requests/{id}/complete:
+    post:
+      tags: [Admin - Privacy]
+      summary: Anonymise selected personal data
+      security: [{AdminBearerAuth: []}]
+      parameters: [{ $ref: '#/components/parameters/IdParam' }]
+      responses:
+        '200': {description: Selected records anonymised}
+        '409': {description: Request is not verified}
+  /admin/privacy-requests/{id}/export:
+    get:
+      tags: [Admin - Privacy]
+      summary: Download a selected-data export
+      security: [{AdminBearerAuth: []}]
+      parameters: [{ $ref: '#/components/parameters/IdParam' }]
+      responses:
+        '200': {description: Private JSON export}
+        '409': {description: Request is not verified}
+  /admin/privacy-requests/{id}/reject:
+    post:
+      tags: [Admin - Privacy]
+      summary: Reject a personal data request
+      security: [{AdminBearerAuth: []}]
+      parameters: [{ $ref: '#/components/parameters/IdParam' }]
+      responses:
+        '200': {description: Request rejected}
+
   /admin/members:
     get:
       tags: [Admin - Members]
@@ -2934,13 +3288,9 @@ components:
           minLength: 12
           maxLength: 128
 
-    AccountCloseInput:
+    AccountEmptyInput:
       type: object
-      required: [password]
-      properties:
-        password:
-          type: string
-          description: Current password; required to confirm account closure
+      description: Empty payload; protected actions use the shared re-authentication endpoint first.
 
     AccountReauthenticateInput:
       type: object
@@ -2954,8 +3304,6 @@ components:
       type: object
       required: [new_password]
       properties:
-        current_password:
-          type: string
         new_password:
           type: string
           minLength: 12
@@ -2965,8 +3313,6 @@ components:
       type: object
       required: [new_email, locale]
       properties:
-        current_password:
-          type: string
         new_email:
           type: string
           format: email
@@ -3243,6 +3589,8 @@ components:
           nullable: true
         alt_text:
           type: string
+        alt_texts:
+          $ref: '#/components/schemas/MultiLangText'
         category:
           type: string
         metadata:
@@ -3253,6 +3601,31 @@ components:
         updated_at:
           type: string
           format: date-time
+        deleted_at:
+          type: string
+          format: date-time
+          nullable: true
+        deleted_by_id:
+          type: string
+          format: uuid
+          nullable: true
+        purge_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    MediaReference:
+      type: object
+      required: [kind, id, label, href]
+      properties:
+        kind:
+          type: string
+        id:
+          type: string
+        label:
+          type: string
+        href:
+          type: string
 
     MediaUpdateInput:
       type: object
@@ -3564,12 +3937,33 @@ components:
         status:
           type: string
           enum: [pending, confirmed, cancelled]
+        source:
+          type: string
+          enum: [self_reported, staff_recorded]
+        communication_locale:
+          type: string
+          enum: [th, en, de]
+        confirmed_at:
+          type: string
+          format: date-time
+        receipt_dispatched_at:
+          type: string
+          format: date-time
         created_at:
           type: string
           format: date-time
         updated_at:
           type: string
           format: date-time
+
+    PersonalDataRequestInput:
+      type: object
+      required: [request_type]
+      properties:
+        subject_email: {type: string, format: email}
+        subject_member_code: {type: string}
+        request_type: {type: string, enum: [access, erasure]}
+        notes: {type: string}
 
     # ===== Member =====
     MemberInput:

@@ -77,6 +77,22 @@ export const galleryAdminService = createAdminService<Gallery>("gallery");
 export const scheduleAdminService = createAdminService<Schedule>("schedules");
 export const donationAdminService = {
   ...createAdminService<Donation>("donations"),
+  async createStaff(data: Partial<Donation>): Promise<Donation> {
+    const res = await api.post<ApiResponse<Donation>>("/admin/donations", data);
+    return res.data.data!;
+  },
+  async getProof(id: number): Promise<Blob> {
+    const res = await api.get(`/admin/donations/${id}/proof`, { responseType: "blob" });
+    return res.data as Blob;
+  },
+  async confirm(id: number): Promise<Donation> {
+    const res = await api.post<ApiResponse<Donation>>(`/admin/donations/${id}/confirm`);
+    return res.data.data!;
+  },
+  async sendReceipt(id: number): Promise<{ donation: Donation; queued?: boolean; already_dispatched?: boolean }> {
+    const res = await api.post<ApiResponse<{ donation: Donation; queued?: boolean; already_dispatched?: boolean }>>(`/admin/donations/${id}/send-receipt`);
+    return res.data.data!;
+  },
   async getFilterOptions(): Promise<{
     payment_methods: string[];
     currencies: string[];
@@ -96,11 +112,12 @@ export const mediaAdminService = {
   async getFilterOptions(): Promise<{
     categories: string[];
     mime_types: string[];
+    alt_missing_locales: string[];
   }> {
     const res = await api.get(
       "/admin/media/filter-options"
     );
-    return res.data.data || { categories: [], mime_types: [] };
+    return res.data.data || { categories: [], mime_types: [], alt_missing_locales: ["th", "en", "de"] };
   },
 };
 export const auditLogAdminService = {

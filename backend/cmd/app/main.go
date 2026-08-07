@@ -144,6 +144,15 @@ func main() {
 		Max:        5,
 		Expiration: 1 * time.Minute,
 	}))
+	// Donation proof uploads have their own budget so they cannot consume
+	// contact or account-auth rate limits. Keep this deliberately conservative.
+	app.Use("/api/v1/public/donations", limiter.New(limiter.Config{
+		Max:        10,
+		Expiration: 1 * time.Hour,
+		LimitReached: func(c *fiber.Ctx) error {
+			return c.Status(fiber.StatusTooManyRequests).JSON(fiber.Map{"success": false, "error": "Too many donation reports. Please try again later."})
+		},
+	}))
 
 	// Rate limiting for the public account API — one limiter per surface so a
 	// burst on one endpoint never starves the others. Returns the stable
@@ -155,12 +164,25 @@ func main() {
 		}{
 			{"/api/v1/accounts/register", accountCfg.RegisterLimit},
 			{"/api/v1/accounts/login", accountCfg.LoginLimit},
+			{"/api/v1/accounts/verify-email", accountCfg.VerifyLimit},
 			{"/api/v1/accounts/resend-verification", accountCfg.ResendLimit},
 			{"/api/v1/accounts/forgot-password", accountCfg.ForgotLimit},
+			{"/api/v1/accounts/reset-password", accountCfg.ResetLimit},
 			{"/api/v1/accounts/refresh", accountCfg.RefreshLimit},
+			{"/api/v1/accounts/reauthenticate", accountCfg.ReauthLimit},
+			{"/api/v1/accounts/confirm-email-change", accountCfg.ConfirmEmailLimit},
+			{"/api/v1/accounts/reopen-request", accountCfg.ReopenRequestLimit},
+			{"/api/v1/accounts/reopen-confirm", accountCfg.ReopenConfirmLimit},
 			{"/api/v1/accounts/google/start", accountCfg.GoogleLimit},
 			{"/api/v1/accounts/google/callback", accountCfg.GoogleLimit},
+			{"/api/v1/accounts/google/link/start", accountCfg.GoogleLimit},
+			{"/api/v1/accounts/google/link/confirm", accountCfg.GoogleLimit},
+			{"/api/v1/accounts/google/reauth/start", accountCfg.GoogleLimit},
 			{"/api/v1/account/avatar", accountCfg.AvatarLimit},
+			{"/api/v1/account/password", accountCfg.PasswordLimit},
+			{"/api/v1/account/email-change", accountCfg.EmailChangeLimit},
+			{"/api/v1/account/close", accountCfg.CloseLimit},
+			{"/api/v1/account/providers/google", accountCfg.GoogleUnlinkLimit},
 		}
 		for _, l := range accountLimiters {
 			app.Use(l.path, limiter.New(limiter.Config{

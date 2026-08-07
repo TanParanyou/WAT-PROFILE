@@ -44,6 +44,9 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 	galleryHandler := handlers.NewGalleryHandler(db)
 	scheduleHandler := handlers.NewScheduleHandler(db)
 	donationHandler := handlers.NewDonationHandler(db)
+	if r2 != nil {
+		donationHandler = handlers.NewDonationHandler(db, r2)
+	}
 	memberHandler := handlers.NewMemberHandler(db)
 	registrationHandler := handlers.NewRegistrationHandler(db)
 	contactHandler := handlers.NewContactHandler(db)
@@ -78,6 +81,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 
 	// Donation categories
 	public.Get("/donation-categories", donationHandler.GetDonationCategories)
+	public.Post("/donations", donationHandler.SubmitSelfReported)
 
 	// Contact
 	public.Post("/contact", contactHandler.SubmitContact)
@@ -214,8 +218,12 @@ func adminRouteDefinitions() []AdminRouteDefinition {
 		// Upload Management
 		{Method: fiber.MethodPost, Path: "/upload", Resource: "gallery", Action: "create", HandlerKey: "upload.create"},
 		{Method: fiber.MethodGet, Path: "/media/filter-options", Resource: "gallery", Action: "read", HandlerKey: "media.filterOptions"},
+		{Method: fiber.MethodGet, Path: "/media/trash", Resource: "gallery", Action: "read", HandlerKey: "media.trash"},
 		{Method: fiber.MethodGet, Path: "/media", Resource: "gallery", Action: "read", HandlerKey: "media.list"},
+		{Method: fiber.MethodGet, Path: "/media/:id/references", Resource: "gallery", Action: "read", HandlerKey: "media.references"},
 		{Method: fiber.MethodPut, Path: "/media/:id", Resource: "gallery", Action: "update", HandlerKey: "media.update"},
+		{Method: fiber.MethodPost, Path: "/media/:id/restore", Resource: "gallery", Action: "update", HandlerKey: "media.restore"},
+		{Method: fiber.MethodPost, Path: "/media/:id/purge", Resource: "gallery", Action: "delete", HandlerKey: "media.purge"},
 		{Method: fiber.MethodDelete, Path: "/media/:id", Resource: "gallery", Action: "delete", HandlerKey: "media.delete"},
 
 		// Schedule Management
@@ -227,10 +235,14 @@ func adminRouteDefinitions() []AdminRouteDefinition {
 		{Method: fiber.MethodDelete, Path: "/schedules/:id", Resource: "schedules", Action: "delete", HandlerKey: "schedules.delete"},
 
 		// Donation Management
+		{Method: fiber.MethodPost, Path: "/donations", Resource: "donations", Action: "create", HandlerKey: "donations.create"},
 		{Method: fiber.MethodGet, Path: "/donations/filter-options", Resource: "donations", Action: "read", HandlerKey: "donations.filterOptions"},
 		{Method: fiber.MethodGet, Path: "/donations/stats", Resource: "donations", Action: "read", HandlerKey: "donations.stats"},
 		{Method: fiber.MethodGet, Path: "/donations", Resource: "donations", Action: "read", HandlerKey: "donations.list"},
 		{Method: fiber.MethodGet, Path: "/donations/:id", Resource: "donations", Action: "read", HandlerKey: "donations.get"},
+		{Method: fiber.MethodGet, Path: "/donations/:id/proof", Resource: "donations", Action: "read", HandlerKey: "donations.proof"},
+		{Method: fiber.MethodPost, Path: "/donations/:id/confirm", Resource: "donations", Action: "update", HandlerKey: "donations.confirm"},
+		{Method: fiber.MethodPost, Path: "/donations/:id/send-receipt", Resource: "donations", Action: "update", HandlerKey: "donations.sendReceipt"},
 		{Method: fiber.MethodPut, Path: "/donations/:id", Resource: "donations", Action: "update", HandlerKey: "donations.update"},
 		{Method: fiber.MethodDelete, Path: "/donations/bulk", Resource: "donations", Action: "delete", HandlerKey: "donations.bulkDelete"},
 		{Method: fiber.MethodDelete, Path: "/donations/:id", Resource: "donations", Action: "delete", HandlerKey: "donations.delete"},
@@ -256,6 +268,18 @@ func adminRouteDefinitions() []AdminRouteDefinition {
 		{Method: fiber.MethodPut, Path: "/contacts/:id/status", Resource: "contacts", Action: "update", HandlerKey: "contacts.updateStatus"},
 		{Method: fiber.MethodDelete, Path: "/contacts/bulk", Resource: "contacts", Action: "delete", HandlerKey: "contacts.bulkDelete"},
 		{Method: fiber.MethodDelete, Path: "/contacts/:id", Resource: "contacts", Action: "delete", HandlerKey: "contacts.delete"},
+
+		// Personal Data Requests
+		{Method: fiber.MethodGet, Path: "/privacy-requests", Resource: "privacy_requests", Action: "read", HandlerKey: "privacy.list"},
+		{Method: fiber.MethodPost, Path: "/privacy-requests", Resource: "privacy_requests", Action: "create", HandlerKey: "privacy.create"},
+		{Method: fiber.MethodGet, Path: "/privacy-requests/search", Resource: "privacy_requests", Action: "read", HandlerKey: "privacy.search"},
+		{Method: fiber.MethodGet, Path: "/privacy-requests/:id", Resource: "privacy_requests", Action: "read", HandlerKey: "privacy.get"},
+		{Method: fiber.MethodPost, Path: "/privacy-requests/:id/verify", Resource: "privacy_requests", Action: "update", HandlerKey: "privacy.verify"},
+		{Method: fiber.MethodPost, Path: "/privacy-requests/:id/send-verification", Resource: "privacy_requests", Action: "update", HandlerKey: "privacy.sendVerification"},
+		{Method: fiber.MethodPost, Path: "/privacy-requests/:id/items", Resource: "privacy_requests", Action: "update", HandlerKey: "privacy.select"},
+		{Method: fiber.MethodPost, Path: "/privacy-requests/:id/complete", Resource: "privacy_requests", Action: "update", HandlerKey: "privacy.complete"},
+		{Method: fiber.MethodGet, Path: "/privacy-requests/:id/export", Resource: "privacy_requests", Action: "read", HandlerKey: "privacy.export"},
+		{Method: fiber.MethodPost, Path: "/privacy-requests/:id/reject", Resource: "privacy_requests", Action: "update", HandlerKey: "privacy.reject"},
 
 		// Settings Management
 		{Method: fiber.MethodGet, Path: "/settings", Resource: "settings", Action: "read", HandlerKey: "settings.list"},
@@ -315,16 +339,20 @@ func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service) map[string]fiber.Handle
 	galleryHandler := handlers.NewGalleryHandler(db)
 	scheduleHandler := handlers.NewScheduleHandler(db)
 	donationHandler := handlers.NewDonationHandler(db)
+	if r2 != nil {
+		donationHandler = handlers.NewDonationHandler(db, r2)
+	}
 	memberHandler := handlers.NewMemberHandler(db)
 	registrationHandler := handlers.NewRegistrationHandler(db)
 	contactHandler := handlers.NewContactHandler(db)
 	settingsHandler := handlers.NewSettingsHandler(db)
 	contentHandler := handlers.NewContentHandler(db)
 	uploadHandler := handlers.NewUploadHandler(db, r2)
-	mediaHandler := handlers.NewMediaHandler(db)
+	mediaHandler := handlers.NewMediaHandler(db, r2)
 	dashboardHandler := handlers.NewDashboardHandler(db)
 	userHandler := handlers.NewUserHandler(db)
 	roleHandler := handlers.NewRoleHandler(db)
+	privacyHandler := handlers.NewPersonalDataRequestHandler(db)
 	auditHandler := handlers.NewAuditLogHandler(db)
 	richTextMigrationHandler := handlers.NewRichTextMigrationHandler(db)
 	publicContentHandler := handlers.NewPublicContentHandler(db)
@@ -358,8 +386,12 @@ func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service) map[string]fiber.Handle
 		"gallery.categories.bulkDelete": galleryHandler.BulkDeleteCategories,
 		"upload.create":                 uploadHandler.UploadFile,
 		"media.filterOptions":           mediaHandler.GetFilterOptions,
+		"media.trash":                   mediaHandler.GetTrash,
 		"media.list":                    mediaHandler.GetMedia,
+		"media.references":              mediaHandler.GetReferences,
 		"media.update":                  mediaHandler.UpdateMedia,
+		"media.restore":                 mediaHandler.RestoreMedia,
+		"media.purge":                   mediaHandler.PurgeMedia,
 		"media.delete":                  mediaHandler.DeleteMedia,
 		"schedules.list":                scheduleHandler.GetAdminSchedules,
 		"schedules.get":                 scheduleHandler.GetScheduleByID,
@@ -368,9 +400,13 @@ func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service) map[string]fiber.Handle
 		"schedules.bulkDelete":          scheduleHandler.BulkDeleteSchedules,
 		"schedules.delete":              scheduleHandler.DeleteSchedule,
 		"donations.filterOptions":       donationHandler.GetFilterOptions,
+		"donations.create":              donationHandler.CreateStaffDonation,
 		"donations.stats":               donationHandler.GetDonationStats,
 		"donations.list":                donationHandler.GetDonations,
 		"donations.get":                 donationHandler.GetDonationByID,
+		"donations.proof":               donationHandler.GetDonationProof,
+		"donations.confirm":             donationHandler.ConfirmDonation,
+		"donations.sendReceipt":         donationHandler.SendDonationReceipt,
 		"donations.update":              donationHandler.UpdateDonation,
 		"donations.bulkDelete":          donationHandler.BulkDeleteDonations,
 		"donations.delete":              donationHandler.DeleteDonation,
@@ -390,6 +426,16 @@ func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service) map[string]fiber.Handle
 		"contacts.updateStatus":         contactHandler.UpdateContactStatus,
 		"contacts.bulkDelete":           contactHandler.BulkDeleteContacts,
 		"contacts.delete":               contactHandler.DeleteContact,
+		"privacy.list":                  privacyHandler.List,
+		"privacy.create":                privacyHandler.Create,
+		"privacy.search":                privacyHandler.Search,
+		"privacy.get":                   privacyHandler.Get,
+		"privacy.verify":                privacyHandler.Verify,
+		"privacy.sendVerification":      privacyHandler.SendVerification,
+		"privacy.select":                privacyHandler.Select,
+		"privacy.complete":              privacyHandler.Complete,
+		"privacy.export":                privacyHandler.Export,
+		"privacy.reject":                privacyHandler.Reject,
 		"settings.list":                 settingsHandler.GetAllSettings,
 		"settings.update":               settingsHandler.UpdateSettings,
 		"settings.create":               settingsHandler.UpsertSetting,
