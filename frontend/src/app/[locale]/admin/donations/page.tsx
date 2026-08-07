@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { useTranslations } from "next-intl";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
@@ -23,6 +23,7 @@ import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components
 import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
 import { exportToCsv } from "@/services/adminListExportService";
 import { useQuery } from "@tanstack/react-query";
+import { staffDonationSchema, type StaffDonationFormData } from "@/schemas/donation.schema";
 
 interface DonationFilters extends AdminFilterRecord {
   status: string[];
@@ -37,6 +38,8 @@ export default function DonationsPage() {
   const { toast } = useToast();
   const { confirm, ConfirmDialog } = useConfirm();
   const selectedIds = useRowSelection();
+  const [showStaffForm, setShowStaffForm] = useState(false);
+  const [staffForm, setStaffForm] = useState<StaffDonationFormData>({ amount: 0, currency: "EUR", donation_date: "", donation_method: "cash", donor_name: "", donor_email: "", receipt_requested: false });
 
   const listState = useAdminListState<DonationFilters>({
     schema: {
@@ -112,6 +115,17 @@ export default function DonationsPage() {
     if (!reason?.trim()) return;
     await donationAdminService.cancel(id, reason.trim());
     toast.success("ยกเลิกรายการแล้ว");
+    await listQuery.refetch();
+  };
+
+  const handleStaffCreate = async (event: React.FormEvent) => {
+    event.preventDefault();
+    const parsed = staffDonationSchema.safeParse(staffForm);
+    if (!parsed.success) { toast.error(parsed.error.issues[0]?.message || "ข้อมูลไม่ถูกต้อง"); return; }
+    await donationAdminService.createStaff(parsed.data);
+    toast.success("บันทึกรายการแล้ว");
+    setShowStaffForm(false);
+    setStaffForm({ amount: 0, currency: "EUR", donation_date: "", donation_method: "cash", donor_name: "", donor_email: "", receipt_requested: false });
     await listQuery.refetch();
   };
 
@@ -224,7 +238,18 @@ export default function DonationsPage() {
       <AdminPageHeader
         title={t("donations.title")}
         breadcrumbs={[{ label: t("donations.title") }]}
+        actions={<PermissionGuard resource="donations" action="create"><button type="button" onClick={() => setShowStaffForm((value) => !value)} className="min-h-11 bg-admin-action px-4 py-2 text-sm font-semibold text-admin-on-action">บันทึกรายการโดยเจ้าหน้าที่</button></PermissionGuard>}
       />
+
+      {showStaffForm && <form onSubmit={handleStaffCreate} className="mb-6 grid gap-3 border border-admin-border bg-admin-surface p-4 md:grid-cols-4">
+        <input aria-label="จำนวนเงิน" type="number" min="0.01" step="0.01" value={staffForm.amount || ""} onChange={(event) => setStaffForm({ ...staffForm, amount: Number(event.target.value) })} placeholder="จำนวนเงิน EUR" className="min-h-11 border border-admin-border px-3" required />
+        <input aria-label="วันที่บริจาค" type="date" value={staffForm.donation_date} onChange={(event) => setStaffForm({ ...staffForm, donation_date: event.target.value })} className="min-h-11 border border-admin-border px-3" required />
+        <select aria-label="ช่องทาง" value={staffForm.donation_method} onChange={(event) => setStaffForm({ ...staffForm, donation_method: event.target.value as StaffDonationFormData["donation_method"] })} className="min-h-11 border border-admin-border px-3"><option value="cash">เงินสด</option><option value="bank_transfer">โอนธนาคาร</option><option value="paypal">PayPal</option></select>
+        <input aria-label="อีเมล" type="email" value={staffForm.donor_email} onChange={(event) => setStaffForm({ ...staffForm, donor_email: event.target.value })} placeholder="อีเมล (ถ้าต้องการใบเสร็จ)" className="min-h-11 border border-admin-border px-3" />
+        <input aria-label="ชื่อผู้บริจาค" value={staffForm.donor_name} onChange={(event) => setStaffForm({ ...staffForm, donor_name: event.target.value })} placeholder="ชื่อผู้บริจาค (ไม่บังคับ)" className="min-h-11 border border-admin-border px-3 md:col-span-2" />
+        <label className="flex min-h-11 items-center gap-2 text-sm"><input type="checkbox" checked={staffForm.receipt_requested} onChange={(event) => setStaffForm({ ...staffForm, receipt_requested: event.target.checked })} className="size-5" />ขอใบเสร็จ</label>
+        <div className="flex gap-2 md:col-span-4"><button type="submit" className="min-h-11 bg-admin-action px-4 py-2 text-sm font-semibold text-admin-on-action">บันทึก</button><button type="button" onClick={() => setShowStaffForm(false)} className="min-h-11 border border-admin-border px-4 py-2 text-sm">ยกเลิก</button></div>
+      </form>}
 
       <div className="mt-4">
         <AdminListToolbar

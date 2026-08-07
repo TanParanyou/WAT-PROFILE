@@ -184,6 +184,9 @@ export interface Donation {
   tax_receipt_required: boolean;
   tax_receipt_sent: boolean;
   tax_receipt_sent_at: string | null;
+  receipt_requested?: boolean;
+  cancellation_reason?: string;
+  cancelled_at?: string | null;
   notes: string;
   status: string;
   source: "self_reported" | "staff_recorded" | string;
