@@ -10,6 +10,7 @@ import {
   validatePassword,
   validateReturnTo,
 } from "./validation";
+import { buildAccountHref, parseAccountTab } from "./accountNavigation";
 
 function flattenKeys(obj: Record<string, unknown>, prefix = ""): string[] {
   return Object.entries(obj).flatMap(([key, value]) => {
@@ -44,6 +45,14 @@ test("account messages are non-empty in th en de", () => {
       true,
     );
   }
+});
+
+test("preferred locale navigation preserves the active account tab", () => {
+  assert.equal(buildAccountHref(parseAccountTab("security")), "/account?tab=security");
+  assert.equal(
+    buildAccountHref(parseAccountTab("preferences")),
+    "/account?tab=preferences",
+  );
 });
 
 test("normalizeAccountEmail trims and lowercases", () => {

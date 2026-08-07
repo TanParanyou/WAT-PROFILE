@@ -1,46 +1,45 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
 import { Link, useRouter } from "@/navigation";
 import { useSearchParams } from "next/navigation";
 import { Loader2, AlertCircle, CheckCircle, LogOut } from "lucide-react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { useAccountSession } from "@/features/public/account/AccountSessionProvider";
 import {
   useUpdateAccountProfile,
   useCloseAccount,
 } from "@/features/public/account/queries";
 import { toAccountApiError } from "@/features/public/account/api";
-import { useAccountErrorMessage } from "@/features/public/account/hooks";
 import { useAccountReauth } from "@/features/public/account/hooks/useAccountReauth";
 import { AccountReauthError } from "@/features/public/account/reauth/reauth-types";
 import { AccountProviderMethods } from "./AccountProviderMethods";
 import { CredentialForms } from "./CredentialForms";
 import { AvatarUpload } from "./AvatarUpload";
+import { AccountField } from "./AccountField";
 import { AccountTabs, type AccountTab } from "./AccountTabs";
 import { buildAccountHref, parseAccountTab } from "../accountNavigation";
 import { useUnsavedChanges } from "../hooks/useUnsavedChanges";
-import { validateDisplayName } from "@/features/public/account/validation";
+import {
+  createAccountFormSchemas,
+  type ProfileFormValues,
+} from "@/features/public/account/formSchemas";
+import { mapAccountFormError } from "@/features/public/account/formErrors";
 import type { AccountLocale } from "@/features/public/account/types";
 
 const inputBase =
   "mt-2 min-h-11 w-full border border-site-border bg-site-canvas px-3 py-2.5 text-base text-site-foreground outline-none transition-colors placeholder:text-site-muted focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus";
-const labelBase = "block text-sm font-semibold text-text-800";
 const primaryActionClass =
   "inline-flex min-h-11 w-full items-center justify-center gap-2 bg-site-action px-6 py-[13px] font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus sm:w-auto";
 const secondaryActionClass =
   "inline-flex min-h-11 w-full items-center justify-center gap-2 border border-site-border bg-site-canvas px-6 py-[13px] font-semibold text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus sm:w-auto";
-const locales = ["th", "en", "de"] as const;
-
-interface ProfileBaseline {
-  displayName: string;
-  preferredLocale: AccountLocale;
-}
+const locales = ["th", "en", "de"] as const satisfies readonly AccountLocale[];
 
 export function ProfileForm() {
   const t = useTranslations("Account");
-  const getErrorMessage = useAccountErrorMessage();
   const locale = useLocale();
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -57,13 +56,7 @@ export function ProfileForm() {
   const { requireRecentAuth } = useAccountReauth();
   const updateProfile = useUpdateAccountProfile();
   const closeAccount = useCloseAccount();
-  const [displayName, setDisplayName] = useState(account?.display_name ?? "");
-  const [preferredLocale, setPreferredLocale] = useState<AccountLocale>(
-    account?.preferred_locale ?? (locale as AccountLocale),
-  );
-  const [formError, setFormError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
-  const [saving, setSaving] = useState(false);
   const [closing, setClosing] = useState(false);
   const [confirmClose, setConfirmClose] = useState(false);
   const [closedPurgeAfter, setClosedPurgeAfter] = useState<string | null>(null);
@@ -71,7 +64,6 @@ export function ProfileForm() {
   const [initializedAccountId, setInitializedAccountId] = useState<
     string | null
   >(null);
-  const [baseline, setBaseline] = useState<ProfileBaseline | null>(null);
   const [panelHeadingRefs] = useState(() => ({
     profile: null as HTMLHeadingElement | null,
     preferences: null as HTMLHeadingElement | null,
@@ -83,35 +75,63 @@ export function ProfileForm() {
     de: t("account.localeGerman"),
   };
 
+  const accountLocale: AccountLocale =
+    locale === "th" || locale === "en" || locale === "de" ? locale : "en";
+  const schemas = useMemo(
+    () =>
+      createAccountFormSchemas({
+        emailRequired: t("validation.emailRequired"),
+        emailInvalid: t("validation.emailInvalid"),
+        displayNameRequired: t("validation.displayNameRequired"),
+        displayNameMin: t("validation.displayNameMin"),
+        displayNameMax: t("validation.displayNameMax"),
+        passwordRequired: t("validation.passwordRequired"),
+        passwordMin: t("validation.passwordMin"),
+        passwordMax: t("validation.passwordMax"),
+        passwordComplexity: t("validation.passwordComplexity"),
+      }),
+    [t],
+  );
+  const form = useForm<ProfileFormValues>({
+    resolver: zodResolver(schemas.profile),
+    defaultValues: {
+      displayName: "",
+      preferredLocale: accountLocale,
+    },
+    shouldFocusError: true,
+  });
+  const {
+    register,
+    handleSubmit,
+    reset,
+    clearErrors,
+    setError,
+    formState: { errors, isDirty, isSubmitting },
+  } = form;
+
   useEffect(() => {
     if (!account) {
       setInitializedAccountId(null);
-      setBaseline(null);
+      reset({ displayName: "", preferredLocale: accountLocale });
       return;
     }
     if (account.id === initializedAccountId) return;
 
-    setDisplayName(account.display_name);
-    setPreferredLocale(account.preferred_locale);
-    setBaseline({
+    reset({
       displayName: account.display_name,
       preferredLocale: account.preferred_locale,
     });
     setActiveTab(requestedTab);
-    setFormError(null);
+    clearErrors();
     setSaved(false);
     setInitializedAccountId(account.id);
-  }, [account, initializedAccountId, requestedTab]);
+  }, [account, accountLocale, clearErrors, initializedAccountId, requestedTab, reset]);
 
   useEffect(() => {
     if (!account || account.id !== initializedAccountId) return;
     setActiveTab(requestedTab);
   }, [account, initializedAccountId, requestedTab]);
 
-  const isDirty =
-    baseline !== null &&
-    (displayName !== baseline.displayName ||
-      preferredLocale !== baseline.preferredLocale);
   const { confirmNavigation } = useUnsavedChanges({
     isDirty,
     message: t("account.unsavedBody"),
@@ -248,46 +268,48 @@ export function ProfileForm() {
     );
   }
 
-  const saveProfile = async () => {
-    if (saving) return;
-
-    setFormError(null);
+  const saveProfile = handleSubmit(async (values) => {
+    clearErrors("root.server");
     setSaved(false);
-
-    const nameError = validateDisplayName(displayName);
-    if (nameError) {
-      setFormError(t(`validation.${nameError}`));
-      return;
-    }
-    const nextDisplayName = displayName.trim();
-    setSaving(true);
     try {
-      await updateProfile.mutateAsync({
-        display_name: nextDisplayName,
+      const updated = await updateProfile.mutateAsync({
+        display_name: values.displayName,
         avatar_url: account.avatar_url,
-        preferred_locale: preferredLocale,
+        preferred_locale: values.preferredLocale,
       });
-      setDisplayName(nextDisplayName);
-      setBaseline({ displayName: nextDisplayName, preferredLocale });
+      reset({
+        displayName: updated.display_name,
+        preferredLocale: updated.preferred_locale,
+      });
       setSaved(true);
-    } catch (err) {
-      const apiError = toAccountApiError(err);
-      setFormError(getErrorMessage(apiError));
-    } finally {
-      setSaving(false);
+      if (values.preferredLocale !== locale) {
+        router.replace(buildAccountHref(activeTab), {
+          locale: values.preferredLocale,
+          scroll: false,
+        });
+      }
+    } catch (error: unknown) {
+      const apiError = toAccountApiError(error);
+      const mapped = mapAccountFormError(apiError, {
+        display_name: "displayName",
+        locale: "preferredLocale",
+        preferred_locale: "preferredLocale",
+      });
+      const message = t(mapped.messageKey as Parameters<typeof t>[0]);
+      if (
+        mapped.target === "displayName" ||
+        mapped.target === "preferredLocale"
+      ) {
+        setError(mapped.target, { type: "server", message });
+      } else {
+        setError("root.server", { type: "server", message });
+      }
     }
-  };
-
-  const handleSave = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    await saveProfile();
-  };
+  });
 
   const handleDiscard = () => {
-    if (!baseline) return;
-    setDisplayName(baseline.displayName);
-    setPreferredLocale(baseline.preferredLocale);
-    setFormError(null);
+    reset();
+    clearErrors();
     setSaved(false);
   };
 
@@ -306,17 +328,15 @@ export function ProfileForm() {
   };
 
   const handleClose = async () => {
-    setFormError(null);
+    clearErrors("root.server");
     setClosing(true);
     try {
       await requireRecentAuth({ reason: "close_account" });
       const result = await closeAccount.mutateAsync();
       setClosedPurgeAfter(result.purge_after);
       setConfirmClose(false);
-      setDisplayName("");
-      setPreferredLocale(locale as AccountLocale);
-      setBaseline(null);
-      setFormError(null);
+      reset({ displayName: "", preferredLocale: accountLocale });
+      clearErrors();
       setSaved(false);
       closeAccount.reset();
       clearLocalSession();
@@ -327,7 +347,10 @@ export function ProfileForm() {
       )
         return;
       const apiError = toAccountApiError(err);
-      setFormError(getErrorMessage(apiError));
+      setError("root.server", {
+        type: "server",
+        message: t(`errors.${apiError.code}` as Parameters<typeof t>[0]),
+      });
     } finally {
       setClosing(false);
     }
@@ -335,13 +358,13 @@ export function ProfileForm() {
 
   return (
     <div className="space-y-8">
-      {formError && (
+      {errors.root?.server?.message && (
         <div
           role="alert"
           className="flex items-start gap-2 border border-red-700 bg-red-50 p-3 text-sm text-red-700"
         >
           <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
-          <span>{formError}</span>
+          <span>{errors.root.server.message}</span>
         </div>
       )}
       {saved && (
@@ -364,7 +387,7 @@ export function ProfileForm() {
       <div className="grid items-start">
         <form
           className={`col-start-1 row-start-1 space-y-5 ${tabPanelVisibilityClass(activeTab, "profile")}`}
-          onSubmit={handleSave}
+          onSubmit={saveProfile}
           aria-hidden={activeTab !== "profile"}
           noValidate
         >
@@ -404,25 +427,28 @@ export function ProfileForm() {
               </dl>
             </div>
             <AvatarUpload account={account} onUploaded={() => setSaved(true)} />
-            <div>
-              <label className={labelBase} htmlFor="profile-display-name">
-                {t("account.displayNameLabel")}
-              </label>
+            <AccountField
+              id="profile-display-name"
+              label={t("account.displayNameLabel")}
+              error={errors.displayName?.message}
+            >
               <input
                 id="profile-display-name"
-                name="display_name"
                 type="text"
-                value={displayName}
-                onChange={(event) => setDisplayName(event.target.value)}
+                {...register("displayName")}
                 className={inputBase}
+                aria-invalid={errors.displayName ? true : undefined}
+                aria-describedby={
+                  errors.displayName ? "profile-display-name-error" : undefined
+                }
               />
-            </div>
+            </AccountField>
           </section>
         </form>
 
         <form
           className={`col-start-1 row-start-1 space-y-5 ${tabPanelVisibilityClass(activeTab, "preferences")}`}
-          onSubmit={handleSave}
+          onSubmit={saveProfile}
           aria-hidden={activeTab !== "preferences"}
           noValidate
         >
@@ -443,19 +469,19 @@ export function ProfileForm() {
             >
               {t("account.languageSection")}
             </h2>
-            <div>
-              <label className={labelBase} htmlFor="profile-locale">
-                {t("account.localeLabel")}
-              </label>
+            <AccountField
+              id="profile-locale"
+              label={t("account.localeLabel")}
+              error={errors.preferredLocale?.message}
+            >
               <select
                 id="profile-locale"
-                name="preferred_locale"
-                value={preferredLocale}
-                onChange={(event) =>
-                  setPreferredLocale(event.target.value as AccountLocale)
-                }
+                {...register("preferredLocale")}
                 className={inputBase}
-                aria-describedby="profile-locale-description"
+                aria-invalid={errors.preferredLocale ? true : undefined}
+                aria-describedby={`profile-locale-description${
+                  errors.preferredLocale ? " profile-locale-error" : ""
+                }`}
               >
                 {locales.map((code) => (
                   <option key={code} value={code}>
@@ -469,7 +495,7 @@ export function ProfileForm() {
               >
                 {t("account.localeDescription")}
               </p>
-            </div>
+            </AccountField>
           </section>
         </form>
 
@@ -602,10 +628,10 @@ export function ProfileForm() {
             <button
               type="button"
               onClick={() => void saveProfile()}
-              disabled={saving}
+              disabled={isSubmitting}
               className={`${primaryActionClass} disabled:cursor-not-allowed disabled:opacity-60`}
             >
-              {saving && (
+              {isSubmitting && (
                 <Loader2
                   className="h-5 w-5 animate-spin motion-reduce:animate-none"
                   aria-hidden
