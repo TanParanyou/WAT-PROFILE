@@ -5,6 +5,11 @@ export type AccountActionFailure =
   | { kind: "rate_limited"; retryAfterSeconds: number }
   | { kind: "transient" };
 
+export type AccountActionState =
+  | { kind: "loading" }
+  | { kind: "success" }
+  | AccountActionFailure;
+
 export function classifyAccountActionError(
   error: AccountApiError | null,
   tokenPresent: boolean,

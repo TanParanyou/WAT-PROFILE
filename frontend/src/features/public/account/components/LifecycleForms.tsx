@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/navigation";
@@ -17,6 +17,11 @@ import {
   type EmailRequestFormValues,
 } from "../formSchemas";
 import { mapAccountFormError } from "../formErrors";
+import {
+  classifyAccountActionError,
+  type AccountActionState,
+} from "../actionErrors";
+import { useRetryCountdown } from "../hooks/useRetryCountdown";
 import { AccountField } from "./AccountField";
 import { AccountFeedback } from "./AccountFeedback";
 import { AccountFlowFooter } from "./AccountFlowFooter";
@@ -130,26 +135,45 @@ export function ReopenRequestForm() {
   );
 }
 
-type ConfirmationState = "loading" | "success" | "error";
-
 export function ConfirmEmailChangeForm() {
   const t = useTranslations("Account");
   const params = useSearchParams();
-  const token = params.get("token");
-  const [state, setState] = useState<ConfirmationState>(() => (token ? "loading" : "error"));
+  const token = params.get("token") ?? "";
+  const [state, setState] = useState<AccountActionState>(() =>
+    token ? { kind: "loading" } : { kind: "invalid" },
+  );
+  const ranTokenRef = useRef<string | null>(null);
+  const executeAction = useCallback(async () => {
+    await Promise.resolve();
+    setState({ kind: "loading" });
+    try {
+      await confirmEmailChange(token);
+      setState({ kind: "success" });
+    } catch (error: unknown) {
+      setState(
+        classifyAccountActionError(toAccountApiError(error), Boolean(token)),
+      );
+    }
+  }, [token]);
 
   useEffect(() => {
-    if (!token) return;
-    void confirmEmailChange(token)
-      .then(() => setState("success"))
-      .catch(() => setState("error"));
-  }, [token]);
+    if (!token || ranTokenRef.current === token) return;
+    ranTokenRef.current = token;
+    const timer = window.setTimeout(() => {
+      void executeAction();
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [executeAction, token]);
+
+  const remaining = useRetryCountdown(
+    state.kind === "rate_limited" ? state.retryAfterSeconds : 0,
+  );
 
   return (
     <section className="space-y-4">
-      {state === "loading" ? (
+      {state.kind === "loading" ? (
         <AccountFeedback state={{ kind: "loading", message: t("account.loading") }} />
-      ) : state === "success" ? (
+      ) : state.kind === "success" ? (
         <>
           <AccountFeedback state={{ kind: "success", title: t("account.emailChanged"), body: t("account.emailChangedBody") }} />
           <AccountFlowFooter
@@ -164,6 +188,26 @@ export function ConfirmEmailChangeForm() {
               </Link>
             }
           />
+        </>
+      ) : state.kind === "transient" || state.kind === "rate_limited" ? (
+        <>
+          <AccountFeedback
+            state={{
+              kind: "error",
+              message:
+                state.kind === "rate_limited"
+                  ? t("account.actionRateLimited", { seconds: remaining })
+                  : t("account.actionTransient"),
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => void executeAction()}
+            disabled={remaining > 0}
+            className={primaryActionClass}
+          >
+            {t("account.actionRetry")}
+          </button>
         </>
       ) : (
         <>
@@ -189,21 +233,42 @@ export function ConfirmEmailChangeForm() {
 export function ReopenAccountForm() {
   const t = useTranslations("Account");
   const params = useSearchParams();
-  const token = params.get("token");
-  const [state, setState] = useState<ConfirmationState>(() => (token ? "loading" : "error"));
+  const token = params.get("token") ?? "";
+  const [state, setState] = useState<AccountActionState>(() =>
+    token ? { kind: "loading" } : { kind: "invalid" },
+  );
+  const ranTokenRef = useRef<string | null>(null);
+  const executeAction = useCallback(async () => {
+    await Promise.resolve();
+    setState({ kind: "loading" });
+    try {
+      await confirmAccountReopen(token);
+      setState({ kind: "success" });
+    } catch (error: unknown) {
+      setState(
+        classifyAccountActionError(toAccountApiError(error), Boolean(token)),
+      );
+    }
+  }, [token]);
 
   useEffect(() => {
-    if (!token) return;
-    void confirmAccountReopen(token)
-      .then(() => setState("success"))
-      .catch(() => setState("error"));
-  }, [token]);
+    if (!token || ranTokenRef.current === token) return;
+    ranTokenRef.current = token;
+    const timer = window.setTimeout(() => {
+      void executeAction();
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [executeAction, token]);
+
+  const remaining = useRetryCountdown(
+    state.kind === "rate_limited" ? state.retryAfterSeconds : 0,
+  );
 
   return (
     <section className="space-y-4">
-      {state === "loading" ? (
+      {state.kind === "loading" ? (
         <AccountFeedback state={{ kind: "loading", message: t("account.loading") }} />
-      ) : state === "success" ? (
+      ) : state.kind === "success" ? (
         <>
           <AccountFeedback
             state={{ kind: "success", title: t("account.accountRestored"), body: t("account.accountRestoredBody") }}
@@ -215,6 +280,26 @@ export function ReopenAccountForm() {
               </Link>
             }
           />
+        </>
+      ) : state.kind === "transient" || state.kind === "rate_limited" ? (
+        <>
+          <AccountFeedback
+            state={{
+              kind: "error",
+              message:
+                state.kind === "rate_limited"
+                  ? t("account.actionRateLimited", { seconds: remaining })
+                  : t("account.actionTransient"),
+            }}
+          />
+          <button
+            type="button"
+            onClick={() => void executeAction()}
+            disabled={remaining > 0}
+            className={primaryActionClass}
+          >
+            {t("account.actionRetry")}
+          </button>
         </>
       ) : (
         <>

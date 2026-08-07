@@ -30,6 +30,7 @@ export function SessionList() {
     account,
     accountLoading,
     accountError,
+    sessionEndReason,
     retryAccount,
     logoutAll,
   } = useAccountSession();
@@ -84,6 +85,15 @@ export function SessionList() {
   if (status === "anonymous") {
     return (
       <div className="space-y-8">
+        {sessionEndReason ? (
+          <div role="alert" className="border border-red-700 bg-red-50 p-3 text-sm text-red-700">
+            {t(
+              sessionEndReason === "disabled"
+                ? "account.sessionDisabled"
+                : "account.sessionExpired",
+            )}
+          </div>
+        ) : null}
         <section aria-labelledby="sessions-access-title" className="space-y-4 border border-site-border bg-site-surface p-5 sm:p-6">
           <div>
             <h3 id="sessions-access-title" className="font-heading text-xl font-bold text-site-foreground">

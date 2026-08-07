@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
 import { Link } from "@/navigation";
@@ -21,6 +21,11 @@ import {
   type ResetPasswordFormValues,
 } from "@/features/public/account/formSchemas";
 import { mapAccountFormError } from "@/features/public/account/formErrors";
+import {
+  classifyAccountActionError,
+  type AccountActionState,
+} from "@/features/public/account/actionErrors";
+import { useRetryCountdown } from "../hooks/useRetryCountdown";
 import { PasswordInput } from "./PasswordInput";
 import { PasswordRequirements } from "./PasswordRequirements";
 import { AccountField } from "./AccountField";
@@ -287,11 +292,11 @@ export function VerifyEmailContent() {
   const locale = useLocale();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
-  const [state, setState] = useState<"verifying" | "success" | "invalid" | "resend">(
-    () => (token ? "verifying" : "resend"),
+  const [state, setState] = useState<AccountActionState | { kind: "resend" }>(() =>
+    token ? { kind: "loading" } : { kind: "resend" },
   );
   const [resendSent, setResendSent] = useState(false);
-  const ranRef = useRef(false);
+  const ranTokenRef = useRef<string | null>(null);
 
   const schemas = useMemo(
     () =>
@@ -321,40 +326,31 @@ export function VerifyEmailContent() {
     formState: { errors, isSubmitting },
   } = resendForm;
 
-  useEffect(() => {
-    if (ranRef.current) return;
-    ranRef.current = true;
-    if (!token) return;
-    verifyEmail(token)
-      .then(() => setState("success"))
-      .catch(() => setState("invalid"));
+  const executeAction = useCallback(async () => {
+    await Promise.resolve();
+    setState({ kind: "loading" });
+    try {
+      await verifyEmail(token);
+      setState({ kind: "success" });
+    } catch (error: unknown) {
+      setState(
+        classifyAccountActionError(toAccountApiError(error), Boolean(token)),
+      );
+    }
   }, [token]);
 
-  if (state === "verifying") {
-    return (
-      <div className="flex items-center gap-2 text-sm text-site-muted">
-        <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
-        <span>{t("verifyEmail.verifying")}</span>
-      </div>
-    );
-  }
+  useEffect(() => {
+    if (!token || ranTokenRef.current === token) return;
+    ranTokenRef.current = token;
+    const timer = window.setTimeout(() => {
+      void executeAction();
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [executeAction, token]);
 
-  if (state === "success") {
-    return (
-      <div className="space-y-4">
-        <AccountFeedback
-          state={{ kind: "success", title: t("verifyEmail.successTitle"), body: t("verifyEmail.successBody") }}
-        />
-        <AccountFlowFooter
-          primary={
-            <Link href="/account/login" className={actionClass}>
-              {t("verifyEmail.loginLink")}
-            </Link>
-          }
-        />
-      </div>
-    );
-  }
+  const remaining = useRetryCountdown(
+    state.kind === "rate_limited" ? state.retryAfterSeconds : 0,
+  );
 
   const handleResend = handleSubmit(async ({ email }) => {
     clearErrors();
@@ -373,6 +369,56 @@ export function VerifyEmailContent() {
     }
   });
 
+  if (state.kind === "loading") {
+    return (
+      <div className="flex items-center gap-2 text-sm text-site-muted">
+        <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
+        <span>{t("verifyEmail.verifying")}</span>
+      </div>
+    );
+  }
+
+  if (state.kind === "success") {
+    return (
+      <div className="space-y-4">
+        <AccountFeedback
+          state={{ kind: "success", title: t("verifyEmail.successTitle"), body: t("verifyEmail.successBody") }}
+        />
+        <AccountFlowFooter
+          primary={
+            <Link href="/account/login" className={actionClass}>
+              {t("verifyEmail.loginLink")}
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
+
+  if (state.kind === "transient" || state.kind === "rate_limited") {
+    return (
+      <div className="space-y-5">
+        <AccountFeedback
+          state={{
+            kind: "error",
+            message:
+              state.kind === "rate_limited"
+                ? t("account.actionRateLimited", { seconds: remaining })
+                : t("account.actionTransient"),
+          }}
+        />
+        <button
+          type="button"
+          onClick={() => void executeAction()}
+          disabled={remaining > 0}
+          className="inline-flex min-h-11 w-full items-center justify-center gap-2 bg-site-action px-6 py-[13px] font-semibold text-site-on-action disabled:cursor-not-allowed disabled:opacity-60"
+        >
+          {t("account.actionRetry")}
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-5">
       {resendSent ? (
@@ -390,8 +436,11 @@ export function VerifyEmailContent() {
         </>
       ) : (
         <>
-          {state === "invalid" && <AccountFeedback state={{ kind: "error", message: t("verifyEmail.invalidBody") }} />}
-          {state === "resend" && <p className="text-sm text-site-muted">{t("verifyEmail.resendIntro")}</p>}
+          {state.kind === "invalid" ? (
+            <AccountFeedback state={{ kind: "error", message: t("verifyEmail.invalidBody") }} />
+          ) : (
+            <p className="text-sm text-site-muted">{t("verifyEmail.resendIntro")}</p>
+          )}
           {errors.root?.server?.message ? (
             <AccountFeedback
               state={{ kind: "error", message: errors.root.server.message }}
@@ -417,9 +466,9 @@ export function VerifyEmailContent() {
             <button
               type="submit"
               disabled={isSubmitting}
-              className="inline-flex min-h-11 w-full items-center justify-center gap-2 bg-site-action px-6 py-[13px] font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-60"
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 bg-site-action px-6 py-[13px] font-semibold text-site-on-action hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-60"
             >
-              {isSubmitting && <Loader2 className="h-5 w-5 animate-spin" aria-hidden />}
+              {isSubmitting ? <Loader2 className="h-5 w-5 animate-spin" aria-hidden /> : null}
               {t("verifyEmail.resendSubmit")}
             </button>
           </form>

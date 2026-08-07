@@ -18,8 +18,11 @@ import {
   reauthenticateAccount,
   restoreSession,
   setMemoryAccessToken,
+  toAccountApiError,
 } from "./api";
+import { classifyAccountSessionError } from "./sessionPolicy";
 import type { Account } from "./types";
+import type { AccountSessionEndReason } from "./sessionPolicy";
 
 const ACCOUNT_FEATURE_ENABLED =
   process.env.NEXT_PUBLIC_PUBLIC_ACCOUNT_AUTH_ENABLED === "true";
@@ -31,6 +34,7 @@ export interface AccountSessionValue {
   account: Account | null;
   accountLoading: boolean;
   accountError: unknown;
+  sessionEndReason: AccountSessionEndReason | null;
   retryAccount: () => Promise<void>;
   login: (email: string, password: string) => Promise<void>;
   reauthenticate: (password: string) => Promise<void>;
@@ -47,6 +51,8 @@ export function AccountSessionProvider({ children }: { children: ReactNode }) {
   const [status, setStatus] = useState<AccountSessionStatus>(
     ACCOUNT_FEATURE_ENABLED ? "loading" : "anonymous",
   );
+  const [sessionEndReason, setSessionEndReason] =
+    useState<AccountSessionEndReason | null>(null);
 
   // Restore the session by refreshing once; on success the account query below
   // re-fetches with the restored access token (held in module memory). Remote
@@ -100,6 +106,7 @@ export function AccountSessionProvider({ children }: { children: ReactNode }) {
     async (email: string, password: string) => {
       await loginAccount(email, password);
       setStatus("authenticated");
+      setSessionEndReason(null);
       await queryClient.invalidateQueries({ queryKey: accountKeys.current() });
     },
     [queryClient],
@@ -114,17 +121,30 @@ export function AccountSessionProvider({ children }: { children: ReactNode }) {
   // with that token in the current tab.
   const adoptCurrentSession = useCallback(async () => {
     setStatus("authenticated");
+    setSessionEndReason(null);
     await queryClient.invalidateQueries({ queryKey: accountKeys.current() });
     await queryClient.invalidateQueries({ queryKey: accountKeys.googleLink() });
   }, [queryClient]);
 
-  const clearLocalSession = useCallback(() => {
+  const clearLocalSession = useCallback(
+    (reason: AccountSessionEndReason | null = null) => {
     setMemoryAccessToken(null);
     setStatus("anonymous");
+    setSessionEndReason(reason);
     queryClient.removeQueries({ queryKey: accountKeys.current() });
     queryClient.removeQueries({ queryKey: accountKeys.sessions() });
     queryClient.removeQueries({ queryKey: accountKeys.googleLink() });
-  }, [queryClient]);
+    },
+    [queryClient],
+  );
+
+  useEffect(() => {
+    if (status !== "authenticated" || !accountQuery.error) return;
+    const reason = classifyAccountSessionError(
+      toAccountApiError(accountQuery.error),
+    );
+    if (reason) clearLocalSession(reason);
+  }, [accountQuery.error, clearLocalSession, status]);
 
   const logout = useCallback(async () => {
     try {
@@ -148,6 +168,7 @@ export function AccountSessionProvider({ children }: { children: ReactNode }) {
       account: accountQuery.data ?? null,
       accountLoading: accountQuery.isPending,
       accountError: accountQuery.error,
+      sessionEndReason,
       retryAccount,
       login,
       reauthenticate,
@@ -161,6 +182,7 @@ export function AccountSessionProvider({ children }: { children: ReactNode }) {
       accountQuery.data,
       accountQuery.isPending,
       accountQuery.error,
+      sessionEndReason,
       retryAccount,
       login,
       reauthenticate,

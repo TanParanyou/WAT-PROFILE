@@ -1,12 +1,20 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/navigation";
 import { useSearchParams } from "next/navigation";
-import { confirmGoogleLink } from "@/features/public/account/api";
+import {
+  confirmGoogleLink,
+  toAccountApiError,
+} from "@/features/public/account/api";
 import { useAccountSession } from "@/features/public/account/AccountSessionProvider";
 import { buildAccountHref } from "../accountNavigation";
+import {
+  classifyAccountActionError,
+  type AccountActionState,
+} from "../actionErrors";
+import { useRetryCountdown } from "../hooks/useRetryCountdown";
 import { AccountFeedback } from "./AccountFeedback";
 import { AccountFlowFooter } from "./AccountFlowFooter";
 
@@ -21,24 +29,45 @@ export function LinkAccountContent() {
   const status = searchParams.get("status");
   const token = searchParams.get("token") ?? "";
   const { adoptCurrentSession } = useAccountSession();
-  const [state, setState] = useState<"approval_sent" | "confirming" | "success" | "invalid">(
-    status === "approval_sent" ? "approval_sent" : token ? "confirming" : "invalid",
+  const [state, setState] = useState<
+    AccountActionState | { kind: "approval_sent" }
+  >(
+    status === "approval_sent"
+      ? { kind: "approval_sent" }
+      : token
+        ? { kind: "loading" }
+        : { kind: "invalid" },
   );
-  const ranRef = useRef(false);
+  const ranTokenRef = useRef<string | null>(null);
+
+  const executeAction = useCallback(async () => {
+    await Promise.resolve();
+    setState({ kind: "loading" });
+    try {
+      await confirmGoogleLink(token);
+      await adoptCurrentSession();
+      setState({ kind: "success" });
+    } catch (error: unknown) {
+      setState(
+        classifyAccountActionError(toAccountApiError(error), Boolean(token)),
+      );
+    }
+  }, [adoptCurrentSession, token]);
 
   useEffect(() => {
-    if (ranRef.current) return;
-    ranRef.current = true;
-    if (state !== "confirming") return;
-    confirmGoogleLink(token)
-      .then(async () => {
-        await adoptCurrentSession();
-        setState("success");
-      })
-      .catch(() => setState("invalid"));
-  }, [state, token, adoptCurrentSession]);
+    if (!token || ranTokenRef.current === token) return;
+    ranTokenRef.current = token;
+    const timer = window.setTimeout(() => {
+      void executeAction();
+    }, 0);
+    return () => window.clearTimeout(timer);
+  }, [executeAction, token]);
 
-  if (state === "approval_sent") {
+  const remaining = useRetryCountdown(
+    state.kind === "rate_limited" ? state.retryAfterSeconds : 0,
+  );
+
+  if (state.kind === "approval_sent") {
     return (
       <div className="space-y-4">
         <AccountFeedback
@@ -55,13 +84,13 @@ export function LinkAccountContent() {
     );
   }
 
-  if (state === "confirming") {
+  if (state.kind === "loading") {
     return (
       <AccountFeedback state={{ kind: "loading", message: t("link.confirming") }} />
     );
   }
 
-  if (state === "success") {
+  if (state.kind === "success") {
     return (
       <div className="space-y-4">
         <AccountFeedback state={{ kind: "success", title: t("link.successTitle"), body: t("link.successBody") }} />
@@ -77,6 +106,30 @@ export function LinkAccountContent() {
             </Link>
           }
         />
+      </div>
+    );
+  }
+
+  if (state.kind === "transient" || state.kind === "rate_limited") {
+    return (
+      <div className="space-y-4">
+        <AccountFeedback
+          state={{
+            kind: "error",
+            message:
+              state.kind === "rate_limited"
+                ? t("account.actionRateLimited", { seconds: remaining })
+                : t("account.actionTransient"),
+          }}
+        />
+        <button
+          type="button"
+          onClick={() => void executeAction()}
+          disabled={remaining > 0}
+          className={actionClass}
+        >
+          {t("account.actionRetry")}
+        </button>
       </div>
     );
   }

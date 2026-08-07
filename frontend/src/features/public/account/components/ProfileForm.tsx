@@ -49,6 +49,7 @@ export function ProfileForm() {
     account,
     accountLoading,
     accountError,
+    sessionEndReason,
     retryAccount,
     logout,
     clearLocalSession,
@@ -176,6 +177,15 @@ export function ProfileForm() {
   if (status === "anonymous") {
     return (
       <section aria-labelledby="account-access-title" className="space-y-4">
+        {sessionEndReason ? (
+          <div role="alert" className="border border-red-700 bg-red-50 p-3 text-sm text-red-700">
+            {t(
+              sessionEndReason === "disabled"
+                ? "account.sessionDisabled"
+                : "account.sessionExpired",
+            )}
+          </div>
+        ) : null}
         <div>
           <h2
             id="account-access-title"
