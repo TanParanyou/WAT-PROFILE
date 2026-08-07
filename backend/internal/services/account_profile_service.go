@@ -104,7 +104,7 @@ func (s *AccountProfileService) GetAccount(ctx context.Context, userID uuid.UUID
 // UpdateProfile validates and persists the safe profile fields.
 func (s *AccountProfileService) UpdateProfile(ctx context.Context, userID uuid.UUID, in UpdateProfileInput) (AccountView, error) {
 	displayName := strings.TrimSpace(in.DisplayName)
-	if len(displayName) < minDisplayName || len(displayName) > maxDisplayName {
+	if !validDisplayName(displayName) {
 		return AccountView{}, accountauth.NewFieldError(accountauth.CodeValidation, "display_name", "Display name must be between 2 and 80 characters.")
 	}
 	if !supportedLocale(in.PreferredLocale) {

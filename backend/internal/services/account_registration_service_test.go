@@ -167,6 +167,43 @@ func TestRegisterPasswordCreatesNoTempleMember(t *testing.T) {
 	}
 }
 
+func TestRegisterPasswordDisplayNameUnicodeLength(t *testing.T) {
+	tests := []struct {
+		name        string
+		email       string
+		displayName string
+		wantErr     bool
+	}{
+		{name: "thai accepted", email: "thai@example.com", displayName: strings.Repeat("ก", 80)},
+		{name: "german accepted", email: "german@example.com", displayName: strings.Repeat("ä", 80)},
+		{name: "emoji accepted", email: "emoji@example.com", displayName: strings.Repeat("🙂", 80)},
+		{name: "one code point rejected", email: "short@example.com", displayName: "ก", wantErr: true},
+		{name: "eighty one code points rejected", email: "long@example.com", displayName: strings.Repeat("🙂", 81), wantErr: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			db := newAccountTestDB(t)
+			service := newRegistrationFixture(t, db, &fakeEmailSender{})
+			err := service.RegisterPassword(context.Background(), RegisterPasswordInput{
+				Email:       tt.email,
+				Password:    "Abcdefghijk1",
+				DisplayName: tt.displayName,
+				Locale:      "en",
+			})
+			if tt.wantErr {
+				if err == nil || accountauth.ErrorCode(err) != accountauth.CodeValidation {
+					t.Fatalf("expected validation error, got %v", err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("expected display name to be accepted, got %v", err)
+			}
+		})
+	}
+}
+
 func TestRegisterPasswordRejectsShortPassword(t *testing.T) {
 	db := newAccountTestDB(t)
 	service := newRegistrationFixture(t, db, &fakeEmailSender{})

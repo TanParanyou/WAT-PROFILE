@@ -6,6 +6,7 @@ import (
 	"os"
 	"strings"
 	"time"
+	"unicode/utf8"
 
 	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgconn"
@@ -21,6 +22,11 @@ const (
 	minDisplayName = 2
 	maxDisplayName = 80
 )
+
+func validDisplayName(value string) bool {
+	length := utf8.RuneCountInString(strings.TrimSpace(value))
+	return length >= minDisplayName && length <= maxDisplayName
+}
 
 // RegisterPasswordInput is the validated input for password registration.
 type RegisterPasswordInput struct {
@@ -92,7 +98,7 @@ func (s *AccountRegistrationService) RegisterPassword(ctx context.Context, in Re
 	if err := accountauth.ValidatePasswordPolicy(in.Password); err != nil {
 		return err
 	}
-	if len(displayName) < minDisplayName || len(displayName) > maxDisplayName {
+	if !validDisplayName(displayName) {
 		return accountauth.NewFieldError(accountauth.CodeValidation, "display_name", "Display name must be between 2 and 80 characters.")
 	}
 	if !supportedLocale(in.Locale) {

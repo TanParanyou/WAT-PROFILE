@@ -153,6 +153,40 @@ func TestUpdateProfileTrimsDisplayName(t *testing.T) {
 	}
 }
 
+func TestUpdateProfileDisplayNameUnicodeLength(t *testing.T) {
+	tests := []struct {
+		name        string
+		displayName string
+		wantErr     bool
+	}{
+		{name: "thai accepted", displayName: strings.Repeat("ก", 80)},
+		{name: "german accepted", displayName: strings.Repeat("ä", 80)},
+		{name: "emoji accepted", displayName: strings.Repeat("🙂", 80)},
+		{name: "one code point rejected", displayName: "ก", wantErr: true},
+		{name: "eighty one code points rejected", displayName: strings.Repeat("🙂", 81), wantErr: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			svc, _, db := newProfileFixture(t)
+			user := seedProfileAccount(t, db, "unicode@example.com", "Valid Name", "en")
+			_, err := svc.UpdateProfile(context.Background(), user.ID, UpdateProfileInput{
+				DisplayName:     tt.displayName,
+				PreferredLocale: "en",
+			})
+			if tt.wantErr {
+				if err == nil || accountauth.ErrorCode(err) != accountauth.CodeValidation {
+					t.Fatalf("expected validation error, got %v", err)
+				}
+				return
+			}
+			if err != nil {
+				t.Fatalf("expected display name to be accepted, got %v", err)
+			}
+		})
+	}
+}
+
 func TestUpdateProfilePreservesAvatarWhenProfileFormOmitsIt(t *testing.T) {
 	svc, _, db := newProfileFixture(t)
 	user := seedProfileAccount(t, db, "preserve-avatar@example.com", "Avatar Person", "en")
