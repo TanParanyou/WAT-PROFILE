@@ -120,7 +120,8 @@ func (h *DonationHandler) SubmitSelfReported(c *fiber.Ctx) error {
 	sum := sha256.Sum256(data)
 	proof := &models.DonationProof{StorageKey: key, OriginalFilename: filepath.Base(proofHeader.Filename), MimeType: mimeType, Size: int64(len(data)), Checksum: fmt.Sprintf("%x", sum[:])}
 	donationDateValue, _ := time.Parse("2006-01-02", donationDate)
-	donation := models.Donation{DonorType: "guest", DonorName: strings.TrimSpace(c.FormValue("donor_name")), DonorEmail: email, DonorPhone: strings.TrimSpace(c.FormValue("donor_phone")), Amount: amount, Currency: "EUR", DonationDate: donationDateValue, DonationMethod: method, DonorAddress: strings.TrimSpace(c.FormValue("donor_address")), CommunicationLocale: locale, ReceiptRequested: c.FormValue("receipt_requested") == "true"}
+	receiptRequested := c.FormValue("receipt_requested") == "true" || strings.EqualFold(c.FormValue("receipt_requested"), "on")
+	donation := models.Donation{DonorType: "guest", DonorName: strings.TrimSpace(c.FormValue("donor_name")), DonorEmail: email, DonorPhone: strings.TrimSpace(c.FormValue("donor_phone")), Amount: amount, Currency: "EUR", DonationDate: donationDateValue, DonationMethod: method, DonorAddress: strings.TrimSpace(c.FormValue("donor_address")), CommunicationLocale: locale, ReceiptRequested: receiptRequested}
 	created, err := h.donationService.CreateSelfReported(services.SelfReportedDonationInput{Donation: donation, Proof: proof})
 	if err != nil {
 		_ = h.store.DeleteFile(c.UserContext(), key)
