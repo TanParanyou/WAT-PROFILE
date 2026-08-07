@@ -141,6 +141,9 @@ func (h *DonationHandler) CreateStaffDonation(c *fiber.Ctx) error {
 	if err := c.BodyParser(&donation); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
 	}
+	if err := donationvalidation.ValidateStaffInput(donationvalidation.StaffInput{Amount: strconv.FormatFloat(donation.Amount, 'f', -1, 64), Currency: donation.Currency, DonationDate: donation.DonationDate.Format("2006-01-02"), DonationMethod: donation.DonationMethod, DonorEmail: donation.DonorEmail, ReceiptRequested: donation.ReceiptRequested}); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 	actor, err := middleware.GetCurrentUserID(c)
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusUnauthorized, "Admin identity is required")
@@ -163,6 +166,31 @@ func (h *DonationHandler) ConfirmDonation(c *fiber.Ctx) error {
 	donation, err := h.donationService.Confirm(id, actor)
 	if err != nil {
 		if strings.Contains(err.Error(), "not pending") {
+			return utils.ErrorResponse(c, fiber.StatusConflict, err.Error())
+		}
+		return utils.ErrorResponse(c, fiber.StatusNotFound, "Donation not found")
+	}
+	return utils.SuccessResponse(c, donation)
+}
+
+func (h *DonationHandler) CancelDonation(c *fiber.Ctx) error {
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+	var request struct {
+		Reason string `json:"reason"`
+	}
+	if err := c.BodyParser(&request); err != nil || strings.TrimSpace(request.Reason) == "" {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Cancellation reason is required")
+	}
+	actor, err := middleware.GetCurrentUserID(c)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusUnauthorized, "Admin identity is required")
+	}
+	donation, err := h.donationService.Cancel(id, actor, request.Reason)
+	if err != nil {
+		if strings.Contains(err.Error(), "already cancelled") {
 			return utils.ErrorResponse(c, fiber.StatusConflict, err.Error())
 		}
 		return utils.ErrorResponse(c, fiber.StatusNotFound, "Donation not found")
@@ -207,6 +235,12 @@ func (h *DonationHandler) SendDonationReceipt(c *fiber.Ctx) error {
 	}
 	if donation.Status != "confirmed" {
 		return utils.ErrorResponse(c, fiber.StatusConflict, "Donation must be confirmed before receipt dispatch")
+	}
+	if !donation.ReceiptRequested {
+		return utils.ErrorResponse(c, fiber.StatusConflict, "Receipt was not requested")
+	}
+	if strings.TrimSpace(donation.DonorEmail) == "" {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Donor email is required for receipt dispatch")
 	}
 	if donation.ReceiptDispatchedAt != nil {
 		return utils.SuccessResponse(c, fiber.Map{"donation": donation, "already_dispatched": true})

@@ -126,6 +126,30 @@ func (s *DonationService) Confirm(id int, actorID uuid.UUID) (*models.Donation, 
 	return &donation, nil
 }
 
+// Cancel marks a donation as cancelled while retaining its financial record.
+func (s *DonationService) Cancel(id int, actorID uuid.UUID, reason string) (*models.Donation, error) {
+	if strings.TrimSpace(reason) == "" {
+		return nil, errors.New("cancellation reason is required")
+	}
+	var donation models.Donation
+	err := s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&donation, id).Error; err != nil {
+			return err
+		}
+		if donation.Status == "cancelled" {
+			return errors.New("donation is already cancelled")
+		}
+		now := s.now()
+		return tx.Model(&donation).Updates(map[string]interface{}{
+			"status": "cancelled", "cancellation_reason": strings.TrimSpace(reason), "cancelled_by_id": actorID, "cancelled_at": now,
+		}).Error
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &donation, nil
+}
+
 // MarkReceiptDispatched is idempotent: a retry returns the already-dispatched
 // record without rendering or sending a second receipt.
 func (s *DonationService) MarkReceiptDispatched(id int, actorID uuid.UUID, objectKey, checksum string) (*models.Donation, bool, error) {

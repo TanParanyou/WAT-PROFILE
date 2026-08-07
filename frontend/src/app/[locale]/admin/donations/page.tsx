@@ -11,7 +11,6 @@ import { donationAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import type { Donation } from "@/types/entities";
 import { useRowSelection } from "@/hooks/useRowSelection";
-import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
 import { Icons } from "@/components/ui/Icons";
 import { useAdminListState } from "@/features/admin-list/useAdminListState";
 import { useAdminListQuery } from "@/features/admin-list/useAdminListQuery";
@@ -104,47 +103,16 @@ export default function DonationsPage() {
     activeChips.push({ key: "to", value: listState.params.filters.to, label: `ถึงวันที่: ${listState.params.filters.to}` });
   }
 
-  const handleDelete = async (id: number) => {
-    await confirm({
-      title: t("common.delete"),
-      message: t("common.confirmDelete"),
-      variant: "danger",
-      onConfirm: async () => {
-        try {
-          await donationAdminService.delete(id);
-          toast.success(t("common.success"));
-          selectedIds.clearSelection();
-          listQuery.refetch();
-        } catch (err) {
-          toast.error(t("common.error"));
-          throw err;
-        }
-      },
-    });
-  };
-
-  const handleBulkDelete = async () => {
-    if (selectedIds.selectedCount === 0) return;
-    await confirm({
-      title: t("common.delete"),
-      message: t("common.confirmDelete"),
-      variant: "danger",
-      onConfirm: async () => {
-        try {
-          await donationAdminService.bulkDelete(selectedIds.selectedArray);
-          toast.success(t("common.success"));
-          selectedIds.clearSelection();
-          listQuery.refetch();
-        } catch (err) {
-          toast.error(t("common.error"));
-          throw err;
-        }
-      },
-    });
-  };
-
   const handleConfirm = async (id: number) => {
     await confirm({ title: "ยืนยันเงินบริจาค", message: "ตรวจสอบหลักฐานแล้วและยืนยันรายการนี้หรือไม่", onConfirm: async () => { await donationAdminService.confirm(id); toast.success(t("common.success")); await listQuery.refetch(); } });
+  };
+
+  const handleCancel = async (id: number) => {
+    const reason = window.prompt("เหตุผลที่ยกเลิกรายการ");
+    if (!reason?.trim()) return;
+    await donationAdminService.cancel(id, reason.trim());
+    toast.success("ยกเลิกรายการแล้ว");
+    await listQuery.refetch();
   };
 
   const handleReceipt = async (id: number) => {
@@ -245,15 +213,7 @@ export default function DonationsPage() {
           {row.source === "self_reported" && <PermissionGuard resource="donations" action="read"><button type="button" onClick={() => void handleProof(row.id)} className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted" title="ดูหลักฐาน"><Icons.Download size={16} /></button></PermissionGuard>}
           {row.status === "pending" && <PermissionGuard resource="donations" action="update"><button type="button" onClick={() => void handleConfirm(row.id)} className="p-1.5 rounded hover:bg-admin-success-surface text-admin-success" title="ยืนยัน"><Icons.Save size={16} /></button></PermissionGuard>}
           {row.status === "confirmed" && !row.receipt_dispatched_at && <PermissionGuard resource="donations" action="update"><button type="button" onClick={() => void handleReceipt(row.id)} className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted" title="ส่งใบเสร็จ"><Icons.FileText size={16} /></button></PermissionGuard>}
-          <PermissionGuard resource="donations" action="delete">
-            <button
-              type="button"
-              onClick={() => handleDelete(row.id)}
-              className="p-1.5 rounded hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
-            >
-              <Icons.Delete size={16} />
-            </button>
-          </PermissionGuard>
+          {row.status !== "cancelled" && <PermissionGuard resource="donations" action="update"><button type="button" onClick={() => void handleCancel(row.id)} className="p-1.5 rounded hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger" title="ยกเลิก"><Icons.Delete size={16} /></button></PermissionGuard>}
         </div>
       ),
     },
@@ -329,21 +289,6 @@ export default function DonationsPage() {
           />
         </AdminListToolbar>
       </div>
-
-      <BulkActionToolbar
-        selectedCount={selectedIds.selectedCount}
-        onClear={selectedIds.clearSelection}
-      >
-        <PermissionGuard resource="donations" action="delete">
-          <button
-            onClick={handleBulkDelete}
-            className="flex items-center gap-2 px-3 py-1.5 bg-admin-danger hover:brightness-90 text-admin-on-action rounded-none transition-colors text-sm font-medium focus-visible:outline-2 focus-visible:outline-admin-focus"
-          >
-            <Icons.Delete size={16} />
-            {t("common.bulkDelete")}
-          </button>
-        </PermissionGuard>
-      </BulkActionToolbar>
 
       <div className="mt-6">
         <DataTable

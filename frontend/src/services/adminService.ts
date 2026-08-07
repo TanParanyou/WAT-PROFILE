@@ -89,6 +89,10 @@ export const donationAdminService = {
     const res = await api.post<ApiResponse<Donation>>(`/admin/donations/${id}/confirm`);
     return res.data.data!;
   },
+  async cancel(id: number, reason: string): Promise<Donation> {
+    const res = await api.post<ApiResponse<Donation>>(`/admin/donations/${id}/cancel`, { reason });
+    return res.data.data!;
+  },
   async sendReceipt(id: number): Promise<{ donation: Donation; queued?: boolean; already_dispatched?: boolean }> {
     const res = await api.post<ApiResponse<{ donation: Donation; queued?: boolean; already_dispatched?: boolean }>>(`/admin/donations/${id}/send-receipt`);
     return res.data.data!;

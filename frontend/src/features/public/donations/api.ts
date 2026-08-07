@@ -2,12 +2,14 @@ import api from "@/services/api";
 
 export interface SelfReportedDonationPayload {
   amount: number;
-  currency: string;
+  currency: "EUR";
+  donation_date: string;
   donation_method: "bank_transfer" | "paypal";
   donor_name: string;
   donor_email: string;
   donor_phone?: string;
   locale: "th" | "en" | "de";
+  receipt_requested: boolean;
   proof: File;
 }
 
