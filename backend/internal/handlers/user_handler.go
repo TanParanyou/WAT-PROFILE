@@ -31,6 +31,7 @@ func (h *UserHandler) GetUsers(c *fiber.Ctx) error {
 		DefaultSort:  "created_at",
 		DefaultOrder: "desc",
 		AllowedSort: map[string]string{
+			"id":         "id",
 			"created_at": "created_at",
 			"name":       "name",
 			"email":      "email",

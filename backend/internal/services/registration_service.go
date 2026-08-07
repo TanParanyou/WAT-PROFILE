@@ -26,6 +26,9 @@ type RegistrationListOptions struct {
 }
 
 var registrationSortColumns = map[string]string{
+	"id":                   "event_registrations.id",
+	"name":                 "event_registrations.first_name",
+	"event_title":          "event_registrations.event_id",
 	"first_name":          "event_registrations.first_name",
 	"last_name":           "event_registrations.last_name",
 	"email":               "event_registrations.email",

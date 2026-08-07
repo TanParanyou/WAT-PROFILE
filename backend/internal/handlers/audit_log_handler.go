@@ -25,6 +25,7 @@ func (h *AuditLogHandler) GetAuditLogs(c *fiber.Ctx) error {
 		DefaultSort:  "created_at",
 		DefaultOrder: "desc",
 		AllowedSort: map[string]string{
+			"id":          "id",
 			"created_at":  "created_at",
 			"action":      "action",
 			"entity_type": "entity_type",

@@ -22,10 +22,13 @@ type ScheduleListOptions struct {
 }
 
 var scheduleSortColumns = map[string]string{
+	"id":            "schedules.id",
 	"display_order": "schedules.display_order",
 	"activity":      "schedules.title->>'th'",
 	"day_of_week":   "schedules.day_of_week",
 	"schedule_type": "schedules.schedule_type",
+	"start_time":    "schedules.time_start",
+	"created_at":    "schedules.created_at",
 }
 
 // ListAdmin returns a paginated list of schedules for admin management

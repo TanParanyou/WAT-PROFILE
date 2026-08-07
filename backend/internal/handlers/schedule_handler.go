@@ -36,10 +36,13 @@ func (h *ScheduleHandler) GetAdminSchedules(c *fiber.Ctx) error {
 		DefaultSort:  "display_order",
 		DefaultOrder: "asc",
 		AllowedSort: map[string]string{
+			"id":           "id",
 			"display_order": "display_order",
 			"activity":      "activity",
 			"day_of_week":   "day_of_week",
 			"schedule_type": "schedule_type",
+			"start_time":    "start_time",
+			"created_at":    "created_at",
 		},
 	})
 	if err != nil {

@@ -27,14 +27,17 @@ type GalleryCategoryListOptions struct {
 }
 
 var gallerySortColumns = map[string]string{
+	"id":            "galleries.id",
 	"display_order": "galleries.display_order",
 	"created_at":    "galleries.created_at",
 	"caption":       "galleries.caption->>'th'",
 }
 
 var galleryCategorySortColumns = map[string]string{
+	"id":            "gallery_categories.id",
 	"display_order": "gallery_categories.display_order",
 	"name":          "gallery_categories.name->>'th'",
+	"slug":          "gallery_categories.slug",
 	"created_at":    "gallery_categories.created_at",
 }
 

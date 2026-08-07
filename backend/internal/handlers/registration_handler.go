@@ -77,6 +77,9 @@ func (h *RegistrationHandler) GetRegistrations(c *fiber.Ctx) error {
 		DefaultSort:  "created_at",
 		DefaultOrder: "desc",
 		AllowedSort: map[string]string{
+			"id":          "id",
+			"name":        "name",
+			"event_title": "event_title",
 			"first_name":          "first_name",
 			"last_name":           "last_name",
 			"email":               "email",

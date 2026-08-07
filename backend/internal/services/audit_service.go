@@ -130,6 +130,7 @@ type AuditListOptions struct {
 }
 
 var auditSortColumns = map[string]string{
+	"id":          "audit_logs.id",
 	"created_at":  "audit_logs.created_at",
 	"action":      "audit_logs.action",
 	"entity_type": "audit_logs.entity_type",

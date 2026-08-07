@@ -22,6 +22,7 @@ type ContactListOptions struct {
 }
 
 var contactSortColumns = map[string]string{
+	"id":           "contact_inquiries.id",
 	"created_at":   "contact_inquiries.created_at",
 	"name":         "contact_inquiries.name",
 	"email":        "contact_inquiries.email",

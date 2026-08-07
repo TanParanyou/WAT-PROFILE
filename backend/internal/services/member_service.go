@@ -66,10 +66,13 @@ type MemberListOptions struct {
 }
 
 var memberSortColumns = map[string]string{
+	"id":               "members.id",
 	"created_at":      "members.created_at",
 	"member_code":     "members.member_code",
+	"first_name_th":   "members.first_name_th",
 	"membership_date": "members.membership_date",
 	"membership_type": "members.membership_type",
+	"membership_status": "members.membership_status",
 }
 
 // List returns paginated members with search, filters, sorting, and user details

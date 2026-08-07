@@ -23,6 +23,7 @@ type RoleListOptions struct {
 }
 
 var roleSortColumns = map[string]string{
+	"id":         "roles.id",
 	"name":       "roles.name",
 	"created_at": "roles.created_at",
 }

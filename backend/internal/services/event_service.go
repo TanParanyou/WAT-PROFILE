@@ -23,9 +23,11 @@ type EventListOptions struct {
 }
 
 var eventSortColumns = map[string]string{
+	"id":            "events.id",
 	"start_date":    "events.start_date",
 	"title":         "events.title->>'th'",
 	"event_type":    "events.event_type",
+	"end_date":      "events.end_date",
 	"created_at":    "events.created_at",
 	"display_order": "events.display_order",
 }

@@ -36,6 +36,7 @@ func (h *GalleryHandler) GetAdminGalleries(c *fiber.Ctx) error {
 		DefaultSort:  "display_order",
 		DefaultOrder: "asc",
 		AllowedSort: map[string]string{
+			"id":            "id",
 			"display_order": "display_order",
 			"created_at":    "created_at",
 			"caption":       "caption",
@@ -83,8 +84,10 @@ func (h *GalleryHandler) GetAdminCategories(c *fiber.Ctx) error {
 		DefaultSort:  "display_order",
 		DefaultOrder: "asc",
 		AllowedSort: map[string]string{
+			"id":            "id",
 			"display_order": "display_order",
 			"name":          "name",
+			"slug":          "slug",
 			"created_at":    "created_at",
 		},
 	})

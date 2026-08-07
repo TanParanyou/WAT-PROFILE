@@ -26,6 +26,7 @@ func (h *RoleHandler) GetRoles(c *fiber.Ctx) error {
 		DefaultSort:  "name",
 		DefaultOrder: "asc",
 		AllowedSort: map[string]string{
+			"id":         "id",
 			"name":       "name",
 			"created_at": "created_at",
 		},

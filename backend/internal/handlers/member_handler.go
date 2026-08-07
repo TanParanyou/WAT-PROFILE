@@ -84,10 +84,13 @@ func (h *MemberHandler) GetMembers(c *fiber.Ctx) error {
 		DefaultSort:  "created_at",
 		DefaultOrder: "desc",
 		AllowedSort: map[string]string{
+			"id":               "id",
 			"created_at":      "created_at",
 			"member_code":     "member_code",
+			"first_name_th":   "first_name_th",
 			"membership_date": "membership_date",
 			"membership_type": "membership_type",
+			"membership_status": "membership_status",
 		},
 	})
 	if err != nil {

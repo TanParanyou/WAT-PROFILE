@@ -50,9 +50,11 @@ func (h *EventHandler) GetAdminEvents(c *fiber.Ctx) error {
 		DefaultSort:  "start_date",
 		DefaultOrder: "desc",
 		AllowedSort: map[string]string{
+			"id":            "id",
 			"start_date":    "start_date",
 			"title":         "title",
 			"event_type":    "event_type",
+			"end_date":      "end_date",
 			"created_at":    "created_at",
 			"display_order": "display_order",
 		},
