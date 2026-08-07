@@ -43,6 +43,19 @@ test("unknown backend fields map to the server root", () => {
   assert.equal(mapped.target, "root.server");
 });
 
+test("same-email validation uses the dedicated localized message", () => {
+  const mapped = mapAccountFormError(
+    apiError("AUTH_VALIDATION", {
+      fieldErrors: [{ field: "new_email", message: "RAW_BACKEND_MESSAGE" }],
+    }),
+    { new_email: "newEmail" },
+  );
+  assert.deepEqual(mapped, {
+    target: "newEmail",
+    messageKey: "validation.emailDifferent",
+  });
+});
+
 test("action errors separate invalid, rate limited, and transient failures", () => {
   assert.deepEqual(classifyAccountActionError(null, false), { kind: "invalid" });
   assert.deepEqual(

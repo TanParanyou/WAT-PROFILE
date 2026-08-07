@@ -84,7 +84,7 @@ export function EmailChangeForm({
       });
       const message = t(mapped.messageKey as Parameters<typeof t>[0]);
       if (mapped.target === "newEmail") {
-        setError("newEmail", { type: "server", message });
+        setError("newEmail", { type: "server", message }, { shouldFocus: true });
       } else {
         setError("root.server", { type: "server", message });
       }

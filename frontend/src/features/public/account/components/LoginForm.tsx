@@ -113,7 +113,7 @@ export function LoginForm() {
         setError(mapped.target, {
           type: "server",
           message,
-        });
+        }, { shouldFocus: true });
       } else {
         setError("root.server", {
           type: "server",

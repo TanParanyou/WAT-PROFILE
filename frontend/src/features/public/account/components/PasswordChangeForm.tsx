@@ -90,7 +90,7 @@ export function PasswordChangeForm({
       });
       const message = t(mapped.messageKey as Parameters<typeof t>[0]);
       if (mapped.target === "newPassword") {
-        setError("newPassword", { type: "server", message });
+        setError("newPassword", { type: "server", message }, { shouldFocus: true });
       } else {
         setError("root.server", { type: "server", message });
       }

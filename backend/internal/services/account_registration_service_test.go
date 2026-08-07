@@ -204,6 +204,29 @@ func TestRegisterPasswordDisplayNameUnicodeLength(t *testing.T) {
 	}
 }
 
+func TestValidDisplayNameUnicodeLength(t *testing.T) {
+	tests := []struct {
+		name        string
+		displayName string
+		want        bool
+	}{
+		{name: "thai at maximum", displayName: strings.Repeat("ก", 80), want: true},
+		{name: "german at maximum", displayName: strings.Repeat("ä", 80), want: true},
+		{name: "emoji at maximum", displayName: strings.Repeat("🙂", 80), want: true},
+		{name: "one code point", displayName: "ก", want: false},
+		{name: "emoji over maximum", displayName: strings.Repeat("🙂", 81), want: false},
+		{name: "trimmed boundary", displayName: "  กข  ", want: true},
+	}
+
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			if got := validDisplayName(tt.displayName); got != tt.want {
+				t.Fatalf("validDisplayName(%q) = %v, want %v", tt.displayName, got, tt.want)
+			}
+		})
+	}
+}
+
 func TestRegisterPasswordRejectsShortPassword(t *testing.T) {
 	db := newAccountTestDB(t)
 	service := newRegistrationFixture(t, db, &fakeEmailSender{})

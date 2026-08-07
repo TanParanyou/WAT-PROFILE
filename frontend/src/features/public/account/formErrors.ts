@@ -3,6 +3,7 @@ import type { AccountApiError, AccountErrorCode } from "./types";
 export type AccountFormTarget = string | "root.server";
 export type AccountFormMessageKey =
   | "validation.emailInvalid"
+  | "validation.emailDifferent"
   | `errors.${AccountErrorCode}`;
 
 export interface AccountFormErrorDescriptor {
@@ -24,9 +25,11 @@ export function mapAccountFormError(
       target: allowedFields[fieldError.field],
       messageKey:
         error.code === "AUTH_VALIDATION" &&
-        (fieldError.field === "email" || fieldError.field === "new_email")
-          ? "validation.emailInvalid"
-          : `errors.${error.code}`,
+        fieldError.field === "new_email"
+          ? "validation.emailDifferent"
+          : error.code === "AUTH_VALIDATION" && fieldError.field === "email"
+            ? "validation.emailInvalid"
+            : `errors.${error.code}`,
     };
   }
 

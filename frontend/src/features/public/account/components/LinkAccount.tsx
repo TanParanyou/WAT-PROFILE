@@ -56,8 +56,9 @@ export function LinkAccountContent() {
 
   useEffect(() => {
     if (!token || ranTokenRef.current === token) return;
-    ranTokenRef.current = token;
     const timer = window.setTimeout(() => {
+      if (ranTokenRef.current === token) return;
+      ranTokenRef.current = token;
       void executeAction();
     }, 0);
     return () => window.clearTimeout(timer);

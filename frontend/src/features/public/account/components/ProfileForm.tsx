@@ -152,6 +152,7 @@ export function ProfileForm() {
             {t("account.closedPurgeBody", {
               date: new Intl.DateTimeFormat(locale, {
                 dateStyle: "long",
+                timeZone: "Europe/Berlin",
               }).format(new Date(closedPurgeAfter)),
             })}
           </p>
@@ -248,6 +249,7 @@ export function ProfileForm() {
               {t("account.closedPurgeBody", {
                 date: new Intl.DateTimeFormat(locale, {
                   dateStyle: "long",
+                  timeZone: "Europe/Berlin",
                 }).format(new Date(account.purge_after)),
               })}
             </p>
@@ -310,7 +312,7 @@ export function ProfileForm() {
         mapped.target === "displayName" ||
         mapped.target === "preferredLocale"
       ) {
-        setError(mapped.target, { type: "server", message });
+        setError(mapped.target, { type: "server", message }, { shouldFocus: true });
       } else {
         setError("root.server", { type: "server", message });
       }

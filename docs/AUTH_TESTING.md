@@ -95,7 +95,7 @@ Verify:
 
 ## 3. Password flow (browser)
 
-1. Open `http://localhost:3002/en/register`. Fill display name, email, password
+1. Open `http://localhost:3002/en/account/register`. Fill display name, email, password
    (12–128 characters). Submit.
 2. Expect the generic "verification email sent" screen (no account-existence leak).
 3. In capture mode, copy the verification `ActionURL` from the backend log and open it
@@ -113,7 +113,7 @@ Verify:
 10. Sign in from a second browser; expect two sessions. Revoke the second session and
    confirm it disappears.
 11. Click "Sign out". Expect the refresh cookie cleared and the profile page gone.
-12. Repeat the flow at `/th/register` and `/de/register` (see Locale checks).
+12. Repeat the flow at `/th/account/register` and `/de/account/register` (see Locale checks).
 
 ### Session rotation and reuse detection
 
@@ -139,7 +139,7 @@ Verify:
 Prerequisites: the backend `GOOGLE_REDIRECT_URL` must be registered on the Google OAuth
 console, and the browser must have a Google test account available.
 
-1. On `/en/register` click "Continue with Google". Expect redirect to Google.
+1. On `/en/account/register` click "Continue with Google". Expect redirect to Google.
 2. Approve. Back on the frontend expect:
    - A brand-new email → an active account is created (no member record) and you are
      signed in.
@@ -206,7 +206,28 @@ cd backend && GOTOOLCHAIN=local GOCACHE=/private/tmp/wat-profile-go-cache \
 - Keyboard: verify each form is completable with Tab only; the error summary receives
   focus after a failed submit; buttons show visible focus rings.
 
-## 8. Admin Account Operations
+## 8. Account client hardening
+
+1. Sign in, delete or invalidate the refresh cookie, wait for the access token to
+   expire, and reload Account data. Expect anonymous state with a localized
+   session-ended notice, not a permanent account-load error.
+2. Exercise verify-email, reopen, email-change, and Google-link confirmation
+   with HTTP 500 and offline responses. Expect retryable transient copy; do not
+   expect invalid-token copy.
+3. Exercise HTTP 429 with `retry_after_seconds`. Expect localized cooldown copy
+   and a retry action after the delay.
+4. Save `preferred_locale=de` from `/en/account?tab=preferences`. Expect
+   `/de/account?tab=preferences` only after the profile request succeeds.
+5. Enter an 80-code-point Thai or emoji display name. Expect client and backend
+   acceptance; expect 81 code points to fail in the localized field message.
+6. Submit verification resend with Enter and verify focus moves to the email
+   field after invalid input.
+7. Inspect Account page metadata and expect `noindex, nofollow` on every Account
+   route, including token-bearing routes.
+8. View session activity and account purge dates from a non-Berlin system time
+   zone and confirm Europe/Berlin output.
+
+## 9. Admin Account Operations
 
 Use a disposable public account and an Admin role with the new
 `account_operations` permission. Keep `DB_AUTO_MIGRATE=false` in staging and apply
@@ -229,7 +250,7 @@ the migration explicitly before testing.
 8. Confirm Audit Logs records exactly one `account_operations.*` action with only the
    allow-listed reason and status transition.
 
-## 9. Automated suite
+## 10. Automated suite
 
 ```bash
 cd backend && GOTOOLCHAIN=local GOCACHE=/private/tmp/wat-profile-go-cache go test ./... -p 1
@@ -244,7 +265,7 @@ cd frontend && npm run build
 `go test ./...` runs packages serially with `-p 1` because the shared persistent test
 database is truncated by the services package between runs (pre-existing limitation).
 
-## 10. Cleanup
+## 11. Cleanup
 
 - Stop the backend and frontend processes.
 - Drop the disposable database: `dropdb wat_profile_test` (or remove the container).

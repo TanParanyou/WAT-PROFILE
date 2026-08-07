@@ -86,7 +86,7 @@ export function ForgotPasswordForm() {
       const mapped = mapAccountFormError(apiError, { email: "email" });
       const message = t(mapped.messageKey as Parameters<typeof t>[0]);
       if (mapped.target === "email") {
-        setError("email", { type: "server", message });
+        setError("email", { type: "server", message }, { shouldFocus: true });
       } else {
         setError("root.server", { type: "server", message });
       }
@@ -206,7 +206,7 @@ export function ResetPasswordForm() {
       });
       const message = t(mapped.messageKey as Parameters<typeof t>[0]);
       if (mapped.target === "password") {
-        setError("password", { type: "server", message });
+        setError("password", { type: "server", message }, { shouldFocus: true });
       } else {
         setError("root.server", { type: "server", message });
       }
@@ -341,8 +341,9 @@ export function VerifyEmailContent() {
 
   useEffect(() => {
     if (!token || ranTokenRef.current === token) return;
-    ranTokenRef.current = token;
     const timer = window.setTimeout(() => {
+      if (ranTokenRef.current === token) return;
+      ranTokenRef.current = token;
       void executeAction();
     }, 0);
     return () => window.clearTimeout(timer);
@@ -362,7 +363,7 @@ export function VerifyEmailContent() {
       const mapped = mapAccountFormError(apiError, { email: "email" });
       const message = t(mapped.messageKey as Parameters<typeof t>[0]);
       if (mapped.target === "email") {
-        setError("email", { type: "server", message });
+        setError("email", { type: "server", message }, { shouldFocus: true });
       } else {
         setError("root.server", { type: "server", message });
       }

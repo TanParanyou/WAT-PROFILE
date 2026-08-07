@@ -128,12 +128,12 @@ export function AccountSessionProvider({ children }: { children: ReactNode }) {
 
   const clearLocalSession = useCallback(
     (reason: AccountSessionEndReason | null = null) => {
-    setMemoryAccessToken(null);
-    setStatus("anonymous");
-    setSessionEndReason(reason);
-    queryClient.removeQueries({ queryKey: accountKeys.current() });
-    queryClient.removeQueries({ queryKey: accountKeys.sessions() });
-    queryClient.removeQueries({ queryKey: accountKeys.googleLink() });
+      setMemoryAccessToken(null);
+      setStatus("anonymous");
+      setSessionEndReason(reason);
+      queryClient.removeQueries({ queryKey: accountKeys.current() });
+      queryClient.removeQueries({ queryKey: accountKeys.sessions() });
+      queryClient.removeQueries({ queryKey: accountKeys.googleLink() });
     },
     [queryClient],
   );

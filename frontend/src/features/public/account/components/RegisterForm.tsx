@@ -110,7 +110,7 @@ export function RegisterForm() {
         setError(mapped.target, {
           type: "server",
           message,
-        });
+        }, { shouldFocus: true });
       } else {
         setError("root.server", {
           type: "server",

@@ -46,7 +46,9 @@ export function buildPublicMetadata(input: PublicMetadataInput): Metadata {
     title: resolvedTitle,
     description: resolvedDescription,
     keywords: keywords || undefined,
-    robots: input.seo.noindex ? { index: false, follow: false } : undefined,
+    ...(input.seo.noindex
+      ? { robots: { index: false, follow: false } }
+      : {}),
     openGraph: {
       title: resolvedTitle,
       description: resolvedDescription,
