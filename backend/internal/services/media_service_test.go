@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"os"
 	"testing"
 	"time"
@@ -69,3 +70,65 @@ func TestMediaServiceListOrdersNewestFirst(t *testing.T) {
 		t.Fatalf("expected newest media first, got %#v", items)
 	}
 }
+
+func TestMediaServiceSoftDeleteSetsPurgeAt(t *testing.T) {
+	db := testDatabase(t)
+	now := time.Date(2026, 8, 7, 0, 0, 0, 0, time.UTC)
+	media := models.Media{
+		ID:       uuid.New(),
+		Filename: "lifecycle.png",
+		URL:      "https://example.test/lifecycle.png",
+	}
+	if err := db.Create(&media).Error; err != nil {
+		t.Fatal(err)
+	}
+
+	svc := NewMediaService(db, func() time.Time { return now })
+	actorID := uuid.New()
+	if err := svc.SoftDelete(media.ID, actorID); err != nil {
+		t.Fatal(err)
+	}
+
+	got, err := svc.GetByIDIncludingDeleted(media.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.DeletedByID == nil || *got.DeletedByID != actorID {
+		t.Fatalf("deleted_by_id = %v, want %s", got.DeletedByID, actorID)
+	}
+	wantPurgeAt := now.AddDate(0, 0, 30)
+	if got.PurgeAt == nil || !got.PurgeAt.Equal(wantPurgeAt) {
+		t.Fatalf("purge_at = %v, want %v", got.PurgeAt, wantPurgeAt)
+	}
+	if _, err := svc.GetByID(media.ID); !errors.Is(err, gorm.ErrRecordNotFound) {
+		t.Fatalf("GetByID error = %v, want record not found for deleted media", err)
+	}
+}
+
+func TestMediaServiceRestoreClearsLifecycleFields(t *testing.T) {
+	db := testDatabase(t)
+	media := models.Media{
+		ID:        uuid.New(),
+		Filename:  "restore.png",
+		URL:       "https://example.test/restore.png",
+		DeletedAt: ptrTime(time.Now().Add(-time.Hour)),
+		PurgeAt:   ptrTime(time.Now().Add(29 * 24 * time.Hour)),
+	}
+	if err := db.Create(&media).Error; err != nil {
+		t.Fatal(err)
+	}
+
+	svc := NewMediaService(db)
+	if err := svc.Restore(media.ID); err != nil {
+		t.Fatal(err)
+	}
+	got, err := svc.GetByIDIncludingDeleted(media.ID)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if got.DeletedAt != nil || got.PurgeAt != nil || got.DeletedByID != nil {
+		t.Fatalf("lifecycle fields were not cleared: %#v", got)
+	}
+}
+
+func ptrTime(value time.Time) *time.Time { return &value }

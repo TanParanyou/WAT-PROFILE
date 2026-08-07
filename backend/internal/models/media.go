@@ -19,8 +19,12 @@ type Media struct {
 	UploadedByID     *uuid.UUID             `gorm:"type:uuid" json:"uploaded_by_id"`
 	UploadedBy       *User                  `gorm:"foreignKey:UploadedByID" json:"uploaded_by,omitempty"`
 	AltText          string                 `gorm:"size:255" json:"alt_text"` // For images (SEO)
+	AltTexts         MultiLangText         `gorm:"type:jsonb;not null;default:'{}'" json:"alt_texts"`
 	Category         string                 `gorm:"size:50;index" json:"category"` // 'avatar', 'post', 'gallery', etc.
 	Metadata         map[string]interface{} `gorm:"type:jsonb" json:"metadata"` // Additional data (width, height, etc.)
+	DeletedAt        *time.Time             `gorm:"index" json:"deleted_at,omitempty"`
+	DeletedByID      *uuid.UUID             `gorm:"type:uuid" json:"deleted_by_id,omitempty"`
+	PurgeAt          *time.Time             `gorm:"index" json:"purge_at,omitempty"`
 	CreatedAt        time.Time              `json:"created_at"`
 	UpdatedAt        time.Time              `json:"updated_at"`
 }

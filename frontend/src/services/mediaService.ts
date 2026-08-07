@@ -1,6 +1,6 @@
 import api from "./adminApi";
 import type { ApiResponse } from "@/types/api";
-import type { Media, MediaMetadata } from "@/types/entities";
+import type { Media, MediaMetadata, MediaReference } from "@/types/entities";
 import { createAdminService } from "./adminService";
 
 const baseMediaAdminService = createAdminService<Media>("media");
@@ -70,11 +70,30 @@ export const mediaService = {
     await api.delete(`/admin/media/${id}`);
   },
 
+  async getReferences(id: string): Promise<MediaReference[]> {
+    const res = await api.get<ApiResponse<MediaReference[]>>(`/admin/media/${id}/references`);
+    return res.data.data || [];
+  },
+
+  async getTrash(): Promise<Media[]> {
+    const res = await api.get<ApiResponse<Media[]>>("/admin/media/trash");
+    return res.data.data || [];
+  },
+
+  async restore(id: string): Promise<void> {
+    await api.post(`/admin/media/${id}/restore`);
+  },
+
+  async purge(id: string): Promise<void> {
+    await api.post(`/admin/media/${id}/purge`, { confirm: true });
+  },
+
   async getFilterOptions(): Promise<{
     categories: string[];
     mime_types: string[];
+    alt_missing_locales: string[];
   }> {
     const res = await api.get("/admin/media/filter-options");
-    return res.data.data || { categories: [], mime_types: [] };
+    return res.data.data || { categories: [], mime_types: [], alt_missing_locales: ["th", "en", "de"] };
   },
 };

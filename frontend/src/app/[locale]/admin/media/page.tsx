@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useRef, useState } from "react";
+import { useTranslations } from "next-intl";
 import { Loader2, Upload } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
 import { mediaService } from "@/services/mediaService";
@@ -17,28 +18,32 @@ import { AdminDateRangeFilter } from "@/components/admin/list/AdminDateRangeFilt
 import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components/admin/list/AdminActiveFilterChips";
 import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
 import { exportToCsv } from "@/services/adminListExportService";
-import { useQuery } from "@tanstack/react-query";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
 
 interface MediaFilters extends AdminFilterRecord {
-  mime_type: string[];
-  folder: string[];
+  mime: string[];
+  category: string[];
+  alt_missing: string[];
   from?: string;
   to?: string;
 }
 
 export default function MediaLibraryPage() {
+  const t = useTranslations("Admin.media");
   const { toast } = useToast();
+  const queryClient = useQueryClient();
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
   const [isUploading, setIsUploading] = useState(false);
+  const [showTrash, setShowTrash] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const listState = useAdminListState<MediaFilters>({
     schema: {
       defaultSort: "created_at",
       defaultOrder: "desc",
-      multi: ["mime_type", "folder"],
+      multi: ["mime", "category", "alt_missing"],
       single: ["from", "to"],
-      allowedSorts: ["id", "filename", "size", "created_at"],
+      allowedSorts: ["id", "filename", "file_size", "created_at", "mime_type"],
     },
   });
 
@@ -54,27 +59,52 @@ export default function MediaLibraryPage() {
     queryFn: () => mediaService.getFilterOptions(),
   });
 
+  const trashQuery = useQuery({
+    queryKey: ["admin", "media", "trash"],
+    queryFn: () => mediaService.getTrash(),
+    enabled: showTrash,
+  });
+
+  const visibleRows = showTrash ? trashQuery.data || [] : listQuery.rows;
+  const localeLabels: Record<string, string> = {
+    th: t("filters.locales.th"),
+    en: t("filters.locales.en"),
+    de: t("filters.locales.de"),
+  };
+
   const filterDefinitions: AdminFilterDefinition<MediaFilters>[] = [
     {
-      key: "mime_type",
+      key: "mime",
       kind: "multi",
-      label: "ประเภทไฟล์ (Mime Type)",
+      label: t("filters.mimeType"),
       options: (filterOptions?.mime_types || []).map((m: string) => ({ value: m, label: m })),
     },
     {
-      key: "folder",
+      key: "category",
       kind: "multi",
-      label: "หมวดหมู่ (Category)",
+      label: t("filters.category"),
       options: (filterOptions?.categories || []).map((f: string) => ({ value: f, label: f })),
+    },
+    {
+      key: "alt_missing",
+      kind: "multi",
+      label: t("filters.altMissing"),
+      options: (filterOptions?.alt_missing_locales || []).map((locale) => ({
+        value: locale,
+        label: localeLabels[locale] || locale,
+      })),
     },
   ];
 
   const activeChips: AdminActiveFilterChip[] = [];
-  for (const mt of listState.params.filters.mime_type || []) {
-    activeChips.push({ key: "mime_type", value: mt, label: `Mime: ${mt}` });
+  for (const mt of listState.params.filters.mime || []) {
+    activeChips.push({ key: "mime", value: mt, label: `${t("filters.mimeType")}: ${mt}` });
   }
-  for (const f of listState.params.filters.folder || []) {
-    activeChips.push({ key: "folder", value: f, label: `Folder: ${f}` });
+  for (const f of listState.params.filters.category || []) {
+    activeChips.push({ key: "category", value: f, label: `${t("filters.category")}: ${f}` });
+  }
+  for (const locale of listState.params.filters.alt_missing || []) {
+    activeChips.push({ key: "alt_missing", value: locale, label: `${t("filters.altMissing")}: ${localeLabels[locale] || locale}` });
   }
   if (listState.params.filters.from) {
     activeChips.push({ key: "from", value: listState.params.filters.from, label: `ตั้งแต่วันที่: ${listState.params.filters.from}` });
@@ -92,7 +122,7 @@ export default function MediaLibraryPage() {
       const media = await mediaService.upload(file);
       setSelectedMedia(media);
       toast.success("อัปโหลดรูปภาพเรียบร้อยแล้ว");
-      listQuery.refetch();
+      await queryClient.invalidateQueries({ queryKey: ["admin", "media"] });
     } catch {
       toast.error("อัปโหลดรูปภาพไม่สำเร็จ");
     } finally {
@@ -137,6 +167,16 @@ export default function MediaLibraryPage() {
           </div>
 
           <div>
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setShowTrash((value) => !value);
+                setSelectedMedia(null);
+              }}
+              className="mr-2 text-xs uppercase tracking-wider"
+            >
+              {showTrash ? "กลับคลังสื่อ" : "ถังขยะสื่อ"}
+            </Button>
             <input
               type="file"
               accept="image/*"
@@ -173,16 +213,22 @@ export default function MediaLibraryPage() {
           primaryFilters={
             <>
               <AdminMultiSelectFilter
-                label="ประเภทไฟล์ (Mime Type)"
+                label={t("filters.mimeType")}
                 options={filterDefinitions[0].options || []}
-                values={listState.params.filters.mime_type || []}
-                onChange={(val) => listState.actions.setFilter("mime_type", val)}
+                values={listState.params.filters.mime || []}
+                onChange={(val) => listState.actions.setFilter("mime", val)}
               />
               <AdminMultiSelectFilter
-                label="โฟลเดอร์ (Folder)"
+                label={t("filters.category")}
                 options={filterDefinitions[1].options || []}
-                values={listState.params.filters.folder || []}
-                onChange={(val) => listState.actions.setFilter("folder", val)}
+                values={listState.params.filters.category || []}
+                onChange={(val) => listState.actions.setFilter("category", val)}
+              />
+              <AdminMultiSelectFilter
+                label={t("filters.altMissing")}
+                options={filterDefinitions[2].options || []}
+                values={listState.params.filters.alt_missing || []}
+                onChange={(val) => listState.actions.setFilter("alt_missing", val)}
               />
             </>
           }
@@ -215,13 +261,13 @@ export default function MediaLibraryPage() {
           />
         </AdminListToolbar>
 
-        {listQuery.isLoading ? (
+        {(showTrash ? trashQuery.isLoading : listQuery.isLoading) ? (
           <div className="flex h-64 items-center justify-center">
             <Loader2 className="w-8 h-8 animate-spin text-admin-action" />
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 md:grid-cols-5">
-            {listQuery.rows.map((media) => (
+            {visibleRows.map((media) => (
               <button
                 key={media.id}
                 onClick={() => setSelectedMedia(media)}
@@ -247,11 +293,11 @@ export default function MediaLibraryPage() {
         onClose={() => setSelectedMedia(null)}
         onUpdated={(updated) => {
           setSelectedMedia(updated);
-          listQuery.refetch();
+          void queryClient.invalidateQueries({ queryKey: ["admin", "media"] });
         }}
-        onDeleted={() => {
+          onDeleted={() => {
           setSelectedMedia(null);
-          listQuery.refetch();
+          void queryClient.invalidateQueries({ queryKey: ["admin", "media"] });
         }}
       />
     </div>
