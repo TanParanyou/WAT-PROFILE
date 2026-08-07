@@ -1,9 +1,15 @@
 "use client";
 
-import { useRef, useState, type FormEvent } from "react";
+import { useMemo, useRef } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { Controller, useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { AlertCircle, KeyRound, Loader2 } from "lucide-react";
 import { SiteModal } from "@/components/public/modal";
+import {
+  createAccountFormSchemas,
+  type PasswordReauthFormValues,
+} from "../formSchemas";
 import { PasswordInput } from "./PasswordInput";
 import type { ReauthReason } from "../reauth/reauth-types";
 
@@ -70,18 +76,41 @@ export function AccountReauthModal({
 }: AccountReauthModalProps) {
   const t = useTranslations("Account");
   const locale = useLocale();
-  const [password, setPassword] = useState("");
   const passwordInputRef = useRef<HTMLInputElement>(null);
   const googleButtonRef = useRef<HTMLButtonElement>(null);
+  const schemas = useMemo(
+    () =>
+      createAccountFormSchemas({
+        emailRequired: t("validation.emailRequired"),
+        emailInvalid: t("validation.emailInvalid"),
+        displayNameRequired: t("validation.displayNameRequired"),
+        displayNameMin: t("validation.displayNameMin"),
+        displayNameMax: t("validation.displayNameMax"),
+        passwordRequired: t("validation.passwordRequired"),
+        passwordMin: t("validation.passwordMin"),
+        passwordMax: t("validation.passwordMax"),
+        passwordComplexity: t("validation.passwordComplexity"),
+      }),
+    [t],
+  );
+  const form = useForm<PasswordReauthFormValues>({
+    resolver: zodResolver(schemas.passwordReauth),
+    defaultValues: { password: "" },
+    shouldFocusError: true,
+  });
+  const {
+    control,
+    handleSubmit,
+    formState: { errors, isSubmitting },
+  } = form;
 
   if (!reason) return null;
   const copy = reasonCopy[reason];
 
-  const submitPassword = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
+  const submitPassword = handleSubmit(async ({ password }) => {
     await onPasswordSubmit(password);
-    setPassword("");
-  };
+    form.reset();
+  });
 
   return (
     <SiteModal
@@ -139,7 +168,7 @@ export function AccountReauthModal({
         ) : (
           <form
             className="space-y-4"
-            onSubmit={(event) => void submitPassword(event)}
+            onSubmit={submitPassword}
             noValidate
           >
             <div>
@@ -149,21 +178,43 @@ export function AccountReauthModal({
               >
                 {t("account.reauthPasswordLabel")}
               </label>
-              <PasswordInput
-                ref={passwordInputRef}
-                id={`account-reauth-password-${locale}`}
+              <Controller
                 name="password"
-                autoComplete="current-password"
-                value={password}
-                onChange={(event) => setPassword(event.target.value)}
-                className="mt-2 min-h-11 w-full border border-site-border bg-site-canvas px-3 py-2.5 text-base text-site-foreground outline-none focus-visible:outline-3 focus-visible:outline-site-focus"
-                disabled={busy}
+                control={control}
+                render={({ field, fieldState }) => (
+                  <PasswordInput
+                    {...field}
+                    ref={(element) => {
+                      field.ref(element);
+                      passwordInputRef.current = element;
+                    }}
+                    id={`account-reauth-password-${locale}`}
+                    autoComplete="current-password"
+                    aria-invalid={fieldState.invalid || undefined}
+                    aria-describedby={
+                      fieldState.error
+                        ? "account-reauth-password-error"
+                        : undefined
+                    }
+                    className="mt-2 min-h-11 w-full border border-site-border bg-site-canvas px-3 py-2.5 text-base text-site-foreground outline-none focus-visible:outline-3 focus-visible:outline-site-focus"
+                    disabled={busy || isSubmitting}
+                  />
+                )}
               />
+              {errors.password?.message ? (
+                <p
+                  id="account-reauth-password-error"
+                  role="alert"
+                  className="mt-1 text-sm text-red-700"
+                >
+                  {errors.password.message}
+                </p>
+              ) : null}
             </div>
             <div className="flex flex-col gap-3 sm:flex-row">
               <button
                 type="submit"
-                disabled={busy || password.length === 0}
+                disabled={busy || isSubmitting}
                 className="inline-flex min-h-11 w-full items-center justify-center gap-2 bg-site-action px-6 py-[13px] font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-60 sm:w-auto"
               >
                 {busy && (
