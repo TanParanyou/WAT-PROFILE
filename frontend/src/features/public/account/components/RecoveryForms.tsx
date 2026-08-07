@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
 import { Link } from "@/navigation";
 import { Loader2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
+import { useForm, useWatch } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   forgotPassword,
   resetPassword,
@@ -13,7 +15,12 @@ import {
   resendVerification,
   toAccountApiError,
 } from "@/features/public/account/api";
-import { useAccountErrorMessage } from "@/features/public/account/hooks";
+import {
+  createAccountFormSchemas,
+  type EmailRequestFormValues,
+  type ResetPasswordFormValues,
+} from "@/features/public/account/formSchemas";
+import { mapAccountFormError } from "@/features/public/account/formErrors";
 import { PasswordInput } from "./PasswordInput";
 import { PasswordRequirements } from "./PasswordRequirements";
 import { AccountField } from "./AccountField";
@@ -21,8 +28,6 @@ import { AccountFeedback } from "./AccountFeedback";
 import { AccountFlowFooter } from "./AccountFlowFooter";
 import {
   inspectPassword,
-  normalizeAccountEmail,
-  validatePassword,
 } from "@/features/public/account/validation";
 
 const inputBase =
@@ -36,41 +41,52 @@ const secondaryActionClass =
 
 export function ForgotPasswordForm() {
   const t = useTranslations("Account");
-  const getErrorMessage = useAccountErrorMessage();
   const locale = useLocale();
-  const [email, setEmail] = useState("");
-  const [emailError, setEmailError] = useState<string | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
+  const schemas = useMemo(
+    () =>
+      createAccountFormSchemas({
+        emailRequired: t("validation.emailRequired"),
+        emailInvalid: t("validation.emailInvalid"),
+        displayNameRequired: t("validation.displayNameRequired"),
+        displayNameMin: t("validation.displayNameMin"),
+        displayNameMax: t("validation.displayNameMax"),
+        passwordRequired: t("validation.passwordRequired"),
+        passwordMin: t("validation.passwordMin"),
+        passwordMax: t("validation.passwordMax"),
+        passwordComplexity: t("validation.passwordComplexity"),
+      }),
+    [t],
+  );
+  const form = useForm<EmailRequestFormValues>({
+    resolver: zodResolver(schemas.emailRequest),
+    defaultValues: { email: "" },
+    shouldFocusError: true,
+  });
+  const {
+    register,
+    handleSubmit,
+    clearErrors,
+    setError,
+    formState: { errors, isSubmitting },
+  } = form;
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setEmailError(null);
-    setFormError(null);
-    const normalized = normalizeAccountEmail(email);
-    if (!normalized) {
-      setEmailError(t("validation.emailRequired"));
-      requestAnimationFrame(() => document.getElementById("forgot-email")?.focus());
-      return;
-    }
-    setSubmitting(true);
+  const onSubmit = handleSubmit(async ({ email }) => {
+    clearErrors();
     try {
-      await forgotPassword(normalized, locale);
+      await forgotPassword(email, locale);
       setSubmitted(true);
-    } catch (err) {
-      const apiError = toAccountApiError(err);
-      const fieldError = apiError.fieldErrors.find((candidate) => candidate.field === "email");
-      if (fieldError) {
-        setEmailError(fieldError.message);
-        requestAnimationFrame(() => document.getElementById("forgot-email")?.focus());
+    } catch (error: unknown) {
+      const apiError = toAccountApiError(error);
+      const mapped = mapAccountFormError(apiError, { email: "email" });
+      const message = t(mapped.messageKey as Parameters<typeof t>[0]);
+      if (mapped.target === "email") {
+        setError("email", { type: "server", message });
       } else {
-        setFormError(getErrorMessage(apiError));
+        setError("root.server", { type: "server", message });
       }
-    } finally {
-      setSubmitting(false);
     }
-  };
+  });
 
   if (submitted) {
     return (
@@ -91,31 +107,34 @@ export function ForgotPasswordForm() {
 
   return (
     <div className="space-y-5">
-      {formError && <AccountFeedback state={{ kind: "error", message: formError }} />}
-      <form className="space-y-5" onSubmit={handleSubmit} noValidate>
-        <AccountField id="forgot-email" label={t("forgotPassword.emailLabel")} error={emailError}>
+      {errors.root?.server?.message ? (
+        <AccountFeedback
+          state={{ kind: "error", message: errors.root.server.message }}
+        />
+      ) : null}
+      <form className="space-y-5" onSubmit={onSubmit} noValidate>
+        <AccountField
+          id="forgot-email"
+          label={t("forgotPassword.emailLabel")}
+          error={errors.email?.message}
+        >
           <input
             id="forgot-email"
-            name="email"
             type="email"
             autoComplete="email"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              setEmailError(null);
-            }}
+            {...register("email")}
             placeholder={t("forgotPassword.emailPlaceholder")}
             className={inputBase}
-            aria-invalid={emailError ? true : undefined}
-            aria-describedby={emailError ? "forgot-email-error" : undefined}
+            aria-invalid={errors.email ? true : undefined}
+            aria-describedby={errors.email ? "forgot-email-error" : undefined}
           />
         </AccountField>
         <button
           type="submit"
-          disabled={submitting}
+          disabled={isSubmitting}
           className="inline-flex min-h-11 w-full items-center justify-center gap-2 bg-site-action px-6 py-[13px] font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {submitting && <Loader2 className="h-5 w-5 animate-spin" aria-hidden />}
+          {isSubmitting && <Loader2 className="h-5 w-5 animate-spin" aria-hidden />}
           {t("forgotPassword.submit")}
         </button>
       </form>
@@ -125,63 +144,69 @@ export function ForgotPasswordForm() {
 
 export function ResetPasswordForm() {
   const t = useTranslations("Account");
-  const getErrorMessage = useAccountErrorMessage();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
-  const [password, setPassword] = useState("");
-  const [passwordError, setPasswordError] = useState<string | null>(null);
-  const [formError, setFormError] = useState<string | null>(null);
   const [tokenError, setTokenError] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const passwordRequirements = inspectPassword(password);
+  const schemas = useMemo(
+    () =>
+      createAccountFormSchemas({
+        emailRequired: t("validation.emailRequired"),
+        emailInvalid: t("validation.emailInvalid"),
+        displayNameRequired: t("validation.displayNameRequired"),
+        displayNameMin: t("validation.displayNameMin"),
+        displayNameMax: t("validation.displayNameMax"),
+        passwordRequired: t("validation.passwordRequired"),
+        passwordMin: t("validation.passwordMin"),
+        passwordMax: t("validation.passwordMax"),
+        passwordComplexity: t("validation.passwordComplexity"),
+      }),
+    [t],
+  );
+  const form = useForm<ResetPasswordFormValues>({
+    resolver: zodResolver(schemas.resetPassword),
+    defaultValues: { password: "" },
+    shouldFocusError: true,
+  });
+  const {
+    register,
+    handleSubmit,
+    clearErrors,
+    setError,
+    formState: { errors, isSubmitting },
+  } = form;
+  const password = useWatch({ control: form.control, name: "password" });
+  const passwordRequirements = useMemo(
+    () => inspectPassword(password),
+    [password],
+  );
 
-  const focusPassword = () => {
-    requestAnimationFrame(() => document.getElementById("reset-password")?.focus());
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormError(null);
-    setPasswordError(null);
+  const onSubmit = handleSubmit(async ({ password }) => {
+    clearErrors();
     setTokenError(false);
-    const pwError = validatePassword(password);
-    if (pwError) {
-      setPasswordError(t(`validation.${pwError}`));
-      setFormError(null);
-      focusPassword();
-      return;
-    }
-    if (!token) {
-      return;
-    }
-    setSubmitting(true);
+    if (!token) return;
     try {
       await resetPassword(token, password);
+      form.reset();
       setSubmitted(true);
-    } catch (err) {
-      const apiError = toAccountApiError(err);
-      const fieldError = apiError.fieldErrors.find(
-        (candidate) => candidate.field === "password" || candidate.field === "new_password",
-      );
-      if (fieldError) {
-        const localError = validatePassword(password);
-        setPasswordError(localError ? t(`validation.${localError}`) : fieldError.message);
-        setFormError(null);
-        focusPassword();
-      } else {
-        setPasswordError(null);
-        if (apiError.code === "AUTH_TOKEN_INVALID_OR_EXPIRED") {
-          setTokenError(true);
-          setFormError(null);
-        } else {
-          setFormError(getErrorMessage(apiError));
-        }
+    } catch (error: unknown) {
+      const apiError = toAccountApiError(error);
+      if (apiError.code === "AUTH_TOKEN_INVALID_OR_EXPIRED") {
+        setTokenError(true);
+        return;
       }
-    } finally {
-      setSubmitting(false);
+      const mapped = mapAccountFormError(apiError, {
+        password: "password",
+        new_password: "password",
+      });
+      const message = t(mapped.messageKey as Parameters<typeof t>[0]);
+      if (mapped.target === "password") {
+        setError("password", { type: "server", message });
+      } else {
+        setError("root.server", { type: "server", message });
+      }
     }
-  };
+  });
 
   if (submitted) {
     return (
@@ -222,31 +247,34 @@ export function ResetPasswordForm() {
 
   return (
     <div className="space-y-5">
-      {formError && <AccountFeedback state={{ kind: "error", message: formError }} />}
-      <form className="space-y-5" onSubmit={handleSubmit} noValidate>
-        <AccountField id="reset-password" label={t("resetPassword.passwordLabel")} error={passwordError}>
+      {errors.root?.server?.message ? (
+        <AccountFeedback
+          state={{ kind: "error", message: errors.root.server.message }}
+        />
+      ) : null}
+      <form className="space-y-5" onSubmit={onSubmit} noValidate>
+        <AccountField
+          id="reset-password"
+          label={t("resetPassword.passwordLabel")}
+          error={errors.password?.message}
+        >
           <PasswordInput
             id="reset-password"
-            name="password"
             autoComplete="new-password"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              setPasswordError(null);
-            }}
+            {...register("password")}
             placeholder={t("resetPassword.passwordPlaceholder")}
-            className={`${inputBase} ${passwordError ? invalidInputClass : ""}`}
-            aria-invalid={passwordError ? true : undefined}
-            aria-describedby={`reset-password-requirements${passwordError ? " reset-password-error" : ""}`}
+            className={`${inputBase} ${errors.password ? invalidInputClass : ""}`}
+            aria-invalid={errors.password ? true : undefined}
+            aria-describedby={`reset-password-requirements${errors.password ? " reset-password-error" : ""}`}
           />
           <PasswordRequirements id="reset-password-requirements" requirements={passwordRequirements} />
         </AccountField>
         <button
           type="submit"
-          disabled={submitting}
+          disabled={isSubmitting}
           className="inline-flex min-h-11 w-full items-center justify-center gap-2 bg-site-action px-6 py-[13px] font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {submitting && <Loader2 className="h-5 w-5 animate-spin" aria-hidden />}
+          {isSubmitting && <Loader2 className="h-5 w-5 animate-spin" aria-hidden />}
           {t("resetPassword.submit")}
         </button>
       </form>
@@ -256,24 +284,47 @@ export function ResetPasswordForm() {
 
 export function VerifyEmailContent() {
   const t = useTranslations("Account");
-  const getErrorMessage = useAccountErrorMessage();
   const locale = useLocale();
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
-  const [email, setEmail] = useState("");
-  const [state, setState] = useState<"verifying" | "success" | "invalid" | "resend">("verifying");
+  const [state, setState] = useState<"verifying" | "success" | "invalid" | "resend">(
+    () => (token ? "verifying" : "resend"),
+  );
   const [resendSent, setResendSent] = useState(false);
-  const [resendSubmitting, setResendSubmitting] = useState(false);
-  const [resendError, setResendError] = useState<string | null>(null);
   const ranRef = useRef(false);
+
+  const schemas = useMemo(
+    () =>
+      createAccountFormSchemas({
+        emailRequired: t("validation.emailRequired"),
+        emailInvalid: t("validation.emailInvalid"),
+        displayNameRequired: t("validation.displayNameRequired"),
+        displayNameMin: t("validation.displayNameMin"),
+        displayNameMax: t("validation.displayNameMax"),
+        passwordRequired: t("validation.passwordRequired"),
+        passwordMin: t("validation.passwordMin"),
+        passwordMax: t("validation.passwordMax"),
+        passwordComplexity: t("validation.passwordComplexity"),
+      }),
+    [t],
+  );
+  const resendForm = useForm<EmailRequestFormValues>({
+    resolver: zodResolver(schemas.emailRequest),
+    defaultValues: { email: "" },
+    shouldFocusError: true,
+  });
+  const {
+    register,
+    handleSubmit,
+    clearErrors,
+    setError,
+    formState: { errors, isSubmitting },
+  } = resendForm;
 
   useEffect(() => {
     if (ranRef.current) return;
     ranRef.current = true;
-    if (!token) {
-      setState("resend");
-      return;
-    }
+    if (!token) return;
     verifyEmail(token)
       .then(() => setState("success"))
       .catch(() => setState("invalid"));
@@ -305,19 +356,22 @@ export function VerifyEmailContent() {
     );
   }
 
-  const handleResend = async () => {
-    setResendSubmitting(true);
-    setResendError(null);
+  const handleResend = handleSubmit(async ({ email }) => {
+    clearErrors();
     try {
       await resendVerification(email, locale);
       setResendSent(true);
-    } catch (err) {
-      const apiError = toAccountApiError(err);
-      setResendError(getErrorMessage(apiError));
-    } finally {
-      setResendSubmitting(false);
+    } catch (error: unknown) {
+      const apiError = toAccountApiError(error);
+      const mapped = mapAccountFormError(apiError, { email: "email" });
+      const message = t(mapped.messageKey as Parameters<typeof t>[0]);
+      if (mapped.target === "email") {
+        setError("email", { type: "server", message });
+      } else {
+        setError("root.server", { type: "server", message });
+      }
     }
-  };
+  });
 
   return (
     <div className="space-y-5">
@@ -338,28 +392,37 @@ export function VerifyEmailContent() {
         <>
           {state === "invalid" && <AccountFeedback state={{ kind: "error", message: t("verifyEmail.invalidBody") }} />}
           {state === "resend" && <p className="text-sm text-site-muted">{t("verifyEmail.resendIntro")}</p>}
-          {resendError && <AccountFeedback state={{ kind: "error", message: resendError }} />}
-          <AccountField id="verify-email" label={t("forgotPassword.emailLabel")}>
-            <input
-              id="verify-email"
-              name="email"
-              type="email"
-              autoComplete="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder={t("forgotPassword.emailPlaceholder")}
-              className={inputBase}
+          {errors.root?.server?.message ? (
+            <AccountFeedback
+              state={{ kind: "error", message: errors.root.server.message }}
             />
-          </AccountField>
-          <button
-            type="button"
-            onClick={handleResend}
-            disabled={resendSubmitting}
-            className="inline-flex min-h-11 w-full items-center justify-center gap-2 bg-site-action px-6 py-[13px] font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-60"
-          >
-            {resendSubmitting && <Loader2 className="h-5 w-5 animate-spin" aria-hidden />}
-            {t("verifyEmail.resendSubmit")}
-          </button>
+          ) : null}
+          <form className="space-y-5" onSubmit={handleResend} noValidate>
+            <AccountField
+              id="verify-email"
+              label={t("forgotPassword.emailLabel")}
+              error={errors.email?.message}
+            >
+              <input
+                id="verify-email"
+                type="email"
+                autoComplete="email"
+                {...register("email")}
+                placeholder={t("forgotPassword.emailPlaceholder")}
+                className={inputBase}
+                aria-invalid={errors.email ? true : undefined}
+                aria-describedby={errors.email ? "verify-email-error" : undefined}
+              />
+            </AccountField>
+            <button
+              type="submit"
+              disabled={isSubmitting}
+              className="inline-flex min-h-11 w-full items-center justify-center gap-2 bg-site-action px-6 py-[13px] font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-60"
+            >
+              {isSubmitting && <Loader2 className="h-5 w-5 animate-spin" aria-hidden />}
+              {t("verifyEmail.resendSubmit")}
+            </button>
+          </form>
           <AccountFlowFooter
             primary={
               <Link href="/account/forgot-password" className={actionClass}>

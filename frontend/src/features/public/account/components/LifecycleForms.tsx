@@ -1,17 +1,22 @@
 "use client";
 
-import { useEffect, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import {
   confirmAccountReopen,
   confirmEmailChange,
   requestAccountReopen,
   toAccountApiError,
 } from "../api";
-import { useAccountErrorMessage } from "../hooks";
-import { normalizeAccountEmail } from "../validation";
+import {
+  createAccountFormSchemas,
+  type EmailRequestFormValues,
+} from "../formSchemas";
+import { mapAccountFormError } from "../formErrors";
 import { AccountField } from "./AccountField";
 import { AccountFeedback } from "./AccountFeedback";
 import { AccountFlowFooter } from "./AccountFlowFooter";
@@ -26,41 +31,51 @@ const secondaryActionClass =
 export function ReopenRequestForm() {
   const t = useTranslations("Account");
   const locale = useLocale();
-  const getError = useAccountErrorMessage();
-  const [email, setEmail] = useState("");
-  const [emailError, setEmailError] = useState<string | null>(null);
-  const [busy, setBusy] = useState(false);
   const [submitted, setSubmitted] = useState(false);
-  const [error, setError] = useState<string | null>(null);
+  const schemas = useMemo(
+    () =>
+      createAccountFormSchemas({
+        emailRequired: t("validation.emailRequired"),
+        emailInvalid: t("validation.emailInvalid"),
+        displayNameRequired: t("validation.displayNameRequired"),
+        displayNameMin: t("validation.displayNameMin"),
+        displayNameMax: t("validation.displayNameMax"),
+        passwordRequired: t("validation.passwordRequired"),
+        passwordMin: t("validation.passwordMin"),
+        passwordMax: t("validation.passwordMax"),
+        passwordComplexity: t("validation.passwordComplexity"),
+      }),
+    [t],
+  );
+  const form = useForm<EmailRequestFormValues>({
+    resolver: zodResolver(schemas.emailRequest),
+    defaultValues: { email: "" },
+    shouldFocusError: true,
+  });
+  const {
+    register,
+    handleSubmit,
+    clearErrors,
+    setError,
+    formState: { errors, isSubmitting },
+  } = form;
 
-  const submit = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setEmailError(null);
-    setError(null);
-    const normalized = normalizeAccountEmail(email);
-    if (!normalized) {
-      setEmailError(t("validation.emailRequired"));
-      requestAnimationFrame(() => document.getElementById("reopen-email")?.focus());
-      return;
-    }
-
-    setBusy(true);
+  const submit = handleSubmit(async ({ email }) => {
+    clearErrors();
     try {
-      await requestAccountReopen(normalized, locale);
+      await requestAccountReopen(email, locale);
       setSubmitted(true);
-    } catch (requestError) {
-      const apiError = toAccountApiError(requestError);
-      const fieldError = apiError.fieldErrors.find((candidate) => candidate.field === "email");
-      if (fieldError) {
-        setEmailError(fieldError.message);
-        requestAnimationFrame(() => document.getElementById("reopen-email")?.focus());
+    } catch (error: unknown) {
+      const apiError = toAccountApiError(error);
+      const mapped = mapAccountFormError(apiError, { email: "email" });
+      const message = t(mapped.messageKey as Parameters<typeof t>[0]);
+      if (mapped.target === "email") {
+        setError("email", { type: "server", message });
       } else {
-        setError(getError(apiError));
+        setError("root.server", { type: "server", message });
       }
-    } finally {
-      setBusy(false);
     }
-  };
+  });
 
   if (submitted) {
     return (
@@ -85,25 +100,29 @@ export function ReopenRequestForm() {
 
   return (
     <section className="space-y-5">
-      {error && <AccountFeedback state={{ kind: "error", message: error }} />}
+      {errors.root?.server?.message ? (
+        <AccountFeedback
+          state={{ kind: "error", message: errors.root.server.message }}
+        />
+      ) : null}
       <form className="space-y-5" onSubmit={submit} noValidate>
-        <AccountField id="reopen-email" label={t("account.emailLabel")} error={emailError}>
+        <AccountField
+          id="reopen-email"
+          label={t("account.emailLabel")}
+          error={errors.email?.message}
+        >
           <input
             id="reopen-email"
             type="email"
             autoComplete="email"
-            value={email}
-            onChange={(event) => {
-              setEmail(event.target.value);
-              setEmailError(null);
-            }}
+            {...register("email")}
             className={inputClass}
-            aria-invalid={emailError ? true : undefined}
-            aria-describedby={emailError ? "reopen-email-error" : undefined}
+            aria-invalid={errors.email ? true : undefined}
+            aria-describedby={errors.email ? "reopen-email-error" : undefined}
           />
         </AccountField>
-        <button type="submit" disabled={busy} className={primaryActionClass}>
-          {busy && <span aria-hidden>…</span>}
+        <button type="submit" disabled={isSubmitting} className={primaryActionClass}>
+          {isSubmitting && <span aria-hidden>…</span>}
           {t("account.reopenRequestAction")}
         </button>
       </form>
