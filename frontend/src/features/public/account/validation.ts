@@ -29,6 +29,11 @@ export type PasswordValidationError =
   | "passwordComplexity";
 export type DisplayNameValidationError = "displayNameRequired" | "displayNameMin" | "displayNameMax";
 
+/** Counts Unicode code points rather than UTF-16 code units. */
+export function accountTextLength(value: string): number {
+  return Array.from(value).length;
+}
+
 const lowercasePattern = new RegExp("\\p{Ll}", "u");
 const uppercasePattern = new RegExp("\\p{Lu}", "u");
 const numberPattern = new RegExp("\\p{N}", "u");
@@ -72,8 +77,9 @@ export function validatePassword(password: string): PasswordValidationError | nu
 export function validateDisplayName(displayName: string): DisplayNameValidationError | null {
   const trimmed = displayName.trim();
   if (!trimmed) return "displayNameRequired";
-  if (trimmed.length < MIN_DISPLAY_NAME_LENGTH) return "displayNameMin";
-  if (trimmed.length > MAX_DISPLAY_NAME_LENGTH) return "displayNameMax";
+  const length = accountTextLength(trimmed);
+  if (length < MIN_DISPLAY_NAME_LENGTH) return "displayNameMin";
+  if (length > MAX_DISPLAY_NAME_LENGTH) return "displayNameMax";
   return null;
 }
 
