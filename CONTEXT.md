@@ -55,6 +55,10 @@ _Avoid_: Online Donation
 Donation Record ที่เจ้าหน้าที่วัดบันทึกจากเงินสด รายการเดินบัญชี หรือข้อมูลที่ได้รับนอกระบบ
 _Avoid_: Manual Donation
 
+**Member-Linked Donation**:
+Donation Record ที่เชื่อมกับบัญชีสมาชิกของผู้บริจาค เพื่อให้สมาชิกติดตามประวัติและสถานะของรายการตนเองได้ ผู้เยี่ยมชมยังสามารถสร้าง Donation Record ได้โดยไม่ต้องมีบัญชีสมาชิก
+_Avoid_: Member-Only Donation
+
 **Confirmed Donation**:
 Donation Record ที่เจ้าหน้าที่ตรวจสอบการรับเงินแล้ว
 _Avoid_: Paid Donation
@@ -64,12 +68,18 @@ Donation Record ที่ยังรอเจ้าหน้าที่ตร�
 _Avoid_: Unverified Donation
 
 **Donation Proof**:
-หลักฐานการชำระเงินที่ผู้บริจาคแนบมากับ Self-Reported Donation เพื่อให้เจ้าหน้าที่ตรวจสอบ
+หลักฐานการชำระเงินที่ผู้บริจาคแนบมากับ Self-Reported Donation เพื่อให้เจ้าหน้าที่ซึ่งมีสิทธิ์จัดการการบริจาคตรวจสอบ เป็นข้อมูลส่วนตัวและห้ามเข้าถึงผ่านสาธารณะ
 _Avoid_: Payment Slip
 
 **Donation Acknowledgement**:
 อีเมลอัตโนมัติที่ยืนยันว่าได้รับ Self-Reported Donation แล้ว โดยไม่ยืนยันว่าได้รับเงินหรือออกใบเสร็จ
 _Avoid_: Receipt
+
+**Receipt Request**:
+ความประสงค์ของผู้บริจาคที่จะขอใบเสร็จ ซึ่งยังไม่ถือว่าออกหรือส่งใบเสร็จจนกว่า Donation Record จะเป็น Confirmed Donation
+
+**General Donation Receipt**:
+ใบเสร็จรับเงินที่วัดออกให้สำหรับ Donation Record ที่ยืนยันแล้ว โดยไม่เป็นเอกสารรับรองเพื่อการลดหย่อนภาษี
 
 **Receipt Dispatch**:
 การที่เจ้าหน้าที่เริ่มส่งใบเสร็จของ Confirmed Donation หลังตรวจสอบข้อมูลผู้รับเรียบร้อยแล้ว
