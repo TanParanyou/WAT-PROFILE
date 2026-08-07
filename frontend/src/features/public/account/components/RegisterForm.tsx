@@ -1,10 +1,10 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
 import { Link } from "@/navigation";
-import { Loader2, AlertCircle, CheckCircle, UserPlus } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { registerAccount, startGoogle, toAccountApiError } from "@/features/public/account/api";
 import { useAccountErrorMessage } from "@/features/public/account/hooks";
 import { useGoogleRedirect } from "../hooks/useGoogleRedirect";
@@ -16,11 +16,13 @@ import {
 } from "@/features/public/account/validation";
 import { PasswordInput } from "./PasswordInput";
 import { PasswordRequirements } from "./PasswordRequirements";
+import { AccountField } from "./AccountField";
+import { AccountFeedback } from "./AccountFeedback";
+import { AuthMethodPanel } from "./AuthMethodPanel";
 
 const inputBase =
   "mt-2 min-h-11 w-full border border-site-border bg-site-canvas px-3 py-2.5 text-base text-site-foreground outline-none transition-colors placeholder:text-site-muted focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus";
-const labelBase = "block text-sm font-semibold text-text-800";
-const errorText = "mt-1 text-sm text-red-700";
+const invalidInputClass = "border-red-700 focus-visible:outline-red-700";
 
 export function RegisterForm() {
   const t = useTranslations("Account");
@@ -34,11 +36,13 @@ export function RegisterForm() {
   const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const { redirecting, markRedirecting } = useGoogleRedirect();
-  const errorSummaryRef = useRef<HTMLDivElement>(null);
   const passwordRequirements = inspectPassword(password);
 
-  const focusErrorSummary = () => {
-    requestAnimationFrame(() => errorSummaryRef.current?.focus());
+  const focusFirstError = () => {
+    requestAnimationFrame(() => {
+      const firstInvalid = document.querySelector<HTMLElement>('[aria-invalid="true"]');
+      firstInvalid?.focus();
+    });
   };
 
   const handleGoogle = async () => {
@@ -70,7 +74,7 @@ export function RegisterForm() {
 
     if (Object.keys(nextFieldErrors).length > 0) {
       setFieldErrors(nextFieldErrors);
-      focusErrorSummary();
+      focusFirstError();
       return;
     }
 
@@ -97,7 +101,7 @@ export function RegisterForm() {
       } else {
         setFormError(getErrorMessage(apiError));
       }
-      focusErrorSummary();
+      focusFirstError();
     } finally {
       setSubmitting(false);
     }
@@ -106,72 +110,41 @@ export function RegisterForm() {
   if (submitted) {
     return (
       <div className="space-y-4">
-        <div
-          role="status"
-          aria-live="polite"
-          className="flex items-start gap-2 border border-emerald-700 bg-emerald-50 p-3 text-sm text-emerald-700"
-        >
-          <CheckCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
-          <div>
-            <p className="font-semibold">{t("register.successTitle")}</p>
-            <p className="mt-1">{t("register.successBody")}</p>
-          </div>
-        </div>
-        <p>
+        <AccountFeedback
+          state={{
+            kind: "success",
+            title: t("register.successTitle"),
+            body: t("register.successBody"),
+          }}
+        />
+        <div className="flex flex-col gap-3 sm:flex-row">
           <Link
             href="/account/verify-email"
-            className="font-medium text-text-900 underline decoration-primary/40 underline-offset-4"
+            className="inline-flex min-h-11 items-center justify-center bg-site-action px-5 py-2.5 font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
           >
             {t("register.verificationResendLink")}
           </Link>
-        </p>
-        <p>
           <Link
             href="/account/login"
-            className="font-medium text-text-900 underline decoration-primary/40 underline-offset-4"
+            className="inline-flex min-h-11 items-center justify-center border border-site-border bg-site-canvas px-5 py-2.5 font-semibold text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
           >
             {t("register.loginLink")}
           </Link>
-        </p>
+        </div>
       </div>
     );
   }
 
   return (
     <div className="space-y-5">
-      {formError && (
-        <div
-          ref={errorSummaryRef}
-          tabIndex={-1}
-          role="alert"
-          id="form-error"
-          aria-describedby="form-error"
-          className="flex items-start gap-2 border border-red-700 bg-red-50 p-3 text-sm text-red-700 outline-none"
-        >
-          <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
-          <span>{formError}</span>
-        </div>
-      )}
+      {formError ? <AccountFeedback state={{ kind: "error", message: formError }} /> : null}
 
-      <button
-        type="button"
-        onClick={handleGoogle}
-        disabled={submitting || redirecting}
-        className="inline-flex min-h-11 w-full items-center justify-center gap-2 border border-site-border bg-site-canvas px-6 py-[13px] font-semibold text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-60"
-      >
-        {redirecting ? (
-          <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
-        ) : (
-          <UserPlus className="h-5 w-5" aria-hidden />
-        )}
-        {t("register.google")}
-      </button>
-
-      <div className="relative">
-        <div className="absolute inset-0 flex items-center" aria-hidden>
-          <div className="w-full border-t border-site-border" />
-        </div>
-      </div>
+      <AuthMethodPanel
+        googleLabel={t("register.google")}
+        dividerLabel={t("navigation.or")}
+        loading={submitting || redirecting}
+        onGoogle={handleGoogle}
+      />
 
       <div
         role="note"
@@ -187,10 +160,7 @@ export function RegisterForm() {
       </div>
 
       <form className="space-y-5" onSubmit={handleSubmit} noValidate>
-        <div>
-          <label className={labelBase} htmlFor="register-display-name">
-            {t("register.displayNameLabel")}
-          </label>
+        <AccountField id="register-display-name" label={t("register.displayNameLabel")} error={fieldErrors.displayName}>
           <input
             id="register-display-name"
             name="display_name"
@@ -199,21 +169,13 @@ export function RegisterForm() {
             value={displayName}
             onChange={(e) => setDisplayName(e.target.value)}
             placeholder={t("register.displayNamePlaceholder")}
-            className={inputBase}
+            className={`${inputBase} ${fieldErrors.displayName ? invalidInputClass : ""}`}
             aria-invalid={fieldErrors.displayName ? true : undefined}
             aria-describedby={fieldErrors.displayName ? "register-display-name-error" : undefined}
           />
-          {fieldErrors.displayName && (
-            <p id="register-display-name-error" className={errorText}>
-              {fieldErrors.displayName}
-            </p>
-          )}
-        </div>
+        </AccountField>
 
-        <div>
-          <label className={labelBase} htmlFor="register-email">
-            {t("register.emailLabel")}
-          </label>
+        <AccountField id="register-email" label={t("register.emailLabel")} error={fieldErrors.email}>
           <input
             id="register-email"
             name="email"
@@ -222,21 +184,25 @@ export function RegisterForm() {
             value={email}
             onChange={(e) => setEmail(e.target.value)}
             placeholder={t("register.emailPlaceholder")}
-            className={inputBase}
+            className={`${inputBase} ${fieldErrors.email ? invalidInputClass : ""}`}
             aria-invalid={fieldErrors.email ? true : undefined}
             aria-describedby={fieldErrors.email ? "register-email-error" : undefined}
           />
-          {fieldErrors.email && (
-            <p id="register-email-error" className={errorText}>
-              {fieldErrors.email}
-            </p>
-          )}
-        </div>
+        </AccountField>
 
-        <div>
-          <label className={labelBase} htmlFor="register-password">
-            {t("register.passwordLabel")}
-          </label>
+        <AccountField
+          id="register-password"
+          label={t("register.passwordLabel")}
+          error={fieldErrors.password}
+          description={
+            <>
+              <PasswordRequirements id="register-password-requirements" requirements={passwordRequirements} />
+              <p id="register-password-hint" className="mt-1 text-sm text-site-muted">
+                {t("register.passwordHint")}
+              </p>
+            </>
+          }
+        >
           <PasswordInput
             id="register-password"
             name="password"
@@ -244,22 +210,13 @@ export function RegisterForm() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             placeholder={t("register.passwordPlaceholder")}
-            className={inputBase}
+            className={`${inputBase} ${fieldErrors.password ? invalidInputClass : ""}`}
             aria-invalid={fieldErrors.password ? true : undefined}
             aria-describedby={`register-password-requirements register-password-hint${
               fieldErrors.password ? " register-password-error" : ""
             }`}
           />
-          <PasswordRequirements id="register-password-requirements" requirements={passwordRequirements} />
-          <p id="register-password-hint" className="mt-1 text-sm text-site-muted">
-            {t("register.passwordHint")}
-          </p>
-          {fieldErrors.password && (
-            <p id="register-password-error" className={errorText}>
-              {fieldErrors.password}
-            </p>
-          )}
-        </div>
+        </AccountField>
 
         <button
           type="submit"

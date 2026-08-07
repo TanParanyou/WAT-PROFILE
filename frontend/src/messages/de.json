@@ -119,6 +119,9 @@
         "title": "Benutzerkonto",
         "subtitle": "Verwalten Sie Ihr Profil, Ihre Anmeldemethoden und Sicherheitseinstellungen.",
         "back": "Zurück",
+        "navigation": {
+            "or": "oder"
+        },
         "showPassword": "Passwort anzeigen",
         "hidePassword": "Passwort verbergen",
         "passwordPolicy": {
@@ -146,6 +149,7 @@
             "registerLink": "Konto erstellen",
             "forgotLink": "Passwort vergessen?",
             "reopenLink": "Geschlossenes Konto wiederherstellen",
+            "linksTitle": "Hilfe zu Ihrem Konto",
             "verifyPrompt": "Prüfen Sie Ihren Posteingang und bestätigen Sie zuerst Ihre E-Mail."
         },
         "register": {
@@ -333,6 +337,7 @@
         "validation": {
             "emailRequired": "E-Mail ist erforderlich",
             "emailInvalid": "Geben Sie eine gültige E-Mail-Adresse ein",
+            "emailDifferent": "Die neue E-Mail muss sich von der aktuellen E-Mail unterscheiden",
             "passwordRequired": "Passwort ist erforderlich",
             "passwordMin": "Das Passwort muss mindestens 12 Zeichen lang sein",
             "passwordMax": "Das Passwort darf höchstens 128 Zeichen lang sein",
@@ -353,7 +358,7 @@
             "AUTH_ACCOUNT_DISABLED": "Dieses Konto kann derzeit nicht angemeldet werden.",
             "AUTH_REAUTH_REQUIRED": "Melden Sie sich erneut an, um fortzufahren.",
             "AUTH_EMAIL_ALREADY_REGISTERED": "Ein Konto mit dieser E-Mail existiert bereits.",
-            "AUTH_VALIDATION": "Bitte korrigieren Sie die markierten Felder.",
+            "AUTH_VALIDATION": "Bitte prüfen Sie Ihre Angaben und versuchen Sie es erneut.",
             "AUTH_GOOGLE_EMAIL_MISMATCH": "Verwenden Sie dieselbe Google-E-Mail wie für dieses Konto.",
             "AUTH_GOOGLE_IDENTITY_IN_USE": "Dieses Google-Konto ist bereits mit einem anderen Konto verknüpft.",
             "AUTH_GOOGLE_ALREADY_LINKED": "Google ist bereits verbunden.",

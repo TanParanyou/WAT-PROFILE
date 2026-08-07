@@ -119,6 +119,9 @@
         "title": "ระบบบัญชีผู้ใช้",
         "subtitle": "จัดการข้อมูลโปรไฟล์ การเข้าสู่ระบบ และการตั้งค่าความปลอดภัย",
         "back": "ย้อนกลับ",
+        "navigation": {
+            "or": "หรือ"
+        },
         "showPassword": "แสดงรหัสผ่าน",
         "hidePassword": "ซ่อนรหัสผ่าน",
         "passwordPolicy": {
@@ -146,6 +149,7 @@
             "registerLink": "สร้างบัญชี",
             "forgotLink": "ลืมรหัสผ่าน?",
             "reopenLink": "กู้คืนบัญชีที่ปิดแล้ว",
+            "linksTitle": "ตัวเลือกช่วยเหลือ",
             "verifyPrompt": "กรุณาตรวจสอบอีเมลและยืนยันอีเมลของคุณก่อน"
         },
         "register": {
@@ -333,6 +337,7 @@
         "validation": {
             "emailRequired": "กรุณาป้อนอีเมล",
             "emailInvalid": "กรุณาป้อนที่อยู่อีเมลที่ถูกต้อง",
+            "emailDifferent": "อีเมลใหม่ต้องแตกต่างจากอีเมลปัจจุบัน",
             "passwordRequired": "กรุณาป้อนรหัสผ่าน",
             "passwordMin": "รหัสผ่านต้องมีอย่างน้อย 12 ตัวอักษร",
             "passwordMax": "รหัสผ่านต้องมีอย่างมาก 128 ตัวอักษร",
@@ -353,7 +358,7 @@
             "AUTH_ACCOUNT_DISABLED": "บัญชีนี้ไม่สามารถเข้าสู่ระบบได้ในขณะนี้",
             "AUTH_REAUTH_REQUIRED": "กรุณาเข้าสู่ระบบอีกครั้งเพื่อดำเนินการต่อ",
             "AUTH_EMAIL_ALREADY_REGISTERED": "มีบัญชีที่ใช้อีเมลนี้อยู่แล้ว",
-            "AUTH_VALIDATION": "กรุณาแก้ไขช่องที่มีเครื่องหมาย",
+            "AUTH_VALIDATION": "กรุณาตรวจสอบข้อมูลที่กรอกแล้วลองอีกครั้ง",
             "AUTH_GOOGLE_EMAIL_MISMATCH": "ใช้บัญชี Google อีเมลเดียวกับบัญชีนี้",
             "AUTH_GOOGLE_IDENTITY_IN_USE": "บัญชี Google นี้เชื่อมต่อกับบัญชีอื่นแล้ว",
             "AUTH_GOOGLE_ALREADY_LINKED": "เชื่อมต่อ Google แล้ว",

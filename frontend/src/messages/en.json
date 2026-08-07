@@ -119,6 +119,9 @@
         "title": "User Account",
         "subtitle": "Manage your profile, sign-in methods, and security settings.",
         "back": "Back",
+        "navigation": {
+            "or": "or"
+        },
         "showPassword": "Show password",
         "hidePassword": "Hide password",
         "passwordPolicy": {
@@ -146,6 +149,7 @@
             "registerLink": "Create an account",
             "forgotLink": "Forgot password?",
             "reopenLink": "Restore a closed account",
+            "linksTitle": "Help with your account",
             "verifyPrompt": "Check your inbox and verify your email first."
         },
         "register": {
@@ -333,6 +337,7 @@
         "validation": {
             "emailRequired": "Email is required",
             "emailInvalid": "Enter a valid email address",
+            "emailDifferent": "The new email must be different from the current email",
             "passwordRequired": "Password is required",
             "passwordMin": "Password must be at least 12 characters",
             "passwordMax": "Password must be at most 128 characters",
@@ -353,7 +358,7 @@
             "AUTH_ACCOUNT_DISABLED": "This account cannot sign in right now.",
             "AUTH_REAUTH_REQUIRED": "Please sign in again to continue.",
             "AUTH_EMAIL_ALREADY_REGISTERED": "An account with this email already exists.",
-            "AUTH_VALIDATION": "Please correct the highlighted fields.",
+            "AUTH_VALIDATION": "Please check the information and try again.",
             "AUTH_GOOGLE_EMAIL_MISMATCH": "Use the same Google email as this account.",
             "AUTH_GOOGLE_IDENTITY_IN_USE": "This Google account is already linked elsewhere.",
             "AUTH_GOOGLE_ALREADY_LINKED": "Google is already connected.",
