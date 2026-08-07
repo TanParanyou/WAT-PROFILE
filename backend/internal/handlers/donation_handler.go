@@ -82,7 +82,8 @@ func (h *DonationHandler) SubmitSelfReported(c *fiber.Ctx) error {
 	email := strings.TrimSpace(c.FormValue("donor_email"))
 	donationDate := strings.TrimSpace(c.FormValue("donation_date"))
 	locale := strings.TrimSpace(c.FormValue("locale"))
-	if err := donationvalidation.ValidatePublicInput(donationvalidation.PublicInput{Amount: amountValue, Currency: c.FormValue("currency"), DonationDate: donationDate, DonationMethod: method, DonorName: c.FormValue("donor_name"), DonorEmail: email, Locale: locale, HasProof: true}); err != nil {
+	privacyAcknowledged := c.FormValue("privacy_acknowledged") == "true" || strings.EqualFold(c.FormValue("privacy_acknowledged"), "on")
+	if err := donationvalidation.ValidatePublicInput(donationvalidation.PublicInput{Amount: amountValue, Currency: c.FormValue("currency"), DonationDate: donationDate, DonationMethod: method, DonorName: c.FormValue("donor_name"), DonorEmail: email, Locale: locale, HasProof: true, PrivacyAcknowledged: privacyAcknowledged}); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
 	amount, err := strconv.ParseFloat(amountValue, 64)
