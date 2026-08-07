@@ -29,7 +29,7 @@ export default async function ResetPasswordPage({ params }: { params: Promise<{ 
         title: t("resetPassword.title"),
         subtitle: t("resetPassword.subtitle"),
         backHref: "/account/forgot-password",
-        backLabel: t("navigation.backToLogin"),
+        backLabel: t("navigation.backToForgotPassword"),
       }}
     >
       <Suspense fallback={null}>

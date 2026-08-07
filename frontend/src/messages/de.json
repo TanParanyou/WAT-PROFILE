@@ -124,6 +124,7 @@
             "backToLogin": "Zur Anmeldung",
             "backToAccount": "Zurück zu Ihrem Konto",
             "backToSecurity": "Zurück zu Sicherheit",
+            "backToForgotPassword": "Zurück zur Passwort-Wiederherstellung",
             "or": "oder"
         },
         "flow": {
