@@ -3,6 +3,7 @@ package storage
 import (
 	"context"
 	"fmt"
+	"io"
 	"mime/multipart"
 	"os"
 
@@ -76,4 +77,21 @@ func (s *R2Service) DeleteFile(ctx context.Context, filename string) error {
 		Key:    aws.String(filename),
 	})
 	return err
+}
+
+// UploadPrivate stores an object without deriving a public URL. Private
+// donation proofs and receipts are retrieved only through authenticated routes.
+func (s *R2Service) UploadPrivate(ctx context.Context, body io.Reader, key, contentType string) error {
+	_, err := s.client.PutObject(ctx, &s3.PutObjectInput{
+		Bucket: aws.String(s.bucket), Key: aws.String(key), Body: body, ContentType: aws.String(contentType),
+	})
+	return err
+}
+
+func (s *R2Service) OpenPrivate(ctx context.Context, key string) (io.ReadCloser, error) {
+	result, err := s.client.GetObject(ctx, &s3.GetObjectInput{Bucket: aws.String(s.bucket), Key: aws.String(key)})
+	if err != nil {
+		return nil, err
+	}
+	return result.Body, nil
 }

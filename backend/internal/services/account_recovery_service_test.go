@@ -161,9 +161,9 @@ func TestRequestPasswordResetGoogleOnlyInformationalEmail(t *testing.T) {
 	if sender.count() != 1 {
 		t.Fatalf("expected 1 informational email, got %d", sender.count())
 	}
-	// The neutral message must not contain a reset action link.
-	if sender.messages[0].ActionURL != "" {
-		t.Fatalf("google-only email must not carry a reset link, got %q", sender.messages[0].ActionURL)
+	// Google-only accounts receive a sign-in link, never a password reset token.
+	if !strings.Contains(sender.messages[0].ActionURL, "/en/account/login") {
+		t.Fatalf("google-only email must carry a sign-in link, got %q", sender.messages[0].ActionURL)
 	}
 	var tokens int64
 	db.Model(&models.AuthActionToken{}).Where("user_id = ? AND purpose = ?", user.ID, "reset_password").Count(&tokens)

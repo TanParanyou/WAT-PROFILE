@@ -3,6 +3,7 @@ package services
 import (
 	"bytes"
 	"context"
+	"encoding/base64"
 	"encoding/json"
 	"errors"
 	"fmt"
@@ -53,11 +54,17 @@ type resendEmailSender struct {
 
 // resendSendRequest is the Resend /emails request envelope.
 type resendSendRequest struct {
-	From    string `json:"from"`
-	To      string `json:"to"`
-	Subject string `json:"subject"`
-	Text    string `json:"text"`
-	HTML    string `json:"html,omitempty"`
+	From        string             `json:"from"`
+	To          string             `json:"to"`
+	Subject     string             `json:"subject"`
+	Text        string             `json:"text"`
+	HTML        string             `json:"html,omitempty"`
+	Attachments []resendAttachment `json:"attachments,omitempty"`
+}
+
+type resendAttachment struct {
+	Filename string `json:"filename"`
+	Content  string `json:"content"`
 }
 
 // resendSendResponse carries the message id returned by Resend.
@@ -80,6 +87,12 @@ func (s *resendEmailSender) Send(ctx context.Context, message accountauth.EmailM
 		Subject: message.Subject,
 		Text:    message.Body,
 		HTML:    htmlBody,
+	}
+	for _, attachment := range message.Attachments {
+		payload.Attachments = append(payload.Attachments, resendAttachment{
+			Filename: attachment.Filename,
+			Content:  base64.StdEncoding.EncodeToString(attachment.Data),
+		})
 	}
 	raw, err := json.Marshal(payload)
 	if err != nil {

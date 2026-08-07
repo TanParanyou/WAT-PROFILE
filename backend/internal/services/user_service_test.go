@@ -33,6 +33,12 @@ func testUserDB(t *testing.T) *gorm.DB {
 	return db
 }
 
+func TestUserSortColumnsSupportsID(t *testing.T) {
+	if got := userSortColumns["id"]; got != "users.id" {
+		t.Fatalf("user id sort should map to users.id, got %q", got)
+	}
+}
+
 func createTestAdminRole(t *testing.T, db *gorm.DB) *models.Role {
 	t.Helper()
 	role := models.Role{

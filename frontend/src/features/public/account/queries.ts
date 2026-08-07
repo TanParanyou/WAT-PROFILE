@@ -10,7 +10,10 @@ import {
   uploadAccountAvatar,
   updateAccountProfile,
 } from "./api";
-import { toPublicQueryError, shouldRetryPublicQuery } from "../shared/query-error";
+import {
+  toPublicQueryError,
+  shouldRetryPublicQuery,
+} from "../shared/query-error";
 import type { Account, AccountProfileUpdateInput } from "./types";
 
 export const accountKeys = {
@@ -52,7 +55,8 @@ export function useGoogleLinkStatus(enabled?: boolean) {
 export function useUpdateAccountProfile() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (input: AccountProfileUpdateInput) => updateAccountProfile(input),
+    mutationFn: (input: AccountProfileUpdateInput) =>
+      updateAccountProfile(input),
     onSuccess: (account: Account) => {
       queryClient.setQueryData(accountKeys.current(), account);
     },
@@ -82,7 +86,7 @@ export function useRevokeAccountSession() {
 export function useCloseAccount() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (password: string) => closeAccount(password),
+    mutationFn: () => closeAccount(),
     onSuccess: ({ purge_after }) => {
       const current = queryClient.getQueryData<Account>(accountKeys.current());
       if (current) {

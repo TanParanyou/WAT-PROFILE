@@ -3,15 +3,22 @@
 import { useCallback, useState } from "react";
 import { useLocale } from "next-intl";
 import { useQueryClient } from "@tanstack/react-query";
-import { accountKeys, useGoogleLinkStatus } from "@/features/public/account/queries";
+import {
+  accountKeys,
+  useGoogleLinkStatus,
+} from "@/features/public/account/queries";
 import {
   startGoogleLink,
   toAccountApiError,
   unlinkGoogleAccount,
 } from "@/features/public/account/api";
-import { useAccountSession } from "@/features/public/account/AccountSessionProvider";
+import { useAccountReauth } from "@/features/public/account/hooks/useAccountReauth";
+import { AccountReauthError } from "@/features/public/account/reauth/reauth-types";
 import { useGoogleRedirect } from "@/features/public/account/hooks/useGoogleRedirect";
-import type { AccountApiError, GoogleLinkStatus } from "@/features/public/account/types";
+import type {
+  AccountApiError,
+  GoogleLinkStatus,
+} from "@/features/public/account/types";
 
 export type GoogleLinkStartOutcome =
   | { kind: "cooldown" }
@@ -46,23 +53,25 @@ export async function runReauthThenLinkStart(args: {
   } catch (error) {
     return { kind: "error", error: toAccountApiError(error) };
   }
-  return runGoogleLinkStart({ status: args.status, locale: args.locale, start: args.start });
+  return runGoogleLinkStart({
+    status: args.status,
+    locale: args.locale,
+    start: args.start,
+  });
 }
 
 export function useGoogleAccountLink() {
   const locale = useLocale();
   const queryClient = useQueryClient();
-  const { reauthenticate } = useAccountSession();
+  const { requireRecentAuth } = useAccountReauth();
   const { redirecting, markRedirecting } = useGoogleRedirect();
   const { data: status, isLoading } = useGoogleLinkStatus();
 
   const [error, setError] = useState<AccountApiError | null>(null);
-  const [requiresReauth, setRequiresReauth] = useState(false);
   const [unlinking, setUnlinking] = useState(false);
 
   const clearError = useCallback(() => {
     setError(null);
-    setRequiresReauth(false);
   }, []);
 
   const redirectToGoogle = useCallback(
@@ -71,11 +80,10 @@ export function useGoogleAccountLink() {
         return;
       }
       if (outcome.kind === "error") {
-        if (outcome.error.code === "AUTH_REAUTH_REQUIRED") {
-          setRequiresReauth(true);
-        }
         setError(outcome.error);
-        await queryClient.invalidateQueries({ queryKey: accountKeys.googleLink() });
+        await queryClient.invalidateQueries({
+          queryKey: accountKeys.googleLink(),
+        });
         return;
       }
       markRedirecting();
@@ -86,42 +94,66 @@ export function useGoogleAccountLink() {
 
   const startLink = useCallback(async () => {
     clearError();
-    const outcome = await runGoogleLinkStart({ status, locale, start: startGoogleLink });
-    await redirectToGoogle(outcome);
-  }, [clearError, locale, redirectToGoogle, status]);
-
-  const retryLink = useCallback(
-    async (password: string) => {
-      clearError();
-      const outcome = await runReauthThenLinkStart({
-        password,
-        reauthenticate,
-        status,
-        locale,
-        start: startGoogleLink,
-      });
-      await redirectToGoogle(outcome);
-    },
-    [clearError, locale, reauthenticate, redirectToGoogle, status],
-  );
-
-  const unlink = useCallback(
-    async (password: string) => {
-      clearError();
-      setUnlinking(true);
+    let outcome = await runGoogleLinkStart({
+      status,
+      locale,
+      start: startGoogleLink,
+    });
+    if (
+      outcome.kind === "error" &&
+      outcome.error.code === "AUTH_REAUTH_REQUIRED"
+    ) {
       try {
-        await reauthenticate(password);
-        await unlinkGoogleAccount(password);
-        await queryClient.invalidateQueries({ queryKey: accountKeys.googleLink() });
-        await queryClient.invalidateQueries({ queryKey: accountKeys.current() });
-      } catch (unlinkError) {
-        setError(toAccountApiError(unlinkError));
-      } finally {
-        setUnlinking(false);
+        await requireRecentAuth({ reason: "link_google" });
+        outcome = await runGoogleLinkStart({
+          status,
+          locale,
+          start: startGoogleLink,
+        });
+      } catch (requestError) {
+        if (
+          requestError instanceof AccountReauthError &&
+          requestError.code === "AUTH_REAUTH_CANCELLED"
+        )
+          return;
+        setError(toAccountApiError(requestError));
+        return;
       }
-    },
-    [clearError, queryClient, reauthenticate],
-  );
+    }
+    await redirectToGoogle(outcome);
+  }, [clearError, locale, redirectToGoogle, requireRecentAuth, status]);
+
+  const retryLink = useCallback(async () => startLink(), [startLink]);
+
+  const unlink = useCallback(async (): Promise<boolean> => {
+    clearError();
+    setUnlinking(true);
+    try {
+      await requireRecentAuth({ reason: "unlink_google" });
+      await unlinkGoogleAccount();
+      queryClient.setQueryData<GoogleLinkStatus>(
+        accountKeys.googleLink(),
+        (current) =>
+          current ? { ...current, connected: false, pending: false } : current,
+      );
+      await queryClient.invalidateQueries({
+        queryKey: accountKeys.googleLink(),
+      });
+      await queryClient.invalidateQueries({ queryKey: accountKeys.current() });
+      return true;
+    } catch (unlinkError) {
+      if (
+        unlinkError instanceof AccountReauthError &&
+        unlinkError.code === "AUTH_REAUTH_CANCELLED"
+      ) {
+        return false;
+      }
+      setError(toAccountApiError(unlinkError));
+      return false;
+    } finally {
+      setUnlinking(false);
+    }
+  }, [clearError, queryClient, requireRecentAuth]);
 
   return {
     status,
@@ -129,7 +161,6 @@ export function useGoogleAccountLink() {
     redirecting,
     unlinking,
     error,
-    requiresReauth,
     startLink,
     retryLink,
     unlink,

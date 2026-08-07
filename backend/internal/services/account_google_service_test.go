@@ -186,6 +186,75 @@ func TestGoogleExistingLinkedIdentitySignsIn(t *testing.T) {
 	}
 }
 
+func TestGoogleExistingLinkedClosedAccountRejected(t *testing.T) {
+	f := newGoogleFixture(t, accountauth.GoogleIdentity{Subject: "closed-linked-sub", Email: "closed-linked@example.com", EmailVerified: true})
+	user := seedVerifiedPasswordAccount(t, f.db, "closed-linked@example.com")
+	if err := f.db.Model(&user).Updates(map[string]interface{}{
+		"account_status": string(models.AccountStatusClosed),
+		"is_active":      false,
+	}).Error; err != nil {
+		t.Fatalf("disable account: %v", err)
+	}
+	var stored models.User
+	if err := f.db.First(&stored, "id = ?", user.ID).Error; err != nil {
+		t.Fatalf("reload account: %v", err)
+	}
+	if stored.AccountStatus != models.AccountStatusClosed || stored.IsActive {
+		t.Fatalf("account state was not updated: status=%q active=%t", stored.AccountStatus, stored.IsActive)
+	}
+	f.db.Create(&models.AuthIdentity{
+		UserID:          user.ID,
+		Provider:        "google",
+		ProviderSubject: "closed-linked-sub",
+		ProviderEmail:   "closed-linked@example.com",
+	})
+
+	flowCookie := startFlow(t, f, "en", "/account")
+	_, err := f.svc.CompleteGoogle(context.Background(), "code", flowState(t, flowCookie), flowCookie, testClient())
+	if err == nil || accountauth.ErrorCode(err) != accountauth.CodeAccountDisabled {
+		t.Fatalf("expected account-disabled error, got %v", err)
+	}
+}
+
+func TestGoogleReauthenticationIsBoundToExistingIdentity(t *testing.T) {
+	f := newGoogleFixture(t, accountauth.GoogleIdentity{Subject: "reauth-sub", Email: "reauth@example.com", EmailVerified: true})
+	user := seedGoogleOnlyAccount(t, f.db, "reauth@example.com")
+	if err := f.db.Model(&models.AuthIdentity{}).
+		Where("user_id = ? AND provider = ?", user.ID, "google").
+		Update("provider_subject", "reauth-sub").Error; err != nil {
+		t.Fatalf("update google subject: %v", err)
+	}
+
+	result, err := f.svc.StartGoogleReauthentication(context.Background(), user.ID, "en", "/account?tab=security&close=confirm")
+	if err != nil {
+		t.Fatalf("StartGoogleReauthentication: %v", err)
+	}
+	completed, err := f.svc.CompleteGoogle(context.Background(), "code", flowState(t, result.FlowCookie), result.FlowCookie, testClient())
+	if err != nil {
+		t.Fatalf("CompleteGoogle reauthentication: %v", err)
+	}
+	if completed.Status != GoogleCompletionSignedIn || completed.UserID != user.ID {
+		t.Fatalf("expected signed-in target account, got status=%q user=%s", completed.Status, completed.UserID)
+	}
+	if completed.Session.AccessToken == "" || completed.Session.RefreshToken == "" {
+		t.Fatal("reauthentication must issue a fresh session")
+	}
+}
+
+func TestGoogleReauthenticationRejectsDifferentIdentity(t *testing.T) {
+	f := newGoogleFixture(t, accountauth.GoogleIdentity{Subject: "wrong-sub", Email: "wrong@example.com", EmailVerified: true})
+	user := seedGoogleOnlyAccount(t, f.db, "reauth-target@example.com")
+
+	result, err := f.svc.StartGoogleReauthentication(context.Background(), user.ID, "en", "/account")
+	if err != nil {
+		t.Fatalf("StartGoogleReauthentication: %v", err)
+	}
+	_, err = f.svc.CompleteGoogle(context.Background(), "code", flowState(t, result.FlowCookie), result.FlowCookie, testClient())
+	if err == nil || accountauth.ErrorCode(err) != accountauth.CodeGoogleEmailMismatch {
+		t.Fatalf("expected google identity mismatch, got %v", err)
+	}
+}
+
 func TestGoogleUnverifiedEmailRejected(t *testing.T) {
 	f := newGoogleFixture(t, accountauth.GoogleIdentity{Subject: "unverified-sub", Email: "unverified@example.com", EmailVerified: false})
 

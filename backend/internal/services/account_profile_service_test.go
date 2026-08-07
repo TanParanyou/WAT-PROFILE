@@ -214,7 +214,7 @@ func TestCloseAccountRequiresRecentAuth(t *testing.T) {
 	user := seedProfileAccount(t, db, "stale@example.com", "Stale Person", "en")
 
 	authTime := fixedNow().Add(-11 * time.Minute)
-	err := svc.CloseAccount(context.Background(), user.ID, authTime, "correct horse battery staple")
+	err := svc.CloseAccount(context.Background(), user.ID, authTime)
 	if err == nil || accountauth.ErrorCode(err) != accountauth.CodeReauthRequired {
 		t.Fatalf("expected reauth required, got %v", err)
 	}
@@ -230,26 +230,13 @@ func TestCloseAccountRequiresRecentAuth(t *testing.T) {
 	}
 }
 
-func TestCloseAccountWrongPasswordRejected(t *testing.T) {
-	svc, stub, db := newProfileFixture(t)
-	user := seedProfileAccount(t, db, "wrongpass@example.com", "Wrong Pass", "en")
-
-	err := svc.CloseAccount(context.Background(), user.ID, fixedNow(), "not the right password")
-	if err == nil || accountauth.ErrorCode(err) != accountauth.CodeInvalidCredentials {
-		t.Fatalf("expected invalid credentials, got %v", err)
-	}
-	if len(stub.calls) != 0 {
-		t.Fatal("expected no session revocation on wrong password")
-	}
-}
-
-func TestCloseAccountRequiresPasswordReentryForPasswordUsers(t *testing.T) {
+func TestCloseAccountFreshAuthDoesNotRequirePasswordPayload(t *testing.T) {
 	svc, _, db := newProfileFixture(t)
 	user := seedProfileAccount(t, db, "reenter@example.com", "Re-enter Person", "en")
 
-	err := svc.CloseAccount(context.Background(), user.ID, fixedNow(), "")
-	if err == nil || accountauth.ErrorCode(err) != accountauth.CodeReauthRequired {
-		t.Fatalf("expected reauth required when password omitted, got %v", err)
+	err := svc.CloseAccount(context.Background(), user.ID, fixedNow())
+	if err != nil {
+		t.Fatalf("CloseAccount with recent auth: %v", err)
 	}
 }
 
@@ -257,7 +244,7 @@ func TestCloseAccountClosesAndRevokesSessions(t *testing.T) {
 	svc, stub, db := newProfileFixture(t)
 	user := seedProfileAccount(t, db, "close@example.com", "Close Person", "en")
 
-	err := svc.CloseAccount(context.Background(), user.ID, fixedNow(), "correct horse battery staple")
+	err := svc.CloseAccount(context.Background(), user.ID, fixedNow())
 	if err != nil {
 		t.Fatalf("CloseAccount: %v", err)
 	}
@@ -303,7 +290,7 @@ func TestCloseAccountGoogleOnlyUsesFreshAuth(t *testing.T) {
 	svc, stub, db := newProfileFixture(t)
 	user := seedGoogleOnlyAccount(t, db, "google-close@example.com")
 
-	err := svc.CloseAccount(context.Background(), user.ID, fixedNow(), "")
+	err := svc.CloseAccount(context.Background(), user.ID, fixedNow())
 	if err != nil {
 		t.Fatalf("CloseAccount (google fresh auth, no password): %v", err)
 	}
@@ -316,7 +303,7 @@ func TestCloseAccountGoogleOnlyStaleAuthRejected(t *testing.T) {
 	svc, stub, db := newProfileFixture(t)
 	user := seedGoogleOnlyAccount(t, db, "google-stale@example.com")
 
-	err := svc.CloseAccount(context.Background(), user.ID, fixedNow().Add(-10*time.Minute-time.Second), "")
+	err := svc.CloseAccount(context.Background(), user.ID, fixedNow().Add(-10*time.Minute-time.Second))
 	if err == nil || accountauth.ErrorCode(err) != accountauth.CodeReauthRequired {
 		t.Fatalf("expected reauth required for stale google auth, got %v", err)
 	}
@@ -344,7 +331,7 @@ func TestUnlinkGoogleRequiresRecentAuthentication(t *testing.T) {
 	user := seedProfileAccount(t, db, "unlink-stale@example.com", "Stale Unlink", "en")
 	seedLinkedGoogleIdentity(t, db, user.ID, "unlink-stale-sub", user.Email)
 
-	err := svc.UnlinkGoogle(context.Background(), user.ID, fixedNow().Add(-11*time.Minute), "correct horse battery staple")
+	err := svc.UnlinkGoogle(context.Background(), user.ID, fixedNow().Add(-11*time.Minute))
 	if err == nil || accountauth.ErrorCode(err) != accountauth.CodeReauthRequired {
 		t.Fatalf("expected reauth required for stale auth, got %v", err)
 	}
@@ -361,7 +348,7 @@ func TestUnlinkGoogleRequiresPasswordIdentity(t *testing.T) {
 	svc, _, db := newProfileFixture(t)
 	user := seedGoogleOnlyAccount(t, db, "unlink-google-only@example.com")
 
-	err := svc.UnlinkGoogle(context.Background(), user.ID, fixedNow(), "")
+	err := svc.UnlinkGoogle(context.Background(), user.ID, fixedNow())
 	if err == nil || accountauth.ErrorCode(err) != accountauth.CodeReauthRequired {
 		t.Fatalf("expected reauth required for account without password identity, got %v", err)
 	}
@@ -374,31 +361,13 @@ func TestUnlinkGoogleRequiresPasswordIdentity(t *testing.T) {
 	}
 }
 
-func TestUnlinkGoogleRejectsIncorrectPassword(t *testing.T) {
-	svc, _, db := newProfileFixture(t)
-	user := seedProfileAccount(t, db, "unlink-wrongpass@example.com", "Wrong Pass Unlink", "en")
-	seedLinkedGoogleIdentity(t, db, user.ID, "unlink-wrongpass-sub", user.Email)
-
-	err := svc.UnlinkGoogle(context.Background(), user.ID, fixedNow(), "not the right password")
-	if err == nil || accountauth.ErrorCode(err) != accountauth.CodeInvalidCredentials {
-		t.Fatalf("expected invalid credentials, got %v", err)
-	}
-	var googleCount int64
-	if err := db.Model(&models.AuthIdentity{}).Where("user_id = ? AND provider = 'google'", user.ID).Count(&googleCount).Error; err != nil {
-		t.Fatalf("count google identities: %v", err)
-	}
-	if googleCount != 1 {
-		t.Fatalf("expected google identity retained on wrong password, got %d", googleCount)
-	}
-}
-
 func TestUnlinkGoogleRemovesOnlyGoogleIdentity(t *testing.T) {
 	svc, _, db := newProfileFixture(t)
 	svc.security = NewAccountSecurityService(db, fixedClockAt(fixedNow()))
 	user := seedProfileAccount(t, db, "unlink-ok@example.com", "Ok Unlink", "en")
 	seedLinkedGoogleIdentity(t, db, user.ID, "unlink-ok-sub", user.Email)
 
-	err := svc.UnlinkGoogle(context.Background(), user.ID, fixedNow(), "correct horse battery staple")
+	err := svc.UnlinkGoogle(context.Background(), user.ID, fixedNow())
 	if err != nil {
 		t.Fatalf("UnlinkGoogle: %v", err)
 	}

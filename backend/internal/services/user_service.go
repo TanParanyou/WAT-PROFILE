@@ -27,6 +27,7 @@ type UserListOptions struct {
 }
 
 var userSortColumns = map[string]string{
+	"id":         "users.id",
 	"created_at": "users.created_at",
 	"name":       "users.name",
 	"email":      "users.email",
@@ -254,4 +255,3 @@ func (s *UserService) UpdateProfile(userID uuid.UUID, name, email string, avatar
 
 	return &user, nil
 }
-

@@ -44,6 +44,24 @@ type AccountProfile struct {
 	UpdatedAt       time.Time `json:"updated_at"`
 }
 
+// AccountAvatarCleanup records an account avatar object whose deletion failed
+// after a replacement. Rows remain until storage cleanup succeeds so a later
+// upload or the retention command can retry without losing the key.
+type AccountAvatarCleanup struct {
+	ID        uuid.UUID `gorm:"type:uuid;default:gen_random_uuid();primaryKey" json:"-"`
+	UserID    uuid.UUID `gorm:"type:uuid;not null;index;uniqueIndex:idx_account_avatar_cleanup_key,priority:1" json:"-"`
+	ObjectKey string    `gorm:"size:600;not null;uniqueIndex:idx_account_avatar_cleanup_key,priority:2" json:"-"`
+	CreatedAt time.Time `json:"-"`
+}
+
+// BeforeCreate hook to generate UUID.
+func (c *AccountAvatarCleanup) BeforeCreate(tx *gorm.DB) error {
+	if c.ID == uuid.Nil {
+		c.ID = uuid.New()
+	}
+	return nil
+}
+
 // BeforeCreate hook to generate UUID
 func (p *AccountProfile) BeforeCreate(tx *gorm.DB) error {
 	if p.ID == uuid.Nil {
@@ -118,15 +136,16 @@ type AuthActionToken struct {
 // instances. The raw state is kept only in the signed browser cookie; the
 // database stores its one-way hash and consumes it atomically on callback.
 type AuthOAuthFlow struct {
-	ID         uuid.UUID  `gorm:"type:uuid;default:gen_random_uuid();primaryKey" json:"-"`
-	StateHash  string     `gorm:"size:64;uniqueIndex;not null" json:"-"`
-	Nonce      string     `gorm:"size:255;not null" json:"-"`
-	Verifier   string     `gorm:"size:255;not null" json:"-"`
-	Locale     string     `gorm:"size:2;not null" json:"-"`
-	ReturnTo   string     `gorm:"size:500;not null" json:"-"`
-	ExpiresAt  time.Time  `gorm:"not null;index" json:"-"`
-	LinkUserID *uuid.UUID `gorm:"type:uuid;index" json:"-"`
-	CreatedAt  time.Time  `json:"-"`
+	ID           uuid.UUID  `gorm:"type:uuid;default:gen_random_uuid();primaryKey" json:"-"`
+	StateHash    string     `gorm:"size:64;uniqueIndex;not null" json:"-"`
+	Nonce        string     `gorm:"size:255;not null" json:"-"`
+	Verifier     string     `gorm:"size:255;not null" json:"-"`
+	Locale       string     `gorm:"size:2;not null" json:"-"`
+	ReturnTo     string     `gorm:"size:500;not null" json:"-"`
+	ExpiresAt    time.Time  `gorm:"not null;index" json:"-"`
+	LinkUserID   *uuid.UUID `gorm:"type:uuid;index" json:"-"`
+	ReauthUserID *uuid.UUID `gorm:"type:uuid;index" json:"-"`
+	CreatedAt    time.Time  `json:"-"`
 }
 
 // TableName keeps GORM in agreement with the SQL migrations, which name the

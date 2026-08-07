@@ -8,10 +8,10 @@ import (
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/watloungporsai/wat-profile-backend/internal/accountauth"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
-	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
 )
 
 const (
@@ -152,11 +152,20 @@ func (s *AccountProfileService) SetAvatar(ctx context.Context, userID uuid.UUID,
 	if err := validateAvatarURL(avatarURL); err != nil {
 		return AccountView{}, err
 	}
+	if objectKey != "" && !isAccountAvatarObjectKey(userID, objectKey) {
+		return AccountView{}, accountauth.NewError(accountauth.CodeValidation, "Avatar storage key is invalid.")
+	}
 
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var profile models.AccountProfile
 		if err := tx.First(&profile, "user_id = ?", userID).Error; err != nil {
 			return err
+		}
+		if profile.AvatarObjectKey != "" && profile.AvatarObjectKey != objectKey && isAccountAvatarObjectKey(userID, profile.AvatarObjectKey) {
+			cleanup := models.AccountAvatarCleanup{UserID: userID, ObjectKey: profile.AvatarObjectKey}
+			if err := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&cleanup).Error; err != nil {
+				return err
+			}
 		}
 		profile.AvatarURL = avatarURL
 		profile.AvatarObjectKey = objectKey
@@ -172,6 +181,31 @@ func (s *AccountProfileService) SetAvatar(ctx context.Context, userID uuid.UUID,
 	return s.GetAccount(ctx, userID)
 }
 
+// PendingAvatarCleanup returns replacement objects that still need deletion.
+// The handler owns the storage call; this service owns the database state.
+func (s *AccountProfileService) PendingAvatarCleanup(ctx context.Context, userID uuid.UUID) ([]models.AccountAvatarCleanup, error) {
+	var pending []models.AccountAvatarCleanup
+	err := s.db.WithContext(ctx).Where("user_id = ?", userID).Order("created_at ASC").Find(&pending).Error
+	return pending, err
+}
+
+// MarkAvatarCleanupDeleted removes a cleanup record after storage confirms the
+// object is gone. The user predicate prevents cross-account key deletion.
+func (s *AccountProfileService) MarkAvatarCleanupDeleted(ctx context.Context, userID, cleanupID uuid.UUID) error {
+	return s.db.WithContext(ctx).Where("id = ? AND user_id = ?", cleanupID, userID).Delete(&models.AccountAvatarCleanup{}).Error
+}
+
+// ClearAvatarObjectKey forgets the current object only after storage deletion
+// has succeeded. Keeping it in the profile makes account purge retry-safe.
+func (s *AccountProfileService) ClearAvatarObjectKey(ctx context.Context, userID uuid.UUID) error {
+	return s.db.WithContext(ctx).Model(&models.AccountProfile{}).
+		Where("user_id = ?", userID).Update("avatar_object_key", "").Error
+}
+
+func isAccountAvatarObjectKey(userID uuid.UUID, objectKey string) bool {
+	return strings.HasPrefix(objectKey, "accounts/"+userID.String()+"/avatar/")
+}
+
 func validateAvatarURL(avatarURL string) error {
 	if avatarURL == "" {
 		return nil
@@ -184,13 +218,11 @@ func validateAvatarURL(avatarURL string) error {
 }
 
 // CloseAccount marks the account closed after a recent authentication (at most
-// maxReauthAge old). Password users must re-enter their password; Google-only
-// users rely on a freshly verified Google assertion (fresh auth_time). Closure
-// revokes every session and blanks profile visibility while retaining the row
-// for later operational deletion.
-func (s *AccountProfileService) CloseAccount(ctx context.Context, userID uuid.UUID, authTime time.Time, password string) error {
+// maxReauthAge old). Closure revokes every session and blanks profile
+// visibility while retaining the row for later operational deletion.
+func (s *AccountProfileService) CloseAccount(ctx context.Context, userID uuid.UUID, authTime time.Time) error {
 	now := s.clock.Now()
-	if now.Sub(authTime) > maxReauthAge {
+	if authTime.IsZero() || now.Sub(authTime) > maxReauthAge {
 		return accountauth.NewError(accountauth.CodeReauthRequired, "Please re-authenticate to close your account.")
 	}
 
@@ -199,17 +231,6 @@ func (s *AccountProfileService) CloseAccount(ctx context.Context, userID uuid.UU
 		if err := tx.First(&user, "id = ?", userID).Error; err != nil {
 			return err
 		}
-		var identity models.AuthIdentity
-		hasPasswordIdentity := tx.Where("user_id = ? AND provider = 'password'", userID).First(&identity).Error == nil
-		if hasPasswordIdentity && identity.CredentialHash != nil {
-			if password == "" {
-				return accountauth.NewError(accountauth.CodeReauthRequired, "Please re-enter your password to close your account.")
-			}
-			if !checkPasswordAgainst(identity.CredentialHash, password) {
-				return accountauth.NewError(accountauth.CodeInvalidCredentials, "Incorrect password.")
-			}
-		}
-
 		user.AccountStatus = models.AccountStatusClosed
 		user.IsActive = false
 		user.ClosedAt = &now
@@ -245,13 +266,13 @@ func (s *AccountProfileService) CloseAccount(ctx context.Context, userID uuid.UU
 	return nil
 }
 
-// UnlinkGoogle disconnects a linked Google identity after a recent
-// authentication and a valid password re-entry. The password identity is never
-// removed and unrelated sessions are never revoked. A Google identity that is
-// already absent is treated as an idempotent success.
-func (s *AccountProfileService) UnlinkGoogle(ctx context.Context, userID uuid.UUID, authTime time.Time, password string) error {
+// UnlinkGoogle disconnects a linked Google identity after recent
+// authentication. The password identity is never removed and unrelated
+// sessions are never revoked. A Google identity that is already absent is
+// treated as an idempotent success.
+func (s *AccountProfileService) UnlinkGoogle(ctx context.Context, userID uuid.UUID, authTime time.Time) error {
 	now := s.clock.Now()
-	if now.Sub(authTime) > maxReauthAge {
+	if authTime.IsZero() || now.Sub(authTime) > maxReauthAge {
 		return accountauth.NewError(accountauth.CodeReauthRequired, "Please re-authenticate to disconnect Google.")
 	}
 
@@ -266,13 +287,6 @@ func (s *AccountProfileService) UnlinkGoogle(ctx context.Context, userID uuid.UU
 		if identity.CredentialHash == nil {
 			return accountauth.NewError(accountauth.CodeReauthRequired, "This account needs a password identity to disconnect Google.")
 		}
-		if password == "" {
-			return accountauth.NewError(accountauth.CodeReauthRequired, "Please re-enter your password to disconnect Google.")
-		}
-		if !checkPasswordAgainst(identity.CredentialHash, password) {
-			return accountauth.NewError(accountauth.CodeInvalidCredentials, "Incorrect password.")
-		}
-
 		if err := tx.Where("user_id = ? AND provider = 'google'", userID).Delete(&models.AuthIdentity{}).Error; err != nil {
 			return err
 		}
@@ -284,11 +298,4 @@ func (s *AccountProfileService) UnlinkGoogle(ctx context.Context, userID uuid.UU
 
 	s.security.Record(ctx, accountauth.SecurityEvent{UserID: userID.String(), EventType: "google_unlink", Outcome: "success", Provider: "google"})
 	return nil
-}
-
-func checkPasswordAgainst(hash *string, password string) bool {
-	if hash == nil {
-		return false
-	}
-	return utils.CheckPasswordHash(password, *hash)
 }

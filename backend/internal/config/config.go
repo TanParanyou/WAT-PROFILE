@@ -33,7 +33,7 @@ func InitDatabase() error {
 	)
 
 	var err error
-	
+
 	// Dynamic detection for Supabase Transaction Pooler (port 6543)
 	// Connection poolers don't support prepared statements and will break if PreferSimpleProtocol is false
 	useSimpleProtocol := false
@@ -70,6 +70,7 @@ func MigrateModels() error {
 		&models.Role{},
 		&models.User{},
 		&models.AccountProfile{},
+		&models.AccountAvatarCleanup{},
 		&models.AuthIdentity{},
 		&models.AuthSession{},
 		&models.AuthActionToken{},
@@ -95,6 +96,10 @@ func MigrateModels() error {
 		&models.Schedule{},
 		&models.DonationCategory{},
 		&models.Donation{},
+		&models.DonationProof{},
+		&models.PersonalDataRequest{},
+		&models.PersonalDataRequestItem{},
+		&models.OperationOutbox{},
 		&models.EventRegistration{},
 		&models.ContactInquiry{},
 	)

@@ -251,7 +251,7 @@ func (s *AccountSessionService) ReauthenticatePassword(ctx context.Context, user
 		var identity models.AuthIdentity
 		err := tx.Where("user_id = ? AND provider = 'password'", userID).First(&identity).Error
 		if errors.Is(err, gorm.ErrRecordNotFound) || identity.CredentialHash == nil {
-			return accountauth.NewError(accountauth.CodeInvalidCredentials, "Incorrect email or password.")
+			return accountauth.NewError(accountauth.CodeReauthRequired, "This account uses Google sign-in. Continue with Google to confirm.")
 		}
 		if err != nil {
 			return err
@@ -277,19 +277,24 @@ func (s *AccountSessionService) ReauthenticatePassword(ctx context.Context, user
 		s.recordSecurity(ctx, accountauth.SecurityEvent{UserID: userID.String(), EventType: "password_reauth", Outcome: "success"})
 	} else if accountauth.ErrorCode(err) == accountauth.CodeInvalidCredentials {
 		s.recordSecurity(ctx, accountauth.SecurityEvent{UserID: userID.String(), EventType: "password_reauth", Outcome: "failure"})
+	} else if accountauth.ErrorCode(err) == accountauth.CodeReauthRequired {
+		s.recordSecurity(ctx, accountauth.SecurityEvent{UserID: userID.String(), EventType: "password_reauth", Outcome: "failure", Provider: "google"})
 	}
 	return result, err
 }
 
-// ChangePassword creates or replaces the password identity. Password users
-// must provide the current password; Google-only users must have a recent
-// Google assertion. Other sessions are revoked and the current session gets a
-// fresh access token.
-func (s *AccountSessionService) ChangePassword(ctx context.Context, userID, sessionID uuid.UUID, authTime time.Time, currentPassword, newPassword string) (accountauth.SessionResult, error) {
+// ChangePassword creates or replaces the password identity after recent
+// authentication. The current password is verified only by the explicit
+// reauthentication endpoint. Other sessions are revoked and the current
+// session gets a fresh access token.
+func (s *AccountSessionService) ChangePassword(ctx context.Context, userID, sessionID uuid.UUID, authTime time.Time, newPassword string) (accountauth.SessionResult, error) {
 	if err := accountauth.ValidatePasswordPolicy(newPassword); err != nil {
 		return accountauth.SessionResult{}, err
 	}
 	now := s.clock.Now()
+	if authTime.IsZero() || now.Sub(authTime) > maxReauthAge {
+		return accountauth.SessionResult{}, accountauth.NewError(accountauth.CodeReauthRequired, "Please re-authenticate before changing your password.")
+	}
 	var result accountauth.SessionResult
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var session models.AuthSession
@@ -298,16 +303,8 @@ func (s *AccountSessionService) ChangePassword(ctx context.Context, userID, sess
 		}
 		var identity models.AuthIdentity
 		identityErr := tx.Where("user_id = ? AND provider = 'password'", userID).First(&identity).Error
-		if identityErr == nil && identity.CredentialHash != nil {
-			if currentPassword == "" || !utils.CheckPasswordHash(currentPassword, *identity.CredentialHash) {
-				return accountauth.NewError(accountauth.CodeInvalidCredentials, "Incorrect password.")
-			}
-		} else if identityErr != nil && !errors.Is(identityErr, gorm.ErrRecordNotFound) {
+		if identityErr != nil && !errors.Is(identityErr, gorm.ErrRecordNotFound) {
 			return identityErr
-		} else if now.Sub(authTime) > 10*time.Minute {
-			// Google-only accounts do not have a password to verify. Their
-			// current session must therefore carry a fresh Google assertion.
-			return accountauth.NewError(accountauth.CodeReauthRequired, "Please re-authenticate with Google to change your password.")
 		}
 		hash, err := utils.HashPassword(newPassword)
 		if err != nil {

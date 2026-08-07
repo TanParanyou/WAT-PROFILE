@@ -52,6 +52,16 @@ export function AccountSessionProvider({ children }: { children: ReactNode }) {
   // data lives in TanStack Query.
   useEffect(() => {
     if (!ACCOUNT_FEATURE_ENABLED) return;
+    // The Google re-auth callback is opened in a same-origin popup. Its
+    // callback page only posts completion to the opener; it must not rotate
+    // the shared refresh cookie because the opener performs that rotation.
+    if (
+      typeof window !== "undefined" &&
+      window.opener &&
+      new URLSearchParams(window.location.search).get("reauth") === "complete"
+    ) {
+      return;
+    }
     let cancelled = false;
 
     async function restore() {
@@ -62,7 +72,9 @@ export function AccountSessionProvider({ children }: { children: ReactNode }) {
         await restoreSession();
         if (cancelled) return;
         setStatus("authenticated");
-        await queryClient.invalidateQueries({ queryKey: accountKeys.current() });
+        await queryClient.invalidateQueries({
+          queryKey: accountKeys.current(),
+        });
       } catch {
         if (!cancelled) setStatus("anonymous");
       }
@@ -74,7 +86,9 @@ export function AccountSessionProvider({ children }: { children: ReactNode }) {
     };
   }, [queryClient]);
 
-  const accountQuery = useAccount({ enabled: ACCOUNT_FEATURE_ENABLED && status === "authenticated" });
+  const accountQuery = useAccount({
+    enabled: ACCOUNT_FEATURE_ENABLED && status === "authenticated",
+  });
   const { refetch: refetchAccount } = accountQuery;
 
   const retryAccount = useCallback(async () => {
@@ -153,14 +167,18 @@ export function AccountSessionProvider({ children }: { children: ReactNode }) {
   );
 
   return (
-    <AccountSessionContext.Provider value={value}>{children}</AccountSessionContext.Provider>
+    <AccountSessionContext.Provider value={value}>
+      {children}
+    </AccountSessionContext.Provider>
   );
 }
 
 export function useAccountSession(): AccountSessionValue {
   const context = useContext(AccountSessionContext);
   if (!context) {
-    throw new Error("useAccountSession must be used within AccountSessionProvider");
+    throw new Error(
+      "useAccountSession must be used within AccountSessionProvider",
+    );
   }
   return context;
 }

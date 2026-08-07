@@ -95,6 +95,14 @@ type EmailMessage struct {
 	Body      string // plain-text body
 	HTML      string
 	ActionURL string
+	Attachments []EmailAttachment
+}
+
+// EmailAttachment is an immutable, already-rendered file attached to a message.
+type EmailAttachment struct {
+	Filename    string
+	ContentType string
+	Data        []byte
 }
 
 // EmailSender delivers a localized transactional message.

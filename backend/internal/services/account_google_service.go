@@ -58,12 +58,13 @@ type GoogleLinkStatus struct {
 
 // googleFlowData is server-side state for one OAuth flow, keyed by state.
 type googleFlowData struct {
-	Nonce      string
-	Verifier   string
-	Locale     string
-	ReturnTo   string
-	ExpiresAt  time.Time
-	LinkUserID uuid.UUID
+	Nonce        string
+	Verifier     string
+	Locale       string
+	ReturnTo     string
+	ExpiresAt    time.Time
+	LinkUserID   uuid.UUID
+	ReauthUserID uuid.UUID
 }
 
 // googleFlowStore persists short-lived OAuth flow state.
@@ -112,14 +113,19 @@ func (s *postgresGoogleFlowStore) Put(ctx context.Context, state string, flow go
 	if flow.LinkUserID != uuid.Nil {
 		linkUserID = &flow.LinkUserID
 	}
+	var reauthUserID *uuid.UUID
+	if flow.ReauthUserID != uuid.Nil {
+		reauthUserID = &flow.ReauthUserID
+	}
 	return s.db.WithContext(ctx).Create(&models.AuthOAuthFlow{
-		StateHash:  accountauth.HashOpaqueToken(state),
-		Nonce:      flow.Nonce,
-		Verifier:   flow.Verifier,
-		Locale:     flow.Locale,
-		ReturnTo:   flow.ReturnTo,
-		ExpiresAt:  flow.ExpiresAt,
-		LinkUserID: linkUserID,
+		StateHash:    accountauth.HashOpaqueToken(state),
+		Nonce:        flow.Nonce,
+		Verifier:     flow.Verifier,
+		Locale:       flow.Locale,
+		ReturnTo:     flow.ReturnTo,
+		ExpiresAt:    flow.ExpiresAt,
+		LinkUserID:   linkUserID,
+		ReauthUserID: reauthUserID,
 	}).Error
 }
 
@@ -143,6 +149,9 @@ func (s *postgresGoogleFlowStore) Take(ctx context.Context, state string) (googl
 		flow = googleFlowData{Nonce: row.Nonce, Verifier: row.Verifier, Locale: row.Locale, ReturnTo: row.ReturnTo, ExpiresAt: row.ExpiresAt}
 		if row.LinkUserID != nil {
 			flow.LinkUserID = *row.LinkUserID
+		}
+		if row.ReauthUserID != nil {
+			flow.ReauthUserID = *row.ReauthUserID
 		}
 		ok = true
 		return nil
@@ -338,6 +347,70 @@ func (s *AccountGoogleService) StartGoogleLink(ctx context.Context, userID uuid.
 	}, nil
 }
 
+// StartGoogleReauthentication begins a Google assertion flow bound to the
+// current account. Unlike anonymous Google sign-in, the callback can only
+// restore this account when the verified Google subject matches its existing
+// Google identity.
+func (s *AccountGoogleService) StartGoogleReauthentication(ctx context.Context, userID uuid.UUID, locale, returnTo string) (GoogleStartResult, error) {
+	var user models.User
+	if err := s.db.WithContext(ctx).First(&user, "id = ?", userID).Error; err != nil {
+		return GoogleStartResult{}, err
+	}
+	if code := s.sessions.sessionStatusCode(user); code != "" {
+		return GoogleStartResult{}, accountauth.NewError(code, "This account is not allowed to continue.")
+	}
+
+	var identity models.AuthIdentity
+	if err := s.db.WithContext(ctx).
+		Where("user_id = ? AND provider = ?", userID, "google").
+		First(&identity).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return GoogleStartResult{}, accountauth.NewError(accountauth.CodeReauthRequired, "This account needs Google re-authentication.")
+		}
+		return GoogleStartResult{}, err
+	}
+
+	locale = accountauth.SafeLocale(locale)
+	if err := validateReturnTo(returnTo); err != nil {
+		return GoogleStartResult{}, err
+	}
+
+	state, _, err := accountauth.NewOpaqueToken()
+	if err != nil {
+		return GoogleStartResult{}, err
+	}
+	nonce, _, err := accountauth.NewOpaqueToken()
+	if err != nil {
+		return GoogleStartResult{}, err
+	}
+	verifier, _, err := accountauth.NewOpaqueToken()
+	if err != nil {
+		return GoogleStartResult{}, err
+	}
+	challenge := oauth2.S256ChallengeFromVerifier(verifier)
+	now := s.clock.Now()
+	flow := googleFlowData{
+		Nonce:        nonce,
+		Verifier:     verifier,
+		Locale:       locale,
+		ReturnTo:     returnTo,
+		ExpiresAt:    now.Add(flowTTL),
+		ReauthUserID: userID,
+	}
+	if err := s.flows.Put(ctx, state, flow); err != nil {
+		return GoogleStartResult{}, err
+	}
+
+	cookie, err := accountauth.SignFlowCookie(state, s.flowSecret)
+	if err != nil {
+		return GoogleStartResult{}, err
+	}
+	return GoogleStartResult{
+		AuthorizationURL: s.verifier.AuthorizationURL(state, nonce, challenge),
+		FlowCookie:       cookie,
+	}, nil
+}
+
 // CompleteGoogle verifies the callback and signs in, creates, or starts
 // approval linking for the matching account.
 func (s *AccountGoogleService) CompleteGoogle(ctx context.Context, code, callbackState, flowCookie string, client accountauth.ClientInfo) (GoogleCompletion, error) {
@@ -377,6 +450,9 @@ func (s *AccountGoogleService) CompleteGoogle(ctx context.Context, code, callbac
 
 	// Authenticated link flow: complete the approval handoff instead of the
 	// anonymous sign-in / registration branch.
+	if flow.ReauthUserID != uuid.Nil {
+		return s.completeGoogleReauthentication(ctx, flow, identity, client, now)
+	}
 	if flow.LinkUserID != uuid.Nil {
 		return s.completeAuthenticatedGoogleLink(ctx, flow, identity, client, now)
 	}
@@ -453,6 +529,33 @@ func (s *AccountGoogleService) CompleteGoogle(ctx context.Context, code, callbac
 	s.sendLinkApprovalEmail(ctx, existing, identity, flow.Locale, raw)
 	s.recordGoogleSecurity(ctx, "success", existing.ID.String(), client)
 	return GoogleCompletion{Status: GoogleCompletionApprovalSent, UserID: existing.ID, Locale: flow.Locale, ReturnTo: flow.ReturnTo}, nil
+}
+
+func (s *AccountGoogleService) completeGoogleReauthentication(ctx context.Context, flow googleFlowData, identity accountauth.GoogleIdentity, client accountauth.ClientInfo, now time.Time) (GoogleCompletion, error) {
+	var target models.AuthIdentity
+	if err := s.db.WithContext(ctx).
+		Where("user_id = ? AND provider = ?", flow.ReauthUserID, "google").
+		First(&target).Error; err != nil {
+		return GoogleCompletion{}, accountauth.NewError(accountauth.CodeReauthRequired, "This account needs Google re-authentication.")
+	}
+	if target.ProviderSubject != identity.Subject {
+		s.recordGoogleSecurity(ctx, "failure", flow.ReauthUserID.String(), client)
+		return GoogleCompletion{}, accountauth.NewError(accountauth.CodeGoogleEmailMismatch, "Use the Google account connected to this profile.")
+	}
+
+	var user models.User
+	if err := s.db.WithContext(ctx).First(&user, "id = ?", flow.ReauthUserID).Error; err != nil {
+		return GoogleCompletion{}, err
+	}
+	if code := s.sessions.sessionStatusCode(user); code != "" {
+		return GoogleCompletion{}, accountauth.NewError(code, "This account is not allowed to continue.")
+	}
+	session, err := s.sessionForUser(ctx, flow.ReauthUserID, client, now)
+	if err != nil {
+		return GoogleCompletion{}, err
+	}
+	s.recordGoogleSecurity(ctx, "success", flow.ReauthUserID.String(), client)
+	return GoogleCompletion{Status: GoogleCompletionSignedIn, Session: session, UserID: flow.ReauthUserID, Locale: flow.Locale, ReturnTo: flow.ReturnTo}, nil
 }
 
 // completeAuthenticatedGoogleLink handles the callback for a link flow bound to
@@ -685,6 +788,14 @@ func (s *AccountGoogleService) createGoogleAccount(ctx context.Context, identity
 func (s *AccountGoogleService) sessionForUser(ctx context.Context, userID uuid.UUID, client accountauth.ClientInfo, now time.Time) (accountauth.SessionResult, error) {
 	var session accountauth.SessionResult
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var user models.User
+		if err := tx.First(&user, "id = ?", userID).Error; err != nil {
+			return err
+		}
+		if code := s.sessions.sessionStatusCode(user); code != "" {
+			return accountauth.NewError(code, "This account is not allowed to sign in.")
+		}
+
 		created, err := s.sessions.createSession(tx, userID, uuid.New(), client, now)
 		if err != nil {
 			return err

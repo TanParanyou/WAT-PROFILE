@@ -49,8 +49,8 @@ func NewAccountRecoveryService(db *gorm.DB, sender accountauth.EmailSender, cloc
 // RequestPasswordReset handles the forgot-password flow. It always returns a
 // generic nil when the request is not rate-limited. For an active password
 // account it issues a single-use reset token and sends the localized reset
-// email; for a Google-only account it sends a neutral informational email
-// without a link; for unknown, disabled, or closed accounts it does nothing.
+// email; for a Google-only account it sends a localized sign-in explanation
+// with a safe login link; for unknown, disabled, or closed accounts it does nothing.
 func (s *AccountRecoveryService) RequestPasswordReset(ctx context.Context, email, locale string, clients ...accountauth.ClientInfo) error {
 	normalized := accountauth.NormalizeEmail(email)
 	if !supportedLocale(locale) {
@@ -82,9 +82,10 @@ func (s *AccountRecoveryService) RequestPasswordReset(ctx context.Context, email
 
 	if !hasPassword {
 		err := s.sendEmail(ctx, accountauth.EmailMessage{
-			To:     user.Email,
-			Locale: locale,
-		}, "password_reset_google", accountauth.EmailTemplateVar{DisplayName: user.Name}, now)
+			To:        user.Email,
+			Locale:    locale,
+			ActionURL: s.frontendURL + "/" + locale + "/account/login",
+		}, "password_reset_google", accountauth.EmailTemplateVar{DisplayName: user.Name, ActionURL: s.frontendURL + "/" + locale + "/account/login"}, now)
 		s.security.Record(ctx, accountauth.SecurityEvent{UserID: user.ID.String(), EventType: "password_recovery_request", Outcome: "success", Provider: "google", IPPrefix: accountauth.CoarseIPPrefix(client.IP), TraceID: client.TraceID})
 		return err
 	}

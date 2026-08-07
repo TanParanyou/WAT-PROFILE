@@ -38,13 +38,23 @@ type AccountAuthConfig struct {
 	AllowedOrigins    []string
 	CORSOrigins       []string
 
-	RegisterLimit RateLimit
-	LoginLimit    RateLimit
-	ResendLimit   RateLimit
-	ForgotLimit   RateLimit
-	RefreshLimit  RateLimit
-	GoogleLimit   RateLimit
-	AvatarLimit   RateLimit
+	RegisterLimit      RateLimit
+	LoginLimit         RateLimit
+	VerifyLimit        RateLimit
+	ResendLimit        RateLimit
+	ForgotLimit        RateLimit
+	ResetLimit         RateLimit
+	RefreshLimit       RateLimit
+	ReauthLimit        RateLimit
+	GoogleLimit        RateLimit
+	AvatarLimit        RateLimit
+	ConfirmEmailLimit  RateLimit
+	ReopenRequestLimit RateLimit
+	ReopenConfirmLimit RateLimit
+	PasswordLimit      RateLimit
+	EmailChangeLimit   RateLimit
+	CloseLimit         RateLimit
+	GoogleUnlinkLimit  RateLimit
 }
 
 const (
@@ -58,19 +68,29 @@ const (
 // adopted the module keep working.
 func LoadAccountAuthConfig() (AccountAuthConfig, error) {
 	cfg := AccountAuthConfig{
-		Enabled:       os.Getenv("PUBLIC_ACCOUNT_AUTH_ENABLED") == "true",
-		Environment:   os.Getenv("ENV"),
-		FrontendURL:   strings.TrimRight(os.Getenv("PUBLIC_ACCOUNT_FRONTEND_URL"), "/"),
-		EmailMode:     os.Getenv("AUTH_EMAIL_DELIVERY_MODE"),
-		AccessTTL:     defaultAccessTTL,
-		RefreshTTL:    defaultRefreshTTL,
-		RegisterLimit: RateLimit{5, 15 * time.Minute},
-		LoginLimit:    RateLimit{10, 15 * time.Minute},
-		ResendLimit:   RateLimit{3, time.Hour},
-		ForgotLimit:   RateLimit{5, time.Hour},
-		RefreshLimit:  RateLimit{60, time.Minute},
-		GoogleLimit:   RateLimit{20, 15 * time.Minute},
-		AvatarLimit:   RateLimit{12, time.Hour},
+		Enabled:            os.Getenv("PUBLIC_ACCOUNT_AUTH_ENABLED") == "true",
+		Environment:        os.Getenv("ENV"),
+		FrontendURL:        strings.TrimRight(os.Getenv("PUBLIC_ACCOUNT_FRONTEND_URL"), "/"),
+		EmailMode:          os.Getenv("AUTH_EMAIL_DELIVERY_MODE"),
+		AccessTTL:          defaultAccessTTL,
+		RefreshTTL:         defaultRefreshTTL,
+		RegisterLimit:      RateLimit{5, 15 * time.Minute},
+		LoginLimit:         RateLimit{10, 15 * time.Minute},
+		VerifyLimit:        RateLimit{10, 15 * time.Minute},
+		ResendLimit:        RateLimit{3, time.Hour},
+		ForgotLimit:        RateLimit{5, time.Hour},
+		ResetLimit:         RateLimit{5, time.Hour},
+		RefreshLimit:       RateLimit{60, time.Minute},
+		ReauthLimit:        RateLimit{5, 15 * time.Minute},
+		GoogleLimit:        RateLimit{20, 15 * time.Minute},
+		AvatarLimit:        RateLimit{12, time.Hour},
+		ConfirmEmailLimit:  RateLimit{5, time.Hour},
+		ReopenRequestLimit: RateLimit{5, time.Hour},
+		ReopenConfirmLimit: RateLimit{5, time.Hour},
+		PasswordLimit:      RateLimit{5, time.Hour},
+		EmailChangeLimit:   RateLimit{5, time.Hour},
+		CloseLimit:         RateLimit{3, time.Hour},
+		GoogleUnlinkLimit:  RateLimit{5, time.Hour},
 	}
 	if cfg.AccessTTL == 0 {
 		cfg.AccessTTL = defaultAccessTTL
@@ -199,6 +219,26 @@ func LoadAccountAuthConfig() (AccountAuthConfig, error) {
 	}
 	if err := applyLimit(&cfg.AvatarLimit, "AUTH_AVATAR_UPLOAD_LIMIT"); err != nil {
 		return cfg, err
+	}
+	// One shared knob keeps deployment configuration small while each surface
+	// still has its own limiter bucket and window.
+	if raw := os.Getenv("AUTH_SENSITIVE_MUTATION_LIMIT"); raw != "" {
+		for _, limit := range []*RateLimit{
+			&cfg.VerifyLimit,
+			&cfg.ResetLimit,
+			&cfg.ReauthLimit,
+			&cfg.ConfirmEmailLimit,
+			&cfg.ReopenRequestLimit,
+			&cfg.ReopenConfirmLimit,
+			&cfg.PasswordLimit,
+			&cfg.EmailChangeLimit,
+			&cfg.CloseLimit,
+			&cfg.GoogleUnlinkLimit,
+		} {
+			if err := applyLimit(limit, "AUTH_SENSITIVE_MUTATION_LIMIT"); err != nil {
+				return cfg, err
+			}
+		}
 	}
 
 	return cfg, nil

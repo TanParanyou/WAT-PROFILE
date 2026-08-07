@@ -73,6 +73,7 @@ func newAccountTestDB(t *testing.T) *gorm.DB {
 		&models.User{},
 		&models.Member{},
 		&models.AccountProfile{},
+		&models.AccountAvatarCleanup{},
 		&models.AuthIdentity{},
 		&models.AuthActionToken{},
 		&models.AuthSession{},
@@ -85,7 +86,7 @@ func newAccountTestDB(t *testing.T) *gorm.DB {
 	// Every test shares one disposable database, so each test starts from an
 	// empty state. CASCADE also clears any rows referencing the tables above.
 	if err := db.Exec(
-		"TRUNCATE auth_security_events, auth_sessions, auth_action_tokens, auth_identities, auth_oauth_flows, account_profiles, members, users, roles RESTART IDENTITY CASCADE",
+		"TRUNCATE auth_security_events, auth_sessions, auth_action_tokens, auth_identities, auth_oauth_flows, account_avatar_cleanups, account_profiles, members, users, roles RESTART IDENTITY CASCADE",
 	).Error; err != nil {
 		t.Fatalf("reset test tables: %v", err)
 	}

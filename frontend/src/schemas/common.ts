@@ -9,9 +9,9 @@ export const multiLangSchema = (name: string) =>
 
 export const multiLangOptionalSchema = () =>
   z.object({
-    th: z.string(),
-    en: z.string(),
-    de: z.string(),
+    th: z.string().optional(),
+    en: z.string().optional(),
+    de: z.string().optional(),
   });
 
 export const slugSchema = z

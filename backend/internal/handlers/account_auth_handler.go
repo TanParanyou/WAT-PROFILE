@@ -337,8 +337,7 @@ func (h *AccountAuthHandler) Reauthenticate(c *fiber.Ctx) error {
 // ChangePassword adds or replaces the current account password identity.
 func (h *AccountAuthHandler) ChangePassword(c *fiber.Ctx) error {
 	var req struct {
-		CurrentPassword string `json:"current_password"`
-		NewPassword     string `json:"new_password"`
+		NewPassword string `json:"new_password"`
 	}
 	if err := c.BodyParser(&req); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
@@ -349,7 +348,7 @@ func (h *AccountAuthHandler) ChangePassword(c *fiber.Ctx) error {
 		return utils.CodedErrorResponse(c, fiber.StatusUnauthorized, string(accountauth.CodeTokenInvalid), "The session is invalid or has expired.")
 	}
 	authTime, _ := c.Locals("auth_time").(time.Time)
-	result, err := h.sessions.ChangePassword(c.UserContext(), mustLocalsUserID(c), sessionID, authTime, req.CurrentPassword, req.NewPassword)
+	result, err := h.sessions.ChangePassword(c.UserContext(), mustLocalsUserID(c), sessionID, authTime, req.NewPassword)
 	if err != nil {
 		return h.respondAccountError(c, err)
 	}
@@ -358,15 +357,14 @@ func (h *AccountAuthHandler) ChangePassword(c *fiber.Ctx) error {
 
 func (h *AccountAuthHandler) RequestEmailChange(c *fiber.Ctx) error {
 	var req struct {
-		CurrentPassword string `json:"current_password"`
-		NewEmail        string `json:"new_email"`
-		Locale          string `json:"locale"`
+		NewEmail string `json:"new_email"`
+		Locale   string `json:"locale"`
 	}
 	if err := c.BodyParser(&req); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
 	}
 	authTime, _ := c.Locals("auth_time").(time.Time)
-	if err := h.credentials.RequestEmailChange(c.UserContext(), mustLocalsUserID(c), authTime, req.CurrentPassword, req.NewEmail, req.Locale); err != nil {
+	if err := h.credentials.RequestEmailChange(c.UserContext(), mustLocalsUserID(c), authTime, req.NewEmail, req.Locale); err != nil {
 		return h.respondAccountError(c, err)
 	}
 	return utils.MessageResponse(c, "Email confirmation sent")
@@ -532,11 +530,6 @@ func (h *AccountAuthHandler) UploadAvatar(c *fiber.Ctx) error {
 	}
 
 	userID := mustLocalsUserID(c)
-	var previousObjectKey string
-	var previousProfile models.AccountProfile
-	if err := h.db.WithContext(c.UserContext()).Where("user_id = ?", userID).First(&previousProfile).Error; err == nil {
-		previousObjectKey = previousProfile.AvatarObjectKey
-	}
 	extension := "." + format
 	if format == "jpeg" {
 		extension = ".jpg"
@@ -557,15 +550,33 @@ func (h *AccountAuthHandler) UploadAvatar(c *fiber.Ctx) error {
 		}
 		return h.respondAccountError(c, err)
 	}
-	if previousObjectKey != "" && previousObjectKey != objectKey && strings.HasPrefix(previousObjectKey, "accounts/"+userID.String()+"/avatar/") {
-		if deleter, ok := h.avatarStorage.(fileDeleter); ok {
-			if deleteErr := deleter.DeleteFile(c.UserContext(), previousObjectKey); deleteErr != nil {
-				logger.Log.Warn().Err(deleteErr).Str("object_key", previousObjectKey).Msg("failed to delete previous account avatar")
-			}
-		}
-	}
+	h.cleanupPendingAvatarObjects(c.UserContext(), userID)
 
 	return utils.SuccessResponse(c, account)
+}
+
+// cleanupPendingAvatarObjects retries replacement deletes without making a
+// successful avatar upload fail when the object store is temporarily down.
+// Failed rows deliberately remain for the next upload or retention command.
+func (h *AccountAuthHandler) cleanupPendingAvatarObjects(ctx context.Context, userID uuid.UUID) {
+	deleter, ok := h.avatarStorage.(fileDeleter)
+	if !ok {
+		return
+	}
+	pending, err := h.profile.PendingAvatarCleanup(ctx, userID)
+	if err != nil {
+		logger.Log.Warn().Err(err).Str("user_id", userID.String()).Msg("failed to load pending account avatar cleanup")
+		return
+	}
+	for _, item := range pending {
+		if err := deleter.DeleteFile(ctx, item.ObjectKey); err != nil {
+			logger.Log.Warn().Err(err).Str("object_key", item.ObjectKey).Msg("failed to delete previous account avatar")
+			continue
+		}
+		if err := h.profile.MarkAvatarCleanupDeleted(ctx, userID, item.ID); err != nil {
+			logger.Log.Warn().Err(err).Str("object_key", item.ObjectKey).Msg("failed to mark account avatar cleanup complete")
+		}
+	}
 }
 
 func inspectAvatar(src multipart.File) (string, string, error) {
@@ -622,18 +633,12 @@ func (h *AccountAuthHandler) RevokeSession(c *fiber.Ctx) error {
 
 // CloseAccount handles POST /api/v1/account/close.
 func (h *AccountAuthHandler) CloseAccount(c *fiber.Ctx) error {
-	var req struct {
-		Password string `json:"password"`
-	}
-	if err := c.BodyParser(&req); err != nil {
-		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
-	}
 	authTime, _ := c.Locals("auth_time").(time.Time)
 	userID := mustLocalsUserID(c)
 	var profile models.AccountProfile
 	_ = h.db.WithContext(c.UserContext()).Where("user_id = ?", userID).First(&profile).Error
 	previousObjectKey := profile.AvatarObjectKey
-	if err := h.profile.CloseAccount(c.UserContext(), userID, authTime, req.Password); err != nil {
+	if err := h.profile.CloseAccount(c.UserContext(), userID, authTime); err != nil {
 		return h.respondAccountError(c, err)
 	}
 	if previousObjectKey != "" && strings.HasPrefix(previousObjectKey, "accounts/"+userID.String()+"/avatar/") {
@@ -644,11 +649,11 @@ func (h *AccountAuthHandler) CloseAccount(c *fiber.Ctx) error {
 				// The profile URL is already blanked by CloseAccount. Clear the
 				// internal key only after the object store confirms deletion so the
 				// retention command can retry a failed delete.
-				_ = h.db.WithContext(c.UserContext()).Model(&models.AccountProfile{}).
-					Where("user_id = ?", userID).Update("avatar_object_key", "").Error
+				_ = h.profile.ClearAvatarObjectKey(c.UserContext(), userID)
 			}
 		}
 	}
+	h.cleanupPendingAvatarObjects(c.UserContext(), userID)
 	var user models.User
 	if err := h.db.WithContext(c.UserContext()).First(&user, "id = ?", userID).Error; err != nil {
 		return h.respondAccountError(c, err)
@@ -750,6 +755,28 @@ func (h *AccountAuthHandler) GoogleLinkStart(c *fiber.Ctx) error {
 	return utils.SuccessResponse(c, fiber.Map{"authorization_url": result.AuthorizationURL})
 }
 
+// GoogleReauthStart handles GET /api/v1/accounts/google/reauth/start. It
+// binds the OAuth assertion to the current account so a different Google
+// identity cannot accidentally close another account after the callback.
+func (h *AccountAuthHandler) GoogleReauthStart(c *fiber.Ctx) error {
+	locale := c.Query("locale", "en")
+	returnTo := c.Query("return_to")
+	result, err := h.google.StartGoogleReauthentication(c.UserContext(), mustLocalsUserID(c), locale, returnTo)
+	if err != nil {
+		return h.respondAccountError(c, err)
+	}
+	c.Cookie(&fiber.Cookie{
+		Name:     googleFlowCookie,
+		Value:    result.FlowCookie,
+		Path:     googleCookiePath,
+		HTTPOnly: true,
+		Secure:   h.cfg.CookieSecure,
+		SameSite: fiber.CookieSameSiteLaxMode,
+		MaxAge:   int((10 * time.Minute).Seconds()),
+	})
+	return utils.SuccessResponse(c, fiber.Map{"authorization_url": result.AuthorizationURL})
+}
+
 // GoogleLinkStatus handles GET /api/v1/accounts/google/link/status.
 func (h *AccountAuthHandler) GoogleLinkStatus(c *fiber.Ctx) error {
 	status, err := h.google.GoogleLinkStatus(c.UserContext(), mustLocalsUserID(c))
@@ -763,20 +790,14 @@ func (h *AccountAuthHandler) GoogleLinkStatus(c *fiber.Ctx) error {
 	})
 }
 
-// GoogleUnlink handles DELETE /api/v1/account/providers/google. The password
-// is verified server-side and is never logged.
+// GoogleUnlink handles DELETE /api/v1/account/providers/google after recent
+// authentication. The endpoint has no credential payload.
 func (h *AccountAuthHandler) GoogleUnlink(c *fiber.Ctx) error {
-	var req struct {
-		Password string `json:"password"`
-	}
-	if err := c.BodyParser(&req); err != nil {
-		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
-	}
 	authTime := time.Now()
 	if raw, ok := c.Locals("auth_time").(time.Time); ok {
 		authTime = raw
 	}
-	if err := h.profile.UnlinkGoogle(c.UserContext(), mustLocalsUserID(c), authTime, req.Password); err != nil {
+	if err := h.profile.UnlinkGoogle(c.UserContext(), mustLocalsUserID(c), authTime); err != nil {
 		return h.respondAccountError(c, err)
 	}
 	return utils.MessageResponse(c, "Google identity disconnected")
@@ -805,6 +826,7 @@ func RegisterAccountRoutes(api fiber.Router, h *AccountAuthHandler, allowedOrigi
 	accounts.Post("/logout-all", middleware.AccountOriginGuard(allowedOrigins), middleware.PublicAccountRequired(h.db, h.secret), h.LogoutAll)
 	accounts.Get("/google/start", h.GoogleStart)
 	accounts.Get("/google/link/start", middleware.AccountOriginGuard(allowedOrigins), middleware.PublicAccountRequired(h.db, h.secret), h.GoogleLinkStart)
+	accounts.Get("/google/reauth/start", middleware.AccountOriginGuard(allowedOrigins), middleware.PublicAccountRequired(h.db, h.secret), h.GoogleReauthStart)
 	accounts.Get("/google/link/status", middleware.PublicAccountRequired(h.db, h.secret), h.GoogleLinkStatus)
 	accounts.Get("/google/callback", middleware.AccountOriginGuard(allowedOrigins), h.GoogleCallback)
 	accounts.Post("/google/link/confirm", h.GoogleLinkConfirm)

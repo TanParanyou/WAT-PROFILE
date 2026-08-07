@@ -100,6 +100,10 @@
     --color-site-on-action: var(--public-on-action);
     --color-site-accent: var(--public-accent);
     --color-site-focus: var(--public-focus);
+    --color-site-danger: var(--public-danger);
+    --color-site-danger-surface: var(--public-danger-surface);
+    --color-site-overlay: var(--public-overlay);
+    --shadow-site-modal: var(--public-modal-shadow);
 
     --color-admin-canvas: var(--admin-canvas);
     --color-admin-surface: var(--admin-surface);
@@ -214,6 +218,10 @@
     --public-on-action: #fffef2;
     --public-accent: #945c26;
     --public-focus: #945c26;
+    --public-danger: #9b2c2c;
+    --public-danger-surface: #fff1ef;
+    --public-overlay: rgb(36 36 36 / 0.52);
+    --public-modal-shadow: 0 16px 40px rgb(36 36 36 / 0.18);
 
     background-color: var(--public-canvas);
     color: var(--public-foreground);
@@ -236,6 +244,10 @@
     --public-on-action: #1c1a17;
     --public-accent: #d9925d;
     --public-focus: #e3a272;
+    --public-danger: #f5a39a;
+    --public-danger-surface: #3a2523;
+    --public-overlay: rgb(0 0 0 / 0.58);
+    --public-modal-shadow: 0 16px 40px rgb(0 0 0 / 0.42);
 }
 
 .admin-theme {

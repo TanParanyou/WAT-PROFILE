@@ -4,12 +4,15 @@ import { AxiosError } from "axios";
 import type { AxiosAdapter } from "axios";
 import {
   accountApi,
+  changePasswordAccount,
   fetchAccount,
   fetchGoogleLinkStatus,
   getMemoryAccessToken,
   loginAccount,
   reauthenticateAccount,
   resetAccountClientForTests,
+  setMemoryAccessToken,
+  startGoogleReauthentication,
   startGoogleLink,
   toAccountApiError,
   unlinkGoogleAccount,
@@ -112,6 +115,57 @@ test("reauthentication replaces the in-memory access token", async () => {
   assert.equal(getMemoryAccessToken(), token);
 });
 
+test("reauthentication restores a stale access token before retrying once", async () => {
+  let reauthCalls = 0;
+  let refreshCalls = 0;
+  accountApi.defaults.adapter = async (config) => {
+    if (config.url === "/accounts/refresh") {
+      refreshCalls += 1;
+      return {
+        data: { success: true, data: { access_token: "rotated-token", expires_in: 900 } },
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config,
+      };
+    }
+    if (config.url === "/accounts/reauthenticate") {
+      reauthCalls += 1;
+      if (reauthCalls === 1) {
+        throw new AxiosError(
+          "Invalid or expired access token",
+          AxiosError.ERR_BAD_REQUEST,
+          config,
+          null,
+          {
+            data: { success: false, error: "Invalid or expired access token" },
+            status: 401,
+            statusText: "Unauthorized",
+            headers: {},
+            config,
+          },
+        );
+      }
+      return {
+        data: { success: true, data: { access_token: "fresh-token", expires_in: 900 } },
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config,
+      };
+    }
+    throw new Error(`Unexpected request: ${config.url ?? ""}`);
+  };
+
+  setMemoryAccessToken("stale-token");
+  const session = await reauthenticateAccount("correct horse battery staple");
+
+  assert.equal(session.access_token, "fresh-token");
+  assert.equal(reauthCalls, 2);
+  assert.equal(refreshCalls, 1);
+  assert.equal(getMemoryAccessToken(), "fresh-token");
+});
+
 test("two concurrent 401s trigger exactly one refresh", async () => {
   const refreshHandler = async () => {
     // Small delay so both 401 responses land before the first refresh resolves.
@@ -139,6 +193,106 @@ test("a failed refresh clears the in-memory token", async () => {
     assert.equal(getMemoryAccessToken(), null);
     return true;
   });
+});
+
+test("invalid password does not trigger refresh or replay the credential request", async () => {
+  let passwordCalls = 0;
+  let refreshCalls = 0;
+  accountApi.defaults.adapter = async (config) => {
+    if (config.url === "/account/password") {
+      passwordCalls += 1;
+      if (passwordCalls > 4) {
+        throw new Error("retry loop guard");
+      }
+      throw new AxiosError(
+        "Incorrect password.",
+        AxiosError.ERR_BAD_REQUEST,
+        config,
+        null,
+        {
+          data: {
+            success: false,
+            code: "AUTH_INVALID_CREDENTIALS",
+            error: "Incorrect password.",
+          },
+          status: 401,
+          statusText: "Unauthorized",
+          headers: {},
+          config,
+        },
+      );
+    }
+    if (config.url === "/accounts/refresh") {
+      refreshCalls += 1;
+      return {
+        data: { success: true, data: { access_token: "rotated-token", expires_in: 900 } },
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config,
+      };
+    }
+    throw new Error(`Unexpected request: ${config.url ?? ""}`);
+  };
+
+  await assert.rejects(
+    () => changePasswordAccount("new-password-123"),
+    (error: unknown) => {
+      const apiError = error as { code?: string; status?: number };
+      assert.equal(apiError.code, "AUTH_INVALID_CREDENTIALS");
+      assert.equal(apiError.status, 401);
+      return true;
+    },
+  );
+  assert.equal(passwordCalls, 1);
+  assert.equal(refreshCalls, 0);
+});
+
+test("a read request is retried at most once after refresh", async () => {
+  let accountCalls = 0;
+  let refreshCalls = 0;
+  accountApi.defaults.adapter = async (config) => {
+    if (config.url === "/accounts/refresh") {
+      refreshCalls += 1;
+      return {
+        data: { success: true, data: { access_token: "rotated-token", expires_in: 900 } },
+        status: 200,
+        statusText: "OK",
+        headers: {},
+        config,
+      };
+    }
+    if (config.url === "/account") {
+      accountCalls += 1;
+      throw new AxiosError(
+        "Session is invalid or expired.",
+        AxiosError.ERR_BAD_REQUEST,
+        config,
+        null,
+        {
+          data: {
+            success: false,
+            code: "AUTH_TOKEN_INVALID_OR_EXPIRED",
+            error: "Session is invalid or expired.",
+          },
+          status: 401,
+          statusText: "Unauthorized",
+          headers: {},
+          config,
+        },
+      );
+    }
+    throw new Error(`Unexpected request: ${config.url ?? ""}`);
+  };
+
+  await assert.rejects(() => fetchAccount(), (error: unknown) => {
+    const apiError = error as { code?: string; status?: number };
+    assert.equal(apiError.code, "AUTH_TOKEN_INVALID_OR_EXPIRED");
+    assert.equal(apiError.status, 401);
+    return true;
+  });
+  assert.equal(accountCalls, 2);
+  assert.equal(refreshCalls, 1);
 });
 
 test("toAccountApiError maps validation field errors without any", () => {
@@ -217,6 +371,24 @@ test("startGoogleLink parses authorization URL", async () => {
   assert.equal(url, "https://accounts.google.com/o/oauth2/v2/auth?state=xyz");
 });
 
+test("startGoogleReauthentication uses the account-bound endpoint", async () => {
+  let capturedUrl = "";
+  accountApi.defaults.adapter = async (config) => {
+    capturedUrl = config.url ?? "";
+    return {
+      data: { success: true, data: { authorization_url: "https://accounts.google.com/o/oauth2/v2/auth?state=reauth" } },
+      status: 200,
+      statusText: "OK",
+      headers: {},
+      config,
+    };
+  };
+
+  const url = await startGoogleReauthentication("th", "/account?tab=security&close=confirm");
+  assert.equal(capturedUrl, "/accounts/google/reauth/start");
+  assert.equal(url, "https://accounts.google.com/o/oauth2/v2/auth?state=reauth");
+});
+
 test("fetchGoogleLinkStatus parses cooldown seconds", async () => {
   accountApi.defaults.adapter = async (config) => {
     void config;
@@ -253,7 +425,7 @@ test("toAccountApiError preserves Google link retry hint", () => {
   assert.equal(apiError.retryAfterSeconds, 42);
 });
 
-test("unlinkGoogleAccount sends a DELETE with the password body", async () => {
+test("unlinkGoogleAccount sends a DELETE without credential payload", async () => {
   let capturedConfig: { url?: string; method?: string; data?: unknown } | null = null;
   accountApi.defaults.adapter = async (config) => {
     capturedConfig = { url: config.url, method: config.method, data: config.data };
@@ -266,8 +438,8 @@ test("unlinkGoogleAccount sends a DELETE with the password body", async () => {
     };
   };
 
-  await unlinkGoogleAccount("correct horse battery staple");
+  await unlinkGoogleAccount();
   assert.equal(capturedConfig?.url, "/account/providers/google");
   assert.equal(capturedConfig?.method, "delete");
-  assert.deepEqual(capturedConfig?.data, JSON.stringify({ password: "correct horse battery staple" }));
+  assert.equal(capturedConfig?.data, undefined);
 });

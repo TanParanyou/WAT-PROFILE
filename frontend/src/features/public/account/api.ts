@@ -32,6 +32,12 @@ let pendingRefresh: Promise<string> | null = null;
 
 const RETRIED = new WeakSet<object>();
 
+type RetriableAccountConfig = {
+  __accountAuthRetried?: boolean;
+};
+
+const READ_ONLY_METHODS = new Set(["GET", "HEAD", "OPTIONS"]);
+
 export function getMemoryAccessToken(): string | null {
   return memoryAccessToken;
 }
@@ -48,6 +54,33 @@ export function resetAccountClientForTests(): void {
 function isExcludedFromRetry(url: string | undefined): boolean {
   if (!url) return false;
   return url.includes("/accounts/login") || url.includes("/accounts/refresh");
+}
+
+interface AccountRetryConfig {
+  url?: string;
+  method?: string;
+}
+
+function shouldRefreshAfterUnauthorized(
+  error: unknown,
+  original: AccountRetryConfig,
+): boolean {
+  if (!axios.isAxiosError(error) || error.response?.status !== 401)
+    return false;
+  if (isExcludedFromRetry(original.url)) return false;
+
+  // Credential-changing and other mutating requests must never be replayed
+  // automatically after a 401. A stale token can be recovered on the next
+  // read, while an intentional credential error must reach the form exactly
+  // once instead of entering a refresh loop.
+  const method = (original.method ?? "GET").toUpperCase();
+  if (!READ_ONLY_METHODS.has(method)) return false;
+
+  const apiError = toAccountApiError(error);
+  return (
+    apiError.code === "AUTH_TOKEN_INVALID_OR_EXPIRED" ||
+    apiError.code === "AUTH_UNKNOWN"
+  );
 }
 
 export const accountApi = axios.create({
@@ -89,15 +122,21 @@ accountApi.interceptors.response.use(
       return Promise.reject(toAccountApiError(error));
     }
     const original = error.config;
-    if (error.response?.status !== 401 || isExcludedFromRetry(original.url) || RETRIED.has(original)) {
+    const retryConfig = original as typeof original & RetriableAccountConfig;
+    if (
+      !shouldRefreshAfterUnauthorized(error, original) ||
+      RETRIED.has(original) ||
+      retryConfig.__accountAuthRetried
+    ) {
       return Promise.reject(toAccountApiError(error));
     }
     RETRIED.add(original);
+    retryConfig.__accountAuthRetried = true;
 
     try {
       const token = await refreshAccessToken();
-      original.headers.Authorization = `Bearer ${token}`;
-      return accountApi(original);
+      retryConfig.headers.Authorization = `Bearer ${token}`;
+      return accountApi(retryConfig);
     } catch {
       memoryAccessToken = null;
       return Promise.reject(toAccountApiError(error));
@@ -119,6 +158,7 @@ const KNOWN_CODES: readonly AccountErrorCode[] = [
   "AUTH_GOOGLE_ALREADY_LINKED",
   "AUTH_GOOGLE_LINK_PENDING",
   "AUTH_INTERNAL",
+  "AUTH_UNKNOWN",
 ];
 
 function isKnownCode(code: string): code is AccountErrorCode {
@@ -142,7 +182,10 @@ function isAccountApiError(error: unknown): error is AccountApiError {
   return candidate.fieldErrors.every((fieldError) => {
     if (typeof fieldError !== "object" || fieldError === null) return false;
     const candidateFieldError = fieldError as Record<string, unknown>;
-    return typeof candidateFieldError.field === "string" && typeof candidateFieldError.message === "string";
+    return (
+      typeof candidateFieldError.field === "string" &&
+      typeof candidateFieldError.message === "string"
+    );
   });
 }
 
@@ -156,7 +199,12 @@ export function toAccountApiError(error: unknown): AccountApiError {
     const payload = error.response?.data;
     const parsed = accountErrorEnvelopeSchema.safeParse(payload);
     if (parsed.success) {
-      const { code, error: message, field_errors, retry_after_seconds } = parsed.data;
+      const {
+        code,
+        error: message,
+        field_errors,
+        retry_after_seconds,
+      } = parsed.data;
       return {
         code: isKnownCode(code) ? code : "AUTH_UNKNOWN",
         message,
@@ -175,15 +223,22 @@ export function toAccountApiError(error: unknown): AccountApiError {
   }
   return {
     code: "AUTH_UNKNOWN",
-    message: error instanceof Error ? error.message : "Unknown account API error",
+    message:
+      error instanceof Error ? error.message : "Unknown account API error",
     status: 0,
     fieldErrors: [],
     retryAfterSeconds: 0,
   };
 }
 
-export async function loginAccount(email: string, password: string): Promise<AccountSessionResponse> {
-  const response = await accountApi.post<unknown>("/accounts/login", { email, password });
+export async function loginAccount(
+  email: string,
+  password: string,
+): Promise<AccountSessionResponse> {
+  const response = await accountApi.post<unknown>("/accounts/login", {
+    email,
+    password,
+  });
   const session = parseAccountSessionResponse(response.data);
   memoryAccessToken = session.access_token;
   return session;
@@ -206,23 +261,44 @@ export async function verifyEmail(token: string): Promise<void> {
   await accountApi.post<unknown>("/accounts/verify-email", { token });
 }
 
-export async function resendVerification(email: string, locale: string): Promise<void> {
-  await accountApi.post<unknown>("/accounts/resend-verification", { email, locale });
+export async function resendVerification(
+  email: string,
+  locale: string,
+): Promise<void> {
+  await accountApi.post<unknown>("/accounts/resend-verification", {
+    email,
+    locale,
+  });
 }
 
-export async function forgotPassword(email: string, locale: string): Promise<void> {
-  await accountApi.post<unknown>("/accounts/forgot-password", { email, locale });
+export async function forgotPassword(
+  email: string,
+  locale: string,
+): Promise<void> {
+  await accountApi.post<unknown>("/accounts/forgot-password", {
+    email,
+    locale,
+  });
 }
 
-export async function resetPassword(token: string, newPassword: string): Promise<void> {
-  await accountApi.post<unknown>("/accounts/reset-password", { token, new_password: newPassword });
+export async function resetPassword(
+  token: string,
+  newPassword: string,
+): Promise<void> {
+  await accountApi.post<unknown>("/accounts/reset-password", {
+    token,
+    new_password: newPassword,
+  });
 }
 
 /**
  * Starts the Google OAuth flow. The backend sets the HttpOnly flow cookie and
  * returns the authorization URL; the browser must navigate to it directly.
  */
-export async function startGoogle(locale: string, returnTo: string): Promise<string> {
+export async function startGoogle(
+  locale: string,
+  returnTo: string,
+): Promise<string> {
   const response = await accountApi.get<unknown>("/accounts/google/start", {
     params: { locale, return_to: returnTo },
   });
@@ -236,27 +312,56 @@ export async function startGoogle(locale: string, returnTo: string): Promise<str
  * anonymous start; the target account is bound server-side to the signed-in
  * user.
  */
-export async function startGoogleLink(locale: string, returnTo: string): Promise<string> {
-  const response = await accountApi.get<unknown>("/accounts/google/link/start", {
-    params: { locale, return_to: returnTo },
-  });
+export async function startGoogleLink(
+  locale: string,
+  returnTo: string,
+): Promise<string> {
+  const response = await accountApi.get<unknown>(
+    "/accounts/google/link/start",
+    {
+      params: { locale, return_to: returnTo },
+    },
+  );
+  const parsed = parseGoogleStartResponse(response.data);
+  return parsed.authorization_url;
+}
+
+/**
+ * Starts a Google re-authentication flow bound to the currently signed-in
+ * account. The callback cannot switch the browser into another Google account.
+ */
+export async function startGoogleReauthentication(
+  locale: string,
+  returnTo: string,
+): Promise<string> {
+  const response = await accountApi.get<unknown>(
+    "/accounts/google/reauth/start",
+    {
+      params: { locale, return_to: returnTo },
+    },
+  );
   const parsed = parseGoogleStartResponse(response.data);
   return parsed.authorization_url;
 }
 
 export async function fetchGoogleLinkStatus(): Promise<GoogleLinkStatus> {
-  const response = await accountApi.get<unknown>("/accounts/google/link/status");
+  const response = await accountApi.get<unknown>(
+    "/accounts/google/link/status",
+  );
   return parseGoogleLinkStatus(response.data);
 }
 
-export async function unlinkGoogleAccount(password: string): Promise<void> {
-  // The server verifies the password against the account's password identity
-  // inside the unlink transaction, so it must be sent in the request body.
-  await accountApi.delete<unknown>("/account/providers/google", { data: { password } });
+export async function unlinkGoogleAccount(): Promise<void> {
+  await accountApi.delete<unknown>("/account/providers/google");
 }
 
-export async function confirmGoogleLink(token: string): Promise<AccountSessionResponse> {
-  const response = await accountApi.post<unknown>("/accounts/google/link/confirm", { token });
+export async function confirmGoogleLink(
+  token: string,
+): Promise<AccountSessionResponse> {
+  const response = await accountApi.post<unknown>(
+    "/accounts/google/link/confirm",
+    { token },
+  );
   const session = parseAccountSessionResponse(response.data);
   memoryAccessToken = session.access_token;
   return session;
@@ -282,29 +387,65 @@ export async function restoreSession(): Promise<string> {
   return token;
 }
 
-export async function reauthenticateAccount(password: string): Promise<AccountSessionResponse> {
-  const response = await accountApi.post<unknown>("/accounts/reauthenticate", { password });
+export async function reauthenticateAccount(
+  password: string,
+): Promise<AccountSessionResponse> {
+  let response: { data: unknown };
+  try {
+    response = await accountApi.post<unknown>("/accounts/reauthenticate", {
+      password,
+    });
+  } catch (error: unknown) {
+    const apiError = toAccountApiError(error);
+    const canRestoreSession =
+      apiError.status === 401 &&
+      (apiError.code === "AUTH_TOKEN_INVALID_OR_EXPIRED" ||
+        apiError.code === "AUTH_UNKNOWN");
+    if (!canRestoreSession) throw error;
+
+    // Re-authentication is an explicit user action. If only the in-memory
+    // access token is stale, restore it from the HttpOnly refresh cookie and
+    // submit the password once more. Credential failures never enter this
+    // branch and are still returned to the form unchanged.
+    await restoreSession();
+    response = await accountApi.post<unknown>("/accounts/reauthenticate", {
+      password,
+    });
+  }
   const session = parseAccountSessionResponse(response.data);
   memoryAccessToken = session.access_token;
   return session;
 }
 
-export async function changePasswordAccount(currentPassword: string, newPassword: string): Promise<AccountSessionResponse> {
-  const response = await accountApi.post<unknown>("/account/password", { current_password: currentPassword, new_password: newPassword });
+export async function changePasswordAccount(
+  newPassword: string,
+): Promise<AccountSessionResponse> {
+  const response = await accountApi.post<unknown>("/account/password", {
+    new_password: newPassword,
+  });
   const session = parseAccountSessionResponse(response.data);
   memoryAccessToken = session.access_token;
   return session;
 }
 
-export async function requestEmailChange(newEmail: string, currentPassword: string, locale: string): Promise<void> {
-  await accountApi.post<unknown>("/account/email-change", { new_email: newEmail, current_password: currentPassword, locale });
+export async function requestEmailChange(
+  newEmail: string,
+  locale: string,
+): Promise<void> {
+  await accountApi.post<unknown>("/account/email-change", {
+    new_email: newEmail,
+    locale,
+  });
 }
 
 export async function confirmEmailChange(token: string): Promise<void> {
   await accountApi.post<unknown>("/accounts/confirm-email-change", { token });
 }
 
-export async function requestAccountReopen(email: string, locale: string): Promise<void> {
+export async function requestAccountReopen(
+  email: string,
+  locale: string,
+): Promise<void> {
   await accountApi.post<unknown>("/accounts/reopen-request", { email, locale });
 }
 
@@ -343,8 +484,8 @@ export async function uploadAccountAvatar(file: File): Promise<Account> {
   return parseAccountEnvelope(response.data);
 }
 
-export async function closeAccount(password: string): Promise<{ purge_after: string }> {
-  const response = await accountApi.post<unknown>("/account/close", { password });
+export async function closeAccount(): Promise<{ purge_after: string }> {
+  const response = await accountApi.post<unknown>("/account/close", {});
   memoryAccessToken = null;
   return parseAccountClosureResponse(response.data);
 }

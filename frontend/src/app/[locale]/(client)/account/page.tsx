@@ -1,11 +1,19 @@
 import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import { siteConfig } from "@/config/site.config";
-import { buildPublicMetadata, normalizeSeo } from "@/features/public/seo/metadata";
+import {
+  buildPublicMetadata,
+  normalizeSeo,
+} from "@/features/public/seo/metadata";
 import { ProfileForm } from "@/features/public/account/components/ProfileForm";
 import { AccountShell } from "@/features/public/account/components/AccountShell";
+import { AccountReauthProvider } from "@/features/public/account/hooks/useAccountReauth";
 
-export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "Account" });
   const metadata = buildPublicMetadata({
@@ -14,12 +22,26 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     seo: normalizeSeo({}),
     content: { title: t("account.title"), description: t("account.subtitle") },
     messages: { title: t("account.title"), description: t("account.subtitle") },
-    site: { name: siteConfig.siteName.th, description: siteConfig.seo.defaultDescription, image: siteConfig.seo.defaultOgImage },
+    site: {
+      name: siteConfig.siteName.th,
+      description: siteConfig.seo.defaultDescription,
+      image: siteConfig.seo.defaultOgImage,
+    },
   });
-  return { ...metadata, openGraph: { ...metadata.openGraph, title: `${metadata.title} | ${siteConfig.siteName.th}` } };
+  return {
+    ...metadata,
+    openGraph: {
+      ...metadata.openGraph,
+      title: `${metadata.title} | ${siteConfig.siteName.th}`,
+    },
+  };
 }
 
-export default async function AccountPage({ params }: { params: Promise<{ locale: string }> }) {
+export default async function AccountPage({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "Account" });
   return (
@@ -31,7 +53,9 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
         backLabel: t("navigation.backToSite"),
       }}
     >
-      <ProfileForm />
+      <AccountReauthProvider>
+        <ProfileForm />
+      </AccountReauthProvider>
     </AccountShell>
   );
 }

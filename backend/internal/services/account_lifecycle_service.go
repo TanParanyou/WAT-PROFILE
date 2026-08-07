@@ -112,14 +112,35 @@ func (s *AccountLifecycleService) PurgeDue(ctx context.Context, deleter AccountO
 		err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 			var profile models.AccountProfile
 			profileErr := tx.Where("user_id = ?", user.ID).First(&profile).Error
+			avatarKeys := make([]string, 0, 1)
 			if profileErr == nil {
-				if deleter != nil && strings.HasPrefix(profile.AvatarObjectKey, "accounts/"+user.ID.String()+"/avatar/") {
-					if err := deleter.DeleteFile(ctx, profile.AvatarObjectKey); err != nil {
-						return err
-					}
+				if isAccountAvatarObjectKey(user.ID, profile.AvatarObjectKey) {
+					avatarKeys = append(avatarKeys, profile.AvatarObjectKey)
 				}
 			} else if !errors.Is(profileErr, gorm.ErrRecordNotFound) {
 				return profileErr
+			}
+			var pending []models.AccountAvatarCleanup
+			if err := tx.Where("user_id = ?", user.ID).Find(&pending).Error; err != nil {
+				return err
+			}
+			for _, item := range pending {
+				if isAccountAvatarObjectKey(user.ID, item.ObjectKey) {
+					avatarKeys = append(avatarKeys, item.ObjectKey)
+				}
+			}
+			if len(avatarKeys) > 0 && deleter == nil {
+				return errors.New("account avatar storage is not configured")
+			}
+			seenKeys := make(map[string]struct{}, len(avatarKeys))
+			for _, key := range avatarKeys {
+				if _, seen := seenKeys[key]; seen {
+					continue
+				}
+				seenKeys[key] = struct{}{}
+				if err := deleter.DeleteFile(ctx, key); err != nil {
+					return err
+				}
 			}
 			if err := tx.Model(&models.AuthSecurityEvent{}).Where("user_id = ?", user.ID).Updates(map[string]any{"user_id": nil, "ip_prefix": "", "request_trace_id": "", "metadata": models.JSONMap{}}).Error; err != nil {
 				return err

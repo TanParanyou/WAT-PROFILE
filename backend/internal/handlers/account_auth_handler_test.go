@@ -52,6 +52,7 @@ func accountHandlerTestDB(t *testing.T) *gorm.DB {
 		&models.Role{},
 		&models.User{},
 		&models.AccountProfile{},
+		&models.AccountAvatarCleanup{},
 		&models.AuthIdentity{},
 		&models.AuthSession{},
 		&models.AuthActionToken{},
@@ -602,9 +603,7 @@ func TestAccountGoogleUnlinkRejectsStaleAuth(t *testing.T) {
 		t.Fatalf("issue stale token: %v", err)
 	}
 
-	resp := performJSON(t, app, http.MethodDelete, "/api/v1/account/providers/google", map[string]string{
-		"password": accountHandlerTestPassword,
-	}, map[string]string{
+	resp := performJSON(t, app, http.MethodDelete, "/api/v1/account/providers/google", nil, map[string]string{
 		"Authorization": "Bearer " + staleToken,
 	})
 	if resp.StatusCode != fiber.StatusForbidden {

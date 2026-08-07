@@ -21,6 +21,7 @@ export default function ClientLayout({
           <StickySocials />
           <CookieConsent />
           <JsonLd />
+          <div id="public-modal-root" />
         </PublicSiteSettingsProvider>
       </div>
     </PublicThemeProvider>

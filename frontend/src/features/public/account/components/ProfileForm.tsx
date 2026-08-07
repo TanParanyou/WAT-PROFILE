@@ -6,23 +6,21 @@ import { useLocale } from "next-intl";
 import { Link, useRouter } from "@/navigation";
 import { useSearchParams } from "next/navigation";
 import { Loader2, AlertCircle, CheckCircle, LogOut } from "lucide-react";
-import {
-  useAccountSession,
-} from "@/features/public/account/AccountSessionProvider";
+import { useAccountSession } from "@/features/public/account/AccountSessionProvider";
 import {
   useUpdateAccountProfile,
   useCloseAccount,
 } from "@/features/public/account/queries";
-import { startGoogle, toAccountApiError } from "@/features/public/account/api";
+import { toAccountApiError } from "@/features/public/account/api";
 import { useAccountErrorMessage } from "@/features/public/account/hooks";
+import { useAccountReauth } from "@/features/public/account/hooks/useAccountReauth";
+import { AccountReauthError } from "@/features/public/account/reauth/reauth-types";
 import { AccountProviderMethods } from "./AccountProviderMethods";
 import { CredentialForms } from "./CredentialForms";
-import { PasswordInput } from "./PasswordInput";
 import { AvatarUpload } from "./AvatarUpload";
 import { AccountTabs, type AccountTab } from "./AccountTabs";
 import { buildAccountHref, parseAccountTab } from "../accountNavigation";
 import { useUnsavedChanges } from "../hooks/useUnsavedChanges";
-import { useGoogleRedirect } from "../hooks/useGoogleRedirect";
 import { validateDisplayName } from "@/features/public/account/validation";
 import type { AccountLocale } from "@/features/public/account/types";
 
@@ -47,20 +45,30 @@ export function ProfileForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const requestedTab = parseAccountTab(searchParams.get("tab"));
-  const { status, account, accountLoading, accountError, retryAccount, reauthenticate, logout } = useAccountSession();
+  const {
+    status,
+    account,
+    accountLoading,
+    accountError,
+    retryAccount,
+    logout,
+  } = useAccountSession();
+  const { requireRecentAuth } = useAccountReauth();
   const updateProfile = useUpdateAccountProfile();
   const closeAccount = useCloseAccount();
   const [displayName, setDisplayName] = useState(account?.display_name ?? "");
-  const [preferredLocale, setPreferredLocale] = useState<AccountLocale>(account?.preferred_locale ?? (locale as AccountLocale));
+  const [preferredLocale, setPreferredLocale] = useState<AccountLocale>(
+    account?.preferred_locale ?? (locale as AccountLocale),
+  );
   const [formError, setFormError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
   const [saving, setSaving] = useState(false);
-  const [closePassword, setClosePassword] = useState("");
   const [closing, setClosing] = useState(false);
   const [confirmClose, setConfirmClose] = useState(false);
-  const { redirecting, markRedirecting } = useGoogleRedirect();
   const [activeTab, setActiveTab] = useState<AccountTab>(() => requestedTab);
-  const [initializedAccountId, setInitializedAccountId] = useState<string | null>(null);
+  const [initializedAccountId, setInitializedAccountId] = useState<
+    string | null
+  >(null);
   const [baseline, setBaseline] = useState<ProfileBaseline | null>(null);
   const [panelHeadingRefs] = useState(() => ({
     profile: null as HTMLHeadingElement | null,
@@ -100,7 +108,8 @@ export function ProfileForm() {
 
   const isDirty =
     baseline !== null &&
-    (displayName !== baseline.displayName || preferredLocale !== baseline.preferredLocale);
+    (displayName !== baseline.displayName ||
+      preferredLocale !== baseline.preferredLocale);
   const { confirmNavigation } = useUnsavedChanges({
     isDirty,
     message: t("account.unsavedBody"),
@@ -118,10 +127,15 @@ export function ProfileForm() {
     return (
       <section aria-labelledby="account-access-title" className="space-y-4">
         <div>
-          <h2 id="account-access-title" className="font-heading text-xl font-bold text-site-foreground">
+          <h2
+            id="account-access-title"
+            className="font-heading text-xl font-bold text-site-foreground"
+          >
             {t("account.accessTitle")}
           </h2>
-          <p className="mt-2 text-sm text-site-muted">{t("account.accessBody")}</p>
+          <p className="mt-2 text-sm text-site-muted">
+            {t("account.accessBody")}
+          </p>
         </div>
         <div className="flex flex-col gap-3 sm:flex-row">
           <Link href="/account/login" className={primaryActionClass}>
@@ -145,7 +159,11 @@ export function ProfileForm() {
         >
           {t("account.loadError")}
         </div>
-        <button type="button" onClick={() => void retryAccount()} className={primaryActionClass}>
+        <button
+          type="button"
+          onClick={() => void retryAccount()}
+          className={primaryActionClass}
+        >
           {t("account.retry")}
         </button>
       </div>
@@ -168,11 +186,16 @@ export function ProfileForm() {
           {account.purge_after && (
             <p className="mt-1">
               {t("account.closedPurgeBody", {
-                date: new Intl.DateTimeFormat(locale, { dateStyle: "long" }).format(new Date(account.purge_after)),
+                date: new Intl.DateTimeFormat(locale, {
+                  dateStyle: "long",
+                }).format(new Date(account.purge_after)),
               })}
             </p>
           )}
-          <Link href="/account/reopen-request" className="mt-3 inline-block font-semibold underline">
+          <Link
+            href="/account/reopen-request"
+            className="mt-3 inline-block font-semibold underline"
+          >
             {t("account.closedReopenLink")}
           </Link>
         </div>
@@ -252,33 +275,25 @@ export function ProfileForm() {
     await logout();
   };
 
-  const handleGoogleReauthentication = async () => {
+  const handleClose = async () => {
     setFormError(null);
-    try {
-      const url = await startGoogle(locale, "/account?tab=security");
-      markRedirecting();
-      window.location.assign(url);
-    } catch {
-      setFormError(t("google.unexpected"));
-    }
-  };
-
-  const handleClose = async (event: FormEvent<HTMLFormElement>) => {
-    event.preventDefault();
-    setFormError(null);
-    if (account.providers.includes("password") && !closePassword) {
-      setFormError(t("validation.passwordCurrentRequired"));
-      return;
-    }
     setClosing(true);
     try {
-      if (account.providers.includes("password")) {
-        await reauthenticate(closePassword);
-      }
-      await closeAccount.mutateAsync(closePassword);
-      setClosePassword("");
+      await requireRecentAuth({ reason: "close_account" });
+      await closeAccount.mutateAsync();
       setConfirmClose(false);
+      setDisplayName("");
+      setPreferredLocale(locale as AccountLocale);
+      setBaseline(null);
+      setFormError(null);
+      setSaved(false);
+      closeAccount.reset();
     } catch (err) {
+      if (
+        err instanceof AccountReauthError &&
+        err.code === "AUTH_REAUTH_CANCELLED"
+      )
+        return;
       const apiError = toAccountApiError(err);
       setFormError(getErrorMessage(apiError));
     } finally {
@@ -308,7 +323,11 @@ export function ProfileForm() {
         </div>
       )}
 
-      <AccountTabs activeTab={activeTab} onChange={handleTabChange} isDirty={isDirty} />
+      <AccountTabs
+        activeTab={activeTab}
+        onChange={handleTabChange}
+        isDirty={isDirty}
+      />
 
       <div className="grid items-start">
         <form
@@ -337,12 +356,18 @@ export function ProfileForm() {
               </h2>
               <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
                 <div>
-                  <dt className="font-semibold text-text-800">{t("account.emailLabel")}</dt>
+                  <dt className="font-semibold text-text-800">
+                    {t("account.emailLabel")}
+                  </dt>
                   <dd className="text-site-muted">{account.email}</dd>
                 </div>
                 <div>
-                  <dt className="font-semibold text-text-800">{t("account.statusLabel")}</dt>
-                  <dd className="text-site-muted">{t(`account.status${capitalize(account.account_status)}`)}</dd>
+                  <dt className="font-semibold text-text-800">
+                    {t("account.statusLabel")}
+                  </dt>
+                  <dd className="text-site-muted">
+                    {t(`account.status${capitalize(account.account_status)}`)}
+                  </dd>
                 </div>
               </dl>
             </div>
@@ -394,7 +419,9 @@ export function ProfileForm() {
                 id="profile-locale"
                 name="preferred_locale"
                 value={preferredLocale}
-                onChange={(event) => setPreferredLocale(event.target.value as AccountLocale)}
+                onChange={(event) =>
+                  setPreferredLocale(event.target.value as AccountLocale)
+                }
                 className={inputBase}
                 aria-describedby="profile-locale-description"
               >
@@ -404,7 +431,10 @@ export function ProfileForm() {
                   </option>
                 ))}
               </select>
-              <p id="profile-locale-description" className="mt-2 max-w-prose text-sm leading-6 text-site-muted">
+              <p
+                id="profile-locale-description"
+                className="mt-2 max-w-prose text-sm leading-6 text-site-muted"
+              >
                 {t("account.localeDescription")}
               </p>
             </div>
@@ -424,109 +454,96 @@ export function ProfileForm() {
           >
             <AccountProviderMethods account={account} />
             <CredentialForms />
-            <section aria-labelledby="account-sessions-title" className="space-y-4">
-            <div>
-              <h2 id="account-sessions-title" className="font-heading text-xl font-bold text-site-foreground">
-                {t("account.sessionsSection")}
-              </h2>
-            </div>
-            <div className="flex flex-col gap-3 sm:flex-row">
-              <Link
-                href="/account/sessions"
-                className={secondaryActionClass}
-                onClick={(event) => {
-                  if (!confirmNavigation()) event.preventDefault();
-                }}
-              >
-                {t("account.sessionsLink")}
-              </Link>
-              <button type="button" onClick={() => void handleLogout()} className={secondaryActionClass}>
-                <LogOut className="h-5 w-5" aria-hidden />
-                {t("account.logout")}
-              </button>
-            </div>
+            <section
+              aria-labelledby="account-sessions-title"
+              className="space-y-4"
+            >
+              <div>
+                <h2
+                  id="account-sessions-title"
+                  className="font-heading text-xl font-bold text-site-foreground"
+                >
+                  {t("account.sessionsSection")}
+                </h2>
+              </div>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/account/sessions"
+                  className={secondaryActionClass}
+                  onClick={(event) => {
+                    if (!confirmNavigation()) event.preventDefault();
+                  }}
+                >
+                  {t("account.sessionsLink")}
+                </Link>
+                <button
+                  type="button"
+                  onClick={() => void handleLogout()}
+                  className={secondaryActionClass}
+                >
+                  <LogOut className="h-5 w-5" aria-hidden />
+                  {t("account.logout")}
+                </button>
+              </div>
             </section>
 
-            <section aria-labelledby="account-panel-security-heading" className="space-y-4 border-t border-site-border pt-6">
-            <div>
-              <h2
-                id="account-panel-security-heading"
-                ref={(element) => {
-                  panelHeadingRefs.security = element;
-                }}
-                tabIndex={-1}
-                className="font-heading text-xl font-bold text-site-foreground focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
-              >
-                {t("account.securitySection")}
-              </h2>
-              <h3 className="mt-4 font-semibold text-site-foreground">{t("account.closeLabel")}</h3>
-              <p className="mt-1 text-sm text-site-muted">{t("account.closeIntro")}</p>
-            </div>
-            {!confirmClose ? (
-              <button
-                type="button"
-                onClick={() => setConfirmClose(true)}
-                className="inline-flex min-h-11 items-center justify-center gap-2 border border-red-700 bg-site-canvas px-6 py-[13px] font-semibold text-red-700 transition-colors hover:bg-red-50 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
-              >
-                {t("account.closeButton")}
-              </button>
-            ) : account.providers.includes("password") ? (
-              <form className="space-y-4" onSubmit={handleClose} noValidate>
-                <p className="text-sm text-site-muted">{t("account.closeConfirm")}</p>
-                <div>
-                  <label className={labelBase} htmlFor="close-password">
-                    {t("account.closePasswordLabel")}
-                  </label>
-                  <PasswordInput
-                    id="close-password"
-                    name="password"
-                    autoComplete="current-password"
-                    value={closePassword}
-                    onChange={(event) => setClosePassword(event.target.value)}
-                    className={inputBase}
-                  />
-                </div>
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <button
-                    type="submit"
-                    disabled={closing}
-                    className="inline-flex min-h-11 items-center justify-center gap-2 bg-red-700 px-6 py-[13px] font-semibold text-white transition-colors hover:bg-red-800 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-60"
-                  >
-                    {closing && <Loader2 className="h-5 w-5 animate-spin" aria-hidden />}
-                    {t("account.closeConfirm")}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setConfirmClose(false)}
-                    className={secondaryActionClass}
-                  >
-                    {t("account.cancel")}
-                  </button>
-                </div>
-              </form>
-            ) : (
-              <div className="space-y-4">
-                <p className="text-sm text-site-muted">{t("account.closeGoogleIntro")}</p>
-                <div className="flex flex-col gap-3 sm:flex-row">
-                  <button
-                    type="button"
-                    onClick={() => void handleGoogleReauthentication()}
-                    disabled={redirecting}
-                    className={primaryActionClass}
-                  >
-                    {redirecting && <Loader2 className="h-5 w-5 animate-spin" aria-hidden />}
-                    {redirecting ? t("google.redirecting") : t("google.continue")}
-                  </button>
-                  <button
-                    type="button"
-                    onClick={() => setConfirmClose(false)}
-                    className={secondaryActionClass}
-                  >
-                    {t("account.cancel")}
-                  </button>
-                </div>
+            <section
+              aria-labelledby="account-panel-security-heading"
+              className="space-y-4 border-t border-site-border pt-6"
+            >
+              <div>
+                <h2
+                  id="account-panel-security-heading"
+                  ref={(element) => {
+                    panelHeadingRefs.security = element;
+                  }}
+                  tabIndex={-1}
+                  className="font-heading text-xl font-bold text-site-foreground focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
+                >
+                  {t("account.securitySection")}
+                </h2>
+                <h3 className="mt-4 font-semibold text-site-foreground">
+                  {t("account.closeLabel")}
+                </h3>
+                <p className="mt-1 text-sm text-site-muted">
+                  {t("account.closeIntro")}
+                </p>
               </div>
-            )}
+              {!confirmClose ? (
+                <button
+                  type="button"
+                  onClick={() => setConfirmClose(true)}
+                  className="inline-flex min-h-11 items-center justify-center gap-2 border border-red-700 bg-site-canvas px-6 py-[13px] font-semibold text-red-700 transition-colors hover:bg-red-50 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
+                >
+                  {t("account.closeButton")}
+                </button>
+              ) : (
+                <div className="space-y-4">
+                  <p className="text-sm text-site-muted">
+                    {t("account.closeConfirm")}
+                  </p>
+                  <div className="flex flex-col gap-3 sm:flex-row">
+                    <button
+                      type="button"
+                      onClick={() => void handleClose()}
+                      disabled={closing}
+                      className="inline-flex min-h-11 items-center justify-center gap-2 bg-red-700 px-6 py-[13px] font-semibold text-white transition-colors hover:bg-red-800 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-60"
+                    >
+                      {closing && (
+                        <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
+                      )}
+                      {t("account.closeConfirm")}
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => setConfirmClose(false)}
+                      className={secondaryActionClass}
+                    >
+                      {t("account.cancel")}
+                    </button>
+                  </div>
+                </div>
+              )}
             </section>
           </section>
         </section>
@@ -535,11 +552,19 @@ export function ProfileForm() {
       {isDirty ? (
         <div className="flex flex-col gap-4 border border-site-border bg-site-surface p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
           <div className="min-w-0">
-            <p className="font-semibold text-site-foreground">{t("account.unsaved")}</p>
-            <p className="mt-1 text-sm text-site-muted">{t("account.unsavedBody")}</p>
+            <p className="font-semibold text-site-foreground">
+              {t("account.unsaved")}
+            </p>
+            <p className="mt-1 text-sm text-site-muted">
+              {t("account.unsavedBody")}
+            </p>
           </div>
           <div className="flex flex-col gap-3 sm:shrink-0 sm:flex-row">
-            <button type="button" onClick={handleDiscard} className={secondaryActionClass}>
+            <button
+              type="button"
+              onClick={handleDiscard}
+              className={secondaryActionClass}
+            >
               {t("account.discardChanges")}
             </button>
             <button
@@ -548,7 +573,12 @@ export function ProfileForm() {
               disabled={saving}
               className={`${primaryActionClass} disabled:cursor-not-allowed disabled:opacity-60`}
             >
-              {saving && <Loader2 className="h-5 w-5 animate-spin motion-reduce:animate-none" aria-hidden />}
+              {saving && (
+                <Loader2
+                  className="h-5 w-5 animate-spin motion-reduce:animate-none"
+                  aria-hidden
+                />
+              )}
               {t("account.saveAndContinue")}
             </button>
           </div>
@@ -562,6 +592,9 @@ function capitalize(value: string): string {
   return value.charAt(0).toUpperCase() + value.slice(1);
 }
 
-function tabPanelVisibilityClass(activeTab: AccountTab, tab: AccountTab): string {
+function tabPanelVisibilityClass(
+  activeTab: AccountTab,
+  tab: AccountTab,
+): string {
   return activeTab === tab ? "visible" : "invisible pointer-events-none";
 }

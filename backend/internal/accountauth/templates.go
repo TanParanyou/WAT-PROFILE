@@ -76,17 +76,17 @@ var emailCopy = map[string]map[string]EmailCopy{
 	"password_reset_google": {
 		"th": {
 			Subject: "รีเซ็ตรหัสผ่านสำหรับบัญชี Google",
-			Body:    "สวัสดี {{.DisplayName}},\n\nเราได้รับคำขอให้รีเซ็ตรหัสผ่านสำหรับบัญชีนี้ บัญชีของคุณลงชื่อเข้าใช้ด้วย Google จึงไม่มีรหัสผ่านให้รีเซ็ต คุณยังคงลงชื่อเข้าใช้ด้วย Google ได้ตามปกติ หากคุณไม่ได้ร้องขอ คุณสามารถเพิกเฉยต่ออีเมลนี้ได้",
+			Body:    "สวัสดี {{.DisplayName}},\n\nบัญชีนี้ลงชื่อเข้าใช้ด้วย Google จึงไม่มีรหัสผ่านให้รีเซ็ต หากต้องการเข้าใช้งาน ให้ลงชื่อเข้าใช้ด้วย Google และไปที่ส่วนความปลอดภัยของบัญชีเพื่อเพิ่มรหัสผ่านสำรองได้ภายหลัง:\n\n{{.ActionURL}}\n\nหากคุณไม่ได้ร้องขอ คุณสามารถเพิกเฉยต่ออีเมลนี้ได้",
 			Action:  "ลงชื่อเข้าใช้ด้วย Google",
 		},
 		"en": {
 			Subject: "Password reset for your Google account",
-			Body:    "Hello {{.DisplayName}},\n\nWe received a request to reset the password for this account. Your account signs in with Google, so there is no password to reset. You can continue signing in with Google as usual. If you did not request this, you can safely ignore this email.",
+			Body:    "Hello {{.DisplayName}},\n\nThis account signs in with Google, so there is no password to reset. Sign in with Google and open Account Security if you want to add a backup password later:\n\n{{.ActionURL}}\n\nIf you did not request this, you can safely ignore this email.",
 			Action:  "Sign in with Google",
 		},
 		"de": {
 			Subject: "Passwort zurücksetzen für Ihr Google-Konto",
-			Body:    "Hallo {{.DisplayName}},\n\nwir haben eine Anfrage zum Zurücksetzen des Passworts für dieses Konto erhalten. Ihr Konto meldet sich mit Google an, daher gibt es kein Passwort zum Zurücksetzen. Sie können sich wie gewohnt mit Google anmelden. Wenn Sie das nicht angefordert haben, können Sie diese E-Mail ignorieren.",
+			Body:    "Hallo {{.DisplayName}},\n\nDieses Konto meldet sich mit Google an, daher gibt es kein Passwort zum Zurücksetzen. Melden Sie sich mit Google an und öffnen Sie die Kontosicherheit, wenn Sie später ein Ersatzpasswort hinzufügen möchten:\n\n{{.ActionURL}}\n\nWenn Sie das nicht angefordert haben, können Sie diese E-Mail ignorieren.",
 			Action:  "Mit Google anmelden",
 		},
 	},

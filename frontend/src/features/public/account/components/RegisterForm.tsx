@@ -47,7 +47,7 @@ export function RegisterForm() {
 
   const handleGoogle = async () => {
     try {
-      const url = await startGoogle(locale, "/account");
+      const url = await startGoogle(locale, "/account?tab=security&setup=password");
       markRedirecting();
       window.location.assign(url);
     } catch {

@@ -10,7 +10,6 @@ import (
 	"github.com/google/uuid"
 	"github.com/watloungporsai/wat-profile-backend/internal/accountauth"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
-	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
 	"gorm.io/gorm"
 )
 
@@ -30,7 +29,7 @@ func NewAccountCredentialsService(db *gorm.DB, sender accountauth.EmailSender, c
 	return &AccountCredentialsService{db: db, sender: sender, clock: clock, tokenGen: tokenGen, sessions: sessions, frontendURL: strings.TrimRight(os.Getenv("PUBLIC_ACCOUNT_FRONTEND_URL"), "/"), security: pickSecurityRecorder(recorders)}
 }
 
-func (s *AccountCredentialsService) RequestEmailChange(ctx context.Context, userID uuid.UUID, authTime time.Time, currentPassword, newEmail, locale string) error {
+func (s *AccountCredentialsService) RequestEmailChange(ctx context.Context, userID uuid.UUID, authTime time.Time, newEmail, locale string) error {
 	newEmail = accountauth.NormalizeEmail(newEmail)
 	if !accountauth.ValidEmail(newEmail) {
 		return accountauth.NewFieldError(accountauth.CodeValidation, "email", "Enter a valid email address.")
@@ -39,6 +38,9 @@ func (s *AccountCredentialsService) RequestEmailChange(ctx context.Context, user
 		return accountauth.NewFieldError(accountauth.CodeValidation, "locale", "Unsupported locale.")
 	}
 	now := s.clock.Now()
+	if authTime.IsZero() || now.Sub(authTime) > maxReauthAge {
+		return accountauth.NewError(accountauth.CodeReauthRequired, "Please re-authenticate before changing your email.")
+	}
 	var message accountauth.EmailMessage
 	var displayName string
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
@@ -55,17 +57,6 @@ func (s *AccountCredentialsService) RequestEmailChange(ctx context.Context, user
 			return accountauth.NewError(accountauth.CodeEmailAlreadyRegistered, "That email address is already registered.")
 		} else if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return err
-		}
-		var identity models.AuthIdentity
-		identityErr := tx.Where("user_id = ? AND provider = 'password'", userID).First(&identity).Error
-		if identityErr == nil && identity.CredentialHash != nil && (currentPassword == "" || !utils.CheckPasswordHash(currentPassword, *identity.CredentialHash)) {
-			return accountauth.NewError(accountauth.CodeInvalidCredentials, "Incorrect password.")
-		}
-		if identityErr != nil && !errors.Is(identityErr, gorm.ErrRecordNotFound) {
-			return identityErr
-		}
-		if (identityErr != nil || identity.CredentialHash == nil) && now.Sub(authTime) > maxReauthAge {
-			return accountauth.NewError(accountauth.CodeReauthRequired, "Please re-authenticate with Google to change your email.")
 		}
 		if err := tx.Model(&models.AuthActionToken{}).Where("user_id = ? AND purpose = ? AND consumed_at IS NULL", userID, "change_email").Update("consumed_at", now).Error; err != nil {
 			return err
