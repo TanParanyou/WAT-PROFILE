@@ -10,9 +10,4 @@ UPDATE donations
 SET receipt_requested = tax_receipt_required
 WHERE tax_receipt_required = true;
 
-ALTER TABLE donations
-  DROP COLUMN IF EXISTS tax_receipt_required,
-  DROP COLUMN IF EXISTS tax_receipt_sent,
-  DROP COLUMN IF EXISTS tax_receipt_sent_at;
-
 COMMIT;

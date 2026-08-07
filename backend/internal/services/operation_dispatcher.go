@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"io"
 	"strconv"
+	"strings"
 
 	"github.com/google/uuid"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
@@ -77,6 +78,9 @@ func (d *OperationDispatcher) dispatchDonationReceipt(ctx context.Context, job m
 	}
 	if donation.ReceiptDispatchedAt != nil {
 		return nil
+	}
+	if donation.Status != "confirmed" || !donation.ReceiptRequested || strings.TrimSpace(donation.DonorEmail) == "" {
+		return fmt.Errorf("donation is no longer eligible for receipt dispatch")
 	}
 	objectKey := donation.ReceiptObjectKey
 	if objectKey == "" {

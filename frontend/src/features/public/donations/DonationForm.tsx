@@ -16,7 +16,7 @@ export function DonationForm() {
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault(); setError(null); setMessage(null);
     const form = new FormData(event.currentTarget);
-    const parsed = selfReportedDonationSchema.safeParse({ amount: form.get("amount"), currency: form.get("currency"), donation_date: form.get("donation_date"), donation_method: method, donor_name: form.get("donor_name"), donor_email: form.get("donor_email"), donor_phone: form.get("donor_phone") || undefined, locale, receipt_requested: form.get("receipt_requested") === "on", proof: form.get("proof") });
+    const parsed = selfReportedDonationSchema.safeParse({ amount: form.get("amount"), currency: form.get("currency"), donation_date: form.get("donation_date"), donation_method: method, donor_name: form.get("donor_name"), donor_email: form.get("donor_email"), donor_phone: form.get("donor_phone") || undefined, locale, receipt_requested: form.get("receipt_requested") === "on", privacy_acknowledged: form.get("privacy_acknowledged") === "on", proof: form.get("proof") });
     if (!parsed.success) { setError(t("reportError")); return; }
     setPending(true);
     try { await submitSelfReportedDonation(parsed.data); setMessage(t("reportSuccess")); event.currentTarget.reset(); }
@@ -34,6 +34,7 @@ export function DonationForm() {
     <label className="grid gap-2 text-sm"><span>{t("emailLabel")}</span><input name="donor_email" type="email" required className="min-h-11 border border-site-border bg-white px-3" /></label>
     <label className="grid gap-2 text-sm md:col-span-2"><span>{t("proofLabel")}</span><input name="proof" type="file" accept="image/*,application/pdf" required className="min-h-11 border border-site-border bg-white px-3 py-2" /></label>
     <label className="flex min-h-11 items-center gap-2 text-sm md:col-span-2"><input name="receipt_requested" type="checkbox" className="size-5" /><span>{t("receiptRequested")}</span></label>
+    <label className="flex min-h-11 items-center gap-2 text-sm md:col-span-2"><input name="privacy_acknowledged" type="checkbox" className="size-5" required /><span>{t("privacyAcknowledged")}</span></label>
     <button disabled={pending} className="min-h-11 bg-site-action px-5 py-3 text-sm font-semibold text-site-on-action disabled:opacity-50 md:col-span-2">{pending ? t("submitting") : t("submitReport")}</button>
     {message ? <p role="status" className="text-sm text-green-700 md:col-span-2">{message}</p> : null}
     {error ? <p role="alert" className="text-sm text-red-700 md:col-span-2">{error}</p> : null}

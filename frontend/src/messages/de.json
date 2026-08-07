@@ -101,6 +101,7 @@
         "emailLabel": "E-Mail",
         "proofLabel": "Überweisungsnachweis (PDF oder Bild)",
         "receiptRequested": "Ich möchte eine allgemeine Spendenbescheinigung",
+        "privacyAcknowledged": "Ich akzeptiere die Datenschutzerklärung und die Verwendung meiner Daten zur Bearbeitung dieser Spende",
         "submitReport": "Spendenmeldung senden",
         "submitting": "Wird gesendet...",
         "reportSuccess": "Gesendet. Wir prüfen die Meldung und informieren Sie per E-Mail.",

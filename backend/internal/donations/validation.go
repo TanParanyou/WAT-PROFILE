@@ -21,15 +21,16 @@ type StaffInput struct {
 }
 
 type PublicInput struct {
-	Amount           string
-	Currency         string
-	DonationDate     string
-	DonationMethod   string
-	DonorName        string
-	DonorEmail       string
-	Locale           string
-	HasProof         bool
-	ReceiptRequested bool
+	Amount              string
+	Currency            string
+	DonationDate        string
+	DonationMethod      string
+	DonorName           string
+	DonorEmail          string
+	Locale              string
+	HasProof            bool
+	ReceiptRequested    bool
+	PrivacyAcknowledged bool
 }
 
 func ValidateStaffInput(input StaffInput) error {
@@ -71,11 +72,17 @@ func ValidatePublicInput(input PublicInput) error {
 	if strings.TrimSpace(input.DonorName) == "" {
 		return fmt.Errorf("donor name is required")
 	}
+	if strings.TrimSpace(input.DonorEmail) == "" {
+		return fmt.Errorf("donor email is required")
+	}
 	if input.Locale != "th" && input.Locale != "en" && input.Locale != "de" {
 		return fmt.Errorf("locale is unsupported")
 	}
 	if !input.HasProof {
 		return fmt.Errorf("donation proof is required")
+	}
+	if !input.PrivacyAcknowledged {
+		return fmt.Errorf("privacy acknowledgement is required")
 	}
 	return nil
 }

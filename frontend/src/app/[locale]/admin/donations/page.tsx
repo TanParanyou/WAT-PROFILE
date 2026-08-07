@@ -226,7 +226,7 @@ export default function DonationsPage() {
         <div className="flex gap-1.5">
           {row.source === "self_reported" && <PermissionGuard resource="donations" action="read"><button type="button" onClick={() => void handleProof(row.id)} className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted" title="ดูหลักฐาน"><Icons.Download size={16} /></button></PermissionGuard>}
           {row.status === "pending" && <PermissionGuard resource="donations" action="update"><button type="button" onClick={() => void handleConfirm(row.id)} className="p-1.5 rounded hover:bg-admin-success-surface text-admin-success" title="ยืนยัน"><Icons.Save size={16} /></button></PermissionGuard>}
-          {row.status === "confirmed" && !row.receipt_dispatched_at && <PermissionGuard resource="donations" action="update"><button type="button" onClick={() => void handleReceipt(row.id)} className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted" title="ส่งใบเสร็จ"><Icons.FileText size={16} /></button></PermissionGuard>}
+          {row.status === "confirmed" && row.receipt_requested && row.donor_email && !row.receipt_dispatched_at && <PermissionGuard resource="donations" action="update"><button type="button" onClick={() => void handleReceipt(row.id)} className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted" title="ส่งใบเสร็จ"><Icons.FileText size={16} /></button></PermissionGuard>}
           {row.status !== "cancelled" && <PermissionGuard resource="donations" action="update"><button type="button" onClick={() => void handleCancel(row.id)} className="p-1.5 rounded hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger" title="ยกเลิก"><Icons.Delete size={16} /></button></PermissionGuard>}
         </div>
       ),

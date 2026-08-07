@@ -123,6 +123,9 @@ func (s *DonationService) Confirm(id int, actorID uuid.UUID) (*models.Donation, 
 	if err != nil {
 		return nil, err
 	}
+	if err := s.db.Preload("Category").Preload("Member").First(&donation, id).Error; err != nil {
+		return nil, err
+	}
 	return &donation, nil
 }
 
@@ -162,6 +165,9 @@ func (s *DonationService) MarkReceiptDispatched(id int, actorID uuid.UUID, objec
 		if donation.Status != "confirmed" {
 			return fmt.Errorf("donation must be confirmed before receipt dispatch")
 		}
+		if !donation.ReceiptRequested || strings.TrimSpace(donation.DonorEmail) == "" {
+			return errors.New("receipt request and donor email are required")
+		}
 		if donation.ReceiptDispatchedAt != nil {
 			wasAlready = true
 			return nil
@@ -190,6 +196,9 @@ func (s *DonationService) QueueReceiptDispatch(id int, actorID uuid.UUID, object
 		}
 		if donation.Status != "confirmed" {
 			return fmt.Errorf("donation must be confirmed before receipt dispatch")
+		}
+		if !donation.ReceiptRequested || strings.TrimSpace(donation.DonorEmail) == "" {
+			return errors.New("receipt request and donor email are required")
 		}
 		if donation.ReceiptDispatchedAt != nil {
 			queuedAlready = true

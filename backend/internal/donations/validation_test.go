@@ -23,11 +23,11 @@ func TestValidateStaffInput(t *testing.T) {
 }
 
 func TestValidatePublicInput(t *testing.T) {
-	valid := PublicInput{Amount: "1.00", Currency: "EUR", DonationDate: "2026-08-07", DonationMethod: "bank_transfer", DonorName: "Donor", DonorEmail: "donor@example.com", Locale: "th", HasProof: true}
+	valid := PublicInput{Amount: "1.00", Currency: "EUR", DonationDate: "2026-08-07", DonationMethod: "bank_transfer", DonorName: "Donor", DonorEmail: "donor@example.com", Locale: "th", HasProof: true, PrivacyAcknowledged: true}
 	if err := ValidatePublicInput(valid); err != nil {
 		t.Fatalf("expected valid public input, got %v", err)
 	}
-	if err := ValidatePublicInput(PublicInput{Amount: "1.00", Currency: "EUR", DonationDate: "2026-08-07", DonationMethod: "cash", DonorName: "Donor", DonorEmail: "donor@example.com", Locale: "th", HasProof: true}); err == nil {
+	if err := ValidatePublicInput(PublicInput{Amount: "1.00", Currency: "EUR", DonationDate: "2026-08-07", DonationMethod: "cash", DonorName: "Donor", DonorEmail: "donor@example.com", Locale: "th", HasProof: true, PrivacyAcknowledged: true}); err == nil {
 		t.Fatal("expected cash rejection")
 	}
 }

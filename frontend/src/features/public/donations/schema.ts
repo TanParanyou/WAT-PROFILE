@@ -10,7 +10,10 @@ export const selfReportedDonationSchema = z.object({
   donor_phone: z.string().optional(),
   locale: z.enum(["th", "en", "de"]),
   receipt_requested: z.boolean(),
-  proof: z.custom<File>((value) => typeof File !== "undefined" && value instanceof File, "Donation proof is required"),
+  privacy_acknowledged: z.literal(true),
+  proof: z.custom<File>((value) => typeof File !== "undefined" && value instanceof File, "Donation proof is required")
+    .refine((file) => ["application/pdf", "image/jpeg", "image/png", "image/webp"].includes(file.type), "Unsupported proof type")
+    .refine((file) => file.size > 0 && file.size <= 10 * 1024 * 1024, "Proof must be 10 MB or smaller"),
 });
 
 export type SelfReportedDonationValues = z.infer<typeof selfReportedDonationSchema>;

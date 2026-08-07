@@ -101,6 +101,7 @@
         "emailLabel": "Email",
         "proofLabel": "Transfer proof (PDF or image)",
         "receiptRequested": "I would like a general donation receipt",
+        "privacyAcknowledged": "I acknowledge the privacy policy and use of my data to process this donation",
         "submitReport": "Submit donation report",
         "submitting": "Submitting...",
         "reportSuccess": "Submitted. We will review it and email you an update.",
