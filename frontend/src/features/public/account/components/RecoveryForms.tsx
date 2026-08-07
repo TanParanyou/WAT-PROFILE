@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
 import { Link } from "@/navigation";
-import { Loader2, AlertCircle, CheckCircle } from "lucide-react";
+import { Loader2 } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import {
   forgotPassword,
@@ -16,6 +16,9 @@ import {
 import { useAccountErrorMessage } from "@/features/public/account/hooks";
 import { PasswordInput } from "./PasswordInput";
 import { PasswordRequirements } from "./PasswordRequirements";
+import { AccountField } from "./AccountField";
+import { AccountFeedback } from "./AccountFeedback";
+import { AccountFlowFooter } from "./AccountFlowFooter";
 import {
   inspectPassword,
   normalizeAccountEmail,
@@ -24,52 +27,31 @@ import {
 
 const inputBase =
   "mt-2 min-h-11 w-full border border-site-border bg-site-canvas px-3 py-2.5 text-base text-site-foreground outline-none transition-colors placeholder:text-site-muted focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus";
-const labelBase = "block text-sm font-semibold text-text-800";
+const invalidInputClass = "border-red-700 focus-visible:outline-red-700";
 
-function ErrorBanner({ message, id }: { message: string; id?: string }) {
-  return (
-    <div
-      id={id}
-      role="alert"
-      className="flex items-start gap-2 border border-red-700 bg-red-50 p-3 text-sm text-red-700"
-    >
-      <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
-      <span>{message}</span>
-    </div>
-  );
-}
-
-function SuccessBanner({ title, body }: { title: string; body: string }) {
-  return (
-    <div
-      role="status"
-      aria-live="polite"
-      className="flex items-start gap-2 border border-emerald-700 bg-emerald-50 p-3 text-sm text-emerald-700"
-    >
-      <CheckCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
-      <div>
-        <p className="font-semibold">{title}</p>
-        <p className="mt-1">{body}</p>
-      </div>
-    </div>
-  );
-}
+const actionClass =
+  "inline-flex min-h-11 items-center justify-center bg-site-action px-6 py-[13px] font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus";
+const secondaryActionClass =
+  "inline-flex min-h-11 items-center justify-center border border-site-border px-6 py-[13px] font-semibold text-site-foreground transition-colors hover:bg-site-canvas-strong focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus";
 
 export function ForgotPasswordForm() {
   const t = useTranslations("Account");
   const getErrorMessage = useAccountErrorMessage();
   const locale = useLocale();
   const [email, setEmail] = useState("");
+  const [emailError, setEmailError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setEmailError(null);
     setFormError(null);
     const normalized = normalizeAccountEmail(email);
     if (!normalized) {
-      setFormError(t("validation.emailRequired"));
+      setEmailError(t("validation.emailRequired"));
+      requestAnimationFrame(() => document.getElementById("forgot-email")?.focus());
       return;
     }
     setSubmitting(true);
@@ -78,7 +60,13 @@ export function ForgotPasswordForm() {
       setSubmitted(true);
     } catch (err) {
       const apiError = toAccountApiError(err);
-      setFormError(getErrorMessage(apiError));
+      const fieldError = apiError.fieldErrors.find((candidate) => candidate.field === "email");
+      if (fieldError) {
+        setEmailError(fieldError.message);
+        requestAnimationFrame(() => document.getElementById("forgot-email")?.focus());
+      } else {
+        setFormError(getErrorMessage(apiError));
+      }
     } finally {
       setSubmitting(false);
     }
@@ -87,38 +75,41 @@ export function ForgotPasswordForm() {
   if (submitted) {
     return (
       <div className="space-y-4">
-        <SuccessBanner title={t("forgotPassword.successTitle")} body={t("forgotPassword.successBody")} />
-        <p>
-          <Link
-            href="/account/login"
-            className="font-medium text-text-900 underline decoration-primary/40 underline-offset-4"
-          >
-            {t("login.submit")}
-          </Link>
-        </p>
+        <AccountFeedback
+          state={{ kind: "success", title: t("forgotPassword.successTitle"), body: t("forgotPassword.successBody") }}
+        />
+        <AccountFlowFooter
+          primary={
+            <Link href="/account/login" className={actionClass}>
+              {t("login.submit")}
+            </Link>
+          }
+        />
       </div>
     );
   }
 
   return (
     <div className="space-y-5">
-      {formError && <ErrorBanner message={formError} />}
+      {formError && <AccountFeedback state={{ kind: "error", message: formError }} />}
       <form className="space-y-5" onSubmit={handleSubmit} noValidate>
-        <div>
-          <label className={labelBase} htmlFor="forgot-email">
-            {t("forgotPassword.emailLabel")}
-          </label>
+        <AccountField id="forgot-email" label={t("forgotPassword.emailLabel")} error={emailError}>
           <input
             id="forgot-email"
             name="email"
             type="email"
             autoComplete="email"
             value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            onChange={(e) => {
+              setEmail(e.target.value);
+              setEmailError(null);
+            }}
             placeholder={t("forgotPassword.emailPlaceholder")}
             className={inputBase}
+            aria-invalid={emailError ? true : undefined}
+            aria-describedby={emailError ? "forgot-email-error" : undefined}
           />
-        </div>
+        </AccountField>
         <button
           type="submit"
           disabled={submitting}
@@ -138,24 +129,30 @@ export function ResetPasswordForm() {
   const searchParams = useSearchParams();
   const token = searchParams.get("token") ?? "";
   const [password, setPassword] = useState("");
-  const [passwordError, setPasswordError] = useState(false);
+  const [passwordError, setPasswordError] = useState<string | null>(null);
   const [formError, setFormError] = useState<string | null>(null);
+  const [tokenError, setTokenError] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [submitting, setSubmitting] = useState(false);
   const passwordRequirements = inspectPassword(password);
 
+  const focusPassword = () => {
+    requestAnimationFrame(() => document.getElementById("reset-password")?.focus());
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setFormError(null);
-    setPasswordError(false);
+    setPasswordError(null);
+    setTokenError(false);
     const pwError = validatePassword(password);
     if (pwError) {
-      setPasswordError(true);
-      setFormError(t(`validation.${pwError}`));
+      setPasswordError(t(`validation.${pwError}`));
+      setFormError(null);
+      focusPassword();
       return;
     }
     if (!token) {
-      setFormError(t("validation.tokenRequired"));
       return;
     }
     setSubmitting(true);
@@ -164,8 +161,23 @@ export function ResetPasswordForm() {
       setSubmitted(true);
     } catch (err) {
       const apiError = toAccountApiError(err);
-      setPasswordError(apiError.code === "AUTH_VALIDATION");
-      setFormError(getErrorMessage(apiError));
+      const fieldError = apiError.fieldErrors.find(
+        (candidate) => candidate.field === "password" || candidate.field === "new_password",
+      );
+      if (fieldError) {
+        const localError = validatePassword(password);
+        setPasswordError(localError ? t(`validation.${localError}`) : fieldError.message);
+        setFormError(null);
+        focusPassword();
+      } else {
+        setPasswordError(null);
+        if (apiError.code === "AUTH_TOKEN_INVALID_OR_EXPIRED") {
+          setTokenError(true);
+          setFormError(null);
+        } else {
+          setFormError(getErrorMessage(apiError));
+        }
+      }
     } finally {
       setSubmitting(false);
     }
@@ -174,27 +186,45 @@ export function ResetPasswordForm() {
   if (submitted) {
     return (
       <div className="space-y-4">
-        <SuccessBanner title={t("resetPassword.successTitle")} body={t("resetPassword.successBody")} />
-        <p>
-          <Link
-            href="/account/login"
-            className="font-medium text-text-900 underline decoration-primary/40 underline-offset-4"
-          >
-            {t("resetPassword.loginLink")}
-          </Link>
-        </p>
+        <AccountFeedback
+          state={{ kind: "success", title: t("resetPassword.successTitle"), body: t("resetPassword.successBody") }}
+        />
+        <AccountFlowFooter
+          primary={
+            <Link href="/account/login" className={actionClass}>
+              {t("resetPassword.loginLink")}
+            </Link>
+          }
+        />
+      </div>
+    );
+  }
+
+  if (!token || tokenError) {
+    return (
+      <div className="space-y-4">
+        <AccountFeedback state={{ kind: "error", message: t("account.actionInvalid") }} />
+        <AccountFlowFooter
+          primary={
+            <Link href="/account/forgot-password" className={actionClass}>
+              {t("forgotPassword.submit")}
+            </Link>
+          }
+          secondary={
+            <Link href="/account/login" className={secondaryActionClass}>
+              {t("login.submit")}
+            </Link>
+          }
+        />
       </div>
     );
   }
 
   return (
     <div className="space-y-5">
-      {formError && <ErrorBanner id="reset-password-error" message={formError} />}
+      {formError && <AccountFeedback state={{ kind: "error", message: formError }} />}
       <form className="space-y-5" onSubmit={handleSubmit} noValidate>
-        <div>
-          <label className={labelBase} htmlFor="reset-password">
-            {t("resetPassword.passwordLabel")}
-          </label>
+        <AccountField id="reset-password" label={t("resetPassword.passwordLabel")} error={passwordError}>
           <PasswordInput
             id="reset-password"
             name="password"
@@ -202,15 +232,15 @@ export function ResetPasswordForm() {
             value={password}
             onChange={(e) => {
               setPassword(e.target.value);
-              setPasswordError(false);
+              setPasswordError(null);
             }}
             placeholder={t("resetPassword.passwordPlaceholder")}
-            className={inputBase}
+            className={`${inputBase} ${passwordError ? invalidInputClass : ""}`}
             aria-invalid={passwordError ? true : undefined}
-            aria-describedby={`reset-password-requirements${formError ? " reset-password-error" : ""}`}
+            aria-describedby={`reset-password-requirements${passwordError ? " reset-password-error" : ""}`}
           />
           <PasswordRequirements id="reset-password-requirements" requirements={passwordRequirements} />
-        </div>
+        </AccountField>
         <button
           type="submit"
           disabled={submitting}
@@ -261,15 +291,16 @@ export function VerifyEmailContent() {
   if (state === "success") {
     return (
       <div className="space-y-4">
-        <SuccessBanner title={t("verifyEmail.successTitle")} body={t("verifyEmail.successBody")} />
-        <p>
-          <Link
-            href="/account/login"
-            className="font-medium text-text-900 underline decoration-primary/40 underline-offset-4"
-          >
-            {t("verifyEmail.loginLink")}
-          </Link>
-        </p>
+        <AccountFeedback
+          state={{ kind: "success", title: t("verifyEmail.successTitle"), body: t("verifyEmail.successBody") }}
+        />
+        <AccountFlowFooter
+          primary={
+            <Link href="/account/login" className={actionClass}>
+              {t("verifyEmail.loginLink")}
+            </Link>
+          }
+        />
       </div>
     );
   }
@@ -291,16 +322,24 @@ export function VerifyEmailContent() {
   return (
     <div className="space-y-5">
       {resendSent ? (
-        <SuccessBanner title={t("verifyEmail.resendSent")} body={t("forgotPassword.successBody")} />
+        <>
+          <AccountFeedback
+            state={{ kind: "success", title: t("verifyEmail.resendSent"), body: t("forgotPassword.successBody") }}
+          />
+          <AccountFlowFooter
+            primary={
+              <Link href="/account/login" className={actionClass}>
+                {t("verifyEmail.loginLink")}
+              </Link>
+            }
+          />
+        </>
       ) : (
         <>
-          {state === "invalid" && <ErrorBanner message={t("verifyEmail.invalidBody")} />}
+          {state === "invalid" && <AccountFeedback state={{ kind: "error", message: t("verifyEmail.invalidBody") }} />}
           {state === "resend" && <p className="text-sm text-site-muted">{t("verifyEmail.resendIntro")}</p>}
-          {resendError && <ErrorBanner message={resendError} />}
-          <div>
-            <label className={labelBase} htmlFor="verify-email">
-              {t("forgotPassword.emailLabel")}
-            </label>
+          {resendError && <AccountFeedback state={{ kind: "error", message: resendError }} />}
+          <AccountField id="verify-email" label={t("forgotPassword.emailLabel")}>
             <input
               id="verify-email"
               name="email"
@@ -311,7 +350,7 @@ export function VerifyEmailContent() {
               placeholder={t("forgotPassword.emailPlaceholder")}
               className={inputBase}
             />
-          </div>
+          </AccountField>
           <button
             type="button"
             onClick={handleResend}
@@ -321,6 +360,18 @@ export function VerifyEmailContent() {
             {resendSubmitting && <Loader2 className="h-5 w-5 animate-spin" aria-hidden />}
             {t("verifyEmail.resendSubmit")}
           </button>
+          <AccountFlowFooter
+            primary={
+              <Link href="/account/forgot-password" className={actionClass}>
+                {t("login.forgotLink")}
+              </Link>
+            }
+            secondary={
+              <Link href="/account/login" className={secondaryActionClass}>
+                {t("login.submit")}
+              </Link>
+            }
+          />
         </>
       )}
     </div>

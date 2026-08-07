@@ -2,32 +2,29 @@
 
 import { useEffect, useRef, useState } from "react";
 import { useTranslations } from "next-intl";
-import { Link, useRouter } from "@/navigation";
+import { Link } from "@/navigation";
 import { useSearchParams } from "next/navigation";
-import { Loader2, AlertCircle, CheckCircle } from "lucide-react";
 import { confirmGoogleLink } from "@/features/public/account/api";
 import { useAccountSession } from "@/features/public/account/AccountSessionProvider";
+import { buildAccountHref } from "../accountNavigation";
+import { AccountFeedback } from "./AccountFeedback";
+import { AccountFlowFooter } from "./AccountFlowFooter";
+
+const actionClass =
+  "inline-flex min-h-11 items-center justify-center bg-site-action px-6 py-[13px] font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus";
+const secondaryActionClass =
+  "inline-flex min-h-11 items-center justify-center border border-site-border px-6 py-[13px] font-semibold text-site-foreground transition-colors hover:bg-site-canvas-strong focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus";
 
 export function LinkAccountContent() {
   const t = useTranslations("Account");
   const searchParams = useSearchParams();
   const status = searchParams.get("status");
   const token = searchParams.get("token") ?? "";
-  const router = useRouter();
   const { adoptCurrentSession } = useAccountSession();
   const [state, setState] = useState<"approval_sent" | "confirming" | "success" | "invalid">(
     status === "approval_sent" ? "approval_sent" : token ? "confirming" : "invalid",
   );
   const ranRef = useRef(false);
-  const redirectTimerRef = useRef<number | null>(null);
-
-  useEffect(() => {
-    return () => {
-      if (redirectTimerRef.current !== null) {
-        window.clearTimeout(redirectTimerRef.current);
-      }
-    };
-  }, []);
 
   useEffect(() => {
     if (ranRef.current) return;
@@ -37,92 +34,68 @@ export function LinkAccountContent() {
       .then(async () => {
         await adoptCurrentSession();
         setState("success");
-        redirectTimerRef.current = window.setTimeout(() => {
-          router.replace("/account");
-        }, 900);
       })
       .catch(() => setState("invalid"));
-  }, [state, token, adoptCurrentSession, router]);
+  }, [state, token, adoptCurrentSession]);
 
   if (state === "approval_sent") {
     return (
       <div className="space-y-4">
-        <div
-          role="status"
-          aria-live="polite"
-          className="flex items-start gap-2 border border-emerald-700 bg-emerald-50 p-3 text-sm text-emerald-700"
-        >
-          <CheckCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
-          <div>
-            <p className="font-semibold">{t("link.approvalSentTitle")}</p>
-            <p className="mt-1">{t("link.approvalSentBody")}</p>
-          </div>
-        </div>
-        <Link
-          href="/account/login"
-          className="inline-flex min-h-11 items-center justify-center bg-site-action px-6 py-[13px] font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
-        >
-          {t("link.loginLink")}
-        </Link>
+        <AccountFeedback
+          state={{ kind: "success", title: t("link.approvalSentTitle"), body: t("link.approvalSentBody") }}
+        />
+        <AccountFlowFooter
+          primary={
+            <Link href="/account/login" className={actionClass}>
+              {t("link.loginLink")}
+            </Link>
+          }
+        />
       </div>
     );
   }
 
   if (state === "confirming") {
     return (
-      <div className="flex items-center gap-2 text-sm text-site-muted">
-        <Loader2 className="h-5 w-5 animate-spin" aria-hidden />
-        <span>{t("link.confirming")}</span>
-      </div>
+      <AccountFeedback state={{ kind: "loading", message: t("link.confirming") }} />
     );
   }
 
   if (state === "success") {
     return (
       <div className="space-y-4">
-        <div
-          role="status"
-          aria-live="polite"
-          className="flex items-start gap-2 border border-emerald-700 bg-emerald-50 p-3 text-sm text-emerald-700"
-        >
-          <CheckCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
-          <div>
-            <p className="font-semibold">{t("link.successTitle")}</p>
-            <p className="mt-1">{t("link.successBody")}</p>
-          </div>
-        </div>
-        <p>
-          <Link
-            href="/account"
-            className="font-medium text-text-900 underline decoration-primary/40 underline-offset-4"
-          >
-            {t("link.loginLink")}
-          </Link>
-        </p>
+        <AccountFeedback state={{ kind: "success", title: t("link.successTitle"), body: t("link.successBody") }} />
+        <AccountFlowFooter
+          primary={
+            <Link href={buildAccountHref("security")} className={actionClass}>
+              {t("account.tabsSecurity")}
+            </Link>
+          }
+          secondary={
+            <Link href="/account" className={secondaryActionClass}>
+              {t("account.title")}
+            </Link>
+          }
+        />
       </div>
     );
   }
 
   return (
     <div className="space-y-4">
-      <div
-        role="alert"
-        className="flex items-start gap-2 border border-red-700 bg-red-50 p-3 text-sm text-red-700"
-      >
-        <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
-        <div>
-          <p className="font-semibold">{t("link.invalidTitle")}</p>
-          <p className="mt-1">{t("link.invalidBody")}</p>
-        </div>
-      </div>
-      <p>
-        <Link
-          href="/account/login"
-          className="font-medium text-text-900 underline decoration-primary/40 underline-offset-4"
-        >
-          {t("link.loginLink")}
-        </Link>
-      </p>
+      <AccountFeedback state={{ kind: "error", message: `${t("link.invalidTitle")}. ${t("link.invalidBody")}` }} />
+      <AccountFlowFooter
+        primary={
+          <Link href="/account/login" className={actionClass}>
+            {t("link.loginLink")}
+          </Link>
+        }
+        secondary={
+          <Link href={buildAccountHref("security")} className={secondaryActionClass}>
+            {t("account.tabsSecurity")}
+          </Link>
+        }
+      />
     </div>
   );
 }
