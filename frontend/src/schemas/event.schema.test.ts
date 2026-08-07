@@ -72,3 +72,19 @@ test('eventSchema: fails when schedule end_time is before start_time', () => {
     assert.equal(errorMsg, 'End time must be after start time');
   }
 });
+
+test('eventSchema: allows optional location with empty string values', () => {
+  const dataWithEmptyLocation = {
+    title: { th: 'งานสวดมนต์', en: 'Praying Event', de: 'Beten Event' },
+    slug: 'praying-event',
+    start_date: '2026-10-01',
+    end_date: '2026-10-02',
+    event_type: 'religious',
+    location: { th: '', en: '', de: '' },
+    is_active: true,
+    registration_enabled: false
+  };
+
+  const result = eventSchema.safeParse(dataWithEmptyLocation);
+  assert.equal(result.success, true);
+});

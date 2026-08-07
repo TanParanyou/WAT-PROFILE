@@ -1,5 +1,5 @@
 import { z } from "zod";
-import { multiLangSchema, slugSchema } from "./common";
+import { multiLangSchema, multiLangOptionalSchema, slugSchema } from "./common";
 
 export const eventSchema = z
   .object({
@@ -11,7 +11,7 @@ export const eventSchema = z
     start_time: z.string().nullable().optional(),
     end_time: z.string().nullable().optional(),
     event_type: z.string().min(1, "Event type is required"),
-    location: multiLangSchema("Location").optional(),
+    location: multiLangOptionalSchema().optional(),
     image_url: z.union([z.string(), z.instanceof(File)]).optional(),
     map_url: z.string().optional(),
     is_active: z.boolean(),
