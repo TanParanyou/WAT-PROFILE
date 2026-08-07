@@ -28,7 +28,7 @@ export default async function ForgotPasswordPage({ params }: { params: Promise<{
         title: t("forgotPassword.title"),
         subtitle: t("forgotPassword.subtitle"),
         backHref: "/account/login",
-        backLabel: t("back"),
+        backLabel: t("navigation.backToLogin"),
       }}
     >
       <ForgotPasswordForm />

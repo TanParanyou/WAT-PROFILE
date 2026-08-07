@@ -29,7 +29,7 @@ export default async function VerifyEmailPage({ params }: { params: Promise<{ lo
         title: t("verifyEmail.title"),
         subtitle: t("verifyEmail.subtitle"),
         backHref: "/account/login",
-        backLabel: t("back"),
+        backLabel: t("navigation.backToLogin"),
       }}
     >
       <Suspense fallback={null}>

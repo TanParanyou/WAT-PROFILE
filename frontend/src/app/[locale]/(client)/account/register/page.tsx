@@ -28,7 +28,7 @@ export default async function RegisterPage({ params }: { params: Promise<{ local
         title: t("register.title"),
         subtitle: t("register.subtitle"),
         backHref: "/account/login",
-        backLabel: t("back"),
+        backLabel: t("navigation.backToLogin"),
       }}
     >
       <RegisterForm />

@@ -28,7 +28,7 @@ export default async function LoginPage({ params }: { params: Promise<{ locale: 
         title: t("login.title"),
         subtitle: t("login.subtitle"),
         backHref: "/",
-        backLabel: t("back"),
+        backLabel: t("navigation.backToSite"),
       }}
     >
       <LoginForm />

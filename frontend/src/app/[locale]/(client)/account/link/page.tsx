@@ -13,8 +13,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     locale,
     pathname: `/${locale}/account/link`,
     seo: normalizeSeo({}),
-    content: { title: t("link.title"), description: t("link.approvalSentBody") },
-    messages: { title: t("link.title"), description: t("link.approvalSentBody") },
+    content: { title: t("link.title"), description: t("link.subtitle") },
+    messages: { title: t("link.title"), description: t("link.subtitle") },
     site: { name: siteConfig.siteName.th, description: siteConfig.seo.defaultDescription, image: siteConfig.seo.defaultOgImage },
   });
   return { ...metadata, openGraph: { ...metadata.openGraph, title: `${metadata.title} | ${siteConfig.siteName.th}` } };
@@ -27,9 +27,9 @@ export default async function LinkAccountPage({ params }: { params: Promise<{ lo
     <AccountShell
       context={{
         title: t("link.title"),
-        subtitle: t("link.approvalSentBody"),
+        subtitle: t("link.subtitle"),
         backHref: "/account?tab=security",
-        backLabel: t("back"),
+        backLabel: t("navigation.backToSecurity"),
       }}
     >
       <Suspense fallback={null}>

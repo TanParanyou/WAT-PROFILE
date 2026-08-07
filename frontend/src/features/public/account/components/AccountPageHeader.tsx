@@ -6,7 +6,7 @@ export interface AccountPageContext {
   backHref: AccountDestination;
   backLabel: string;
   eyebrow?: string;
-  step?: { current: number; total: number };
+  step?: { current: number; total: number; label?: string };
 }
 
 export function AccountPageHeader({ context }: { context: AccountPageContext }) {
@@ -17,13 +17,16 @@ export function AccountPageHeader({ context }: { context: AccountPageContext }) 
           {context.eyebrow}
         </p>
       ) : null}
-      <h1 className="font-heading text-3xl font-bold text-site-foreground [text-wrap:balance]">
+      <h1 id="account-page-title" className="font-heading text-3xl font-bold text-site-foreground [text-wrap:balance]">
         {context.title}
       </h1>
       <p className="text-sm text-site-muted">{context.subtitle}</p>
       {context.step ? (
-        <p className="text-xs font-semibold text-site-muted" aria-label={`${context.step.current}/${context.step.total}`}>
-          {context.step.current}/{context.step.total}
+        <p
+          className="text-xs font-semibold text-site-muted"
+          aria-label={context.step.label ?? `${context.step.current}/${context.step.total}`}
+        >
+          {context.step.label ?? `${context.step.current}/${context.step.total}`}
         </p>
       ) : null}
     </div>

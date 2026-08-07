@@ -13,10 +13,10 @@ export default async function ConfirmEmailChangePage({
   return (
     <AuthShell
       context={{
-        title: t("account.emailChanged"),
-        subtitle: t("account.emailChangedBody"),
+        title: t("confirmEmailChange.title"),
+        subtitle: t("confirmEmailChange.subtitle"),
         backHref: "/account?tab=security",
-        backLabel: t("back"),
+        backLabel: t("navigation.backToSecurity"),
       }}
     >
       <Suspense fallback={null}>

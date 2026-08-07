@@ -163,7 +163,7 @@ export function SessionList() {
       )}
 
       <Link href={buildAccountHref("security")} className={secondaryActionClass}>
-        {t("account.securitySection")}
+        {t("sessions.backToSecurity")}
       </Link>
 
       {revoked && (

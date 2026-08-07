@@ -120,7 +120,15 @@
         "subtitle": "Verwalten Sie Ihr Profil, Ihre Anmeldemethoden und Sicherheitseinstellungen.",
         "back": "Zurück",
         "navigation": {
+            "backToSite": "Zur Website",
+            "backToLogin": "Zur Anmeldung",
+            "backToAccount": "Zurück zu Ihrem Konto",
+            "backToSecurity": "Zurück zu Sicherheit",
             "or": "oder"
+        },
+        "flow": {
+            "step": "Schritt {current} von {total}",
+            "logoutAllComplete": "Überall abgemeldet"
         },
         "showPassword": "Passwort anzeigen",
         "hidePassword": "Passwort verbergen",
@@ -189,7 +197,8 @@
             "resendIntro": "Geben Sie die bei der Registrierung verwendete E-Mail ein. Wenn das Konto registriert ist, senden wir einen neuen Bestätigungslink.",
             "resendLabel": "E-Mail",
             "resendSubmit": "Bestätigungs-E-Mail erneut senden",
-            "resendSent": "Wenn die Adresse registriert ist, wurde eine neue Bestätigungs-E-Mail gesendet."
+            "resendSent": "Wenn die Adresse registriert ist, wurde eine neue Bestätigungs-E-Mail gesendet.",
+            "resendNext": "Prüfen Sie Ihren Posteingang und melden Sie sich nach der Bestätigung wieder an."
         },
         "forgotPassword": {
             "title": "Passwort vergessen?",
@@ -208,9 +217,14 @@
             "submit": "Passwort zurücksetzen",
             "successTitle": "Passwort aktualisiert",
             "successBody": "Ihr Passwort wurde zurückgesetzt und alle Sitzungen wurden abgemeldet. Sie können sich jetzt anmelden.",
-            "loginLink": "Zur Anmeldung"
+            "loginLink": "Zur Anmeldung",
+            "invalidBody": "Dieser Link zum Zurücksetzen des Passworts ist ungültig oder abgelaufen. Fordern Sie einen neuen Link an oder melden Sie sich an.",
+            "requestNewLink": "Neuen Zurücksetzen-Link anfordern"
         },
         "account": {
+            "emailChangedSecurityLink": "Zur Kontosicherheit",
+            "accountRestoredLogin": "Zur Anmeldung",
+            "actionInvalidBody": "Dieser Link ist ungültig oder abgelaufen. Fordern Sie einen neuen Link an oder melden Sie sich an.",
             "title": "Mein Konto",
             "subtitle": "Verwalten Sie Ihr Profil und Ihre Anmeldemethoden.",
             "emailLabel": "E-Mail",
@@ -294,6 +308,7 @@
             "credentialsTitle":"Anmeldedaten","passwordTitle":"Passwort","currentPasswordLabel":"Aktuelles Passwort","newPasswordLabel":"Neues Passwort","changePassword":"Passwort ändern","passwordChanged":"Passwort geändert","emailChangeTitle":"E-Mail ändern","newEmailLabel":"Neue E-Mail","requestEmailChange":"E-Mail-Änderung anfordern","emailConfirmationSent":"Prüfen Sie Ihre neue E-Mail zur Bestätigung.","emailChanged":"E-Mail geändert","emailChangedBody":"Ihre Sitzungen wurden beendet. Melden Sie sich mit Ihrer neuen E-Mail erneut an.","accountRestored":"Konto wiederhergestellt","accountRestoredBody":"Sie können sich wieder mit Ihren bisherigen Daten anmelden.","actionInvalid":"Dieser Link ist ungültig oder abgelaufen.","googleCredentialReauthTitle":"Mit Google bestätigen","googleCredentialReauthBody":"Google-only-Konten müssen sich mit Google bestätigen, bevor ein Passwort hinzugefügt oder die Konto-E-Mail geändert wird.","googleCredentialReauthAction":"Mit Google fortfahren","reopenRequestTitle":"Geschlossenes Konto wiederherstellen","reopenRequestBody":"Geben Sie die ursprüngliche Konto-E-Mail ein. Wenn die Wiederherstellung innerhalb von 30 Tagen noch möglich ist, senden wir einen einmaligen Link.","reopenRequestAction":"Wiederherstellungslink senden","reopenRequestSentTitle":"Posteingang prüfen","reopenRequestSentBody":"Wenn das Konto noch wiederhergestellt werden kann, wurde ein Wiederherstellungslink gesendet."
         },
         "sessions": {
+            "backToSecurity": "Zur Kontosicherheit",
             "title": "Aktive Sitzungen",
             "subtitle": "Prüfen Sie die Geräte, die bei Ihrem Konto angemeldet sind.",
             "pageEyebrow": "Kontoverwaltung",
@@ -321,6 +336,7 @@
             "empty": "Keine aktiven Sitzungen."
         },
         "link": {
+            "subtitle": "Bestätigen Sie die Google-Verknüpfung aus Ihrer E-Mail, um zur Kontosicherheit zurückzukehren.",
             "title": "Google-Konto verknüpfen",
             "approvalSentTitle": "Genehmigungslink gesendet",
             "approvalSentBody": "Ein Konto verwendet diese E-Mail bereits. Wir haben einen Link an diese Adresse gesendet – öffnen Sie ihn, um die Google-Anmeldung zu verknüpfen.",
@@ -330,6 +346,14 @@
             "invalidTitle": "Link ungültig oder abgelaufen",
             "invalidBody": "Dieser Link ist nicht mehr gültig. Versuchen Sie erneut, sich mit Google anzumelden.",
             "loginLink": "Zur Anmeldung"
+        },
+        "confirmEmailChange": {
+            "title": "E-Mail-Änderung bestätigen",
+            "subtitle": "Öffnen Sie den Link in Ihrer neuen E-Mail, um die Änderung zu bestätigen."
+        },
+        "reopen": {
+            "title": "Konto wiederherstellen",
+            "subtitle": "Verwenden Sie den einmaligen Wiederherstellungslink innerhalb von 30 Tagen."
         },
         "google": {
             "continue": "Mit Google fortfahren",

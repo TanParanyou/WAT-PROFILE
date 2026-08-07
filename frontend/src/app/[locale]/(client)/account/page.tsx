@@ -28,7 +28,7 @@ export default async function AccountPage({ params }: { params: Promise<{ locale
         title: t("account.title"),
         subtitle: t("account.subtitle"),
         backHref: "/",
-        backLabel: t("back"),
+        backLabel: t("navigation.backToSite"),
       }}
     >
       <ProfileForm />

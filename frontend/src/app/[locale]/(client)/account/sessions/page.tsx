@@ -28,7 +28,7 @@ export default async function AccountSessionsPage({ params }: { params: Promise<
         title: t("sessions.title"),
         subtitle: t("sessions.subtitle"),
         backHref: "/account?tab=security",
-        backLabel: t("back"),
+        backLabel: t("navigation.backToSecurity"),
       }}
     >
       <SessionList />

@@ -120,7 +120,15 @@
         "subtitle": "Manage your profile, sign-in methods, and security settings.",
         "back": "Back",
         "navigation": {
+            "backToSite": "Back to the website",
+            "backToLogin": "Back to sign in",
+            "backToAccount": "Back to your account",
+            "backToSecurity": "Back to Security",
             "or": "or"
+        },
+        "flow": {
+            "step": "Step {current} of {total}",
+            "logoutAllComplete": "Signed out everywhere"
         },
         "showPassword": "Show password",
         "hidePassword": "Hide password",
@@ -189,7 +197,8 @@
             "resendIntro": "Enter the email used to register and we will send a new verification link if the account is registered.",
             "resendLabel": "Email",
             "resendSubmit": "Resend verification email",
-            "resendSent": "If the address is registered, a new verification email has been sent."
+            "resendSent": "If the address is registered, a new verification email has been sent.",
+            "resendNext": "Check your inbox, then return to sign in after verifying your email."
         },
         "forgotPassword": {
             "title": "Forgot your password?",
@@ -208,9 +217,14 @@
             "submit": "Reset password",
             "successTitle": "Password updated",
             "successBody": "Your password has been reset and all sessions were signed out. You can sign in now.",
-            "loginLink": "Go to sign in"
+            "loginLink": "Go to sign in",
+            "invalidBody": "This password reset link is invalid or expired. Request a new link or return to sign in.",
+            "requestNewLink": "Request a new reset link"
         },
         "account": {
+            "emailChangedSecurityLink": "Return to Account Security",
+            "accountRestoredLogin": "Go to sign in",
+            "actionInvalidBody": "This link is invalid or expired. Request a new link or return to sign in.",
             "title": "My account",
             "subtitle": "Manage your profile and sign-in methods.",
             "emailLabel": "Email",
@@ -294,6 +308,7 @@
             "credentialsTitle":"Credentials","passwordTitle":"Password","currentPasswordLabel":"Current password","newPasswordLabel":"New password","changePassword":"Change password","passwordChanged":"Password changed","emailChangeTitle":"Change email","newEmailLabel":"New email","requestEmailChange":"Request email change","emailConfirmationSent":"Check your new email to confirm the change.","emailChanged":"Email changed","emailChangedBody":"Your sessions were signed out. Sign in again with your new email.","accountRestored":"Account restored","accountRestoredBody":"You can sign in again with your existing credentials.","actionInvalid":"This link is invalid or expired.","googleCredentialReauthTitle":"Confirm with Google","googleCredentialReauthBody":"Google-only accounts must confirm with Google before adding a password or changing the account email.","googleCredentialReauthAction":"Continue with Google","reopenRequestTitle":"Restore a closed account","reopenRequestBody":"Enter the original account email. If it is still within the 30-day recovery window, we will send a one-time restore link.","reopenRequestAction":"Send restore link","reopenRequestSentTitle":"Check your inbox","reopenRequestSentBody":"If the account can still be restored, a recovery link has been sent."
         },
         "sessions": {
+            "backToSecurity": "Return to Account Security",
             "title": "Active sessions",
             "subtitle": "Review the devices signed in to your account.",
             "pageEyebrow": "Account management",
@@ -321,6 +336,7 @@
             "empty": "No active sessions."
         },
         "link": {
+            "subtitle": "Confirm the Google link from your approval email to return to Account Security.",
             "title": "Link your Google account",
             "approvalSentTitle": "Approval link sent",
             "approvalSentBody": "An account already uses this email. We sent a link to that address — open it to link your Google sign-in.",
@@ -330,6 +346,14 @@
             "invalidTitle": "Link invalid or expired",
             "invalidBody": "This link is no longer valid. Try signing in with Google again.",
             "loginLink": "Go to sign in"
+        },
+        "confirmEmailChange": {
+            "title": "Confirm your email change",
+            "subtitle": "Open the link sent to your new email to confirm this change."
+        },
+        "reopen": {
+            "title": "Restore your account",
+            "subtitle": "Use the one-time recovery link within 30 days to reopen your account."
         },
         "google": {
             "continue": "Continue with Google",

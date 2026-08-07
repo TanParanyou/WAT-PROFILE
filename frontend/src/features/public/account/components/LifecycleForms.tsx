@@ -139,11 +139,16 @@ export function ConfirmEmailChangeForm() {
                 {t("login.submit")}
               </Link>
             }
+            secondary={
+              <Link href="/account?tab=security" className={secondaryActionClass}>
+                {t("account.emailChangedSecurityLink")}
+              </Link>
+            }
           />
         </>
       ) : (
         <>
-          <AccountFeedback state={{ kind: "error", message: t("account.actionInvalid") }} />
+          <AccountFeedback state={{ kind: "error", message: t("account.actionInvalidBody") }} />
           <AccountFlowFooter
             primary={
               <Link href="/account?tab=security" className={primaryActionClass}>
@@ -187,14 +192,14 @@ export function ReopenAccountForm() {
           <AccountFlowFooter
             primary={
               <Link href="/account/login" className={primaryActionClass}>
-                {t("login.submit")}
+                {t("account.accountRestoredLogin")}
               </Link>
             }
           />
         </>
       ) : (
         <>
-          <AccountFeedback state={{ kind: "error", message: t("account.actionInvalid") }} />
+          <AccountFeedback state={{ kind: "error", message: t("account.actionInvalidBody") }} />
           <AccountFlowFooter
             primary={
               <Link href="/account/reopen-request" className={primaryActionClass}>

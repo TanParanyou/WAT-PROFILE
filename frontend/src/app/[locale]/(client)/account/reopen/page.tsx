@@ -13,10 +13,10 @@ export default async function ReopenAccountPage({
   return (
     <AuthShell
       context={{
-        title: t("account.reopenRequestTitle"),
-        subtitle: t("account.reopenRequestBody"),
+        title: t("reopen.title"),
+        subtitle: t("reopen.subtitle"),
         backHref: "/account/login",
-        backLabel: t("back"),
+        backLabel: t("navigation.backToLogin"),
       }}
     >
       <Suspense fallback={null}>

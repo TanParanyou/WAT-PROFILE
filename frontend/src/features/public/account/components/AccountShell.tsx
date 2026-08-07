@@ -18,7 +18,7 @@ export function AccountShell({
   return (
     <div className="mx-auto w-full max-w-2xl px-4 pb-10 pt-28 sm:px-6 lg:px-8">
       <div className="space-y-8">
-        <header className="space-y-4">
+        <header aria-labelledby="account-page-title" className="space-y-4">
           <AccountBackButton href={context.backHref} label={context.backLabel} />
           <AccountPageHeader context={context} />
         </header>

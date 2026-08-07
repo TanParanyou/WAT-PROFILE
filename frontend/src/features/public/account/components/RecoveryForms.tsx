@@ -203,11 +203,11 @@ export function ResetPasswordForm() {
   if (!token || tokenError) {
     return (
       <div className="space-y-4">
-        <AccountFeedback state={{ kind: "error", message: t("account.actionInvalid") }} />
+        <AccountFeedback state={{ kind: "error", message: t("resetPassword.invalidBody") }} />
         <AccountFlowFooter
           primary={
             <Link href="/account/forgot-password" className={actionClass}>
-              {t("forgotPassword.submit")}
+              {t("resetPassword.requestNewLink")}
             </Link>
           }
           secondary={
@@ -324,7 +324,7 @@ export function VerifyEmailContent() {
       {resendSent ? (
         <>
           <AccountFeedback
-            state={{ kind: "success", title: t("verifyEmail.resendSent"), body: t("forgotPassword.successBody") }}
+            state={{ kind: "success", title: t("verifyEmail.resendSent"), body: t("verifyEmail.resendNext") }}
           />
           <AccountFlowFooter
             primary={
