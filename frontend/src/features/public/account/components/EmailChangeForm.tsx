@@ -83,7 +83,12 @@ export function EmailChangeForm({
         new_email: "newEmail",
       });
       const message = t(mapped.messageKey as Parameters<typeof t>[0]);
-      if (mapped.target === "newEmail") {
+      const target =
+        mapped.target === "root.server" &&
+        apiError.code === "AUTH_EMAIL_ALREADY_REGISTERED"
+          ? "newEmail"
+          : mapped.target;
+      if (target === "newEmail") {
         setError("newEmail", { type: "server", message }, { shouldFocus: true });
       } else {
         setError("root.server", { type: "server", message });
