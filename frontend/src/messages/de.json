@@ -150,6 +150,8 @@
             "forgotLink": "Passwort vergessen?",
             "reopenLink": "Geschlossenes Konto wiederherstellen",
             "linksTitle": "Hilfe zu Ihrem Konto",
+            "logoutAllTitle": "Überall abgemeldet",
+            "logoutAllBody": "Alle Sitzungen wurden beendet. Melden Sie sich erneut an, um fortzufahren.",
             "verifyPrompt": "Prüfen Sie Ihren Posteingang und bestätigen Sie zuerst Ihre E-Mail."
         },
         "register": {

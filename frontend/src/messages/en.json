@@ -150,6 +150,8 @@
             "forgotLink": "Forgot password?",
             "reopenLink": "Restore a closed account",
             "linksTitle": "Help with your account",
+            "logoutAllTitle": "Signed out everywhere",
+            "logoutAllBody": "All sessions have ended. Sign in again to continue.",
             "verifyPrompt": "Check your inbox and verify your email first."
         },
         "register": {

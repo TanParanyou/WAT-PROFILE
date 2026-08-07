@@ -255,7 +255,7 @@ export function ProfileForm() {
   const handleGoogleReauthentication = async () => {
     setFormError(null);
     try {
-      const url = await startGoogle(locale, "/account");
+      const url = await startGoogle(locale, "/account?tab=security");
       markRedirecting();
       window.location.assign(url);
     } catch {
@@ -276,6 +276,8 @@ export function ProfileForm() {
         await reauthenticate(closePassword);
       }
       await closeAccount.mutateAsync(closePassword);
+      setClosePassword("");
+      setConfirmClose(false);
     } catch (err) {
       const apiError = toAccountApiError(err);
       setFormError(getErrorMessage(apiError));

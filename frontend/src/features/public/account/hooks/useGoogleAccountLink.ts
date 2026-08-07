@@ -27,7 +27,7 @@ export async function runGoogleLinkStart(args: {
     return { kind: "cooldown" };
   }
   try {
-    const url = await args.start(args.locale, "/account");
+    const url = await args.start(args.locale, "/account?tab=security");
     return { kind: "redirect", url };
   } catch (error) {
     return { kind: "error", error: toAccountApiError(error) };

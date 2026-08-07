@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
+import { useSearchParams } from "next/navigation";
 import { Link, useRouter } from "@/navigation";
 import { Loader2 } from "lucide-react";
 import { startGoogle } from "@/features/public/account/api";
@@ -23,6 +24,7 @@ export function LoginForm() {
   const t = useTranslations("Account");
   const getErrorMessage = useAccountErrorMessage();
   const locale = useLocale();
+  const searchParams = useSearchParams();
   const router = useRouter();
   const { login } = useAccountSession();
   const [email, setEmail] = useState("");
@@ -31,6 +33,7 @@ export function LoginForm() {
   const [fieldErrors, setFieldErrors] = useState<{ email?: string; password?: string }>({});
   const [submitting, setSubmitting] = useState(false);
   const { redirecting, markRedirecting } = useGoogleRedirect();
+  const logoutAllReason = searchParams.get("reason") === "logout-all";
 
   const handleGoogle = async () => {
     try {
@@ -80,6 +83,15 @@ export function LoginForm() {
 
   return (
     <div className="space-y-5">
+      {logoutAllReason ? (
+        <AccountFeedback
+          state={{
+            kind: "success",
+            title: t("login.logoutAllTitle"),
+            body: t("login.logoutAllBody"),
+          }}
+        />
+      ) : null}
       {formError ? <AccountFeedback state={{ kind: "error", message: formError }} /> : null}
 
       <AuthMethodPanel

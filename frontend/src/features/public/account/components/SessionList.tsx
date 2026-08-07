@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { AlertCircle, CheckCircle, Loader2, LogOut, RefreshCw } from "lucide-react";
-import { Link } from "@/navigation";
+import { Link, useRouter } from "@/navigation";
 import { useAccountSession } from "@/features/public/account/AccountSessionProvider";
 import { toAccountApiError } from "@/features/public/account/api";
 import { useAccountErrorMessage } from "@/features/public/account/hooks";
@@ -13,6 +13,7 @@ import {
 } from "@/features/public/account/queries";
 import type { AccountSession } from "@/features/public/account/types";
 import { SessionCard } from "./SessionCard";
+import { buildAccountHref } from "../accountNavigation";
 
 const primaryActionClass =
   "inline-flex min-h-11 items-center justify-center gap-2 bg-site-action px-5 py-2.5 text-sm font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-60";
@@ -22,6 +23,7 @@ const secondaryActionClass =
 export function SessionList() {
   const t = useTranslations("Account");
   const locale = useLocale();
+  const router = useRouter();
   const getErrorMessage = useAccountErrorMessage();
   const {
     status,
@@ -59,6 +61,7 @@ export function SessionList() {
     setLoggingOutAll(true);
     try {
       await logoutAll();
+      router.replace("/account/login?reason=logout-all");
     } catch (err) {
       const apiError = toAccountApiError(err);
       setFormError(getErrorMessage(apiError));
@@ -158,6 +161,10 @@ export function SessionList() {
           <span>{formError}</span>
         </div>
       )}
+
+      <Link href={buildAccountHref("security")} className={secondaryActionClass}>
+        {t("account.securitySection")}
+      </Link>
 
       {revoked && (
         <div role="status" aria-live="polite" className="flex items-start gap-3 border border-site-border bg-site-surface p-4 text-sm text-site-foreground">
