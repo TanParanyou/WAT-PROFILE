@@ -1,9 +1,21 @@
 package handlers
 
 import (
+	"bytes"
+	"context"
+	"crypto/sha256"
+	"fmt"
+	"io"
+	"os"
+	"path/filepath"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/google/uuid"
+	"github.com/watloungporsai/wat-profile-backend/internal/accountauth"
+	"github.com/watloungporsai/wat-profile-backend/internal/config"
 	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/middleware"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
@@ -14,12 +26,212 @@ import (
 
 type DonationHandler struct {
 	donationService *services.DonationService
+	store           privateDonationStore
+	emails          *services.DonationEmailService
+	documents       *services.DonationDocumentService
 }
 
-func NewDonationHandler(db *gorm.DB) *DonationHandler {
-	return &DonationHandler{
-		donationService: services.NewDonationService(db),
+type privateDonationStore interface {
+	UploadPrivate(context.Context, io.Reader, string, string) error
+	OpenPrivate(context.Context, string) (io.ReadCloser, error)
+	DeleteFile(context.Context, string) error
+}
+
+func NewDonationHandler(db *gorm.DB, deps ...interface{}) *DonationHandler {
+	var store privateDonationStore
+	var sender accountauth.EmailSender
+	var outbox *services.OperationOutboxService
+	for _, dep := range deps {
+		switch value := dep.(type) {
+		case privateDonationStore:
+			store = value
+		case accountauth.EmailSender:
+			sender = value
+		case *services.OperationOutboxService:
+			outbox = value
+		}
 	}
+	if outbox == nil && db != nil {
+		outbox = services.NewOperationOutboxService(db)
+	}
+	// If email delivery is configured, reuse the existing Resend adapter. A
+	// missing delivery configuration keeps local development usable; the record
+	// is still accepted and can be retried after configuration is added.
+	if sender == nil && os.Getenv("AUTH_EMAIL_DELIVERY_MODE") == "resend" {
+		cfg := config.AccountAuthConfig{EmailMode: "resend", ResendAPIKey: os.Getenv("RESEND_API_KEY"), EmailFrom: os.Getenv("ACCOUNT_EMAIL_FROM")}
+		if configured, err := services.NewAccountEmailSender(cfg); err == nil {
+			sender = configured
+		}
+	}
+	if sender == nil && os.Getenv("ENV") != "production" {
+		sender, _ = services.NewAccountEmailSender(config.AccountAuthConfig{EmailMode: "capture", Environment: "development"})
+	}
+	return &DonationHandler{donationService: services.NewDonationServiceWithOutbox(db, outbox), store: store, emails: services.NewDonationEmailService(sender), documents: services.NewDonationDocumentService()}
+}
+
+// SubmitSelfReported accepts a public multipart report and keeps its proof in
+// private storage. The proof is deleted if the database transaction fails.
+func (h *DonationHandler) SubmitSelfReported(c *fiber.Ctx) error {
+	if h.store == nil {
+		return utils.ErrorResponse(c, fiber.StatusServiceUnavailable, "Private donation storage is not configured")
+	}
+	amount, err := strconv.ParseFloat(strings.TrimSpace(c.FormValue("amount")), 64)
+	if err != nil || amount <= 0 {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "A positive amount is required")
+	}
+	method := strings.ToLower(strings.TrimSpace(c.FormValue("donation_method")))
+	if method != "bank_transfer" && method != "paypal" {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Unsupported donation method")
+	}
+	email := strings.TrimSpace(c.FormValue("donor_email"))
+	if email == "" || !strings.Contains(email, "@") {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "A valid email is required")
+	}
+	proofHeader, err := c.FormFile("proof")
+	if err != nil || proofHeader == nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Donation proof is required")
+	}
+	if proofHeader.Size <= 0 || proofHeader.Size > 10*1024*1024 {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Proof must be smaller than 10 MB")
+	}
+	proofFile, err := proofHeader.Open()
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Unable to read proof")
+	}
+	defer proofFile.Close()
+	data, err := io.ReadAll(io.LimitReader(proofFile, 10*1024*1024+1))
+	if err != nil || int64(len(data)) > 10*1024*1024 {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Unable to read proof")
+	}
+	mimeType := proofHeader.Header.Get("Content-Type")
+	if mimeType == "" {
+		mimeType = "application/octet-stream"
+	}
+	allowedProofTypes := map[string]bool{"application/pdf": true, "image/jpeg": true, "image/png": true, "image/webp": true}
+	if !allowedProofTypes[mimeType] {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Proof must be a PDF or image")
+	}
+	key := "private/donations/" + uuid.NewString() + "/" + filepath.Base(proofHeader.Filename)
+	if err := h.store.UploadPrivate(c.UserContext(), bytes.NewReader(data), key, mimeType); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadGateway, "Unable to store proof")
+	}
+	sum := sha256.Sum256(data)
+	proof := &models.DonationProof{StorageKey: key, OriginalFilename: filepath.Base(proofHeader.Filename), MimeType: mimeType, Size: int64(len(data)), Checksum: fmt.Sprintf("%x", sum[:])}
+	donation := models.Donation{DonorType: "guest", DonorName: strings.TrimSpace(c.FormValue("donor_name")), DonorEmail: email, DonorPhone: strings.TrimSpace(c.FormValue("donor_phone")), Amount: amount, Currency: strings.ToUpper(strings.TrimSpace(c.FormValue("currency"))), DonationDate: timeFromForm(c.FormValue("donation_date")), DonationMethod: method, DonorAddress: strings.TrimSpace(c.FormValue("donor_address")), CommunicationLocale: c.FormValue("locale")}
+	if donation.Currency == "" {
+		donation.Currency = "EUR"
+	}
+	created, err := h.donationService.CreateSelfReported(services.SelfReportedDonationInput{Donation: donation, Proof: proof})
+	if err != nil {
+		_ = h.store.DeleteFile(c.UserContext(), key)
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "data": created})
+}
+
+func timeFromForm(value string) time.Time {
+	if parsed, err := time.Parse("2006-01-02", value); err == nil {
+		return parsed
+	}
+	return time.Now()
+}
+
+func (h *DonationHandler) CreateStaffDonation(c *fiber.Ctx) error {
+	var donation models.Donation
+	if err := c.BodyParser(&donation); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+	actor, err := middleware.GetCurrentUserID(c)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusUnauthorized, "Admin identity is required")
+	}
+	if err := h.donationService.CreateStaffRecorded(&donation, actor); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "data": donation})
+}
+
+func (h *DonationHandler) ConfirmDonation(c *fiber.Ctx) error {
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+	actor, err := middleware.GetCurrentUserID(c)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusUnauthorized, "Admin identity is required")
+	}
+	donation, err := h.donationService.Confirm(id, actor)
+	if err != nil {
+		if strings.Contains(err.Error(), "not pending") {
+			return utils.ErrorResponse(c, fiber.StatusConflict, err.Error())
+		}
+		return utils.ErrorResponse(c, fiber.StatusNotFound, "Donation not found")
+	}
+	return utils.SuccessResponse(c, donation)
+}
+
+func (h *DonationHandler) GetDonationProof(c *fiber.Ctx) error {
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+	var proof models.DonationProof
+	if err := h.donationService.GetProof(id, &proof); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusNotFound, "Proof not found")
+	}
+	if h.store == nil {
+		return utils.ErrorResponse(c, fiber.StatusServiceUnavailable, "Private donation storage is not configured")
+	}
+	body, err := h.store.OpenPrivate(c.UserContext(), proof.StorageKey)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusNotFound, "Proof not found")
+	}
+	defer body.Close()
+	c.Set(fiber.HeaderContentType, proof.MimeType)
+	c.Set(fiber.HeaderContentDisposition, `attachment; filename="`+proof.OriginalFilename+`"`)
+	return c.SendStream(body)
+}
+
+func (h *DonationHandler) SendDonationReceipt(c *fiber.Ctx) error {
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+	actor, err := middleware.GetCurrentUserID(c)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusUnauthorized, "Admin identity is required")
+	}
+	donation, err := h.donationService.GetByID(id)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusNotFound, "Donation not found")
+	}
+	if donation.Status != "confirmed" {
+		return utils.ErrorResponse(c, fiber.StatusConflict, "Donation must be confirmed before receipt dispatch")
+	}
+	if donation.ReceiptDispatchedAt != nil {
+		return utils.SuccessResponse(c, fiber.Map{"donation": donation, "already_dispatched": true})
+	}
+	key := donation.ReceiptObjectKey
+	checksum := donation.ReceiptChecksum
+	if key == "" {
+		if h.store == nil {
+			return utils.ErrorResponse(c, fiber.StatusServiceUnavailable, "Private donation storage is not configured")
+		}
+		pdf, renderedChecksum, renderErr := h.documents.RenderReceipt(donation)
+		if renderErr != nil {
+			return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Unable to render receipt")
+		}
+		checksum = renderedChecksum
+		key = "private/donations/receipts/" + donation.ReceiptNumber + ".pdf"
+		if uploadErr := h.store.UploadPrivate(c.UserContext(), bytes.NewReader(pdf), key, "application/pdf"); uploadErr != nil {
+			return utils.ErrorResponse(c, fiber.StatusBadGateway, "Unable to store receipt")
+		}
+	}
+	updated, alreadyQueued, err := h.donationService.QueueReceiptDispatch(id, actor, key, checksum)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Unable to queue receipt dispatch")
+	}
+	return utils.SuccessResponse(c, fiber.Map{"donation": updated, "queued": !alreadyQueued})
 }
 
 // GetDonationCategories - Public: List active donation categories
@@ -58,13 +270,15 @@ func (h *DonationHandler) GetDonations(c *fiber.Ctx) error {
 		DefaultSort:  "donation_date",
 		DefaultOrder: "desc",
 		AllowedSort: map[string]string{
-			"receipt_number": "receipt_number",
-			"donor_name":     "donor_name",
-			"amount":         "amount",
-			"donation_date":  "donation_date",
-			"payment_method": "payment_method",
-			"status":         "status",
-			"created_at":     "created_at",
+			"id":              "id",
+			"receipt_number":  "receipt_number",
+			"donor_name":      "donor_name",
+			"amount":          "amount",
+			"donation_date":   "donation_date",
+			"payment_method":  "payment_method",
+			"donation_method": "donation_method",
+			"status":          "status",
+			"created_at":      "created_at",
 		},
 	})
 	if err != nil {
@@ -80,6 +294,9 @@ func (h *DonationHandler) GetDonations(c *fiber.Ctx) error {
 		}
 	}
 	methods := listquery.ExtractMulti(c, "method")
+	if len(methods) == 0 {
+		methods = listquery.ExtractMulti(c, "channel")
+	}
 	currencies := listquery.ExtractMulti(c, "currency")
 
 	options := services.DonationListOptions{
@@ -113,8 +330,10 @@ func (h *DonationHandler) GetAdminDonationCategories(c *fiber.Ctx) error {
 		DefaultSort:  "display_order",
 		DefaultOrder: "asc",
 		AllowedSort: map[string]string{
+			"id":            "id",
 			"display_order": "display_order",
 			"name":          "name",
+			"is_active":     "is_active",
 			"created_at":    "created_at",
 		},
 	})

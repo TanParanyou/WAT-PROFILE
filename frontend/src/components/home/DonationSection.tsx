@@ -10,6 +10,7 @@ import { PublicImage } from "@/components/public/media/PublicImage";
 import { QueryErrorState } from "@/components/public/states/QueryErrorState";
 import { EmptyState } from "@/components/public/states/EmptyState";
 import { STATIC_ASSETS } from "@/constants/assets";
+import { DonationForm } from "@/features/public/donations/DonationForm";
 
 const donationFallbackImage = STATIC_ASSETS.DONATION.FALLBACK;
 
@@ -52,7 +53,8 @@ export default function DonationSection() {
         ) : !hasPaymentData ? (
           <div className="mx-auto max-w-4xl"><EmptyState title={t("emptyTitle")} description={t("emptyDescription")} /></div>
         ) : (
-          <div className={`grid grid-cols-1 border-y border-site-border ${hasQr && hasBankTransfer ? "md:grid-cols-2" : "md:grid-cols-1"}`}>
+          <>
+            <div className={`grid grid-cols-1 border-y border-site-border ${hasQr && hasBankTransfer ? "md:grid-cols-2" : "md:grid-cols-1"}`}>
             {hasQr && bank?.qr_image_url ? (
               <motion.div initial={{ opacity: 0, x: -20 }} whileInView={{ opacity: 1, x: 0 }} transition={{ duration: 0.45, delay: 0.1 }} viewport={{ once: true }} className="flex flex-col items-center bg-site-canvas p-8 text-center md:border-r md:border-site-border">
                 <div className="mb-6 text-site-accent"><QrCode size={28} /></div>
@@ -81,7 +83,9 @@ export default function DonationSection() {
                 </div>
               </motion.div>
             ) : null}
-          </div>
+            </div>
+            <DonationForm />
+          </>
         )}
       </div>
 

@@ -28,7 +28,7 @@ import { useQuery } from "@tanstack/react-query";
 interface DonationFilters extends AdminFilterRecord {
   status: string[];
   category: string[];
-  channel: string[];
+  method: string[];
   from?: string;
   to?: string;
 }
@@ -43,7 +43,7 @@ export default function DonationsPage() {
     schema: {
       defaultSort: "created_at",
       defaultOrder: "desc",
-      multi: ["status", "category", "channel"],
+      multi: ["status", "category", "method"],
       single: ["from", "to"],
       allowedSorts: ["id", "receipt_number", "donor_name", "amount", "donation_method", "donation_date", "status", "created_at"],
     },
@@ -68,8 +68,8 @@ export default function DonationsPage() {
       label: "สถานะ",
       options: [
         { value: "pending", label: "Pending" },
-        { value: "verified", label: "Verified" },
-        { value: "rejected", label: "Rejected" },
+        { value: "confirmed", label: "Confirmed" },
+        { value: "cancelled", label: "Cancelled" },
       ],
     },
     {
@@ -79,7 +79,7 @@ export default function DonationsPage() {
       options: (filterOptions?.categories || []).map((c) => ({ value: String(c.id), label: c.name?.th || String(c.id) })),
     },
     {
-      key: "channel",
+      key: "method",
       kind: "multi",
       label: "ช่องทางการบริจาค",
       options: (filterOptions?.payment_methods || []).map((ch: string) => ({ value: ch, label: ch })),
@@ -94,8 +94,8 @@ export default function DonationsPage() {
     const cName = filterOptions?.categories?.find((c) => String(c.id) === cId)?.name?.th || cId;
     activeChips.push({ key: "category", value: cId, label: `หมวดหมู่: ${cName}` });
   }
-  for (const ch of listState.params.filters.channel || []) {
-    activeChips.push({ key: "channel", value: ch, label: `ช่องทาง: ${ch}` });
+  for (const ch of listState.params.filters.method || []) {
+    activeChips.push({ key: "method", value: ch, label: `ช่องทาง: ${ch}` });
   }
   if (listState.params.filters.from) {
     activeChips.push({ key: "from", value: listState.params.filters.from, label: `ตั้งแต่วันที่: ${listState.params.filters.from}` });
@@ -141,6 +141,20 @@ export default function DonationsPage() {
         }
       },
     });
+  };
+
+  const handleConfirm = async (id: number) => {
+    await confirm({ title: "ยืนยันเงินบริจาค", message: "ตรวจสอบหลักฐานแล้วและยืนยันรายการนี้หรือไม่", onConfirm: async () => { await donationAdminService.confirm(id); toast.success(t("common.success")); await listQuery.refetch(); } });
+  };
+
+  const handleReceipt = async (id: number) => {
+    await confirm({ title: "ส่งใบเสร็จ", message: "ระบบจะสร้าง PDF ถาวรและเข้าคิวส่งไปยังอีเมลผู้บริจาค ยืนยันหรือไม่", onConfirm: async () => { await donationAdminService.sendReceipt(id); toast.success("เข้าคิวส่งใบเสร็จแล้ว"); await listQuery.refetch(); } });
+  };
+
+  const handleProof = async (id: number) => {
+    const blob = await donationAdminService.getProof(id);
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a"); anchor.href = url; anchor.download = `donation-${id}-proof`; anchor.click(); URL.revokeObjectURL(url);
   };
 
   const handleExportCsv = () => {
@@ -228,6 +242,9 @@ export default function DonationsPage() {
       header: t("columns.actions"),
       cell: (_, row) => (
         <div className="flex gap-1.5">
+          {row.source === "self_reported" && <PermissionGuard resource="donations" action="read"><button type="button" onClick={() => void handleProof(row.id)} className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted" title="ดูหลักฐาน"><Icons.Download size={16} /></button></PermissionGuard>}
+          {row.status === "pending" && <PermissionGuard resource="donations" action="update"><button type="button" onClick={() => void handleConfirm(row.id)} className="p-1.5 rounded hover:bg-admin-success-surface text-admin-success" title="ยืนยัน"><Icons.Save size={16} /></button></PermissionGuard>}
+          {row.status === "confirmed" && !row.receipt_dispatched_at && <PermissionGuard resource="donations" action="update"><button type="button" onClick={() => void handleReceipt(row.id)} className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted" title="ส่งใบเสร็จ"><Icons.FileText size={16} /></button></PermissionGuard>}
           <PermissionGuard resource="donations" action="delete">
             <button
               type="button"
@@ -296,8 +313,8 @@ export default function DonationsPage() {
           <AdminMultiSelectFilter
             label="ช่องทางการบริจาค"
             options={filterDefinitions[2].options || []}
-            values={listState.params.filters.channel || []}
-            onChange={(val) => listState.actions.setFilter("channel", val)}
+            values={listState.params.filters.method || []}
+            onChange={(val) => listState.actions.setFilter("method", val)}
           />
           <AdminDateRangeFilter
             label="ช่วงวันที่บริจาค"

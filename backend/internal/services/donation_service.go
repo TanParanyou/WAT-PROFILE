@@ -1,21 +1,211 @@
 package services
 
 import (
+	"errors"
 	"fmt"
+	"strconv"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
 	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type DonationService struct {
-	db *gorm.DB
+	db     *gorm.DB
+	now    func() time.Time
+	outbox *OperationOutboxService
 }
 
-func NewDonationService(db *gorm.DB) *DonationService {
-	return &DonationService{db: db}
+func NewDonationService(db *gorm.DB, clocks ...func() time.Time) *DonationService {
+	now := time.Now
+	if len(clocks) > 0 && clocks[0] != nil {
+		now = clocks[0]
+	}
+	return &DonationService{db: db, now: now}
+}
+
+func NewDonationServiceWithOutbox(db *gorm.DB, outbox *OperationOutboxService, clocks ...func() time.Time) *DonationService {
+	service := NewDonationService(db, clocks...)
+	service.outbox = outbox
+	return service
+}
+
+type SelfReportedDonationInput struct {
+	Donation models.Donation
+	Proof    *models.DonationProof
+}
+
+// CreateSelfReported creates a pending proof-backed donation. Bank transfers
+// and PayPal reports cannot enter the workflow without one private proof.
+func (s *DonationService) CreateSelfReported(input SelfReportedDonationInput) (*models.Donation, error) {
+	method := strings.ToLower(strings.TrimSpace(input.Donation.DonationMethod))
+	if method != "bank_transfer" && method != "paypal" {
+		return nil, errors.New("self-reported donations require bank_transfer or paypal")
+	}
+	if input.Proof == nil || input.Proof.StorageKey == "" {
+		return nil, errors.New("donation proof is required")
+	}
+	donation := input.Donation
+	donation.Source = "self_reported"
+	donation.Status = "pending"
+	if donation.CommunicationLocale == "" {
+		donation.CommunicationLocale = "th"
+	}
+	if err := s.db.Transaction(func(tx *gorm.DB) error {
+		donation.ReceiptNumber = generateReceiptNumberAt(tx, s.now())
+		if err := tx.Create(&donation).Error; err != nil {
+			return err
+		}
+		input.Proof.DonationID = donation.ID
+		if err := tx.Create(input.Proof).Error; err != nil {
+			return err
+		}
+		if s.outbox != nil {
+			if _, err := s.outbox.EnqueueTx(tx, OutboxJobInput{
+				JobKey:        "donation:ack:" + strconv.Itoa(donation.ID),
+				Kind:          "donation.acknowledgement",
+				AggregateType: "donation",
+				AggregateID:   strconv.Itoa(donation.ID),
+				Payload:       models.JSONMap{"donation_id": donation.ID},
+			}); err != nil {
+				return err
+			}
+		}
+		return tx.Preload("Category").Preload("Member").First(&donation, donation.ID).Error
+	}); err != nil {
+		return nil, err
+	}
+	return &donation, nil
+}
+
+// CreateStaffRecorded creates a donation entered by staff. Cash entries do
+// not require proof and are immediately confirmed by the recording operator.
+func (s *DonationService) CreateStaffRecorded(donation *models.Donation, actorID uuid.UUID) error {
+	donation.Source = "staff_recorded"
+	donation.Status = "confirmed"
+	donation.ConfirmedByID = &actorID
+	now := s.now()
+	donation.ConfirmedAt = &now
+	if donation.CommunicationLocale == "" {
+		donation.CommunicationLocale = "th"
+	}
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		donation.ReceiptNumber = generateReceiptNumberAt(tx, s.now())
+		if err := tx.Create(donation).Error; err != nil {
+			return err
+		}
+		return tx.Preload("Category").Preload("Member").First(donation, donation.ID).Error
+	})
+}
+
+// Confirm atomically moves a pending donation to confirmed.
+func (s *DonationService) Confirm(id int, actorID uuid.UUID) (*models.Donation, error) {
+	var donation models.Donation
+	err := s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&donation, id).Error; err != nil {
+			return err
+		}
+		if donation.Status != "pending" {
+			return fmt.Errorf("donation is not pending")
+		}
+		now := s.now()
+		if err := tx.Model(&donation).Updates(map[string]interface{}{
+			"status": "confirmed", "confirmed_by_id": actorID, "confirmed_at": now,
+		}).Error; err != nil {
+			return err
+		}
+		return tx.Preload("Category").Preload("Member").First(&donation, donation.ID).Error
+	})
+	if err != nil {
+		return nil, err
+	}
+	return &donation, nil
+}
+
+// MarkReceiptDispatched is idempotent: a retry returns the already-dispatched
+// record without rendering or sending a second receipt.
+func (s *DonationService) MarkReceiptDispatched(id int, actorID uuid.UUID, objectKey, checksum string) (*models.Donation, bool, error) {
+	var donation models.Donation
+	wasAlready := false
+	err := s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&donation, id).Error; err != nil {
+			return err
+		}
+		if donation.Status != "confirmed" {
+			return fmt.Errorf("donation must be confirmed before receipt dispatch")
+		}
+		if donation.ReceiptDispatchedAt != nil {
+			wasAlready = true
+			return nil
+		}
+		now := s.now()
+		if err := tx.Model(&donation).Updates(map[string]interface{}{
+			"receipt_object_key": objectKey, "receipt_checksum": checksum,
+			"receipt_dispatched_by_id": actorID, "receipt_dispatched_at": now,
+		}).Error; err != nil {
+			return err
+		}
+		return tx.First(&donation, id).Error
+	})
+	return &donation, wasAlready, err
+}
+
+// QueueReceiptDispatch persists the immutable receipt object identity and
+// queues the email before returning to the admin request. The unique job key
+// makes repeated button clicks safe and keeps the email retryable.
+func (s *DonationService) QueueReceiptDispatch(id int, actorID uuid.UUID, objectKey, checksum string) (*models.Donation, bool, error) {
+	var donation models.Donation
+	queuedAlready := false
+	err := s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&donation, id).Error; err != nil {
+			return err
+		}
+		if donation.Status != "confirmed" {
+			return fmt.Errorf("donation must be confirmed before receipt dispatch")
+		}
+		if donation.ReceiptDispatchedAt != nil {
+			queuedAlready = true
+			return nil
+		}
+		if donation.ReceiptObjectKey != "" {
+			objectKey = donation.ReceiptObjectKey
+			checksum = donation.ReceiptChecksum
+		}
+		if objectKey == "" {
+			return errors.New("receipt object key is required")
+		}
+		updates := map[string]interface{}{"receipt_object_key": objectKey, "receipt_checksum": checksum}
+		if err := tx.Model(&donation).Updates(updates).Error; err != nil {
+			return err
+		}
+		if s.outbox == nil {
+			return errors.New("outbox is not configured")
+		}
+		_, err := s.outbox.EnqueueTx(tx, OutboxJobInput{
+			JobKey:        "donation:receipt:" + strconv.Itoa(id),
+			Kind:          "donation.receipt",
+			AggregateType: "donation",
+			AggregateID:   strconv.Itoa(id),
+			Payload: models.JSONMap{
+				"donation_id": id,
+				"actor_id":    actorID.String(),
+				"object_key":  objectKey,
+				"checksum":    checksum,
+			},
+		})
+		return err
+	})
+	if err != nil {
+		return nil, queuedAlready, err
+	}
+	if err := s.db.Preload("Category").Preload("Member").First(&donation, id).Error; err != nil {
+		return nil, queuedAlready, err
+	}
+	return &donation, queuedAlready, nil
 }
 
 // ListCategories returns all active donation categories
@@ -35,7 +225,7 @@ func (s *DonationService) CreateDonation(donation *models.Donation, userID *uuid
 
 	err := s.db.Transaction(func(tx *gorm.DB) error {
 		// สร้าง receipt number ภายใน transaction เพื่อป้องกัน race condition
-		donation.ReceiptNumber = generateReceiptNumber(tx)
+		donation.ReceiptNumber = generateReceiptNumberAt(tx, s.now())
 
 		if err := tx.Create(donation).Error; err != nil {
 			return err
@@ -68,18 +258,22 @@ type DonationFilterOptions struct {
 }
 
 var donationSortColumns = map[string]string{
-	"receipt_number": "donations.receipt_number",
-	"donor_name":     "donations.donor_name",
-	"amount":         "donations.amount",
-	"donation_date":  "donations.donation_date",
-	"payment_method": "donations.payment_method",
-	"status":         "donations.status",
-	"created_at":     "donations.created_at",
+	"id":              "donations.id",
+	"receipt_number":  "donations.receipt_number",
+	"donor_name":      "donations.donor_name",
+	"amount":          "donations.amount",
+	"donation_date":   "donations.donation_date",
+	"payment_method":  "donations.donation_method",
+	"donation_method": "donations.donation_method",
+	"status":          "donations.status",
+	"created_at":      "donations.created_at",
 }
 
 var donationCategorySortColumns = map[string]string{
+	"id":            "donation_categories.id",
 	"display_order": "donation_categories.display_order",
 	"name":          "donation_categories.name->>'th'",
+	"is_active":     "donation_categories.is_active",
 	"created_at":    "donation_categories.created_at",
 }
 
@@ -107,7 +301,7 @@ func (s *DonationService) ListDonationsOptions(options DonationListOptions) ([]m
 	}
 
 	if len(options.Methods) > 0 {
-		query = query.Where("donations.payment_method IN ?", options.Methods)
+		query = query.Where("donations.donation_method IN ?", options.Methods)
 	}
 
 	if len(options.Currencies) > 0 {
@@ -149,8 +343,8 @@ func (s *DonationService) ListDonationsOptions(options DonationListOptions) ([]m
 func (s *DonationService) GetFilterOptions() (*DonationFilterOptions, error) {
 	var methods []string
 	if err := s.db.Model(&models.Donation{}).
-		Where("payment_method IS NOT NULL AND payment_method != ''").
-		Distinct().Pluck("payment_method", &methods).Error; err != nil {
+		Where("donation_method IS NOT NULL AND donation_method != ''").
+		Distinct().Pluck("donation_method", &methods).Error; err != nil {
 		return nil, err
 	}
 
@@ -265,6 +459,10 @@ func (s *DonationService) GetByID(id int) (*models.Donation, error) {
 	return &donation, nil
 }
 
+func (s *DonationService) GetProof(donationID int, proof *models.DonationProof) error {
+	return s.db.Where("donation_id = ?", donationID).First(proof).Error
+}
+
 // Update saves changes to a donation
 func (s *DonationService) Update(donation *models.Donation) error {
 	return s.db.Save(donation).Error
@@ -312,7 +510,10 @@ func (s *DonationService) BulkDeleteCategories(ids []int) error {
 
 // generateReceiptNumber creates a unique receipt number (ใช้ tx เพื่อให้อยู่ใน transaction เดียวกัน)
 func generateReceiptNumber(tx *gorm.DB) string {
-	now := time.Now()
+	return generateReceiptNumberAt(tx, time.Now())
+}
+
+func generateReceiptNumberAt(tx *gorm.DB, now time.Time) string {
 	var count int64
 	tx.Model(&models.Donation{}).
 		Where("EXTRACT(YEAR FROM created_at) = ?", now.Year()).
