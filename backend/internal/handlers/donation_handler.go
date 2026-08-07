@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"fmt"
 	"io"
+	"net/http"
 	"os"
 	"path/filepath"
 	"strconv"
@@ -16,6 +17,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/watloungporsai/wat-profile-backend/internal/accountauth"
 	"github.com/watloungporsai/wat-profile-backend/internal/config"
+	donationvalidation "github.com/watloungporsai/wat-profile-backend/internal/donations"
 	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/middleware"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
@@ -75,17 +77,17 @@ func (h *DonationHandler) SubmitSelfReported(c *fiber.Ctx) error {
 	if h.store == nil {
 		return utils.ErrorResponse(c, fiber.StatusServiceUnavailable, "Private donation storage is not configured")
 	}
-	amount, err := strconv.ParseFloat(strings.TrimSpace(c.FormValue("amount")), 64)
-	if err != nil || amount <= 0 {
-		return utils.ErrorResponse(c, fiber.StatusBadRequest, "A positive amount is required")
-	}
+	amountValue := strings.TrimSpace(c.FormValue("amount"))
 	method := strings.ToLower(strings.TrimSpace(c.FormValue("donation_method")))
-	if method != "bank_transfer" && method != "paypal" {
-		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Unsupported donation method")
-	}
 	email := strings.TrimSpace(c.FormValue("donor_email"))
-	if email == "" || !strings.Contains(email, "@") {
-		return utils.ErrorResponse(c, fiber.StatusBadRequest, "A valid email is required")
+	donationDate := strings.TrimSpace(c.FormValue("donation_date"))
+	locale := strings.TrimSpace(c.FormValue("locale"))
+	if err := donationvalidation.ValidatePublicInput(donationvalidation.PublicInput{Amount: amountValue, Currency: c.FormValue("currency"), DonationDate: donationDate, DonationMethod: method, DonorName: c.FormValue("donor_name"), DonorEmail: email, Locale: locale, HasProof: true}); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+	amount, err := strconv.ParseFloat(amountValue, 64)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid amount")
 	}
 	proofHeader, err := c.FormFile("proof")
 	if err != nil || proofHeader == nil {
@@ -103,9 +105,9 @@ func (h *DonationHandler) SubmitSelfReported(c *fiber.Ctx) error {
 	if err != nil || int64(len(data)) > 10*1024*1024 {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Unable to read proof")
 	}
-	mimeType := proofHeader.Header.Get("Content-Type")
-	if mimeType == "" {
-		mimeType = "application/octet-stream"
+	mimeType := http.DetectContentType(data)
+	if len(data) >= 4 && string(data[:4]) == "%PDF" {
+		mimeType = "application/pdf"
 	}
 	allowedProofTypes := map[string]bool{"application/pdf": true, "image/jpeg": true, "image/png": true, "image/webp": true}
 	if !allowedProofTypes[mimeType] {
@@ -117,10 +119,8 @@ func (h *DonationHandler) SubmitSelfReported(c *fiber.Ctx) error {
 	}
 	sum := sha256.Sum256(data)
 	proof := &models.DonationProof{StorageKey: key, OriginalFilename: filepath.Base(proofHeader.Filename), MimeType: mimeType, Size: int64(len(data)), Checksum: fmt.Sprintf("%x", sum[:])}
-	donation := models.Donation{DonorType: "guest", DonorName: strings.TrimSpace(c.FormValue("donor_name")), DonorEmail: email, DonorPhone: strings.TrimSpace(c.FormValue("donor_phone")), Amount: amount, Currency: strings.ToUpper(strings.TrimSpace(c.FormValue("currency"))), DonationDate: timeFromForm(c.FormValue("donation_date")), DonationMethod: method, DonorAddress: strings.TrimSpace(c.FormValue("donor_address")), CommunicationLocale: c.FormValue("locale")}
-	if donation.Currency == "" {
-		donation.Currency = "EUR"
-	}
+	donationDateValue, _ := time.Parse("2006-01-02", donationDate)
+	donation := models.Donation{DonorType: "guest", DonorName: strings.TrimSpace(c.FormValue("donor_name")), DonorEmail: email, DonorPhone: strings.TrimSpace(c.FormValue("donor_phone")), Amount: amount, Currency: "EUR", DonationDate: donationDateValue, DonationMethod: method, DonorAddress: strings.TrimSpace(c.FormValue("donor_address")), CommunicationLocale: locale, ReceiptRequested: c.FormValue("receipt_requested") == "true"}
 	created, err := h.donationService.CreateSelfReported(services.SelfReportedDonationInput{Donation: donation, Proof: proof})
 	if err != nil {
 		_ = h.store.DeleteFile(c.UserContext(), key)
