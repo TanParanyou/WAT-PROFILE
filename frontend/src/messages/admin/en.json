@@ -61,6 +61,7 @@
       "impressum": "Impressum",
       "media": "Media",
       "users": "Users",
+      "accountOperations": "Public accounts",
       "roles": "Roles",
       "registrations": "Registrations",
       "audit_logs": "Audit Logs",
@@ -256,7 +257,12 @@
       "fullName": "Full Name (TH)",
       "phone": "Phone",
       "type": "Type",
-      "joinDate": "Join Date"
+      "joinDate": "Join Date",
+      "emptyTitle": "No temple members yet",
+      "emptyDescription": "This page only shows formal temple-member records with a member code. Email and Google public accounts are not automatically created as temple members.",
+      "viewAccounts": "View public accounts",
+      "loadError": "Unable to load temple members",
+      "retry": "Try again"
     },
     "contacts": {
       "title": "Contact Messages",
@@ -524,6 +530,37 @@
       "title": "Users",
       "create": "Create User",
       "edit": "Edit User"
+    },
+    "accounts": {
+      "title": "Public accounts",
+      "description": "Review account status and security without accessing credentials or impersonating users.",
+      "searchPlaceholder": "Search email or display name",
+      "statusFilter": "Status",
+      "providerFilter": "Provider",
+      "allStatuses": "All statuses",
+      "allProviders": "All providers",
+      "columns": { "account": "Account", "status": "Status", "provider": "Provider", "lastLogin": "Last login", "created": "Created", "actions": "Actions" },
+      "statuses": { "pending_verification": "Pending verification", "active": "Active", "disabled": "Disabled", "closed": "Closed" },
+      "providers": { "password": "Password", "google": "Google" },
+      "verified": "Email verified",
+      "unverified": "Email not verified",
+      "view": "View account",
+      "detail": "Account details",
+      "purgeAfter": "Purge after",
+      "securityEvents": "Security events",
+      "noEvents": "No security events yet",
+      "redactionNotice": "Credentials, tokens, IP addresses, trace IDs, and metadata are not shown.",
+      "closedPolicy": "Closed accounts can only be reopened through the existing email link.",
+      "pendingPolicy": "Unverified accounts cannot be changed from this page.",
+      "reasonsLabel": "Operation reason",
+      "selectReason": "Select a reason",
+      "reasons": { "security_review": "Security review", "policy_violation": "Policy violation", "user_request": "User request", "support_request": "Support request" },
+      "actions": {
+        "disable": { "label": "Disable account", "title": "Disable this account?", "body": "{email} will be unable to sign in immediately and all sessions will be revoked.", "success": "Account disabled and all sessions revoked" },
+        "enable": { "label": "Enable account", "title": "Enable this account?", "body": "{email} will be enabled again, but previous sessions will not be restored.", "success": "Account enabled" },
+        "logoutAll": { "label": "Sign out all sessions", "title": "Sign out all sessions?", "body": "All sessions for {email} will be revoked without changing account status.", "success": "All sessions revoked" }
+      },
+      "errors": { "load": "Unable to load public accounts", "action": "Unable to complete account operation", "forbidden": "You do not have permission to manage public accounts" }
     },
     "profile": {
       "title": "My Profile",

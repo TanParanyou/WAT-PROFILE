@@ -61,6 +61,7 @@
       "impressum": "Impressum",
       "media": "Medien",
       "users": "Benutzer",
+      "accountOperations": "Öffentliche Konten",
       "roles": "Rollen",
       "registrations": "Anmeldungen",
       "audit_logs": "Audit-Logs",
@@ -256,7 +257,12 @@
       "fullName": "Vollständiger Name (TH)",
       "phone": "Telefon",
       "type": "Typ",
-      "joinDate": "Beitrittsdatum"
+      "joinDate": "Beitrittsdatum",
+      "emptyTitle": "Noch keine Tempelmitglieder",
+      "emptyDescription": "Diese Seite zeigt nur formelle Tempelmitgliedschaften mit Mitgliedsnummer. Öffentliche Konten per E-Mail oder Google werden nicht automatisch zu Tempelmitgliedern.",
+      "viewAccounts": "Öffentliche Konten anzeigen",
+      "loadError": "Tempelmitglieder konnten nicht geladen werden",
+      "retry": "Erneut versuchen"
     },
     "contacts": {
       "title": "Kontaktnachrichten",
@@ -524,6 +530,37 @@
       "title": "Benutzer",
       "create": "Benutzer erstellen",
       "edit": "Benutzer bearbeiten"
+    },
+    "accounts": {
+      "title": "Öffentliche Konten",
+      "description": "Kontostatus und Sicherheit prüfen, ohne Zugangsdaten einzusehen oder Benutzer zu übernehmen.",
+      "searchPlaceholder": "E-Mail oder Anzeigename suchen",
+      "statusFilter": "Status",
+      "providerFilter": "Anbieter",
+      "allStatuses": "Alle Status",
+      "allProviders": "Alle Anbieter",
+      "columns": { "account": "Konto", "status": "Status", "provider": "Anbieter", "lastLogin": "Letzte Anmeldung", "created": "Erstellt", "actions": "Aktionen" },
+      "statuses": { "pending_verification": "Bestätigung ausstehend", "active": "Aktiv", "disabled": "Deaktiviert", "closed": "Geschlossen" },
+      "providers": { "password": "Passwort", "google": "Google" },
+      "verified": "E-Mail bestätigt",
+      "unverified": "E-Mail nicht bestätigt",
+      "view": "Konto anzeigen",
+      "detail": "Kontodetails",
+      "purgeAfter": "Endgültige Löschung",
+      "securityEvents": "Sicherheitsereignisse",
+      "noEvents": "Noch keine Sicherheitsereignisse",
+      "redactionNotice": "Zugangsdaten, Token, IP-Adressen, Trace-IDs und Metadaten werden nicht angezeigt.",
+      "closedPolicy": "Geschlossene Konten können nur über den bestehenden E-Mail-Link wieder geöffnet werden.",
+      "pendingPolicy": "Nicht bestätigte Konten können auf dieser Seite nicht geändert werden.",
+      "reasonsLabel": "Grund der Aktion",
+      "selectReason": "Grund auswählen",
+      "reasons": { "security_review": "Sicherheitsprüfung", "policy_violation": "Richtlinienverstoß", "user_request": "Benutzeranfrage", "support_request": "Supportanfrage" },
+      "actions": {
+        "disable": { "label": "Konto deaktivieren", "title": "Dieses Konto deaktivieren?", "body": "{email} kann sich sofort nicht mehr anmelden und alle Sitzungen werden beendet.", "success": "Konto deaktiviert und alle Sitzungen beendet" },
+        "enable": { "label": "Konto aktivieren", "title": "Dieses Konto aktivieren?", "body": "{email} wird wieder aktiviert, frühere Sitzungen werden jedoch nicht wiederhergestellt.", "success": "Konto aktiviert" },
+        "logoutAll": { "label": "Alle Sitzungen abmelden", "title": "Alle Sitzungen abmelden?", "body": "Alle Sitzungen von {email} werden beendet, der Kontostatus bleibt unverändert.", "success": "Alle Sitzungen beendet" }
+      },
+      "errors": { "load": "Öffentliche Konten konnten nicht geladen werden", "action": "Kontoaktion konnte nicht abgeschlossen werden", "forbidden": "Sie haben keine Berechtigung, öffentliche Konten zu verwalten" }
     },
     "profile": {
       "title": "Mein Profil",

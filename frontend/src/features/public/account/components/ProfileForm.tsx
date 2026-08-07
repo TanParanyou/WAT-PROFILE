@@ -52,6 +52,7 @@ export function ProfileForm() {
     accountError,
     retryAccount,
     logout,
+    clearLocalSession,
   } = useAccountSession();
   const { requireRecentAuth } = useAccountReauth();
   const updateProfile = useUpdateAccountProfile();
@@ -65,6 +66,7 @@ export function ProfileForm() {
   const [saving, setSaving] = useState(false);
   const [closing, setClosing] = useState(false);
   const [confirmClose, setConfirmClose] = useState(false);
+  const [closedPurgeAfter, setClosedPurgeAfter] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<AccountTab>(() => requestedTab);
   const [initializedAccountId, setInitializedAccountId] = useState<
     string | null
@@ -114,6 +116,34 @@ export function ProfileForm() {
     isDirty,
     message: t("account.unsavedBody"),
   });
+
+  if (closedPurgeAfter) {
+    return (
+      <div
+        role="status"
+        className="flex items-start gap-2 border border-red-700 bg-red-50 p-3 text-sm text-red-700"
+      >
+        <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
+        <div>
+          <p className="font-semibold">{t("account.closedTitle")}</p>
+          <p className="mt-1">{t("account.closedBody")}</p>
+          <p className="mt-1">
+            {t("account.closedPurgeBody", {
+              date: new Intl.DateTimeFormat(locale, {
+                dateStyle: "long",
+              }).format(new Date(closedPurgeAfter)),
+            })}
+          </p>
+          <Link
+            href="/account/reopen-request"
+            className="mt-3 inline-block font-semibold underline"
+          >
+            {t("account.closedReopenLink")}
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   if (status === "loading" || (status === "authenticated" && accountLoading)) {
     return (
@@ -280,7 +310,8 @@ export function ProfileForm() {
     setClosing(true);
     try {
       await requireRecentAuth({ reason: "close_account" });
-      await closeAccount.mutateAsync();
+      const result = await closeAccount.mutateAsync();
+      setClosedPurgeAfter(result.purge_after);
       setConfirmClose(false);
       setDisplayName("");
       setPreferredLocale(locale as AccountLocale);
@@ -288,6 +319,7 @@ export function ProfileForm() {
       setFormError(null);
       setSaved(false);
       closeAccount.reset();
+      clearLocalSession();
     } catch (err) {
       if (
         err instanceof AccountReauthError &&

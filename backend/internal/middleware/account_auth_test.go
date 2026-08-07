@@ -29,7 +29,7 @@ func accountAuthTestDB(t *testing.T) *gorm.DB {
 	if err != nil {
 		t.Fatalf("failed to open test database: %v", err)
 	}
-	if err := db.AutoMigrate(&models.Role{}, &models.User{}); err != nil {
+	if err := db.AutoMigrate(&models.Role{}, &models.User{}, &models.AuthSession{}); err != nil {
 		t.Fatalf("failed to migrate test database: %v", err)
 	}
 	return db
@@ -57,10 +57,20 @@ func createAccountAuthUser(t *testing.T, db *gorm.DB, status models.AccountStatu
 	return user
 }
 
-func issueAccountAuthToken(t *testing.T, userID uuid.UUID) string {
+func issueAccountAuthToken(t *testing.T, db *gorm.DB, userID uuid.UUID) string {
 	t.Helper()
+	session := &models.AuthSession{
+		UserID:     userID,
+		FamilyID:   uuid.New(),
+		TokenHash:  uuid.NewString(),
+		ExpiresAt:  time.Now().Add(time.Hour),
+		LastUsedAt: time.Now(),
+	}
+	if err := db.Create(session).Error; err != nil {
+		t.Fatalf("failed to create auth session: %v", err)
+	}
 	issuer := accountauth.NewAccessTokenIssuer([]byte(accountAuthTestSecret), accountauth.SystemClock{}, 15*time.Minute)
-	token, err := issuer.Issue(userID, uuid.New(), time.Now())
+	token, err := issuer.Issue(userID, session.ID, time.Now())
 	if err != nil {
 		t.Fatalf("failed to issue public token: %v", err)
 	}
@@ -138,7 +148,7 @@ func TestPublicAccountRequiredAcceptsPublicToken(t *testing.T) {
 	user := createAccountAuthUser(t, db, models.AccountStatusActive, true)
 
 	app := newAccountAuthTestApp(db)
-	resp := performAccountAuthRequest(t, app, issueAccountAuthToken(t, user.ID))
+	resp := performAccountAuthRequest(t, app, issueAccountAuthToken(t, db, user.ID))
 	if resp.StatusCode != fiber.StatusOK {
 		t.Fatalf("expected 200 for valid public token, got %d", resp.StatusCode)
 	}
@@ -149,7 +159,7 @@ func TestPublicAccountRequiredRejectsInactiveUser(t *testing.T) {
 	user := createAccountAuthUser(t, db, models.AccountStatusActive, false)
 
 	app := newAccountAuthTestApp(db)
-	resp := performAccountAuthRequest(t, app, issueAccountAuthToken(t, user.ID))
+	resp := performAccountAuthRequest(t, app, issueAccountAuthToken(t, db, user.ID))
 	if resp.StatusCode != fiber.StatusForbidden {
 		t.Fatalf("expected 403 for inactive user, got %d", resp.StatusCode)
 	}
@@ -169,9 +179,41 @@ func TestPublicAccountRequiredRejectsNonActiveStatus(t *testing.T) {
 		user := createAccountAuthUser(t, db, status, true)
 
 		app := newAccountAuthTestApp(db)
-		resp := performAccountAuthRequest(t, app, issueAccountAuthToken(t, user.ID))
+		resp := performAccountAuthRequest(t, app, issueAccountAuthToken(t, db, user.ID))
 		if resp.StatusCode != fiber.StatusForbidden {
 			t.Fatalf("expected 403 for status %q, got %d", status, resp.StatusCode)
 		}
+	}
+}
+
+func TestPublicAccountRequiredRejectsRevokedSession(t *testing.T) {
+	db := accountAuthTestDB(t)
+	user := createAccountAuthUser(t, db, models.AccountStatusActive, true)
+	session := &models.AuthSession{
+		UserID:     user.ID,
+		FamilyID:   uuid.New(),
+		TokenHash:  uuid.NewString(),
+		ExpiresAt:  time.Now().Add(time.Hour),
+		LastUsedAt: time.Now(),
+	}
+	if err := db.Create(session).Error; err != nil {
+		t.Fatalf("failed to create auth session: %v", err)
+	}
+	issuer := accountauth.NewAccessTokenIssuer([]byte(accountAuthTestSecret), accountauth.SystemClock{}, 15*time.Minute)
+	token, err := issuer.Issue(user.ID, session.ID, time.Now())
+	if err != nil {
+		t.Fatalf("failed to issue public token: %v", err)
+	}
+	if err := db.Model(session).Updates(map[string]interface{}{"revoked_at": time.Now(), "revoked_reason": "logout_all"}).Error; err != nil {
+		t.Fatalf("failed to revoke auth session: %v", err)
+	}
+
+	resp := performAccountAuthRequest(t, newAccountAuthTestApp(db), token)
+	if resp.StatusCode != fiber.StatusUnauthorized {
+		t.Fatalf("expected 401 for revoked session, got %d", resp.StatusCode)
+	}
+	body := decodeAccountAuthBody(t, resp)
+	if body["code"] != string(accountauth.CodeTokenInvalid) {
+		t.Fatalf("expected code %q, got %v", accountauth.CodeTokenInvalid, body["code"])
 	}
 }

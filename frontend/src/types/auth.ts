@@ -74,4 +74,5 @@ export type PermissionResource =
   | "audit_logs"
   | "website"
   | "dashboard"
-  | "privacy_requests";
+  | "privacy_requests"
+  | "account_operations";

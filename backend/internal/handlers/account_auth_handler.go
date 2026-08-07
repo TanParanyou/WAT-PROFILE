@@ -10,6 +10,7 @@ import (
 	"io"
 	"mime/multipart"
 	"net/http"
+	"net/url"
 	"os"
 	"strings"
 	"time"
@@ -692,7 +693,11 @@ func (h *AccountAuthHandler) GoogleCallback(c *fiber.Ctx) error {
 	h.clearGoogleFlowCookie(c)
 	if err != nil {
 		authCode := accountauth.ErrorCode(err)
-		return c.Redirect(h.cfg.FrontendURL + "/en/account/login?error=" + string(authCode))
+		locale := completion.Locale
+		if locale != "th" && locale != "en" && locale != "de" {
+			locale = "en"
+		}
+		return c.Redirect(h.cfg.FrontendURL + "/" + locale + "/account/login?error=" + url.QueryEscape(string(authCode)))
 	}
 
 	if completion.Status == services.GoogleCompletionApprovalSent {

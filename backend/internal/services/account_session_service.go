@@ -79,7 +79,7 @@ func (s *AccountSessionService) LoginPassword(ctx context.Context, in accountaut
 	email := accountauth.NormalizeEmail(in.Email)
 
 	var user models.User
-	err := s.db.WithContext(ctx).Where("email = ?", email).First(&user).Error
+	err := s.db.WithContext(ctx).Where("lower(btrim(email)) = ?", email).First(&user).Error
 	if errors.Is(err, gorm.ErrRecordNotFound) {
 		// Bounded hash comparison so unknown-email and wrong-password paths
 		// have comparable timing and do not disclose account existence.
@@ -119,6 +119,13 @@ func (s *AccountSessionService) LoginPassword(ctx context.Context, in accountaut
 	now := s.clock.Now()
 	var result accountauth.SessionResult
 	err = s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var currentUser models.User
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&currentUser, "id = ?", user.ID).Error; err != nil {
+			return err
+		}
+		if code := s.sessionStatusCode(currentUser); code != "" {
+			return accountauth.NewError(code, "This account is not allowed to sign in.")
+		}
 		created, err := s.createSession(tx, user.ID, uuid.New(), in.Client, now)
 		if err != nil {
 			return err
@@ -150,13 +157,19 @@ func (s *AccountSessionService) Refresh(ctx context.Context, rawRefresh string, 
 	var reusedFamily uuid.UUID
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var session models.AuthSession
-		err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).
-			Where("token_hash = ?", tokenHash).First(&session).Error
+		err := tx.Where("token_hash = ?", tokenHash).First(&session).Error
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return accountauth.NewError(accountauth.CodeTokenInvalid, "The session is invalid or has expired.")
 		}
 		if err != nil {
 			return err
+		}
+		var user models.User
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&user, "id = ?", session.UserID).Error; err != nil {
+			return err
+		}
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&session, "id = ?", session.ID).Error; err != nil {
+			return accountauth.NewError(accountauth.CodeTokenInvalid, "The session is invalid or has expired.")
 		}
 
 		// Reuse of a consumed token revokes the entire token family. The
@@ -173,10 +186,6 @@ func (s *AccountSessionService) Refresh(ctx context.Context, rawRefresh string, 
 			return accountauth.NewError(accountauth.CodeTokenInvalid, "The session is invalid or has expired.")
 		}
 
-		var user models.User
-		if err := tx.Where("id = ?", session.UserID).First(&user).Error; err != nil {
-			return err
-		}
 		if code := s.sessionStatusCode(user); code != "" {
 			return accountauth.NewError(code, "This account is not allowed to sign in.")
 		}
@@ -236,13 +245,15 @@ func (s *AccountSessionService) ReauthenticatePassword(ctx context.Context, user
 			}
 			return err
 		}
-		if now.After(session.ExpiresAt) {
+		var user models.User
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&user, "id = ?", userID).Error; err != nil {
+			return err
+		}
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&session, "id = ? AND user_id = ? AND revoked_at IS NULL", sessionID, userID).Error; err != nil {
 			return accountauth.NewError(accountauth.CodeTokenInvalid, "The session is invalid or has expired.")
 		}
-
-		var user models.User
-		if err := tx.First(&user, "id = ?", userID).Error; err != nil {
-			return err
+		if now.After(session.ExpiresAt) {
+			return accountauth.NewError(accountauth.CodeTokenInvalid, "The session is invalid or has expired.")
 		}
 		if code := s.sessionStatusCode(user); code != "" {
 			return accountauth.NewError(code, "This account is not allowed to sign in.")
@@ -301,6 +312,19 @@ func (s *AccountSessionService) ChangePassword(ctx context.Context, userID, sess
 		if err := tx.Where("id = ? AND user_id = ? AND revoked_at IS NULL", sessionID, userID).First(&session).Error; err != nil {
 			return accountauth.NewError(accountauth.CodeTokenInvalid, "The session is invalid or has expired.")
 		}
+		var user models.User
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&user, "id = ?", userID).Error; err != nil {
+			return err
+		}
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&session, "id = ? AND user_id = ? AND revoked_at IS NULL", sessionID, userID).Error; err != nil {
+			return accountauth.NewError(accountauth.CodeTokenInvalid, "The session is invalid or has expired.")
+		}
+		if now.After(session.ExpiresAt) {
+			return accountauth.NewError(accountauth.CodeTokenInvalid, "The session is invalid or has expired.")
+		}
+		if code := s.sessionStatusCode(user); code != "" {
+			return accountauth.NewError(code, "This account is not allowed to change its password.")
+		}
 		var identity models.AuthIdentity
 		identityErr := tx.Where("user_id = ? AND provider = 'password'", userID).First(&identity).Error
 		if identityErr != nil && !errors.Is(identityErr, gorm.ErrRecordNotFound) {
@@ -317,10 +341,6 @@ func (s *AccountSessionService) ChangePassword(ctx context.Context, userID, sess
 			}
 		} else {
 			identity = models.AuthIdentity{UserID: userID, Provider: "password", ProviderSubject: uuid.NewString(), CredentialHash: &hash}
-			var user models.User
-			if err := tx.First(&user, "id = ?", userID).Error; err != nil {
-				return err
-			}
 			identity.ProviderEmail = user.Email
 			if err := tx.Create(&identity).Error; err != nil {
 				return err
@@ -350,6 +370,10 @@ func (s *AccountSessionService) Logout(ctx context.Context, userID uuid.UUID, ra
 	tokenHash := accountauth.HashOpaqueToken(rawRefresh)
 	now := s.clock.Now()
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var user models.User
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&user, "id = ?", userID).Error; err != nil {
+			return err
+		}
 		var session models.AuthSession
 		if err := tx.Where("token_hash = ?", tokenHash).First(&session).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -371,13 +395,26 @@ func (s *AccountSessionService) Logout(ctx context.Context, userID uuid.UUID, ra
 // LogoutAll revokes every active session of the user.
 func (s *AccountSessionService) LogoutAll(ctx context.Context, userID uuid.UUID) error {
 	now := s.clock.Now()
-	err := s.db.WithContext(ctx).Model(&models.AuthSession{}).
-		Where("user_id = ? AND revoked_at IS NULL", userID).
-		Updates(map[string]any{"revoked_at": now, "revoked_reason": logoutAllReason, "updated_at": now}).Error
+	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var user models.User
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&user, "id = ?", userID).Error; err != nil {
+			return err
+		}
+		return s.LogoutAllTx(tx, userID, now)
+	})
 	if err == nil {
 		s.recordSecurity(ctx, accountauth.SecurityEvent{UserID: userID.String(), EventType: "logout_all", Outcome: "success"})
 	}
 	return err
+}
+
+// LogoutAllTx revokes every active session using the caller's transaction. It
+// lets credential and lifecycle mutations commit account state and session
+// invalidation atomically.
+func (s *AccountSessionService) LogoutAllTx(tx *gorm.DB, userID uuid.UUID, now time.Time) error {
+	return tx.Model(&models.AuthSession{}).
+		Where("user_id = ? AND revoked_at IS NULL", userID).
+		Updates(map[string]any{"revoked_at": now, "revoked_reason": logoutAllReason, "updated_at": now}).Error
 }
 
 // ListSessions returns redacted session summaries for the user. The current
@@ -411,6 +448,10 @@ func (s *AccountSessionService) ListSessions(ctx context.Context, userID uuid.UU
 func (s *AccountSessionService) RevokeSession(ctx context.Context, userID uuid.UUID, sessionID uuid.UUID) error {
 	now := s.clock.Now()
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var user models.User
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&user, "id = ?", userID).Error; err != nil {
+			return err
+		}
 		var session models.AuthSession
 		if err := tx.Where("id = ? AND user_id = ?", sessionID, userID).First(&session).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {

@@ -35,6 +35,7 @@ export interface AccountSessionValue {
   login: (email: string, password: string) => Promise<void>;
   reauthenticate: (password: string) => Promise<void>;
   adoptCurrentSession: () => Promise<void>;
+  clearLocalSession: () => void;
   logout: () => Promise<void>;
   logoutAll: () => Promise<void>;
 }
@@ -117,27 +118,29 @@ export function AccountSessionProvider({ children }: { children: ReactNode }) {
     await queryClient.invalidateQueries({ queryKey: accountKeys.googleLink() });
   }, [queryClient]);
 
+  const clearLocalSession = useCallback(() => {
+    setMemoryAccessToken(null);
+    setStatus("anonymous");
+    queryClient.removeQueries({ queryKey: accountKeys.current() });
+    queryClient.removeQueries({ queryKey: accountKeys.sessions() });
+    queryClient.removeQueries({ queryKey: accountKeys.googleLink() });
+  }, [queryClient]);
+
   const logout = useCallback(async () => {
     try {
       await logoutAccount();
     } finally {
-      setMemoryAccessToken(null);
-      setStatus("anonymous");
-      queryClient.removeQueries({ queryKey: accountKeys.current() });
-      queryClient.removeQueries({ queryKey: accountKeys.sessions() });
+      clearLocalSession();
     }
-  }, [queryClient]);
+  }, [clearLocalSession]);
 
   const logoutAll = useCallback(async () => {
     try {
       await logoutAllAccounts();
     } finally {
-      setMemoryAccessToken(null);
-      setStatus("anonymous");
-      queryClient.removeQueries({ queryKey: accountKeys.current() });
-      queryClient.removeQueries({ queryKey: accountKeys.sessions() });
+      clearLocalSession();
     }
-  }, [queryClient]);
+  }, [clearLocalSession]);
 
   const value = useMemo<AccountSessionValue>(
     () => ({
@@ -149,6 +152,7 @@ export function AccountSessionProvider({ children }: { children: ReactNode }) {
       login,
       reauthenticate,
       adoptCurrentSession,
+      clearLocalSession,
       logout,
       logoutAll,
     }),
@@ -161,6 +165,7 @@ export function AccountSessionProvider({ children }: { children: ReactNode }) {
       login,
       reauthenticate,
       adoptCurrentSession,
+      clearLocalSession,
       logout,
       logoutAll,
     ],

@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"errors"
 	"strings"
 	"time"
 
@@ -62,6 +63,30 @@ func PublicAccountRequired(db *gorm.DB, secret []byte) fiber.Handler {
 				"success": false,
 				"error":   "This account is not allowed to sign in.",
 				"code":    string(accountauth.CodeAccountDisabled),
+			})
+		}
+
+		sessionID, err := uuid.Parse(claims.SessionID)
+		if err != nil {
+			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+				"success": false,
+				"error":   "Invalid or expired access token",
+				"code":    string(accountauth.CodeTokenInvalid),
+			})
+		}
+		var session models.AuthSession
+		if err := db.Where("id = ? AND user_id = ? AND revoked_at IS NULL AND expires_at > ?", sessionID, user.ID, time.Now()).First(&session).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+					"success": false,
+					"error":   "Invalid or expired access token",
+					"code":    string(accountauth.CodeTokenInvalid),
+				})
+			}
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"success": false,
+				"error":   "Authentication service unavailable",
+				"code":    string(accountauth.CodeInternal),
 			})
 		}
 

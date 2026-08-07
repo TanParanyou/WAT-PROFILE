@@ -18,6 +18,7 @@ import {
   ChevronRight,
   X,
   UserCog,
+  UserRoundCheck,
   Shield,
   Activity,
   BookOpen,
@@ -82,6 +83,7 @@ const sidebarGroups: SidebarGroup[] = [
     titleKey: "systemGroup",
     items: [
       { labelKey: "users", href: "/admin/users", icon: UserCog, resource: "users" },
+      { labelKey: "accountOperations", href: "/admin/accounts", icon: UserRoundCheck, resource: "account_operations" },
       { labelKey: "roles", href: "/admin/roles", icon: Shield, resource: "users" },
       { labelKey: "audit_logs", href: "/admin/audit-logs", icon: Activity, resource: "audit_logs" },
       { labelKey: "settings", href: "/admin/settings", icon: Settings, resource: "settings" },

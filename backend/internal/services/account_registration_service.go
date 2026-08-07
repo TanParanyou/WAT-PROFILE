@@ -13,6 +13,7 @@ import (
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 const (
@@ -101,7 +102,7 @@ func (s *AccountRegistrationService) RegisterPassword(ctx context.Context, in Re
 	var pending *pendingVerification
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var existing models.User
-		err := tx.Where("email = ?", email).First(&existing).Error
+		err := tx.Where("lower(btrim(email)) = ?", email).First(&existing).Error
 		switch {
 		case err == nil:
 			if existing.AccountStatus == models.AccountStatusActive || existing.EmailVerified {
@@ -197,7 +198,15 @@ func (s *AccountRegistrationService) VerifyEmail(ctx context.Context, rawToken s
 			return err
 		}
 
-		// Conditional consumption: exactly one concurrent caller wins.
+		var user models.User
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&user, "id = ?", token.UserID).Error; err != nil {
+			return accountauth.NewError(accountauth.CodeTokenInvalid, "The verification link is invalid or has expired.")
+		}
+		if user.AccountStatus != models.AccountStatusPendingVerification || !user.IsActive {
+			return accountauth.NewError(accountauth.CodeTokenInvalid, "The verification link is invalid or has expired.")
+		}
+		// Conditional consumption: exactly one concurrent caller wins. The user
+		// row is locked first so resend/closure cannot deadlock on token rows.
 		res := tx.Model(&models.AuthActionToken{}).
 			Where("id = ? AND consumed_at IS NULL", token.ID).
 			Update("consumed_at", now)
@@ -207,8 +216,7 @@ func (s *AccountRegistrationService) VerifyEmail(ctx context.Context, rawToken s
 		if res.RowsAffected == 0 {
 			return accountauth.NewError(accountauth.CodeTokenInvalid, "The verification link is invalid or has expired.")
 		}
-
-		return tx.Model(&models.User{}).Where("id = ?", token.UserID).Updates(map[string]interface{}{
+		return tx.Model(&user).Updates(map[string]interface{}{
 			"email_verified": true,
 			"account_status": string(models.AccountStatusActive),
 		}).Error
@@ -227,12 +235,15 @@ func (s *AccountRegistrationService) ResendVerification(ctx context.Context, ema
 	var pending *pendingVerification
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var user models.User
-		err := tx.Where("email = ?", email).First(&user).Error
+		err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("lower(btrim(email)) = ?", email).First(&user).Error
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil
 		}
 		if err != nil {
 			return err
+		}
+		if user.AccountStatus != models.AccountStatusPendingVerification || user.EmailVerified || !user.IsActive {
+			return nil
 		}
 
 		if err := s.invalidateVerificationTokens(tx, user.ID); err != nil {

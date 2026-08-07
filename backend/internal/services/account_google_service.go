@@ -431,19 +431,22 @@ func (s *AccountGoogleService) CompleteGoogle(ctx context.Context, code, callbac
 		s.recordGoogleSecurity(ctx, "failure", "", client)
 		return GoogleCompletion{}, accountauth.NewError(accountauth.CodeTokenInvalid, "The sign-in link is invalid or has expired.")
 	}
+	withFlowLocale := func(err error) (GoogleCompletion, error) {
+		return GoogleCompletion{Locale: flow.Locale}, err
+	}
 	if s.clock.Now().After(flow.ExpiresAt) {
 		s.recordGoogleSecurity(ctx, "failure", "", client)
-		return GoogleCompletion{}, accountauth.NewError(accountauth.CodeTokenInvalid, "The sign-in link is invalid or has expired.")
+		return withFlowLocale(accountauth.NewError(accountauth.CodeTokenInvalid, "The sign-in link is invalid or has expired."))
 	}
 
 	identity, err := s.verifier.VerifyCallback(ctx, code, flow.Verifier, flow.Nonce)
 	if err != nil {
 		s.recordGoogleSecurity(ctx, "failure", "", client)
-		return GoogleCompletion{}, accountauth.NewError(accountauth.CodeTokenInvalid, "The sign-in link is invalid or has expired.")
+		return withFlowLocale(accountauth.NewError(accountauth.CodeTokenInvalid, "The sign-in link is invalid or has expired."))
 	}
 	if !identity.EmailVerified {
 		s.recordGoogleSecurity(ctx, "failure", "", client)
-		return GoogleCompletion{}, accountauth.NewError(accountauth.CodeTokenInvalid, "Google could not verify this email address.")
+		return withFlowLocale(accountauth.NewError(accountauth.CodeTokenInvalid, "Google could not verify this email address."))
 	}
 
 	now := s.clock.Now()
@@ -451,10 +454,18 @@ func (s *AccountGoogleService) CompleteGoogle(ctx context.Context, code, callbac
 	// Authenticated link flow: complete the approval handoff instead of the
 	// anonymous sign-in / registration branch.
 	if flow.ReauthUserID != uuid.Nil {
-		return s.completeGoogleReauthentication(ctx, flow, identity, client, now)
+		completion, err := s.completeGoogleReauthentication(ctx, flow, identity, client, now)
+		if err != nil {
+			completion.Locale = flow.Locale
+		}
+		return completion, err
 	}
 	if flow.LinkUserID != uuid.Nil {
-		return s.completeAuthenticatedGoogleLink(ctx, flow, identity, client, now)
+		completion, err := s.completeAuthenticatedGoogleLink(ctx, flow, identity, client, now)
+		if err != nil {
+			completion.Locale = flow.Locale
+		}
+		return completion, err
 	}
 
 	// Already linked identity: sign in.
@@ -463,13 +474,13 @@ func (s *AccountGoogleService) CompleteGoogle(ctx context.Context, code, callbac
 	if err == nil {
 		session, err := s.sessionForUser(ctx, linked.UserID, client, now)
 		if err != nil {
-			return GoogleCompletion{}, err
+			return withFlowLocale(err)
 		}
 		s.recordGoogleSecurity(ctx, "success", linked.UserID.String(), client)
 		return GoogleCompletion{Status: GoogleCompletionSignedIn, Session: session, UserID: linked.UserID, Locale: flow.Locale, ReturnTo: flow.ReturnTo}, nil
 	}
 	if !errors.Is(err, gorm.ErrRecordNotFound) {
-		return GoogleCompletion{}, err
+		return withFlowLocale(err)
 	}
 
 	email := accountauth.NormalizeEmail(identity.Email)
@@ -481,23 +492,23 @@ func (s *AccountGoogleService) CompleteGoogle(ctx context.Context, code, callbac
 		// New account.
 		user, err := s.createGoogleAccount(ctx, identity, email, flow.Locale, client, now)
 		if err != nil {
-			return GoogleCompletion{}, err
+			return withFlowLocale(err)
 		}
 		s.recordGoogleSecurity(ctx, "success", user.userID.String(), client)
 		return GoogleCompletion{Status: GoogleCompletionCreated, Session: user.session, UserID: user.userID, Locale: flow.Locale, ReturnTo: flow.ReturnTo}, nil
 	}
 	if err != nil {
-		return GoogleCompletion{}, err
+		return withFlowLocale(err)
 	}
 
 	// Existing account with this email: require explicit approval before linking.
 	if code := s.sessions.sessionStatusCode(existing); code != "" {
-		return GoogleCompletion{}, accountauth.NewError(code, "This account is not allowed to sign in.")
+		return withFlowLocale(accountauth.NewError(code, "This account is not allowed to sign in."))
 	}
 
 	raw, _, err := s.tokenGen()
 	if err != nil {
-		return GoogleCompletion{}, err
+		return withFlowLocale(err)
 	}
 	tokenHash := accountauth.HashOpaqueToken(raw)
 
@@ -523,7 +534,7 @@ func (s *AccountGoogleService) CompleteGoogle(ctx context.Context, code, callbac
 		}).Error
 	})
 	if err != nil {
-		return GoogleCompletion{}, err
+		return withFlowLocale(err)
 	}
 
 	s.sendLinkApprovalEmail(ctx, existing, identity, flow.Locale, raw)
@@ -651,6 +662,14 @@ func (s *AccountGoogleService) ConfirmGoogleLink(ctx context.Context, actionToke
 			return err
 		}
 
+		var user models.User
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&user, "id = ?", token.UserID).Error; err != nil {
+			return err
+		}
+		if code := s.sessions.sessionStatusCode(user); code != "" {
+			return accountauth.NewError(code, "This account is not allowed to sign in.")
+		}
+
 		res := tx.Model(&models.AuthActionToken{}).
 			Where("id = ? AND consumed_at IS NULL", token.ID).
 			Update("consumed_at", now)
@@ -659,14 +678,6 @@ func (s *AccountGoogleService) ConfirmGoogleLink(ctx context.Context, actionToke
 		}
 		if res.RowsAffected != 1 {
 			return accountauth.NewError(accountauth.CodeTokenInvalid, "The link is invalid or has expired.")
-		}
-
-		var user models.User
-		if err := tx.First(&user, "id = ?", token.UserID).Error; err != nil {
-			return err
-		}
-		if code := s.sessions.sessionStatusCode(user); code != "" {
-			return accountauth.NewError(code, "This account is not allowed to sign in.")
 		}
 
 		subject, _ := token.Payload["subject"].(string)
@@ -789,7 +800,7 @@ func (s *AccountGoogleService) sessionForUser(ctx context.Context, userID uuid.U
 	var session accountauth.SessionResult
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var user models.User
-		if err := tx.First(&user, "id = ?", userID).Error; err != nil {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&user, "id = ?", userID).Error; err != nil {
 			return err
 		}
 		if code := s.sessions.sessionStatusCode(user); code != "" {

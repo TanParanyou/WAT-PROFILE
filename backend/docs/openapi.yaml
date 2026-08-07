@@ -49,6 +49,8 @@ tags:
       prefix and trace ID; event persistence never fails the user operation.
   - name: Admin - Users
     description: Users management (Admin only)
+  - name: Admin - Account Operations
+    description: Public-account safety operations (Admin only)
   - name: Admin - Roles
     description: Roles & permissions management (Admin only)
   - name: Admin - Audit Logs
@@ -878,7 +880,8 @@ paths:
         Outcomes: 302 to `{frontend}/{locale}{return_to}` on sign-in (sets the
         refresh cookie), 302 to `{frontend}/{locale}/account/link?status=approval_sent`
         when an existing email needs approval, or 302 to
-        `{frontend}/en/account/login?error={code}` on failure.
+        `{frontend}/{flow-locale}/account/login?error={code}` on failure. The
+        callback preserves the locale recorded when the OAuth flow started.
       parameters:
         - name: code
           in: query
@@ -1525,6 +1528,206 @@ paths:
                         type: array
                         items:
                           $ref: '#/components/schemas/User'
+
+  # ==================== ADMIN - Account Operations ====================
+  /admin/account-operations:
+    get:
+      tags: [Admin - Account Operations]
+      summary: List public accounts
+      description: >-
+        Lists only users that have an account_profiles row. Requires
+        account_operations:read. Credentials, sessions, IP data, trace IDs,
+        and security metadata are never returned.
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/OrderParam'
+        - name: status
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [pending_verification, active, disabled, closed]
+        - name: provider
+          in: query
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [password, google]
+      responses:
+        '200':
+          description: Paginated public-account summaries
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/AdminAccountSummary'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/account-operations/{id}:
+    get:
+      tags: [Admin - Account Operations]
+      summary: Get a public-account summary
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: Public-account summary
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/AdminAccountSummary'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/account-operations/{id}/security-events:
+    get:
+      tags: [Admin - Account Operations]
+      summary: List redacted public-account security events
+      description: >-
+        Returns only event type, outcome, provider, and timestamp. IP prefix,
+        request trace ID, metadata, credentials, tokens, and user-agent data
+        are intentionally excluded.
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/OrderParam'
+      responses:
+        '200':
+          description: Paginated redacted security events
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/AdminAccountSecurityEvent'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/account-operations/{id}/disable:
+    post:
+      tags: [Admin - Account Operations]
+      summary: Disable an active public account
+      description: Sets the account to disabled and revokes all active public sessions atomically.
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminAccountMutationInput'
+      responses:
+        '200':
+          description: Account disabled
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Account is not active or operation is not allowed
+
+  /admin/account-operations/{id}/enable:
+    post:
+      tags: [Admin - Account Operations]
+      summary: Enable a verified disabled public account
+      description: Re-enables a verified disabled account without restoring old sessions.
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminAccountMutationInput'
+      responses:
+        '200':
+          description: Account enabled
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Account is not a verified disabled account
+
+  /admin/account-operations/{id}/logout-all:
+    post:
+      tags: [Admin - Account Operations]
+      summary: Revoke all public-account sessions
+      description: Revokes active sessions without changing account status or credentials.
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminAccountMutationInput'
+      responses:
+        '200':
+          description: Sessions revoked
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '409':
+          description: Account is closed or pending verification
 
   /admin/roles:
     get:
@@ -2438,34 +2641,6 @@ paths:
                           monthly_count:
                             type: integer
 
-  /admin/donations/{id}:
-    put:
-      tags: [Admin - Donations]
-      summary: Update donation
-      security:
-        - AdminBearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/IdParam'
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/Donation'
-      responses:
-        '200':
-          description: Donation updated
-    delete:
-      tags: [Admin - Donations]
-      summary: Delete donation
-      security:
-        - AdminBearerAuth: []
-      parameters:
-        - $ref: '#/components/parameters/IdParam'
-      responses:
-        '200':
-          description: Donation deleted
-
   /admin/donations/{id}/proof:
     get:
       tags: [Admin - Donations]
@@ -2485,6 +2660,26 @@ paths:
       responses:
         '200': {description: Donation confirmed}
         '409': {description: Donation is not pending}
+
+  /admin/donations/{id}/cancel:
+    post:
+      tags: [Admin - Donations]
+      summary: Cancel a donation while retaining its audit record
+      security: [{AdminBearerAuth: []}]
+      parameters: [{ $ref: '#/components/parameters/IdParam' }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [reason]
+              properties:
+                reason: {type: string, minLength: 1}
+      responses:
+        '200': {description: Donation cancelled}
+        '400': {description: Cancellation reason is required}
+        '409': {description: Donation is already cancelled}
 
   /admin/donations/{id}/send-receipt:
     post:
@@ -3553,6 +3748,71 @@ components:
           type: string
           minLength: 8
           description: Required when rotating the password.
+
+    AdminAccountSummary:
+      type: object
+      description: Safe public-account projection for Admin operations.
+      properties:
+        id:
+          type: string
+          format: uuid
+        email:
+          type: string
+          format: email
+        display_name:
+          type: string
+        account_status:
+          type: string
+          enum: [pending_verification, active, disabled, closed]
+        email_verified:
+          type: boolean
+        providers:
+          type: array
+          items:
+            type: string
+            enum: [password, google]
+        last_login_at:
+          type: string
+          format: date-time
+          nullable: true
+        closed_at:
+          type: string
+          format: date-time
+          nullable: true
+        purge_after:
+          type: string
+          format: date-time
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    AdminAccountSecurityEvent:
+      type: object
+      description: Redacted event projection; no IP, trace, metadata, or credentials.
+      properties:
+        id:
+          type: string
+          format: uuid
+        event_type:
+          type: string
+        outcome:
+          type: string
+        provider:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+
+    AdminAccountMutationInput:
+      type: object
+      required: [reason]
+      properties:
+        reason:
+          type: string
+          enum: [security_review, policy_violation, user_request, support_request]
+          description: Allow-listed reason for the staff operation.
 
     MediaMetadata:
       type: object

@@ -129,7 +129,9 @@ Verify:
 2. Expect a generic response. In capture mode, copy the reset `ActionURL`.
 3. Open the link, set a new password (12–128). Expect success and a sign-in link.
 4. Sign in with the new password. Old sessions are revoked.
-5. Request recovery for an unregistered email: expect the same generic response as
+5. Keep an old access token from before the reset and call a protected account
+   endpoint. Expect `401 AUTH_TOKEN_INVALID_OR_EXPIRED`, not a successful read.
+6. Request recovery for an unregistered email: expect the same generic response as
    step 2 (no existence leak).
 
 ## 4. Google flow (browser)
@@ -147,6 +149,9 @@ console, and the browser must have a Google test account available.
 4. Attempt to reuse the same link-approval URL: expect an invalid-token screen.
 5. In another tab, try to sign in with Google using the same Google account: expect
    sign-in (identity already linked) — never a silent takeover of the password account.
+6. For a closed account, attempt Google sign-in again. Expect the callback to return
+   to the same locale's login page with a localized disabled-account message and a
+   link to request account recovery.
 
 If the live Google console cannot be reached in this environment, run the mocked Google
 suite instead and leave the live OAuth acceptance item unchecked:
@@ -166,6 +171,8 @@ cd backend && GOTOOLCHAIN=local GOCACHE=/private/tmp/wat-profile-go-cache \
 2. Try to sign in again with that email: expect a generic invalid-credentials response.
 3. Open `/en/account/reopen-request`, submit the original email, and open the
    single-use link. Expect the account active again without restoring old sessions.
+   Reuse the access token captured before closure and confirm it still receives
+   `401 AUTH_TOKEN_INVALID_OR_EXPIRED` after reopening.
 4. From the database (test only), set a second account `account_status='disabled'` and
    try to sign in: expect the disabled screen without security details.
 5. Confirm no `members` row was created for any public account:
@@ -199,7 +206,30 @@ cd backend && GOTOOLCHAIN=local GOCACHE=/private/tmp/wat-profile-go-cache \
 - Keyboard: verify each form is completable with Tab only; the error summary receives
   focus after a failed submit; buttons show visible focus rings.
 
-## 8. Automated suite
+## 8. Admin Account Operations
+
+Use a disposable public account and an Admin role with the new
+`account_operations` permission. Keep `DB_AUTO_MIGRATE=false` in staging and apply
+the migration explicitly before testing.
+
+1. A role without `account_operations` cannot see the public-account sidebar item and
+   receives 403 from every `/api/v1/admin/account-operations*` endpoint.
+2. A role with `account_operations:read` can list, view, and inspect events, but
+   receives 403 for disable, enable, and logout-all.
+3. Disable an active verified account with `security_review`. Confirm all public
+   sessions are revoked and public login/refresh returns `AUTH_ACCOUNT_DISABLED`.
+4. Enable the same verified disabled account. Confirm no old session is restored and
+   a fresh normal sign-in works.
+5. Force sign-out an active account. Confirm its status remains active, the old access
+   token is rejected, and a fresh sign-in works.
+6. Open a closed account in the panel. Confirm `purge_after` is visible but there is
+   no Admin reopen, delete, or purge action; owner recovery remains email-only.
+7. Confirm the security-event API and drawer never expose IP prefix, trace ID,
+   metadata, credentials, tokens, or raw user-agent data.
+8. Confirm Audit Logs records exactly one `account_operations.*` action with only the
+   allow-listed reason and status transition.
+
+## 9. Automated suite
 
 ```bash
 cd backend && GOTOOLCHAIN=local GOCACHE=/private/tmp/wat-profile-go-cache go test ./... -p 1
@@ -214,7 +244,7 @@ cd frontend && npm run build
 `go test ./...` runs packages serially with `-p 1` because the shared persistent test
 database is truncated by the services package between runs (pre-existing limitation).
 
-## 9. Cleanup
+## 10. Cleanup
 
 - Stop the backend and frontend processes.
 - Drop the disposable database: `dropdb wat_profile_test` (or remove the container).

@@ -10,6 +10,7 @@ import (
 	"github.com/watloungporsai/wat-profile-backend/internal/accountauth"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 type AccountObjectDeleter interface {
@@ -42,7 +43,7 @@ func (s *AccountLifecycleService) RequestReopen(ctx context.Context, email, loca
 	var displayName string
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var user models.User
-		if err := tx.Where("email = ? AND account_status = ? AND purge_after > ?", email, models.AccountStatusClosed, now).First(&user).Error; err != nil {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("lower(btrim(email)) = ? AND account_status = ? AND purge_after > ?", email, models.AccountStatusClosed, now).First(&user).Error; err != nil {
 			if errors.Is(err, gorm.ErrRecordNotFound) {
 				return nil
 			}
@@ -83,17 +84,24 @@ func (s *AccountLifecycleService) ConfirmReopen(ctx context.Context, rawToken st
 		if err := tx.Where("token_hash = ? AND purpose = ? AND consumed_at IS NULL AND expires_at > ?", hash, "reopen_account", now).First(&token).Error; err != nil {
 			return accountauth.NewError(accountauth.CodeTokenInvalid, "The account recovery link is invalid or has expired.")
 		}
-		if tx.Model(&models.AuthActionToken{}).Where("id = ? AND consumed_at IS NULL", token.ID).Update("consumed_at", now).RowsAffected != 1 {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ? AND account_status = ? AND purge_after > ?", token.UserID, models.AccountStatusClosed, now).First(&user).Error; err != nil {
 			return accountauth.NewError(accountauth.CodeTokenInvalid, "The account recovery link is invalid or has expired.")
 		}
-		if err := tx.Where("id = ? AND account_status = ? AND purge_after > ?", token.UserID, models.AccountStatusClosed, now).First(&user).Error; err != nil {
+		if tx.Model(&models.AuthActionToken{}).Where("id = ? AND consumed_at IS NULL", token.ID).Update("consumed_at", now).RowsAffected != 1 {
 			return accountauth.NewError(accountauth.CodeTokenInvalid, "The account recovery link is invalid or has expired.")
 		}
 		user.AccountStatus = models.AccountStatusActive
 		user.IsActive = true
 		user.ClosedAt = nil
 		user.PurgeAfter = nil
-		return tx.Save(&user).Error
+		if err := tx.Save(&user).Error; err != nil {
+			return err
+		}
+		// Reopening never restores a previous browser/device session. This also
+		// protects accounts closed before transactional revocation was deployed.
+		return tx.Model(&models.AuthSession{}).
+			Where("user_id = ? AND revoked_at IS NULL", user.ID).
+			Updates(map[string]any{"revoked_at": now, "revoked_reason": "account_reopen", "updated_at": now}).Error
 	})
 	if err == nil {
 		s.security.Record(ctx, accountauth.SecurityEvent{UserID: user.ID.String(), EventType: "account_reopen", Outcome: "success"})
@@ -103,29 +111,41 @@ func (s *AccountLifecycleService) ConfirmReopen(ctx context.Context, rawToken st
 
 func (s *AccountLifecycleService) PurgeDue(ctx context.Context, deleter AccountObjectDeleter) (int, error) {
 	now := s.clock.Now()
+	if err := s.cleanupExpiredAuthArtifacts(ctx, now); err != nil {
+		return 0, err
+	}
 	var users []models.User
 	if err := s.db.WithContext(ctx).Where("account_status = ? AND purge_after IS NOT NULL AND purge_after <= ?", models.AccountStatusClosed, now).Find(&users).Error; err != nil {
 		return 0, err
 	}
 	purged := 0
 	for _, user := range users {
+		skipped := false
 		err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+			var current models.User
+			if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ? AND account_status = ? AND purge_after IS NOT NULL AND purge_after <= ?", user.ID, models.AccountStatusClosed, now).First(&current).Error; err != nil {
+				if errors.Is(err, gorm.ErrRecordNotFound) {
+					skipped = true
+					return nil
+				}
+				return err
+			}
 			var profile models.AccountProfile
-			profileErr := tx.Where("user_id = ?", user.ID).First(&profile).Error
+			profileErr := tx.Where("user_id = ?", current.ID).First(&profile).Error
 			avatarKeys := make([]string, 0, 1)
 			if profileErr == nil {
-				if isAccountAvatarObjectKey(user.ID, profile.AvatarObjectKey) {
+				if isAccountAvatarObjectKey(current.ID, profile.AvatarObjectKey) {
 					avatarKeys = append(avatarKeys, profile.AvatarObjectKey)
 				}
 			} else if !errors.Is(profileErr, gorm.ErrRecordNotFound) {
 				return profileErr
 			}
 			var pending []models.AccountAvatarCleanup
-			if err := tx.Where("user_id = ?", user.ID).Find(&pending).Error; err != nil {
+			if err := tx.Where("user_id = ?", current.ID).Find(&pending).Error; err != nil {
 				return err
 			}
 			for _, item := range pending {
-				if isAccountAvatarObjectKey(user.ID, item.ObjectKey) {
+				if isAccountAvatarObjectKey(current.ID, item.ObjectKey) {
 					avatarKeys = append(avatarKeys, item.ObjectKey)
 				}
 			}
@@ -142,17 +162,32 @@ func (s *AccountLifecycleService) PurgeDue(ctx context.Context, deleter AccountO
 					return err
 				}
 			}
-			if err := tx.Model(&models.AuthSecurityEvent{}).Where("user_id = ?", user.ID).Updates(map[string]any{"user_id": nil, "ip_prefix": "", "request_trace_id": "", "metadata": models.JSONMap{}}).Error; err != nil {
+			if err := tx.Model(&models.AuthSecurityEvent{}).Where("user_id = ?", current.ID).Updates(map[string]any{"user_id": nil, "ip_prefix": "", "request_trace_id": "", "metadata": models.JSONMap{}}).Error; err != nil {
 				return err
 			}
-			return tx.Delete(&models.User{}, "id = ?", user.ID).Error
+			return tx.Delete(&models.User{}, "id = ?", current.ID).Error
 		})
 		if err != nil {
 			return purged, err
 		}
+		if skipped {
+			continue
+		}
 		purged++
 	}
 	return purged, nil
+}
+
+// cleanupExpiredAuthArtifacts removes abandoned one-time credentials and OAuth
+// state, including anonymous OAuth flows that cannot be removed by user
+// cascade when an account is purged.
+func (s *AccountLifecycleService) cleanupExpiredAuthArtifacts(ctx context.Context, now time.Time) error {
+	return s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Where("expires_at <= ?", now).Delete(&models.AuthOAuthFlow{}).Error; err != nil {
+			return err
+		}
+		return tx.Where("expires_at <= ?", now).Delete(&models.AuthActionToken{}).Error
+	})
 }
 
 func (s *AccountLifecycleService) send(ctx context.Context, message accountauth.EmailMessage, purpose string, vars accountauth.EmailTemplateVar) {

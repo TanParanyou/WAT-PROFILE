@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { Link } from "@/navigation";
 import { useTranslations } from "next-intl";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
@@ -296,6 +297,41 @@ export default function MembersPage() {
       </BulkActionToolbar>
 
       <div className="mt-6">
+        {listQuery.isError ? (
+          <div
+            className="mb-4 flex flex-col gap-3 border border-admin-danger bg-admin-danger-surface p-4 text-sm text-admin-danger sm:flex-row sm:items-center sm:justify-between"
+            role="alert"
+          >
+            <p>{t("members.loadError")}</p>
+            <button
+              type="button"
+              onClick={() => void listQuery.refetch()}
+              className="min-h-11 border border-admin-danger px-4 py-2 font-medium text-admin-danger hover:bg-admin-surface focus-visible:outline-2 focus-visible:outline-admin-focus"
+            >
+              {t("members.retry")}
+            </button>
+          </div>
+        ) : null}
+
+        {!listQuery.isFetching && !listQuery.isError && listQuery.pagination.total === 0 ? (
+          <div className="mb-4 border border-admin-border bg-admin-surface-muted p-5">
+            <h2 className="text-base font-semibold text-admin-foreground">
+              {t("members.emptyTitle")}
+            </h2>
+            <p className="mt-1 max-w-2xl text-sm text-admin-muted">
+              {t("members.emptyDescription")}
+            </p>
+            <PermissionGuard resource="account_operations" action="read">
+              <Link
+                href="/admin/accounts"
+                className="mt-4 inline-flex min-h-11 items-center border border-admin-control-border bg-admin-surface px-4 py-2 text-sm font-medium text-admin-foreground hover:bg-admin-surface-muted focus-visible:outline-2 focus-visible:outline-admin-focus"
+              >
+                {t("members.viewAccounts")}
+              </Link>
+            </PermissionGuard>
+          </div>
+        ) : null}
+
         <DataTable
           columns={columns}
           data={listQuery.rows}

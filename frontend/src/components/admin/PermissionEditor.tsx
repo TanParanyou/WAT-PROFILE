@@ -17,6 +17,7 @@ const RESOURCES = [
   { key: "website", label: "เว็บไซต์ (Website)" },
   { key: "audit_logs", label: "บันทึกการใช้งาน (Audit Logs)" },
   { key: "privacy_requests", label: "คำขอข้อมูลส่วนบุคคล (Privacy Requests)" },
+  { key: "account_operations", label: "บัญชีผู้ใช้สาธารณะ (Public Accounts)" },
 ];
 
 const ACTIONS = [

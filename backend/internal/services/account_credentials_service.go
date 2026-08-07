@@ -11,6 +11,7 @@ import (
 	"github.com/watloungporsai/wat-profile-backend/internal/accountauth"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 )
 
 const emailChangeTokenTTL = 30 * time.Minute
@@ -21,12 +22,14 @@ type AccountCredentialsService struct {
 	clock       accountauth.Clock
 	tokenGen    accountauth.TokenGenerator
 	sessions    sessionLogoutAller
+	sessionsTx  sessionLogoutAllTxer
 	frontendURL string
 	security    accountauth.SecurityRecorder
 }
 
 func NewAccountCredentialsService(db *gorm.DB, sender accountauth.EmailSender, clock accountauth.Clock, tokenGen accountauth.TokenGenerator, sessions sessionLogoutAller, recorders ...accountauth.SecurityRecorder) *AccountCredentialsService {
-	return &AccountCredentialsService{db: db, sender: sender, clock: clock, tokenGen: tokenGen, sessions: sessions, frontendURL: strings.TrimRight(os.Getenv("PUBLIC_ACCOUNT_FRONTEND_URL"), "/"), security: pickSecurityRecorder(recorders)}
+	sessionsTx, _ := sessions.(sessionLogoutAllTxer)
+	return &AccountCredentialsService{db: db, sender: sender, clock: clock, tokenGen: tokenGen, sessions: sessions, sessionsTx: sessionsTx, frontendURL: strings.TrimRight(os.Getenv("PUBLIC_ACCOUNT_FRONTEND_URL"), "/"), security: pickSecurityRecorder(recorders)}
 }
 
 func (s *AccountCredentialsService) RequestEmailChange(ctx context.Context, userID uuid.UUID, authTime time.Time, newEmail, locale string) error {
@@ -45,15 +48,18 @@ func (s *AccountCredentialsService) RequestEmailChange(ctx context.Context, user
 	var displayName string
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var user models.User
-		if err := tx.First(&user, "id = ?", userID).Error; err != nil {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&user, "id = ?", userID).Error; err != nil {
 			return err
+		}
+		if user.AccountStatus != models.AccountStatusActive || !user.IsActive {
+			return accountauth.NewError(accountauth.CodeAccountDisabled, "This account is not allowed to change credentials.")
 		}
 		displayName = user.Name
 		if accountauth.NormalizeEmail(user.Email) == newEmail {
 			return accountauth.NewFieldError(accountauth.CodeValidation, "new_email", "The new email must be different from the current email.")
 		}
 		var other models.User
-		if err := tx.Where("email = ? AND id <> ?", newEmail, userID).First(&other).Error; err == nil {
+		if err := tx.Where("lower(btrim(email)) = ? AND id <> ?", newEmail, userID).First(&other).Error; err == nil {
 			return accountauth.NewError(accountauth.CodeEmailAlreadyRegistered, "That email address is already registered.")
 		} else if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return err
@@ -92,9 +98,6 @@ func (s *AccountCredentialsService) ConfirmEmailChange(ctx context.Context, rawT
 		if err := tx.Where("token_hash = ? AND purpose = ? AND consumed_at IS NULL AND expires_at > ?", hash, "change_email", now).First(&token).Error; err != nil {
 			return accountauth.NewError(accountauth.CodeTokenInvalid, "The email confirmation link is invalid or has expired.")
 		}
-		if tx.Model(&models.AuthActionToken{}).Where("id = ? AND consumed_at IS NULL", token.ID).Update("consumed_at", now).RowsAffected != 1 {
-			return accountauth.NewError(accountauth.CodeTokenInvalid, "The email confirmation link is invalid or has expired.")
-		}
 		value, ok := token.Payload["email"].(string)
 		if !ok || !accountauth.ValidEmail(value) {
 			return accountauth.NewError(accountauth.CodeTokenInvalid, "The email confirmation link is invalid or has expired.")
@@ -103,15 +106,18 @@ func (s *AccountCredentialsService) ConfirmEmailChange(ctx context.Context, rawT
 		if value, ok := token.Payload["locale"].(string); ok {
 			locale = value
 		}
-		if err := tx.Where("id = ?", token.UserID).First(&user).Error; err != nil {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", token.UserID).First(&user).Error; err != nil {
 			return err
 		}
 		if user.AccountStatus != models.AccountStatusActive || !user.IsActive {
 			return accountauth.NewError(accountauth.CodeTokenInvalid, "The email confirmation link is invalid or has expired.")
 		}
+		if tx.Model(&models.AuthActionToken{}).Where("id = ? AND consumed_at IS NULL", token.ID).Update("consumed_at", now).RowsAffected != 1 {
+			return accountauth.NewError(accountauth.CodeTokenInvalid, "The email confirmation link is invalid or has expired.")
+		}
 		oldEmail = user.Email
 		var conflict models.User
-		if err := tx.Where("email = ? AND id <> ?", newEmail, user.ID).First(&conflict).Error; err == nil {
+		if err := tx.Where("lower(btrim(email)) = ? AND id <> ?", newEmail, user.ID).First(&conflict).Error; err == nil {
 			return accountauth.NewError(accountauth.CodeEmailAlreadyRegistered, "That email address is already registered.")
 		} else if !errors.Is(err, gorm.ErrRecordNotFound) {
 			return err
@@ -126,13 +132,25 @@ func (s *AccountCredentialsService) ConfirmEmailChange(ctx context.Context, rawT
 			Update("consumed_at", now).Error; err != nil {
 			return err
 		}
-		return tx.Model(&models.AuthIdentity{}).Where("user_id = ? AND provider = 'password'", user.ID).Updates(map[string]any{"provider_email": newEmail, "provider_subject": newEmail}).Error
+		if err := tx.Model(&models.AuthIdentity{}).Where("user_id = ? AND provider = 'password'", user.ID).Updates(map[string]any{"provider_email": newEmail, "provider_subject": newEmail}).Error; err != nil {
+			return err
+		}
+		if s.sessionsTx != nil {
+			if err := s.sessionsTx.LogoutAllTx(tx, user.ID, now); err != nil {
+				return err
+			}
+		}
+		return nil
 	})
 	if err != nil {
 		return err
 	}
-	if err := s.sessions.LogoutAll(ctx, user.ID); err != nil {
-		return err
+	if s.sessionsTx == nil {
+		if err := s.sessions.LogoutAll(ctx, user.ID); err != nil {
+			return err
+		}
+	} else {
+		s.security.Record(ctx, accountauth.SecurityEvent{UserID: user.ID.String(), EventType: "logout_all", Outcome: "success"})
 	}
 	if locale == "" {
 		locale = "en"

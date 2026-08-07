@@ -43,16 +43,18 @@ type UpdateProfileInput struct {
 // AccountProfileService owns public account/profile reads, updates, and
 // closure. It never creates or mutates members records.
 type AccountProfileService struct {
-	db       *gorm.DB
-	clock    accountauth.Clock
-	sessions sessionLogoutAller
-	security accountauth.SecurityRecorder
+	db         *gorm.DB
+	clock      accountauth.Clock
+	sessions   sessionLogoutAller
+	sessionsTx sessionLogoutAllTxer
+	security   accountauth.SecurityRecorder
 }
 
 // NewAccountProfileService builds the profile service. The sessions dependency
 // revokes every session when an account is closed.
 func NewAccountProfileService(db *gorm.DB, clock accountauth.Clock, sessions sessionLogoutAller, recorders ...accountauth.SecurityRecorder) *AccountProfileService {
-	return &AccountProfileService{db: db, clock: clock, sessions: sessions, security: pickSecurityRecorder(recorders)}
+	sessionsTx, _ := sessions.(sessionLogoutAllTxer)
+	return &AccountProfileService{db: db, clock: clock, sessions: sessions, sessionsTx: sessionsTx, security: pickSecurityRecorder(recorders)}
 }
 
 // GetAccount returns the safe account view for the owner.
@@ -114,8 +116,11 @@ func (s *AccountProfileService) UpdateProfile(ctx context.Context, userID uuid.U
 
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var user models.User
-		if err := tx.First(&user, "id = ?", userID).Error; err != nil {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&user, "id = ?", userID).Error; err != nil {
 			return err
+		}
+		if user.AccountStatus != models.AccountStatusActive || !user.IsActive {
+			return accountauth.NewError(accountauth.CodeAccountDisabled, "This account is not allowed to update its profile.")
 		}
 		var profile models.AccountProfile
 		if err := tx.First(&profile, "user_id = ?", userID).Error; err != nil {
@@ -157,6 +162,13 @@ func (s *AccountProfileService) SetAvatar(ctx context.Context, userID uuid.UUID,
 	}
 
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var user models.User
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&user, "id = ?", userID).Error; err != nil {
+			return err
+		}
+		if user.AccountStatus != models.AccountStatusActive || !user.IsActive {
+			return accountauth.NewError(accountauth.CodeAccountDisabled, "This account is not allowed to update its profile.")
+		}
 		var profile models.AccountProfile
 		if err := tx.First(&profile, "user_id = ?", userID).Error; err != nil {
 			return err
@@ -228,8 +240,11 @@ func (s *AccountProfileService) CloseAccount(ctx context.Context, userID uuid.UU
 
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var user models.User
-		if err := tx.First(&user, "id = ?", userID).Error; err != nil {
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&user, "id = ?", userID).Error; err != nil {
 			return err
+		}
+		if user.AccountStatus != models.AccountStatusActive || !user.IsActive {
+			return accountauth.NewError(accountauth.CodeAccountDisabled, "This account is not allowed to close.")
 		}
 		user.AccountStatus = models.AccountStatusClosed
 		user.IsActive = false
@@ -250,7 +265,13 @@ func (s *AccountProfileService) CloseAccount(ctx context.Context, userID uuid.UU
 		// exposed in AccountView and gives the retention command a safe fallback
 		// when an object store is temporarily unavailable during closure.
 		profile.UpdatedAt = now
-		return tx.Save(&profile).Error
+		if err := tx.Save(&profile).Error; err != nil {
+			return err
+		}
+		if s.sessionsTx != nil {
+			return s.sessionsTx.LogoutAllTx(tx, userID, now)
+		}
+		return nil
 	})
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
@@ -259,8 +280,12 @@ func (s *AccountProfileService) CloseAccount(ctx context.Context, userID uuid.UU
 		return err
 	}
 
-	if err := s.sessions.LogoutAll(ctx, userID); err != nil {
-		return err
+	if s.sessionsTx == nil {
+		if err := s.sessions.LogoutAll(ctx, userID); err != nil {
+			return err
+		}
+	} else {
+		s.security.Record(ctx, accountauth.SecurityEvent{UserID: userID.String(), EventType: "logout_all", Outcome: "success"})
 	}
 	s.security.Record(ctx, accountauth.SecurityEvent{UserID: userID.String(), EventType: "account_close", Outcome: "success"})
 	return nil
@@ -277,6 +302,13 @@ func (s *AccountProfileService) UnlinkGoogle(ctx context.Context, userID uuid.UU
 	}
 
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var user models.User
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&user, "id = ?", userID).Error; err != nil {
+			return err
+		}
+		if user.AccountStatus != models.AccountStatusActive || !user.IsActive {
+			return accountauth.NewError(accountauth.CodeAccountDisabled, "This account is not allowed to disconnect Google.")
+		}
 		var identity models.AuthIdentity
 		if err := tx.Where("user_id = ? AND provider = 'password'", userID).First(&identity).Error; err != nil {
 			if err == gorm.ErrRecordNotFound {

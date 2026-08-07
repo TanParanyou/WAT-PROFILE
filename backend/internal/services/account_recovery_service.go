@@ -9,6 +9,7 @@ import (
 
 	"github.com/google/uuid"
 	"gorm.io/gorm"
+	"gorm.io/gorm/clause"
 
 	"github.com/watloungporsai/wat-profile-backend/internal/accountauth"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
@@ -21,6 +22,10 @@ type sessionLogoutAller interface {
 	LogoutAll(ctx context.Context, userID uuid.UUID) error
 }
 
+type sessionLogoutAllTxer interface {
+	LogoutAllTx(tx *gorm.DB, userID uuid.UUID, now time.Time) error
+}
+
 // AccountRecoveryService owns forgot/reset password flows. The public response
 // is always generic so the API never confirms whether an account exists.
 type AccountRecoveryService struct {
@@ -29,18 +34,21 @@ type AccountRecoveryService struct {
 	clock       accountauth.Clock
 	tokenGen    accountauth.TokenGenerator
 	sessions    sessionLogoutAller
+	sessionsTx  sessionLogoutAllTxer
 	frontendURL string
 	security    accountauth.SecurityRecorder
 }
 
 // NewAccountRecoveryService builds the recovery service.
 func NewAccountRecoveryService(db *gorm.DB, sender accountauth.EmailSender, clock accountauth.Clock, tokenGen accountauth.TokenGenerator, sessions sessionLogoutAller, recorders ...accountauth.SecurityRecorder) *AccountRecoveryService {
+	sessionsTx, _ := sessions.(sessionLogoutAllTxer)
 	return &AccountRecoveryService{
 		db:          db,
 		sender:      sender,
 		clock:       clock,
 		tokenGen:    tokenGen,
 		sessions:    sessions,
+		sessionsTx:  sessionsTx,
 		frontendURL: strings.TrimRight(os.Getenv("PUBLIC_ACCOUNT_FRONTEND_URL"), "/"),
 		security:    pickSecurityRecorder(recorders),
 	}
@@ -60,7 +68,7 @@ func (s *AccountRecoveryService) RequestPasswordReset(ctx context.Context, email
 	client := firstClient(clients)
 
 	var user models.User
-	if err := s.db.WithContext(ctx).Where("email = ?", normalized).First(&user).Error; err != nil {
+	if err := s.db.WithContext(ctx).Where("lower(btrim(email)) = ?", normalized).First(&user).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return nil // generic: never disclose whether the account exists
 		}
@@ -92,6 +100,14 @@ func (s *AccountRecoveryService) RequestPasswordReset(ctx context.Context, email
 
 	var pending accountauth.EmailMessage
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var current models.User
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&current, "id = ?", user.ID).Error; err != nil {
+			return err
+		}
+		if current.AccountStatus != models.AccountStatusActive || !current.IsActive {
+			return nil
+		}
+		user = current
 		if err := tx.Model(&models.AuthActionToken{}).
 			Where("user_id = ? AND purpose = ? AND consumed_at IS NULL", user.ID, "reset_password").
 			Update("consumed_at", now).Error; err != nil {
@@ -154,7 +170,15 @@ func (s *AccountRecoveryService) ResetPassword(ctx context.Context, rawToken, ne
 			return err
 		}
 
-		// Atomic single-use consumption: exactly one concurrent request wins.
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).Where("id = ?", token.UserID).First(&user).Error; err != nil {
+			return err
+		}
+		if user.AccountStatus != models.AccountStatusActive || !user.IsActive || !user.EmailVerified {
+			return accountauth.NewError(accountauth.CodeTokenInvalid, "The password reset link is invalid or has expired.")
+		}
+		// Atomic single-use consumption: exactly one concurrent request wins. The
+		// user row is locked before the token row to match reset/email/closure
+		// mutations and avoid lock-order deadlocks.
 		res := tx.Model(&models.AuthActionToken{}).
 			Where("id = ? AND consumed_at IS NULL", token.ID).
 			Update("consumed_at", now)
@@ -163,10 +187,6 @@ func (s *AccountRecoveryService) ResetPassword(ctx context.Context, rawToken, ne
 		}
 		if res.RowsAffected != 1 {
 			return accountauth.NewError(accountauth.CodeTokenInvalid, "The password reset link is invalid or has expired.")
-		}
-
-		if err := tx.Where("id = ?", token.UserID).First(&user).Error; err != nil {
-			return err
 		}
 		if err := tx.Where("user_id = ? AND provider = ?", user.ID, "password").First(&identity).Error; err != nil {
 			return accountauth.NewError(accountauth.CodeTokenInvalid, "The password reset link is invalid or has expired.")
@@ -180,16 +200,25 @@ func (s *AccountRecoveryService) ResetPassword(ctx context.Context, rawToken, ne
 		if err := tx.Save(&identity).Error; err != nil {
 			return err
 		}
+		if s.sessionsTx != nil {
+			if err := s.sessionsTx.LogoutAllTx(tx, user.ID, now); err != nil {
+				return err
+			}
+		}
 		return nil
 	})
 	if err != nil {
 		return err
 	}
 
-	// Revoke every session after the commit and notify. Notification failure
-	// must not fail the reset itself.
-	if err := s.sessions.LogoutAll(ctx, user.ID); err != nil {
-		return err
+	// Production session services revoke inside the credential transaction. The
+	// fallback keeps lightweight test doubles compatible with this service.
+	if s.sessionsTx == nil {
+		if err := s.sessions.LogoutAll(ctx, user.ID); err != nil {
+			return err
+		}
+	} else {
+		s.security.Record(ctx, accountauth.SecurityEvent{UserID: user.ID.String(), EventType: "logout_all", Outcome: "success"})
 	}
 	err = s.sendEmail(ctx, accountauth.EmailMessage{
 		To:     user.Email,

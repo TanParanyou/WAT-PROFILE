@@ -5,6 +5,7 @@ import CookieConsent from "@/components/layout/CookieConsent";
 import JsonLd from "@/components/seo/JsonLd";
 import { PublicSiteSettingsProvider } from "@/features/public/settings/PublicSiteSettingsProvider";
 import { PublicThemeProvider } from "@/components/public/theme/PublicThemeProvider";
+import { AccountSessionProvider } from "@/features/public/account/AccountSessionProvider";
 
 export default function ClientLayout({
   children,
@@ -14,15 +15,17 @@ export default function ClientLayout({
   return (
     <PublicThemeProvider>
       <div className="public-theme flex min-h-screen flex-col bg-site-canvas text-site-foreground">
-        <PublicSiteSettingsProvider>
-          <Navbar />
-          <main className="grow">{children}</main>
-          <Footer />
-          <StickySocials />
-          <CookieConsent />
-          <JsonLd />
-          <div id="public-modal-root" />
-        </PublicSiteSettingsProvider>
+        <AccountSessionProvider>
+          <PublicSiteSettingsProvider>
+            <Navbar />
+            <main className="grow">{children}</main>
+            <Footer />
+            <StickySocials />
+            <CookieConsent />
+            <JsonLd />
+            <div id="public-modal-root" />
+          </PublicSiteSettingsProvider>
+        </AccountSessionProvider>
       </div>
     </PublicThemeProvider>
   );
