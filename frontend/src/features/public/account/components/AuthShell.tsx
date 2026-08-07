@@ -1,19 +1,15 @@
-"use client";
-
 import type { ReactNode } from "react";
 import { AccountBackButton } from "./AccountBackButton";
 import { AccountPageHeader, type AccountPageContext } from "./AccountPageHeader";
 
-/**
- * Public-themed shell for account pages. Site tokens, 44px controls and the
- * localized page title come from here so every account page stays consistent.
- */
-export function AccountShell({
+export function AuthShell({
   context,
   children,
+  footer,
 }: {
   context: AccountPageContext;
   children: ReactNode;
+  footer?: ReactNode;
 }) {
   return (
     <div className="mx-auto w-full max-w-2xl px-4 pb-10 pt-28 sm:px-6 lg:px-8">
@@ -23,6 +19,7 @@ export function AccountShell({
           <AccountPageHeader context={context} />
         </header>
         {children}
+        {footer ? <footer>{footer}</footer> : null}
       </div>
     </div>
   );
