@@ -150,6 +150,9 @@ func (s *DonationService) Cancel(id int, actorID uuid.UUID, reason string) (*mod
 	if err != nil {
 		return nil, err
 	}
+	if err := s.db.Preload("Category").Preload("Member").First(&donation, id).Error; err != nil {
+		return nil, err
+	}
 	return &donation, nil
 }
 
