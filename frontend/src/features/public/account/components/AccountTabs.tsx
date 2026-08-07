@@ -2,8 +2,9 @@
 
 import { useRef, type KeyboardEvent } from "react";
 import { useTranslations } from "next-intl";
+import type { AccountTab } from "../accountNavigation";
 
-export type AccountTab = "profile" | "preferences" | "security";
+export type { AccountTab } from "../accountNavigation";
 
 export interface AccountTabsProps {
   activeTab: AccountTab;

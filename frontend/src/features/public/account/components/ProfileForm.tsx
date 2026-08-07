@@ -3,7 +3,8 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
-import { Link } from "@/navigation";
+import { Link, useRouter } from "@/navigation";
+import { useSearchParams } from "next/navigation";
 import { Loader2, AlertCircle, CheckCircle, LogOut } from "lucide-react";
 import {
   useAccountSession,
@@ -19,6 +20,7 @@ import { CredentialForms } from "./CredentialForms";
 import { PasswordInput } from "./PasswordInput";
 import { AvatarUpload } from "./AvatarUpload";
 import { AccountTabs, type AccountTab } from "./AccountTabs";
+import { buildAccountHref, parseAccountTab } from "../accountNavigation";
 import { useUnsavedChanges } from "../hooks/useUnsavedChanges";
 import { useGoogleRedirect } from "../hooks/useGoogleRedirect";
 import { validateDisplayName } from "@/features/public/account/validation";
@@ -42,6 +44,9 @@ export function ProfileForm() {
   const t = useTranslations("Account");
   const getErrorMessage = useAccountErrorMessage();
   const locale = useLocale();
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const requestedTab = parseAccountTab(searchParams.get("tab"));
   const { status, account, accountLoading, accountError, retryAccount, reauthenticate, logout } = useAccountSession();
   const updateProfile = useUpdateAccountProfile();
   const closeAccount = useCloseAccount();
@@ -54,9 +59,14 @@ export function ProfileForm() {
   const [closing, setClosing] = useState(false);
   const [confirmClose, setConfirmClose] = useState(false);
   const { redirecting, markRedirecting } = useGoogleRedirect();
-  const [activeTab, setActiveTab] = useState<AccountTab>("profile");
+  const [activeTab, setActiveTab] = useState<AccountTab>(() => requestedTab);
   const [initializedAccountId, setInitializedAccountId] = useState<string | null>(null);
   const [baseline, setBaseline] = useState<ProfileBaseline | null>(null);
+  const [panelHeadingRefs] = useState(() => ({
+    profile: null as HTMLHeadingElement | null,
+    preferences: null as HTMLHeadingElement | null,
+    security: null as HTMLHeadingElement | null,
+  }));
   const localeLabels: Record<AccountLocale, string> = {
     th: t("account.localeThai"),
     en: t("account.localeEnglish"),
@@ -77,11 +87,16 @@ export function ProfileForm() {
       displayName: account.display_name,
       preferredLocale: account.preferred_locale,
     });
-    setActiveTab("profile");
+    setActiveTab(requestedTab);
     setFormError(null);
     setSaved(false);
     setInitializedAccountId(account.id);
-  }, [account, initializedAccountId]);
+  }, [account, initializedAccountId, requestedTab]);
+
+  useEffect(() => {
+    if (!account || account.id !== initializedAccountId) return;
+    setActiveTab(requestedTab);
+  }, [account, initializedAccountId, requestedTab]);
 
   const isDirty =
     baseline !== null &&
@@ -227,6 +242,8 @@ export function ProfileForm() {
     if (tab === activeTab) return true;
     if (!confirmNavigation()) return false;
     setActiveTab(tab);
+    router.replace(buildAccountHref(tab), { scroll: false });
+    requestAnimationFrame(() => panelHeadingRefs[tab]?.focus());
     return true;
   };
 
@@ -306,7 +323,14 @@ export function ProfileForm() {
             className="space-y-5 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
           >
             <div>
-              <h2 className="font-heading text-xl font-bold text-site-foreground">
+              <h2
+                id="account-panel-profile-heading"
+                ref={(element) => {
+                  panelHeadingRefs.profile = element;
+                }}
+                tabIndex={-1}
+                className="font-heading text-xl font-bold text-site-foreground focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
+              >
                 {t("account.profileSection")}
               </h2>
               <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
@@ -350,7 +374,14 @@ export function ProfileForm() {
             tabIndex={0}
             className="space-y-5 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
           >
-            <h2 className="font-heading text-xl font-bold text-site-foreground">
+            <h2
+              id="account-panel-preferences-heading"
+              ref={(element) => {
+                panelHeadingRefs.preferences = element;
+              }}
+              tabIndex={-1}
+              className="font-heading text-xl font-bold text-site-foreground focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
+            >
               {t("account.languageSection")}
             </h2>
             <div>
@@ -414,9 +445,16 @@ export function ProfileForm() {
             </div>
             </section>
 
-            <section aria-labelledby="account-security-title" className="space-y-4 border-t border-site-border pt-6">
+            <section aria-labelledby="account-panel-security-heading" className="space-y-4 border-t border-site-border pt-6">
             <div>
-              <h2 id="account-security-title" className="font-heading text-xl font-bold text-site-foreground">
+              <h2
+                id="account-panel-security-heading"
+                ref={(element) => {
+                  panelHeadingRefs.security = element;
+                }}
+                tabIndex={-1}
+                className="font-heading text-xl font-bold text-site-foreground focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
+              >
                 {t("account.securitySection")}
               </h2>
               <h3 className="mt-4 font-semibold text-site-foreground">{t("account.closeLabel")}</h3>
