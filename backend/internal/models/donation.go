@@ -35,9 +35,7 @@ type Donation struct {
 	Category              *DonationCategory `gorm:"foreignKey:CategoryID;constraint:OnDelete:SET NULL" json:"category,omitempty"`
 	Purpose               MultiLangText     `gorm:"type:jsonb" json:"purpose"`
 	IsAnonymous           bool              `gorm:"default:false" json:"is_anonymous"`
-	TaxReceiptRequired    bool              `gorm:"default:false" json:"tax_receipt_required"`
-	TaxReceiptSent        bool              `gorm:"default:false" json:"tax_receipt_sent"`
-	TaxReceiptSentAt      *time.Time        `json:"tax_receipt_sent_at"`
+	ReceiptRequested      bool              `gorm:"default:false" json:"receipt_requested"`
 	Notes                 string            `gorm:"type:text" json:"notes"`
 	Status                string            `gorm:"size:20;default:confirmed;index" json:"status"`      // 'pending', 'confirmed', 'cancelled'
 	Source                string            `gorm:"size:30;default:staff_recorded;index" json:"source"` // 'self_reported', 'staff_recorded'
@@ -49,6 +47,9 @@ type Donation struct {
 	ReceiptChecksum       string            `gorm:"size:128" json:"receipt_checksum,omitempty"`
 	ReceiptDispatchedByID *uuid.UUID        `gorm:"type:uuid" json:"receipt_dispatched_by_id,omitempty"`
 	ReceiptDispatchedAt   *time.Time        `json:"receipt_dispatched_at,omitempty"`
+	CancellationReason    string            `gorm:"type:text" json:"cancellation_reason,omitempty"`
+	CancelledByID         *uuid.UUID        `gorm:"type:uuid" json:"cancelled_by_id,omitempty"`
+	CancelledAt           *time.Time        `json:"cancelled_at,omitempty"`
 	CreatedByID           *uuid.UUID        `gorm:"type:uuid" json:"created_by_id"`
 	CreatedBy             *User             `gorm:"foreignKey:CreatedByID;constraint:OnDelete:SET NULL" json:"created_by,omitempty"`
 	CreatedAt             time.Time         `json:"created_at"`
