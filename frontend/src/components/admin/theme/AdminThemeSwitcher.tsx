@@ -2,11 +2,9 @@
 
 import { useSyncExternalStore } from "react";
 import { Monitor, Moon, Sun } from "lucide-react";
-import { useTheme } from "next-themes";
 import { useTranslations } from "next-intl";
 import { cn } from "@/utils/cn";
-
-type AdminThemeMode = "system" | "light" | "dark";
+import { useAdminTheme, type AdminThemeMode } from "./AdminThemeProvider";
 
 interface AdminThemeSwitcherProps {
   className?: string;
@@ -23,7 +21,7 @@ const modes: Array<{
 ];
 
 export function AdminThemeSwitcher({ className }: AdminThemeSwitcherProps) {
-  const { theme, setTheme } = useTheme();
+  const { theme, setTheme } = useAdminTheme();
   const t = useTranslations("Admin.header");
   const mounted = useSyncExternalStore(
     () => () => undefined,
