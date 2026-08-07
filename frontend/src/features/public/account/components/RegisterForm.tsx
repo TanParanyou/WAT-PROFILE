@@ -1,19 +1,20 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
 import { Link } from "@/navigation";
 import { Loader2 } from "lucide-react";
+import { useForm, useWatch } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { registerAccount, startGoogle, toAccountApiError } from "@/features/public/account/api";
-import { useAccountErrorMessage } from "@/features/public/account/hooks";
 import { useGoogleRedirect } from "../hooks/useGoogleRedirect";
 import {
-  inspectPassword,
-  normalizeAccountEmail,
-  validatePassword,
-  validateDisplayName,
-} from "@/features/public/account/validation";
+  createAccountFormSchemas,
+  type RegisterFormValues,
+} from "@/features/public/account/formSchemas";
+import { mapAccountFormError } from "@/features/public/account/formErrors";
+import { inspectPassword } from "@/features/public/account/validation";
 import { PasswordInput } from "./PasswordInput";
 import { PasswordRequirements } from "./PasswordRequirements";
 import { AccountField } from "./AccountField";
@@ -26,24 +27,49 @@ const invalidInputClass = "border-red-700 focus-visible:outline-red-700";
 
 export function RegisterForm() {
   const t = useTranslations("Account");
-  const getErrorMessage = useAccountErrorMessage();
   const locale = useLocale();
-  const [email, setEmail] = useState("");
-  const [displayName, setDisplayName] = useState("");
-  const [password, setPassword] = useState("");
-  const [fieldErrors, setFieldErrors] = useState<Record<string, string>>({});
-  const [formError, setFormError] = useState<string | null>(null);
-  const [submitting, setSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const { redirecting, markRedirecting } = useGoogleRedirect();
-  const passwordRequirements = inspectPassword(password);
-
-  const focusFirstError = () => {
-    requestAnimationFrame(() => {
-      const firstInvalid = document.querySelector<HTMLElement>('[aria-invalid="true"]');
-      firstInvalid?.focus();
-    });
-  };
+  const schemas = useMemo(
+    () =>
+      createAccountFormSchemas({
+        emailRequired: t("validation.emailRequired"),
+        emailInvalid: t("validation.emailInvalid"),
+        displayNameRequired: t("validation.displayNameRequired"),
+        displayNameMin: t("validation.displayNameMin"),
+        displayNameMax: t("validation.displayNameMax"),
+        passwordRequired: t("validation.passwordRequired"),
+        passwordMin: t("validation.passwordMin"),
+        passwordMax: t("validation.passwordMax"),
+        passwordComplexity: t("validation.passwordComplexity"),
+      }),
+    [t],
+  );
+  const form = useForm<RegisterFormValues>({
+    resolver: zodResolver(schemas.register),
+    defaultValues: {
+      displayName: "",
+      email: "",
+      password: "",
+      locale: locale as RegisterFormValues["locale"],
+    },
+    shouldFocusError: true,
+  });
+  const {
+    register,
+    handleSubmit,
+    clearErrors,
+    setError,
+    formState: { errors, isSubmitting },
+  } = form;
+  const passwordRequirements = useWatch({
+    control: form.control,
+    name: "password",
+  });
+  const passwordPolicy = useMemo(
+    () => inspectPassword(passwordRequirements),
+    [passwordRequirements],
+  );
 
   const handleGoogle = async () => {
     try {
@@ -51,61 +77,48 @@ export function RegisterForm() {
       markRedirecting();
       window.location.assign(url);
     } catch {
-      setFormError(t("google.unexpected"));
+      setError("root.server", {
+        type: "server",
+        message: t("google.unexpected"),
+      });
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormError(null);
-    setFieldErrors({});
-
-    const normalized = normalizeAccountEmail(email);
-    const nextFieldErrors: Record<string, string> = {};
-    if (!normalized) {
-      nextFieldErrors.email = t("validation.emailRequired");
-    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalized)) {
-      nextFieldErrors.email = t("validation.emailInvalid");
-    }
-    const pwError = validatePassword(password);
-    if (pwError) nextFieldErrors.password = t(`validation.${pwError}`);
-    const nameError = validateDisplayName(displayName);
-    if (nameError) nextFieldErrors.displayName = t(`validation.${nameError}`);
-
-    if (Object.keys(nextFieldErrors).length > 0) {
-      setFieldErrors(nextFieldErrors);
-      focusFirstError();
-      return;
-    }
-
-    setSubmitting(true);
+  const onSubmit = handleSubmit(async (values) => {
+    clearErrors();
     try {
       await registerAccount({
-        email: normalized,
-        password,
-        display_name: displayName.trim(),
-        locale,
+        email: values.email,
+        password: values.password,
+        display_name: values.displayName,
+        locale: values.locale,
       });
       setSubmitted(true);
-    } catch (err) {
-      const apiError = toAccountApiError(err);
-      if (apiError.fieldErrors.length > 0) {
-        const mapped: Record<string, string> = {};
-        for (const fe of apiError.fieldErrors) {
-          if (fe.field === "email") mapped.email = fe.message;
-          if (fe.field === "password") mapped.password = fe.message;
-          if (fe.field === "display_name") mapped.displayName = fe.message;
-        }
-        setFieldErrors(mapped);
-        setFormError(apiError.code === "AUTH_VALIDATION" ? null : getErrorMessage(apiError));
+    } catch (error: unknown) {
+      const apiError = toAccountApiError(error);
+      const mapped = mapAccountFormError(apiError, {
+        email: "email",
+        password: "password",
+        display_name: "displayName",
+      });
+      const message = t(mapped.messageKey as Parameters<typeof t>[0]);
+      if (
+        mapped.target === "email" ||
+        mapped.target === "password" ||
+        mapped.target === "displayName"
+      ) {
+        setError(mapped.target, {
+          type: "server",
+          message,
+        });
       } else {
-        setFormError(getErrorMessage(apiError));
+        setError("root.server", {
+          type: "server",
+          message,
+        });
       }
-      focusFirstError();
-    } finally {
-      setSubmitting(false);
     }
-  };
+  });
 
   if (submitted) {
     return (
@@ -137,12 +150,16 @@ export function RegisterForm() {
 
   return (
     <div className="space-y-5">
-      {formError ? <AccountFeedback state={{ kind: "error", message: formError }} /> : null}
+      {errors.root?.server?.message ? (
+        <AccountFeedback
+          state={{ kind: "error", message: errors.root.server.message }}
+        />
+      ) : null}
 
       <AuthMethodPanel
         googleLabel={t("register.google")}
         dividerLabel={t("navigation.or")}
-        loading={submitting || redirecting}
+        loading={isSubmitting || redirecting}
         onGoogle={handleGoogle}
       />
 
@@ -159,44 +176,48 @@ export function RegisterForm() {
         <p>{t("register.googleHint")}</p>
       </div>
 
-      <form className="space-y-5" onSubmit={handleSubmit} noValidate>
-        <AccountField id="register-display-name" label={t("register.displayNameLabel")} error={fieldErrors.displayName}>
+      <form className="space-y-5" onSubmit={onSubmit} noValidate>
+        <AccountField
+          id="register-display-name"
+          label={t("register.displayNameLabel")}
+          error={errors.displayName?.message}
+        >
           <input
             id="register-display-name"
-            name="display_name"
             type="text"
             autoComplete="name"
-            value={displayName}
-            onChange={(e) => setDisplayName(e.target.value)}
+            {...register("displayName")}
             placeholder={t("register.displayNamePlaceholder")}
-            className={`${inputBase} ${fieldErrors.displayName ? invalidInputClass : ""}`}
-            aria-invalid={fieldErrors.displayName ? true : undefined}
-            aria-describedby={fieldErrors.displayName ? "register-display-name-error" : undefined}
+            className={`${inputBase} ${errors.displayName ? invalidInputClass : ""}`}
+            aria-invalid={errors.displayName ? true : undefined}
+            aria-describedby={errors.displayName ? "register-display-name-error" : undefined}
           />
         </AccountField>
 
-        <AccountField id="register-email" label={t("register.emailLabel")} error={fieldErrors.email}>
+        <AccountField
+          id="register-email"
+          label={t("register.emailLabel")}
+          error={errors.email?.message}
+        >
           <input
             id="register-email"
-            name="email"
             type="email"
             autoComplete="email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
+            {...register("email")}
             placeholder={t("register.emailPlaceholder")}
-            className={`${inputBase} ${fieldErrors.email ? invalidInputClass : ""}`}
-            aria-invalid={fieldErrors.email ? true : undefined}
-            aria-describedby={fieldErrors.email ? "register-email-error" : undefined}
+            className={`${inputBase} ${errors.email ? invalidInputClass : ""}`}
+            aria-invalid={errors.email ? true : undefined}
+            aria-describedby={errors.email ? "register-email-error" : undefined}
           />
         </AccountField>
 
         <AccountField
           id="register-password"
           label={t("register.passwordLabel")}
-          error={fieldErrors.password}
+          error={errors.password?.message}
           description={
             <>
-              <PasswordRequirements id="register-password-requirements" requirements={passwordRequirements} />
+              <PasswordRequirements id="register-password-requirements" requirements={passwordPolicy} />
               <p id="register-password-hint" className="mt-1 text-sm text-site-muted">
                 {t("register.passwordHint")}
               </p>
@@ -205,25 +226,23 @@ export function RegisterForm() {
         >
           <PasswordInput
             id="register-password"
-            name="password"
             autoComplete="new-password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
+            {...register("password")}
             placeholder={t("register.passwordPlaceholder")}
-            className={`${inputBase} ${fieldErrors.password ? invalidInputClass : ""}`}
-            aria-invalid={fieldErrors.password ? true : undefined}
+            className={`${inputBase} ${errors.password ? invalidInputClass : ""}`}
+            aria-invalid={errors.password ? true : undefined}
             aria-describedby={`register-password-requirements register-password-hint${
-              fieldErrors.password ? " register-password-error" : ""
+              errors.password ? " register-password-error" : ""
             }`}
           />
         </AccountField>
 
         <button
           type="submit"
-          disabled={submitting}
+          disabled={isSubmitting}
           className="inline-flex min-h-11 w-full items-center justify-center gap-2 bg-site-action px-6 py-[13px] font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {submitting && <Loader2 className="h-5 w-5 animate-spin" aria-hidden />}
+          {isSubmitting && <Loader2 className="h-5 w-5 animate-spin" aria-hidden />}
           {t("register.submit")}
         </button>
       </form>

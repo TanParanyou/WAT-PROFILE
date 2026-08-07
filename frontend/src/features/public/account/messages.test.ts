@@ -21,12 +21,29 @@ function flattenKeys(obj: Record<string, unknown>, prefix = ""): string[] {
   });
 }
 
+function flattenValues(obj: Record<string, unknown>): string[] {
+  return Object.values(obj).flatMap((value) =>
+    value !== null && typeof value === "object" && !Array.isArray(value)
+      ? flattenValues(value as Record<string, unknown>)
+      : [String(value)],
+  );
+}
+
 test("account message trees match in th en de", () => {
   assert.ok(en.Account, "en.json must define an Account namespace");
   assert.ok(th.Account, "th.json must define an Account namespace");
   assert.ok(de.Account, "de.json must define an Account namespace");
   assert.deepEqual(flattenKeys(th.Account), flattenKeys(en.Account));
   assert.deepEqual(flattenKeys(th.Account), flattenKeys(de.Account));
+});
+
+test("account messages are non-empty in th en de", () => {
+  for (const messages of [th.Account, en.Account, de.Account]) {
+    assert.equal(
+      flattenValues(messages).every((value) => value.trim().length > 0),
+      true,
+    );
+  }
 });
 
 test("normalizeAccountEmail trims and lowercases", () => {

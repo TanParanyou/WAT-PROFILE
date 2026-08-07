@@ -1,17 +1,22 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo } from "react";
 import { useTranslations } from "next-intl";
 import { useLocale } from "next-intl";
 import { useSearchParams } from "next/navigation";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { Link, useRouter } from "@/navigation";
 import { Loader2 } from "lucide-react";
 import { startGoogle } from "@/features/public/account/api";
 import { useAccountSession } from "@/features/public/account/AccountSessionProvider";
 import { toAccountApiError } from "@/features/public/account/api";
-import { useAccountErrorMessage } from "@/features/public/account/hooks";
 import { useGoogleRedirect } from "../hooks/useGoogleRedirect";
-import { normalizeAccountEmail } from "@/features/public/account/validation";
+import {
+  createAccountFormSchemas,
+  type LoginFormValues,
+} from "@/features/public/account/formSchemas";
+import { mapAccountFormError } from "@/features/public/account/formErrors";
 import { PasswordInput } from "./PasswordInput";
 import { AccountField } from "./AccountField";
 import { AccountFeedback } from "./AccountFeedback";
@@ -40,20 +45,38 @@ const callbackErrorCodes: ReadonlySet<string> = new Set<AccountErrorCode>([
 
 export function LoginForm() {
   const t = useTranslations("Account");
-  const getErrorMessage = useAccountErrorMessage();
   const locale = useLocale();
   const searchParams = useSearchParams();
   const router = useRouter();
   const { login } = useAccountSession();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [formError, setFormError] = useState<string | null>(null);
-  const [fieldErrors, setFieldErrors] = useState<{
-    email?: string;
-    password?: string;
-  }>({});
-  const [submitting, setSubmitting] = useState(false);
   const { redirecting, markRedirecting } = useGoogleRedirect();
+  const schemas = useMemo(
+    () =>
+      createAccountFormSchemas({
+        emailRequired: t("validation.emailRequired"),
+        emailInvalid: t("validation.emailInvalid"),
+        displayNameRequired: t("validation.displayNameRequired"),
+        displayNameMin: t("validation.displayNameMin"),
+        displayNameMax: t("validation.displayNameMax"),
+        passwordRequired: t("validation.passwordRequired"),
+        passwordMin: t("validation.passwordMin"),
+        passwordMax: t("validation.passwordMax"),
+        passwordComplexity: t("validation.passwordComplexity"),
+      }),
+    [t],
+  );
+  const form = useForm<LoginFormValues>({
+    resolver: zodResolver(schemas.login),
+    defaultValues: { email: "", password: "" },
+    shouldFocusError: true,
+  });
+  const {
+    register,
+    handleSubmit,
+    clearErrors,
+    setError,
+    formState: { errors, isSubmitting },
+  } = form;
   const logoutAllReason = searchParams.get("reason") === "logout-all";
   const callbackErrorCode = searchParams.get("error");
   const callbackErrorMessage =
@@ -67,56 +90,38 @@ export function LoginForm() {
       markRedirecting();
       window.location.assign(url);
     } catch {
-      setFormError(t("google.unexpected"));
+      setError("root.server", {
+        type: "server",
+        message: t("google.unexpected"),
+      });
     }
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setFormError(null);
-    setFieldErrors({});
-
-    const normalized = normalizeAccountEmail(email);
-    if (!normalized) {
-      setFieldErrors({ email: t("validation.emailRequired") });
-      requestAnimationFrame(() =>
-        document.getElementById("login-email")?.focus(),
-      );
-      return;
-    }
-
-    setSubmitting(true);
+  const onSubmit = handleSubmit(async ({ email, password }) => {
+    clearErrors();
     try {
-      await login(normalized, password);
+      await login(email, password);
       router.replace("/account");
-    } catch (err) {
-      const apiError = toAccountApiError(err);
-      const mapped = Object.fromEntries(
-        apiError.fieldErrors
-          .filter(
-            (fieldError) =>
-              fieldError.field === "email" || fieldError.field === "password",
-          )
-          .map((fieldError) => [fieldError.field, fieldError.message]),
-      ) as { email?: string; password?: string };
-      setFieldErrors(mapped);
-      const firstField = mapped.email
-        ? "login-email"
-        : mapped.password
-          ? "login-password"
-          : null;
-      if (firstField) {
-        setFormError(null);
-        requestAnimationFrame(() =>
-          document.getElementById(firstField)?.focus(),
-        );
+    } catch (error: unknown) {
+      const apiError = toAccountApiError(error);
+      const mapped = mapAccountFormError(apiError, {
+        email: "email",
+        password: "password",
+      });
+      const message = t(mapped.messageKey as Parameters<typeof t>[0]);
+      if (mapped.target === "email" || mapped.target === "password") {
+        setError(mapped.target, {
+          type: "server",
+          message,
+        });
       } else {
-        setFormError(getErrorMessage(apiError));
+        setError("root.server", {
+          type: "server",
+          message,
+        });
       }
-    } finally {
-      setSubmitting(false);
     }
-  };
+  });
 
   return (
     <div className="space-y-5">
@@ -134,38 +139,35 @@ export function LoginForm() {
           state={{ kind: "error", message: callbackErrorMessage }}
         />
       ) : null}
-      {formError ? (
-        <AccountFeedback state={{ kind: "error", message: formError }} />
+      {errors.root?.server?.message ? (
+        <AccountFeedback
+          state={{ kind: "error", message: errors.root.server.message }}
+        />
       ) : null}
 
       <AuthMethodPanel
         googleLabel={t("login.google")}
         dividerLabel={t("navigation.or")}
-        loading={submitting || redirecting}
+        loading={isSubmitting || redirecting}
         onGoogle={handleGoogle}
       />
 
-      <form className="space-y-5" onSubmit={handleSubmit} noValidate>
+      <form className="space-y-5" onSubmit={onSubmit} noValidate>
         <AccountField
           id="login-email"
           label={t("login.emailLabel")}
-          error={fieldErrors.email}
+          error={errors.email?.message}
         >
           <input
             id="login-email"
-            name="email"
             type="email"
             autoComplete="email"
-            value={email}
-            onChange={(e) => {
-              setEmail(e.target.value);
-              setFieldErrors((current) => ({ ...current, email: undefined }));
-            }}
+            {...register("email")}
             placeholder={t("login.emailPlaceholder")}
             className={inputBase}
-            aria-invalid={fieldErrors.email ? true : undefined}
+            aria-invalid={errors.email ? true : undefined}
             aria-describedby={
-              fieldErrors.email ? "login-email-error" : undefined
+              errors.email ? "login-email-error" : undefined
             }
           />
         </AccountField>
@@ -173,35 +175,27 @@ export function LoginForm() {
         <AccountField
           id="login-password"
           label={t("login.passwordLabel")}
-          error={fieldErrors.password}
+          error={errors.password?.message}
         >
           <PasswordInput
             id="login-password"
-            name="password"
             autoComplete="current-password"
-            value={password}
-            onChange={(e) => {
-              setPassword(e.target.value);
-              setFieldErrors((current) => ({
-                ...current,
-                password: undefined,
-              }));
-            }}
+            {...register("password")}
             placeholder={t("login.passwordPlaceholder")}
             className={inputBase}
-            aria-invalid={fieldErrors.password ? true : undefined}
+            aria-invalid={errors.password ? true : undefined}
             aria-describedby={
-              fieldErrors.password ? "login-password-error" : undefined
+              errors.password ? "login-password-error" : undefined
             }
           />
         </AccountField>
 
         <button
           type="submit"
-          disabled={submitting}
+          disabled={isSubmitting}
           className="inline-flex min-h-11 w-full items-center justify-center gap-2 bg-site-action px-6 py-[13px] font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {submitting && (
+          {isSubmitting && (
             <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
           )}
           {t("login.submit")}
