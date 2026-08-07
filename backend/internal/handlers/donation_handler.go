@@ -139,24 +139,25 @@ func timeFromForm(value string) time.Time {
 
 func (h *DonationHandler) CreateStaffDonation(c *fiber.Ctx) error {
 	var request struct {
-		DonorName        string    `json:"donor_name"`
-		DonorEmail       string    `json:"donor_email"`
-		DonorPhone       string    `json:"donor_phone"`
-		DonorAddress     string    `json:"donor_address"`
-		Amount           float64   `json:"amount"`
-		Currency         string    `json:"currency"`
-		DonationDate     time.Time `json:"donation_date"`
-		DonationMethod   string    `json:"donation_method"`
-		CategoryID       *int      `json:"category_id"`
-		ReceiptRequested bool      `json:"receipt_requested"`
+		DonorName        string  `json:"donor_name"`
+		DonorEmail       string  `json:"donor_email"`
+		DonorPhone       string  `json:"donor_phone"`
+		DonorAddress     string  `json:"donor_address"`
+		Amount           float64 `json:"amount"`
+		Currency         string  `json:"currency"`
+		DonationDate     string  `json:"donation_date"`
+		DonationMethod   string  `json:"donation_method"`
+		CategoryID       *int    `json:"category_id"`
+		ReceiptRequested bool    `json:"receipt_requested"`
 	}
 	if err := c.BodyParser(&request); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
 	}
-	if err := donationvalidation.ValidateStaffInput(donationvalidation.StaffInput{Amount: strconv.FormatFloat(request.Amount, 'f', -1, 64), Currency: request.Currency, DonationDate: request.DonationDate.Format("2006-01-02"), DonationMethod: request.DonationMethod, DonorEmail: request.DonorEmail, ReceiptRequested: request.ReceiptRequested}); err != nil {
+	if err := donationvalidation.ValidateStaffInput(donationvalidation.StaffInput{Amount: strconv.FormatFloat(request.Amount, 'f', -1, 64), Currency: request.Currency, DonationDate: request.DonationDate, DonationMethod: request.DonationMethod, DonorEmail: request.DonorEmail, ReceiptRequested: request.ReceiptRequested}); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
-	donation := models.Donation{DonorType: "guest", DonorName: strings.TrimSpace(request.DonorName), DonorEmail: strings.TrimSpace(request.DonorEmail), DonorPhone: strings.TrimSpace(request.DonorPhone), DonorAddress: strings.TrimSpace(request.DonorAddress), Amount: request.Amount, Currency: "EUR", DonationDate: request.DonationDate, DonationMethod: strings.ToLower(strings.TrimSpace(request.DonationMethod)), CategoryID: request.CategoryID, ReceiptRequested: request.ReceiptRequested}
+	donationDate, _ := time.Parse("2006-01-02", request.DonationDate)
+	donation := models.Donation{DonorType: "guest", DonorName: strings.TrimSpace(request.DonorName), DonorEmail: strings.TrimSpace(request.DonorEmail), DonorPhone: strings.TrimSpace(request.DonorPhone), DonorAddress: strings.TrimSpace(request.DonorAddress), Amount: request.Amount, Currency: "EUR", DonationDate: donationDate, DonationMethod: strings.ToLower(strings.TrimSpace(request.DonationMethod)), CategoryID: request.CategoryID, ReceiptRequested: request.ReceiptRequested}
 	actor, err := middleware.GetCurrentUserID(c)
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusUnauthorized, "Admin identity is required")
