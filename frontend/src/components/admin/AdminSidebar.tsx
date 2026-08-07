@@ -75,6 +75,7 @@ const sidebarGroups: SidebarGroup[] = [
       { labelKey: "members", href: "/admin/members", icon: UserCheck, resource: "members" },
       { labelKey: "donations", href: "/admin/donations", icon: Heart, resource: "donations" },
       { labelKey: "contacts", href: "/admin/contacts", icon: Mail, resource: "contacts" },
+      { labelKey: "privacyRequests", href: "/admin/privacy-requests", icon: Lock, resource: "privacy_requests" },
     ],
   },
   {

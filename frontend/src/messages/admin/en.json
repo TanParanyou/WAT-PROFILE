@@ -63,7 +63,8 @@
       "users": "Users",
       "roles": "Roles",
       "registrations": "Registrations",
-      "audit_logs": "Audit Logs"
+      "audit_logs": "Audit Logs",
+      "privacyRequests": "Privacy Requests"
     },
     "header": {
       "logout": "Logout",
@@ -198,6 +199,29 @@
       "amount": "Amount",
       "method": "Method",
       "anonymous": "Anonymous"
+    },
+    "privacyRequests": {
+      "title": "Personal Data Requests",
+      "newRequest": "New request",
+      "emailPlaceholder": "Requester email",
+      "memberCodePlaceholder": "Member code",
+      "access": "Access copy",
+      "erasure": "Erase/anonymise",
+      "create": "Create request",
+      "search": "Find related records",
+      "detail": "Detail and identity verification",
+      "selectRequest": "Select a request on the left",
+      "status": "Request status",
+      "verification": "Verification",
+      "evidencePlaceholder": "Verification evidence",
+      "inPerson": "In person",
+      "emailVerification": "Email verification",
+      "verify": "Verify identity",
+      "sendVerification": "Send email code",
+      "saveSelection": "Save selection",
+      "anonymise": "Anonymise",
+      "export": "Export data",
+      "confirmErasure": "Confirm that the selected records should be anonymised?"
     },
     "schedules": {
       "title": "Schedules",
@@ -694,6 +718,20 @@
     },
     "actions": {
       "save": "Save"
+    },
+    "media": {
+      "filters": {
+        "mimeType": "File type",
+        "category": "Category",
+        "altMissing": "Missing alt text language",
+        "locales": {"th": "Thai", "en": "English", "de": "German"}
+      }
+    },
+    "mediaSafety": {
+      "trash": "Media trash",
+      "restore": "Restore media",
+      "purge": "Permanently delete",
+      "references": "Media usage"
     }
   },
   "admin": {

@@ -63,7 +63,8 @@
       "users": "Benutzer",
       "roles": "Rollen",
       "registrations": "Anmeldungen",
-      "audit_logs": "Audit-Logs"
+      "audit_logs": "Audit-Logs",
+      "privacyRequests": "Datenschutzanfragen"
     },
     "header": {
       "logout": "Abmelden",
@@ -198,6 +199,29 @@
       "amount": "Betrag",
       "method": "Methode",
       "anonymous": "Anonym"
+    },
+    "privacyRequests": {
+      "title": "Datenschutzanfragen",
+      "newRequest": "Neue Anfrage",
+      "emailPlaceholder": "E-Mail der anfragenden Person",
+      "memberCodePlaceholder": "Mitgliedsnummer",
+      "access": "Datenkopie",
+      "erasure": "Löschen/anonymisieren",
+      "create": "Anfrage erstellen",
+      "search": "Zugehörige Daten finden",
+      "detail": "Details und Identitätsprüfung",
+      "selectRequest": "Anfrage links auswählen",
+      "status": "Status",
+      "verification": "Verifizierung",
+      "evidencePlaceholder": "Nachweis der Verifizierung",
+      "inPerson": "Persönlich",
+      "emailVerification": "E-Mail-Verifizierung",
+      "verify": "Identität prüfen",
+      "sendVerification": "E-Mail-Code senden",
+      "saveSelection": "Auswahl speichern",
+      "anonymise": "Anonymisieren",
+      "export": "Daten exportieren",
+      "confirmErasure": "Ausgewählte Datensätze anonymisieren?"
     },
     "schedules": {
       "title": "Zeitplan",
@@ -694,6 +718,20 @@
     },
     "actions": {
       "save": "Speichern"
+    },
+    "media": {
+      "filters": {
+        "mimeType": "Dateityp",
+        "category": "Kategorie",
+        "altMissing": "Fehlender Alt-Text für Sprache",
+        "locales": {"th": "Thai", "en": "Englisch", "de": "Deutsch"}
+      }
+    },
+    "mediaSafety": {
+      "trash": "Medien-Papierkorb",
+      "restore": "Medien wiederherstellen",
+      "purge": "Dauerhaft löschen",
+      "references": "Medienverwendung"
     }
   },
   "admin": {

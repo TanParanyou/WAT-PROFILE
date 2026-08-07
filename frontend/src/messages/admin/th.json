@@ -63,7 +63,8 @@
       "users": "ผู้ใช้งาน",
       "roles": "บทบาท",
       "registrations": "ลงทะเบียน",
-      "audit_logs": "บันทึกการใช้งาน"
+      "audit_logs": "บันทึกการใช้งาน",
+      "privacyRequests": "คำขอข้อมูลส่วนบุคคล"
     },
     "header": {
       "logout": "ออกจากระบบ",
@@ -198,6 +199,29 @@
       "amount": "จำนวนเงิน",
       "method": "วิธีการ",
       "anonymous": "นิรนาม"
+    },
+    "privacyRequests": {
+      "title": "คำขอข้อมูลส่วนบุคคล",
+      "newRequest": "สร้างคำขอ",
+      "emailPlaceholder": "อีเมลผู้ขอ",
+      "memberCodePlaceholder": "รหัสสมาชิก",
+      "access": "ขอสำเนาข้อมูล",
+      "erasure": "ขอลบ/ทำให้ไม่ระบุตัวตน",
+      "create": "สร้างคำขอ",
+      "search": "ค้นหาข้อมูลที่เกี่ยวข้อง",
+      "detail": "รายละเอียดและยืนยันตัวตน",
+      "selectRequest": "เลือกรายการทางซ้าย",
+      "status": "สถานะคำขอ",
+      "verification": "การยืนยันตัวตน",
+      "evidencePlaceholder": "หลักฐานการยืนยัน",
+      "inPerson": "ตรวจต่อหน้า",
+      "emailVerification": "ยืนยันทางอีเมล",
+      "verify": "ยืนยันตัวตน",
+      "sendVerification": "ส่งรหัสทางอีเมล",
+      "saveSelection": "บันทึกรายการที่เลือก",
+      "anonymise": "ทำให้ไม่ระบุตัวตน",
+      "export": "ส่งออกข้อมูล",
+      "confirmErasure": "ตรวจสอบแล้วและยืนยันการทำให้ข้อมูลไม่ระบุตัวตนหรือไม่"
     },
     "schedules": {
       "title": "ตารางเวลา",
@@ -694,6 +718,20 @@
     },
     "actions": {
       "save": "บันทึก"
+    },
+    "media": {
+      "filters": {
+        "mimeType": "ประเภทไฟล์",
+        "category": "หมวดหมู่",
+        "altMissing": "ขาด Alt Text ภาษา",
+        "locales": {"th": "ไทย", "en": "อังกฤษ", "de": "เยอรมัน"}
+      }
+    },
+    "mediaSafety": {
+      "trash": "ถังขยะสื่อ",
+      "restore": "กู้คืนสื่อ",
+      "purge": "ลบถาวร",
+      "references": "การใช้งานสื่อ"
     }
   },
   "admin": {

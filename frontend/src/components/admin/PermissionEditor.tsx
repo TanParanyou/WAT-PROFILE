@@ -16,6 +16,7 @@ const RESOURCES = [
   { key: "registrations", label: "ลงทะเบียน (Registrations)" },
   { key: "website", label: "เว็บไซต์ (Website)" },
   { key: "audit_logs", label: "บันทึกการใช้งาน (Audit Logs)" },
+  { key: "privacy_requests", label: "คำขอข้อมูลส่วนบุคคล (Privacy Requests)" },
 ];
 
 const ACTIONS = [
