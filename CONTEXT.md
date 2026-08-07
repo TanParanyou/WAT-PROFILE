@@ -40,3 +40,53 @@ Event Registration ที่มีการบันทึกว่าผู้�
 **Cancelled Registration**:
 Event Registration ที่สิ้นสุดก่อนการเข้าร่วม โดยอาจมีเหตุผลประกอบ
 _Avoid_: Rejected Registration
+
+## Donations
+
+**Donation Record**:
+ข้อมูลการบริจาคหนึ่งรายการที่วัดติดตามยอดเงิน ผู้บริจาค ช่องทางรับเงิน และสถานะการยืนยัน
+_Avoid_: Donation, Payment
+
+**Self-Reported Donation**:
+Donation Record ที่ผู้บริจาคส่งข้อมูลและหลักฐานการโอนด้วยตนเอง
+_Avoid_: Online Donation
+
+**Staff-Recorded Donation**:
+Donation Record ที่เจ้าหน้าที่วัดบันทึกจากเงินสด รายการเดินบัญชี หรือข้อมูลที่ได้รับนอกระบบ
+_Avoid_: Manual Donation
+
+**Confirmed Donation**:
+Donation Record ที่เจ้าหน้าที่ตรวจสอบการรับเงินแล้ว
+_Avoid_: Paid Donation
+
+**Pending Donation**:
+Donation Record ที่ยังรอเจ้าหน้าที่ตรวจสอบการรับเงินหรือหลักฐานการโอน
+_Avoid_: Unverified Donation
+
+**Donation Proof**:
+หลักฐานการชำระเงินที่ผู้บริจาคแนบมากับ Self-Reported Donation เพื่อให้เจ้าหน้าที่ตรวจสอบ
+_Avoid_: Payment Slip
+
+**Donation Acknowledgement**:
+อีเมลอัตโนมัติที่ยืนยันว่าได้รับ Self-Reported Donation แล้ว โดยไม่ยืนยันว่าได้รับเงินหรือออกใบเสร็จ
+_Avoid_: Receipt
+
+**Receipt Dispatch**:
+การที่เจ้าหน้าที่เริ่มส่งใบเสร็จของ Confirmed Donation หลังตรวจสอบข้อมูลผู้รับเรียบร้อยแล้ว
+_Avoid_: Automatic Receipt
+
+## Media
+
+**Media Recycle Bin**:
+พื้นที่เก็บ Media ที่ถูกลบไว้ชั่วคราวเป็นเวลา 30 วันก่อนลบถาวร และยังสามารถกู้คืนได้ในช่วงเวลาดังกล่าว
+_Avoid_: Permanent Deletion
+
+## Personal Data Requests
+
+**Personal Data Request**:
+คำขอของบุคคลเพื่อเข้าถึง ส่งออก แก้ไข หรือลบข้อมูลส่วนบุคคลที่วัดเก็บไว้
+_Avoid_: Privacy Ticket
+
+**Personal Data Erasure**:
+การลบหรือทำข้อมูลส่วนบุคคลให้ไม่สามารถระบุตัวบุคคลได้ หลังเจ้าหน้าที่ตรวจและยืนยันคำขอแล้ว
+_Avoid_: Immediate Deletion

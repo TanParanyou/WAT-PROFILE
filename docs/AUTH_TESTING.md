@@ -15,18 +15,19 @@ Copy `backend/.env.example` to `backend/.env` and set:
 | Variable | Required | Purpose |
 |---|---|---|
 | `PUBLIC_ACCOUNT_AUTH_ENABLED` | yes | `true` mounts the `/api/v1/accounts/*` routes and disables legacy `/auth/register` |
-| `PUBLIC_ACCOUNT_FRONTEND_URL` | yes | Frontend origin used for redirects and email links, e.g. `http://localhost:3000` |
-| `PUBLIC_ACCOUNT_ALLOWED_ORIGINS` | yes | Explicit account cookie origins; in local development use `http://localhost:3000` |
+| `PUBLIC_ACCOUNT_FRONTEND_URL` | yes | Frontend origin used for redirects and email links, e.g. `http://localhost:3002` |
+| `PUBLIC_ACCOUNT_ALLOWED_ORIGINS` | yes | Explicit account cookie origins; in local development use `http://localhost:3002` |
 | `GOOGLE_CLIENT_ID` | yes | Google OAuth client id |
 | `GOOGLE_CLIENT_SECRET` | yes | Google OAuth client secret |
-| `GOOGLE_REDIRECT_URL` | yes | Registered callback, e.g. `http://localhost:8080/api/v1/accounts/google/callback` |
+| `GOOGLE_REDIRECT_URL` | yes | Registered callback, e.g. `http://localhost:8082/api/v1/accounts/google/callback` |
 | `GOOGLE_FLOW_SECRET` | yes | HMAC key signing the OAuth flow cookie |
 | `AUTH_EMAIL_DELIVERY_MODE` | yes | `capture` (dev) or `resend` (test/prod). `capture` is forbidden in production |
 | `RESEND_API_KEY` | if `resend` | Resend API key |
 | `ACCOUNT_EMAIL_FROM` | if `resend` | Verified sender address |
 | `AUTH_ACCESS_TOKEN_EXPIRY` | no | Access token TTL (default `15m`) |
 | `AUTH_REFRESH_TOKEN_EXPIRY` | no | Refresh token TTL (default `30d`) |
-| `AUTH_REGISTER_LIMIT` / `AUTH_LOGIN_LIMIT` / `AUTH_VERIFY_RESEND_LIMIT` / `AUTH_FORGOT_PASSWORD_LIMIT` / `AUTH_REFRESH_LIMIT` / `AUTH_GOOGLE_LIMIT` / `AUTH_AVATAR_UPLOAD_LIMIT` | no | Per-surface rate limits |
+| `AUTH_REGISTER_LIMIT` / `AUTH_LOGIN_LIMIT` / `AUTH_VERIFY_RESEND_LIMIT` / `AUTH_FORGOT_PASSWORD_LIMIT` / `AUTH_REFRESH_LIMIT` / `AUTH_GOOGLE_LIMIT` / `AUTH_AVATAR_UPLOAD_LIMIT` | no | Existing per-surface rate limits |
+| `AUTH_SENSITIVE_MUTATION_LIMIT` | no | Optional shared count override for sensitive mutation buckets; endpoint windows remain separate |
 | `ADMIN_COOKIE_SECURE` | prod | `true` in production |
 
 Placeholders only in this document — never real secrets.
@@ -42,7 +43,7 @@ Copy `frontend/.env.example` to `frontend/.env.local` and set:
 | Variable | Required | Purpose |
 |---|---|---|
 | `NEXT_PUBLIC_PUBLIC_ACCOUNT_AUTH_ENABLED` | yes | `true` renders account pages, navigation, and the Google flows |
-| `NEXT_PUBLIC_API_URL` | yes | Backend origin, e.g. `http://localhost:8080` |
+| `NEXT_PUBLIC_API_URL` | yes | Backend origin, e.g. `http://localhost:8082` |
 
 Both flags must be `true` for the flows below.
 
@@ -81,20 +82,20 @@ go test ./internal/accountauth ./internal/services -run 'TestSecurityEvent|TestC
 ## 2. Start the applications
 
 ```bash
-cd backend && go run ./cmd/app          # http://localhost:8080
-cd frontend && npm run dev              # http://localhost:3000
+make be-dev                              # http://localhost:8082
+make fe-dev                              # http://localhost:3002
 ```
 
 Verify:
 
-- `http://localhost:8080/health` returns 200.
-- `http://localhost:8080/docs` renders the API reference.
-- `http://localhost:8080/api/v1/accounts/register` exists when the backend flag is on,
+- `http://localhost:8082/health` returns 200.
+- `http://localhost:8082/docs` renders the API reference.
+- `http://localhost:8082/api/v1/accounts/register` exists when the backend flag is on,
   and returns 404 when it is off.
 
 ## 3. Password flow (browser)
 
-1. Open `http://localhost:3000/en/register`. Fill display name, email, password
+1. Open `http://localhost:3002/en/register`. Fill display name, email, password
    (12–128 characters). Submit.
 2. Expect the generic "verification email sent" screen (no account-existence leak).
 3. In capture mode, copy the verification `ActionURL` from the backend log and open it
@@ -104,8 +105,10 @@ Verify:
    (HttpOnly, SameSite=Lax) and an access token in the body only.
 6. Expect redirect to the account page showing email, status `Active`, and providers.
 7. Edit the display name and preferred locale; save; expect the updated values.
-8. From Security, change the password and request an email change; confirm the
-   new email link and verify other sessions are revoked.
+8. From Security, change the password and request an email change. Each protected
+   action opens the shared confirmation modal: password accounts enter the current
+   password there, while Google-only accounts complete Google reauthentication.
+   Confirm the new email link and verify other sessions are revoked.
 9. Open `/en/account/sessions`; expect the current session flagged `Current`.
 10. Sign in from a second browser; expect two sessions. Revoke the second session and
    confirm it disappears.
@@ -156,8 +159,9 @@ cd backend && GOTOOLCHAIN=local GOCACHE=/private/tmp/wat-profile-go-cache \
 
 ## 5. Closed and disabled accounts
 
-1. With a fresh session, open `/en/account`, scroll to "Close account", re-enter the
-   password, confirm. Expect the account closed screen, a 30-day deletion date,
+1. With a fresh session, open `/en/account`, scroll to "Close account", click the
+   destructive action, and complete the shared recent-auth modal (password or Google).
+   Expect the account closed screen, a 30-day deletion date,
    a recovery-link action, and all sessions revoked.
 2. Try to sign in again with that email: expect a generic invalid-credentials response.
 3. Open `/en/account/reopen-request`, submit the original email, and open the

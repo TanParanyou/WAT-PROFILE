@@ -49,6 +49,10 @@ source of truth for public-facing visual decisions.
 - Public modules use role-based Tailwind utilities such as `bg-site-canvas`,
   `text-site-foreground`, `bg-site-surface`, `border-site-border`,
   `bg-site-action`, and `text-site-accent`.
+- Shared public dialogs use `SiteModal` and the same role seam: `bg-site-overlay`,
+  `shadow-site-modal`, and `site-danger` for destructive intent. The modal portal
+  remains inside `.public-theme`, so light, dark, and future themes update it
+  without component-level colour overrides.
 - Do not use raw colour values or theme-specific names in public TSX modules.
   A future visual theme changes the `.public-theme` variables, not each caller.
 - Keep Admin/CMS colours independent from the public theme.

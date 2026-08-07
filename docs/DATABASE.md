@@ -83,6 +83,8 @@ go run cmd/seed/main.go
 - The seed code contains local fallback admin credentials; never rely on them in production.
 - Migration `000017` replaces fixture-owned public domains and performs broad deletes.
   Review its ownership boundary before applying it to a database with existing content.
+- Migration `000034` adds the durable `operation_outbox` used by donation email and
+  media-retention workers. Apply it before starting `cmd/operations-worker`.
 
 ## Verification
 

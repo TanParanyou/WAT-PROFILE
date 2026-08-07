@@ -66,6 +66,8 @@ Public account auth (backend):
 - `AUTH_REGISTER_LIMIT`, `AUTH_LOGIN_LIMIT`, `AUTH_VERIFY_RESEND_LIMIT`,
   `AUTH_FORGOT_PASSWORD_LIMIT`, `AUTH_REFRESH_LIMIT`, `AUTH_GOOGLE_LIMIT`,
   `AUTH_AVATAR_UPLOAD_LIMIT`
+- `AUTH_SENSITIVE_MUTATION_LIMIT` — optional shared count override for sensitive
+  mutation buckets; endpoint windows remain independently defined in code
 - `ADMIN_COOKIE_SECURE` — `true` in production (public refresh cookie is `Secure`
   when the environment is production)
 
@@ -89,6 +91,9 @@ Never place real values in this file or committed env examples.
 - Migration `000025_add_public_account_auth` is a prerequisite and is applied by the
   normal release migration step. It **aborts** if case-insensitive duplicate emails
   exist, so resolve duplicates before releasing.
+- Migration `000033_add_account_avatar_cleanup` adds the retry queue for old avatar
+  objects. Apply it before deploying code that replaces account avatars; otherwise
+  a replacement request will fail closed rather than losing the old object key.
 - Refresh tokens live only in the HttpOnly `wat_public_refresh` cookie (Path
   `/api/v1/accounts`, SameSite=Lax); only their SHA-256 hashes are stored. Access
   tokens are short-lived (15m default) and carry audience `public-account`.
@@ -101,6 +106,10 @@ Never place real values in this file or committed env examples.
   Secure cookies, and a non-placeholder 32-byte JWT secret.
 - Rate-limit surfaces are configured independently and share the `AUTH_RATE_LIMITED`
   error envelope.
+- Sensitive authenticated mutations (reauthentication, password/email changes,
+  account closure, and provider unlink) have independent limits. Keep the
+  defaults unless an abuse review justifies a change; increasing one limit does
+  not increase any other surface.
 
 ## Release order
 
@@ -126,7 +135,28 @@ Public account rollout (after the baseline steps above):
 
 Account retention: run `go run ./cmd/account-retention` from `backend/` daily
 with the production environment and R2 credentials. The command is idempotent,
-deletes due closed accounts after 30 days, and anonymizes retained security events.
+deletes due closed accounts after 30 days, retries queued avatar-object cleanup,
+and anonymizes retained security events. Use a single scheduler lock so two
+retention runs cannot overlap. Keep secrets in the service environment rather
+than in crontab; for example:
+
+```cron
+15 2 * * * cd /srv/wat-profile/backend && flock -n /run/wat-profile-account-retention.lock go run ./cmd/account-retention >> /var/log/wat-profile/account-retention.log 2>&1
+```
+
+Operations outbox: run `go run ./cmd/operations-worker` from `backend/` every
+minute. It claims email and media-retention jobs with row locks, retries failed
+jobs using exponential backoff, and records the final error in PostgreSQL. The
+daily media purge job is deduplicated by date, so the worker may safely be run
+more than once:
+
+Production must set `AUTH_EMAIL_DELIVERY_MODE=resend`, `RESEND_API_KEY`, and
+`ACCOUNT_EMAIL_FROM`; the worker refuses to use the development capture sender
+in production.
+
+```cron
+* * * * * cd /srv/wat-profile/backend && flock -n /run/wat-profile-operations.lock go run ./cmd/operations-worker >> /var/log/wat-profile/operations.log 2>&1
+```
 
 ## Rollback
 
