@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { siteConfig } from "@/config/site.config";
 import { buildPublicMetadata, normalizeSeo } from "@/features/public/seo/metadata";
 import { LinkAccountContent } from "@/features/public/account/components/LinkAccount";
+import { AccountShell } from "@/features/public/account/components/AccountShell";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -21,10 +22,19 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 export default async function LinkAccountPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  void locale;
+  const t = await getTranslations({ locale, namespace: "Account" });
   return (
-    <Suspense fallback={null}>
-      <LinkAccountContent />
-    </Suspense>
+    <AccountShell
+      context={{
+        title: t("link.title"),
+        subtitle: t("link.approvalSentBody"),
+        backHref: "/account?tab=security",
+        backLabel: t("back"),
+      }}
+    >
+      <Suspense fallback={null}>
+        <LinkAccountContent />
+      </Suspense>
+    </AccountShell>
   );
 }

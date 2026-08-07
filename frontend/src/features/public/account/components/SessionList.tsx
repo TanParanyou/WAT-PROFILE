@@ -67,26 +67,9 @@ export function SessionList() {
     }
   };
 
-  const pageHeader = (
-    <header className="space-y-2">
-      <div className="space-y-2">
-        <p className="text-xs font-semibold uppercase tracking-[0.16em] text-site-accent">
-          {t("sessions.pageEyebrow")}
-        </p>
-        <div>
-          <h2 className="font-heading text-2xl font-bold text-site-foreground sm:text-3xl">
-            {t("sessions.title")}
-          </h2>
-          <p className="mt-2 text-sm text-site-muted">{t("sessions.subtitle")}</p>
-        </div>
-      </div>
-    </header>
-  );
-
   if (status === "loading" || (status === "authenticated" && accountLoading)) {
     return (
       <div className="space-y-8">
-        {pageHeader}
         <div role="status" aria-live="polite" className="flex items-center gap-3 border border-site-border bg-site-surface p-5 text-sm text-site-muted">
           <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
           <span>{t("account.loading")}</span>
@@ -98,7 +81,6 @@ export function SessionList() {
   if (status === "anonymous") {
     return (
       <div className="space-y-8">
-        {pageHeader}
         <section aria-labelledby="sessions-access-title" className="space-y-4 border border-site-border bg-site-surface p-5 sm:p-6">
           <div>
             <h3 id="sessions-access-title" className="font-heading text-xl font-bold text-site-foreground">
@@ -122,7 +104,6 @@ export function SessionList() {
   if (!account) {
     return (
       <div className="space-y-8">
-        {pageHeader}
         <div className="space-y-4">
           <div role={accountError ? "alert" : "status"} className="flex items-start gap-3 border border-site-border bg-site-surface p-4 text-sm text-site-foreground">
             <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-site-accent" aria-hidden="true" />
@@ -140,7 +121,6 @@ export function SessionList() {
   if (sessionsQuery.isPending) {
     return (
       <div className="space-y-8">
-        {pageHeader}
         <div role="status" aria-live="polite" className="flex items-center gap-3 border border-site-border bg-site-surface p-5 text-sm text-site-muted">
           <Loader2 className="h-5 w-5 animate-spin" aria-hidden="true" />
           <span>{t("account.loading")}</span>
@@ -152,7 +132,6 @@ export function SessionList() {
   if (sessionsQuery.isError) {
     return (
       <div className="space-y-8">
-        {pageHeader}
         <div className="space-y-4">
           <div role="alert" className="flex items-start gap-3 border border-site-border bg-site-surface p-4 text-sm text-site-foreground">
             <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-site-accent" aria-hidden="true" />
@@ -173,8 +152,6 @@ export function SessionList() {
 
   return (
     <div className="space-y-8">
-      {pageHeader}
-
       {formError && (
         <div role="alert" className="flex items-start gap-3 border border-site-border bg-site-surface p-4 text-sm text-site-foreground">
           <AlertCircle className="mt-0.5 h-5 w-5 shrink-0 text-site-accent" aria-hidden="true" />

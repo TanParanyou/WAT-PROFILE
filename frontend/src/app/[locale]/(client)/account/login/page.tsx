@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { siteConfig } from "@/config/site.config";
 import { buildPublicMetadata, normalizeSeo } from "@/features/public/seo/metadata";
 import { LoginForm } from "@/features/public/account/components/LoginForm";
+import { AuthShell } from "@/features/public/account/components/AuthShell";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -20,6 +21,17 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 export default async function LoginPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  void locale;
-  return <LoginForm />;
+  const t = await getTranslations({ locale, namespace: "Account" });
+  return (
+    <AuthShell
+      context={{
+        title: t("login.title"),
+        subtitle: t("login.subtitle"),
+        backHref: "/",
+        backLabel: t("back"),
+      }}
+    >
+      <LoginForm />
+    </AuthShell>
+  );
 }

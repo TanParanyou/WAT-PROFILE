@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { siteConfig } from "@/config/site.config";
 import { buildPublicMetadata, normalizeSeo } from "@/features/public/seo/metadata";
 import { VerifyEmailContent } from "@/features/public/account/components/RecoveryForms";
+import { AuthShell } from "@/features/public/account/components/AuthShell";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -21,10 +22,19 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 export default async function VerifyEmailPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  void locale;
+  const t = await getTranslations({ locale, namespace: "Account" });
   return (
-    <Suspense fallback={null}>
-      <VerifyEmailContent />
-    </Suspense>
+    <AuthShell
+      context={{
+        title: t("verifyEmail.title"),
+        subtitle: t("verifyEmail.subtitle"),
+        backHref: "/account/login",
+        backLabel: t("back"),
+      }}
+    >
+      <Suspense fallback={null}>
+        <VerifyEmailContent />
+      </Suspense>
+    </AuthShell>
   );
 }

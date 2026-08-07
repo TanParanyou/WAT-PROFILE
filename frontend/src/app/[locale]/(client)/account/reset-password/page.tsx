@@ -4,6 +4,7 @@ import { getTranslations } from "next-intl/server";
 import { siteConfig } from "@/config/site.config";
 import { buildPublicMetadata, normalizeSeo } from "@/features/public/seo/metadata";
 import { ResetPasswordForm } from "@/features/public/account/components/RecoveryForms";
+import { AuthShell } from "@/features/public/account/components/AuthShell";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -21,10 +22,19 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 export default async function ResetPasswordPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  void locale;
+  const t = await getTranslations({ locale, namespace: "Account" });
   return (
-    <Suspense fallback={null}>
-      <ResetPasswordForm />
-    </Suspense>
+    <AuthShell
+      context={{
+        title: t("resetPassword.title"),
+        subtitle: t("resetPassword.subtitle"),
+        backHref: "/account/forgot-password",
+        backLabel: t("back"),
+      }}
+    >
+      <Suspense fallback={null}>
+        <ResetPasswordForm />
+      </Suspense>
+    </AuthShell>
   );
 }

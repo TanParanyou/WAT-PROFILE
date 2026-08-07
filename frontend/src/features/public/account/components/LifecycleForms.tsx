@@ -57,8 +57,6 @@ export function ReopenRequestForm() {
 
   return (
     <section className="space-y-5">
-      <h2 className="font-heading text-2xl font-bold">{t("account.reopenRequestTitle")}</h2>
-      <p className="text-sm text-site-muted">{t("account.reopenRequestBody")}</p>
       {error && (
         <p role="alert" className="border border-red-700 bg-red-50 p-3 text-sm text-red-700">
           {error}

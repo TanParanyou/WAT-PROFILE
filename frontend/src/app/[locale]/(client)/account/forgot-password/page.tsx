@@ -3,6 +3,7 @@ import { getTranslations } from "next-intl/server";
 import { siteConfig } from "@/config/site.config";
 import { buildPublicMetadata, normalizeSeo } from "@/features/public/seo/metadata";
 import { ForgotPasswordForm } from "@/features/public/account/components/RecoveryForms";
+import { AuthShell } from "@/features/public/account/components/AuthShell";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -20,6 +21,17 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 export default async function ForgotPasswordPage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  void locale;
-  return <ForgotPasswordForm />;
+  const t = await getTranslations({ locale, namespace: "Account" });
+  return (
+    <AuthShell
+      context={{
+        title: t("forgotPassword.title"),
+        subtitle: t("forgotPassword.subtitle"),
+        backHref: "/account/login",
+        backLabel: t("back"),
+      }}
+    >
+      <ForgotPasswordForm />
+    </AuthShell>
+  );
 }
