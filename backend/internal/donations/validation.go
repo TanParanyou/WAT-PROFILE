@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net/mail"
 	"regexp"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -32,7 +33,9 @@ type PublicInput struct {
 }
 
 func ValidateStaffInput(input StaffInput) error {
-	if !amountPattern.MatchString(strings.TrimSpace(input.Amount)) || strings.TrimSpace(input.Amount) == "0" || strings.TrimSpace(input.Amount) == "0.0" || strings.TrimSpace(input.Amount) == "0.00" {
+	amountText := strings.TrimSpace(input.Amount)
+	amount, amountErr := strconv.ParseFloat(amountText, 64)
+	if !amountPattern.MatchString(amountText) || amountErr != nil || amount <= 0 {
 		return fmt.Errorf("amount must be positive with at most two decimal places")
 	}
 	if strings.ToUpper(strings.TrimSpace(input.Currency)) != "EUR" {

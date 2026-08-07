@@ -136,9 +136,6 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 	member.Get("/profile", memberHandler.GetMyProfile)
 	member.Put("/profile", memberHandler.UpdateMyProfile)
 
-	// Member donations
-	member.Post("/donations", donationHandler.CreateDonation)
-
 	// Member registrations
 	member.Get("/registrations", registrationHandler.GetMyRegistrations)
 
@@ -319,6 +316,14 @@ func adminRouteDefinitions() []AdminRouteDefinition {
 		{Method: fiber.MethodDelete, Path: "/users/bulk", Resource: "users", Action: "delete", HandlerKey: "users.bulkDelete"},
 		{Method: fiber.MethodDelete, Path: "/users/:id", Resource: "users", Action: "delete", HandlerKey: "users.delete"},
 
+		// Public Account Operations
+		{Method: fiber.MethodGet, Path: "/account-operations", Resource: "account_operations", Action: "read", HandlerKey: "accountOps.list"},
+		{Method: fiber.MethodGet, Path: "/account-operations/:id/security-events", Resource: "account_operations", Action: "read", HandlerKey: "accountOps.securityEvents"},
+		{Method: fiber.MethodGet, Path: "/account-operations/:id", Resource: "account_operations", Action: "read", HandlerKey: "accountOps.get"},
+		{Method: fiber.MethodPost, Path: "/account-operations/:id/disable", Resource: "account_operations", Action: "update", HandlerKey: "accountOps.disable"},
+		{Method: fiber.MethodPost, Path: "/account-operations/:id/enable", Resource: "account_operations", Action: "update", HandlerKey: "accountOps.enable"},
+		{Method: fiber.MethodPost, Path: "/account-operations/:id/logout-all", Resource: "account_operations", Action: "update", HandlerKey: "accountOps.logoutAll"},
+
 		// Role Management (reuse "users" permission resource)
 		{Method: fiber.MethodGet, Path: "/roles", Resource: "users", Action: "read", HandlerKey: "roles.list"},
 		{Method: fiber.MethodGet, Path: "/roles/:id", Resource: "users", Action: "read", HandlerKey: "roles.get"},
@@ -349,6 +354,7 @@ func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service) map[string]fiber.Handle
 	mediaHandler := handlers.NewMediaHandler(db, r2)
 	dashboardHandler := handlers.NewDashboardHandler(db)
 	userHandler := handlers.NewUserHandler(db)
+	accountOperationsHandler := handlers.NewAdminAccountOperationsHandler(db)
 	roleHandler := handlers.NewRoleHandler(db)
 	privacyHandler := handlers.NewPersonalDataRequestHandler(db)
 	auditHandler := handlers.NewAuditLogHandler(db)
@@ -462,6 +468,12 @@ func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service) map[string]fiber.Handle
 		"users.update":                  userHandler.UpdateUser,
 		"users.bulkDelete":              userHandler.BulkDeleteUsers,
 		"users.delete":                  userHandler.DeleteUser,
+		"accountOps.list":               accountOperationsHandler.List,
+		"accountOps.get":                accountOperationsHandler.Get,
+		"accountOps.securityEvents":     accountOperationsHandler.ListSecurityEvents,
+		"accountOps.disable":            accountOperationsHandler.Disable,
+		"accountOps.enable":             accountOperationsHandler.Enable,
+		"accountOps.logoutAll":          accountOperationsHandler.LogoutAll,
 		"profile.update":                userHandler.UpdateAdminProfile,
 		"roles.list":                    roleHandler.GetRoles,
 		"roles.get":                     roleHandler.GetRole,
