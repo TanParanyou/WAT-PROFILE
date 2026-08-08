@@ -2,13 +2,15 @@
 
 import { Facebook, Mail, MapPin, Phone } from 'lucide-react';
 import Image from 'next/image';
-import { Link } from '@/navigation';
+import { Link, usePathname } from '@/navigation';
 import { useLocale, useTranslations } from 'next-intl';
 import { usePublicSiteSettings } from '@/features/public/settings/PublicSiteSettingsProvider';
+import { isAccountPath } from '@/features/public/account/accountNavigation';
 import { getLocalizedText } from '@/utils/localizedText';
 import { STATIC_ASSETS } from '@/constants/assets';
 
 export default function Footer() {
+    const pathname = usePathname();
     const t = useTranslations('Footer');
     const tSite = useTranslations('Site');
     const locale = useLocale();
@@ -19,6 +21,8 @@ export default function Footer() {
         { name: t('events'), href: '/events' },
         { name: t('contactUs'), href: '/contact' },
     ];
+
+    if (isAccountPath(pathname)) return null;
 
     return (
         <footer className="border-t border-site-border bg-site-canvas py-16 text-site-foreground">

@@ -35,6 +35,10 @@ export function buildAccountHref(tab: AccountTab): `/account?tab=${AccountTab}` 
   return `/account?tab=${tab}`;
 }
 
+export function isAccountPath(pathname: string): boolean {
+  return pathname === "/account" || pathname.startsWith("/account/");
+}
+
 export function safeAccountReturnTo(
   value: string | null,
   fallback: AccountDestination,

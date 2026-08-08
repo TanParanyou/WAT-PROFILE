@@ -10,7 +10,11 @@ import {
   validatePassword,
   validateReturnTo,
 } from "./validation";
-import { buildAccountHref, parseAccountTab } from "./accountNavigation";
+import {
+  buildAccountHref,
+  isAccountPath,
+  parseAccountTab,
+} from "./accountNavigation";
 
 function flattenKeys(obj: Record<string, unknown>, prefix = ""): string[] {
   return Object.entries(obj).flatMap(([key, value]) => {
@@ -53,6 +57,14 @@ test("preferred locale navigation preserves the active account tab", () => {
     buildAccountHref(parseAccountTab("preferences")),
     "/account?tab=preferences",
   );
+});
+
+test("isAccountPath matches only the account route family", () => {
+  assert.equal(isAccountPath("/account"), true);
+  assert.equal(isAccountPath("/account/login"), true);
+  assert.equal(isAccountPath("/account/sessions"), true);
+  assert.equal(isAccountPath("/accountant"), false);
+  assert.equal(isAccountPath("/events"), false);
 });
 
 test("normalizeAccountEmail trims and lowercases", () => {
