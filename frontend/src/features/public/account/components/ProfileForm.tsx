@@ -60,6 +60,7 @@ export function ProfileForm() {
   const [saved, setSaved] = useState(false);
   const [closing, setClosing] = useState(false);
   const [confirmClose, setConfirmClose] = useState(false);
+  const [closeError, setCloseError] = useState<string | null>(null);
   const [closedPurgeAfter, setClosedPurgeAfter] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<AccountTab>(() => requestedTab);
   const [initializedAccountId, setInitializedAccountId] = useState<
@@ -109,6 +110,18 @@ export function ProfileForm() {
     setError,
     formState: { errors, isDirty, isSubmitting },
   } = form;
+  const displayNameField = register("displayName", {
+    onChange: () => {
+      clearErrors("root.server");
+      setSaved(false);
+    },
+  });
+  const preferredLocaleField = register("preferredLocale", {
+    onChange: () => {
+      clearErrors("root.server");
+      setSaved(false);
+    },
+  });
 
   useEffect(() => {
     if (!account) {
@@ -125,6 +138,7 @@ export function ProfileForm() {
     setActiveTab(requestedTab);
     clearErrors();
     setSaved(false);
+    setCloseError(null);
     setInitializedAccountId(account.id);
   }, [account, accountLocale, clearErrors, initializedAccountId, requestedTab, reset]);
 
@@ -328,6 +342,8 @@ export function ProfileForm() {
   const handleTabChange = (tab: AccountTab): boolean => {
     if (tab === activeTab) return true;
     if (!confirmNavigation()) return false;
+    clearErrors("root.server");
+    setSaved(false);
     setActiveTab(tab);
     router.replace(buildAccountHref(tab), { scroll: false });
     requestAnimationFrame(() => panelHeadingRefs[tab]?.focus());
@@ -340,7 +356,7 @@ export function ProfileForm() {
   };
 
   const handleClose = async () => {
-    clearErrors("root.server");
+    setCloseError(null);
     setClosing(true);
     try {
       await requireRecentAuth({ reason: "close_account" });
@@ -350,6 +366,7 @@ export function ProfileForm() {
       reset({ displayName: "", preferredLocale: accountLocale });
       clearErrors();
       setSaved(false);
+      setCloseError(null);
       closeAccount.reset();
       clearLocalSession();
     } catch (err) {
@@ -359,37 +376,35 @@ export function ProfileForm() {
       )
         return;
       const apiError = toAccountApiError(err);
-      setError("root.server", {
-        type: "server",
-        message: t(`errors.${apiError.code}` as Parameters<typeof t>[0]),
-      });
+      setCloseError(t(`errors.${apiError.code}` as Parameters<typeof t>[0]));
     } finally {
       setClosing(false);
     }
   };
 
+  const hasProfileFeedback = Boolean(errors.root?.server?.message || saved);
+  const profileFeedback = errors.root?.server?.message ? (
+    <div
+      role="alert"
+      aria-live="polite"
+      className="flex items-start gap-2 border border-red-700 bg-red-50 p-3 text-sm text-red-700"
+    >
+      <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
+      <span>{errors.root.server.message}</span>
+    </div>
+  ) : saved ? (
+    <div
+      role="status"
+      aria-live="polite"
+      className="flex items-start gap-2 border border-emerald-700 bg-emerald-50 p-3 text-sm text-emerald-700"
+    >
+      <CheckCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
+      <span>{t("account.saved")}</span>
+    </div>
+  ) : null;
+
   return (
     <div className="space-y-8">
-      {errors.root?.server?.message && (
-        <div
-          role="alert"
-          className="flex items-start gap-2 border border-red-700 bg-red-50 p-3 text-sm text-red-700"
-        >
-          <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
-          <span>{errors.root.server.message}</span>
-        </div>
-      )}
-      {saved && (
-        <div
-          role="status"
-          aria-live="polite"
-          className="flex items-start gap-2 border border-emerald-700 bg-emerald-50 p-3 text-sm text-emerald-700"
-        >
-          <CheckCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
-          <span>{t("account.saved")}</span>
-        </div>
-      )}
-
       <AccountTabs
         activeTab={activeTab}
         onChange={handleTabChange}
@@ -438,7 +453,13 @@ export function ProfileForm() {
                 </div>
               </dl>
             </div>
-            <AvatarUpload account={account} onUploaded={() => setSaved(true)} />
+            <AvatarUpload
+              account={account}
+              onUploaded={() => {
+                clearErrors("root.server");
+                setSaved(true);
+              }}
+            />
             <AccountField
               id="profile-display-name"
               label={t("account.displayNameLabel")}
@@ -447,7 +468,7 @@ export function ProfileForm() {
               <input
                 id="profile-display-name"
                 type="text"
-                {...register("displayName")}
+                {...displayNameField}
                 className={inputBase}
                 aria-invalid={errors.displayName ? true : undefined}
                 aria-describedby={
@@ -488,7 +509,7 @@ export function ProfileForm() {
             >
               <select
                 id="profile-locale"
-                {...register("preferredLocale")}
+                {...preferredLocaleField}
                 className={inputBase}
                 aria-invalid={errors.preferredLocale ? true : undefined}
                 aria-describedby={`profile-locale-description${
@@ -579,10 +600,23 @@ export function ProfileForm() {
                   {t("account.closeIntro")}
                 </p>
               </div>
+              {closeError ? (
+                <div
+                  role="alert"
+                  aria-live="polite"
+                  className="flex items-start gap-2 border border-red-700 bg-red-50 p-3 text-sm text-red-700"
+                >
+                  <AlertCircle className="mt-0.5 h-5 w-5 shrink-0" aria-hidden />
+                  <span>{closeError}</span>
+                </div>
+              ) : null}
               {!confirmClose ? (
                 <button
                   type="button"
-                  onClick={() => setConfirmClose(true)}
+                  onClick={() => {
+                    setCloseError(null);
+                    setConfirmClose(true);
+                  }}
                   className="inline-flex min-h-11 items-center justify-center gap-2 border border-red-700 bg-site-canvas px-6 py-[13px] font-semibold text-red-700 transition-colors hover:bg-red-50 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
                 >
                   {t("account.closeButton")}
@@ -606,7 +640,10 @@ export function ProfileForm() {
                     </button>
                     <button
                       type="button"
-                      onClick={() => setConfirmClose(false)}
+                      onClick={() => {
+                        setCloseError(null);
+                        setConfirmClose(false);
+                      }}
                       className={secondaryActionClass}
                     >
                       {t("account.cancel")}
@@ -619,38 +656,45 @@ export function ProfileForm() {
         </section>
       </div>
 
-      {isDirty ? (
-        <div className="flex flex-col gap-4 border border-site-border bg-site-surface p-4 sm:flex-row sm:items-center sm:justify-between sm:p-5">
-          <div className="min-w-0">
-            <p className="font-semibold text-site-foreground">
-              {t("account.unsaved")}
-            </p>
-            <p className="mt-1 text-sm text-site-muted">
-              {t("account.unsavedBody")}
-            </p>
-          </div>
-          <div className="flex flex-col gap-3 sm:shrink-0 sm:flex-row">
-            <button
-              type="button"
-              onClick={handleDiscard}
-              className={secondaryActionClass}
-            >
-              {t("account.discardChanges")}
-            </button>
-            <button
-              type="button"
-              onClick={() => void saveProfile()}
-              disabled={isSubmitting}
-              className={`${primaryActionClass} disabled:cursor-not-allowed disabled:opacity-60`}
-            >
-              {isSubmitting && (
-                <Loader2
-                  className="h-5 w-5 animate-spin motion-reduce:animate-none"
-                  aria-hidden
-                />
-              )}
-              {t("account.saveAndContinue")}
-            </button>
+      {isDirty || hasProfileFeedback ? (
+        <div className="sticky bottom-0 z-40 border-t border-site-border bg-site-canvas/95 p-4 backdrop-blur-sm sm:p-5">
+          <div className="mx-auto max-w-2xl space-y-4">
+            {profileFeedback}
+            {isDirty ? (
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div className="min-w-0">
+                  <p className="font-semibold text-site-foreground">
+                    {t("account.unsaved")}
+                  </p>
+                  <p className="mt-1 text-sm text-site-muted">
+                    {t("account.unsavedBody")}
+                  </p>
+                </div>
+                <div className="flex flex-col gap-3 sm:shrink-0 sm:flex-row">
+                  <button
+                    type="button"
+                    onClick={handleDiscard}
+                    className={secondaryActionClass}
+                  >
+                    {t("account.discardChanges")}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => void saveProfile()}
+                    disabled={isSubmitting}
+                    className={`${primaryActionClass} disabled:cursor-not-allowed disabled:opacity-60`}
+                  >
+                    {isSubmitting && (
+                      <Loader2
+                        className="h-5 w-5 animate-spin motion-reduce:animate-none"
+                        aria-hidden
+                      />
+                    )}
+                    {t("account.saveAndContinue")}
+                  </button>
+                </div>
+              </div>
+            ) : null}
           </div>
         </div>
       ) : null}
