@@ -8,6 +8,7 @@ import (
 	"github.com/watloungporsai/wat-profile-backend/internal/config"
 	"github.com/watloungporsai/wat-profile-backend/internal/handlers"
 	"github.com/watloungporsai/wat-profile-backend/internal/middleware"
+	"github.com/watloungporsai/wat-profile-backend/internal/services"
 	"github.com/watloungporsai/wat-profile-backend/internal/storage"
 	"gorm.io/gorm"
 )
@@ -43,9 +44,10 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 	monkHandler := handlers.NewMonkHandler(db)
 	galleryHandler := handlers.NewGalleryHandler(db)
 	scheduleHandler := handlers.NewScheduleHandler(db)
-	donationHandler := handlers.NewDonationHandler(db)
+	donationAudit := services.NewAuditService(db)
+	donationHandler := handlers.NewDonationHandler(db, donationAudit)
 	if r2 != nil {
-		donationHandler = handlers.NewDonationHandler(db, r2)
+		donationHandler = handlers.NewDonationHandler(db, r2, donationAudit)
 	}
 	memberHandler := handlers.NewMemberHandler(db)
 	registrationHandler := handlers.NewRegistrationHandler(db)
@@ -138,6 +140,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 
 	// Member registrations
 	member.Get("/registrations", registrationHandler.GetMyRegistrations)
+	member.Get("/donations", donationHandler.GetMyDonations)
 
 	// ============ ADMIN ROUTES (Admin Auth + Per-Resource Permissions) ============
 	admin := api.Group("/admin", middleware.AdminAuthRequired(db), middleware.AdminSecurityHeaders())
@@ -341,9 +344,10 @@ func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service) map[string]fiber.Handle
 	monkHandler := handlers.NewMonkHandler(db)
 	galleryHandler := handlers.NewGalleryHandler(db)
 	scheduleHandler := handlers.NewScheduleHandler(db)
-	donationHandler := handlers.NewDonationHandler(db)
+	donationAudit := services.NewAuditService(db)
+	donationHandler := handlers.NewDonationHandler(db, donationAudit)
 	if r2 != nil {
-		donationHandler = handlers.NewDonationHandler(db, r2)
+		donationHandler = handlers.NewDonationHandler(db, r2, donationAudit)
 	}
 	memberHandler := handlers.NewMemberHandler(db)
 	registrationHandler := handlers.NewRegistrationHandler(db)

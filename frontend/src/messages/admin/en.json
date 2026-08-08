@@ -199,7 +199,25 @@
       "donor": "Donor",
       "amount": "Amount",
       "method": "Method",
-      "anonymous": "Anonymous"
+      "anonymous": "Anonymous",
+      "currency": "Currency",
+      "date": "Donation date",
+      "email": "Email",
+      "phone": "Phone",
+      "category": "Category",
+      "generalCategory": "General support",
+      "cash": "Cash",
+      "bankTransfer": "Bank transfer",
+      "receiptRequested": "Receipt requested",
+      "save": "Save",
+      "cancel": "Cancel",
+      "saved": "Donation saved",
+      "cancelled": "Donation cancelled",
+      "cancelTitle": "Cancel donation",
+      "cancelReason": "Reason",
+      "cancelReasonRequired": "A reason is required",
+      "confirmCancel": "Confirm cancellation"
+      ,"status": "Status", "from": "From", "to": "To", "dateRange": "Donation date range", "createStaff": "Record staff donation", "confirmTitle": "Confirm donation", "confirmMessage": "Have you checked the proof and confirmed this donation?", "sendReceipt": "Send receipt", "sendReceiptMessage": "Create the permanent PDF and queue it for email delivery?", "receiptQueued": "Receipt queued", "viewProof": "View proof", "confirm": "Confirm", "cancelAction": "Cancel donation"
     },
     "privacyRequests": {
       "title": "Personal Data Requests",

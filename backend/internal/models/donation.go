@@ -16,7 +16,9 @@ type DonationCategory struct {
 	CreatedAt    time.Time     `json:"created_at"`
 }
 
-// Donation represents a donation record
+// Donation represents a donation record. ReceiptRequested is the current
+// workflow flag; older tax_receipt_* columns may remain in deployed databases
+// for compatibility, but are not part of this model or any API response.
 type Donation struct {
 	ID                    int               `gorm:"primaryKey;autoIncrement" json:"id"`
 	ReceiptNumber         string            `gorm:"size:50;uniqueIndex;not null" json:"receipt_number"` // Auto: DON-2024-001

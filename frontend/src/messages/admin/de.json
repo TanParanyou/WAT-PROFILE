@@ -199,7 +199,25 @@
       "donor": "Spender",
       "amount": "Betrag",
       "method": "Methode",
-      "anonymous": "Anonym"
+      "anonymous": "Anonym",
+      "currency": "Währung",
+      "date": "Spendedatum",
+      "email": "E-Mail",
+      "phone": "Telefon",
+      "category": "Kategorie",
+      "generalCategory": "Allgemeine Unterstützung",
+      "cash": "Bargeld",
+      "bankTransfer": "Banküberweisung",
+      "receiptRequested": "Bescheinigung angefordert",
+      "save": "Speichern",
+      "cancel": "Abbrechen",
+      "saved": "Spende gespeichert",
+      "cancelled": "Spende storniert",
+      "cancelTitle": "Spende stornieren",
+      "cancelReason": "Grund",
+      "cancelReasonRequired": "Ein Grund ist erforderlich",
+      "confirmCancel": "Stornierung bestätigen"
+      ,"status": "Status", "from": "Von", "to": "Bis", "dateRange": "Spendedatum-Bereich", "createStaff": "Spende durch Personal erfassen", "confirmTitle": "Spende bestätigen", "confirmMessage": "Wurde der Nachweis geprüft und die Spende bestätigt?", "sendReceipt": "Bescheinigung senden", "sendReceiptMessage": "Dauerhafte PDF erstellen und per E-Mail versenden?", "receiptQueued": "Bescheinigung eingereiht", "viewProof": "Nachweis ansehen", "confirm": "Bestätigen", "cancelAction": "Spende stornieren"
     },
     "privacyRequests": {
       "title": "Datenschutzanfragen",

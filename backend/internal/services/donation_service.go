@@ -253,6 +253,25 @@ func (s *DonationService) ListCategories() ([]models.DonationCategory, error) {
 	return categories, err
 }
 
+// ValidateActiveCategory accepts an empty category (general support) and
+// rejects IDs that are missing or no longer active.
+func (s *DonationService) ValidateActiveCategory(categoryID *int) error {
+	if categoryID == nil {
+		return nil
+	}
+	if s.db == nil {
+		return errors.New("donation category validation is unavailable")
+	}
+	var category models.DonationCategory
+	if err := s.db.Where("id = ? AND is_active = ?", *categoryID, true).First(&category).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return errors.New("donation category is invalid or inactive")
+		}
+		return err
+	}
+	return nil
+}
+
 // CreateDonation creates a new donation with auto-generated receipt number
 func (s *DonationService) CreateDonation(donation *models.Donation, userID *uuid.UUID) error {
 	if userID != nil {
@@ -285,6 +304,48 @@ type DonationListOptions struct {
 type DonationCategoryListOptions struct {
 	Common   listquery.Common
 	Statuses []string
+}
+
+// ListForMember returns only donations linked to the authenticated user's
+// member profile. The member lookup and donation query are both scoped by the
+// user ID so callers cannot supply another member identifier.
+func (s *DonationService) ListForMember(userID uuid.UUID, common listquery.Common) ([]models.Donation, int64, error) {
+	var member models.Member
+	if err := s.db.Where("user_id = ?", userID).First(&member).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return []models.Donation{}, 0, nil
+		}
+		return nil, 0, err
+	}
+	query := s.db.Model(&models.Donation{}).Where("member_id = ?", member.ID)
+	if common.Search != "" {
+		term := "%" + common.Search + "%"
+		query = query.Where("(donor_name ILIKE ? OR receipt_number ILIKE ?)", term, term)
+	}
+	if common.From != nil {
+		query = query.Where("donation_date >= ?", *common.From)
+	}
+	if common.To != nil {
+		query = query.Where("donation_date <= ?", *common.To)
+	}
+	var total int64
+	if err := query.Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+	column := "donation_date"
+	if common.Sort == "created_at" {
+		column = "created_at"
+	}
+	if common.Order == "asc" {
+		column += " ASC"
+	} else {
+		column += " DESC"
+	}
+	var donations []models.Donation
+	if err := query.Preload("Category").Offset((common.Page - 1) * common.Limit).Limit(common.Limit).Order(column).Find(&donations).Error; err != nil {
+		return nil, 0, err
+	}
+	return donations, total, nil
 }
 
 type DonationFilterOptions struct {

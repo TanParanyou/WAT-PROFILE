@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { submitSelfReportedDonation } from "./api";
+import { getPublicDonationCategories, submitSelfReportedDonation } from "./api";
 import { selfReportedDonationSchema } from "./schema";
 
 export function DonationForm() {
@@ -12,11 +12,17 @@ export function DonationForm() {
   const [pending, setPending] = useState(false);
   const [message, setMessage] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [categories, setCategories] = useState<Array<{ id: number; name: { th?: string; en?: string; de?: string } }>>([]);
+
+  useEffect(() => {
+    void getPublicDonationCategories().then(setCategories).catch(() => setCategories([]));
+  }, []);
 
   async function submit(event: React.FormEvent<HTMLFormElement>) {
     event.preventDefault(); setError(null); setMessage(null);
     const form = new FormData(event.currentTarget);
-    const parsed = selfReportedDonationSchema.safeParse({ amount: form.get("amount"), currency: form.get("currency"), donation_date: form.get("donation_date"), donation_method: method, donor_name: form.get("donor_name"), donor_email: form.get("donor_email"), donor_phone: form.get("donor_phone") || undefined, locale, receipt_requested: form.get("receipt_requested") === "on", privacy_acknowledged: form.get("privacy_acknowledged") === "on", proof: form.get("proof") });
+    const categoryValue = form.get("category_id");
+    const parsed = selfReportedDonationSchema.safeParse({ amount: form.get("amount"), currency: form.get("currency"), donation_date: form.get("donation_date"), donation_method: method, donor_name: form.get("donor_name"), donor_email: form.get("donor_email"), donor_phone: form.get("donor_phone") || undefined, category_id: categoryValue ? Number(categoryValue) : null, locale, receipt_requested: form.get("receipt_requested") === "on", privacy_acknowledged: form.get("privacy_acknowledged") === "on", proof: form.get("proof") });
     if (!parsed.success) { setError(t("reportError")); return; }
     setPending(true);
     try { await submitSelfReportedDonation(parsed.data); setMessage(t("reportSuccess")); event.currentTarget.reset(); }
@@ -32,6 +38,8 @@ export function DonationForm() {
     <label className="grid gap-2 text-sm"><span>{t("dateLabel")}</span><input name="donation_date" type="date" required className="min-h-11 border border-site-border bg-white px-3" /></label>
     <label className="grid gap-2 text-sm"><span>{t("nameLabel")}</span><input name="donor_name" required className="min-h-11 border border-site-border bg-white px-3" /></label>
     <label className="grid gap-2 text-sm"><span>{t("emailLabel")}</span><input name="donor_email" type="email" required className="min-h-11 border border-site-border bg-white px-3" /></label>
+    <label className="grid gap-2 text-sm"><span>{t("phoneLabel")}</span><input name="donor_phone" type="tel" className="min-h-11 border border-site-border bg-white px-3" /></label>
+    <label className="grid gap-2 text-sm"><span>{t("categoryLabel")}</span><select name="category_id" defaultValue="" className="min-h-11 border border-site-border bg-white px-3"><option value="">{t("generalCategory")}</option>{categories.map((category) => <option key={category.id} value={category.id}>{category.name[locale] || category.name.en || category.name.th || category.name.de}</option>)}</select></label>
     <label className="grid gap-2 text-sm md:col-span-2"><span>{t("proofLabel")}</span><input name="proof" type="file" accept="image/*,application/pdf" required className="min-h-11 border border-site-border bg-white px-3 py-2" /></label>
     <label className="flex min-h-11 items-center gap-2 text-sm md:col-span-2"><input name="receipt_requested" type="checkbox" className="size-5" /><span>{t("receiptRequested")}</span></label>
     <label className="flex min-h-11 items-center gap-2 text-sm md:col-span-2"><input name="privacy_acknowledged" type="checkbox" className="size-5" required /><span>{t("privacyAcknowledged")}</span></label>

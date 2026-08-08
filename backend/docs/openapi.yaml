@@ -221,15 +221,19 @@ paths:
           multipart/form-data:
             schema:
               type: object
-              required: [amount, donation_method, donor_email, proof]
+              required: [amount, currency, donation_date, donation_method, donor_name, donor_email, locale, proof, privacy_acknowledged]
               properties:
                 amount: {type: number, minimum: 0.01}
-                currency: {type: string, example: EUR}
+                currency: {type: string, enum: [EUR]}
+                donation_date: {type: string, format: date}
                 donation_method: {type: string, enum: [bank_transfer, paypal]}
                 donor_name: {type: string}
                 donor_email: {type: string, format: email}
                 donor_phone: {type: string}
+                category_id: {type: integer, minimum: 1, nullable: true}
                 locale: {type: string, enum: [th, en, de]}
+                receipt_requested: {type: boolean}
+                privacy_acknowledged: {type: boolean}
                 proof: {type: string, format: binary}
       responses:
         '201': {description: Donation report accepted}
@@ -1402,20 +1406,24 @@ paths:
           description: Profile updated
 
   /member/donations:
-    post:
+    get:
       tags: [Member]
-      summary: Create a donation
+      summary: Get my donation history
       security:
         - BearerAuth: []
-      requestBody:
-        required: true
-        content:
-          application/json:
-            schema:
-              $ref: '#/components/schemas/DonationInput'
       responses:
-        '201':
-          description: Donation created
+        '200':
+          description: Member donation history (paginated)
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/MemberDonation'
 
   /member/registrations:
     get:
@@ -2550,7 +2558,7 @@ paths:
         required: true
         content:
           application/json:
-            schema: {$ref: '#/components/schemas/Donation'}
+            schema: {$ref: '#/components/schemas/StaffDonationInput'}
       responses:
         '201': {description: Donation recorded}
         '400': {$ref: '#/components/responses/BadRequest'}
@@ -4124,45 +4132,20 @@ components:
         display_order:
           type: integer
 
-    DonationInput:
+    StaffDonationInput:
       type: object
-      required: [donor_type, amount]
+      required: [amount, currency, donation_date, donation_method]
       properties:
-        donor_type:
-          type: string
-          enum: [member, guest, anonymous]
-        donor_name:
-          type: string
-        donor_email:
-          type: string
-          format: email
-        donor_phone:
-          type: string
-        donor_address:
-          type: string
-        amount:
-          type: number
-          format: double
-          minimum: 0
-        currency:
-          type: string
-          default: EUR
-        donation_date:
-          type: string
-          format: date
-        donation_method:
-          type: string
-          enum: [bank_transfer, cash, paypal]
-        category_id:
-          type: integer
-        purpose:
-          $ref: '#/components/schemas/MultiLangText'
-        is_anonymous:
-          type: boolean
-        tax_receipt_required:
-          type: boolean
-        notes:
-          type: string
+        donor_name: {type: string}
+        donor_email: {type: string, format: email}
+        donor_phone: {type: string}
+        donor_address: {type: string}
+        amount: {type: number, format: double, exclusiveMinimum: 0}
+        currency: {type: string, enum: [EUR]}
+        donation_date: {type: string, format: date}
+        donation_method: {type: string, enum: [cash, bank_transfer, paypal]}
+        category_id: {type: integer, minimum: 1, nullable: true}
+        receipt_requested: {type: boolean}
 
     Donation:
       type: object
@@ -4183,6 +4166,7 @@ components:
           type: number
         currency:
           type: string
+          enum: [EUR]
         donation_date:
           type: string
           format: date
@@ -4193,6 +4177,8 @@ components:
         purpose:
           $ref: '#/components/schemas/MultiLangText'
         is_anonymous:
+          type: boolean
+        receipt_requested:
           type: boolean
         status:
           type: string
@@ -4209,10 +4195,39 @@ components:
         receipt_dispatched_at:
           type: string
           format: date-time
+        cancellation_reason:
+          type: string
+        cancelled_at:
+          type: string
+          format: date-time
         created_at:
           type: string
           format: date-time
         updated_at:
+          type: string
+          format: date-time
+
+    MemberDonation:
+      type: object
+      properties:
+        id:
+          type: integer
+        receipt_number:
+          type: string
+        amount:
+          type: number
+        currency:
+          type: string
+          enum: [EUR]
+        donation_date:
+          type: string
+          format: date
+        status:
+          type: string
+          enum: [pending, confirmed, cancelled]
+        cancellation_reason:
+          type: string
+        cancelled_at:
           type: string
           format: date-time
 

@@ -31,3 +31,16 @@ func TestValidatePublicInput(t *testing.T) {
 		t.Fatal("expected cash rejection")
 	}
 }
+
+func TestValidatePhone(t *testing.T) {
+	for _, phone := range []string{"", "+49 171 2345678", "081-234-5678", "+66 (81) 234 5678"} {
+		if err := ValidatePhone(phone); err != nil {
+			t.Errorf("expected phone %q to be valid, got %v", phone, err)
+		}
+	}
+	for _, phone := range []string{"abc1234567", "123", "123456789012345678901", "081\n2345678"} {
+		if err := ValidatePhone(phone); err == nil {
+			t.Errorf("expected phone %q to be rejected", phone)
+		}
+	}
+}

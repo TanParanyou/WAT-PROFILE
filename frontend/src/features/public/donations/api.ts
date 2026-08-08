@@ -8,9 +8,16 @@ export interface SelfReportedDonationPayload {
   donor_name: string;
   donor_email: string;
   donor_phone?: string;
+  category_id?: number | null;
   locale: "th" | "en" | "de";
   receipt_requested: boolean;
+  privacy_acknowledged: boolean;
   proof: File;
+}
+
+export async function getPublicDonationCategories() {
+  const response = await api.get("/public/donation-categories");
+  return (response.data.data || []) as Array<{ id: number; name: { th?: string; en?: string; de?: string } }>;
 }
 
 export async function submitSelfReportedDonation(payload: SelfReportedDonationPayload) {

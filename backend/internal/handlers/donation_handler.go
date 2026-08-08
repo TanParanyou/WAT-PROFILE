@@ -31,6 +31,7 @@ type DonationHandler struct {
 	store           privateDonationStore
 	emails          *services.DonationEmailService
 	documents       *services.DonationDocumentService
+	audit           *services.AuditService
 }
 
 type privateDonationStore interface {
@@ -39,10 +40,18 @@ type privateDonationStore interface {
 	DeleteFile(context.Context, string) error
 }
 
+func (h *DonationHandler) logDonationAction(c *fiber.Ctx, action string, id int, changes map[string]interface{}) error {
+	if h.audit == nil {
+		return nil
+	}
+	return h.audit.LogAction(c, action, "donations", strconv.Itoa(id), changes)
+}
+
 func NewDonationHandler(db *gorm.DB, deps ...interface{}) *DonationHandler {
 	var store privateDonationStore
 	var sender accountauth.EmailSender
 	var outbox *services.OperationOutboxService
+	var audit *services.AuditService
 	for _, dep := range deps {
 		switch value := dep.(type) {
 		case privateDonationStore:
@@ -51,10 +60,15 @@ func NewDonationHandler(db *gorm.DB, deps ...interface{}) *DonationHandler {
 			sender = value
 		case *services.OperationOutboxService:
 			outbox = value
+		case *services.AuditService:
+			audit = value
 		}
 	}
 	if outbox == nil && db != nil {
 		outbox = services.NewOperationOutboxService(db)
+	}
+	if audit == nil {
+		audit = services.NewAuditService(db)
 	}
 	// If email delivery is configured, reuse the existing Resend adapter. A
 	// missing delivery configuration keeps local development usable; the record
@@ -68,7 +82,7 @@ func NewDonationHandler(db *gorm.DB, deps ...interface{}) *DonationHandler {
 	if sender == nil && os.Getenv("ENV") != "production" {
 		sender, _ = services.NewAccountEmailSender(config.AccountAuthConfig{EmailMode: "capture", Environment: "development"})
 	}
-	return &DonationHandler{donationService: services.NewDonationServiceWithOutbox(db, outbox), store: store, emails: services.NewDonationEmailService(sender), documents: services.NewDonationDocumentService()}
+	return &DonationHandler{donationService: services.NewDonationServiceWithOutbox(db, outbox), store: store, emails: services.NewDonationEmailService(sender), documents: services.NewDonationDocumentService(), audit: audit}
 }
 
 // SubmitSelfReported accepts a public multipart report and keeps its proof in
@@ -82,8 +96,15 @@ func (h *DonationHandler) SubmitSelfReported(c *fiber.Ctx) error {
 	email := strings.TrimSpace(c.FormValue("donor_email"))
 	donationDate := strings.TrimSpace(c.FormValue("donation_date"))
 	locale := strings.TrimSpace(c.FormValue("locale"))
+	categoryID, err := optionalDonationCategoryID(c.FormValue("category_id"))
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 	privacyAcknowledged := c.FormValue("privacy_acknowledged") == "true" || strings.EqualFold(c.FormValue("privacy_acknowledged"), "on")
-	if err := donationvalidation.ValidatePublicInput(donationvalidation.PublicInput{Amount: amountValue, Currency: c.FormValue("currency"), DonationDate: donationDate, DonationMethod: method, DonorName: c.FormValue("donor_name"), DonorEmail: email, Locale: locale, HasProof: true, PrivacyAcknowledged: privacyAcknowledged}); err != nil {
+	if err := donationvalidation.ValidatePublicInput(donationvalidation.PublicInput{Amount: amountValue, Currency: c.FormValue("currency"), DonationDate: donationDate, DonationMethod: method, DonorName: c.FormValue("donor_name"), DonorEmail: email, DonorPhone: c.FormValue("donor_phone"), Locale: locale, HasProof: true, PrivacyAcknowledged: privacyAcknowledged}); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+	if err := h.donationService.ValidateActiveCategory(categoryID); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
 	amount, err := strconv.ParseFloat(amountValue, 64)
@@ -122,7 +143,7 @@ func (h *DonationHandler) SubmitSelfReported(c *fiber.Ctx) error {
 	proof := &models.DonationProof{StorageKey: key, OriginalFilename: filepath.Base(proofHeader.Filename), MimeType: mimeType, Size: int64(len(data)), Checksum: fmt.Sprintf("%x", sum[:])}
 	donationDateValue, _ := time.Parse("2006-01-02", donationDate)
 	receiptRequested := c.FormValue("receipt_requested") == "true" || strings.EqualFold(c.FormValue("receipt_requested"), "on")
-	donation := models.Donation{DonorType: "guest", DonorName: strings.TrimSpace(c.FormValue("donor_name")), DonorEmail: email, DonorPhone: strings.TrimSpace(c.FormValue("donor_phone")), Amount: amount, Currency: "EUR", DonationDate: donationDateValue, DonationMethod: method, DonorAddress: strings.TrimSpace(c.FormValue("donor_address")), CommunicationLocale: locale, ReceiptRequested: receiptRequested}
+	donation := models.Donation{DonorType: "guest", DonorName: strings.TrimSpace(c.FormValue("donor_name")), DonorEmail: email, DonorPhone: strings.TrimSpace(c.FormValue("donor_phone")), Amount: amount, Currency: "EUR", DonationDate: donationDateValue, DonationMethod: method, CategoryID: categoryID, DonorAddress: strings.TrimSpace(c.FormValue("donor_address")), CommunicationLocale: locale, ReceiptRequested: receiptRequested}
 	created, err := h.donationService.CreateSelfReported(services.SelfReportedDonationInput{Donation: donation, Proof: proof})
 	if err != nil {
 		_ = h.store.DeleteFile(c.UserContext(), key)
@@ -154,7 +175,10 @@ func (h *DonationHandler) CreateStaffDonation(c *fiber.Ctx) error {
 	if err := c.BodyParser(&request); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
 	}
-	if err := donationvalidation.ValidateStaffInput(donationvalidation.StaffInput{Amount: strconv.FormatFloat(request.Amount, 'f', -1, 64), Currency: request.Currency, DonationDate: request.DonationDate, DonationMethod: request.DonationMethod, DonorEmail: request.DonorEmail, ReceiptRequested: request.ReceiptRequested}); err != nil {
+	if err := donationvalidation.ValidateStaffInput(donationvalidation.StaffInput{Amount: strconv.FormatFloat(request.Amount, 'f', -1, 64), Currency: request.Currency, DonationDate: request.DonationDate, DonationMethod: request.DonationMethod, DonorEmail: request.DonorEmail, DonorPhone: request.DonorPhone, ReceiptRequested: request.ReceiptRequested}); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+	if err := h.donationService.ValidateActiveCategory(request.CategoryID); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
 	donationDate, _ := time.Parse("2006-01-02", request.DonationDate)
@@ -166,7 +190,22 @@ func (h *DonationHandler) CreateStaffDonation(c *fiber.Ctx) error {
 	if err := h.donationService.CreateStaffRecorded(&donation, actor); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
+	if err := h.logDonationAction(c, "donation.create_staff", donation.ID, map[string]interface{}{"source": donation.Source, "status": donation.Status, "currency": donation.Currency}); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Unable to record donation audit")
+	}
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "data": donation})
+}
+
+func optionalDonationCategoryID(value string) (*int, error) {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return nil, nil
+	}
+	id, err := strconv.Atoi(value)
+	if err != nil || id < 1 {
+		return nil, fmt.Errorf("donation category is invalid")
+	}
+	return &id, nil
 }
 
 func (h *DonationHandler) ConfirmDonation(c *fiber.Ctx) error {
@@ -184,6 +223,9 @@ func (h *DonationHandler) ConfirmDonation(c *fiber.Ctx) error {
 			return utils.ErrorResponse(c, fiber.StatusConflict, err.Error())
 		}
 		return utils.ErrorResponse(c, fiber.StatusNotFound, "Donation not found")
+	}
+	if err := h.logDonationAction(c, "donation.confirm", id, map[string]interface{}{"status": donation.Status}); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Unable to record donation audit")
 	}
 	return utils.SuccessResponse(c, donation)
 }
@@ -210,6 +252,9 @@ func (h *DonationHandler) CancelDonation(c *fiber.Ctx) error {
 		}
 		return utils.ErrorResponse(c, fiber.StatusNotFound, "Donation not found")
 	}
+	if err := h.logDonationAction(c, "donation.cancel", id, map[string]interface{}{"status": donation.Status, "reason_present": true}); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Unable to record donation audit")
+	}
 	return utils.SuccessResponse(c, donation)
 }
 
@@ -230,6 +275,9 @@ func (h *DonationHandler) GetDonationProof(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusNotFound, "Proof not found")
 	}
 	defer body.Close()
+	if err := h.logDonationAction(c, "donation.proof_access", id, map[string]interface{}{"proof_available": true}); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Unable to record donation audit")
+	}
 	c.Set(fiber.HeaderContentType, proof.MimeType)
 	c.Set(fiber.HeaderContentDisposition, `attachment; filename="`+proof.OriginalFilename+`"`)
 	return c.SendStream(body)
@@ -280,6 +328,11 @@ func (h *DonationHandler) SendDonationReceipt(c *fiber.Ctx) error {
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Unable to queue receipt dispatch")
 	}
+	if !alreadyQueued {
+		if err := h.logDonationAction(c, "donation.receipt_queue", id, map[string]interface{}{"receipt_requested": donation.ReceiptRequested}); err != nil {
+			return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Unable to record donation audit")
+		}
+	}
 	return utils.SuccessResponse(c, fiber.Map{"donation": updated, "queued": !alreadyQueued})
 }
 
@@ -311,6 +364,47 @@ func (h *DonationHandler) CreateDonation(c *fiber.Ctx) error {
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "data": donation})
+}
+
+// GetMyDonations returns the authenticated member's donation history. There is
+// intentionally no member ID parameter and no write endpoint in this scope.
+func (h *DonationHandler) GetMyDonations(c *fiber.Ctx) error {
+	userID, err := middleware.GetCurrentUserID(c)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusUnauthorized, "User not authenticated")
+	}
+	common, err := listquery.Parse(c, listquery.Config{
+		DefaultSort:  "donation_date",
+		DefaultOrder: "desc",
+		AllowedSort:  map[string]string{"donation_date": "donation_date", "created_at": "created_at"},
+	})
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+	donations, total, err := h.donationService.ListForMember(userID, common)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch donation history")
+	}
+	result := make([]memberDonationResponse, 0, len(donations))
+	for _, donation := range donations {
+		result = append(result, memberDonationResponse{
+			ID: donation.ID, ReceiptNumber: donation.ReceiptNumber, Amount: donation.Amount,
+			Currency: donation.Currency, DonationDate: donation.DonationDate, Status: donation.Status,
+			CancellationReason: donation.CancellationReason, CancelledAt: donation.CancelledAt,
+		})
+	}
+	return utils.PaginatedResponse(c, result, common.Page, common.Limit, int(total))
+}
+
+type memberDonationResponse struct {
+	ID                 int        `json:"id"`
+	ReceiptNumber      string     `json:"receipt_number"`
+	Amount             float64    `json:"amount"`
+	Currency           string     `json:"currency"`
+	DonationDate       time.Time  `json:"donation_date"`
+	Status             string     `json:"status"`
+	CancellationReason string     `json:"cancellation_reason,omitempty"`
+	CancelledAt        *time.Time `json:"cancelled_at,omitempty"`
 }
 
 // GetDonations - Admin: List all donations with pagination and filters

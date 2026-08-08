@@ -181,10 +181,8 @@ export interface Donation {
   category?: DonationCategory;
   purpose: MultiLangText;
   is_anonymous: boolean;
-  tax_receipt_required: boolean;
-  tax_receipt_sent: boolean;
-  tax_receipt_sent_at: string | null;
-  receipt_requested?: boolean;
+  receipt_requested: boolean;
+  receipt_dispatched_at: string | null;
   cancellation_reason?: string;
   cancelled_at?: string | null;
   notes: string;
@@ -194,7 +192,6 @@ export interface Donation {
   confirmed_at: string | null;
   receipt_object_key?: string;
   receipt_checksum?: string;
-  receipt_dispatched_at: string | null;
   created_by_id: string | null;
   created_at: string;
   updated_at: string;

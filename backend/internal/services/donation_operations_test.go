@@ -1,6 +1,7 @@
 package services
 
 import (
+	"reflect"
 	"strings"
 	"testing"
 	"time"
@@ -13,6 +14,20 @@ func TestDonationSelfReportedRequiresProof(t *testing.T) {
 	_, err := svc.CreateSelfReported(SelfReportedDonationInput{Donation: models.Donation{DonationMethod: "bank_transfer"}})
 	if err == nil || !strings.Contains(err.Error(), "proof") {
 		t.Fatalf("expected proof validation, got %v", err)
+	}
+}
+
+func TestDonationReceiptContractUsesCurrentFields(t *testing.T) {
+	typeOfDonation := reflect.TypeOf(models.Donation{})
+	for _, field := range []string{"ReceiptRequested", "ReceiptDispatchedAt", "CancellationReason", "CancelledAt"} {
+		if _, ok := typeOfDonation.FieldByName(field); !ok {
+			t.Fatalf("donation contract is missing %s", field)
+		}
+	}
+	for _, field := range []string{"TaxReceiptRequired", "TaxReceiptSent", "TaxReceiptSentAt"} {
+		if _, ok := typeOfDonation.FieldByName(field); ok {
+			t.Fatalf("legacy tax receipt field %s must not be exposed by the model", field)
+		}
 	}
 }
 
