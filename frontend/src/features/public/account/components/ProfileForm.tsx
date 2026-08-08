@@ -144,8 +144,10 @@ export function ProfileForm() {
 
   useEffect(() => {
     if (!account || account.id !== initializedAccountId) return;
+    clearErrors("root.server");
+    setSaved(false);
     setActiveTab(requestedTab);
-  }, [account, initializedAccountId, requestedTab]);
+  }, [account, clearErrors, initializedAccountId, requestedTab]);
 
   const { confirmNavigation } = useUnsavedChanges({
     isDirty,
