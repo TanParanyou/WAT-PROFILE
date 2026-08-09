@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"context"
 	"crypto/sha256"
+	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -98,34 +99,34 @@ func (h *DonationHandler) SubmitSelfReported(c *fiber.Ctx) error {
 	locale := strings.TrimSpace(c.FormValue("locale"))
 	categoryID, err := optionalDonationCategoryID(c.FormValue("category_id"))
 	if err != nil {
-		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+		return donationValidationResponse(c, err)
 	}
 	privacyAcknowledged := c.FormValue("privacy_acknowledged") == "true" || strings.EqualFold(c.FormValue("privacy_acknowledged"), "on")
 	if err := donationvalidation.ValidatePublicInput(donationvalidation.PublicInput{Amount: amountValue, Currency: c.FormValue("currency"), DonationDate: donationDate, DonationMethod: method, DonorName: c.FormValue("donor_name"), DonorEmail: email, DonorPhone: c.FormValue("donor_phone"), Locale: locale, HasProof: true, PrivacyAcknowledged: privacyAcknowledged}); err != nil {
-		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+		return donationValidationResponse(c, err)
 	}
 	if err := h.donationService.ValidateActiveCategory(categoryID); err != nil {
-		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+		return donationValidationResponse(c, &donationvalidation.ValidationError{Field: "category_id", Message: err.Error()})
 	}
 	amount, err := strconv.ParseFloat(amountValue, 64)
 	if err != nil {
-		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid amount")
+		return donationValidationResponse(c, &donationvalidation.ValidationError{Field: "amount", Message: "Invalid amount"})
 	}
 	proofHeader, err := c.FormFile("proof")
 	if err != nil || proofHeader == nil {
-		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Donation proof is required")
+		return donationValidationResponse(c, &donationvalidation.ValidationError{Field: "proof", Message: "Donation proof is required"})
 	}
 	if proofHeader.Size <= 0 || proofHeader.Size > 10*1024*1024 {
-		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Proof must be smaller than 10 MB")
+		return donationValidationResponse(c, &donationvalidation.ValidationError{Field: "proof", Message: "Proof must be smaller than 10 MB"})
 	}
 	proofFile, err := proofHeader.Open()
 	if err != nil {
-		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Unable to read proof")
+		return donationValidationResponse(c, &donationvalidation.ValidationError{Field: "proof", Message: "Unable to read proof"})
 	}
 	defer proofFile.Close()
 	data, err := io.ReadAll(io.LimitReader(proofFile, 10*1024*1024+1))
 	if err != nil || int64(len(data)) > 10*1024*1024 {
-		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Unable to read proof")
+		return donationValidationResponse(c, &donationvalidation.ValidationError{Field: "proof", Message: "Unable to read proof"})
 	}
 	mimeType := http.DetectContentType(data)
 	if len(data) >= 4 && string(data[:4]) == "%PDF" {
@@ -133,7 +134,7 @@ func (h *DonationHandler) SubmitSelfReported(c *fiber.Ctx) error {
 	}
 	allowedProofTypes := map[string]bool{"application/pdf": true, "image/jpeg": true, "image/png": true, "image/webp": true}
 	if !allowedProofTypes[mimeType] {
-		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Proof must be a PDF or image")
+		return donationValidationResponse(c, &donationvalidation.ValidationError{Field: "proof", Message: "Proof must be a PDF or image"})
 	}
 	key := "private/donations/" + uuid.NewString() + "/" + filepath.Base(proofHeader.Filename)
 	if err := h.store.UploadPrivate(c.UserContext(), bytes.NewReader(data), key, mimeType); err != nil {
@@ -203,9 +204,17 @@ func optionalDonationCategoryID(value string) (*int, error) {
 	}
 	id, err := strconv.Atoi(value)
 	if err != nil || id < 1 {
-		return nil, fmt.Errorf("donation category is invalid")
+		return nil, &donationvalidation.ValidationError{Field: "category_id", Message: "donation category is invalid"}
 	}
 	return &id, nil
+}
+
+func donationValidationResponse(c *fiber.Ctx, err error) error {
+	var validationErr *donationvalidation.ValidationError
+	if errors.As(err, &validationErr) {
+		return utils.FieldErrorResponse(c, fiber.StatusBadRequest, validationErr.Message, map[string]string{validationErr.Field: validationErr.Message})
+	}
+	return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 }
 
 func (h *DonationHandler) ConfirmDonation(c *fiber.Ctx) error {

@@ -24,6 +24,23 @@ func ErrorResponse(c *fiber.Ctx, statusCode int, message string) error {
 	})
 }
 
+// FieldErrorResponse sends an error response with field-level validation
+// messages. The fields map is intentionally optional so callers can return a
+// stable top-level error while allowing clients to focus the invalid inputs.
+func FieldErrorResponse(c *fiber.Ctx, statusCode int, message string, fields map[string]string) error {
+	traceID, _ := c.Locals("trace_id").(string)
+	if traceID == "" {
+		traceID = c.GetRespHeader("X-Trace-Id")
+	}
+
+	return c.Status(statusCode).JSON(fiber.Map{
+		"success":  false,
+		"error":    message,
+		"fields":   fields,
+		"trace_id": traceID,
+	})
+}
+
 // CodedErrorResponse sends an error JSON response with a stable machine-readable code
 func CodedErrorResponse(c *fiber.Ctx, statusCode int, code, message string) error {
 	traceID, _ := c.Locals("trace_id").(string)

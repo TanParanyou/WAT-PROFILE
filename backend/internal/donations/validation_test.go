@@ -1,6 +1,9 @@
 package donations
 
-import "testing"
+import (
+	"errors"
+	"testing"
+)
 
 func TestValidateStaffInput(t *testing.T) {
 	valid := StaffInput{Amount: "1.00", Currency: "EUR", DonationDate: "2026-08-07", DonationMethod: "cash"}
@@ -29,6 +32,14 @@ func TestValidatePublicInput(t *testing.T) {
 	}
 	if err := ValidatePublicInput(PublicInput{Amount: "1.00", Currency: "EUR", DonationDate: "2026-08-07", DonationMethod: "cash", DonorName: "Donor", DonorEmail: "donor@example.com", Locale: "th", HasProof: true, PrivacyAcknowledged: true}); err == nil {
 		t.Fatal("expected cash rejection")
+	}
+}
+
+func TestValidatePublicInputReturnsFieldError(t *testing.T) {
+	err := ValidatePublicInput(PublicInput{Amount: "0", Currency: "EUR"})
+	var validationErr *ValidationError
+	if !errors.As(err, &validationErr) || validationErr.Field != "amount" {
+		t.Fatalf("expected amount field error, got %v", err)
 	}
 }
 

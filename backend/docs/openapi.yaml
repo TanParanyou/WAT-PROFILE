@@ -237,7 +237,12 @@ paths:
                 proof: {type: string, format: binary}
       responses:
         '201': {description: Donation report accepted}
-        '400': {$ref: '#/components/responses/BadRequest'}
+        '400':
+          description: Invalid donation fields; the optional `fields` object maps request field names to messages.
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '429': {$ref: '#/components/responses/TooManyRequests'}
 
   /public/contact:
@@ -3370,6 +3375,13 @@ components:
                 type: string
               message:
                 type: string
+        fields:
+          type: object
+          description: >-
+            Field-level validation messages for donation and other form
+            submissions. Keys are request field names and values are messages.
+          additionalProperties:
+            type: string
         trace_id:
           type: string
           description: Request trace ID for correlating logs
