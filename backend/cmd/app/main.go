@@ -19,6 +19,15 @@ import (
 	"github.com/watloungporsai/wat-profile-backend/pkg/logger"
 )
 
+func globalCORSConfig(allowOrigins string) cors.Config {
+	return cors.Config{
+		AllowOrigins:     allowOrigins,
+		AllowMethods:     "GET,POST,PUT,PATCH,DELETE,OPTIONS",
+		AllowHeaders:     "Origin,Content-Type,Accept,Authorization",
+		AllowCredentials: true,
+	}
+}
+
 func main() {
 	// เริ่มต้น structured logger
 	logger.Init()
@@ -108,12 +117,7 @@ func main() {
 	if accountCfg.Enabled {
 		allowOrigins = strings.Join(accountCfg.CORSOrigins, ",")
 	}
-	app.Use(cors.New(cors.Config{
-		AllowOrigins:     allowOrigins,
-		AllowMethods:     "GET,POST,PUT,DELETE,OPTIONS",
-		AllowHeaders:     "Origin,Content-Type,Accept,Authorization",
-		AllowCredentials: true,
-	}))
+	app.Use(cors.New(globalCORSConfig(allowOrigins)))
 
 	// Rate limiting — ป้องกัน brute force
 	app.Use("/api/v1/auth/login", limiter.New(limiter.Config{

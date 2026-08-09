@@ -80,7 +80,9 @@ func (s *AccountCredentialsService) RequestEmailChange(ctx context.Context, user
 	if err != nil {
 		return err
 	}
-	s.send(ctx, message, "change_email", accountauth.EmailTemplateVar{DisplayName: displayName, ActionURL: message.ActionURL})
+	if err := s.send(ctx, message, "change_email", accountauth.EmailTemplateVar{DisplayName: displayName, ActionURL: message.ActionURL}); err != nil {
+		return accountauth.NewError(accountauth.CodeInternal, "Unable to deliver the email confirmation message.")
+	}
 	return nil
 }
 
@@ -155,20 +157,20 @@ func (s *AccountCredentialsService) ConfirmEmailChange(ctx context.Context, rawT
 	if locale == "" {
 		locale = "en"
 	}
-	s.send(ctx, accountauth.EmailMessage{To: oldEmail, Locale: locale}, "email_changed", accountauth.EmailTemplateVar{DisplayName: user.Name})
+	_ = s.send(ctx, accountauth.EmailMessage{To: oldEmail, Locale: locale}, "email_changed", accountauth.EmailTemplateVar{DisplayName: user.Name})
 	s.security.Record(ctx, accountauth.SecurityEvent{UserID: user.ID.String(), EventType: "email_changed", Outcome: "success"})
 	return nil
 }
 
-func (s *AccountCredentialsService) send(ctx context.Context, message accountauth.EmailMessage, purpose string, vars accountauth.EmailTemplateVar) {
+func (s *AccountCredentialsService) send(ctx context.Context, message accountauth.EmailMessage, purpose string, vars accountauth.EmailTemplateVar) error {
 	if s.sender == nil {
-		return
+		return nil
 	}
 	subject, body, err := accountauth.RenderEmail(purpose, message.Locale, vars)
 	if err != nil {
-		return
+		return err
 	}
 	message.Subject = subject
 	message.Body = body
-	_ = s.sender.Send(ctx, message)
+	return s.sender.Send(ctx, message)
 }
