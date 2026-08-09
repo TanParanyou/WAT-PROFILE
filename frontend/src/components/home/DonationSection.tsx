@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import { motion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
+import { Link } from "@/navigation";
 import { QrCode, Building2 } from "lucide-react";
 import { usePublicContactQuery } from "@/features/public/content/queries";
 import { getLocalizedText } from "@/utils/localizedText";
@@ -10,7 +11,6 @@ import { PublicImage } from "@/components/public/media/PublicImage";
 import { QueryErrorState } from "@/components/public/states/QueryErrorState";
 import { EmptyState } from "@/components/public/states/EmptyState";
 import { STATIC_ASSETS } from "@/constants/assets";
-import { DonationForm } from "@/features/public/donations/DonationForm";
 
 const donationFallbackImage = STATIC_ASSETS.DONATION.FALLBACK;
 
@@ -34,7 +34,7 @@ export default function DonationSection() {
   }, [showQrModal]);
 
   return (
-    <section className="border-t border-site-border bg-site-surface px-6 py-[clamp(4rem,9vw,8rem)] text-site-foreground sm:px-10 lg:px-[8vw]">
+    <section id="donate" className="border-t border-site-border bg-site-surface px-6 py-[clamp(4rem,9vw,8rem)] text-site-foreground sm:px-10 lg:px-[8vw]">
       <div>
         <div className="mb-16 grid gap-6 lg:grid-cols-[minmax(0,1fr)_minmax(0,2fr)]">
           <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }} viewport={{ once: true }}>
@@ -84,7 +84,10 @@ export default function DonationSection() {
               </motion.div>
             ) : null}
             </div>
-            <DonationForm />
+            <div className="mt-8 flex flex-col gap-4 border-t border-site-border pt-8 sm:flex-row sm:items-center sm:justify-between">
+              <p className="max-w-[52ch] text-sm leading-6 text-site-body">{t("reportPrompt")}</p>
+              <Link href="/donate/report" className="inline-flex min-h-11 shrink-0 items-center justify-center bg-site-action px-6 py-3 text-sm font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus">{t("reportDonation")}</Link>
+            </div>
           </>
         )}
       </div>
