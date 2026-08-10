@@ -77,20 +77,18 @@ export function AccountTabs({ activeTab, onChange, isDirty }: AccountTabsProps) 
               tabIndex={isActive ? 0 : -1}
               onClick={() => onChange(tab)}
               onKeyDown={(event) => handleKeyDown(event, tab)}
-              className={`min-h-11 shrink-0 border-b-2 px-3 py-2 text-sm font-semibold transition-colors focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus sm:px-4 ${
-                isActive
-                  ? "border-site-action text-site-foreground"
-                  : "border-transparent text-site-muted hover:border-site-border hover:text-site-foreground"
-              }`}
+              className={`min-h-11 shrink-0 border-b-2 px-3 py-2 text-sm font-semibold transition-colors focus-visible:z-10 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus sm:px-4 ${isActive
+                ? "border-site-action text-site-foreground"
+                : "border-transparent text-site-muted hover:border-site-border hover:text-site-foreground"
+                }`}
             >
               {t(`account.${tabLabels[tab]}`)}
             </button>
           );
         })}
       </div>
-
-      <div className="flex min-h-8 items-center">
-        {isDirty ? (
+      {isDirty ? (
+        <div className="flex min-h-8 items-center">
           <span
             role="status"
             aria-live="polite"
@@ -98,8 +96,8 @@ export function AccountTabs({ activeTab, onChange, isDirty }: AccountTabsProps) 
           >
             {t("account.unsaved")}
           </span>
-        ) : null}
-      </div>
+        </div>
+      ) : null}
     </div>
   );
 }
