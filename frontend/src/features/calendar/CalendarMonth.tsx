@@ -121,7 +121,7 @@ export function CalendarMonth({
                 role="gridcell"
               >
                 <button
-                  aria-label={`${format(dayDate, "d MMMM yyyy")}${day.events.length ? `, ${day.events.length} events` : ""}`}
+                  aria-label={`${format(dayDate, "d MMMM yyyy")}${day.events.length ? `, ${labels.eventsCount(day.events.length)}` : ""}`}
                   aria-pressed={isSelected}
                   className={`mb-2 min-h-8 min-w-8 px-2 text-left text-sm ${isSelected ? "bg-site-action font-semibold text-site-on-action" : mutedClass} ${focusClass} focus-visible:outline-2 focus-visible:outline-offset-2`}
                   onClick={() => onSelectedDateChange(day.date)}
@@ -160,7 +160,7 @@ export function CalendarMonth({
             const dayDate = parseCalendarDate(day.date);
             return (
               <button
-                aria-label={`${format(dayDate, "d MMMM yyyy")}${day.events.length ? `, ${day.events.length} events` : ""}`}
+                aria-label={`${format(dayDate, "d MMMM yyyy")}${day.events.length ? `, ${labels.eventsCount(day.events.length)}` : ""}`}
                 aria-pressed={day.date === selectedDate}
                 className={`min-h-12 border-b border-r p-1 text-sm ${cellClass} ${day.date === selectedDate ? "bg-site-action text-site-on-action" : mutedClass} ${focusClass} focus-visible:outline-2 focus-visible:outline-offset-2`}
                 key={day.date}

@@ -5,6 +5,7 @@ export interface CalendarLabels {
   nextMonth: string;
   today: string;
   moreEvents: (count: number) => string;
+  eventsCount: (count: number) => string;
   noEventsOnDate: string;
   calendarInstructions: string;
   dayNames: readonly string[];

@@ -448,6 +448,7 @@
         "nextMonth": "Next month",
         "today": "Today",
         "moreEvents": "+ {count} more",
+        "eventsCount": "{count} events",
         "noEventsOnDate": "No events on this date",
         "calendarInstructions": "Select a date to view its events",
         "viewLabel": "Events view",

@@ -448,6 +448,7 @@
         "nextMonth": "Nächster Monat",
         "today": "Heute",
         "moreEvents": "+ {count} weitere",
+        "eventsCount": "{count} Veranstaltungen",
         "noEventsOnDate": "Keine Veranstaltungen an diesem Tag",
         "calendarInstructions": "Wählen Sie ein Datum, um die Veranstaltungen anzuzeigen",
         "viewLabel": "Veranstaltungsansicht",

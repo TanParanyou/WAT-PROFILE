@@ -7,6 +7,7 @@ export interface CalendarViewToggleProps {
     calendar: string;
     list: string;
   };
+  ariaLabel: string;
   id?: string;
   variant?: "public" | "admin";
 }
@@ -15,6 +16,7 @@ export function CalendarViewToggle({
   value,
   onChange,
   labels,
+  ariaLabel,
   id = "events-view",
   variant = "public",
 }: CalendarViewToggleProps) {
@@ -29,7 +31,7 @@ export function CalendarViewToggle({
 
   return (
     <div
-      aria-label="Events view"
+      aria-label={ariaLabel}
       className={
         variant === "public"
           ? "inline-flex border border-site-border p-1"

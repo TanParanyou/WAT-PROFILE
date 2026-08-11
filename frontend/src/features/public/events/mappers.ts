@@ -1,4 +1,5 @@
 import type { LocalizedTextDto } from "../shared/api-types";
+import type { CalendarEvent } from "@/features/calendar/calendar-domain";
 import type { EventListItem, PublicEventDto, PublicScheduleDto, ScheduleGroup } from "./types";
 
 export function toEventListItem(event: PublicEventDto): EventListItem {
@@ -10,6 +11,19 @@ export function toEventListItem(event: PublicEventDto): EventListItem {
     endDate: event.end_date,
     imageUrl: event.image_url,
     location: event.location,
+  };
+}
+
+export function toPublicCalendarEvent(
+  event: PublicEventDto,
+  locale: string,
+): CalendarEvent {
+  return {
+    id: String(event.id),
+    title: getLocalizedText(event.title, locale),
+    startDate: event.start_date.slice(0, 10),
+    endDate: event.end_date.slice(0, 10),
+    href: `/events/${event.slug}`,
   };
 }
 
