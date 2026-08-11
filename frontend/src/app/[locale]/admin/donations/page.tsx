@@ -27,7 +27,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { StaffDonationFormData } from "@/schemas/donation.schema";
 import { StaffDonationForm } from "@/features/admin/donations/StaffDonationForm";
 import { CancelDonationDialog } from "@/features/admin/donations/CancelDonationDialog";
-import { DonationProofPreviewModal, type DonationProofPreviewKind } from "@/features/admin/donations/DonationProofPreviewModal";
+import { DonationProofPreviewDrawer, type DonationProofPreviewKind } from "@/features/admin/donations/DonationProofPreviewModal";
 
 interface DonationFilters extends AdminFilterRecord {
   status: string[];
@@ -371,7 +371,7 @@ export default function DonationsPage() {
           onSelectAll={(ids) => selectedIds.selectAll(ids)}
         />
       </div>
-      <DonationProofPreviewModal
+      <DonationProofPreviewDrawer
         isOpen={isProofPreviewOpen}
         isLoading={proofPreviewLoadingId !== null}
         fileUrl={proofPreview?.url ?? null}
@@ -380,6 +380,7 @@ export default function DonationsPage() {
         error={proofPreviewError}
         labels={{
           title: t("donations.proofPreview"),
+          close: t("donations.proofPreviewClose"),
           open: t("donations.proofOpen"),
           download: t("donations.proofDownload"),
           loading: t("donations.proofLoading"),

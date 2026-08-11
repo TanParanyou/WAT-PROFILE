@@ -11,9 +11,12 @@ export interface DrawerProps {
   isOpen: boolean;
   onClose: () => void;
   title?: string;
+  description?: string;
   children: React.ReactNode;
+  footer?: React.ReactNode;
   size?: DrawerSize;
   closeOnOverlayClick?: boolean;
+  closeLabel?: string;
 }
 
 const sizeClasses: Record<DrawerSize, string> = {
@@ -28,9 +31,12 @@ export function Drawer({
   isOpen,
   onClose,
   title,
+  description,
   children,
+  footer,
   size = "md",
   closeOnOverlayClick = true,
+  closeLabel = "Close drawer",
 }: DrawerProps) {
   const handleEscape = useCallback(
     (e: KeyboardEvent) => {
@@ -69,23 +75,27 @@ export function Drawer({
         )}
       >
         {/* Header */}
-        <div className="flex items-center justify-between border-b border-admin-border px-4 py-3 bg-admin-surface-muted">
-          <h2 className="text-sm font-semibold text-admin-foreground">
-            {title || ""}
-          </h2>
+        <div className="flex items-start justify-between gap-4 border-b border-admin-border bg-admin-surface-muted px-4 py-3">
+          <div className="min-w-0">
+            <h2 className="text-sm font-semibold text-admin-foreground">
+              {title || ""}
+            </h2>
+            {description ? <p className="mt-1 break-words text-sm text-admin-muted">{description}</p> : null}
+          </div>
           <button
             type="button"
             onClick={onClose}
             className="p-1.5 text-admin-muted hover:text-admin-foreground hover:bg-admin-border rounded-none transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
-            aria-label="Close drawer"
+            aria-label={closeLabel}
           >
             <X size={20} />
           </button>
         </div>
         {/* Content */}
-        <div className="flex-1 overflow-hidden relative flex flex-col text-admin-body">
+        <div className="min-h-0 flex-1 overflow-auto text-admin-body">
           {children}
         </div>
+        {footer ? <div className="shrink-0 border-t border-admin-border bg-admin-surface-muted px-4 py-3 sm:px-5">{footer}</div> : null}
       </div>
     </div>,
     document.body,

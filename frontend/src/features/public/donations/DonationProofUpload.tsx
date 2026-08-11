@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { Download, Eye, ExternalLink, FileText, Image as ImageIcon, RotateCcw, Upload, X, ZoomIn, ZoomOut } from "lucide-react";
-import { SiteModal } from "@/components/public/modal";
+import { SiteDrawer } from "@/components/public/drawer";
 import { useDonationProofPreview } from "@/hooks/useDonationProofPreview";
 import {
   DONATION_PROOF_TYPES,
@@ -135,23 +135,31 @@ export function DonationProofUpload({ id, file, error, locale, onChange, message
       </div>
 
       {file && previewUrl && imagePreview ? (
-        <SiteModal open={isPreviewOpen} title={messages.preview} description={file.name} onClose={closePreview} closeLabel={messages.previewClose} size="md">
+        <SiteDrawer
+          open={isPreviewOpen}
+          title={messages.preview}
+          description={file.name}
+          onClose={closePreview}
+          closeLabel={messages.previewClose}
+          footer={(
+            <div className="grid gap-3 sm:flex sm:flex-wrap sm:items-center sm:justify-end">
+              <div className="flex flex-wrap items-center justify-end gap-2" role="group" aria-label={messages.zoom}>
+                <button type="button" onClick={zoomOut} disabled={!canZoomOut} aria-label={messages.zoomOut} className={previewActionClassName}><ZoomOut className="size-4" aria-hidden="true" />{messages.zoomOut}</button>
+                <span className="min-w-14 text-center text-sm text-site-muted" aria-live="polite">{zoomPercent}%</span>
+                <button type="button" onClick={zoomIn} disabled={!canZoomIn} aria-label={messages.zoomIn} className={previewActionClassName}><ZoomIn className="size-4" aria-hidden="true" />{messages.zoomIn}</button>
+                <button type="button" onClick={resetZoom} disabled={!canZoomOut} aria-label={messages.zoomReset} className={previewActionClassName}><RotateCcw className="size-4" aria-hidden="true" />{messages.zoomReset}</button>
+              </div>
+              <div className="flex flex-wrap justify-end gap-2">
+                <a href={previewUrl} target="_blank" rel="noopener noreferrer" className={previewActionClassName}><ExternalLink className="size-4" aria-hidden="true" />{messages.open}</a>
+                <a href={previewUrl} download={file.name} className={previewActionClassName}><Download className="size-4" aria-hidden="true" />{messages.download}</a>
+              </div>
+            </div>
+          )}
+        >
           <div className="flex min-h-[16rem] items-center justify-center overflow-visible border border-site-border bg-site-surface p-3 sm:min-h-[24rem] sm:p-5">
             <Image src={previewUrl} alt={messages.previewAlt} width={1200} height={900} unoptimized style={{ transform: `scale(${previewScale})` }} className="h-auto w-auto max-w-full origin-center object-contain transition-transform motion-reduce:transition-none" />
           </div>
-          <div className="sticky bottom-0 z-10 -mx-4 -mb-4 mt-3 border-t border-site-border bg-site-canvas px-4 pb-1 pt-3 sm:-mx-6 sm:-mb-6 sm:px-6">
-            <div className="flex flex-wrap items-center justify-end gap-2" role="group" aria-label={messages.zoom}>
-              <button type="button" onClick={zoomOut} disabled={!canZoomOut} aria-label={messages.zoomOut} className={previewActionClassName}><ZoomOut className="size-4" aria-hidden="true" />{messages.zoomOut}</button>
-              <span className="min-w-14 text-center text-sm text-site-muted" aria-live="polite">{zoomPercent}%</span>
-              <button type="button" onClick={zoomIn} disabled={!canZoomIn} aria-label={messages.zoomIn} className={previewActionClassName}><ZoomIn className="size-4" aria-hidden="true" />{messages.zoomIn}</button>
-              <button type="button" onClick={resetZoom} disabled={!canZoomOut} aria-label={messages.zoomReset} className={previewActionClassName}><RotateCcw className="size-4" aria-hidden="true" />{messages.zoomReset}</button>
-            </div>
-            <div className="mt-3 flex flex-wrap justify-end gap-2">
-              <a href={previewUrl} target="_blank" rel="noopener noreferrer" className={previewActionClassName}><ExternalLink className="size-4" aria-hidden="true" />{messages.open}</a>
-              <a href={previewUrl} download={file.name} className={previewActionClassName}><Download className="size-4" aria-hidden="true" />{messages.download}</a>
-            </div>
-          </div>
-        </SiteModal>
+        </SiteDrawer>
       ) : null}
     </div>
   );
