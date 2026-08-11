@@ -3,11 +3,12 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocale, useTranslations } from "next-intl";
 import { useMemo, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Link } from "@/navigation";
 import { usePublicDonationCategoriesQuery } from "./queries";
 import { isPublicDonationApiError, submitSelfReportedDonation, type SelfReportedDonationPayload } from "./api";
+import { DonationProofUpload } from "./DonationProofUpload";
 import { createSelfReportedDonationSchema, type SelfReportedDonationValues } from "./schema";
 
 const inputClassName = "min-h-11 w-full border border-site-border bg-site-canvas px-3 py-2 text-site-foreground focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus";
@@ -52,7 +53,7 @@ export function DonationReportForm() {
     proofType: t("proofType"),
     proofSize: t("proofSize"),
   }), [t]);
-  const { register, handleSubmit, reset, setError, formState: { errors, isSubmitting } } = useForm<z.input<typeof schema>, unknown, SelfReportedDonationValues>({
+  const { control, register, handleSubmit, reset, setError, formState: { errors, isSubmitting } } = useForm<z.input<typeof schema>, unknown, SelfReportedDonationValues>({
     resolver: zodResolver(schema),
     mode: "onBlur",
     reValidateMode: "onChange",
@@ -111,8 +112,8 @@ export function DonationReportForm() {
   const serverError = errors.root?.server?.message;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="grid gap-8">
-      <fieldset className="grid gap-6 border border-site-border bg-site-canvas p-6 sm:p-8">
+    <form onSubmit={handleSubmit(onSubmit)} noValidate className="border border-site-border bg-site-canvas">
+      <fieldset className="grid gap-6 p-6 sm:p-8">
         <legend className="px-2 font-heading text-2xl text-site-foreground">{t("detailsTitle")}</legend>
         <p className="max-w-[65ch] text-sm leading-7 text-site-body">{t("detailsDescription")}</p>
         <div className="grid gap-6 md:grid-cols-2">
@@ -140,18 +141,19 @@ export function DonationReportForm() {
             </select>
             {errorMessage("donation_method") ? <p id="donation-method-error" role="alert" className="text-sm text-site-danger">{errorMessage("donation_method")}</p> : null}
           </div>
-          <div className="grid gap-2">
+          <div className="grid gap-2 md:col-span-2">
             <label htmlFor="donation-category" className="text-sm font-semibold text-site-foreground">{t("categoryLabel")}</label>
-            <select id="donation-category" aria-invalid={Boolean(errors.category_id)} aria-describedby={errors.category_id ? "donation-category-error" : undefined} disabled={categoryQuery.isLoading} {...register("category_id", { setValueAs: (value: unknown) => value === "" ? null : Number(value) })} className={inputClassName}>
+            <select id="donation-category" aria-busy={categoryQuery.isLoading} aria-invalid={Boolean(errors.category_id)} aria-describedby={errors.category_id ? "donation-category-error" : undefined} disabled={categoryQuery.isLoading} {...register("category_id", { setValueAs: (value: unknown) => value === "" ? null : Number(value) })} className={inputClassName}>
               <option value="">{t("generalCategory")}</option>
               {(categoryQuery.data ?? []).map((category) => <option key={category.id} value={category.id}>{category.name[locale] || category.name.en || category.name.th || category.name.de}</option>)}
             </select>
+            {categoryQuery.isLoading ? <p role="status" aria-live="polite" className="text-xs leading-5 text-site-muted">{t("categoryLoading")}</p> : null}
             {errorMessage("category_id") ? <p id="donation-category-error" role="alert" className="text-sm text-site-danger">{errorMessage("category_id")}</p> : null}
           </div>
         </div>
       </fieldset>
 
-      <fieldset className="grid gap-6 border border-site-border bg-site-canvas p-6 sm:p-8">
+      <fieldset className="grid gap-6 border-t border-site-border p-6 sm:p-8">
         <legend className="px-2 font-heading text-2xl text-site-foreground">{t("contactTitle")}</legend>
         <p className="max-w-[65ch] text-sm leading-7 text-site-body">{t("contactDescription")}</p>
         <div className="grid gap-6 md:grid-cols-2">
@@ -165,27 +167,51 @@ export function DonationReportForm() {
             <input id="donor-email" type="email" autoComplete="email" aria-invalid={Boolean(errors.donor_email)} aria-describedby={errors.donor_email ? "donor-email-error" : undefined} {...register("donor_email")} className={inputClassName} />
             {errorMessage("donor_email") ? <p id="donor-email-error" role="alert" className="text-sm text-site-danger">{errorMessage("donor_email")}</p> : null}
           </div>
-          <div className="grid gap-2">
+          <div className="grid gap-2 md:col-span-2">
             <label htmlFor="donor-phone" className="text-sm font-semibold text-site-foreground">{t("phoneLabel")}</label>
             <input id="donor-phone" type="tel" autoComplete="tel" aria-invalid={Boolean(errors.donor_phone)} aria-describedby={errors.donor_phone ? "donor-phone-error" : undefined} {...register("donor_phone")} className={inputClassName} />
             {errorMessage("donor_phone") ? <p id="donor-phone-error" role="alert" className="text-sm text-site-danger">{errorMessage("donor_phone")}</p> : null}
           </div>
         </div>
-        <div className="grid gap-2">
+        <div className="grid gap-2 md:col-span-2">
           <label htmlFor="donation-proof" className="text-sm font-semibold text-site-foreground">{t("proofLabel")}</label>
-          <input id="donation-proof" type="file" accept="application/pdf,image/jpeg,image/png,image/webp" aria-invalid={Boolean(errors.proof)} aria-describedby={errors.proof ? "donation-proof-error donation-proof-hint" : "donation-proof-hint"} {...register("proof", { setValueAs: (value: unknown) => typeof FileList !== "undefined" && value instanceof FileList ? value.item(0) ?? undefined : value })} className={`${inputClassName} py-2`} />
-          <p id="donation-proof-hint" className="text-xs leading-5 text-site-muted">{t("proofHint")}</p>
-          {errorMessage("proof") ? <p id="donation-proof-error" role="alert" className="text-sm text-site-danger">{errorMessage("proof")}</p> : null}
+          <Controller
+            control={control}
+            name="proof"
+            render={({ field }) => (
+              <DonationProofUpload
+                id="donation-proof"
+                file={field.value}
+                error={errorMessage("proof") ?? undefined}
+                locale={locale}
+                onChange={(file) => field.onChange(file)}
+                messages={{
+                  hint: t("proofHint"),
+                  choose: t("proofChoose"),
+                  drop: t("proofDrop"),
+                  replace: t("proofReplace"),
+                  remove: t("proofRemove"),
+                  image: t("proofImage"),
+                  pdf: t("proofPdf"),
+                  previewAlt: t("proofPreviewAlt"),
+                  invalidType: t("proofSelectionInvalidType"),
+                  tooLarge: t("proofSelectionTooLarge"),
+                }}
+              />
+            )}
+          />
         </div>
         <div className="grid gap-4 border-t border-site-border pt-6">
-          <label className="flex min-h-11 items-start gap-3 text-sm leading-6 text-site-body"><input type="checkbox" className="mt-1 size-5 shrink-0" {...register("receipt_requested")} /><span>{t("receiptRequested")}</span></label>
-          <label className="flex min-h-11 items-start gap-3 text-sm leading-6 text-site-body"><input type="checkbox" className="mt-1 size-5 shrink-0" aria-invalid={Boolean(errors.privacy_acknowledged)} aria-describedby={errors.privacy_acknowledged ? "privacy-error" : undefined} {...register("privacy_acknowledged")} /><span>{t("privacyAcknowledged")}</span></label>
+          <label className="flex min-h-11 items-start gap-3 text-sm leading-6 text-site-body"><input type="checkbox" className="mt-1 size-5 shrink-0 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus" {...register("receipt_requested")} /><span>{t("receiptRequested")}</span></label>
+          <label className="flex min-h-11 items-start gap-3 text-sm leading-6 text-site-body"><input type="checkbox" className="mt-1 size-5 shrink-0 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus" aria-invalid={Boolean(errors.privacy_acknowledged)} aria-describedby={errors.privacy_acknowledged ? "privacy-error" : undefined} {...register("privacy_acknowledged")} /><span>{t("privacyAcknowledged")}</span></label>
           {errorMessage("privacy_acknowledged") ? <p id="privacy-error" role="alert" className="text-sm text-site-danger">{errorMessage("privacy_acknowledged")}</p> : null}
         </div>
       </fieldset>
 
-      {serverError ? <p role="alert" className="border border-site-danger bg-site-canvas p-4 text-sm text-site-danger">{String(serverError)}</p> : null}
-      <button type="submit" disabled={isSubmitting} className="min-h-12 w-full bg-site-action px-6 py-3 text-sm font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-60">{isSubmitting ? t("submitting") : t("submitReport")}</button>
+      <div className="grid gap-4 border-t border-site-border p-6 sm:p-8">
+        {serverError ? <p role="alert" className="border border-site-danger bg-site-canvas p-4 text-sm text-site-danger">{String(serverError)}</p> : null}
+        <button type="submit" disabled={isSubmitting} className="min-h-12 w-full bg-site-action px-6 py-3 text-sm font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-60">{isSubmitting ? t("submitting") : t("submitReport")}</button>
+      </div>
     </form>
   );
 }
