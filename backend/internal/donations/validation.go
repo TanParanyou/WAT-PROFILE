@@ -12,11 +12,13 @@ import (
 
 var amountPattern = regexp.MustCompile(`^[0-9]+(?:\.[0-9]{1,2})?$`)
 var phonePattern = regexp.MustCompile(`^[+0-9() -]{1,32}$`)
+var donationTimePattern = regexp.MustCompile(`^(?:[01][0-9]|2[0-3]):[0-5][0-9]$`)
 
 type StaffInput struct {
 	Amount           string
 	Currency         string
 	DonationDate     string
+	DonationTime     string
 	DonationMethod   string
 	DonorEmail       string
 	DonorPhone       string
@@ -27,6 +29,7 @@ type PublicInput struct {
 	Amount              string
 	Currency            string
 	DonationDate        string
+	DonationTime        string
 	DonationMethod      string
 	DonorName           string
 	DonorEmail          string
@@ -62,6 +65,9 @@ func ValidateStaffInput(input StaffInput) error {
 	}
 	if _, err := time.Parse("2006-01-02", strings.TrimSpace(input.DonationDate)); err != nil {
 		return validationError("donation_date", "donation date is invalid")
+	}
+	if !donationTimePattern.MatchString(strings.TrimSpace(input.DonationTime)) {
+		return validationError("donation_time", "donation time must use HH:mm")
 	}
 	method := strings.ToLower(strings.TrimSpace(input.DonationMethod))
 	if method != "cash" && method != "bank_transfer" && method != "paypal" {
@@ -106,7 +112,7 @@ func ValidatePhone(phone string) error {
 }
 
 func ValidatePublicInput(input PublicInput) error {
-	if err := ValidateStaffInput(StaffInput{Amount: input.Amount, Currency: input.Currency, DonationDate: input.DonationDate, DonationMethod: input.DonationMethod, DonorEmail: input.DonorEmail, DonorPhone: input.DonorPhone, ReceiptRequested: input.ReceiptRequested}); err != nil {
+	if err := ValidateStaffInput(StaffInput{Amount: input.Amount, Currency: input.Currency, DonationDate: input.DonationDate, DonationTime: input.DonationTime, DonationMethod: input.DonationMethod, DonorEmail: input.DonorEmail, DonorPhone: input.DonorPhone, ReceiptRequested: input.ReceiptRequested}); err != nil {
 		return err
 	}
 	method := strings.ToLower(strings.TrimSpace(input.DonationMethod))

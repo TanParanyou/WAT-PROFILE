@@ -28,6 +28,9 @@ func (s *DonationDocumentService) RenderReceipt(donation *models.Donation) ([]by
 		"Amount: " + strconv.FormatFloat(donation.Amount, 'f', 2, 64) + " " + donation.Currency,
 		"Date: " + donation.DonationDate.Format("2006-01-02"),
 	}
+	if donation.DonationTime != nil && strings.TrimSpace(string(*donation.DonationTime)) != "" {
+		lines = append(lines, "Time: "+strings.TrimSpace(string(*donation.DonationTime)))
+	}
 	content := make([]string, 0, len(lines))
 	for i, line := range lines {
 		content = append(content, fmt.Sprintf("BT /F1 12 Tf 72 %d Td (%s) Tj ET", 760-(i*24), pdfEscape(line)))

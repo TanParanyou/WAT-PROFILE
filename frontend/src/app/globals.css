@@ -287,6 +287,24 @@
     background: var(--public-canvas);
 }
 
+.site-time-picker-calendar .react-datepicker__time-container {
+    border-left-color: var(--public-border);
+}
+
+.site-time-picker-calendar .react-datepicker__time,
+.site-time-picker-calendar .react-datepicker__time-box {
+    background: var(--public-canvas);
+}
+
+.site-time-picker-calendar .react-datepicker__time-list-item:hover {
+    background: var(--public-surface) !important;
+}
+
+.site-time-picker-calendar .react-datepicker__time-list-item--selected {
+    background: var(--public-action) !important;
+    color: var(--public-on-action) !important;
+}
+
 /* Public dark mode stays warm and paper-like so photography remains the visual anchor. */
 [data-public-theme="dark"] .public-theme,
 [data-public-theme="dark"].public-theme {

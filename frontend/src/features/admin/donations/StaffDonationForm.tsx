@@ -1,11 +1,13 @@
 "use client";
 
-import { useForm } from "react-hook-form";
+import { Controller, useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useLocale, useTranslations } from "next-intl";
 import { staffDonationSchema, type StaffDonationFormData } from "@/schemas/donation.schema";
 import type { DonationCategory } from "@/types/entities";
+import { DatePicker } from "@/components/ui/DatePicker";
+import { TimePicker } from "@/components/ui/TimePicker";
 
 interface StaffDonationFormProps {
   categories: DonationCategory[];
@@ -16,16 +18,17 @@ interface StaffDonationFormProps {
 export function StaffDonationForm({ categories, onSubmit, onCancel }: StaffDonationFormProps) {
   const t = useTranslations("Admin");
   const locale = useLocale() as "th" | "en" | "de";
-  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<z.input<typeof staffDonationSchema>, unknown, StaffDonationFormData>({
+  const { control, register, handleSubmit, formState: { errors, isSubmitting } } = useForm<z.input<typeof staffDonationSchema>, unknown, StaffDonationFormData>({
     resolver: zodResolver(staffDonationSchema),
-    defaultValues: { amount: 0, currency: "EUR", donation_date: "", donation_method: "cash", donor_name: "", donor_email: "", donor_phone: "", category_id: null, receipt_requested: false },
+    defaultValues: { amount: 0, currency: "EUR", donation_date: "", donation_time: "", donation_method: "cash", donor_name: "", donor_email: "", donor_phone: "", category_id: null, receipt_requested: false },
   });
   const error = (field: keyof StaffDonationFormData) => errors[field]?.message ? <p className="text-xs text-admin-danger">{String(errors[field]?.message)}</p> : null;
 
   return <form onSubmit={(event) => void handleSubmit(onSubmit)(event)} className="mb-6 grid gap-3 border border-admin-border bg-admin-surface p-4 md:grid-cols-4" noValidate>
     <label className="grid gap-1 text-sm"><span>{t("donations.amount")}</span><input {...register("amount")} type="number" min="0.01" step="0.01" className="min-h-11 border border-admin-border px-3" />{error("amount")}</label>
     <label className="grid gap-1 text-sm"><span>{t("donations.currency")}</span><select {...register("currency")} className="min-h-11 border border-admin-border px-3"><option value="EUR">EUR</option></select>{error("currency")}</label>
-    <label className="grid gap-1 text-sm"><span>{t("donations.date")}</span><input {...register("donation_date")} type="date" className="min-h-11 border border-admin-border px-3" />{error("donation_date")}</label>
+    <Controller control={control} name="donation_date" render={({ field }) => <DatePicker id="staff-donation-date" label={t("donations.date")} value={field.value} onChange={field.onChange} error={errors.donation_date?.message ? String(errors.donation_date.message) : undefined} required variant="admin" locale={locale} placeholder={t("donations.datePlaceholder")} />} />
+    <Controller control={control} name="donation_time" render={({ field }) => <TimePicker id="staff-donation-time" label={t("donations.time")} value={field.value} onChange={field.onChange} error={errors.donation_time?.message ? String(errors.donation_time.message) : undefined} required variant="admin" locale={locale} placeholder={t("donations.timePlaceholder")} timeCaption={t("donations.time")} />} />
     <label className="grid gap-1 text-sm"><span>{t("donations.method")}</span><select {...register("donation_method")} className="min-h-11 border border-admin-border px-3"><option value="cash">{t("donations.cash")}</option><option value="bank_transfer">{t("donations.bankTransfer")}</option><option value="paypal">PayPal</option></select>{error("donation_method")}</label>
     <label className="grid gap-1 text-sm"><span>{t("donations.donor")}</span><input {...register("donor_name")} className="min-h-11 border border-admin-border px-3" />{error("donor_name")}</label>
     <label className="grid gap-1 text-sm"><span>{t("donations.email")}</span><input {...register("donor_email")} type="email" className="min-h-11 border border-admin-border px-3" />{error("donor_email")}</label>

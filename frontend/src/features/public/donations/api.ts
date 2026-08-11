@@ -15,6 +15,7 @@ export interface SelfReportedDonationPayload {
   amount: number;
   currency: "EUR";
   donation_date: string;
+  donation_time: string;
   donation_method: "bank_transfer" | "paypal";
   donor_name: string;
   donor_email: string;

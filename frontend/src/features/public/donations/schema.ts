@@ -6,6 +6,8 @@ export interface DonationSchemaMessages {
   currency: string;
   dateRequired: string;
   dateInvalid: string;
+  timeRequired: string;
+  timeInvalid: string;
   method: string;
   nameRequired: string;
   emailRequired: string;
@@ -26,6 +28,7 @@ export function createSelfReportedDonationSchema(messages: DonationSchemaMessage
     amount: z.coerce.number(messages.amountPositive).positive(messages.amountPositive).refine((value) => Number.isInteger(value * 100), messages.amountDecimals),
     currency: z.literal("EUR", { error: messages.currency }),
     donation_date: z.string().min(1, messages.dateRequired).regex(/^\d{4}-\d{2}-\d{2}$/, messages.dateRequired).refine((value) => !Number.isNaN(Date.parse(`${value}T00:00:00Z`)), messages.dateInvalid),
+    donation_time: z.string().min(1, messages.timeRequired).regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, messages.timeInvalid),
     donation_method: z.enum(["bank_transfer", "paypal"], { error: messages.method }),
     donor_name: z.string().trim().min(1, messages.nameRequired),
     donor_email: z.string().trim().min(1, messages.emailRequired).email(messages.emailInvalid),

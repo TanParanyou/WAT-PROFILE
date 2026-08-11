@@ -32,6 +32,7 @@ type Donation struct {
 	Amount                float64           `gorm:"type:decimal(10,2);not null" json:"amount"`
 	Currency              string            `gorm:"size:3;default:EUR" json:"currency"`
 	DonationDate          time.Time         `gorm:"type:date;default:CURRENT_DATE;index" json:"donation_date"`
+	DonationTime          *TimeOfDay        `gorm:"type:time" json:"donation_time"`
 	DonationMethod        string            `gorm:"size:50" json:"donation_method"` // 'bank_transfer', 'cash', 'paypal'
 	CategoryID            *int              `gorm:"index" json:"category_id"`
 	Category              *DonationCategory `gorm:"foreignKey:CategoryID;constraint:OnDelete:SET NULL" json:"category,omitempty"`

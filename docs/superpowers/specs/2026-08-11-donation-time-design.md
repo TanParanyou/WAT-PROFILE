@@ -18,7 +18,7 @@
 ## Data and API
 
 1. เพิ่ม migration `000037_add_donation_time` ที่เพิ่ม `donations.donation_time TIME NULL`; down migration ลบเฉพาะคอลัมน์นี้
-2. เพิ่ม `DonationTime string` ใน GORM model และ JSON response เป็น `donation_time`, โดยรายการเก่าเป็นค่าว่าง/null ตาม driver
+2. เพิ่ม `DonationTime *models.TimeOfDay` ใน GORM model และ JSON response เป็น `donation_time`, โดยรายการเก่าเป็น `null`
 3. เพิ่ม `DonationTime` ใน `StaffInput` และ `PublicInput`; backend ตรวจ regex `^([01][0-9]|2[0-3]):[0-5][0-9]$` และคืน field error ที่ `donation_time`
 4. เพิ่ม `donation_time` เป็น required ใน OpenAPI ของ public multipart และ `StaffDonationInput`; schema ของ `Donation`/`MemberDonation` ระบุเป็น string เวลาและ nullable สำหรับข้อมูลเก่า
 5. เพิ่มเวลาใน member donation response, admin list response/model และเอกสารใบเสร็จเมื่อมีค่า

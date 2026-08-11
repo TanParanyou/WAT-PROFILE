@@ -176,6 +176,7 @@ export interface Donation {
   amount: number;
   currency: string;
   donation_date: string;
+  donation_time: string | null;
   donation_method: string;
   category_id: number | null;
   category?: DonationCategory;

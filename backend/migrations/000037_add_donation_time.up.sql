@@ -1,0 +1,2 @@
+ALTER TABLE donations
+    ADD COLUMN IF NOT EXISTS donation_time TIME WITHOUT TIME ZONE;

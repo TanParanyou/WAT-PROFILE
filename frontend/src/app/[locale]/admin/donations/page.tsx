@@ -199,10 +199,11 @@ export default function DonationsPage() {
         { header: "Method", accessor: (item) => item.donation_method || "" },
         { header: "Category", accessor: (item) => item.category?.name?.th || "" },
         {
-          header: "Date",
+          header: t("donations.date"),
           accessor: (item) =>
             item.donation_date ? new Date(item.donation_date).toLocaleDateString("th-TH") : "",
         },
+        { header: t("donations.time"), accessor: (item) => item.donation_time || "" },
         { header: "Status", accessor: (item) => item.status || "" },
       ],
       "donations_export"
@@ -255,12 +256,16 @@ export default function DonationsPage() {
       header: t("columns.date"),
       accessorKey: "donation_date",
       sortable: true,
-      cell: (v) =>
-        new Date(v as string).toLocaleDateString("th-TH", {
-          year: "numeric",
-          month: "short",
-          day: "numeric",
-        }),
+      cell: (v, row) => (
+        <div>
+          <div>{new Date(v as string).toLocaleDateString("th-TH", {
+            year: "numeric",
+            month: "short",
+            day: "numeric",
+          })}</div>
+          {row.donation_time ? <div className="text-xs text-admin-muted">{row.donation_time}</div> : null}
+        </div>
+      ),
     },
     {
       header: t("columns.status"),

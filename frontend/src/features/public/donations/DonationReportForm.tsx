@@ -7,6 +7,7 @@ import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Link } from "@/navigation";
 import { DatePicker } from "@/components/ui/DatePicker";
+import { TimePicker } from "@/components/ui/TimePicker";
 import { useUnsavedChanges } from "@/features/public/account/hooks/useUnsavedChanges";
 import { usePublicDonationCategoriesQuery } from "./queries";
 import { isPublicDonationApiError, submitSelfReportedDonation, type SelfReportedDonationPayload } from "./api";
@@ -21,6 +22,7 @@ const fieldNames: readonly (keyof SelfReportedDonationValues)[] = [
   "amount",
   "currency",
   "donation_date",
+  "donation_time",
   "donation_method",
   "donor_name",
   "donor_email",
@@ -38,6 +40,8 @@ function localeValue(locale: string): DonationLocale {
 function defaultDonationValues(locale: DonationLocale) {
   return {
     currency: "EUR" as const,
+    donation_date: "",
+    donation_time: "",
     donation_method: "bank_transfer" as const,
     locale,
     receipt_requested: false,
@@ -62,6 +66,8 @@ export function DonationReportForm({ onDirtyChange }: DonationReportFormProps) {
     currency: t("currencyError"),
     dateRequired: t("dateRequired"),
     dateInvalid: t("dateInvalid"),
+    timeRequired: t("timeRequired"),
+    timeInvalid: t("timeInvalid"),
     method: t("methodError"),
     nameRequired: t("nameRequired"),
     emailRequired: t("emailRequired"),
@@ -176,6 +182,24 @@ export function DonationReportForm({ onDirtyChange }: DonationReportFormProps) {
                   variant="public"
                   locale={locale}
                   placeholder={t("datePlaceholder")}
+                />
+              )}
+            />
+            <Controller
+              control={control}
+              name="donation_time"
+              render={({ field }) => (
+                <TimePicker
+                  id="donation-time"
+                  label={t("timeLabel")}
+                  value={field.value}
+                  onChange={field.onChange}
+                  error={errorMessage("donation_time") ?? undefined}
+                  required
+                  variant="public"
+                  locale={locale}
+                  placeholder={t("timePlaceholder")}
+                  timeCaption={t("timeLabel")}
                 />
               )}
             />

@@ -32,7 +32,8 @@ func TestDonationReceiptContractUsesCurrentFields(t *testing.T) {
 }
 
 func TestDonationReceiptIsDeterministicAndHasChecksum(t *testing.T) {
-	donation := &models.Donation{ReceiptNumber: "DON-2026-001", DonorName: "Test Donor", Amount: 25.5, Currency: "EUR", DonationDate: time.Date(2026, 8, 7, 0, 0, 0, 0, time.UTC)}
+	donationTime := models.TimeOfDay("09:15")
+	donation := &models.Donation{ReceiptNumber: "DON-2026-001", DonorName: "Test Donor", Amount: 25.5, Currency: "EUR", DonationDate: time.Date(2026, 8, 7, 0, 0, 0, 0, time.UTC), DonationTime: &donationTime}
 	svc := NewDonationDocumentService()
 	first, checksum, err := svc.RenderReceipt(donation)
 	if err != nil {
@@ -45,7 +46,7 @@ func TestDonationReceiptIsDeterministicAndHasChecksum(t *testing.T) {
 	if string(first) != string(second) || checksum != checksum2 {
 		t.Fatal("receipt rendering must be deterministic")
 	}
-	for _, value := range []string{"DON-2026-001", "Test Donor", "25.50 EUR"} {
+	for _, value := range []string{"DON-2026-001", "Test Donor", "25.50 EUR", "Time: 09:15"} {
 		if !strings.Contains(string(first), value) {
 			t.Fatalf("receipt missing %q", value)
 		}

@@ -17,6 +17,7 @@ export const staffDonationSchema = z.object({
   amount: z.coerce.number().positive().refine((value) => Number.isInteger(value * 100), "Amount supports at most two decimals"),
   currency: z.literal("EUR"),
   donation_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Donation date is required"),
+  donation_time: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, "Donation time is required"),
   donation_method: z.enum(["cash", "bank_transfer", "paypal"]),
   category_id: z.number().int().positive().nullable().optional(),
   receipt_requested: z.boolean(),

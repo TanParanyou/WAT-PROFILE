@@ -96,13 +96,14 @@ func (h *DonationHandler) SubmitSelfReported(c *fiber.Ctx) error {
 	method := strings.ToLower(strings.TrimSpace(c.FormValue("donation_method")))
 	email := strings.TrimSpace(c.FormValue("donor_email"))
 	donationDate := strings.TrimSpace(c.FormValue("donation_date"))
+	donationTime := strings.TrimSpace(c.FormValue("donation_time"))
 	locale := strings.TrimSpace(c.FormValue("locale"))
 	categoryID, err := optionalDonationCategoryID(c.FormValue("category_id"))
 	if err != nil {
 		return donationValidationResponse(c, err)
 	}
 	privacyAcknowledged := c.FormValue("privacy_acknowledged") == "true" || strings.EqualFold(c.FormValue("privacy_acknowledged"), "on")
-	if err := donationvalidation.ValidatePublicInput(donationvalidation.PublicInput{Amount: amountValue, Currency: c.FormValue("currency"), DonationDate: donationDate, DonationMethod: method, DonorName: c.FormValue("donor_name"), DonorEmail: email, DonorPhone: c.FormValue("donor_phone"), Locale: locale, HasProof: true, PrivacyAcknowledged: privacyAcknowledged}); err != nil {
+	if err := donationvalidation.ValidatePublicInput(donationvalidation.PublicInput{Amount: amountValue, Currency: c.FormValue("currency"), DonationDate: donationDate, DonationTime: donationTime, DonationMethod: method, DonorName: c.FormValue("donor_name"), DonorEmail: email, DonorPhone: c.FormValue("donor_phone"), Locale: locale, HasProof: true, PrivacyAcknowledged: privacyAcknowledged}); err != nil {
 		return donationValidationResponse(c, err)
 	}
 	if err := h.donationService.ValidateActiveCategory(categoryID); err != nil {
@@ -144,7 +145,7 @@ func (h *DonationHandler) SubmitSelfReported(c *fiber.Ctx) error {
 	proof := &models.DonationProof{StorageKey: key, OriginalFilename: filepath.Base(proofHeader.Filename), MimeType: mimeType, Size: int64(len(data)), Checksum: fmt.Sprintf("%x", sum[:])}
 	donationDateValue, _ := time.Parse("2006-01-02", donationDate)
 	receiptRequested := c.FormValue("receipt_requested") == "true" || strings.EqualFold(c.FormValue("receipt_requested"), "on")
-	donation := models.Donation{DonorType: "guest", DonorName: strings.TrimSpace(c.FormValue("donor_name")), DonorEmail: email, DonorPhone: strings.TrimSpace(c.FormValue("donor_phone")), Amount: amount, Currency: "EUR", DonationDate: donationDateValue, DonationMethod: method, CategoryID: categoryID, DonorAddress: strings.TrimSpace(c.FormValue("donor_address")), CommunicationLocale: locale, ReceiptRequested: receiptRequested}
+	donation := models.Donation{DonorType: "guest", DonorName: strings.TrimSpace(c.FormValue("donor_name")), DonorEmail: email, DonorPhone: strings.TrimSpace(c.FormValue("donor_phone")), Amount: amount, Currency: "EUR", DonationDate: donationDateValue, DonationTime: donationTimePointer(donationTime), DonationMethod: method, CategoryID: categoryID, DonorAddress: strings.TrimSpace(c.FormValue("donor_address")), CommunicationLocale: locale, ReceiptRequested: receiptRequested}
 	created, err := h.donationService.CreateSelfReported(services.SelfReportedDonationInput{Donation: donation, Proof: proof})
 	if err != nil {
 		_ = h.store.DeleteFile(c.UserContext(), key)
@@ -169,6 +170,7 @@ func (h *DonationHandler) CreateStaffDonation(c *fiber.Ctx) error {
 		Amount           float64 `json:"amount"`
 		Currency         string  `json:"currency"`
 		DonationDate     string  `json:"donation_date"`
+		DonationTime     string  `json:"donation_time"`
 		DonationMethod   string  `json:"donation_method"`
 		CategoryID       *int    `json:"category_id"`
 		ReceiptRequested bool    `json:"receipt_requested"`
@@ -176,14 +178,14 @@ func (h *DonationHandler) CreateStaffDonation(c *fiber.Ctx) error {
 	if err := c.BodyParser(&request); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
 	}
-	if err := donationvalidation.ValidateStaffInput(donationvalidation.StaffInput{Amount: strconv.FormatFloat(request.Amount, 'f', -1, 64), Currency: request.Currency, DonationDate: request.DonationDate, DonationMethod: request.DonationMethod, DonorEmail: request.DonorEmail, DonorPhone: request.DonorPhone, ReceiptRequested: request.ReceiptRequested}); err != nil {
-		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	if err := donationvalidation.ValidateStaffInput(donationvalidation.StaffInput{Amount: strconv.FormatFloat(request.Amount, 'f', -1, 64), Currency: request.Currency, DonationDate: request.DonationDate, DonationTime: request.DonationTime, DonationMethod: request.DonationMethod, DonorEmail: request.DonorEmail, DonorPhone: request.DonorPhone, ReceiptRequested: request.ReceiptRequested}); err != nil {
+		return donationValidationResponse(c, err)
 	}
 	if err := h.donationService.ValidateActiveCategory(request.CategoryID); err != nil {
-		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+		return donationValidationResponse(c, &donationvalidation.ValidationError{Field: "category_id", Message: err.Error()})
 	}
 	donationDate, _ := time.Parse("2006-01-02", request.DonationDate)
-	donation := models.Donation{DonorType: "guest", DonorName: strings.TrimSpace(request.DonorName), DonorEmail: strings.TrimSpace(request.DonorEmail), DonorPhone: strings.TrimSpace(request.DonorPhone), DonorAddress: strings.TrimSpace(request.DonorAddress), Amount: request.Amount, Currency: "EUR", DonationDate: donationDate, DonationMethod: strings.ToLower(strings.TrimSpace(request.DonationMethod)), CategoryID: request.CategoryID, ReceiptRequested: request.ReceiptRequested}
+	donation := models.Donation{DonorType: "guest", DonorName: strings.TrimSpace(request.DonorName), DonorEmail: strings.TrimSpace(request.DonorEmail), DonorPhone: strings.TrimSpace(request.DonorPhone), DonorAddress: strings.TrimSpace(request.DonorAddress), Amount: request.Amount, Currency: "EUR", DonationDate: donationDate, DonationTime: donationTimePointer(request.DonationTime), DonationMethod: strings.ToLower(strings.TrimSpace(request.DonationMethod)), CategoryID: request.CategoryID, ReceiptRequested: request.ReceiptRequested}
 	actor, err := middleware.GetCurrentUserID(c)
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusUnauthorized, "Admin identity is required")
@@ -207,6 +209,15 @@ func optionalDonationCategoryID(value string) (*int, error) {
 		return nil, &donationvalidation.ValidationError{Field: "category_id", Message: "donation category is invalid"}
 	}
 	return &id, nil
+}
+
+func donationTimePointer(value string) *models.TimeOfDay {
+	value = strings.TrimSpace(value)
+	if value == "" {
+		return nil
+	}
+	timeOfDay := models.TimeOfDay(value)
+	return &timeOfDay
 }
 
 func donationValidationResponse(c *fiber.Ctx, err error) error {
@@ -398,7 +409,7 @@ func (h *DonationHandler) GetMyDonations(c *fiber.Ctx) error {
 	for _, donation := range donations {
 		result = append(result, memberDonationResponse{
 			ID: donation.ID, ReceiptNumber: donation.ReceiptNumber, Amount: donation.Amount,
-			Currency: donation.Currency, DonationDate: donation.DonationDate, Status: donation.Status,
+			Currency: donation.Currency, DonationDate: donation.DonationDate, DonationTime: donation.DonationTime, Status: donation.Status,
 			CancellationReason: donation.CancellationReason, CancelledAt: donation.CancelledAt,
 		})
 	}
@@ -406,14 +417,15 @@ func (h *DonationHandler) GetMyDonations(c *fiber.Ctx) error {
 }
 
 type memberDonationResponse struct {
-	ID                 int        `json:"id"`
-	ReceiptNumber      string     `json:"receipt_number"`
-	Amount             float64    `json:"amount"`
-	Currency           string     `json:"currency"`
-	DonationDate       time.Time  `json:"donation_date"`
-	Status             string     `json:"status"`
-	CancellationReason string     `json:"cancellation_reason,omitempty"`
-	CancelledAt        *time.Time `json:"cancelled_at,omitempty"`
+	ID                 int               `json:"id"`
+	ReceiptNumber      string            `json:"receipt_number"`
+	Amount             float64           `json:"amount"`
+	Currency           string            `json:"currency"`
+	DonationDate       time.Time         `json:"donation_date"`
+	DonationTime       *models.TimeOfDay `json:"donation_time"`
+	Status             string            `json:"status"`
+	CancellationReason string            `json:"cancellation_reason,omitempty"`
+	CancelledAt        *time.Time        `json:"cancelled_at,omitempty"`
 }
 
 // GetDonations - Admin: List all donations with pagination and filters
