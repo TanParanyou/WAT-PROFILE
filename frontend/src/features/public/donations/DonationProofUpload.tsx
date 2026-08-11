@@ -58,6 +58,7 @@ export function DonationProofUpload({ id, file, error, locale, onChange, message
   const hintId = `${id}-hint`;
   const closePreview = useCallback(() => setIsPreviewOpen(false), []);
   const imagePreview = Boolean(file && previewUrl && isDonationProofImage(file));
+  const previewActionClassName = "inline-flex min-h-11 items-center justify-center gap-2 border border-site-border px-4 py-2 text-sm font-semibold text-site-foreground transition-colors hover:bg-site-canvas focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus";
 
   return (
     <div
@@ -99,7 +100,7 @@ export function DonationProofUpload({ id, file, error, locale, onChange, message
             <p aria-live="polite" translate="no" className="break-words text-sm font-semibold text-site-foreground">{file.name}</p>
             <p className="mt-1 text-xs text-site-muted">{file.type === "application/pdf" ? messages.pdf : messages.image} · {formatDonationProofSize(file.size, locale)}</p>
             <div className="mt-3 flex flex-wrap gap-2">
-              {previewUrl ? <button type="button" aria-haspopup="dialog" onClick={() => setIsPreviewOpen(true)} className="inline-flex min-h-11 items-center justify-center gap-2 border border-site-border px-4 py-2 text-sm font-semibold text-site-foreground transition-colors hover:bg-site-canvas focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus"><Eye className="size-4" aria-hidden="true" />{messages.preview}</button> : null}
+              {previewUrl ? imagePreview ? <button type="button" aria-haspopup="dialog" onClick={() => setIsPreviewOpen(true)} className={previewActionClassName}><Eye className="size-4" aria-hidden="true" />{messages.preview}</button> : <a href={previewUrl} target="_blank" rel="noopener noreferrer" className={previewActionClassName}><Eye className="size-4" aria-hidden="true" />{messages.preview}</a> : null}
               <button type="button" onClick={openPicker} className="inline-flex min-h-11 items-center justify-center border border-site-border px-4 py-2 text-sm font-semibold text-site-foreground transition-colors hover:bg-site-canvas focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus">{messages.replace}</button>
               <button type="button" onClick={() => { setIsPreviewOpen(false); removeFile(); }} className="inline-flex min-h-11 items-center justify-center gap-2 border border-site-border px-4 py-2 text-sm font-semibold text-site-foreground transition-colors hover:bg-site-canvas focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus"><X className="size-4" aria-hidden="true" />{messages.remove}</button>
             </div>
@@ -116,15 +117,11 @@ export function DonationProofUpload({ id, file, error, locale, onChange, message
         {displayError ? <p id={errorId} role="alert" className="text-sm text-site-danger">{displayError}</p> : null}
       </div>
 
-      {file && previewUrl ? (
+      {file && previewUrl && imagePreview ? (
         <SiteModal open={isPreviewOpen} title={messages.preview} description={file.name} onClose={closePreview} closeLabel={messages.previewClose} size="md">
-          {imagePreview ? (
-            <div className="flex min-h-[16rem] items-center justify-center border border-site-border bg-site-surface p-3 sm:min-h-[24rem]">
-              <Image src={previewUrl} alt={messages.previewAlt} width={1200} height={900} unoptimized className="max-h-[60vh] w-auto max-w-full object-contain" />
-            </div>
-          ) : (
-            <iframe title={file.name} src={previewUrl} sandbox="allow-same-origin" className="h-[60vh] min-h-[20rem] w-full border border-site-border bg-site-surface" />
-          )}
+          <div className="flex min-h-[16rem] items-center justify-center border border-site-border bg-site-surface p-3 sm:min-h-[24rem]">
+            <Image src={previewUrl} alt={messages.previewAlt} width={1200} height={900} unoptimized className="max-h-[60vh] w-auto max-w-full object-contain" />
+          </div>
         </SiteModal>
       ) : null}
     </div>
