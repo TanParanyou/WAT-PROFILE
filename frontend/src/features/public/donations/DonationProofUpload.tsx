@@ -1,0 +1,108 @@
+"use client";
+
+import { FileText, Image as ImageIcon, Upload, X } from "lucide-react";
+import {
+  DONATION_PROOF_TYPES,
+  formatDonationProofSize,
+} from "./proof-upload";
+import { useDonationProofUpload } from "./useDonationProofUpload";
+
+export interface DonationProofUploadMessages {
+  hint: string;
+  choose: string;
+  drop: string;
+  replace: string;
+  remove: string;
+  image: string;
+  pdf: string;
+  previewAlt: string;
+  invalidType: string;
+  tooLarge: string;
+}
+
+export interface DonationProofUploadProps {
+  id: string;
+  file: File | undefined;
+  error?: string;
+  locale: string;
+  onChange: (file: File | undefined) => void;
+  messages: DonationProofUploadMessages;
+}
+
+export function DonationProofUpload({ id, file, error, locale, onChange, messages }: DonationProofUploadProps) {
+  const {
+    inputRef,
+    isDragging,
+    selectionError,
+    previewUrl,
+    openPicker,
+    onInputChange,
+    onDragEnter,
+    onDragLeave,
+    onDragOver,
+    onDrop,
+    removeFile,
+  } = useDonationProofUpload({
+    onChange,
+    validationMessages: { invalidType: messages.invalidType, tooLarge: messages.tooLarge },
+  });
+  const displayError = selectionError ?? error;
+  const errorId = `${id}-error`;
+  const hintId = `${id}-hint`;
+
+  return (
+    <div
+      className={`min-h-[11rem] border bg-site-surface p-4 transition-colors sm:grid sm:grid-cols-[8rem_minmax(0,1fr)] sm:items-center sm:gap-5 ${
+        displayError ? "border-site-danger" : "border-site-border"
+      } ${isDragging ? "bg-site-surface ring-2 ring-site-focus" : ""}`}
+      onDragEnter={onDragEnter}
+      onDragLeave={onDragLeave}
+      onDragOver={onDragOver}
+      onDrop={onDrop}
+    >
+      <input
+        id={id}
+        ref={inputRef}
+        name="proof"
+        type="file"
+        accept={DONATION_PROOF_TYPES.join(",")}
+        className="sr-only"
+        onChange={onInputChange}
+        aria-invalid={Boolean(displayError)}
+        aria-describedby={displayError ? `${hintId} ${errorId}` : hintId}
+      />
+      <p id={hintId} className="text-xs leading-5 text-site-muted sm:col-span-2">{messages.hint}</p>
+
+      <div className="flex min-h-[8rem] items-center justify-center border border-site-border bg-site-canvas p-3">
+        {previewUrl ? (
+          // eslint-disable-next-line @next/next/no-img-element
+          <img src={previewUrl} alt={messages.previewAlt} width={128} height={128} className="h-28 w-28 object-contain" />
+        ) : file ? (
+          <FileText className="size-12 text-site-accent" aria-hidden="true" />
+        ) : (
+          <ImageIcon className="size-10 text-site-muted" aria-hidden="true" />
+        )}
+      </div>
+
+      <div className="flex min-w-0 flex-col justify-center gap-3 py-2 sm:py-0">
+        {file ? (
+          <div className="min-w-0">
+            <p aria-live="polite" translate="no" className="break-words text-sm font-semibold text-site-foreground">{file.name}</p>
+            <p className="mt-1 text-xs text-site-muted">{file.type === "application/pdf" ? messages.pdf : messages.image} · {formatDonationProofSize(file.size, locale)}</p>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button type="button" onClick={openPicker} className="inline-flex min-h-11 items-center justify-center border border-site-border px-4 py-2 text-sm font-semibold text-site-foreground transition-colors hover:bg-site-canvas focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus">{messages.replace}</button>
+              <button type="button" onClick={removeFile} className="inline-flex min-h-11 items-center justify-center gap-2 border border-site-border px-4 py-2 text-sm font-semibold text-site-foreground transition-colors hover:bg-site-canvas focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus"><X className="size-4" aria-hidden="true" />{messages.remove}</button>
+            </div>
+          </div>
+        ) : (
+          <div className="flex min-w-0 flex-col items-start gap-2">
+            <button type="button" onClick={openPicker} className="inline-flex min-h-11 items-center justify-center gap-2 bg-site-action px-5 py-3 text-sm font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus"><Upload className="size-4" aria-hidden="true" />{messages.choose}</button>
+            <p className="text-xs leading-5 text-site-muted">{messages.drop}</p>
+          </div>
+        )}
+      </div>
+
+      {displayError ? <p id={errorId} role="alert" className="mt-3 text-sm text-site-danger sm:col-span-2">{displayError}</p> : null}
+    </div>
+  );
+}
