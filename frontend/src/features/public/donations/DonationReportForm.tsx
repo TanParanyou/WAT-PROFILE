@@ -6,6 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Link } from "@/navigation";
+import { DatePicker } from "@/components/ui/DatePicker";
 import { useUnsavedChanges } from "@/features/public/account/hooks/useUnsavedChanges";
 import { usePublicDonationCategoriesQuery } from "./queries";
 import { isPublicDonationApiError, submitSelfReportedDonation, type SelfReportedDonationPayload } from "./api";
@@ -161,11 +162,23 @@ export function DonationReportForm({ onDirtyChange }: DonationReportFormProps) {
               <select id="donation-currency" aria-invalid={Boolean(errors.currency)} aria-describedby={errors.currency ? "donation-currency-error" : undefined} {...register("currency")} className={inputClassName}><option value="EUR">EUR</option></select>
               <div className="min-h-5">{errorMessage("currency") ? <p id="donation-currency-error" role="alert" className="text-sm text-site-danger">{errorMessage("currency")}</p> : null}</div>
             </div>
-            <div className={fieldClassName}>
-              <label htmlFor="donation-date" className="text-sm font-semibold text-site-foreground">{t("dateLabel")}</label>
-              <input id="donation-date" type="date" aria-invalid={Boolean(errors.donation_date)} aria-describedby={errors.donation_date ? "donation-date-error" : undefined} {...register("donation_date")} className={inputClassName} />
-              <div className="min-h-5">{errorMessage("donation_date") ? <p id="donation-date-error" role="alert" className="text-sm text-site-danger">{errorMessage("donation_date")}</p> : null}</div>
-            </div>
+            <Controller
+              control={control}
+              name="donation_date"
+              render={({ field }) => (
+                <DatePicker
+                  id="donation-date"
+                  label={t("dateLabel")}
+                  value={field.value}
+                  onChange={field.onChange}
+                  error={errorMessage("donation_date") ?? undefined}
+                  required
+                  variant="public"
+                  locale={locale}
+                  placeholder={t("datePlaceholder")}
+                />
+              )}
+            />
             <div className={fieldClassName}>
               <label htmlFor="donation-method" className="text-sm font-semibold text-site-foreground">{t("methodLabel")}</label>
               <select id="donation-method" aria-invalid={Boolean(errors.donation_method)} aria-describedby={errors.donation_method ? "donation-method-error" : undefined} {...register("donation_method")} className={inputClassName}>

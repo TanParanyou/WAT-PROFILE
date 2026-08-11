@@ -126,6 +126,7 @@
         "amountHint": "กรอกจำนวนเงินโดยใช้ทศนิยมได้ไม่เกิน 2 ตำแหน่ง",
         "currencyLabel": "สกุลเงิน",
         "dateLabel": "วันที่โอน",
+        "datePlaceholder": "เลือกวันที่โอน",
         "methodLabel": "ช่องทางการบริจาค",
         "bankTransfer": "โอนผ่านธนาคาร",
         "paypal": "PayPal",

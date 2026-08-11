@@ -126,6 +126,7 @@
         "amountHint": "Use up to two decimal places.",
         "currencyLabel": "Currency",
         "dateLabel": "Transfer date",
+        "datePlaceholder": "Choose transfer date",
         "methodLabel": "Donation method",
         "bankTransfer": "Bank transfer",
         "paypal": "PayPal",

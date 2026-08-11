@@ -228,6 +228,65 @@
     color-scheme: light;
 }
 
+.site-date-picker-popper {
+    z-index: 80;
+}
+
+.site-date-picker-calendar.react-datepicker {
+    border-color: var(--public-border);
+    background: var(--public-canvas);
+    color: var(--public-foreground);
+    font-family: inherit;
+    box-shadow: var(--public-modal-shadow);
+}
+
+.site-date-picker-calendar .react-datepicker__header {
+    border-bottom-color: var(--public-border);
+    background: var(--public-surface);
+}
+
+.site-date-picker-calendar .react-datepicker__current-month,
+.site-date-picker-calendar .react-datepicker__day-name,
+.site-date-picker-calendar .react-datepicker__day,
+.site-date-picker-calendar .react-datepicker__time-list-item,
+.site-date-picker-calendar .react-datepicker__month-select,
+.site-date-picker-calendar .react-datepicker__year-select {
+    color: var(--public-foreground);
+}
+
+.site-date-picker-calendar .react-datepicker__day:hover,
+.site-date-picker-calendar .react-datepicker__month-text:hover,
+.site-date-picker-calendar .react-datepicker__quarter-text:hover,
+.site-date-picker-calendar .react-datepicker__year-text:hover {
+    background: var(--public-surface);
+}
+
+.site-date-picker-calendar .react-datepicker__day--selected,
+.site-date-picker-calendar .react-datepicker__day--keyboard-selected {
+    background: var(--public-action);
+    color: var(--public-on-action);
+}
+
+.site-date-picker-calendar .react-datepicker__day--today {
+    color: var(--public-accent);
+    font-weight: 700;
+}
+
+.site-date-picker-calendar .react-datepicker__day--outside-month {
+    color: var(--public-muted);
+    opacity: 0.65;
+}
+
+.site-date-picker-calendar .react-datepicker__navigation-icon::before {
+    border-color: var(--public-foreground);
+}
+
+.site-date-picker-calendar .react-datepicker__month-select,
+.site-date-picker-calendar .react-datepicker__year-select {
+    border-color: var(--public-border);
+    background: var(--public-canvas);
+}
+
 /* Public dark mode stays warm and paper-like so photography remains the visual anchor. */
 [data-public-theme="dark"] .public-theme,
 [data-public-theme="dark"].public-theme {

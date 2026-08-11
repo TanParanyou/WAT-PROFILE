@@ -126,6 +126,7 @@
         "amountHint": "Verwenden Sie höchstens zwei Nachkommastellen.",
         "currencyLabel": "Währung",
         "dateLabel": "Überweisungsdatum",
+        "datePlaceholder": "Überweisungsdatum auswählen",
         "methodLabel": "Spendenart",
         "bankTransfer": "Banküberweisung",
         "paypal": "PayPal",
