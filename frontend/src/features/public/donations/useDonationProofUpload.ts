@@ -3,7 +3,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import type { ChangeEvent, DragEvent } from "react";
 import {
-  isDonationProofImage,
   validateDonationProofMetadata,
   type DonationProofValidationMessages,
 } from "./proof-upload";
@@ -29,7 +28,7 @@ export function useDonationProofUpload({ onChange, validationMessages }: UseDona
   const updatePreview = useCallback((nextFile: File | undefined) => {
     if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
 
-    if (nextFile && isDonationProofImage(nextFile)) {
+    if (nextFile) {
       const nextPreviewUrl = URL.createObjectURL(nextFile);
       previewUrlRef.current = nextPreviewUrl;
       setPreviewUrl(nextPreviewUrl);

@@ -1,10 +1,13 @@
 "use client";
 
 import Image from "next/image";
-import { FileText, Image as ImageIcon, Upload, X } from "lucide-react";
+import { useCallback, useState } from "react";
+import { Eye, FileText, Image as ImageIcon, Upload, X } from "lucide-react";
+import { SiteModal } from "@/components/public/modal";
 import {
   DONATION_PROOF_TYPES,
   formatDonationProofSize,
+  isDonationProofImage,
 } from "./proof-upload";
 import { useDonationProofUpload } from "./useDonationProofUpload";
 
@@ -17,6 +20,8 @@ export interface DonationProofUploadMessages {
   image: string;
   pdf: string;
   previewAlt: string;
+  preview: string;
+  previewClose: string;
   invalidType: string;
   tooLarge: string;
 }
@@ -31,6 +36,7 @@ export interface DonationProofUploadProps {
 }
 
 export function DonationProofUpload({ id, file, error, locale, onChange, messages }: DonationProofUploadProps) {
+  const [isPreviewOpen, setIsPreviewOpen] = useState(false);
   const {
     inputRef,
     isDragging,
@@ -50,6 +56,8 @@ export function DonationProofUpload({ id, file, error, locale, onChange, message
   const displayError = selectionError ?? error;
   const errorId = `${id}-error`;
   const hintId = `${id}-hint`;
+  const closePreview = useCallback(() => setIsPreviewOpen(false), []);
+  const imagePreview = Boolean(file && previewUrl && isDonationProofImage(file));
 
   return (
     <div
@@ -76,7 +84,7 @@ export function DonationProofUpload({ id, file, error, locale, onChange, message
       <p id={hintId} className="text-xs leading-5 text-site-muted sm:col-span-2">{messages.hint}</p>
 
       <div className="flex min-h-[8rem] items-center justify-center border border-site-border bg-site-canvas p-3">
-        {previewUrl ? (
+        {imagePreview && previewUrl ? (
           <Image src={previewUrl} alt={messages.previewAlt} width={128} height={128} unoptimized className="h-28 w-28 object-contain" />
         ) : file ? (
           <FileText className="size-12 text-site-accent" aria-hidden="true" />
@@ -91,8 +99,9 @@ export function DonationProofUpload({ id, file, error, locale, onChange, message
             <p aria-live="polite" translate="no" className="break-words text-sm font-semibold text-site-foreground">{file.name}</p>
             <p className="mt-1 text-xs text-site-muted">{file.type === "application/pdf" ? messages.pdf : messages.image} · {formatDonationProofSize(file.size, locale)}</p>
             <div className="mt-3 flex flex-wrap gap-2">
+              {previewUrl ? <button type="button" aria-haspopup="dialog" onClick={() => setIsPreviewOpen(true)} className="inline-flex min-h-11 items-center justify-center gap-2 border border-site-border px-4 py-2 text-sm font-semibold text-site-foreground transition-colors hover:bg-site-canvas focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus"><Eye className="size-4" aria-hidden="true" />{messages.preview}</button> : null}
               <button type="button" onClick={openPicker} className="inline-flex min-h-11 items-center justify-center border border-site-border px-4 py-2 text-sm font-semibold text-site-foreground transition-colors hover:bg-site-canvas focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus">{messages.replace}</button>
-              <button type="button" onClick={removeFile} className="inline-flex min-h-11 items-center justify-center gap-2 border border-site-border px-4 py-2 text-sm font-semibold text-site-foreground transition-colors hover:bg-site-canvas focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus"><X className="size-4" aria-hidden="true" />{messages.remove}</button>
+              <button type="button" onClick={() => { setIsPreviewOpen(false); removeFile(); }} className="inline-flex min-h-11 items-center justify-center gap-2 border border-site-border px-4 py-2 text-sm font-semibold text-site-foreground transition-colors hover:bg-site-canvas focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus"><X className="size-4" aria-hidden="true" />{messages.remove}</button>
             </div>
           </div>
         ) : (
@@ -106,6 +115,18 @@ export function DonationProofUpload({ id, file, error, locale, onChange, message
       <div className="min-h-8 pt-3 sm:col-span-2">
         {displayError ? <p id={errorId} role="alert" className="text-sm text-site-danger">{displayError}</p> : null}
       </div>
+
+      {file && previewUrl ? (
+        <SiteModal open={isPreviewOpen} title={messages.preview} description={file.name} onClose={closePreview} closeLabel={messages.previewClose} size="md">
+          {imagePreview ? (
+            <div className="flex min-h-[16rem] items-center justify-center border border-site-border bg-site-surface p-3 sm:min-h-[24rem]">
+              <Image src={previewUrl} alt={messages.previewAlt} width={1200} height={900} unoptimized className="max-h-[60vh] w-auto max-w-full object-contain" />
+            </div>
+          ) : (
+            <iframe title={file.name} src={previewUrl} sandbox="allow-same-origin" className="h-[60vh] min-h-[20rem] w-full border border-site-border bg-site-surface" />
+          )}
+        </SiteModal>
+      ) : null}
     </div>
   );
 }

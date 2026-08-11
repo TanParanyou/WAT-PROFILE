@@ -144,6 +144,8 @@
         "proofImage": "Image",
         "proofPdf": "PDF document",
         "proofPreviewAlt": "Selected transfer proof preview",
+        "proofPreview": "Preview proof",
+        "proofPreviewClose": "Close proof preview",
         "proofSelectionInvalidType": "Use a PDF, JPG, PNG, or WebP file.",
         "proofSelectionTooLarge": "The file must be 10 MB or smaller.",
         "receiptRequested": "I would like a general donation receipt",

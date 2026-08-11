@@ -11,7 +11,7 @@ import { isPublicDonationApiError, submitSelfReportedDonation, type SelfReported
 import { DonationProofUpload } from "./DonationProofUpload";
 import { createSelfReportedDonationSchema, type SelfReportedDonationValues } from "./schema";
 
-const inputClassName = "min-h-11 w-full border border-site-border bg-site-canvas px-3 py-2 text-site-foreground focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus";
+const inputClassName = "box-border h-11 min-h-11 w-full border border-site-border bg-site-canvas px-3 py-2 text-site-foreground focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus";
 const fieldClassName = "flex min-w-0 flex-col gap-2";
 const fullWidthFieldClassName = `${fieldClassName} md:col-span-2`;
 const fieldNames: readonly (keyof SelfReportedDonationValues)[] = [
@@ -201,6 +201,8 @@ export function DonationReportForm() {
                     image: t("proofImage"),
                     pdf: t("proofPdf"),
                     previewAlt: t("proofPreviewAlt"),
+                    preview: t("proofPreview"),
+                    previewClose: t("proofPreviewClose"),
                     invalidType: t("proofSelectionInvalidType"),
                     tooLarge: t("proofSelectionTooLarge"),
                   }}
