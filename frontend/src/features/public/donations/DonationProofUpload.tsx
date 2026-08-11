@@ -103,7 +103,9 @@ export function DonationProofUpload({ id, file, error, locale, onChange, message
         )}
       </div>
 
-      {displayError ? <p id={errorId} role="alert" className="mt-3 text-sm text-site-danger sm:col-span-2">{displayError}</p> : null}
+      <div className="min-h-8 pt-3 sm:col-span-2">
+        {displayError ? <p id={errorId} role="alert" className="text-sm text-site-danger">{displayError}</p> : null}
+      </div>
     </div>
   );
 }
