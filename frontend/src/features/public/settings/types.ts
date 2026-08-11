@@ -1,5 +1,7 @@
 import type { LocalizedText } from "@/types/common";
 
+export type EventsView = "calendar" | "list";
+
 export interface PublicSiteSettings {
   siteName: LocalizedText;
   description: LocalizedText;
@@ -14,4 +16,5 @@ export interface PublicSiteSettings {
   };
   logoUrl: string;
   socialSidebarPosition: "left" | "right";
+  defaultEventsView: EventsView;
 }

@@ -23,6 +23,12 @@ export interface PublicEventDto {
   schedules?: readonly PublicEventScheduleDto[];
 }
 
+export interface PublicEventsListOptions {
+  limit?: number;
+  from?: string;
+  to?: string;
+}
+
 export interface PublicScheduleDto {
   id: number;
   schedule_type: "daily" | "weekly" | "online";

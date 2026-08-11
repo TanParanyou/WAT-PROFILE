@@ -19,7 +19,7 @@ export default function EventAlertModal() {
   const settings = settingsQuery.data;
   
   const specificEventQuery = usePublicEventQuery(settings?.event_slug ?? "");
-  const nearestEventQuery = usePublicEventsQuery(1);
+  const nearestEventQuery = usePublicEventsQuery({ limit: 1 });
   
   let event = undefined;
   if (settings?.enabled) {

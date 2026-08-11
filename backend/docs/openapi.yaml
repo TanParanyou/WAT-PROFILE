@@ -84,6 +84,28 @@ paths:
     get:
       tags: [Events]
       summary: List all active events
+      parameters:
+        - name: from
+          in: query
+          description: Inclusive calendar range start (must be paired with `to`)
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: to
+          in: query
+          description: Inclusive calendar range end (must be paired with `from`)
+          required: false
+          schema:
+            type: string
+            format: date
+        - name: limit
+          in: query
+          description: Optional positive result limit
+          required: false
+          schema:
+            type: integer
+            minimum: 1
       responses:
         '200':
           description: Events list

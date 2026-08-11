@@ -1,6 +1,6 @@
 import { siteConfig } from "@/config/site.config";
 import type { LocalizedText } from "@/types/common";
-import type { PublicSiteSettings } from "./types";
+import type { EventsView, PublicSiteSettings } from "./types";
 
 const readLocalized = (raw: Record<string, string>, prefix: string, fallback: LocalizedText): LocalizedText => ({
   th: raw[`${prefix}_th`] || fallback.th,
@@ -27,11 +27,13 @@ export function getFallbackPublicSiteSettings(): PublicSiteSettings {
     },
     logoUrl: siteConfig.logo.light,
     socialSidebarPosition: siteConfig.layout.socialSidebarPosition,
+    defaultEventsView: "calendar",
   };
 }
 
 export function mapPublicSiteSettings(raw: Record<string, string>, fallback = getFallbackPublicSiteSettings()): PublicSiteSettings {
   const position = raw.social_sidebar_position === "right" ? "right" : raw.social_sidebar_position === "left" ? "left" : fallback.socialSidebarPosition;
+  const defaultEventsView: EventsView = raw.events_default_view === "list" ? "list" : raw.events_default_view === "calendar" ? "calendar" : fallback.defaultEventsView;
 
   return {
     siteName: readLocalized(raw, "site_name", fallback.siteName),
@@ -47,5 +49,6 @@ export function mapPublicSiteSettings(raw: Record<string, string>, fallback = ge
     },
     logoUrl: (raw.logo_url && raw.logo_url.trim()) ? raw.logo_url.trim() : fallback.logoUrl,
     socialSidebarPosition: position,
+    defaultEventsView,
   };
 }

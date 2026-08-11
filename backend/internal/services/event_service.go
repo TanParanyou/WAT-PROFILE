@@ -2,6 +2,7 @@ package services
 
 import (
 	"strconv"
+	"time"
 
 	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
@@ -20,6 +21,12 @@ type EventListOptions struct {
 	Common   listquery.Common
 	Statuses []string
 	Types    []string
+}
+
+// EventDateRangeOverlaps reports whether an inclusive event range intersects
+// an inclusive calendar range.
+func EventDateRangeOverlaps(eventStart, eventEnd, rangeStart, rangeEnd time.Time) bool {
+	return !eventEnd.Before(rangeStart) && !eventStart.After(rangeEnd)
 }
 
 var eventSortColumns = map[string]string{
@@ -66,7 +73,7 @@ func (s *EventService) ListAdmin(options EventListOptions) ([]models.Event, int6
 	}
 
 	if options.Common.From != nil {
-		query = query.Where("events.start_date >= ?", *options.Common.From)
+		query = query.Where("events.end_date >= ?", *options.Common.From)
 	}
 	if options.Common.To != nil {
 		query = query.Where("events.start_date <= ?", *options.Common.To)
@@ -99,7 +106,7 @@ func (s *EventService) ListAdmin(options EventListOptions) ([]models.Event, int6
 }
 
 // ListActive returns all active events with schedules
-func (s *EventService) ListActive(limit int) ([]models.Event, error) {
+func (s *EventService) ListActive(limit int, from, to *time.Time) ([]models.Event, error) {
 	var events []models.Event
 	preloadSchedules := func(db *gorm.DB) *gorm.DB {
 		return db.Order("display_order ASC")
@@ -108,6 +115,12 @@ func (s *EventService) ListActive(limit int) ([]models.Event, error) {
 		Where("end_date >= CURRENT_DATE").
 		Order("start_date ASC").
 		Preload("Schedules", preloadSchedules)
+	if from != nil {
+		query = query.Where("end_date >= ?", *from)
+	}
+	if to != nil {
+		query = query.Where("start_date <= ?", *to)
+	}
 	if limit > 0 {
 		query = query.Limit(limit)
 	}

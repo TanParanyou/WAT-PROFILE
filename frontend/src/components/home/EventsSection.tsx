@@ -13,7 +13,7 @@ export default async function EventsSection({ locale }: { locale: string }) {
   const t = await getTranslations("EventsSection");
   const state = await getTranslations("PublicState");
   
-  const events = await fetchPublicEvents(3).catch(() => []);
+  const events = await fetchPublicEvents({ limit: 3 }).catch(() => []);
 
   return (
     <section className="border-t border-site-border bg-site-canvas px-6 py-[clamp(4rem,9vw,8rem)] text-site-foreground sm:px-10 lg:px-[8vw]"><div>

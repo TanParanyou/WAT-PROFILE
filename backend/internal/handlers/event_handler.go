@@ -4,6 +4,8 @@ import (
 	"errors"
 	"fmt"
 	"strconv"
+	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
@@ -37,11 +39,40 @@ func (h *EventHandler) GetEvents(c *fiber.Ctx) error {
 		limit = parsedLimit
 	}
 
-	events, err := h.eventService.ListActive(limit)
+	from, to, err := parsePublicEventRange(c)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+
+	events, err := h.eventService.ListActive(limit, from, to)
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch events")
 	}
 	return utils.SuccessResponse(c, events)
+}
+
+func parsePublicEventRange(c *fiber.Ctx) (*time.Time, *time.Time, error) {
+	rawFrom := strings.TrimSpace(c.Query("from"))
+	rawTo := strings.TrimSpace(c.Query("to"))
+	if rawFrom == "" && rawTo == "" {
+		return nil, nil, nil
+	}
+	if rawFrom == "" || rawTo == "" {
+		return nil, nil, fmt.Errorf("from and to must be provided together")
+	}
+
+	from, err := time.Parse("2006-01-02", rawFrom)
+	if err != nil {
+		return nil, nil, fmt.Errorf("from must use yyyy-mm-dd")
+	}
+	to, err := time.Parse("2006-01-02", rawTo)
+	if err != nil {
+		return nil, nil, fmt.Errorf("to must use yyyy-mm-dd")
+	}
+	if from.After(to) {
+		return nil, nil, fmt.Errorf("from must not be after to")
+	}
+	return &from, &to, nil
 }
 
 // GetAdminEvents - Admin: List all events with pagination and filters
