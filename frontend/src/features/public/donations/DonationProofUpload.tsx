@@ -1,5 +1,6 @@
 "use client";
 
+import Image from "next/image";
 import { FileText, Image as ImageIcon, Upload, X } from "lucide-react";
 import {
   DONATION_PROOF_TYPES,
@@ -67,6 +68,7 @@ export function DonationProofUpload({ id, file, error, locale, onChange, message
         type="file"
         accept={DONATION_PROOF_TYPES.join(",")}
         className="sr-only"
+        aria-label={messages.choose}
         onChange={onInputChange}
         aria-invalid={Boolean(displayError)}
         aria-describedby={displayError ? `${hintId} ${errorId}` : hintId}
@@ -75,8 +77,7 @@ export function DonationProofUpload({ id, file, error, locale, onChange, message
 
       <div className="flex min-h-[8rem] items-center justify-center border border-site-border bg-site-canvas p-3">
         {previewUrl ? (
-          // eslint-disable-next-line @next/next/no-img-element
-          <img src={previewUrl} alt={messages.previewAlt} width={128} height={128} className="h-28 w-28 object-contain" />
+          <Image src={previewUrl} alt={messages.previewAlt} width={128} height={128} unoptimized className="h-28 w-28 object-contain" />
         ) : file ? (
           <FileText className="size-12 text-site-accent" aria-hidden="true" />
         ) : (

@@ -22,10 +22,9 @@ export function useDonationProofUpload({ onChange, validationMessages }: UseDona
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
 
   useEffect(() => {
-    return () => {
-      if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
-    };
-  }, []);
+    if (!previewUrl) return;
+    return () => URL.revokeObjectURL(previewUrl);
+  }, [previewUrl]);
 
   const updatePreview = useCallback((nextFile: File | undefined) => {
     if (previewUrlRef.current) URL.revokeObjectURL(previewUrlRef.current);
