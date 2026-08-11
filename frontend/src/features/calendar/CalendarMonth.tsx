@@ -5,6 +5,7 @@ import {
   parse,
   startOfMonth,
 } from "date-fns";
+import type { Locale as DateFnsLocale } from "date-fns";
 import type { ReactNode } from "react";
 import type { CalendarDay, CalendarEvent } from "./calendar-domain";
 import type { CalendarLabels } from "./calendar-copy";
@@ -20,6 +21,8 @@ export interface CalendarMonthProps {
   monthLabel: string;
   variant: "public" | "admin";
   weekStartsOn: 0 | 1;
+  dateFnsLocale?: DateFnsLocale;
+  todayMonth?: Date;
   isLoading?: boolean;
 }
 
@@ -40,6 +43,8 @@ export function CalendarMonth({
   monthLabel,
   variant,
   weekStartsOn,
+  dateFnsLocale,
+  todayMonth = startOfMonth(new Date()),
   isLoading = false,
 }: CalendarMonthProps) {
   const selectedDay = days.find((day) => day.date === selectedDate);
@@ -85,7 +90,7 @@ export function CalendarMonth({
           </button>
           <button
             className={`min-h-11 border px-4 text-sm font-medium ${cellClass} ${focusClass} focus-visible:outline-2 focus-visible:outline-offset-2`}
-            onClick={() => onMonthChange(startOfMonth(new Date()))}
+            onClick={() => onMonthChange(todayMonth)}
             type="button"
           >
             {labels.today}
@@ -131,7 +136,7 @@ export function CalendarMonth({
                 role="gridcell"
               >
                 <button
-                  aria-label={`${format(dayDate, "d MMMM yyyy")}${day.events.length ? `, ${labels.eventsCount(day.events.length)}` : ""}`}
+                  aria-label={`${format(dayDate, "d MMMM yyyy", { locale: dateFnsLocale })}${day.events.length ? `, ${labels.eventsCount(day.events.length)}` : ""}`}
                   aria-pressed={isSelected}
                   className={`mb-2 min-h-8 min-w-8 px-2 text-left text-sm ${isSelected ? `${selectedClass} font-semibold` : mutedClass} ${focusClass} focus-visible:outline-2 focus-visible:outline-offset-2`}
                   onClick={() => onSelectedDateChange(day.date)}
@@ -170,7 +175,7 @@ export function CalendarMonth({
             const dayDate = parseCalendarDate(day.date);
             return (
               <button
-                aria-label={`${format(dayDate, "d MMMM yyyy")}${day.events.length ? `, ${labels.eventsCount(day.events.length)}` : ""}`}
+                aria-label={`${format(dayDate, "d MMMM yyyy", { locale: dateFnsLocale })}${day.events.length ? `, ${labels.eventsCount(day.events.length)}` : ""}`}
                 aria-pressed={day.date === selectedDate}
                 className={`min-h-12 border-b border-r p-1 text-sm ${cellClass} ${day.date === selectedDate ? selectedClass : mutedClass} ${focusClass} focus-visible:outline-2 focus-visible:outline-offset-2`}
                 key={day.date}

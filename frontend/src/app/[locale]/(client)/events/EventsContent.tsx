@@ -221,6 +221,8 @@ export default function EventsContent() {
                 selectedDate={selectedDate}
                 variant="public"
                 weekStartsOn={weekStartsOn}
+                dateFnsLocale={dateFnsLocale}
+                todayMonth={startOfMonth(toZonedTime(new Date(), "Europe/Berlin"))}
               />
             )}
           </div>

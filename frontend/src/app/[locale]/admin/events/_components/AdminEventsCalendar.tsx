@@ -1,6 +1,7 @@
 "use client";
 
-import { format } from "date-fns";
+import { format, startOfMonth } from "date-fns";
+import { toZonedTime } from "date-fns-tz";
 import { de, enUS, th } from "date-fns/locale";
 import { Link } from "@/navigation";
 import type { Event } from "@/types/entities";
@@ -82,6 +83,8 @@ export function AdminEventsCalendar({
       selectedDate={selectedDate}
       variant="admin"
       weekStartsOn={weekStartsOn}
+      dateFnsLocale={dateFnsLocale}
+      todayMonth={startOfMonth(toZonedTime(new Date(), "Europe/Berlin"))}
     />
   );
 }
