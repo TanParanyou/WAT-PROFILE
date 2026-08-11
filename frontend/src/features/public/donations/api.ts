@@ -43,6 +43,15 @@ export function isPublicDonationApiError(error: unknown): error is PublicDonatio
   return error instanceof PublicDonationApiError;
 }
 
+export function createSelfReportedDonationFormData(payload: SelfReportedDonationPayload): FormData {
+  const form = new FormData();
+  for (const [key, value] of Object.entries(payload)) {
+    if (value === null || value === undefined) continue;
+    form.append(key, value instanceof File ? value : String(value));
+  }
+  return form;
+}
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -86,10 +95,7 @@ export async function getPublicDonationCategories(): Promise<PublicDonationCateg
 }
 
 export async function submitSelfReportedDonation(payload: SelfReportedDonationPayload): Promise<unknown> {
-  const form = new FormData();
-  for (const [key, value] of Object.entries(payload)) {
-    form.append(key, value instanceof File ? value : String(value));
-  }
+  const form = createSelfReportedDonationFormData(payload);
 
   try {
     const response = await publicApi.post<ApiSuccess<unknown>>("/donations", form, { headers: { "Content-Type": "multipart/form-data" } });
