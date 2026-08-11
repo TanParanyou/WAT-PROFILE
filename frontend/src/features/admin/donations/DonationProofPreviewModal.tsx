@@ -90,23 +90,25 @@ export function DonationProofPreviewModal({
               <p className="text-sm font-medium text-admin-body">{labels.pdf}</p>
             </div>
           )}
-          {kind === "image" ? (
-            <div className="mt-3 flex flex-wrap items-center justify-end gap-2" role="group" aria-label={labels.zoom}>
-              <button type="button" onClick={zoomOut} disabled={!canZoomOut} aria-label={labels.zoomOut} className={actionClassName}><ZoomOut className="h-4 w-4" aria-hidden="true" />{labels.zoomOut}</button>
-              <span className="min-w-14 text-center text-sm text-admin-muted" aria-live="polite">{zoomPercent}%</span>
-              <button type="button" onClick={zoomIn} disabled={!canZoomIn} aria-label={labels.zoomIn} className={actionClassName}><ZoomIn className="h-4 w-4" aria-hidden="true" />{labels.zoomIn}</button>
-              <button type="button" onClick={resetZoom} disabled={!canZoomOut} aria-label={labels.zoomReset} className={actionClassName}><RotateCcw className="h-4 w-4" aria-hidden="true" />{labels.zoomReset}</button>
+          <div className="sticky bottom-0 z-10 -mx-4 -mb-4 mt-3 border-t border-admin-border bg-admin-surface px-4 pb-1 pt-3 sm:-mx-5 sm:-mb-4 sm:px-5">
+            {kind === "image" ? (
+              <div className="flex flex-wrap items-center justify-end gap-2" role="group" aria-label={labels.zoom}>
+                <button type="button" onClick={zoomOut} disabled={!canZoomOut} aria-label={labels.zoomOut} className={actionClassName}><ZoomOut className="h-4 w-4" aria-hidden="true" />{labels.zoomOut}</button>
+                <span className="min-w-14 text-center text-sm text-admin-muted" aria-live="polite">{zoomPercent}%</span>
+                <button type="button" onClick={zoomIn} disabled={!canZoomIn} aria-label={labels.zoomIn} className={actionClassName}><ZoomIn className="h-4 w-4" aria-hidden="true" />{labels.zoomIn}</button>
+                <button type="button" onClick={resetZoom} disabled={!canZoomOut} aria-label={labels.zoomReset} className={actionClassName}><RotateCcw className="h-4 w-4" aria-hidden="true" />{labels.zoomReset}</button>
+              </div>
+            ) : null}
+            <div className="mt-3 flex flex-wrap justify-end gap-2">
+              <a href={fileUrl} target="_blank" rel="noopener noreferrer" className={actionClassName}>
+                <ExternalLink className="h-4 w-4" aria-hidden="true" />
+                {labels.open}
+              </a>
+              <a href={fileUrl} download={fileName} className={actionClassName}>
+                <Download className="h-4 w-4" aria-hidden="true" />
+                {labels.download}
+              </a>
             </div>
-          ) : null}
-          <div className="mt-4 flex flex-wrap justify-end gap-2">
-            <a href={fileUrl} target="_blank" rel="noopener noreferrer" className={actionClassName}>
-              <ExternalLink className="h-4 w-4" aria-hidden="true" />
-              {labels.open}
-            </a>
-            <a href={fileUrl} download={fileName} className={actionClassName}>
-              <Download className="h-4 w-4" aria-hidden="true" />
-              {labels.download}
-            </a>
           </div>
         </>
       ) : null}
