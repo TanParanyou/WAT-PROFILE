@@ -38,7 +38,10 @@ export function createSelfReportedDonationSchema(messages: DonationSchemaMessage
       const digits = (phone.match(/[0-9]/g) ?? []).length;
       return /^[+0-9() -]{1,32}$/.test(phone) && digits >= 7 && digits <= 15;
     }, messages.phoneInvalid),
-    category_id: z.coerce.number({ error: messages.categoryInvalid }).int(messages.categoryInvalid).positive(messages.categoryInvalid).nullable().optional(),
+    category_id: z.preprocess(
+      (value) => value === "" ? null : value,
+      z.coerce.number({ error: messages.categoryInvalid }).int(messages.categoryInvalid).positive(messages.categoryInvalid).nullable().optional(),
+    ),
     locale: z.enum(["th", "en", "de"]),
     receipt_requested: z.boolean(),
     privacy_acknowledged: z.boolean().refine((value) => value, messages.privacyRequired),
