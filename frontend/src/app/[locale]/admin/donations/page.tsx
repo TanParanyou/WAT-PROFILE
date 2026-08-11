@@ -386,6 +386,10 @@ export default function DonationsPage() {
           error: t("donations.proofPreviewError"),
           imageAlt: t("donations.proofImageAlt"),
           pdf: t("donations.proofPdf"),
+          zoom: t("donations.proofZoom"),
+          zoomIn: t("donations.proofZoomIn"),
+          zoomOut: t("donations.proofZoomOut"),
+          zoomReset: t("donations.proofZoomReset"),
         }}
         onClose={() => setIsProofPreviewOpen(false)}
       />

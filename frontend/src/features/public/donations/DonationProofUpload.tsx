@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useCallback, useState } from "react";
-import { Download, Eye, ExternalLink, FileText, Image as ImageIcon, Upload, X } from "lucide-react";
+import { Download, Eye, ExternalLink, FileText, Image as ImageIcon, RotateCcw, Upload, X, ZoomIn, ZoomOut } from "lucide-react";
 import { SiteModal } from "@/components/public/modal";
 import {
   DONATION_PROOF_TYPES,
@@ -23,6 +23,10 @@ export interface DonationProofUploadMessages {
   preview: string;
   open: string;
   download: string;
+  zoom: string;
+  zoomIn: string;
+  zoomOut: string;
+  zoomReset: string;
   previewClose: string;
   invalidType: string;
   tooLarge: string;
@@ -39,6 +43,7 @@ export interface DonationProofUploadProps {
 
 export function DonationProofUpload({ id, file, error, locale, onChange, messages }: DonationProofUploadProps) {
   const [isPreviewOpen, setIsPreviewOpen] = useState(false);
+  const [previewScale, setPreviewScale] = useState(1);
   const {
     inputRef,
     isDragging,
@@ -58,7 +63,14 @@ export function DonationProofUpload({ id, file, error, locale, onChange, message
   const displayError = selectionError ?? error;
   const errorId = `${id}-error`;
   const hintId = `${id}-hint`;
-  const closePreview = useCallback(() => setIsPreviewOpen(false), []);
+  const closePreview = useCallback(() => {
+    setIsPreviewOpen(false);
+    setPreviewScale(1);
+  }, []);
+  const openPreview = useCallback(() => {
+    setPreviewScale(1);
+    setIsPreviewOpen(true);
+  }, []);
   const imagePreview = Boolean(file && previewUrl && isDonationProofImage(file));
   const previewActionClassName = "inline-flex min-h-11 items-center justify-center gap-2 border border-site-border px-4 py-2 text-sm font-semibold text-site-foreground transition-colors hover:bg-site-canvas focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus";
 
@@ -102,7 +114,7 @@ export function DonationProofUpload({ id, file, error, locale, onChange, message
             <p aria-live="polite" translate="no" className="break-words text-sm font-semibold text-site-foreground">{file.name}</p>
             <p className="mt-1 text-xs text-site-muted">{file.type === "application/pdf" ? messages.pdf : messages.image} · {formatDonationProofSize(file.size, locale)}</p>
             <div className="mt-3 flex flex-wrap gap-2">
-              {previewUrl ? imagePreview ? <button type="button" aria-haspopup="dialog" onClick={() => setIsPreviewOpen(true)} className={previewActionClassName}><Eye className="size-4" aria-hidden="true" />{messages.preview}</button> : <a href={previewUrl} target="_blank" rel="noopener noreferrer" className={previewActionClassName}><ExternalLink className="size-4" aria-hidden="true" />{messages.open}</a> : null}
+              {previewUrl ? imagePreview ? <button type="button" aria-haspopup="dialog" onClick={openPreview} className={previewActionClassName}><Eye className="size-4" aria-hidden="true" />{messages.preview}</button> : <a href={previewUrl} target="_blank" rel="noopener noreferrer" className={previewActionClassName}><ExternalLink className="size-4" aria-hidden="true" />{messages.open}</a> : null}
               {previewUrl ? <a href={previewUrl} download={file.name} className={previewActionClassName}><Download className="size-4" aria-hidden="true" />{messages.download}</a> : null}
               <button type="button" onClick={openPicker} className="inline-flex min-h-11 items-center justify-center border border-site-border px-4 py-2 text-sm font-semibold text-site-foreground transition-colors hover:bg-site-canvas focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus">{messages.replace}</button>
               <button type="button" onClick={() => { setIsPreviewOpen(false); removeFile(); }} className="inline-flex min-h-11 items-center justify-center gap-2 border border-site-border px-4 py-2 text-sm font-semibold text-site-foreground transition-colors hover:bg-site-canvas focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus"><X className="size-4" aria-hidden="true" />{messages.remove}</button>
@@ -122,8 +134,14 @@ export function DonationProofUpload({ id, file, error, locale, onChange, message
 
       {file && previewUrl && imagePreview ? (
         <SiteModal open={isPreviewOpen} title={messages.preview} description={file.name} onClose={closePreview} closeLabel={messages.previewClose} size="md">
-          <div className="flex min-h-[16rem] items-center justify-center border border-site-border bg-site-surface p-3 sm:min-h-[24rem]">
-            <Image src={previewUrl} alt={messages.previewAlt} width={1200} height={900} unoptimized className="max-h-[60vh] w-auto max-w-full object-contain" />
+          <div className="flex min-h-[16rem] max-h-[60vh] items-center justify-center overflow-auto border border-site-border bg-site-surface p-3 sm:min-h-[24rem] sm:p-5">
+            <Image src={previewUrl} alt={messages.previewAlt} width={1200} height={900} unoptimized style={{ transform: `scale(${previewScale})` }} className="h-auto w-auto max-w-full origin-center object-contain transition-transform motion-reduce:transition-none" />
+          </div>
+          <div className="mt-3 flex flex-wrap items-center justify-end gap-2" role="group" aria-label={messages.zoom}>
+            <button type="button" onClick={() => setPreviewScale((value) => Math.max(1, value - 0.5))} disabled={previewScale <= 1} aria-label={messages.zoomOut} className={previewActionClassName}><ZoomOut className="size-4" aria-hidden="true" />{messages.zoomOut}</button>
+            <span className="min-w-14 text-center text-sm text-site-muted" aria-live="polite">{Math.round(previewScale * 100)}%</span>
+            <button type="button" onClick={() => setPreviewScale((value) => Math.min(3, value + 0.5))} disabled={previewScale >= 3} aria-label={messages.zoomIn} className={previewActionClassName}><ZoomIn className="size-4" aria-hidden="true" />{messages.zoomIn}</button>
+            <button type="button" onClick={() => setPreviewScale(1)} disabled={previewScale === 1} aria-label={messages.zoomReset} className={previewActionClassName}><RotateCcw className="size-4" aria-hidden="true" />{messages.zoomReset}</button>
           </div>
           <div className="mt-4 flex flex-wrap justify-end gap-2">
             <a href={previewUrl} target="_blank" rel="noopener noreferrer" className={previewActionClassName}><ExternalLink className="size-4" aria-hidden="true" />{messages.open}</a>

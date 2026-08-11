@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { Download, ExternalLink, FileText, Loader2 } from "lucide-react";
+import { useCallback, useState } from "react";
+import { Download, ExternalLink, FileText, Loader2, RotateCcw, ZoomIn, ZoomOut } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 
 export type DonationProofPreviewKind = "image" | "pdf";
@@ -14,6 +15,10 @@ export interface DonationProofPreviewLabels {
   error: string;
   imageAlt: string;
   pdf: string;
+  zoom: string;
+  zoomIn: string;
+  zoomOut: string;
+  zoomReset: string;
 }
 
 interface DonationProofPreviewModalProps {
@@ -39,12 +44,17 @@ export function DonationProofPreviewModal({
   labels,
   onClose,
 }: DonationProofPreviewModalProps) {
+  const [imageScale, setImageScale] = useState(1);
   const hasPreview = Boolean(fileUrl && fileName && kind);
+  const closeModal = useCallback(() => {
+    setImageScale(1);
+    onClose();
+  }, [onClose]);
 
   return (
     <Modal
       isOpen={isOpen}
-      onClose={onClose}
+      onClose={closeModal}
       title={labels.title}
       description={fileName ?? undefined}
       size="lg"
@@ -61,8 +71,8 @@ export function DonationProofPreviewModal({
       ) : hasPreview && fileUrl && fileName && kind ? (
         <>
           {kind === "image" ? (
-            <div className="flex min-h-56 items-center justify-center border border-admin-border bg-admin-surface-muted p-3 sm:min-h-96">
-              <Image src={fileUrl} alt={labels.imageAlt} width={1600} height={1200} unoptimized className="max-h-[60vh] w-auto max-w-full object-contain" />
+            <div className="flex min-h-56 max-h-[60vh] items-center justify-center overflow-auto border border-admin-border bg-admin-surface-muted p-3 sm:min-h-96 sm:p-5">
+              <Image src={fileUrl} alt={labels.imageAlt} width={1600} height={1200} unoptimized style={{ transform: `scale(${imageScale})` }} className="h-auto w-auto max-w-full origin-center object-contain transition-transform motion-reduce:transition-none" />
             </div>
           ) : (
             <div className="flex min-h-56 flex-col items-center justify-center gap-3 border border-admin-border bg-admin-surface-muted p-6 text-center sm:min-h-96">
@@ -70,6 +80,14 @@ export function DonationProofPreviewModal({
               <p className="text-sm font-medium text-admin-body">{labels.pdf}</p>
             </div>
           )}
+          {kind === "image" ? (
+            <div className="mt-3 flex flex-wrap items-center justify-end gap-2" role="group" aria-label={labels.zoom}>
+              <button type="button" onClick={() => setImageScale((value) => Math.max(1, value - 0.5))} disabled={imageScale <= 1} aria-label={labels.zoomOut} className={actionClassName}><ZoomOut className="h-4 w-4" aria-hidden="true" />{labels.zoomOut}</button>
+              <span className="min-w-14 text-center text-sm text-admin-muted" aria-live="polite">{Math.round(imageScale * 100)}%</span>
+              <button type="button" onClick={() => setImageScale((value) => Math.min(3, value + 0.5))} disabled={imageScale >= 3} aria-label={labels.zoomIn} className={actionClassName}><ZoomIn className="h-4 w-4" aria-hidden="true" />{labels.zoomIn}</button>
+              <button type="button" onClick={() => setImageScale(1)} disabled={imageScale === 1} aria-label={labels.zoomReset} className={actionClassName}><RotateCcw className="h-4 w-4" aria-hidden="true" />{labels.zoomReset}</button>
+            </div>
+          ) : null}
           <div className="mt-4 flex flex-wrap justify-end gap-2">
             <a href={fileUrl} target="_blank" rel="noopener noreferrer" className={actionClassName}>
               <ExternalLink className="h-4 w-4" aria-hidden="true" />
