@@ -384,7 +384,7 @@ func (s *DonationService) ListDonationsOptions(options DonationListOptions) ([]m
 	if options.Common.Search != "" {
 		searchTerm := "%" + options.Common.Search + "%"
 		query = query.Where(
-			"donations.donor_name ILIKE ? OR donations.receipt_number ILIKE ? OR donations.note ILIKE ?",
+			"donations.donor_name ILIKE ? OR donations.receipt_number ILIKE ? OR donations.notes ILIKE ?",
 			searchTerm, searchTerm, searchTerm,
 		)
 	}
