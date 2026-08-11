@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Link } from "@/navigation";
+import { useUnsavedChanges } from "@/features/public/account/hooks/useUnsavedChanges";
 import { usePublicDonationCategoriesQuery } from "./queries";
 import { isPublicDonationApiError, submitSelfReportedDonation, type SelfReportedDonationPayload } from "./api";
 import { DonationProofUpload } from "./DonationProofUpload";
@@ -14,6 +15,7 @@ import { createSelfReportedDonationSchema, type SelfReportedDonationValues } fro
 const inputClassName = "box-border h-11 min-h-11 w-full border border-site-border bg-site-canvas px-3 py-2 text-site-foreground focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus";
 const fieldClassName = "flex min-w-0 flex-col gap-2";
 const fullWidthFieldClassName = `${fieldClassName} md:col-span-2`;
+type DonationLocale = "th" | "en" | "de";
 const fieldNames: readonly (keyof SelfReportedDonationValues)[] = [
   "amount",
   "currency",
@@ -28,8 +30,19 @@ const fieldNames: readonly (keyof SelfReportedDonationValues)[] = [
   "privacy_acknowledged",
 ];
 
-function localeValue(locale: string): "th" | "en" | "de" {
+function localeValue(locale: string): DonationLocale {
   return locale === "th" || locale === "en" || locale === "de" ? locale : "en";
+}
+
+function defaultDonationValues(locale: DonationLocale) {
+  return {
+    currency: "EUR" as const,
+    donation_method: "bank_transfer" as const,
+    locale,
+    receipt_requested: false,
+    privacy_acknowledged: false,
+    category_id: null,
+  };
 }
 
 export function DonationReportForm() {
@@ -37,6 +50,7 @@ export function DonationReportForm() {
   const locale = localeValue(useLocale());
   const categoryQuery = usePublicDonationCategoriesQuery();
   const [submitted, setSubmitted] = useState(false);
+  const defaultValues = defaultDonationValues(locale);
   const schema = useMemo(() => createSelfReportedDonationSchema({
     amountPositive: t("amountPositive"),
     amountDecimals: t("amountDecimals"),
@@ -55,19 +69,17 @@ export function DonationReportForm() {
     proofType: t("proofType"),
     proofSize: t("proofSize"),
   }), [t]);
-  const { control, register, handleSubmit, reset, setError, formState: { errors, isSubmitting } } = useForm<z.input<typeof schema>, unknown, SelfReportedDonationValues>({
+  const { control, register, handleSubmit, reset, setError, formState: { errors, isDirty, isSubmitting } } = useForm<z.input<typeof schema>, unknown, SelfReportedDonationValues>({
     resolver: zodResolver(schema),
     mode: "onBlur",
     reValidateMode: "onChange",
     shouldFocusError: true,
-    defaultValues: {
-      currency: "EUR",
-      donation_method: "bank_transfer",
-      locale,
-      receipt_requested: false,
-      privacy_acknowledged: false,
-      category_id: null,
-    },
+    defaultValues,
+  });
+
+  useUnsavedChanges({
+    isDirty: isDirty && !isSubmitting,
+    message: t("unsavedChangesMessage"),
   });
 
   const errorMessage = (field: keyof SelfReportedDonationValues) => {
@@ -75,12 +87,20 @@ export function DonationReportForm() {
     return message ? String(message) : null;
   };
 
+  const validationErrorCount = fieldNames.filter((field) => Boolean(errors[field])).length;
+
+  function discardChanges() {
+    if (typeof window !== "undefined" && !window.confirm(t("discardChangesMessage"))) return;
+    reset(defaultValues);
+    setSubmitted(false);
+  }
+
   async function onSubmit(values: SelfReportedDonationValues) {
     setSubmitted(false);
     const payload: SelfReportedDonationPayload = { ...values, locale, donor_phone: values.donor_phone?.trim() || undefined };
     try {
       await submitSelfReportedDonation(payload);
-      reset({ currency: "EUR", donation_method: "bank_transfer", locale, receipt_requested: false, privacy_acknowledged: false, category_id: null });
+      reset(defaultValues);
       setSubmitted(true);
     } catch (error: unknown) {
       if (isPublicDonationApiError(error)) {
@@ -114,7 +134,7 @@ export function DonationReportForm() {
   const serverError = errors.root?.server?.message;
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)} noValidate className="border border-site-border bg-site-canvas">
+    <form onSubmit={handleSubmit(onSubmit)} noValidate aria-busy={isSubmitting} className="border border-site-border bg-site-canvas">
       <fieldset className="p-6 sm:p-8">
         <legend className="px-2 font-heading text-2xl text-site-foreground">{t("detailsTitle")}</legend>
         <div className="grid gap-6">
@@ -153,7 +173,10 @@ export function DonationReportForm() {
                 {(categoryQuery.data ?? []).map((category) => <option key={category.id} value={category.id}>{category.name[locale] || category.name.en || category.name.th || category.name.de}</option>)}
               </select>
               {categoryQuery.isLoading ? <p role="status" aria-live="polite" className="text-xs leading-5 text-site-muted">{t("categoryLoading")}</p> : null}
-              <div className="min-h-5">{errorMessage("category_id") ? <p id="donation-category-error" role="alert" className="text-sm text-site-danger">{errorMessage("category_id")}</p> : null}</div>
+              <div className="min-h-5">
+                {categoryQuery.isError ? <p role="alert" className="text-sm text-site-danger">{t("categoryLoadError")}</p> : null}
+                {errorMessage("category_id") ? <p id="donation-category-error" role="alert" className="text-sm text-site-danger">{errorMessage("category_id")}</p> : null}
+              </div>
             </div>
           </div>
         </div>
@@ -219,6 +242,16 @@ export function DonationReportForm() {
       </fieldset>
 
       <div className="grid gap-4 border-t border-site-border p-6 sm:p-8">
+        {isDirty ? (
+          <div role="status" aria-live="polite" className="flex flex-col gap-3 border border-site-border bg-site-surface p-4 text-sm sm:flex-row sm:items-center sm:justify-between">
+            <div>
+              <p className="font-semibold text-site-foreground">{t("unsavedChanges")}</p>
+              <p className="mt-1 text-site-muted">{t("unsavedChangesHint")}</p>
+            </div>
+            <button type="button" onClick={discardChanges} className="inline-flex min-h-11 w-full items-center justify-center border border-site-border px-4 py-2 font-semibold text-site-foreground transition-colors hover:bg-site-canvas focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus sm:w-auto">{t("discardChanges")}</button>
+          </div>
+        ) : null}
+        {validationErrorCount > 0 ? <p role="alert" className="border border-site-danger bg-site-canvas p-4 text-sm text-site-danger">{t("reportError")}</p> : null}
         {serverError ? <p role="alert" className="border border-site-danger bg-site-canvas p-4 text-sm text-site-danger">{String(serverError)}</p> : null}
         <button type="submit" disabled={isSubmitting} className="min-h-12 w-full bg-site-action px-6 py-3 text-sm font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-60">{isSubmitting ? t("submitting") : t("submitReport")}</button>
       </div>
