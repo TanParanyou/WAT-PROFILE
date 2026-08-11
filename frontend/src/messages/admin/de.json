@@ -217,7 +217,7 @@
       "cancelReason": "Grund",
       "cancelReasonRequired": "Ein Grund ist erforderlich",
       "confirmCancel": "Stornierung bestätigen"
-      ,"status": "Status", "from": "Von", "to": "Bis", "dateRange": "Spendedatum-Bereich", "createStaff": "Spende durch Personal erfassen", "confirmTitle": "Spende bestätigen", "confirmMessage": "Wurde der Nachweis geprüft und die Spende bestätigt?", "sendReceipt": "Bescheinigung senden", "sendReceiptMessage": "Dauerhafte PDF erstellen und per E-Mail versenden?", "receiptQueued": "Bescheinigung eingereiht", "viewProof": "Nachweis ansehen", "confirm": "Bestätigen", "cancelAction": "Spende stornieren"
+      ,"status": "Status", "from": "Von", "to": "Bis", "dateRange": "Spendedatum-Bereich", "createStaff": "Spende durch Personal erfassen", "confirmTitle": "Spende bestätigen", "confirmMessage": "Wurde der Nachweis geprüft und die Spende bestätigt?", "sendReceipt": "Bescheinigung senden", "sendReceiptMessage": "Dauerhafte PDF erstellen und per E-Mail versenden?", "receiptQueued": "Bescheinigung eingereiht", "viewProof": "Nachweis ansehen", "proofPreview": "Vorschau des Überweisungsnachweises", "proofOpen": "In neuem Tab öffnen", "proofDownload": "Herunterladen", "proofLoading": "Nachweis wird geladen…", "proofPreviewError": "Der Nachweis konnte nicht geladen werden. Bitte versuchen Sie es erneut.", "proofImageAlt": "Vorschau des Überweisungsnachweises", "proofPdf": "PDF-Dokument", "confirm": "Bestätigen", "cancelAction": "Spende stornieren"
     },
     "privacyRequests": {
       "title": "Datenschutzanfragen",

@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { useCallback, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
@@ -26,6 +27,7 @@ import { useQuery } from "@tanstack/react-query";
 import type { StaffDonationFormData } from "@/schemas/donation.schema";
 import { StaffDonationForm } from "@/features/admin/donations/StaffDonationForm";
 import { CancelDonationDialog } from "@/features/admin/donations/CancelDonationDialog";
+import { DonationProofPreviewModal, type DonationProofPreviewKind } from "@/features/admin/donations/DonationProofPreviewModal";
 
 interface DonationFilters extends AdminFilterRecord {
   status: string[];
@@ -35,6 +37,12 @@ interface DonationFilters extends AdminFilterRecord {
   to?: string;
 }
 
+interface DonationProofPreviewState {
+  url: string;
+  fileName: string;
+  kind: DonationProofPreviewKind;
+}
+
 export default function DonationsPage() {
   const t = useTranslations("Admin");
   const { toast } = useToast();
@@ -42,6 +50,20 @@ export default function DonationsPage() {
   const selectedIds = useRowSelection();
   const [showStaffForm, setShowStaffForm] = useState(false);
   const [cancelID, setCancelID] = useState<number | null>(null);
+  const [isProofPreviewOpen, setIsProofPreviewOpen] = useState(false);
+  const [proofPreview, setProofPreview] = useState<DonationProofPreviewState | null>(null);
+  const [proofPreviewError, setProofPreviewError] = useState<string | null>(null);
+  const [proofPreviewLoadingId, setProofPreviewLoadingId] = useState<number | null>(null);
+  const proofPreviewUrlRef = useRef<string | null>(null);
+  const proofRequestRef = useRef(0);
+
+  const revokeProofPreviewUrl = useCallback(() => {
+    if (!proofPreviewUrlRef.current) return;
+    URL.revokeObjectURL(proofPreviewUrlRef.current);
+    proofPreviewUrlRef.current = null;
+  }, []);
+
+  useEffect(() => revokeProofPreviewUrl, [revokeProofPreviewUrl]);
 
   const listState = useAdminListState<DonationFilters>({
     schema: {
@@ -136,9 +158,33 @@ export default function DonationsPage() {
   };
 
   const handleProof = async (id: number) => {
-    const blob = await donationAdminService.getProof(id);
-    const url = URL.createObjectURL(blob);
-    const anchor = document.createElement("a"); anchor.href = url; anchor.download = `donation-${id}-proof`; anchor.click(); URL.revokeObjectURL(url);
+    const requestId = proofRequestRef.current + 1;
+    proofRequestRef.current = requestId;
+    revokeProofPreviewUrl();
+    setProofPreview(null);
+    setProofPreviewError(null);
+    setProofPreviewLoadingId(id);
+    setIsProofPreviewOpen(true);
+    try {
+      const blob = await donationAdminService.getProof(id);
+      if (proofRequestRef.current !== requestId) return;
+      const contentType = blob.type.toLowerCase();
+      const kind: DonationProofPreviewKind = contentType.startsWith("image/") ? "image" : "pdf";
+      const extension = contentType === "application/pdf"
+        ? "pdf"
+        : contentType === "image/png"
+          ? "png"
+          : contentType === "image/webp"
+            ? "webp"
+            : "jpg";
+      const url = URL.createObjectURL(blob);
+      proofPreviewUrlRef.current = url;
+      setProofPreview({ url, kind, fileName: `donation-${id}-proof.${extension}` });
+    } catch {
+      if (proofRequestRef.current === requestId) setProofPreviewError(t("donations.proofPreviewError"));
+    } finally {
+      if (proofRequestRef.current === requestId) setProofPreviewLoadingId(null);
+    }
   };
 
   const handleExportCsv = () => {
@@ -226,7 +272,7 @@ export default function DonationsPage() {
       header: t("columns.actions"),
       cell: (_, row) => (
         <div className="flex gap-1.5">
-          {row.source === "self_reported" && <PermissionGuard resource="donations" action="read"><button type="button" onClick={() => void handleProof(row.id)} className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted" title={t("donations.viewProof")}><Icons.Download size={16} /></button></PermissionGuard>}
+          {row.source === "self_reported" && <PermissionGuard resource="donations" action="read"><button type="button" onClick={() => void handleProof(row.id)} disabled={proofPreviewLoadingId === row.id} aria-busy={proofPreviewLoadingId === row.id} className="flex min-h-11 min-w-11 items-center justify-center rounded-none text-admin-muted transition-colors hover:bg-admin-surface-muted disabled:cursor-wait disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus" title={t("donations.viewProof")} aria-label={t("donations.viewProof")}><Icons.View size={16} /></button></PermissionGuard>}
           {row.status === "pending" && <PermissionGuard resource="donations" action="update"><button type="button" onClick={() => void handleConfirm(row.id)} className="p-1.5 rounded hover:bg-admin-success-surface text-admin-success" title={t("donations.confirm")}><Icons.Save size={16} /></button></PermissionGuard>}
           {row.status === "confirmed" && row.receipt_requested && row.donor_email && !row.receipt_dispatched_at && <PermissionGuard resource="donations" action="update"><button type="button" onClick={() => void handleReceipt(row.id)} className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted" title={t("donations.sendReceipt")}><Icons.FileText size={16} /></button></PermissionGuard>}
           {row.status !== "cancelled" && <PermissionGuard resource="donations" action="update"><button type="button" onClick={() => void handleCancel(row.id)} className="p-1.5 rounded hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger" title={t("donations.cancelAction")}><Icons.Delete size={16} /></button></PermissionGuard>}
@@ -325,6 +371,24 @@ export default function DonationsPage() {
           onSelectAll={(ids) => selectedIds.selectAll(ids)}
         />
       </div>
+      <DonationProofPreviewModal
+        isOpen={isProofPreviewOpen}
+        isLoading={proofPreviewLoadingId !== null}
+        fileUrl={proofPreview?.url ?? null}
+        fileName={proofPreview?.fileName ?? null}
+        kind={proofPreview?.kind ?? null}
+        error={proofPreviewError}
+        labels={{
+          title: t("donations.proofPreview"),
+          open: t("donations.proofOpen"),
+          download: t("donations.proofDownload"),
+          loading: t("donations.proofLoading"),
+          error: t("donations.proofPreviewError"),
+          imageAlt: t("donations.proofImageAlt"),
+          pdf: t("donations.proofPdf"),
+        }}
+        onClose={() => setIsProofPreviewOpen(false)}
+      />
       <ConfirmDialog />
       <CancelDonationDialog open={cancelID !== null} onSubmit={submitCancellation} onClose={() => setCancelID(null)} />
     </div>

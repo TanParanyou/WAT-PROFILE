@@ -145,6 +145,8 @@
         "proofPdf": "PDF-Dokument",
         "proofPreviewAlt": "Vorschau des ausgewählten Überweisungsnachweises",
         "proofPreview": "Nachweis anzeigen",
+        "proofOpen": "In neuem Tab öffnen",
+        "proofDownload": "Herunterladen",
         "proofPreviewClose": "Vorschau schließen",
         "proofSelectionInvalidType": "Verwenden Sie eine PDF-, JPG-, PNG- oder WebP-Datei.",
         "proofSelectionTooLarge": "Die Datei darf höchstens 10 MB groß sein.",

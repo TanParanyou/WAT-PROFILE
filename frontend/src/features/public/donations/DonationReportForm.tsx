@@ -233,6 +233,8 @@ export function DonationReportForm({ onDirtyChange }: DonationReportFormProps) {
                     pdf: t("proofPdf"),
                     previewAlt: t("proofPreviewAlt"),
                     preview: t("proofPreview"),
+                    open: t("proofOpen"),
+                    download: t("proofDownload"),
                     previewClose: t("proofPreviewClose"),
                     invalidType: t("proofSelectionInvalidType"),
                     tooLarge: t("proofSelectionTooLarge"),

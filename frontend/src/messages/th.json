@@ -145,6 +145,8 @@
         "proofPdf": "เอกสาร PDF",
         "proofPreviewAlt": "ตัวอย่างหลักฐานการโอนที่เลือก",
         "proofPreview": "ดูตัวอย่างหลักฐาน",
+        "proofOpen": "เปิดในแท็บใหม่",
+        "proofDownload": "ดาวน์โหลด",
         "proofPreviewClose": "ปิดตัวอย่างหลักฐาน",
         "proofSelectionInvalidType": "กรุณาเลือกไฟล์ PDF, JPG, PNG หรือ WebP",
         "proofSelectionTooLarge": "ไฟล์ต้องมีขนาดไม่เกิน 10 MB",

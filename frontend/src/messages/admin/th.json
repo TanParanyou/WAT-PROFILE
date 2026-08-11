@@ -217,7 +217,7 @@
       "cancelReason": "เหตุผล",
       "cancelReasonRequired": "กรุณาระบุเหตุผล",
       "confirmCancel": "ยืนยันการยกเลิก"
-      ,"status": "สถานะ", "from": "ตั้งแต่วันที่", "to": "ถึงวันที่", "dateRange": "ช่วงวันที่บริจาค", "createStaff": "บันทึกรายการโดยเจ้าหน้าที่", "confirmTitle": "ยืนยันเงินบริจาค", "confirmMessage": "ตรวจสอบหลักฐานแล้วและยืนยันรายการนี้หรือไม่", "sendReceipt": "ส่งใบเสร็จ", "sendReceiptMessage": "ระบบจะสร้าง PDF ถาวรและเข้าคิวส่งไปยังอีเมลผู้บริจาค ยืนยันหรือไม่", "receiptQueued": "เข้าคิวส่งใบเสร็จแล้ว", "viewProof": "ดูหลักฐาน", "confirm": "ยืนยัน", "cancelAction": "ยกเลิก"
+      ,"status": "สถานะ", "from": "ตั้งแต่วันที่", "to": "ถึงวันที่", "dateRange": "ช่วงวันที่บริจาค", "createStaff": "บันทึกรายการโดยเจ้าหน้าที่", "confirmTitle": "ยืนยันเงินบริจาค", "confirmMessage": "ตรวจสอบหลักฐานแล้วและยืนยันรายการนี้หรือไม่", "sendReceipt": "ส่งใบเสร็จ", "sendReceiptMessage": "ระบบจะสร้าง PDF ถาวรและเข้าคิวส่งไปยังอีเมลผู้บริจาค ยืนยันหรือไม่", "receiptQueued": "เข้าคิวส่งใบเสร็จแล้ว", "viewProof": "ดูหลักฐาน", "proofPreview": "ตัวอย่างหลักฐานการโอน", "proofOpen": "เปิดในแท็บใหม่", "proofDownload": "ดาวน์โหลด", "proofLoading": "กำลังโหลดหลักฐาน…", "proofPreviewError": "ไม่สามารถโหลดหลักฐานได้ กรุณาลองใหม่อีกครั้ง", "proofImageAlt": "ตัวอย่างหลักฐานการโอน", "proofPdf": "เอกสาร PDF", "confirm": "ยืนยัน", "cancelAction": "ยกเลิก"
     },
     "privacyRequests": {
       "title": "คำขอข้อมูลส่วนบุคคล",
