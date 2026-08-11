@@ -2,7 +2,7 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useLocale, useTranslations } from "next-intl";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { Controller, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Link } from "@/navigation";
@@ -45,7 +45,11 @@ function defaultDonationValues(locale: DonationLocale) {
   };
 }
 
-export function DonationReportForm() {
+interface DonationReportFormProps {
+  onDirtyChange?: (isDirty: boolean) => void;
+}
+
+export function DonationReportForm({ onDirtyChange }: DonationReportFormProps) {
   const t = useTranslations("DonationReportPage");
   const locale = localeValue(useLocale());
   const categoryQuery = usePublicDonationCategoriesQuery();
@@ -81,6 +85,10 @@ export function DonationReportForm() {
     isDirty: isDirty && !isSubmitting,
     message: t("unsavedChangesMessage"),
   });
+
+  useEffect(() => {
+    onDirtyChange?.(isDirty);
+  }, [isDirty, onDirtyChange]);
 
   const errorMessage = (field: keyof SelfReportedDonationValues) => {
     const message = errors[field]?.message;
