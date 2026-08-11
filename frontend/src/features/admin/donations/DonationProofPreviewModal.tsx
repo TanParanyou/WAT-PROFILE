@@ -1,9 +1,10 @@
 "use client";
 
 import Image from "next/image";
-import { useCallback, useState } from "react";
+import { useCallback } from "react";
 import { Download, ExternalLink, FileText, Loader2, RotateCcw, ZoomIn, ZoomOut } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
+import { useDonationProofPreview } from "@/hooks/useDonationProofPreview";
 
 export type DonationProofPreviewKind = "image" | "pdf";
 
@@ -44,12 +45,21 @@ export function DonationProofPreviewModal({
   labels,
   onClose,
 }: DonationProofPreviewModalProps) {
-  const [imageScale, setImageScale] = useState(1);
+  const {
+    scale: imageScale,
+    zoomPercent,
+    canZoomIn,
+    canZoomOut,
+    close: resetPreview,
+    zoomIn,
+    zoomOut,
+    resetZoom,
+  } = useDonationProofPreview();
   const hasPreview = Boolean(fileUrl && fileName && kind);
   const closeModal = useCallback(() => {
-    setImageScale(1);
+    resetPreview();
     onClose();
-  }, [onClose]);
+  }, [onClose, resetPreview]);
 
   return (
     <Modal
@@ -71,7 +81,7 @@ export function DonationProofPreviewModal({
       ) : hasPreview && fileUrl && fileName && kind ? (
         <>
           {kind === "image" ? (
-            <div className="flex min-h-56 max-h-[60vh] items-center justify-center overflow-auto border border-admin-border bg-admin-surface-muted p-3 sm:min-h-96 sm:p-5">
+            <div className="flex min-h-56 items-center justify-center overflow-visible border border-admin-border bg-admin-surface-muted p-3 sm:min-h-96 sm:p-5">
               <Image src={fileUrl} alt={labels.imageAlt} width={1600} height={1200} unoptimized style={{ transform: `scale(${imageScale})` }} className="h-auto w-auto max-w-full origin-center object-contain transition-transform motion-reduce:transition-none" />
             </div>
           ) : (
@@ -82,10 +92,10 @@ export function DonationProofPreviewModal({
           )}
           {kind === "image" ? (
             <div className="mt-3 flex flex-wrap items-center justify-end gap-2" role="group" aria-label={labels.zoom}>
-              <button type="button" onClick={() => setImageScale((value) => Math.max(1, value - 0.5))} disabled={imageScale <= 1} aria-label={labels.zoomOut} className={actionClassName}><ZoomOut className="h-4 w-4" aria-hidden="true" />{labels.zoomOut}</button>
-              <span className="min-w-14 text-center text-sm text-admin-muted" aria-live="polite">{Math.round(imageScale * 100)}%</span>
-              <button type="button" onClick={() => setImageScale((value) => Math.min(3, value + 0.5))} disabled={imageScale >= 3} aria-label={labels.zoomIn} className={actionClassName}><ZoomIn className="h-4 w-4" aria-hidden="true" />{labels.zoomIn}</button>
-              <button type="button" onClick={() => setImageScale(1)} disabled={imageScale === 1} aria-label={labels.zoomReset} className={actionClassName}><RotateCcw className="h-4 w-4" aria-hidden="true" />{labels.zoomReset}</button>
+              <button type="button" onClick={zoomOut} disabled={!canZoomOut} aria-label={labels.zoomOut} className={actionClassName}><ZoomOut className="h-4 w-4" aria-hidden="true" />{labels.zoomOut}</button>
+              <span className="min-w-14 text-center text-sm text-admin-muted" aria-live="polite">{zoomPercent}%</span>
+              <button type="button" onClick={zoomIn} disabled={!canZoomIn} aria-label={labels.zoomIn} className={actionClassName}><ZoomIn className="h-4 w-4" aria-hidden="true" />{labels.zoomIn}</button>
+              <button type="button" onClick={resetZoom} disabled={!canZoomOut} aria-label={labels.zoomReset} className={actionClassName}><RotateCcw className="h-4 w-4" aria-hidden="true" />{labels.zoomReset}</button>
             </div>
           ) : null}
           <div className="mt-4 flex flex-wrap justify-end gap-2">

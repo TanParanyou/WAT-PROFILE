@@ -133,7 +133,7 @@ const Modal: React.FC<ModalProps> = ({
                         </div>
                     )}
                     {/* Body */}
-                    {children && <div className="max-h-[70vh] overflow-y-auto px-4 py-4 sm:px-5 text-admin-body">{children}</div>}
+                    {children && <div className="max-h-[70vh] overflow-auto px-4 py-4 sm:px-5 text-admin-body">{children}</div>}
                     {/* Footer */}
                     {footer && (
                         <div className="flex flex-wrap items-center justify-end gap-3 border-t border-admin-border bg-admin-surface-muted px-4 py-3 sm:px-5">

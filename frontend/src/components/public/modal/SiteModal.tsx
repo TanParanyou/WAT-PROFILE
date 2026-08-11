@@ -187,7 +187,7 @@ export function SiteModal({
               <X className="h-5 w-5" aria-hidden />
             </button>
           </header>
-          <div className="max-h-[70vh] overflow-y-auto p-4 sm:max-h-[calc(70vh-1.5rem)] sm:p-6">
+          <div className="max-h-[70vh] overflow-auto p-4 sm:max-h-[calc(70vh-1.5rem)] sm:p-6">
             {children}
           </div>
         </div>
