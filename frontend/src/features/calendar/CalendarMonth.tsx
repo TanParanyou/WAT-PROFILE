@@ -57,11 +57,21 @@ export function CalendarMonth({
       : "border-admin-border bg-admin-surface";
   const mutedClass =
     variant === "public" ? "text-site-muted" : "text-admin-muted";
+  const headingClass =
+    variant === "public" ? "text-site-foreground" : "text-admin-foreground";
+  const borderClass =
+    variant === "public" ? "border-site-border" : "border-admin-border";
+  const selectedClass =
+    variant === "public"
+      ? "bg-site-action text-site-on-action"
+      : "bg-admin-action text-admin-on-action";
+  const markerClass =
+    variant === "public" ? "bg-site-accent" : "bg-admin-action";
 
   return (
     <section aria-label={monthLabel} className="space-y-4">
       <div className="flex flex-wrap items-center justify-between gap-3">
-        <h3 className="font-heading text-2xl font-medium text-site-foreground">
+        <h3 className={`font-heading text-2xl font-medium ${headingClass}`}>
           {monthLabel}
         </h3>
         <div className="flex items-center gap-2">
@@ -96,10 +106,10 @@ export function CalendarMonth({
       </p>
 
       <div className="hidden sm:block" role="grid" aria-describedby={`${variant}-calendar-instructions`}>
-        <div className="grid grid-cols-7 border-l border-t border-site-border" role="row">
+        <div className={`grid grid-cols-7 border-l border-t ${borderClass}`} role="row">
           {orderedDayNames.map((dayName) => (
             <div
-              className={`border-b border-r px-2 py-3 text-xs font-semibold uppercase tracking-wide ${mutedClass}`}
+              className={`border-b border-r ${borderClass} px-2 py-3 text-xs font-semibold uppercase tracking-wide ${mutedClass}`}
               key={dayName}
               role="columnheader"
             >
@@ -107,7 +117,7 @@ export function CalendarMonth({
             </div>
           ))}
         </div>
-        <div className="grid grid-cols-7 border-l border-t border-site-border" role="rowgroup">
+        <div className={`grid grid-cols-7 border-l border-t ${borderClass}`} role="rowgroup">
           {days.map((day) => {
             const dayDate = parseCalendarDate(day.date);
             const isCurrentMonth = isSameMonth(dayDate, month);
@@ -123,7 +133,7 @@ export function CalendarMonth({
                 <button
                   aria-label={`${format(dayDate, "d MMMM yyyy")}${day.events.length ? `, ${labels.eventsCount(day.events.length)}` : ""}`}
                   aria-pressed={isSelected}
-                  className={`mb-2 min-h-8 min-w-8 px-2 text-left text-sm ${isSelected ? "bg-site-action font-semibold text-site-on-action" : mutedClass} ${focusClass} focus-visible:outline-2 focus-visible:outline-offset-2`}
+                  className={`mb-2 min-h-8 min-w-8 px-2 text-left text-sm ${isSelected ? `${selectedClass} font-semibold` : mutedClass} ${focusClass} focus-visible:outline-2 focus-visible:outline-offset-2`}
                   onClick={() => onSelectedDateChange(day.date)}
                   type="button"
                 >
@@ -150,9 +160,9 @@ export function CalendarMonth({
       </div>
 
       <div className="sm:hidden">
-        <div className="grid grid-cols-7 border-l border-t border-site-border" role="grid">
+        <div className={`grid grid-cols-7 border-l border-t ${borderClass}`} role="grid">
           {orderedDayNames.map((dayName) => (
-            <div className={`border-b border-r px-1 py-2 text-center text-[11px] font-semibold ${mutedClass}`} key={dayName}>
+            <div className={`border-b border-r ${borderClass} px-1 py-2 text-center text-[11px] font-semibold ${mutedClass}`} key={dayName}>
               {dayName.slice(0, 2)}
             </div>
           ))}
@@ -162,18 +172,18 @@ export function CalendarMonth({
               <button
                 aria-label={`${format(dayDate, "d MMMM yyyy")}${day.events.length ? `, ${labels.eventsCount(day.events.length)}` : ""}`}
                 aria-pressed={day.date === selectedDate}
-                className={`min-h-12 border-b border-r p-1 text-sm ${cellClass} ${day.date === selectedDate ? "bg-site-action text-site-on-action" : mutedClass} ${focusClass} focus-visible:outline-2 focus-visible:outline-offset-2`}
+                className={`min-h-12 border-b border-r p-1 text-sm ${cellClass} ${day.date === selectedDate ? selectedClass : mutedClass} ${focusClass} focus-visible:outline-2 focus-visible:outline-offset-2`}
                 key={day.date}
                 onClick={() => onSelectedDateChange(day.date)}
                 type="button"
               >
                 <span>{format(dayDate, "d")}</span>
-                {day.events.length ? <span className="mx-auto mt-1 block h-1 w-1 rounded-full bg-site-accent" /> : null}
+                {day.events.length ? <span className={`mx-auto mt-1 block h-1 w-1 rounded-full ${markerClass}`} /> : null}
               </button>
             );
           })}
         </div>
-        <div className="mt-4 border-t border-site-border pt-4">
+        <div className={`mt-4 border-t ${borderClass} pt-4`}>
           {isLoading ? <p className={mutedClass}>…</p> : null}
           {!isLoading && selectedDay?.events.length ? (
             <div className="space-y-2">

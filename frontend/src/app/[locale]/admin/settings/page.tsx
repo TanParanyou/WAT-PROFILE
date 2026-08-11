@@ -16,6 +16,7 @@ import { eventAlertSettingsSchema, fetchAdminEventAlertSettings, saveAdminEventA
 import { eventAdminService } from "@/services/adminService";
 import type { Event } from "@/types/entities";
 import { ImageUpload } from "@/components/admin/ImageUpload";
+import type { EventsView } from "@/features/public/settings/types";
 
 export default function SettingsPage() {
   const t = useTranslations("Admin");
@@ -28,6 +29,8 @@ export default function SettingsPage() {
   const [events, setEvents] = useState<Event[]>([]);
   const [shell, setShell] = useState({ logo_url: "", social_sidebar_position: "left", youtube_url: "" });
   const [initialShell, setInitialShell] = useState({ logo_url: "", social_sidebar_position: "left", youtube_url: "" });
+  const [eventsDefaultView, setEventsDefaultView] = useState<EventsView>("calendar");
+  const [initialEventsDefaultView, setInitialEventsDefaultView] = useState<EventsView>("calendar");
   const { toast } = useToast();
 
   const loadSettings = async () => {
@@ -39,6 +42,9 @@ export default function SettingsPage() {
       const shellVal = { logo_url: byKey.logo_url ?? "", social_sidebar_position: byKey.social_sidebar_position === "right" ? "right" : "left", youtube_url: byKey.youtube_url ?? "" };
       setShell(shellVal);
       setInitialShell(shellVal);
+      const defaultView: EventsView = byKey.events_default_view === "list" ? "list" : "calendar";
+      setEventsDefaultView(defaultView);
+      setInitialEventsDefaultView(defaultView);
       const [alertSettings, eventResult] = await Promise.all([fetchAdminEventAlertSettings(), eventAdminService.getAll({ is_active: "true" })]);
       setAlert(alertSettings);
       setInitialAlert(alertSettings);
@@ -62,7 +68,8 @@ export default function SettingsPage() {
 
   const isAlertChanged = JSON.stringify(alert) !== JSON.stringify(initialAlert);
   const isShellChanged = JSON.stringify(shell) !== JSON.stringify(initialShell);
-  const hasChanges = Object.keys(changes).length > 0 || isAlertChanged || isShellChanged;
+  const isEventsDefaultViewChanged = eventsDefaultView !== initialEventsDefaultView;
+  const hasChanges = Object.keys(changes).length > 0 || isAlertChanged || isShellChanged || isEventsDefaultViewChanged;
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -82,6 +89,9 @@ export default function SettingsPage() {
           { key: "youtube_url", value: shell.youtube_url }
         ]);
       }
+      if (isEventsDefaultViewChanged) {
+        await settingsAdminService.update([{ key: "events_default_view", value: eventsDefaultView }]);
+      }
       toast.success(t("common.success"));
       setChanges({});
       await loadSettings();
@@ -94,7 +104,7 @@ export default function SettingsPage() {
 
   // จัดกลุ่มตาม category และกรองข้อมูลติดต่อ โซเชียล และบัญชีสมาคมออก (ย้ายไปอยู่ในข้อมูลเว็บไซต์แล้ว)
   const grouped = settings
-    .filter((s) => s.category !== "contact" && s.category !== "social" && s.category !== "donation" && !["logo_url", "social_sidebar_position", "youtube_url", "event_alert_settings"].includes(s.key))
+    .filter((s) => s.category !== "contact" && s.category !== "social" && s.category !== "donation" && !["logo_url", "social_sidebar_position", "youtube_url", "event_alert_settings", "events_default_view"].includes(s.key))
     .reduce<Record<string, Setting[]>>((acc, s) => {
       const cat = s.category || "General";
       (acc[cat] ||= []).push(s);
@@ -179,10 +189,17 @@ export default function SettingsPage() {
           <Input id="alert-dismiss" label={t("settings.dismissHours")} type="number" min={1} max={720} value={alert.dismiss_hours} onChange={(e) => setAlert({ ...alert, dismiss_hours: Number(e.target.value) })} />
         </div>
         <div className="bg-admin-surface rounded-none border border-admin-border p-6 space-y-4">
-          <h2 className="text-lg font-semibold text-admin-foreground">Public Website</h2>
+          <h2 className="text-lg font-semibold text-admin-foreground">{t("sidebar.website")}</h2>
           <ImageUpload label="โลโก้เว็บไซต์" value={shell.logo_url} onChange={(value) => setShell({ ...shell, logo_url: typeof value === "string" ? value : "" })} />
           <label className="block text-sm font-medium text-admin-body">ตำแหน่งแถบโซเชียลมีเดียด้านข้าง<select className="mt-1 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-admin-focus" value={shell.social_sidebar_position} onChange={(e) => setShell({ ...shell, social_sidebar_position: e.target.value })}><option value="left">ซ้าย</option><option value="right">ขวา</option></select></label>
           <Input id="youtube-url" label="ลิงก์ช่อง YouTube" type="url" placeholder="https://youtube.com/@channel" value={shell.youtube_url} onChange={(e) => setShell({ ...shell, youtube_url: e.target.value })} />
+          <label className="block text-sm font-medium text-admin-body" htmlFor="events-default-view">
+            {t("settings.defaultEventsView")}
+            <select id="events-default-view" className="mt-1 min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-admin-focus" value={eventsDefaultView} onChange={(e) => setEventsDefaultView(e.target.value === "list" ? "list" : "calendar")}>
+              <option value="calendar">{t("settings.eventsViewCalendar")}</option>
+              <option value="list">{t("settings.eventsViewList")}</option>
+            </select>
+          </label>
         </div>
         {Object.entries(grouped).map(([category, items]) => (
           <div
