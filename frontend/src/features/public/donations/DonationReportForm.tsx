@@ -150,11 +150,11 @@ export function DonationReportForm({ onDirtyChange }: DonationReportFormProps) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} noValidate aria-busy={isSubmitting} className="border border-site-border bg-site-canvas">
-      <fieldset className="p-6 sm:p-8">
-        <legend className="px-2 font-heading text-2xl text-site-foreground">{t("detailsTitle")}</legend>
-        <div className="grid gap-6">
-          <p className="max-w-[65ch] text-sm leading-7 text-site-body">{t("detailsDescription")}</p>
-          <div className="grid min-w-0 gap-6 md:grid-cols-2">
+      <fieldset className="p-4 sm:p-6">
+        <legend className="px-2 font-heading text-xl text-site-foreground">{t("detailsTitle")}</legend>
+        <div className="grid gap-4">
+          <p className="max-w-[65ch] text-sm leading-6 text-site-body">{t("detailsDescription")}</p>
+          <div className="grid min-w-0 gap-4 md:grid-cols-2">
             <div className={fieldClassName}>
               <label htmlFor="donation-amount" className="text-sm font-semibold text-site-foreground">{t("amountLabel")}</label>
               <input id="donation-amount" type="number" min="0.01" step="0.01" inputMode="decimal" aria-invalid={Boolean(errors.amount)} aria-describedby={errors.amount ? "donation-amount-error donation-amount-hint" : "donation-amount-hint"} {...register("amount")} className={inputClassName} />
@@ -227,11 +227,11 @@ export function DonationReportForm({ onDirtyChange }: DonationReportFormProps) {
         </div>
       </fieldset>
 
-      <fieldset className="border-t border-site-border p-6 sm:p-8">
-        <legend className="px-2 font-heading text-2xl text-site-foreground">{t("contactTitle")}</legend>
-        <div className="grid gap-6">
-          <p className="max-w-[65ch] text-sm leading-7 text-site-body">{t("contactDescription")}</p>
-          <div className="grid min-w-0 gap-6 md:grid-cols-2">
+      <fieldset className="border-t border-site-border p-4 sm:p-6">
+        <legend className="px-2 font-heading text-xl text-site-foreground">{t("contactTitle")}</legend>
+        <div className="grid gap-4">
+          <p className="max-w-[65ch] text-sm leading-6 text-site-body">{t("contactDescription")}</p>
+          <div className="grid min-w-0 gap-4 md:grid-cols-2">
             <div className={fieldClassName}>
               <label htmlFor="donor-name" className="text-sm font-semibold text-site-foreground">{t("nameLabel")}</label>
               <input id="donor-name" autoComplete="name" aria-invalid={Boolean(errors.donor_name)} aria-describedby={errors.donor_name ? "donor-name-error" : undefined} {...register("donor_name")} className={inputClassName} />
@@ -292,7 +292,7 @@ export function DonationReportForm({ onDirtyChange }: DonationReportFormProps) {
         </div>
       </fieldset>
 
-      <div className="grid gap-4 border-t border-site-border p-6 sm:p-8">
+      <div className="grid gap-3 border-t border-site-border p-4 sm:p-6">
         {isDirty ? (
           <div role="status" aria-live="polite" className="flex flex-col gap-3 border border-site-border bg-site-surface p-4 text-sm sm:flex-row sm:items-center sm:justify-between">
             <div>

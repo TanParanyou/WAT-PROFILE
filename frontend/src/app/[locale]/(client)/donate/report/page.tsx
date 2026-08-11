@@ -21,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 export default function DonationReportPage() {
   return (
     <main className="bg-site-surface px-6 py-[clamp(4rem,9vw,8rem)] text-site-foreground sm:px-10 lg:px-[8vw]">
-      <div className="mx-auto max-w-3xl">
+      <div className="mx-auto max-w-2xl">
         <DonationReportPageContent />
       </div>
     </main>
