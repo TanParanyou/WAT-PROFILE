@@ -9,7 +9,7 @@ import type { CalendarLabels } from "./calendar-copy";
 import type { CalendarRange, CalendarScope, CalendarView } from "./types";
 
 const dateFormat = "yyyy-MM-dd";
-const calendarViews: readonly CalendarView[] = ["month", "week", "day", "dayGrid", "timeline"];
+const calendarViews: readonly CalendarView[] = ["month", "week", "day"];
 
 export interface CalendarController {
   view: CalendarView;
@@ -155,6 +155,13 @@ export function useCalendar(options: UseCalendarOptions): CalendarController {
     window.localStorage.setItem(calendarPreferenceKey(options.scope), view);
   }, [options.scope, view]);
 
+  useEffect(() => {
+    const urlView = searchParams.get("view");
+    if (urlView !== null && !isCalendarView(urlView)) {
+      replaceUrl(view, date);
+    }
+  }, [date, replaceUrl, searchParams, view]);
+
   const setView = useCallback(
     (nextView: CalendarView) => {
       setViewState(nextView);
@@ -195,7 +202,5 @@ export function getCalendarViewLabels(labels: CalendarLabels): Record<CalendarVi
     month: labels.viewMonth ?? "Month",
     week: labels.viewWeek ?? "Week",
     day: labels.viewDay ?? "Day",
-    dayGrid: labels.viewDayGrid ?? "Day grid",
-    timeline: labels.viewTimeline ?? "Timeline",
   };
 }

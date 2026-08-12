@@ -14,7 +14,7 @@ interface CalendarViewTabsProps {
   variant: "public" | "admin";
 }
 
-const views: readonly CalendarView[] = ["month", "week", "day", "dayGrid", "timeline"];
+const views: readonly CalendarView[] = ["month", "week", "day"];
 
 export function CalendarViewTabs({ view, labels, onViewChange, variant }: CalendarViewTabsProps) {
   const names = getCalendarViewLabels(labels);

@@ -1,4 +1,4 @@
-export type CalendarView = "month" | "week" | "day" | "dayGrid" | "timeline";
+export type CalendarView = "month" | "week" | "day";
 
 export type CalendarScope = "public" | "admin";
 

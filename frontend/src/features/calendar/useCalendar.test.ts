@@ -32,3 +32,20 @@ test("invalid URL and saved views resolve to month", () => {
   assert.equal(controller.view, "month");
   assert.equal(controller.visibleRange.startDate, "2026-07-27");
 });
+
+test("deferred dayGrid and timeline views fall back to month", () => {
+  const dayGrid = createCalendarState({
+    initialView: "month",
+    url: "?view=dayGrid&date=2026-08-12",
+    weekStartsOn: 0,
+  });
+  const timeline = createCalendarState({
+    initialView: "month",
+    savedView: "timeline",
+    url: "?date=2026-08-12",
+    weekStartsOn: 0,
+  });
+
+  assert.equal(dayGrid.view, "month");
+  assert.equal(timeline.view, "month");
+});
