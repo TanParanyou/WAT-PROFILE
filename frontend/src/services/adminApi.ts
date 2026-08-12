@@ -45,9 +45,9 @@ adminApi.interceptors.request.use((config) => {
 // Single-flight refresh — หนึ่ง refresh สำหรับหลาย request ที่ 401 พร้อมกัน
 let refreshPromise: Promise<string> | null = null;
 
-function ensureAdminAccessToken(): Promise<string> {
+function ensureAdminAccessToken(forceRefresh = false): Promise<string> {
   const current = getAdminAccessToken();
-  if (current) {
+  if (!forceRefresh && current) {
     return Promise.resolve(current);
   }
   if (!refreshPromise) {
@@ -82,7 +82,7 @@ adminApi.interceptors.response.use(
     }
     axiosError.config._adminRetried = true;
     try {
-      const token = await ensureAdminAccessToken();
+      const token = await ensureAdminAccessToken(true);
       axiosError.config.headers.Authorization = `Bearer ${token}`;
       return adminApi(axiosError.config);
     } catch {

@@ -12,7 +12,7 @@ import {
 interface MockRoute {
   method: string;
   url: string;
-  status: number | ((callCount: number) => number);
+  status: number | ((callCount: number, config: InternalAxiosRequestConfig) => number);
   data?: unknown;
 }
 
@@ -31,7 +31,7 @@ function createMockAdapter(routes: MockRoute[]) {
       throw new AxiosError(`No mock route for ${key}`, "ERR_NETWORK", config);
     }
 
-    const status = typeof route.status === "function" ? route.status(count) : route.status;
+    const status = typeof route.status === "function" ? route.status(count, config) : route.status;
     const response: AxiosResponse = {
       data: route.data,
       status,
@@ -91,11 +91,42 @@ test("concurrent 401s trigger a single refresh and replay each request once", as
   ]);
 
   assert.equal(hits.get("POST /auth/admin/refresh"), 1);
-  assert.equal(hits.get("GET /admin/events"), 3);
+  assert.equal(hits.get("GET /admin/events"), 4);
   assert.equal(getAdminAccessToken(), "refreshed-token");
   for (const res of results) {
     assert.equal(res.status, 200);
   }
+});
+
+test("expired in-memory token forces refresh before replay", async () => {
+  resetAdminApiForTest();
+  setAdminAccessToken("expired-token");
+  const routes: MockRoute[] = [
+    {
+      method: "POST",
+      url: "/auth/admin/refresh",
+      status: 200,
+      data: {
+        success: true,
+        data: { access_token: "refreshed-token", user: { id: "u1" } },
+      },
+    },
+    {
+      method: "GET",
+      url: "/admin/events",
+      status: (_call, config) => config.headers.Authorization === "Bearer expired-token" ? 401 : 200,
+      data: { success: true, data: [] },
+    },
+  ];
+  const { adapter, hits } = createMockAdapter(routes);
+  adminApi.defaults.adapter = adapter;
+
+  const response = await adminApi.get("/admin/events");
+
+  assert.equal(response.status, 200);
+  assert.equal(hits.get("GET /admin/events"), 2);
+  assert.equal(hits.get("POST /auth/admin/refresh"), 1);
+  assert.equal(getAdminAccessToken(), "refreshed-token");
 });
 
 test("403 responses never trigger a refresh", async () => {
