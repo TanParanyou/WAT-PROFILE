@@ -66,6 +66,6 @@ export function getWatEventBarClass(
 ): string {
   const toneClass = getWatEventToneClass(event, scope);
   const paddingClass = density === "row" ? "px-3 py-2" : "pl-3 pr-2";
-  return `${toneClass} ${paddingClass} border border-current/15`;
+  return `border border-current/15 ${paddingClass} ${toneClass}`;
 }
 
