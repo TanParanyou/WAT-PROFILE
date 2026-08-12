@@ -1,0 +1,74 @@
+package calendar
+
+import (
+	"context"
+	"time"
+)
+
+type Locale string
+
+const (
+	LocaleThai    Locale = "th"
+	LocaleEnglish Locale = "en"
+	LocaleGerman  Locale = "de"
+)
+
+func (l Locale) Valid() bool {
+	return l == LocaleThai || l == LocaleEnglish || l == LocaleGerman
+}
+
+type Request struct {
+	From   time.Time
+	To     time.Time
+	Locale Locale
+}
+
+type Entry struct {
+	ID         string  `json:"id"`
+	Source     string  `json:"source"`
+	Title      string  `json:"title"`
+	Start      string  `json:"start"`
+	End        string  `json:"end"`
+	AllDay     bool    `json:"allDay"`
+	ResourceID string  `json:"resourceId,omitempty"`
+	Status     string  `json:"status"`
+	Display    Display `json:"display"`
+	Detail     Detail  `json:"detail"`
+}
+
+type Display struct {
+	Tone string `json:"tone"`
+}
+
+type Detail struct {
+	Href        string `json:"href,omitempty"`
+	EditorHref  string `json:"editorHref,omitempty"`
+	CanEdit     bool   `json:"canEdit"`
+	Description string `json:"description,omitempty"`
+	Location    string `json:"location,omitempty"`
+}
+
+type Resource struct {
+	ID    string `json:"id"`
+	Title string `json:"title"`
+	Color string `json:"color,omitempty"`
+}
+
+type Feed struct {
+	Scope     string     `json:"scope"`
+	Locale    Locale     `json:"locale"`
+	Timezone  string     `json:"timezone"`
+	Range     Range      `json:"range"`
+	Entries   []Entry    `json:"entries"`
+	Resources []Resource `json:"resources"`
+}
+
+type Range struct {
+	StartDate string `json:"startDate"`
+	EndDate   string `json:"endDate"`
+}
+
+type Source interface {
+	Name() string
+	List(context.Context, Request, bool) ([]Entry, error)
+}

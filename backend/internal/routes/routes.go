@@ -41,6 +41,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 	// Initialize handlers with DB injection
 	authHandler := handlers.NewAuthHandler(db)
 	eventHandler := handlers.NewEventHandler(db)
+	calendarHandler := handlers.NewCalendarHandler(db)
 	monkHandler := handlers.NewMonkHandler(db)
 	galleryHandler := handlers.NewGalleryHandler(db)
 	scheduleHandler := handlers.NewScheduleHandler(db)
@@ -69,6 +70,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 	// Events
 	public.Get("/events", eventHandler.GetEvents)
 	public.Get("/events/:slug", eventHandler.GetEvent)
+	public.Get("/calendar", calendarHandler.GetPublic)
 
 	// Monks
 	public.Get("/monks", monkHandler.GetMonks)
@@ -188,6 +190,7 @@ func adminRouteDefinitions() []AdminRouteDefinition {
 		{Method: fiber.MethodGet, Path: "/audit-logs", Resource: "audit_logs", Action: "read", HandlerKey: "audit.list"},
 
 		// Events Management
+		{Method: fiber.MethodGet, Path: "/calendar", Resource: "events", Action: "read", HandlerKey: "calendar.admin"},
 		{Method: fiber.MethodGet, Path: "/events", Resource: "events", Action: "read", HandlerKey: "events.list"},
 		{Method: fiber.MethodGet, Path: "/events/:id", Resource: "events", Action: "read", HandlerKey: "events.get"},
 		{Method: fiber.MethodPost, Path: "/events", Resource: "events", Action: "create", HandlerKey: "events.create"},
@@ -341,6 +344,7 @@ func adminRouteDefinitions() []AdminRouteDefinition {
 // function that backs it.
 func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service) map[string]fiber.Handler {
 	eventHandler := handlers.NewEventHandler(db)
+	calendarHandler := handlers.NewCalendarHandler(db)
 	monkHandler := handlers.NewMonkHandler(db)
 	galleryHandler := handlers.NewGalleryHandler(db)
 	scheduleHandler := handlers.NewScheduleHandler(db)
@@ -367,6 +371,7 @@ func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service) map[string]fiber.Handle
 	eventAlertHandler := handlers.NewEventAlertHandler(db)
 
 	return map[string]fiber.Handler{
+		"calendar.admin":                calendarHandler.GetAdmin,
 		"dashboard.stats":               dashboardHandler.GetDashboardStats,
 		"audit.filterOptions":           auditHandler.GetFilterOptions,
 		"audit.list":                    auditHandler.GetAuditLogs,

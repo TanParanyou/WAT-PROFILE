@@ -138,6 +138,28 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /public/calendar:
+    get:
+      tags: [Events]
+      summary: Get the public calendar feed
+      parameters:
+        - $ref: '#/components/parameters/CalendarFromParam'
+        - $ref: '#/components/parameters/CalendarToParam'
+        - $ref: '#/components/parameters/CalendarLocaleParam'
+      responses:
+        '200':
+          description: Calendar feed
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/CalendarFeed'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+
   /public/events/{id}/register:
     post:
       tags: [Events]
@@ -1863,6 +1885,34 @@ paths:
                           $ref: '#/components/schemas/AuditLog'
 
   # ==================== ADMIN - Events ====================
+  /admin/calendar:
+    get:
+      tags: [Admin - Events]
+      summary: Get the permission-aware admin calendar feed
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/CalendarFromParam'
+        - $ref: '#/components/parameters/CalendarToParam'
+        - $ref: '#/components/parameters/CalendarLocaleParam'
+      responses:
+        '200':
+          description: Admin calendar feed
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/CalendarFeed'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
   /admin/events:
     get:
       tags: [Admin - Events]
@@ -3213,6 +3263,31 @@ components:
         tokens cannot be used here.
 
   parameters:
+    CalendarFromParam:
+      name: from
+      in: query
+      description: Inclusive visible calendar range start (YYYY-MM-DD)
+      required: true
+      schema:
+        type: string
+        format: date
+    CalendarToParam:
+      name: to
+      in: query
+      description: Inclusive visible calendar range end (YYYY-MM-DD)
+      required: true
+      schema:
+        type: string
+        format: date
+    CalendarLocaleParam:
+      name: locale
+      in: query
+      description: Localized entry language
+      required: true
+      schema:
+        type: string
+        enum: [th, en, de]
+
     IdParam:
       name: id
       in: path
@@ -4004,6 +4079,97 @@ components:
         updated_at:
           type: string
           format: date-time
+
+    CalendarFeed:
+      type: object
+      required: [scope, locale, timezone, range, entries, resources]
+      properties:
+        scope:
+          type: string
+          enum: [public, admin]
+        locale:
+          type: string
+          enum: [th, en, de]
+        timezone:
+          type: string
+          enum: [Europe/Berlin]
+        range:
+          $ref: '#/components/schemas/CalendarRange'
+        entries:
+          type: array
+          items:
+            $ref: '#/components/schemas/CalendarEntry'
+        resources:
+          type: array
+          items:
+            $ref: '#/components/schemas/CalendarResource'
+
+    CalendarRange:
+      type: object
+      required: [startDate, endDate]
+      properties:
+        startDate:
+          type: string
+          format: date
+        endDate:
+          type: string
+          format: date
+
+    CalendarEntry:
+      type: object
+      required: [id, source, title, start, end, allDay, status, display, detail]
+      properties:
+        id:
+          type: string
+        source:
+          type: string
+        title:
+          type: string
+        start:
+          type: string
+          description: ISO datetime, or YYYY-MM-DD for all-day entries
+        end:
+          type: string
+          description: Exclusive ISO datetime/date boundary
+        allDay:
+          type: boolean
+        resourceId:
+          type: string
+        status:
+          type: string
+          enum: [active, inactive]
+        display:
+          type: object
+          required: [tone]
+          properties:
+            tone:
+              type: string
+              enum: [default, muted, warning]
+        detail:
+          type: object
+          required: [canEdit]
+          properties:
+            href:
+              type: string
+            editorHref:
+              type: string
+            canEdit:
+              type: boolean
+            description:
+              type: string
+            location:
+              type: string
+
+    CalendarResource:
+      type: object
+      required: [id, title]
+      properties:
+        id:
+          type: string
+        title:
+          type: string
+        color:
+          type: string
 
     EventSchedule:
       type: object
