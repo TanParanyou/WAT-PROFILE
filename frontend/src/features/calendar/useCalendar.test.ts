@@ -49,3 +49,14 @@ test("deferred dayGrid and timeline views fall back to month", () => {
   assert.equal(dayGrid.view, "month");
   assert.equal(timeline.view, "month");
 });
+
+test("a deferred URL view overrides a valid saved preference", () => {
+  const controller = createCalendarState({
+    initialView: "month",
+    savedView: "week",
+    url: "?view=timeline&date=2026-08-12",
+    weekStartsOn: 0,
+  });
+
+  assert.equal(controller.view, "month");
+});

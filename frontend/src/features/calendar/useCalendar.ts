@@ -55,6 +55,7 @@ function parseUrlOptions(url: string | undefined): { view: string | null; date: 
 function resolveInitialView(options: CalendarStateOptions): CalendarView {
   const url = parseUrlOptions(options.url);
   if (isCalendarView(url.view)) return url.view;
+  if (url.view !== null) return "month";
   if (isCalendarView(options.savedView)) return options.savedView;
   if (isCalendarView(options.initialView)) return options.initialView;
   return "month";

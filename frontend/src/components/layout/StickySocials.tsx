@@ -30,7 +30,7 @@ export default function StickySocials() {
     settings.socialSidebarPosition === "right" ? "right-6" : "left-6";
 
   return (
-    <div className={`fixed bottom-6 ${positionClass} z-40 flex flex-col gap-3`}>
+    <div className={`fixed bottom-6 ${positionClass} z-40 hidden flex-col gap-3 md:flex`}>
       {socials.map((social, index) => (
         <motion.a
           key={social.name}
