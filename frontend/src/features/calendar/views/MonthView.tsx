@@ -21,6 +21,10 @@ interface MonthViewProps<TMeta> {
   formatTime?: (event: CalendarEvent<TMeta>, date: string) => string | null;
   formatLocation?: (event: CalendarEvent<TMeta>) => string | null;
   eventClassName?: string;
+  getEventClassName?: (
+    event: CalendarEvent<TMeta>,
+    density: "summary" | "row",
+  ) => string;
 }
 
 function renderEventLabel<TMeta>(
@@ -72,7 +76,9 @@ export function MonthView<TMeta>({
   formatTime = () => null,
   formatLocation = () => null,
   eventClassName = "bg-current/5",
+  getEventClassName,
 }: MonthViewProps<TMeta>) {
+  const getEventClass = getEventClassName ?? (() => eventClassName);
   const days = getCalendarDays(controller.visibleRange);
   const grid = buildMonthGrid({
     days,
@@ -111,18 +117,22 @@ export function MonthView<TMeta>({
                 {cell.date.getDate()}
               </button>
               <div className="space-y-1">
-                {cell.entries.map((event) => (
-                  <button
-                    key={event.id}
-                    type="button"
-                    title={event.title}
-                    aria-label={event.title}
-                    onClick={() => onEntryActivate(event)}
-                    className={`block min-h-8 w-full overflow-hidden px-1.5 py-1 text-left text-xs leading-tight transition-colors focus-visible:outline-2 ${calendarFocusClass(variant)} ${eventClassName}`}
-                  >
-                    {renderSummary(event)}
-                  </button>
-                ))}
+                {cell.entries.map((event) => {
+                  const time = formatTime(event, cell.key);
+                  return (
+                    <button
+                      key={event.id}
+                      type="button"
+                      title={event.title}
+                      aria-label={event.title}
+                      onClick={() => onEntryActivate(event)}
+                      className={`flex min-h-8 w-full items-center overflow-hidden px-1.5 py-1 text-left text-xs leading-tight transition-colors focus-visible:outline-2 ${calendarFocusClass(variant)} ${getEventClass(event, "summary")}`}
+                    >
+                      {time && !event.allDay ? <span className="mr-1 font-medium shrink-0">{time.slice(0, 5)}</span> : null}
+                      {renderSummary(event)}
+                    </button>
+                  );
+                })}
                 {cell.overflowCount > 0 ? <button type="button" onClick={() => controller.selectDate(cell.date)} className={`min-h-11 px-1 text-xs underline ${calendarFocusClass(variant)}`}>{labels.moreEvents(cell.overflowCount)}</button> : null}
               </div>
             </div>
@@ -160,7 +170,7 @@ export function MonthView<TMeta>({
               formatLocation={formatLocation}
               onActivate={onEntryActivate}
               actionLabel={labels.eventDetails}
-              className={eventClassName}
+              className={getEventClass(event, "row")}
               focusClassName={calendarFocusClass(variant)}
               renderEvent={(item) => renderEventLabel(item, renderEvent, "row")}
             />

@@ -1,4 +1,4 @@
-import type { CalendarEvent } from "./types";
+import type { CalendarEvent, CalendarEventBase } from "./types";
 
 export interface AgendaDay<TMeta> {
   date: string;
@@ -26,9 +26,9 @@ function coversDay<TMeta>(event: CalendarEvent<TMeta>, day: string): boolean {
   return !(endDate === day && endDate !== startDate && clockMinutes(event.end) === 0);
 }
 
-export function compareCalendarEvents<TMeta>(
-  a: CalendarEvent<TMeta>,
-  b: CalendarEvent<TMeta>,
+export function compareCalendarEvents(
+  a: CalendarEventBase,
+  b: CalendarEventBase,
 ): number {
   return (
     Number(b.allDay) - Number(a.allDay) ||

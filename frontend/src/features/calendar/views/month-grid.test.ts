@@ -61,12 +61,12 @@ test("marks the selected date and counts overflow without dropping events", () =
     monthDate: new Date(2026, 7, 12),
     selectedDate: new Date(2026, 7, 12),
     today: new Date(2026, 7, 12),
-    maxVisibleEntries: 3,
+    maxVisibleEntries: 2,
   }).rows.flat().find((item) => item.key === "2026-08-12");
 
   assert.equal(cell?.isSelected, true);
-  assert.equal(cell?.entries.length, 3);
-  assert.equal(cell?.overflowCount, 3);
+  assert.equal(cell?.entries.length, 2);
+  assert.equal(cell?.overflowCount, 4);
 });
 
 test("marks today independently from the selected date", () => {
