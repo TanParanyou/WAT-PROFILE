@@ -2,6 +2,21 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { buildMonthGrid } from "./month-grid";
 import type { CalendarEntry } from "../types";
+import type { CalendarEvent } from "../core/types";
+
+function event(
+  overrides: Partial<CalendarEvent<Record<string, never>>> = {},
+): CalendarEvent<Record<string, never>> {
+  return {
+    id: "event",
+    title: "Event",
+    start: "2026-08-12T09:00:00+02:00",
+    end: "2026-08-12T10:00:00+02:00",
+    allDay: false,
+    meta: {},
+    ...overrides,
+  };
+}
 
 function entry(overrides: Partial<CalendarEntry> = {}): CalendarEntry {
   return {
@@ -67,3 +82,23 @@ test("marks today independently from the selected date", () => {
   assert.equal(cell?.isToday, true);
   assert.equal(cell?.isSelected, false);
 });
+
+test("orders Month bars as all-day then timed by start while retaining overflow", () => {
+  const entries = [
+    event({ id: "late", start: "2026-08-12T10:00:00+02:00", end: "2026-08-12T11:00:00+02:00" }),
+    event({ id: "all-day", allDay: true, start: "2026-08-12", end: "2026-08-13" }),
+    event({ id: "early", start: "2026-08-12T09:00:00+02:00", end: "2026-08-12T09:30:00+02:00" }),
+  ];
+  const cell = buildMonthGrid({
+    days: augustGridDays(),
+    entries,
+    monthDate: new Date(2026, 7, 12),
+    selectedDate: new Date(2026, 7, 12),
+    today: new Date(2026, 7, 12),
+    maxVisibleEntries: 2,
+  }).rows.flat().find((item) => item.key === "2026-08-12");
+
+  assert.deepEqual(cell?.entries.map((item) => item.id), ["all-day", "early"]);
+  assert.equal(cell?.overflowCount, 1);
+});
+

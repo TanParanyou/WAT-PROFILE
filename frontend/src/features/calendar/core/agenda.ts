@@ -26,8 +26,12 @@ function coversDay<TMeta>(event: CalendarEvent<TMeta>, day: string): boolean {
   return !(endDate === day && endDate !== startDate && clockMinutes(event.end) === 0);
 }
 
-function compareEvents<TMeta>(a: CalendarEvent<TMeta>, b: CalendarEvent<TMeta>): number {
+export function compareCalendarEvents<TMeta>(
+  a: CalendarEvent<TMeta>,
+  b: CalendarEvent<TMeta>,
+): number {
   return (
+    Number(b.allDay) - Number(a.allDay) ||
     a.start.localeCompare(b.start) ||
     a.end.localeCompare(b.end) ||
     a.title.localeCompare(b.title) ||
@@ -45,10 +49,10 @@ export function buildAgendaDays<TMeta>(input: {
       date,
       allDayEvents: events
         .filter((event) => event.allDay)
-        .sort(compareEvents),
+        .sort(compareCalendarEvents),
       timedEvents: events
         .filter((event) => !event.allDay)
-        .sort(compareEvents),
+        .sort(compareCalendarEvents),
     };
   });
 }

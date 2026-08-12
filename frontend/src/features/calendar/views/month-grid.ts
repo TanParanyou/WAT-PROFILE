@@ -1,6 +1,7 @@
 import { isSameDay, isSameMonth } from "date-fns";
 import { getCalendarOverflowCount } from "../layout";
 import type { CalendarEventLike } from "../core/types";
+import { compareCalendarEvents } from "../core/agenda";
 import { entriesOnDay, formatCalendarDate } from "./calendar-view-utils";
 
 export interface MonthGridCell<TEvent extends CalendarEventLike = CalendarEventLike> {
@@ -36,7 +37,7 @@ export function buildMonthGrid<TEvent extends CalendarEventLike>({
 }: BuildMonthGridInput<TEvent>): MonthGrid<TEvent> {
   const cells = days.map((date): MonthGridCell<TEvent> => {
     const key = formatCalendarDate(date);
-    const dayEntries = entriesOnDay(entries, key);
+    const dayEntries = entriesOnDay(entries, key).sort(compareCalendarEvents);
     const visibleEntries = dayEntries.slice(0, Math.max(maxVisibleEntries, 0));
 
     return {
