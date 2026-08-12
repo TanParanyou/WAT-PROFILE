@@ -9,13 +9,13 @@ import { useCalendarEntries } from "@/features/calendar/queries";
 import type { CalendarLabels } from "@/features/calendar/calendar-copy";
 import type { CalendarEntry, CalendarLocale } from "@/features/calendar/types";
 import { CalendarRoot } from "@/features/calendar/ui/CalendarRoot";
-import { AgendaView } from "@/features/calendar/ui/AgendaView";
 import { planningPreset } from "@/features/calendar/presets/planning";
 import { getCalendarDays } from "@/features/calendar/views/calendar-view-utils";
 import { MonthView } from "@/features/calendar/views/MonthView";
 import { TimeGrid } from "@/features/calendar/views/TimeGrid";
 import {
   formatWatEventTime,
+  getWatEventBarClass,
   getWatEventLocation,
   getWatEventToneClass,
   toCalendarEvents,
@@ -77,6 +77,10 @@ export default function AdminCalendarContent() {
   const visibleDays = getCalendarDays(controller.visibleRange);
   const formatEventTime = (event: WatCalendarEvent, date: string) => formatWatEventTime(event, date, labels.allDay);
   const renderEvent = (event: WatCalendarEvent) => <span className={getWatEventToneClass(event, "admin")}>{event.title}</span>;
+  const getEventBarClass = (
+    event: WatCalendarEvent,
+    density: "summary" | "row" | "timeGrid",
+  ) => getWatEventBarClass(event, "admin", density);
   const timeGridDays = controller.view === "day" ? [controller.selectedDate] : visibleDays;
 
   return (
@@ -120,21 +124,10 @@ export default function AdminCalendarContent() {
               formatTime={formatEventTime}
               formatLocation={getWatEventLocation}
               eventClassName="bg-admin-surface-muted"
+              getEventClassName={getEventBarClass}
             />
           )}
-          renderAgenda={() => (
-            <AgendaView
-              days={controller.view === "day" ? [format(controller.selectedDate, "yyyy-MM-dd")] : visibleDays.map((day) => format(day, "yyyy-MM-dd"))}
-              events={events}
-              labels={labels}
-              mode={controller.view === "day" ? "day" : "week"}
-              formatTime={formatEventTime}
-              formatLocation={getWatEventLocation}
-              onEventActivate={activateEvent}
-              eventClassName="bg-admin-surface-muted"
-              focusClassName="focus-visible:outline-admin-focus"
-            />
-          )}
+          renderAgenda={() => null}
           renderTimeGrid={() => (
             <TimeGrid
               days={timeGridDays}
@@ -146,6 +139,7 @@ export default function AdminCalendarContent() {
               selectedDate={controller.selectedDate}
               onDaySelect={controller.selectDate}
               renderEvent={renderEvent}
+              getEventClassName={(event) => getEventBarClass(event, "timeGrid")}
             />
           )}
           themeClassName="admin-theme bg-admin-surface text-admin-foreground"

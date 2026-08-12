@@ -58,3 +58,15 @@ export function getWatEventLocation(event: WatCalendarEvent): string | null {
 export function getWatEventToneClass(event: WatCalendarEvent, scope: CalendarScope): string {
   return calendarEntryToneClass(scope, event.meta.display.tone);
 }
+
+export function getWatEventBarClass(
+  event: WatCalendarEvent,
+  scope: CalendarScope,
+  density: "summary" | "row" | "timeGrid",
+): string {
+  const toneClass = getWatEventToneClass(event, scope);
+  return density === "summary"
+    ? `${toneClass} border border-current/15`
+    : `${toneClass} border border-current/15`;
+}
+
