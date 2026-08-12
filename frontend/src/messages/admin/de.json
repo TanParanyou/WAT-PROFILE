@@ -205,7 +205,10 @@
       "calendarInstructions": "Aktivitätskalender. Veranstaltung für Details auswählen.",
       "moreEvents": "+ {count} weitere",
       "eventsCount": "{count} Veranstaltungen",
-      "views": { "month": "Monat", "week": "Woche", "day": "Tag", "dayGrid": "Tagesraster", "timeline": "Zeitleiste" },
+      "allDay": "Ganztägig",
+      "timedEvents": "Nach Uhrzeit",
+      "selectedDate": "Programm für {date}",
+      "views": { "month": "Monat", "week": "Woche", "day": "Tag" },
       "dayNames": { "sunday": "Sonntag", "monday": "Montag", "tuesday": "Dienstag", "wednesday": "Mittwoch", "thursday": "Donnerstag", "friday": "Freitag", "saturday": "Samstag" },
       "drawer": { "source": "Quelle", "status": "Status", "active": "Aktiv", "inactive": "Inaktiv", "location": "Ort", "description": "Beschreibung", "edit": "Aktivität bearbeiten", "close": "Schließen" }
     },

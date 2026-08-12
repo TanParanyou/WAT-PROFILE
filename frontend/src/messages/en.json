@@ -450,6 +450,9 @@
         "today": "Today",
         "moreEvents": "+ {count} more",
         "eventsCount": "{count} events",
+        "allDay": "All-day",
+        "timedEvents": "Timed events",
+        "selectedDate": "Schedule for {date}",
         "noEventsOnDate": "No events on this date",
         "calendarInstructions": "Select a date to view its events",
         "viewLabel": "Events view",
@@ -488,7 +491,7 @@
         "retry": "Try again",
         "empty": "No activities in this period",
         "error": "The calendar could not be loaded",
-        "views": { "month": "Month", "week": "Week", "day": "Day", "dayGrid": "Day grid", "timeline": "Timeline" },
+        "views": { "month": "Month", "week": "Week", "day": "Day" },
         "dayNames": { "sunday": "Sunday", "monday": "Monday", "tuesday": "Tuesday", "wednesday": "Wednesday", "thursday": "Thursday", "friday": "Friday", "saturday": "Saturday" }
     },
     "PublicHome": {

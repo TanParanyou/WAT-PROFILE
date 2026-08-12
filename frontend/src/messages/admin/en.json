@@ -205,7 +205,10 @@
       "calendarInstructions": "Activity calendar. Select an event to view details.",
       "moreEvents": "+ {count} more",
       "eventsCount": "{count} events",
-      "views": { "month": "Month", "week": "Week", "day": "Day", "dayGrid": "Day grid", "timeline": "Timeline" },
+      "allDay": "All-day",
+      "timedEvents": "Timed events",
+      "selectedDate": "Schedule for {date}",
+      "views": { "month": "Month", "week": "Week", "day": "Day" },
       "dayNames": { "sunday": "Sunday", "monday": "Monday", "tuesday": "Tuesday", "wednesday": "Wednesday", "thursday": "Thursday", "friday": "Friday", "saturday": "Saturday" },
       "drawer": { "source": "Source", "status": "Status", "active": "Active", "inactive": "Inactive", "location": "Location", "description": "Description", "edit": "Edit activity", "close": "Close" }
     },

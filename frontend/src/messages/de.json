@@ -450,6 +450,9 @@
         "today": "Heute",
         "moreEvents": "+ {count} weitere",
         "eventsCount": "{count} Veranstaltungen",
+        "allDay": "Ganztägig",
+        "timedEvents": "Nach Uhrzeit",
+        "selectedDate": "Programm für {date}",
         "noEventsOnDate": "Keine Veranstaltungen an diesem Tag",
         "calendarInstructions": "Wählen Sie ein Datum, um die Veranstaltungen anzuzeigen",
         "viewLabel": "Veranstaltungsansicht",
@@ -488,7 +491,7 @@
         "retry": "Erneut versuchen",
         "empty": "Keine Aktivitäten in diesem Zeitraum",
         "error": "Der Kalender konnte nicht geladen werden",
-        "views": { "month": "Monat", "week": "Woche", "day": "Tag", "dayGrid": "Tagesraster", "timeline": "Zeitleiste" },
+        "views": { "month": "Monat", "week": "Woche", "day": "Tag" },
         "dayNames": { "sunday": "Sonntag", "monday": "Montag", "tuesday": "Dienstag", "wednesday": "Mittwoch", "thursday": "Donnerstag", "friday": "Freitag", "saturday": "Samstag" }
     },
     "PublicHome": {

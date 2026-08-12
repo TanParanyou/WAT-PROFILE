@@ -450,6 +450,9 @@
         "today": "วันนี้",
         "moreEvents": "+ อีก {count} รายการ",
         "eventsCount": "{count} กิจกรรม",
+        "allDay": "ทั้งวัน",
+        "timedEvents": "ตามเวลา",
+        "selectedDate": "กำหนดการวันที่ {date}",
         "noEventsOnDate": "ไม่มีกิจกรรมในวันนี้",
         "calendarInstructions": "เลือกวันที่เพื่อดูกิจกรรมของวันนั้น",
         "viewLabel": "มุมมองกิจกรรม",
@@ -488,7 +491,7 @@
         "retry": "ลองใหม่",
         "empty": "ยังไม่มีกิจกรรมในช่วงเวลานี้",
         "error": "ไม่สามารถโหลดปฏิทินได้",
-        "views": { "month": "เดือน", "week": "สัปดาห์", "day": "วัน", "dayGrid": "ตารางวัน", "timeline": "ไทม์ไลน์" },
+        "views": { "month": "เดือน", "week": "สัปดาห์", "day": "วัน" },
         "dayNames": { "sunday": "อาทิตย์", "monday": "จันทร์", "tuesday": "อังคาร", "wednesday": "พุธ", "thursday": "พฤหัสบดี", "friday": "ศุกร์", "saturday": "เสาร์" }
     },
     "PublicHome": {

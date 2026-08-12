@@ -1,6 +1,6 @@
 "use client";
 
-import { format } from "date-fns";
+import { format, isSameMonth, isSameYear, parse } from "date-fns";
 import { de, enUS, th } from "date-fns/locale";
 import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/navigation";
@@ -34,14 +34,30 @@ export default function CalendarPageContent() {
     viewMonth: t("views.month"),
     viewWeek: t("views.week"),
     viewDay: t("views.day"),
-    viewDayGrid: t("views.dayGrid"),
-    viewTimeline: t("views.timeline"),
+    allDay: t("allDay"),
+    timedEvents: t("timedEvents"),
+    selectedDateLabel: (date) => t("selectedDate", { date: format(date, "PPP", { locale: dateFnsLocale }) }),
+    formatDayHeader: (date, { includeWeekday }) => format(date, includeWeekday ? "EEE d" : "d", { locale: dateFnsLocale }),
+    formatTime: (minutes) => format(new Date(2026, 0, 1, Math.floor(minutes / 60), minutes % 60), "HH:mm", { locale: dateFnsLocale }),
     loading: t("loading"),
     refreshing: t("refreshing"),
     retry: t("retry"),
     empty: t("empty"),
     error: t("error"),
-    periodLabel: (date, view) => format(date, view === "month" ? "LLLL yyyy" : "dd LLL yyyy", { locale: dateFnsLocale }),
+    periodLabel: (date, visibleRange, view) => {
+      if (view === "month") return format(date, "LLLL yyyy", { locale: dateFnsLocale });
+      if (view === "day") return format(date, "PPP", { locale: dateFnsLocale });
+
+      const rangeStart = parse(visibleRange.startDate, "yyyy-MM-dd", new Date(0));
+      const rangeEnd = parse(visibleRange.endDate, "yyyy-MM-dd", new Date(0));
+      if (isSameMonth(rangeStart, rangeEnd)) {
+        return `${format(rangeStart, "d", { locale: dateFnsLocale })}–${format(rangeEnd, "d LLL yyyy", { locale: dateFnsLocale })}`;
+      }
+      if (isSameYear(rangeStart, rangeEnd)) {
+        return `${format(rangeStart, "d LLL", { locale: dateFnsLocale })} – ${format(rangeEnd, "d LLL yyyy", { locale: dateFnsLocale })}`;
+      }
+      return `${format(rangeStart, "d LLL yyyy", { locale: dateFnsLocale })} – ${format(rangeEnd, "d LLL yyyy", { locale: dateFnsLocale })}`;
+    },
   };
 
   const activateEntry = (entry: CalendarEntry) => {

@@ -1,4 +1,4 @@
-export type CalendarView = "calendar" | "list";
+import type { CalendarRange, CalendarView } from "./types";
 
 export interface CalendarLabels {
   previousMonth: string;
@@ -14,12 +14,15 @@ export interface CalendarLabels {
   viewMonth?: string;
   viewWeek?: string;
   viewDay?: string;
-  viewDayGrid?: string;
-  viewTimeline?: string;
+  allDay: string;
+  timedEvents: string;
+  selectedDateLabel: (date: Date) => string;
+  formatDayHeader: (date: Date, options: { includeWeekday: boolean }) => string;
+  formatTime: (minutes: number) => string;
   loading?: string;
   refreshing?: string;
   retry?: string;
   empty?: string;
   error?: string;
-  periodLabel?: (date: Date, view: string) => string;
+  periodLabel: (date: Date, visibleRange: CalendarRange, view: CalendarView) => string;
 }

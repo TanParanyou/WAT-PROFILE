@@ -205,7 +205,10 @@
       "calendarInstructions": "ปฏิทินกิจกรรม เลือกกิจกรรมเพื่อดูรายละเอียด",
       "moreEvents": "+ อีก {count} รายการ",
       "eventsCount": "{count} กิจกรรม",
-      "views": { "month": "เดือน", "week": "สัปดาห์", "day": "วัน", "dayGrid": "ตารางวัน", "timeline": "ไทม์ไลน์" },
+      "allDay": "ทั้งวัน",
+      "timedEvents": "ตามเวลา",
+      "selectedDate": "กำหนดการวันที่ {date}",
+      "views": { "month": "เดือน", "week": "สัปดาห์", "day": "วัน" },
       "dayNames": { "sunday": "อาทิตย์", "monday": "จันทร์", "tuesday": "อังคาร", "wednesday": "พุธ", "thursday": "พฤหัสบดี", "friday": "ศุกร์", "saturday": "เสาร์" },
       "drawer": { "source": "แหล่งข้อมูล", "status": "สถานะ", "active": "เปิดใช้งาน", "inactive": "ปิดใช้งาน", "location": "สถานที่", "description": "รายละเอียด", "edit": "แก้ไขกิจกรรม", "close": "ปิด" }
     },

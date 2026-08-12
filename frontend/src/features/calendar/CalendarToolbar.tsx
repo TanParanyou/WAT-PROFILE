@@ -15,7 +15,7 @@ export function CalendarToolbar({ controller, labels, variant }: CalendarToolbar
   const buttonClass = variant === "public"
     ? "border border-site-border bg-site-canvas text-site-foreground hover:bg-site-surface focus-visible:outline-site-focus"
     : "border border-admin-border bg-admin-surface text-admin-body hover:bg-admin-surface-muted focus-visible:outline-admin-focus";
-  const periodLabel = labels.periodLabel?.(controller.date, controller.view) ?? controller.visibleRange.startDate;
+  const periodLabel = labels.periodLabel(controller.date, controller.visibleRange, controller.view);
 
   return (
     <div className="flex flex-col gap-3 border-b border-current/15 pb-4 sm:flex-row sm:items-center sm:justify-between">
