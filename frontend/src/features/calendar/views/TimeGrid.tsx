@@ -3,7 +3,7 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { CalendarLabels } from "../calendar-copy";
 import { calendarFocusClass, type CalendarVariant } from "../calendar-theme";
-import type { CalendarEvent, CalendarEventLike } from "../core/types";
+import type { CalendarEventLike } from "../core/types";
 import { CalendarTooltip } from "../ui/CalendarTooltip";
 import { formatCalendarDate } from "./calendar-view-utils";
 import { buildTimeGridModel, type TimeGridDay } from "./time-grid";
@@ -68,11 +68,10 @@ function EventButton<TEvent extends CalendarEventLike>({
   renderTooltip?: (event: TEvent) => ReactNode;
 }) {
   const eventClass = getEventClassName?.(event, "timeGrid") ?? "bg-current/5";
-  const calendarEvent = event as unknown as CalendarEvent<unknown>;
 
   return (
     <CalendarTooltip
-      event={calendarEvent}
+      event={event}
       showTooltip={showTooltip}
       renderTooltip={renderTooltip ? () => renderTooltip(event) : undefined}
       formatTime={() => (event.allDay ? labels.allDay : `${event.start.slice(11, 16)}–${event.end.slice(11, 16)}`)}
