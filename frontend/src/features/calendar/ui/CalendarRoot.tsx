@@ -26,6 +26,8 @@ export interface CalendarRootProps<TMeta> {
   renderTimeGrid?: () => ReactNode;
   showTooltip?: boolean;
   renderTooltip?: (event: CalendarEvent<TMeta>) => ReactNode;
+  stickyHeader?: boolean;
+  stickyTimeAxis?: boolean;
   themeClassName?: string;
   controlClassName?: string;
   activeTabClassName?: string;

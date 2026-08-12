@@ -24,6 +24,8 @@ interface TimeGridProps<TEvent extends CalendarEventLike> {
   ) => string;
   showTooltip?: boolean;
   renderTooltip?: (event: TEvent) => ReactNode;
+  stickyHeader?: boolean;
+  stickyTimeAxis?: boolean;
 }
 
 const slotMinMinutes = 8 * 60;
@@ -103,6 +105,8 @@ export function TimeGrid<TEvent extends CalendarEventLike>({
   getEventClassName,
   showTooltip = true,
   renderTooltip,
+  stickyHeader = true,
+  stickyTimeAxis = true,
 }: TimeGridProps<TEvent>) {
   const dayKeys = days.map(formatCalendarDate);
   const model = buildTimeGridModel({
@@ -122,12 +126,14 @@ export function TimeGrid<TEvent extends CalendarEventLike>({
     && model.days[0]?.allDayEntries.length === 0
     && model.days[0]?.timedEntries.length === 0;
 
+  const bgClass = variant === "public" ? "bg-site-canvas" : "bg-admin-canvas";
+
   return (
     <div className="overflow-x-auto" data-calendar-time-grid>
       <div className="border-l border-t border-current/15" style={gridStyle}>
         {showDayHeaders ? (
-          <div className="grid border-b border-current/15" style={gridStyle}>
-            <div className="border-r border-current/15 bg-current/5" />
+          <div className={`grid border-b border-current/15 ${stickyHeader ? "sticky top-0 z-20" : ""} ${bgClass}`} style={gridStyle}>
+            <div className={`border-r border-current/15 ${stickyTimeAxis ? "sticky left-0 z-30" : ""} ${bgClass}`} />
             {model.days.map((day, index) => {
               const date = days[index];
               const isSelected = day.date === selectedDay;
@@ -147,7 +153,9 @@ export function TimeGrid<TEvent extends CalendarEventLike>({
         ) : null}
 
         <div className="grid border-b border-current/15" style={gridStyle}>
-          <div className="border-r border-current/15 px-2 py-2 text-right text-xs font-medium opacity-70">{labels.allDay}</div>
+          <div className={`border-r border-current/15 px-2 py-2 text-right text-xs font-medium opacity-70 ${stickyTimeAxis ? "sticky left-0 z-20" : ""} ${bgClass}`}>
+            {labels.allDay}
+          </div>
           {model.days.map((day) => (
             <div key={day.date} className="min-h-11 space-y-1 border-r border-current/15 p-1">
               {day.allDayEntries.map((event) => (
@@ -158,7 +166,7 @@ export function TimeGrid<TEvent extends CalendarEventLike>({
         </div>
 
         <div className="grid" style={gridStyle} aria-label={labels.timedEvents}>
-          <div className="relative border-r border-current/15" style={{ height: gridHeight }}>
+          <div className={`relative border-r border-current/15 ${stickyTimeAxis ? "sticky left-0 z-20" : ""} ${bgClass}`} style={{ height: gridHeight }}>
             {model.slots.map((slot, index) => (
               <div key={slot.minutes} className="absolute left-0 right-0 border-t border-current/10" style={{ top: index * slotHeight }}>
                 {slot.isHour ? <span className="absolute right-2 -top-2.5 text-xs opacity-70">{labels.formatTime(slot.minutes)}</span> : null}

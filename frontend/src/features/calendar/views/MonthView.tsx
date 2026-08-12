@@ -28,6 +28,7 @@ interface MonthViewProps<TMeta> {
   ) => string;
   showTooltip?: boolean;
   renderTooltip?: (event: CalendarEvent<TMeta>) => ReactNode;
+  stickyHeader?: boolean;
 }
 
 function renderEventLabel<TMeta>(
@@ -82,6 +83,7 @@ export function MonthView<TMeta>({
   getEventClassName,
   showTooltip = true,
   renderTooltip,
+  stickyHeader = true,
 }: MonthViewProps<TMeta>) {
   const getEventClass = getEventClassName ?? (() => eventClassName);
   const days = getCalendarDays(controller.visibleRange);
@@ -99,16 +101,19 @@ export function MonthView<TMeta>({
   const renderSummary = (event: CalendarEvent<TMeta>) => (
     <span className="block truncate">{renderEventLabel(event, renderEvent, "summary")}</span>
   );
+  const bgClass = variant === "public" ? "bg-site-canvas" : "bg-admin-canvas";
 
   return (
     <div className="space-y-4">
       <div className="hidden sm:block" aria-label="Month grid">
-        <div className="grid grid-cols-7 border-l border-t border-current/15">
+        <div className={`grid grid-cols-7 border-l border-t border-current/15 ${stickyHeader ? `sticky top-0 z-10 ${bgClass}` : ""}`}>
           {weekdayDates.map((day) => (
             <div key={`weekday-${day.getDay()}`} className="border-r border-b border-current/15 bg-current/5 px-2 py-2 text-xs font-semibold opacity-75">
               {labels.dayNames[day.getDay()] ?? ""}
             </div>
           ))}
+        </div>
+        <div className="grid grid-cols-7 border-l border-current/15">
           {grid.rows.flat().map((cell) => (
             <div key={cell.key} className={`min-h-28 border-r border-b border-current/15 p-2 ${cell.isSelected ? "bg-current/5" : ""} ${cell.isOutsideCurrentMonth ? "opacity-60" : ""}`}>
               <button
