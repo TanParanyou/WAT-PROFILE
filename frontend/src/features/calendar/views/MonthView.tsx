@@ -1,6 +1,6 @@
 "use client";
 
-import type { ReactNode } from "react";
+import { useState, type ReactNode } from "react";
 import type { CalendarLabels } from "../calendar-copy";
 import type { CalendarVariant } from "../calendar-theme";
 import { calendarFocusClass } from "../calendar-theme";
@@ -8,6 +8,7 @@ import type { CalendarController } from "../useCalendar";
 import type { CalendarEvent, CalendarResource } from "../core/types";
 import { CalendarEventRow } from "../ui/CalendarEventRow";
 import { CalendarTooltip } from "../ui/CalendarTooltip";
+import { MonthDayPopover } from "../ui/MonthDayPopover";
 import { entriesOnDay, formatCalendarDate, getCalendarDays } from "./calendar-view-utils";
 import { buildMonthGrid, type MonthGridCell } from "./month-grid";
 
@@ -102,6 +103,11 @@ export function MonthView<TMeta>({
     <span className="block truncate">{renderEventLabel(event, renderEvent, "summary")}</span>
   );
   const bgClass = variant === "public" ? "bg-site-canvas" : "bg-admin-canvas";
+  const [popoverState, setPopoverState] = useState<{
+    date: Date;
+    key: string;
+    rect: DOMRect;
+  } | null>(null);
 
   return (
     <div className="space-y-4">
@@ -151,7 +157,22 @@ export function MonthView<TMeta>({
                     </CalendarTooltip>
                   );
                 })}
-                {cell.overflowCount > 0 ? <button type="button" onClick={() => controller.selectDate(cell.date)} className={`min-h-11 px-1 text-xs underline ${calendarFocusClass(variant)}`}>{labels.moreEvents(cell.overflowCount)}</button> : null}
+                {cell.overflowCount > 0 ? (
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      controller.selectDate(cell.date);
+                      setPopoverState({
+                        date: cell.date,
+                        key: cell.key,
+                        rect: e.currentTarget.getBoundingClientRect(),
+                      });
+                    }}
+                    className={`min-h-11 px-1 text-xs underline ${calendarFocusClass(variant)}`}
+                  >
+                    {labels.moreEvents(cell.overflowCount)}
+                  </button>
+                ) : null}
               </div>
             </div>
           ))}
@@ -199,6 +220,25 @@ export function MonthView<TMeta>({
           {selectedEntries.length === 0 ? <p className="border border-current/15 p-4 text-sm opacity-70">{labels.noEventsOnDate}</p> : null}
         </div>
       </section>
+
+      {popoverState ? (
+        <MonthDayPopover
+          date={popoverState.date}
+          dateKey={popoverState.key}
+          entries={entriesOnDay(entries, popoverState.key)}
+          targetRect={popoverState.rect}
+          labels={labels}
+          variant={variant}
+          showTooltip={showTooltip}
+          renderTooltip={renderTooltip}
+          formatTime={formatTime}
+          formatLocation={formatLocation}
+          getEventClass={getEventClass}
+          renderEventLabel={(item, density) => renderEventLabel(item, renderEvent, density)}
+          onEntryActivate={onEntryActivate}
+          onClose={() => setPopoverState(null)}
+        />
+      ) : null}
     </div>
   );
 }
