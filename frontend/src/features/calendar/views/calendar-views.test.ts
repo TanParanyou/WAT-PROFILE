@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { getCalendarOverflowCount, buildTimedColumns, groupEntriesByResource } from "../layout";
 import type { CalendarEntry } from "../types";
+import { buildTimeGridModel } from "./time-grid";
 
 const entry = (id: string, start: string, end: string): CalendarEntry => ({
   id,
@@ -27,6 +28,15 @@ test("week and day views render overlapping timed entries in separate columns", 
   assert.notEqual(columns.get("first")?.column, columns.get("second")?.column);
 });
 
-test("dayGrid and timeline render the default resource lane", () => {
+test("unassigned entries use the default resource lane", () => {
   assert.equal(groupEntriesByResource([entry("unassigned", "2026-08-12T09:00:00+02:00", "2026-08-12T10:00:00+02:00")], []).has("default"), true);
+});
+
+test("week and day share an operating-hour time grid", () => {
+  const week = buildTimeGridModel({ days: ["2026-08-09", "2026-08-10"], entries: [], slotMinMinutes: 480, slotMaxMinutes: 1200, slotDurationMinutes: 30 });
+  const day = buildTimeGridModel({ days: ["2026-08-12"], entries: [], slotMinMinutes: 480, slotMaxMinutes: 1200, slotDurationMinutes: 30 });
+
+  assert.equal(week.slots.length, day.slots.length);
+  assert.equal(week.days.length, 2);
+  assert.equal(day.days.length, 1);
 });

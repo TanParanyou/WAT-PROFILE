@@ -42,8 +42,8 @@ export function Calendar({ controller, query, variant, labels, onEntryActivate, 
       {hasData ? children ?? (
         <div data-calendar-view={controller.view} className="min-h-72">
           {controller.view === "month" ? <MonthView controller={controller} entries={entries} resources={query.data?.resources ?? []} labels={labels} variant={variant} onEntryActivate={onEntryActivate} /> : null}
-          {controller.view === "week" ? <WeekView controller={controller} entries={entries} resources={query.data?.resources ?? []} labels={labels} variant={variant} onEntryActivate={onEntryActivate} /> : null}
-          {controller.view === "day" ? <DayView controller={controller} entries={entries} resources={query.data?.resources ?? []} labels={labels} variant={variant} onEntryActivate={onEntryActivate} /> : null}
+          {controller.view === "week" ? <WeekView controller={controller} entries={entries} labels={labels} variant={variant} onEntryActivate={onEntryActivate} /> : null}
+          {controller.view === "day" ? <DayView controller={controller} entries={entries} labels={labels} variant={variant} onEntryActivate={onEntryActivate} /> : null}
           {entries.length === 0 ? <p className="mt-4 border border-current/20 p-6 text-center text-sm">{labels.empty ?? labels.noEventsOnDate}</p> : null}
         </div>
       ) : null}

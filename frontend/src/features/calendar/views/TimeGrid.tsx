@@ -1,54 +1,140 @@
 "use client";
 
 import type { CSSProperties } from "react";
+import type { CalendarLabels } from "../calendar-copy";
+import { calendarFocusClass, type CalendarVariant } from "../calendar-theme";
 import type { CalendarEntry } from "../types";
-import type { CalendarVariant } from "../calendar-theme";
-import { buildTimedColumns } from "../layout";
+import { formatCalendarDate } from "./calendar-view-utils";
 import { CalendarEntryButton } from "./CalendarEntryButton";
-import { entriesOnDay, getTimedPosition } from "./calendar-view-utils";
+import { buildTimeGridModel, type TimeGridDay } from "./time-grid";
 
 interface TimeGridProps {
-  day: string;
+  days: readonly Date[];
   entries: readonly CalendarEntry[];
+  labels: CalendarLabels;
   variant: CalendarVariant;
   onEntryActivate: (entry: CalendarEntry) => void;
-  showHeader?: boolean;
+  showDayHeaders: boolean;
+  selectedDate?: Date;
+  onDaySelect?: (date: Date) => void;
 }
 
-const slots = Array.from({ length: 48 }, (_, index) => index);
+const slotMinMinutes = 8 * 60;
+const slotMaxMinutes = 20 * 60;
+const slotDurationMinutes = 30;
+const slotHeight = 44;
+const timeAxisWidth = 64;
+const minimumDayWidth = 136;
 
-export function TimeGrid({ day, entries, variant, onEntryActivate, showHeader = true }: TimeGridProps) {
-  const dayEntries = entriesOnDay(entries, day);
-  const timedEntries = dayEntries.filter((entry) => !entry.allDay);
-  const columns = buildTimedColumns(timedEntries);
+function getEventStyle(
+  position: TimeGridDay["timedEntries"][number]["position"],
+): CSSProperties {
+  const visibleMinutes = slotMaxMinutes - slotMinMinutes;
+  const left = (position.column / position.columnCount) * 100;
+  const width = 100 / position.columnCount;
+
+  return {
+    top: `${((position.startMinutes - slotMinMinutes) / visibleMinutes) * 100}%`,
+    height: `${((position.endMinutes - position.startMinutes) / visibleMinutes) * 100}%`,
+    left: `calc(${left}% + 2px)`,
+    width: `calc(${width}% - 4px)`,
+  };
+}
+
+export function TimeGrid({
+  days,
+  entries,
+  labels,
+  variant,
+  onEntryActivate,
+  showDayHeaders,
+  selectedDate,
+  onDaySelect,
+}: TimeGridProps) {
+  const dayKeys = days.map(formatCalendarDate);
+  const model = buildTimeGridModel({
+    days: dayKeys,
+    entries,
+    slotMinMinutes,
+    slotMaxMinutes,
+    slotDurationMinutes,
+  });
+  const selectedDay = selectedDate ? formatCalendarDate(selectedDate) : null;
+  const gridStyle: CSSProperties = {
+    gridTemplateColumns: `${timeAxisWidth}px repeat(${model.days.length}, minmax(${minimumDayWidth}px, 1fr))`,
+    minWidth: `${timeAxisWidth + (model.days.length * minimumDayWidth)}px`,
+  };
+  const gridHeight = model.slots.length * slotHeight;
+  const isSingleDayEmpty = model.days.length === 1
+    && model.days[0]?.allDayEntries.length === 0
+    && model.days[0]?.timedEntries.length === 0;
 
   return (
-    <div className="min-w-[640px]">
-      {showHeader ? <div className="border-y border-current/15 py-2 text-sm font-semibold">{day}</div> : null}
-      <div className="relative h-[1440px] border-b border-current/15 bg-[linear-gradient(to_bottom,transparent_59px,currentColor_60px)] bg-[length:100%_60px] bg-opacity-10">
-        {slots.map((slot) => (
-          <div key={slot} className="absolute left-0 right-0 border-t border-current/10 text-[0.65rem] opacity-60" style={{ top: `${slot * (100 / 48)}%` }}>
-            {slot % 2 === 0 ? <span className="absolute -left-12 -top-2 w-10 text-right">{String(Math.floor(slot / 2)).padStart(2, "0")}:00</span> : null}
+    <div className="overflow-x-auto" data-calendar-time-grid>
+      <div className="border-l border-t border-current/15" style={gridStyle}>
+        {showDayHeaders ? (
+          <div className="grid border-b border-current/15" style={gridStyle}>
+            <div className="border-r border-current/15 bg-current/5" />
+            {model.days.map((day, index) => {
+              const date = days[index];
+              const isSelected = day.date === selectedDay;
+              if (!date) return null;
+
+              return onDaySelect ? (
+                <button
+                  key={day.date}
+                  type="button"
+                  onClick={() => onDaySelect(date)}
+                  aria-pressed={isSelected}
+                  className={`min-h-11 border-r border-current/15 px-2 py-2 text-center text-sm font-semibold ${calendarFocusClass(variant)} ${isSelected ? "bg-current/10" : "bg-current/5"}`}
+                >
+                  {labels.formatDayHeader(date, { includeWeekday: true })}
+                </button>
+              ) : (
+                <div key={day.date} className={`min-h-11 border-r border-current/15 px-2 py-2 text-center text-sm font-semibold ${isSelected ? "bg-current/10" : "bg-current/5"}`}>
+                  {labels.formatDayHeader(date, { includeWeekday: true })}
+                </div>
+              );
+            })}
           </div>
-        ))}
-        {timedEntries.map((entry) => {
-          const layout = columns.get(entry.id) ?? { column: 0, columnCount: 1 };
-          const position = getTimedPosition(entry, day);
-          const style: CSSProperties = {
-            top: `${(position.startMinutes / 1440) * 100}%`,
-            height: `${((position.endMinutes - position.startMinutes) / 1440) * 100}%`,
-            left: `${(layout.column / layout.columnCount) * 100}%`,
-            width: `${(100 / layout.columnCount) - 1}%`,
-          };
-          return (
-            <div key={entry.id} className="absolute min-h-8" style={style}>
-              <CalendarEntryButton entry={entry} variant={variant} onActivate={onEntryActivate} />
+        ) : null}
+
+        <div className="grid border-b border-current/15" style={gridStyle}>
+          <div className="border-r border-current/15 px-2 py-2 text-right text-xs font-medium opacity-70">
+            {labels.allDay}
+          </div>
+          {model.days.map((day) => (
+            <div key={day.date} className="min-h-11 space-y-1 border-r border-current/15 p-1">
+              {day.allDayEntries.map((entry) => (
+                <CalendarEntryButton key={entry.id} entry={entry} variant={variant} onActivate={onEntryActivate} compact />
+              ))}
             </div>
-          );
-        })}
+          ))}
+        </div>
+
+        <div className="grid" style={gridStyle} aria-label={labels.timedEvents}>
+          <div className="relative border-r border-current/15" style={{ height: gridHeight }}>
+            {model.slots.map((slot, index) => (
+              <div key={slot.minutes} className="absolute left-0 right-0 border-t border-current/10" style={{ top: index * slotHeight }}>
+                {slot.isHour ? <span className="absolute right-2 -top-2.5 text-xs opacity-70">{labels.formatTime(slot.minutes)}</span> : null}
+              </div>
+            ))}
+          </div>
+          {model.days.map((day) => (
+            <section key={day.date} className="relative border-r border-current/15" style={{ height: gridHeight }} aria-label={labels.timedEvents}>
+              {model.slots.map((slot, index) => (
+                <div key={slot.minutes} className="absolute left-0 right-0 border-t border-current/10" style={{ top: index * slotHeight }} />
+              ))}
+              {day.timedEntries.map(({ entry, position }) => (
+                <div key={entry.id} className="absolute min-h-11" style={getEventStyle(position)}>
+                  <CalendarEntryButton entry={entry} variant={variant} onActivate={onEntryActivate} />
+                </div>
+              ))}
+            </section>
+          ))}
+        </div>
       </div>
-      {dayEntries.filter((entry) => entry.allDay).map((entry) => <div key={entry.id} className="mt-1"><CalendarEntryButton entry={entry} variant={variant} onActivate={onEntryActivate} compact /></div>)}
-      {timedEntries.length === 0 && dayEntries.filter((entry) => entry.allDay).length === 0 ? <p className="py-6 text-sm opacity-70">No entries</p> : null}
+      {isSingleDayEmpty ? <p className="border-x border-b border-current/15 p-4 text-sm opacity-70">{labels.noEventsOnDate}</p> : null}
     </div>
   );
 }
