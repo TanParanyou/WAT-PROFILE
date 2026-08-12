@@ -28,14 +28,16 @@ export function calendarTooltipClass(variant: CalendarVariant): {
 } {
   if (variant === "public") {
     return {
-      container: "border border-site-border bg-site-surface text-site-foreground rounded-none shadow-sm",
+      container:
+        "public-theme border-2 border-site-border bg-site-canvas text-site-foreground rounded-none shadow-2xl z-[9999] opacity-100",
       subtext: "text-site-muted",
-      icon: "text-site-accent opacity-80",
+      icon: "text-site-accent opacity-90",
     };
   }
   return {
-    container: "border border-admin-border bg-admin-surface text-admin-foreground rounded-none shadow-sm",
+    container:
+      "admin-theme border-2 border-admin-border bg-admin-canvas text-admin-foreground rounded-none shadow-2xl z-[9999] opacity-100",
     subtext: "text-admin-muted",
-    icon: "text-admin-foreground opacity-70",
+    icon: "text-admin-foreground opacity-80",
   };
 }

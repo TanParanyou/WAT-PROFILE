@@ -85,7 +85,7 @@ export function CalendarTooltip<TEvent extends CalendarEventLike>({
           left: `${coords.left}px`,
           transform: coords.isBottom ? "translate(-50%, 0)" : "translate(-50%, -100%)",
         }}
-        className={`pointer-events-none z-[9999] px-3 py-2 min-w-40 max-w-xs text-xs whitespace-normal shadow-lg transition-opacity duration-150 ${themeClasses.container}`}
+        className={`pointer-events-none px-3.5 py-2.5 min-w-44 max-w-xs text-xs whitespace-normal transition-opacity duration-150 ${themeClasses.container}`}
       >
         {renderTooltip ? renderTooltip(event) : defaultContent}
       </div>,
