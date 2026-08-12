@@ -43,6 +43,7 @@
     "sidebar": {
       "dashboard": "แดชบอร์ด",
       "events": "กิจกรรม",
+      "calendar": "ปฏิทิน",
       "monks": "พระสงฆ์",
       "gallery": "แกลเลอรี",
       "schedules": "ตารางเวลา",
@@ -188,6 +189,25 @@
         "dayLabel": "วันจัดงาน (ระบุเมื่อต้องการแบ่งหัวข้อวัน - ไม่บังคับ)",
         "activityLabel": "กิจกรรมที่ปฏิบัติ"
       }
+    },
+    "calendar": {
+      "title": "ปฏิทินกิจกรรม",
+      "subtitle": "ดูทุกกิจกรรมในมุมมองเดียว",
+      "previous": "ก่อนหน้า",
+      "next": "ถัดไป",
+      "today": "วันนี้",
+      "retry": "ลองใหม่",
+      "loading": "กำลังโหลดปฏิทิน...",
+      "refreshing": "กำลังอัปเดตปฏิทิน...",
+      "empty": "ไม่มีกิจกรรมในช่วงเวลานี้",
+      "error": "ไม่สามารถโหลดปฏิทินได้",
+      "noEventsOnDate": "ไม่มีกิจกรรมในวันนี้",
+      "calendarInstructions": "ปฏิทินกิจกรรม เลือกกิจกรรมเพื่อดูรายละเอียด",
+      "moreEvents": "+ อีก {count} รายการ",
+      "eventsCount": "{count} กิจกรรม",
+      "views": { "month": "เดือน", "week": "สัปดาห์", "day": "วัน", "dayGrid": "ตารางวัน", "timeline": "ไทม์ไลน์" },
+      "dayNames": { "sunday": "อาทิตย์", "monday": "จันทร์", "tuesday": "อังคาร", "wednesday": "พุธ", "thursday": "พฤหัสบดี", "friday": "ศุกร์", "saturday": "เสาร์" },
+      "drawer": { "source": "แหล่งข้อมูล", "status": "สถานะ", "active": "เปิดใช้งาน", "inactive": "ปิดใช้งาน", "location": "สถานที่", "description": "รายละเอียด", "edit": "แก้ไขกิจกรรม", "close": "ปิด" }
     },
     "monks": {
       "title": "พระสงฆ์",

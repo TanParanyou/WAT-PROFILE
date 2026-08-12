@@ -43,6 +43,7 @@
     "sidebar": {
       "dashboard": "Dashboard",
       "events": "Events",
+      "calendar": "Calendar",
       "monks": "Monks",
       "gallery": "Gallery",
       "schedules": "Schedules",
@@ -188,6 +189,25 @@
         "dayLabel": "Date/Day Header (Optional - to group activities)",
         "activityLabel": "Activity/Details"
       }
+    },
+    "calendar": {
+      "title": "Activity calendar",
+      "subtitle": "See every activity in one operational view",
+      "previous": "Previous",
+      "next": "Next",
+      "today": "Today",
+      "retry": "Try again",
+      "loading": "Loading calendar...",
+      "refreshing": "Refreshing calendar...",
+      "empty": "No activities in this period",
+      "error": "The calendar could not be loaded",
+      "noEventsOnDate": "No events on this date",
+      "calendarInstructions": "Activity calendar. Select an event to view details.",
+      "moreEvents": "+ {count} more",
+      "eventsCount": "{count} events",
+      "views": { "month": "Month", "week": "Week", "day": "Day", "dayGrid": "Day grid", "timeline": "Timeline" },
+      "dayNames": { "sunday": "Sunday", "monday": "Monday", "tuesday": "Tuesday", "wednesday": "Wednesday", "thursday": "Thursday", "friday": "Friday", "saturday": "Saturday" },
+      "drawer": { "source": "Source", "status": "Status", "active": "Active", "inactive": "Inactive", "location": "Location", "description": "Description", "edit": "Edit activity", "close": "Close" }
     },
     "monks": {
       "title": "Monks",

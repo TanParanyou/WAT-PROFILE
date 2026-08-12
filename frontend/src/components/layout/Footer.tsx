@@ -19,6 +19,7 @@ export default function Footer() {
     const menuItems = [
         { name: t('aboutUs'), href: '/about' },
         { name: t('events'), href: '/events' },
+        { name: t('calendar'), href: '/calendar' },
         { name: t('contactUs'), href: '/contact' },
     ];
 

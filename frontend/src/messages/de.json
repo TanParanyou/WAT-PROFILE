@@ -3,6 +3,7 @@
         "home": "Startseite",
         "about": "Über Uns",
         "events": "Veranstaltungen",
+        "calendar": "Kalender",
         "visit": "Besuch",
         "gallery": "Galerie",
         "contact": "Kontakt",
@@ -471,6 +472,24 @@
             "friday": "Freitag",
             "saturday": "Samstag"
         }
+    },
+    "CalendarPage": {
+        "title": "Aktivitätskalender",
+        "subtitle": "Entdecken Sie Tempelveranstaltungen in der Ansicht, die zu Ihnen passt.",
+        "previous": "Zurück",
+        "next": "Weiter",
+        "today": "Heute",
+        "moreEvents": "+ {count} weitere",
+        "eventsCount": "{count} Veranstaltungen",
+        "noEventsOnDate": "Keine Veranstaltungen an diesem Tag",
+        "calendarInstructions": "Aktivitätskalender. Veranstaltung für Details auswählen.",
+        "loading": "Kalender wird geladen...",
+        "refreshing": "Kalender wird aktualisiert...",
+        "retry": "Erneut versuchen",
+        "empty": "Keine Aktivitäten in diesem Zeitraum",
+        "error": "Der Kalender konnte nicht geladen werden",
+        "views": { "month": "Monat", "week": "Woche", "day": "Tag", "dayGrid": "Tagesraster", "timeline": "Zeitleiste" },
+        "dayNames": { "sunday": "Sonntag", "monday": "Montag", "tuesday": "Dienstag", "wednesday": "Mittwoch", "thursday": "Donnerstag", "friday": "Freitag", "saturday": "Samstag" }
     },
     "PublicHome": {
         "heroFallbackTitle": "Wat Loung Por Sai",

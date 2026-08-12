@@ -21,6 +21,7 @@
     "Footer": {
         "aboutUs": "เกี่ยวกับวัด",
         "events": "กิจกรรม/งานบุญ",
+        "calendar": "ปฏิทิน",
         "donate": "บริจาค/ทำบุญ",
         "contactUs": "ติดต่อเรา",
         "quickLinks": "เมนูนำทาง",
@@ -471,6 +472,24 @@
             "friday": "ศุกร์",
             "saturday": "เสาร์"
         }
+    },
+    "CalendarPage": {
+        "title": "ปฏิทินกิจกรรม",
+        "subtitle": "ดูงานบุญและกิจกรรมของวัดในมุมมองที่คุณถนัด",
+        "previous": "ก่อนหน้า",
+        "next": "ถัดไป",
+        "today": "วันนี้",
+        "moreEvents": "+ อีก {count} รายการ",
+        "eventsCount": "{count} กิจกรรม",
+        "noEventsOnDate": "ไม่มีกิจกรรมในวันนี้",
+        "calendarInstructions": "ปฏิทินกิจกรรม เลือกกิจกรรมเพื่อดูรายละเอียด",
+        "loading": "กำลังโหลดปฏิทิน...",
+        "refreshing": "กำลังอัปเดตปฏิทิน...",
+        "retry": "ลองใหม่",
+        "empty": "ยังไม่มีกิจกรรมในช่วงเวลานี้",
+        "error": "ไม่สามารถโหลดปฏิทินได้",
+        "views": { "month": "เดือน", "week": "สัปดาห์", "day": "วัน", "dayGrid": "ตารางวัน", "timeline": "ไทม์ไลน์" },
+        "dayNames": { "sunday": "อาทิตย์", "monday": "จันทร์", "tuesday": "อังคาร", "wednesday": "พุธ", "thursday": "พฤหัสบดี", "friday": "ศุกร์", "saturday": "เสาร์" }
     },
     "PublicHome": {
         "heroFallbackTitle": "วัดหลวงพ่อใส",

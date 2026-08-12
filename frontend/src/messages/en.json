@@ -3,6 +3,7 @@
         "home": "Home",
         "about": "About",
         "events": "Events",
+        "calendar": "Calendar",
         "visit": "Visit",
         "gallery": "Gallery",
         "contact": "Contact",
@@ -471,6 +472,24 @@
             "friday": "Friday",
             "saturday": "Saturday"
         }
+    },
+    "CalendarPage": {
+        "title": "Activity calendar",
+        "subtitle": "Explore temple events in the view that works best for you.",
+        "previous": "Previous",
+        "next": "Next",
+        "today": "Today",
+        "moreEvents": "+ {count} more",
+        "eventsCount": "{count} events",
+        "noEventsOnDate": "No events on this date",
+        "calendarInstructions": "Activity calendar. Select an event to view details.",
+        "loading": "Loading calendar...",
+        "refreshing": "Refreshing calendar...",
+        "retry": "Try again",
+        "empty": "No activities in this period",
+        "error": "The calendar could not be loaded",
+        "views": { "month": "Month", "week": "Week", "day": "Day", "dayGrid": "Day grid", "timeline": "Timeline" },
+        "dayNames": { "sunday": "Sunday", "monday": "Monday", "tuesday": "Tuesday", "wednesday": "Wednesday", "thursday": "Thursday", "friday": "Friday", "saturday": "Saturday" }
     },
     "PublicHome": {
         "heroFallbackTitle": "Wat Loung Por Sai",

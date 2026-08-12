@@ -43,6 +43,7 @@
     "sidebar": {
       "dashboard": "Dashboard",
       "events": "Veranstaltungen",
+      "calendar": "Kalender",
       "monks": "Mönche",
       "gallery": "Galerie",
       "schedules": "Zeitplan",
@@ -188,6 +189,25 @@
         "dayLabel": "Datum/Tag-Kopfzeile (Optional - zum Gruppieren von Aktivitäten)",
         "activityLabel": "Aktivität/Details"
       }
+    },
+    "calendar": {
+      "title": "Aktivitätskalender",
+      "subtitle": "Alle Aktivitäten in einer operativen Ansicht",
+      "previous": "Zurück",
+      "next": "Weiter",
+      "today": "Heute",
+      "retry": "Erneut versuchen",
+      "loading": "Kalender wird geladen...",
+      "refreshing": "Kalender wird aktualisiert...",
+      "empty": "Keine Aktivitäten in diesem Zeitraum",
+      "error": "Der Kalender konnte nicht geladen werden",
+      "noEventsOnDate": "Keine Veranstaltungen an diesem Tag",
+      "calendarInstructions": "Aktivitätskalender. Veranstaltung für Details auswählen.",
+      "moreEvents": "+ {count} weitere",
+      "eventsCount": "{count} Veranstaltungen",
+      "views": { "month": "Monat", "week": "Woche", "day": "Tag", "dayGrid": "Tagesraster", "timeline": "Zeitleiste" },
+      "dayNames": { "sunday": "Sonntag", "monday": "Montag", "tuesday": "Dienstag", "wednesday": "Mittwoch", "thursday": "Donnerstag", "friday": "Freitag", "saturday": "Samstag" },
+      "drawer": { "source": "Quelle", "status": "Status", "active": "Aktiv", "inactive": "Inaktiv", "location": "Ort", "description": "Beschreibung", "edit": "Aktivität bearbeiten", "close": "Schließen" }
     },
     "monks": {
       "title": "Mönche",

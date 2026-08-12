@@ -64,6 +64,7 @@ const sidebarGroups: SidebarGroup[] = [
     titleKey: "operationsGroup",
     items: [
       { labelKey: "events", href: "/admin/events", icon: Calendar, resource: "events" },
+      { labelKey: "calendar", href: "/admin/calendar", icon: Calendar, resource: "events" },
       { labelKey: "registrations", href: "/admin/registrations", icon: ClipboardList, resource: "events" },
       { labelKey: "schedules", href: "/admin/schedules", icon: Clock, resource: "schedules" },
       { labelKey: "gallery", href: "/admin/gallery", icon: Image, resource: "gallery" },
