@@ -129,44 +129,46 @@ export function TimeGrid<TEvent extends CalendarEventLike>({
   const bgClass = variant === "public" ? "bg-site-canvas" : "bg-admin-canvas";
 
   return (
-    <div className="overflow-x-auto" data-calendar-time-grid>
+    <div className="overflow-auto max-h-[calc(100vh-220px)] min-h-[450px]" data-calendar-time-grid>
       <div className="border-l border-t border-current/15" style={gridStyle}>
-        {showDayHeaders ? (
-          <div className={`grid border-b border-current/15 ${stickyHeader ? "sticky top-0 z-20" : ""} ${bgClass}`} style={gridStyle}>
-            <div className={`border-r border-current/15 ${stickyTimeAxis ? "sticky left-0 z-30" : ""} ${bgClass}`} />
-            {model.days.map((day, index) => {
-              const date = days[index];
-              const isSelected = day.date === selectedDay;
-              if (!date) return null;
+        <div className={`${stickyHeader ? "sticky top-0 z-20" : ""} ${bgClass}`}>
+          {showDayHeaders ? (
+            <div className="grid border-b border-current/15" style={gridStyle}>
+              <div className={`border-r border-current/15 ${stickyTimeAxis ? "sticky left-0 z-30" : ""} ${bgClass}`} />
+              {model.days.map((day, index) => {
+                const date = days[index];
+                const isSelected = day.date === selectedDay;
+                if (!date) return null;
 
-              return onDaySelect ? (
-                <button key={day.date} type="button" onClick={() => onDaySelect(date)} aria-pressed={isSelected} className={`min-h-11 border-r border-current/15 px-2 py-2 text-center text-sm font-semibold ${calendarFocusClass(variant)} ${isSelected ? "bg-current/10" : "bg-current/5"}`}>
-                  {labels.formatDayHeader(date, { includeWeekday: true })}
-                </button>
-              ) : (
-                <div key={day.date} className={`min-h-11 border-r border-current/15 px-2 py-2 text-center text-sm font-semibold ${isSelected ? "bg-current/10" : "bg-current/5"}`}>
-                  {labels.formatDayHeader(date, { includeWeekday: true })}
-                </div>
-              );
-            })}
-          </div>
-        ) : null}
-
-        <div className="grid border-b border-current/15" style={gridStyle}>
-          <div className={`border-r border-current/15 px-2 py-2 text-right text-xs font-medium opacity-70 ${stickyTimeAxis ? "sticky left-0 z-20" : ""} ${bgClass}`}>
-            {labels.allDay}
-          </div>
-          {model.days.map((day) => (
-            <div key={day.date} className="min-h-11 space-y-1 border-r border-current/15 p-1">
-              {day.allDayEntries.map((event) => (
-                <EventButton key={event.id} event={event} labels={labels} variant={variant} onActivate={onEntryActivate} renderEvent={renderEvent} getEventClassName={getEventClassName} showTooltip={showTooltip} renderTooltip={renderTooltip} />
-              ))}
+                return onDaySelect ? (
+                  <button key={day.date} type="button" onClick={() => onDaySelect(date)} aria-pressed={isSelected} className={`min-h-11 border-r border-current/15 px-2 py-2 text-center text-sm font-semibold ${calendarFocusClass(variant)} ${isSelected ? "bg-current/10" : "bg-current/5"}`}>
+                    {labels.formatDayHeader(date, { includeWeekday: true })}
+                  </button>
+                ) : (
+                  <div key={day.date} className={`min-h-11 border-r border-current/15 px-2 py-2 text-center text-sm font-semibold ${isSelected ? "bg-current/10" : "bg-current/5"}`}>
+                    {labels.formatDayHeader(date, { includeWeekday: true })}
+                  </div>
+                );
+              })}
             </div>
-          ))}
+          ) : null}
+
+          <div className="grid border-b border-current/15" style={gridStyle}>
+            <div className={`border-r border-current/15 px-2 py-2 text-right text-xs font-medium opacity-70 ${stickyTimeAxis ? "sticky left-0 z-30" : ""} ${bgClass}`}>
+              {labels.allDay}
+            </div>
+            {model.days.map((day) => (
+              <div key={day.date} className="min-h-11 space-y-1 border-r border-current/15 p-1">
+                {day.allDayEntries.map((event) => (
+                  <EventButton key={event.id} event={event} labels={labels} variant={variant} onActivate={onEntryActivate} renderEvent={renderEvent} getEventClassName={getEventClassName} showTooltip={showTooltip} renderTooltip={renderTooltip} />
+                ))}
+              </div>
+            ))}
+          </div>
         </div>
 
         <div className="grid" style={gridStyle} aria-label={labels.timedEvents}>
-          <div className={`relative border-r border-current/15 ${stickyTimeAxis ? "sticky left-0 z-20" : ""} ${bgClass}`} style={{ height: gridHeight }}>
+          <div className={`relative border-r border-current/15 ${stickyTimeAxis ? "sticky left-0 z-10" : ""} ${bgClass}`} style={{ height: gridHeight }}>
             {model.slots.map((slot, index) => (
               <div key={slot.minutes} className="absolute left-0 right-0 border-t border-current/10" style={{ top: index * slotHeight }}>
                 {slot.isHour ? <span className="absolute right-2 -top-2.5 text-xs opacity-70">{labels.formatTime(slot.minutes)}</span> : null}
