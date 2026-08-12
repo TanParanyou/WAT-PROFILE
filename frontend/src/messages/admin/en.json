@@ -207,6 +207,7 @@
       "eventsCount": "{count} events",
       "allDay": "All-day",
       "timedEvents": "Timed events",
+      "eventDetails": "View details",
       "selectedDate": "Schedule for {date}",
       "views": { "month": "Month", "week": "Week", "day": "Day" },
       "dayNames": { "sunday": "Sunday", "monday": "Monday", "tuesday": "Tuesday", "wednesday": "Wednesday", "thursday": "Thursday", "friday": "Friday", "saturday": "Saturday" },

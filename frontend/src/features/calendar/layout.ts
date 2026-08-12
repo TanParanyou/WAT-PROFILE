@@ -1,18 +1,18 @@
 import { isBefore, parseISO } from "date-fns";
-import type { CalendarEntry, CalendarResource } from "./types";
+import type { CalendarEventLike, CalendarResource } from "./core/types";
 
 export interface TimedEntryLayout {
   column: number;
   columnCount: number;
 }
 
-interface TimedInterval {
-  entry: CalendarEntry;
+interface TimedInterval<TEvent extends CalendarEventLike> {
+  entry: TEvent;
   start: number;
   end: number;
 }
 
-function parseTimedInterval(entry: CalendarEntry): TimedInterval | null {
+function parseTimedInterval<TEvent extends CalendarEventLike>(entry: TEvent): TimedInterval<TEvent> | null {
   if (entry.allDay) return null;
 
   const start = parseISO(entry.start);
@@ -26,7 +26,7 @@ function parseTimedInterval(entry: CalendarEntry): TimedInterval | null {
   };
 }
 
-function compareIntervals(a: TimedInterval, b: TimedInterval): number {
+function compareIntervals<TEvent extends CalendarEventLike>(a: TimedInterval<TEvent>, b: TimedInterval<TEvent>): number {
   return (
     a.start - b.start ||
     a.end - b.end ||
@@ -35,8 +35,8 @@ function compareIntervals(a: TimedInterval, b: TimedInterval): number {
   );
 }
 
-function buildGroupLayout(
-  group: readonly TimedInterval[],
+function buildGroupLayout<TEvent extends CalendarEventLike>(
+  group: readonly TimedInterval<TEvent>[],
   output: Map<string, TimedEntryLayout>,
 ): void {
   const active: Array<{ end: number; column: number }> = [];
@@ -65,15 +65,15 @@ function buildGroupLayout(
 }
 
 export function buildTimedColumns(
-  entries: readonly CalendarEntry[],
+  entries: readonly CalendarEventLike[],
 ): Map<string, TimedEntryLayout> {
   const intervals = entries
     .map(parseTimedInterval)
-    .filter((interval): interval is TimedInterval => interval !== null)
+    .filter((interval): interval is TimedInterval<CalendarEventLike> => interval !== null)
     .sort(compareIntervals);
   const output = new Map<string, TimedEntryLayout>();
 
-  let group: TimedInterval[] = [];
+  let group: TimedInterval<CalendarEventLike>[] = [];
   let groupEnd = Number.NEGATIVE_INFINITY;
 
   const flushGroup = (): void => {
@@ -92,11 +92,11 @@ export function buildTimedColumns(
   return output;
 }
 
-export function groupEntriesByResource(
-  entries: readonly CalendarEntry[],
+export function groupEntriesByResource<TEvent extends CalendarEventLike>(
+  entries: readonly TEvent[],
   resources: readonly CalendarResource[],
-): Map<string, CalendarEntry[]> {
-  const lanes = new Map<string, CalendarEntry[]>();
+): Map<string, TEvent[]> {
+  const lanes = new Map<string, TEvent[]>();
   for (const resource of resources) lanes.set(resource.id, []);
   if (!lanes.has("default")) lanes.set("default", []);
 

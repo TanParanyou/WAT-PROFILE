@@ -1,5 +1,5 @@
 import { buildTimedColumns, type TimedEntryLayout } from "../layout";
-import type { CalendarEntry } from "../types";
+import type { CalendarEventLike } from "../core/types";
 import { entriesOnDay, getTimedPositionWithinWindow } from "./calendar-view-utils";
 
 const minutesPerDay = 24 * 60;
@@ -14,28 +14,28 @@ export interface TimeGridPosition extends TimedEntryLayout {
   endMinutes: number;
 }
 
-export interface TimeGridTimedEntry {
-  entry: CalendarEntry;
+export interface TimeGridTimedEntry<TEvent extends CalendarEventLike = CalendarEventLike> {
+  entry: TEvent;
   position: TimeGridPosition;
 }
 
-export interface TimeGridDay {
+export interface TimeGridDay<TEvent extends CalendarEventLike = CalendarEventLike> {
   date: string;
-  allDayEntries: CalendarEntry[];
-  timedEntries: TimeGridTimedEntry[];
+  allDayEntries: TEvent[];
+  timedEntries: TimeGridTimedEntry<TEvent>[];
 }
 
-export interface BuildTimeGridModelInput {
+export interface BuildTimeGridModelInput<TEvent extends CalendarEventLike = CalendarEventLike> {
   days: readonly string[];
-  entries: readonly CalendarEntry[];
+  entries: readonly TEvent[];
   slotMinMinutes: number;
   slotMaxMinutes: number;
   slotDurationMinutes: number;
 }
 
-export interface TimeGridModel {
+export interface TimeGridModel<TEvent extends CalendarEventLike = CalendarEventLike> {
   slots: TimeGridSlot[];
-  days: TimeGridDay[];
+  days: TimeGridDay<TEvent>[];
 }
 
 function normalizeMinute(value: number): number {
@@ -57,13 +57,13 @@ function buildTimeGridSlots(
   return slots;
 }
 
-export function buildTimeGridModel({
+export function buildTimeGridModel<TEvent extends CalendarEventLike>({
   days,
   entries,
   slotMinMinutes,
   slotMaxMinutes,
   slotDurationMinutes,
-}: BuildTimeGridModelInput): TimeGridModel {
+}: BuildTimeGridModelInput<TEvent>): TimeGridModel<TEvent> {
   const windowStartMinutes = normalizeMinute(slotMinMinutes);
   const windowEndMinutes = normalizeMinute(slotMaxMinutes);
   const slots = buildTimeGridSlots(windowStartMinutes, windowEndMinutes, slotDurationMinutes);

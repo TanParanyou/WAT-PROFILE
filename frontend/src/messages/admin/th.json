@@ -207,6 +207,7 @@
       "eventsCount": "{count} กิจกรรม",
       "allDay": "ทั้งวัน",
       "timedEvents": "ตามเวลา",
+      "eventDetails": "ดูรายละเอียด",
       "selectedDate": "กำหนดการวันที่ {date}",
       "views": { "month": "เดือน", "week": "สัปดาห์", "day": "วัน" },
       "dayNames": { "sunday": "อาทิตย์", "monday": "จันทร์", "tuesday": "อังคาร", "wednesday": "พุธ", "thursday": "พฤหัสบดี", "friday": "ศุกร์", "saturday": "เสาร์" },

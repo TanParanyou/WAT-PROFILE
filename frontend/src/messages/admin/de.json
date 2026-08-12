@@ -207,6 +207,7 @@
       "eventsCount": "{count} Veranstaltungen",
       "allDay": "Ganztägig",
       "timedEvents": "Nach Uhrzeit",
+      "eventDetails": "Details ansehen",
       "selectedDate": "Programm für {date}",
       "views": { "month": "Monat", "week": "Woche", "day": "Tag" },
       "dayNames": { "sunday": "Sonntag", "monday": "Montag", "tuesday": "Dienstag", "wednesday": "Mittwoch", "thursday": "Donnerstag", "friday": "Freitag", "saturday": "Samstag" },

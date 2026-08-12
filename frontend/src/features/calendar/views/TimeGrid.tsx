@@ -1,22 +1,22 @@
 "use client";
 
-import type { CSSProperties } from "react";
+import type { CSSProperties, ReactNode } from "react";
 import type { CalendarLabels } from "../calendar-copy";
 import { calendarFocusClass, type CalendarVariant } from "../calendar-theme";
-import type { CalendarEntry } from "../types";
+import type { CalendarEventLike } from "../core/types";
 import { formatCalendarDate } from "./calendar-view-utils";
-import { CalendarEntryButton } from "./CalendarEntryButton";
 import { buildTimeGridModel, type TimeGridDay } from "./time-grid";
 
-interface TimeGridProps {
+interface TimeGridProps<TEvent extends CalendarEventLike> {
   days: readonly Date[];
-  entries: readonly CalendarEntry[];
+  entries: readonly TEvent[];
   labels: CalendarLabels;
   variant: CalendarVariant;
-  onEntryActivate: (entry: CalendarEntry) => void;
+  onEntryActivate: (entry: TEvent) => void;
   showDayHeaders: boolean;
   selectedDate?: Date;
   onDaySelect?: (date: Date) => void;
+  renderEvent?: (event: TEvent, density: "summary" | "row" | "timeGrid") => ReactNode;
 }
 
 const slotMinMinutes = 8 * 60;
@@ -41,7 +41,33 @@ function getEventStyle(
   };
 }
 
-export function TimeGrid({
+function EventButton<TEvent extends CalendarEventLike>({
+  event,
+  labels,
+  variant,
+  onActivate,
+  renderEvent,
+}: {
+  event: TEvent;
+  labels: CalendarLabels;
+  variant: CalendarVariant;
+  onActivate: (event: TEvent) => void;
+  renderEvent?: (event: TEvent, density: "summary" | "row" | "timeGrid") => ReactNode;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={() => onActivate(event)}
+      aria-label={event.title}
+      className={`block min-h-11 w-full overflow-hidden border border-current/15 bg-current/5 px-2 py-1.5 text-left text-xs leading-tight transition-colors focus-visible:outline-2 ${calendarFocusClass(variant)}`}
+    >
+      <span className="block truncate font-medium">{renderEvent ? renderEvent(event, "timeGrid") : event.title}</span>
+      <span className="block truncate opacity-70">{event.allDay ? labels.allDay : `${event.start.slice(11, 16)}–${event.end.slice(11, 16)}`}</span>
+    </button>
+  );
+}
+
+export function TimeGrid<TEvent extends CalendarEventLike>({
   days,
   entries,
   labels,
@@ -50,7 +76,8 @@ export function TimeGrid({
   showDayHeaders,
   selectedDate,
   onDaySelect,
-}: TimeGridProps) {
+  renderEvent,
+}: TimeGridProps<TEvent>) {
   const dayKeys = days.map(formatCalendarDate);
   const model = buildTimeGridModel({
     days: dayKeys,
@@ -81,13 +108,7 @@ export function TimeGrid({
               if (!date) return null;
 
               return onDaySelect ? (
-                <button
-                  key={day.date}
-                  type="button"
-                  onClick={() => onDaySelect(date)}
-                  aria-pressed={isSelected}
-                  className={`min-h-11 border-r border-current/15 px-2 py-2 text-center text-sm font-semibold ${calendarFocusClass(variant)} ${isSelected ? "bg-current/10" : "bg-current/5"}`}
-                >
+                <button key={day.date} type="button" onClick={() => onDaySelect(date)} aria-pressed={isSelected} className={`min-h-11 border-r border-current/15 px-2 py-2 text-center text-sm font-semibold ${calendarFocusClass(variant)} ${isSelected ? "bg-current/10" : "bg-current/5"}`}>
                   {labels.formatDayHeader(date, { includeWeekday: true })}
                 </button>
               ) : (
@@ -100,13 +121,11 @@ export function TimeGrid({
         ) : null}
 
         <div className="grid border-b border-current/15" style={gridStyle}>
-          <div className="border-r border-current/15 px-2 py-2 text-right text-xs font-medium opacity-70">
-            {labels.allDay}
-          </div>
+          <div className="border-r border-current/15 px-2 py-2 text-right text-xs font-medium opacity-70">{labels.allDay}</div>
           {model.days.map((day) => (
             <div key={day.date} className="min-h-11 space-y-1 border-r border-current/15 p-1">
-              {day.allDayEntries.map((entry) => (
-                <CalendarEntryButton key={entry.id} entry={entry} variant={variant} onActivate={onEntryActivate} compact />
+              {day.allDayEntries.map((event) => (
+                <EventButton key={event.id} event={event} labels={labels} variant={variant} onActivate={onEntryActivate} renderEvent={renderEvent} />
               ))}
             </div>
           ))}
@@ -122,12 +141,10 @@ export function TimeGrid({
           </div>
           {model.days.map((day) => (
             <section key={day.date} className="relative border-r border-current/15" style={{ height: gridHeight }} aria-label={labels.timedEvents}>
-              {model.slots.map((slot, index) => (
-                <div key={slot.minutes} className="absolute left-0 right-0 border-t border-current/10" style={{ top: index * slotHeight }} />
-              ))}
+              {model.slots.map((slot, index) => <div key={slot.minutes} className="absolute left-0 right-0 border-t border-current/10" style={{ top: index * slotHeight }} />)}
               {day.timedEntries.map(({ entry, position }) => (
                 <div key={entry.id} className="absolute min-h-11" style={getEventStyle(position)}>
-                  <CalendarEntryButton entry={entry} variant={variant} onActivate={onEntryActivate} />
+                  <EventButton event={entry} labels={labels} variant={variant} onActivate={onEntryActivate} renderEvent={renderEvent} />
                 </div>
               ))}
             </section>
