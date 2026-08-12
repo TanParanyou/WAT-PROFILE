@@ -23,6 +23,7 @@ import (
 	"github.com/watloungporsai/wat-profile-backend/internal/middleware"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
+	"github.com/watloungporsai/wat-profile-backend/pkg/logger"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
 	"gorm.io/gorm"
 )
@@ -295,12 +296,18 @@ func (h *DonationHandler) GetDonationProof(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusNotFound, "Proof not found")
 	}
 	defer body.Close()
+
+	data, err := io.ReadAll(io.LimitReader(body, 10*1024*1024+1))
+	if err != nil || len(data) > 10*1024*1024 {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Unable to read donation proof")
+	}
+
 	if err := h.logDonationAction(c, "donation.proof_access", id, map[string]interface{}{"proof_available": true}); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Unable to record donation audit")
 	}
 	c.Set(fiber.HeaderContentType, proof.MimeType)
 	c.Set(fiber.HeaderContentDisposition, `attachment; filename="`+proof.OriginalFilename+`"`)
-	return c.SendStream(body)
+	return c.Send(data)
 }
 
 func (h *DonationHandler) SendDonationReceipt(c *fiber.Ctx) error {
@@ -473,6 +480,7 @@ func (h *DonationHandler) GetDonations(c *fiber.Ctx) error {
 
 	donations, total, err := h.donationService.ListDonationsOptions(options)
 	if err != nil {
+		logger.Log.Error().Err(err).Msg("Failed to fetch donations options")
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch donations")
 	}
 

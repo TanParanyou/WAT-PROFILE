@@ -63,3 +63,28 @@ func TestListForMemberScopesByAuthenticatedUser(t *testing.T) {
 		t.Fatalf("expected only member A donation, total=%d items=%+v", total, items)
 	}
 }
+
+func TestListDonationsOptionsWithSearchAndSort(t *testing.T) {
+	dsn := os.Getenv("DATABASE_URL_TEST")
+	if dsn == "" {
+		t.Skip("DATABASE_URL_TEST is not configured")
+	}
+	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
+	if err != nil {
+		t.Fatalf("open test database: %v", err)
+	}
+	svc := NewDonationService(db)
+	donations, total, err := svc.ListDonationsOptions(DonationListOptions{
+		Common: listquery.Common{
+			Page:   1,
+			Limit:  25,
+			Search: "01",
+			Sort:   "created_at",
+			Order:  "desc",
+		},
+	})
+	if err != nil {
+		t.Fatalf("ListDonationsOptions failed: %v", err)
+	}
+	t.Logf("Found %d total, returned %d donations", total, len(donations))
+}

@@ -572,7 +572,10 @@
       "submit": "Anmelden",
       "invalidCredentials": "Ungültige E-Mail oder Passwort",
       "genericError": "Ein Fehler ist aufgetreten. Bitte versuchen Sie es erneut",
-      "sessionExpired": "Sitzung abgelaufen. Bitte melden Sie sich erneut an"
+      "sessionExpired": "Sitzung abgelaufen. Bitte melden Sie sich erneut an",
+      "sessionExpiredTitle": "Sitzung abgelaufen (Admin-Token abgelaufen)",
+      "sessionExpiredDetail": "Ungültiger oder abgelaufener Admin-Token (Invalid or expired admin token). Bitte melden Sie sich erneut an, um fortzufahren.",
+      "reloginButton": "Erneut anmelden"
     },
     "users": {
       "title": "Benutzer",

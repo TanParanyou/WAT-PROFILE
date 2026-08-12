@@ -572,7 +572,10 @@
       "submit": "Sign In",
       "invalidCredentials": "Invalid email or password",
       "genericError": "An error occurred. Please try again",
-      "sessionExpired": "Session expired. Please sign in again"
+      "sessionExpired": "Session expired. Please sign in again",
+      "sessionExpiredTitle": "Session Expired (Admin Token Expired)",
+      "sessionExpiredDetail": "Invalid or expired admin token. Please sign in again to continue.",
+      "reloginButton": "Sign In Again"
     },
     "users": {
       "title": "Users",

@@ -329,7 +329,7 @@ func (s *DonationService) ListForMember(userID uuid.UUID, common listquery.Commo
 		query = query.Where("donation_date <= ?", *common.To)
 	}
 	var total int64
-	if err := query.Count(&total).Error; err != nil {
+	if err := query.Session(&gorm.Session{}).Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 	column := "donation_date"
@@ -413,7 +413,7 @@ func (s *DonationService) ListDonationsOptions(options DonationListOptions) ([]m
 		query = query.Where("donations.donation_date <= ?", *options.Common.To)
 	}
 
-	if err := query.Count(&total).Error; err != nil {
+	if err := query.Session(&gorm.Session{}).Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 
@@ -493,7 +493,7 @@ func (s *DonationService) ListCategoriesAdmin(options DonationCategoryListOption
 		}
 	}
 
-	if err := query.Count(&total).Error; err != nil {
+	if err := query.Session(&gorm.Session{}).Count(&total).Error; err != nil {
 		return nil, 0, err
 	}
 

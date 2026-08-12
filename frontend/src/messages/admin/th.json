@@ -572,7 +572,10 @@
       "submit": "เข้าสู่ระบบ",
       "invalidCredentials": "อีเมลหรือรหัสผ่านไม่ถูกต้อง",
       "genericError": "เกิดข้อผิดพลาด กรุณาลองใหม่",
-      "sessionExpired": "เซสชันหมดอายุ กรุณาเข้าสู่ระบบอีกครั้ง"
+      "sessionExpired": "เซสชันหมดอายุ กรุณาเข้าสู่ระบบอีกครั้ง",
+      "sessionExpiredTitle": "เซสชันหมดอายุ (Admin Token Expired)",
+      "sessionExpiredDetail": "โทเค็นของผู้ดูแลระบบหมดอายุหรือไม่ถูกต้อง (Invalid or expired admin token) กรุณาเข้าสู่ระบบใหม่อีกครั้งเพื่อใช้งานต่อ",
+      "reloginButton": "เข้าสู่ระบบใหม่"
     },
     "users": {
       "title": "ผู้ใช้งาน",
