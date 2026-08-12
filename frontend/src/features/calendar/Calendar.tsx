@@ -6,6 +6,11 @@ import type { CalendarLabels } from "./calendar-copy";
 import { CalendarToolbar } from "./CalendarToolbar";
 import type { CalendarController } from "./useCalendar";
 import type { CalendarEntry, CalendarFeed } from "./types";
+import { MonthView } from "./views/MonthView";
+import { WeekView } from "./views/WeekView";
+import { DayView } from "./views/DayView";
+import { DayGridView } from "./views/DayGridView";
+import { TimelineView } from "./views/TimelineView";
 
 interface CalendarProps {
   controller: CalendarController;
@@ -16,7 +21,7 @@ interface CalendarProps {
   children?: ReactNode;
 }
 
-export function Calendar({ controller, query, variant, labels, children }: CalendarProps) {
+export function Calendar({ controller, query, variant, labels, onEntryActivate, children }: CalendarProps) {
   const themeClass = variant === "public"
     ? "public-theme bg-site-canvas text-site-foreground"
     : "admin-theme bg-admin-surface text-admin-foreground";
@@ -37,7 +42,15 @@ export function Calendar({ controller, query, variant, labels, children }: Calen
         </div>
       ) : null}
       {hasData && entries.length === 0 ? <p className="border border-current/20 p-6 text-center text-sm">{labels.empty ?? labels.noEventsOnDate}</p> : null}
-      {hasData && entries.length > 0 ? children ?? <div data-calendar-view={controller.view} className="min-h-72" onClick={() => undefined} /> : null}
+      {hasData && entries.length > 0 ? children ?? (
+        <div data-calendar-view={controller.view} className="min-h-72">
+          {controller.view === "month" ? <MonthView controller={controller} entries={entries} resources={query.data?.resources ?? []} labels={labels} onEntryActivate={onEntryActivate} /> : null}
+          {controller.view === "week" ? <WeekView controller={controller} entries={entries} resources={query.data?.resources ?? []} labels={labels} onEntryActivate={onEntryActivate} /> : null}
+          {controller.view === "day" ? <DayView controller={controller} entries={entries} resources={query.data?.resources ?? []} labels={labels} onEntryActivate={onEntryActivate} /> : null}
+          {controller.view === "dayGrid" ? <DayGridView controller={controller} entries={entries} resources={query.data?.resources ?? []} labels={labels} onEntryActivate={onEntryActivate} /> : null}
+          {controller.view === "timeline" ? <TimelineView controller={controller} entries={entries} resources={query.data?.resources ?? []} labels={labels} onEntryActivate={onEntryActivate} /> : null}
+        </div>
+      ) : null}
     </section>
   );
 }
