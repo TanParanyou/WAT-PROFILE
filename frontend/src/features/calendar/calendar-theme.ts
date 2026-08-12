@@ -7,14 +7,14 @@ export function calendarEntryToneClass(
   tone: CalendarEntry["display"]["tone"],
 ): string {
   if (variant === "public") {
-    if (tone === "warning") return "border-l-2 border-site-danger bg-site-surface";
-    if (tone === "muted") return "border-l-2 border-site-border bg-site-surface text-site-muted";
-    return "border-l-2 border-site-accent bg-site-surface";
+    if (tone === "warning") return "border-l-2 border-site-danger bg-site-surface pl-3 pr-2";
+    if (tone === "muted") return "border-l-2 border-site-border bg-site-surface text-site-muted pl-3 pr-2";
+    return "border-l-2 border-site-accent bg-site-surface pl-3 pr-2";
   }
 
-  if (tone === "warning") return "border-l-2 border-admin-warning bg-admin-surface-muted";
-  if (tone === "muted") return "border-l-2 border-admin-border bg-admin-surface-muted";
-  return "border-l-2 border-admin-info bg-admin-surface-muted";
+  if (tone === "warning") return "border-l-2 border-admin-warning bg-admin-surface-muted pl-3 pr-2";
+  if (tone === "muted") return "border-l-2 border-admin-border bg-admin-surface-muted pl-3 pr-2";
+  return "border-l-2 border-admin-info bg-admin-surface-muted pl-3 pr-2";
 }
 
 export function calendarFocusClass(variant: CalendarVariant): string {

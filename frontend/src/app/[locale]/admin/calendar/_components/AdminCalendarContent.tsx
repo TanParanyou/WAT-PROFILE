@@ -17,7 +17,6 @@ import {
   formatWatEventTime,
   getWatEventBarClass,
   getWatEventLocation,
-  getWatEventToneClass,
   toCalendarEvents,
   type WatCalendarEvent,
 } from "@/features/calendar/adapters/wat-calendar";
@@ -76,7 +75,7 @@ export default function AdminCalendarContent() {
   const activateEvent = (event: WatCalendarEvent) => setSelectedEntry(event.meta.originalEntry);
   const visibleDays = getCalendarDays(controller.visibleRange);
   const formatEventTime = (event: WatCalendarEvent, date: string) => formatWatEventTime(event, date, labels.allDay);
-  const renderEvent = (event: WatCalendarEvent) => <span className={getWatEventToneClass(event, "admin")}>{event.title}</span>;
+  const renderEvent = (event: WatCalendarEvent) => event.title;
   const getEventBarClass = (
     event: WatCalendarEvent,
     density: "summary" | "row" | "timeGrid",
