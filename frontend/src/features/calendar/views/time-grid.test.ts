@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import test from "node:test";
 import type { CalendarEntry } from "../types";
+import type { CalendarEvent } from "../core/types";
 import { buildTimeGridModel } from "./time-grid";
 
 function entry(overrides: Partial<CalendarEntry> = {}): CalendarEntry {
@@ -72,3 +73,24 @@ test("keeps a multi-day event's geometry with the day where it is rendered", () 
     2,
   );
 });
+
+const genericEvent: CalendarEvent<{ tone: "default" }> = {
+  id: "generic",
+  title: "Generic",
+  start: "2026-08-12T09:00:00+02:00",
+  end: "2026-08-12T10:00:00+02:00",
+  allDay: false,
+  meta: { tone: "default" },
+};
+
+test("accepts generic CalendarEvent metadata in the TimeGrid model", () => {
+  const model = buildTimeGridModel({
+    days: ["2026-08-12"],
+    entries: [genericEvent],
+    slotMinMinutes: 480,
+    slotMaxMinutes: 1200,
+    slotDurationMinutes: 30,
+  });
+  assert.equal(model.days[0]?.timedEntries[0]?.entry.meta.tone, "default");
+});
+
