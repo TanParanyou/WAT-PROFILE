@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from "react";
 import type { CalendarEntry } from "../types";
+import type { CalendarVariant } from "../calendar-theme";
 import { buildTimedColumns } from "../layout";
 import { CalendarEntryButton } from "./CalendarEntryButton";
 import { entriesOnDay, getTimedPosition } from "./calendar-view-utils";
@@ -9,13 +10,14 @@ import { entriesOnDay, getTimedPosition } from "./calendar-view-utils";
 interface TimeGridProps {
   day: string;
   entries: readonly CalendarEntry[];
+  variant: CalendarVariant;
   onEntryActivate: (entry: CalendarEntry) => void;
   showHeader?: boolean;
 }
 
 const slots = Array.from({ length: 48 }, (_, index) => index);
 
-export function TimeGrid({ day, entries, onEntryActivate, showHeader = true }: TimeGridProps) {
+export function TimeGrid({ day, entries, variant, onEntryActivate, showHeader = true }: TimeGridProps) {
   const dayEntries = entriesOnDay(entries, day);
   const timedEntries = dayEntries.filter((entry) => !entry.allDay);
   const columns = buildTimedColumns(timedEntries);
@@ -40,12 +42,12 @@ export function TimeGrid({ day, entries, onEntryActivate, showHeader = true }: T
           };
           return (
             <div key={entry.id} className="absolute min-h-8" style={style}>
-              <CalendarEntryButton entry={entry} onActivate={onEntryActivate} />
+              <CalendarEntryButton entry={entry} variant={variant} onActivate={onEntryActivate} />
             </div>
           );
         })}
       </div>
-      {dayEntries.filter((entry) => entry.allDay).map((entry) => <div key={entry.id} className="mt-1"><CalendarEntryButton entry={entry} onActivate={onEntryActivate} compact /></div>)}
+      {dayEntries.filter((entry) => entry.allDay).map((entry) => <div key={entry.id} className="mt-1"><CalendarEntryButton entry={entry} variant={variant} onActivate={onEntryActivate} compact /></div>)}
       {timedEntries.length === 0 && dayEntries.filter((entry) => entry.allDay).length === 0 ? <p className="py-6 text-sm opacity-70">No entries</p> : null}
     </div>
   );

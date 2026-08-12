@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from "react";
 import type { CalendarLabels } from "../calendar-copy";
+import type { CalendarVariant } from "../calendar-theme";
 import { buildTimedColumns, groupEntriesByResource } from "../layout";
 import type { CalendarController } from "../useCalendar";
 import type { CalendarEntry, CalendarResource } from "../types";
@@ -13,10 +14,11 @@ interface TimelineViewProps {
   entries: readonly CalendarEntry[];
   resources: readonly CalendarResource[];
   labels: CalendarLabels;
+  variant: CalendarVariant;
   onEntryActivate: (entry: CalendarEntry) => void;
 }
 
-export function TimelineView({ controller, entries, resources, onEntryActivate }: TimelineViewProps) {
+export function TimelineView({ controller, entries, resources, variant, onEntryActivate }: TimelineViewProps) {
   const day = formatCalendarDate(controller.selectedDate);
   const dayEntries = entriesOnDay(entries, day);
   const lanes = groupEntriesByResource(dayEntries, resources);
@@ -35,7 +37,7 @@ export function TimelineView({ controller, entries, resources, onEntryActivate }
             <div className="border-r border-current/15 bg-current/5 p-3 text-sm font-semibold">{resources.find((resource) => resource.id === resourceId)?.title ?? resourceId}</div>
             <div className="relative min-h-24 bg-[linear-gradient(to_right,currentColor_1px,transparent_1px)] bg-[length:8.3333%_100%]">
               {laneEntries.map((entry) => {
-                if (entry.allDay) return <div key={entry.id} className="absolute inset-x-1 top-1"><CalendarEntryButton entry={entry} onActivate={onEntryActivate} compact /></div>;
+                if (entry.allDay) return <div key={entry.id} className="absolute inset-x-1 top-1"><CalendarEntryButton entry={entry} variant={variant} onActivate={onEntryActivate} compact /></div>;
                 const layout = columns.get(entry.id) ?? { column: 0, columnCount: 1 };
                 const position = getTimedPosition(entry, day);
                 const style: CSSProperties = {
@@ -43,7 +45,7 @@ export function TimelineView({ controller, entries, resources, onEntryActivate }
                   width: `${((position.endMinutes - position.startMinutes) / 1440) * 100}%`,
                   top: `${layout.column * 2.1}rem`,
                 };
-                return <div key={entry.id} className="absolute min-w-12" style={style}><CalendarEntryButton entry={entry} onActivate={onEntryActivate} compact /></div>;
+                return <div key={entry.id} className="absolute min-w-12" style={style}><CalendarEntryButton entry={entry} variant={variant} onActivate={onEntryActivate} compact /></div>;
               })}
             </div>
           </div>

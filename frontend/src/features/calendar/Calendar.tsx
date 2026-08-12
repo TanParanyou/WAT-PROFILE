@@ -44,11 +44,11 @@ export function Calendar({ controller, query, variant, labels, onEntryActivate, 
       {hasData && entries.length === 0 ? <p className="border border-current/20 p-6 text-center text-sm">{labels.empty ?? labels.noEventsOnDate}</p> : null}
       {hasData && entries.length > 0 ? children ?? (
         <div data-calendar-view={controller.view} className="min-h-72">
-          {controller.view === "month" ? <MonthView controller={controller} entries={entries} resources={query.data?.resources ?? []} labels={labels} onEntryActivate={onEntryActivate} /> : null}
-          {controller.view === "week" ? <WeekView controller={controller} entries={entries} resources={query.data?.resources ?? []} labels={labels} onEntryActivate={onEntryActivate} /> : null}
-          {controller.view === "day" ? <DayView controller={controller} entries={entries} resources={query.data?.resources ?? []} labels={labels} onEntryActivate={onEntryActivate} /> : null}
-          {controller.view === "dayGrid" ? <DayGridView controller={controller} entries={entries} resources={query.data?.resources ?? []} labels={labels} onEntryActivate={onEntryActivate} /> : null}
-          {controller.view === "timeline" ? <TimelineView controller={controller} entries={entries} resources={query.data?.resources ?? []} labels={labels} onEntryActivate={onEntryActivate} /> : null}
+          {controller.view === "month" ? <MonthView controller={controller} entries={entries} resources={query.data?.resources ?? []} labels={labels} variant={variant} onEntryActivate={onEntryActivate} /> : null}
+          {controller.view === "week" ? <WeekView controller={controller} entries={entries} resources={query.data?.resources ?? []} labels={labels} variant={variant} onEntryActivate={onEntryActivate} /> : null}
+          {controller.view === "day" ? <DayView controller={controller} entries={entries} resources={query.data?.resources ?? []} labels={labels} variant={variant} onEntryActivate={onEntryActivate} /> : null}
+          {controller.view === "dayGrid" ? <DayGridView controller={controller} entries={entries} resources={query.data?.resources ?? []} labels={labels} variant={variant} onEntryActivate={onEntryActivate} /> : null}
+          {controller.view === "timeline" ? <TimelineView controller={controller} entries={entries} resources={query.data?.resources ?? []} labels={labels} variant={variant} onEntryActivate={onEntryActivate} /> : null}
         </div>
       ) : null}
     </section>
