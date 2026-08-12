@@ -3,7 +3,8 @@
 import type { CSSProperties, ReactNode } from "react";
 import type { CalendarLabels } from "../calendar-copy";
 import { calendarFocusClass, type CalendarVariant } from "../calendar-theme";
-import type { CalendarEventLike } from "../core/types";
+import type { CalendarEvent, CalendarEventLike } from "../core/types";
+import { CalendarTooltip } from "../ui/CalendarTooltip";
 import { formatCalendarDate } from "./calendar-view-utils";
 import { buildTimeGridModel, type TimeGridDay } from "./time-grid";
 
@@ -21,6 +22,8 @@ interface TimeGridProps<TEvent extends CalendarEventLike> {
     event: TEvent,
     density: "timeGrid",
   ) => string;
+  showTooltip?: boolean;
+  renderTooltip?: (event: TEvent) => ReactNode;
 }
 
 const slotMinMinutes = 8 * 60;
@@ -52,6 +55,8 @@ function EventButton<TEvent extends CalendarEventLike>({
   onActivate,
   renderEvent,
   getEventClassName,
+  showTooltip = true,
+  renderTooltip,
 }: {
   event: TEvent;
   labels: CalendarLabels;
@@ -59,19 +64,29 @@ function EventButton<TEvent extends CalendarEventLike>({
   onActivate: (event: TEvent) => void;
   renderEvent?: (event: TEvent, density: "summary" | "row" | "timeGrid") => ReactNode;
   getEventClassName?: (event: TEvent, density: "timeGrid") => string;
+  showTooltip?: boolean;
+  renderTooltip?: (event: TEvent) => ReactNode;
 }) {
   const eventClass = getEventClassName?.(event, "timeGrid") ?? "bg-current/5";
+  const calendarEvent = event as unknown as CalendarEvent<unknown>;
 
   return (
-    <button
-      type="button"
-      onClick={() => onActivate(event)}
-      aria-label={event.title}
-      className={`block min-h-11 w-full overflow-hidden border border-current/15 px-2 py-1.5 text-left text-xs leading-tight transition-colors focus-visible:outline-2 ${calendarFocusClass(variant)} ${eventClass}`}
+    <CalendarTooltip
+      event={calendarEvent}
+      showTooltip={showTooltip}
+      renderTooltip={renderTooltip ? () => renderTooltip(event) : undefined}
+      formatTime={() => (event.allDay ? labels.allDay : `${event.start.slice(11, 16)}–${event.end.slice(11, 16)}`)}
     >
-      <span className="block truncate font-medium">{renderEvent ? renderEvent(event, "timeGrid") : event.title}</span>
-      <span className="block truncate opacity-70">{event.allDay ? labels.allDay : `${event.start.slice(11, 16)}–${event.end.slice(11, 16)}`}</span>
-    </button>
+      <button
+        type="button"
+        onClick={() => onActivate(event)}
+        aria-label={event.title}
+        className={`block min-h-11 w-full overflow-hidden border border-current/15 px-2 py-1.5 text-left text-xs leading-tight transition-colors focus-visible:outline-2 ${calendarFocusClass(variant)} ${eventClass}`}
+      >
+        <span className="block truncate font-medium">{renderEvent ? renderEvent(event, "timeGrid") : event.title}</span>
+        <span className="block truncate opacity-70">{event.allDay ? labels.allDay : `${event.start.slice(11, 16)}–${event.end.slice(11, 16)}`}</span>
+      </button>
+    </CalendarTooltip>
   );
 }
 
@@ -86,6 +101,8 @@ export function TimeGrid<TEvent extends CalendarEventLike>({
   onDaySelect,
   renderEvent,
   getEventClassName,
+  showTooltip = true,
+  renderTooltip,
 }: TimeGridProps<TEvent>) {
   const dayKeys = days.map(formatCalendarDate);
   const model = buildTimeGridModel({
@@ -134,7 +151,7 @@ export function TimeGrid<TEvent extends CalendarEventLike>({
           {model.days.map((day) => (
             <div key={day.date} className="min-h-11 space-y-1 border-r border-current/15 p-1">
               {day.allDayEntries.map((event) => (
-                <EventButton key={event.id} event={event} labels={labels} variant={variant} onActivate={onEntryActivate} renderEvent={renderEvent} getEventClassName={getEventClassName} />
+                <EventButton key={event.id} event={event} labels={labels} variant={variant} onActivate={onEntryActivate} renderEvent={renderEvent} getEventClassName={getEventClassName} showTooltip={showTooltip} renderTooltip={renderTooltip} />
               ))}
             </div>
           ))}
@@ -153,7 +170,7 @@ export function TimeGrid<TEvent extends CalendarEventLike>({
               {model.slots.map((slot, index) => <div key={slot.minutes} className="absolute left-0 right-0 border-t border-current/10" style={{ top: index * slotHeight }} />)}
               {day.timedEntries.map(({ entry, position }) => (
                 <div key={entry.id} className="absolute min-h-11" style={getEventStyle(position)}>
-                  <EventButton event={entry} labels={labels} variant={variant} onActivate={onEntryActivate} renderEvent={renderEvent} getEventClassName={getEventClassName} />
+                  <EventButton event={entry} labels={labels} variant={variant} onActivate={onEntryActivate} renderEvent={renderEvent} getEventClassName={getEventClassName} showTooltip={showTooltip} renderTooltip={renderTooltip} />
                 </div>
               ))}
             </section>

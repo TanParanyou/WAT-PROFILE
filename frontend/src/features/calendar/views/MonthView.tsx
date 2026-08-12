@@ -7,6 +7,7 @@ import { calendarFocusClass } from "../calendar-theme";
 import type { CalendarController } from "../useCalendar";
 import type { CalendarEvent, CalendarResource } from "../core/types";
 import { CalendarEventRow } from "../ui/CalendarEventRow";
+import { CalendarTooltip } from "../ui/CalendarTooltip";
 import { entriesOnDay, formatCalendarDate, getCalendarDays } from "./calendar-view-utils";
 import { buildMonthGrid, type MonthGridCell } from "./month-grid";
 
@@ -25,6 +26,8 @@ interface MonthViewProps<TMeta> {
     event: CalendarEvent<TMeta>,
     density: "summary" | "row",
   ) => string;
+  showTooltip?: boolean;
+  renderTooltip?: (event: CalendarEvent<TMeta>) => ReactNode;
 }
 
 function renderEventLabel<TMeta>(
@@ -77,6 +80,8 @@ export function MonthView<TMeta>({
   formatLocation = () => null,
   eventClassName = "bg-current/5",
   getEventClassName,
+  showTooltip = true,
+  renderTooltip,
 }: MonthViewProps<TMeta>) {
   const getEventClass = getEventClassName ?? (() => eventClassName);
   const days = getCalendarDays(controller.visibleRange);
@@ -120,17 +125,24 @@ export function MonthView<TMeta>({
                 {cell.entries.map((event) => {
                   const time = formatTime(event, cell.key);
                   return (
-                    <button
+                    <CalendarTooltip
                       key={event.id}
-                      type="button"
-                      title={event.title}
-                      aria-label={event.title}
-                      onClick={() => onEntryActivate(event)}
-                      className={`flex min-h-8 w-full items-center overflow-hidden px-1.5 py-1 text-left text-xs leading-tight transition-colors focus-visible:outline-2 ${calendarFocusClass(variant)} ${getEventClass(event, "summary")}`}
+                      event={event}
+                      showTooltip={showTooltip}
+                      renderTooltip={renderTooltip}
+                      formatTime={(item) => formatTime(item, cell.key)}
+                      formatLocation={formatLocation}
                     >
-                      {time && !event.allDay ? <span className="mr-1 font-medium shrink-0">{time.slice(0, 5)}</span> : null}
-                      {renderSummary(event)}
-                    </button>
+                      <button
+                        type="button"
+                        aria-label={event.title}
+                        onClick={() => onEntryActivate(event)}
+                        className={`flex min-h-8 w-full items-center overflow-hidden px-1.5 py-1 text-left text-xs leading-tight transition-colors focus-visible:outline-2 ${calendarFocusClass(variant)} ${getEventClass(event, "summary")}`}
+                      >
+                        {time && !event.allDay ? <span className="mr-1 font-medium shrink-0">{time.slice(0, 5)}</span> : null}
+                        {renderSummary(event)}
+                      </button>
+                    </CalendarTooltip>
                   );
                 })}
                 {cell.overflowCount > 0 ? <button type="button" onClick={() => controller.selectDate(cell.date)} className={`min-h-11 px-1 text-xs underline ${calendarFocusClass(variant)}`}>{labels.moreEvents(cell.overflowCount)}</button> : null}
@@ -173,6 +185,8 @@ export function MonthView<TMeta>({
               className={getEventClass(event, "row")}
               focusClassName={calendarFocusClass(variant)}
               renderEvent={(item) => renderEventLabel(item, renderEvent, "row")}
+              showTooltip={showTooltip}
+              renderTooltip={renderTooltip}
             />
           ))}
           {selectedEntries.length === 0 ? <p className="border border-current/15 p-4 text-sm opacity-70">{labels.noEventsOnDate}</p> : null}
