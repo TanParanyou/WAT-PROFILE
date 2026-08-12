@@ -1,6 +1,6 @@
 import { eachDayOfInterval, format, parse } from "date-fns";
-import { entriesForRange } from "../range";
-import type { CalendarEntry, CalendarRange } from "../types";
+import type { CalendarEventLike, CalendarRange } from "../core/types";
+import type { CalendarEntry } from "../types";
 
 const dateFormat = "yyyy-MM-dd";
 
@@ -25,8 +25,11 @@ function clockMinutes(value: string): number {
   return Number(match[1]) * 60 + Number(match[2]);
 }
 
-export function entriesOnDay(entries: readonly CalendarEntry[], day: string): CalendarEntry[] {
-  return entriesForRange(entries, { startDate: day, endDate: day }).filter((entry) => {
+export function entriesOnDay<TEvent extends CalendarEventLike>(
+  entries: readonly TEvent[],
+  day: string,
+): TEvent[] {
+  return entries.filter((entry) => {
     const startDate = entry.start.slice(0, dateFormat.length);
     const endDate = entry.end.slice(0, dateFormat.length);
     if (entry.allDay) return startDate <= day && endDate > day;
@@ -35,7 +38,10 @@ export function entriesOnDay(entries: readonly CalendarEntry[], day: string): Ca
   });
 }
 
-export function getTimedPosition(entry: CalendarEntry, day: string): { startMinutes: number; endMinutes: number } {
+export function getTimedPosition<TEvent extends CalendarEventLike>(
+  entry: TEvent,
+  day: string,
+): { startMinutes: number; endMinutes: number } {
   const entryStartDate = entry.start.slice(0, dateFormat.length);
   const entryEndDate = entry.end.slice(0, dateFormat.length);
   const startMinutes = entryStartDate < day ? 0 : clockMinutes(entry.start);
@@ -47,7 +53,7 @@ export function getTimedPosition(entry: CalendarEntry, day: string): { startMinu
 }
 
 export function getTimedPositionWithinWindow(
-  entry: CalendarEntry,
+  entry: CalendarEventLike,
   day: string,
   windowStartMinutes: number,
   windowEndMinutes: number,
