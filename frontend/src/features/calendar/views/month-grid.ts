@@ -1,4 +1,4 @@
-import { isSameMonth } from "date-fns";
+import { isSameDay, isSameMonth } from "date-fns";
 import { getCalendarOverflowCount } from "../layout";
 import type { CalendarEntry } from "../types";
 import { entriesOnDay, formatCalendarDate } from "./calendar-view-utils";
@@ -7,6 +7,7 @@ export interface MonthGridCell {
   date: Date;
   key: string;
   isSelected: boolean;
+  isToday: boolean;
   isOutsideCurrentMonth: boolean;
   entries: CalendarEntry[];
   overflowCount: number;
@@ -21,6 +22,7 @@ export interface BuildMonthGridInput {
   entries: readonly CalendarEntry[];
   monthDate: Date;
   selectedDate: Date;
+  today: Date;
   maxVisibleEntries: number;
 }
 
@@ -29,6 +31,7 @@ export function buildMonthGrid({
   entries,
   monthDate,
   selectedDate,
+  today,
   maxVisibleEntries,
 }: BuildMonthGridInput): MonthGrid {
   const cells = days.map((date): MonthGridCell => {
@@ -40,6 +43,7 @@ export function buildMonthGrid({
       date,
       key,
       isSelected: formatCalendarDate(selectedDate) === key,
+      isToday: isSameDay(date, today),
       isOutsideCurrentMonth: !isSameMonth(date, monthDate),
       entries: visibleEntries,
       overflowCount: getCalendarOverflowCount(dayEntries.length, visibleEntries.length),

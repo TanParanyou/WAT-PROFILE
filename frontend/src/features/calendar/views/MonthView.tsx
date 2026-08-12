@@ -1,10 +1,8 @@
 "use client";
 
-import { isSameDay } from "date-fns";
 import type { CalendarLabels } from "../calendar-copy";
 import type { CalendarVariant } from "../calendar-theme";
 import { calendarFocusClass } from "../calendar-theme";
-import { getCalendarOverflowCount } from "../layout";
 import type { CalendarController } from "../useCalendar";
 import type { CalendarEntry, CalendarResource } from "../types";
 import { CalendarEntryButton } from "./CalendarEntryButton";
@@ -31,7 +29,6 @@ function MonthDayButton({
   variant: CalendarVariant;
   onSelect: (date: Date) => void;
 }) {
-  const dayName = labels.dayNames[cell.date.getDay()] ?? "";
   const eventSummary = labels.eventsCount(cell.entries.length + cell.overflowCount);
 
   return (
@@ -39,8 +36,8 @@ function MonthDayButton({
       type="button"
       onClick={() => onSelect(cell.date)}
       aria-pressed={cell.isSelected}
-      aria-label={`${dayName} ${cell.key}, ${eventSummary}`}
-      className={`flex min-h-12 w-full flex-col items-center justify-center gap-0.5 border-r border-b border-current/15 px-1 text-xs ${calendarFocusClass(variant)} ${cell.isSelected ? "bg-current/10 font-semibold" : ""} ${cell.isOutsideCurrentMonth ? "opacity-45" : ""}`}
+      aria-label={`${labels.selectedDateLabel(cell.date)}, ${eventSummary}`}
+      className={`flex min-h-12 w-full flex-col items-center justify-center gap-0.5 border-r border-b border-current/15 px-1 text-xs ${calendarFocusClass(variant)} ${cell.isSelected ? "bg-current/10 font-semibold" : ""} ${cell.isToday ? "underline decoration-2 underline-offset-2" : ""} ${cell.isOutsideCurrentMonth ? "opacity-45" : ""}`}
     >
       <span>{cell.date.getDate()}</span>
       {cell.entries.length + cell.overflowCount > 0 ? (
@@ -59,6 +56,7 @@ export function MonthView({ controller, entries, labels, variant, onEntryActivat
     entries,
     monthDate: controller.date,
     selectedDate: controller.selectedDate,
+    today: new Date(),
     maxVisibleEntries: 3,
   });
   const weekdayDates = days.slice(0, 7);
@@ -75,24 +73,21 @@ export function MonthView({ controller, entries, labels, variant, onEntryActivat
             </div>
           ))}
           {grid.rows.flat().map((cell) => {
-            const dayEntries = entriesOnDay(entries, cell.key);
-            const visibleEntries = dayEntries.slice(0, 3);
-            const overflow = getCalendarOverflowCount(dayEntries.length, visibleEntries.length);
             return (
-              <div key={cell.key} className={`min-h-28 border-r border-b border-current/15 p-2 ${isSameDay(cell.date, controller.selectedDate) ? "bg-current/5" : ""} ${cell.isOutsideCurrentMonth ? "opacity-60" : ""}`}>
+              <div key={cell.key} className={`min-h-28 border-r border-b border-current/15 p-2 ${cell.isSelected ? "bg-current/5" : ""} ${cell.isOutsideCurrentMonth ? "opacity-60" : ""}`}>
                 <button
                   type="button"
                   onClick={() => controller.selectDate(cell.date)}
                   aria-pressed={cell.isSelected}
-                  aria-label={`${labels.dayNames[cell.date.getDay()] ?? ""} ${cell.key}`}
-                  className={`mb-2 min-h-11 min-w-11 px-2 text-left text-sm font-semibold focus-visible:outline-2 ${calendarFocusClass(variant)}`}
+                  aria-label={labels.selectedDateLabel(cell.date)}
+                  className={`mb-2 min-h-11 min-w-11 px-2 text-left text-sm font-semibold focus-visible:outline-2 ${calendarFocusClass(variant)} ${cell.isToday ? "underline decoration-2 underline-offset-4" : ""}`}
                 >
                   <span className="block text-[0.7rem] font-normal opacity-60 sm:hidden">{labels.dayNames[cell.date.getDay()] ?? ""}</span>
                   {cell.date.getDate()}
                 </button>
                 <div className="space-y-1">
-                  {visibleEntries.map((entry) => <CalendarEntryButton key={entry.id} entry={entry} variant={variant} onActivate={onEntryActivate} compact />)}
-                  {overflow > 0 ? <button type="button" onClick={() => controller.selectDate(cell.date)} className={`min-h-11 px-1 text-xs underline ${calendarFocusClass(variant)}`}>{labels.moreEvents(overflow)}</button> : null}
+                  {cell.entries.map((entry) => <CalendarEntryButton key={entry.id} entry={entry} variant={variant} onActivate={onEntryActivate} compact dense />)}
+                  {cell.overflowCount > 0 ? <button type="button" onClick={() => controller.selectDate(cell.date)} className={`min-h-11 px-1 text-xs underline ${calendarFocusClass(variant)}`}>{labels.moreEvents(cell.overflowCount)}</button> : null}
                 </div>
               </div>
             );
@@ -116,7 +111,7 @@ export function MonthView({ controller, entries, labels, variant, onEntryActivat
 
         <section aria-labelledby="calendar-selected-date" className="border-t border-current/15 pt-4">
           <div className="flex items-baseline justify-between gap-3">
-            <h3 id="calendar-selected-date" className="text-sm font-semibold">{selectedDay}</h3>
+            <h3 id="calendar-selected-date" className="text-sm font-semibold">{labels.selectedDateLabel(controller.selectedDate)}</h3>
             <span className="text-xs opacity-70">{labels.eventsCount(selectedEntries.length)}</span>
           </div>
           <div className="mt-3 space-y-2">
