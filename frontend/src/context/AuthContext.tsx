@@ -24,55 +24,13 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
-const skipAdminAuth = process.env.NEXT_PUBLIC_SKIP_ADMIN_AUTH === "true";
-
-const mockAdminUser: User = {
-  id: "mock-admin",
-  email: "admin@wat.local",
-  name: "Mock Admin",
-  role_id: "mock-admin-role",
-  role: {
-    id: "mock-admin-role",
-    name: "admin",
-    description: "Mock admin for frontend review",
-    permissions: {
-      events: "all",
-      monks: "all",
-      gallery: "all",
-      schedules: "all",
-      donations: "all",
-      members: "all",
-      contacts: "all",
-      settings: "all",
-      users: "all",
-      registrations: "all",
-      audit_logs: "all",
-      website: "all",
-    },
-    admin_access: true,
-    is_active: true,
-    created_at: "2026-01-01T00:00:00.000Z",
-    updated_at: "2026-01-01T00:00:00.000Z",
-  },
-  email_verified: true,
-  is_active: true,
-  last_login_at: null,
-  created_at: "2026-01-01T00:00:00.000Z",
-  updated_at: "2026-01-01T00:00:00.000Z",
-};
-
 export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [user, setUser] = useState<User | null>(skipAdminAuth ? mockAdminUser : null);
-  const [isLoading, setIsLoading] = useState(!skipAdminAuth);
+  const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
   const [sessionExpired, setSessionExpired] = useState(false);
 
   // โหลด admin session จาก refresh credential ตอนเริ่ม
   const refreshUser = useCallback(async () => {
-    if (skipAdminAuth) {
-      setUser(mockAdminUser);
-      return;
-    }
-
     try {
       const result = await adminAuthService.refresh();
       setSessionExpired(false);
@@ -83,8 +41,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (skipAdminAuth) return;
-
     let isMounted = true;
     const init = async () => {
       await refreshUser();
@@ -97,8 +53,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [refreshUser]);
 
   useEffect(() => {
-    if (skipAdminAuth) return;
-
     setAdminAuthLostHandler(() => {
       setUser(null);
       setSessionExpired(true);
@@ -107,41 +61,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const login = async (data: LoginRequest) => {
-    if (skipAdminAuth) {
-      setUser(mockAdminUser);
-      return;
-    }
-
     const result = await adminAuthService.login(data);
     setSessionExpired(false);
     setUser(result.user);
   };
 
   const logout = async () => {
-    if (skipAdminAuth) {
-      setUser(mockAdminUser);
-      return;
-    }
-
     await adminAuthService.logout();
     setSessionExpired(false);
     setUser(null);
   };
 
   const updateProfile = async (data: UpdateProfileRequest): Promise<User> => {
-    if (skipAdminAuth) {
-      const updated: User = user
-        ? {
-            ...user,
-            name: data.name ?? user.name,
-            email: data.email ?? user.email,
-            avatar_url: data.avatar_url !== undefined ? data.avatar_url : user.avatar_url,
-          }
-        : mockAdminUser;
-      setUser(updated);
-      return updated;
-    }
-
     const updated = await adminAuthService.updateProfile(data);
     setUser(updated);
     return updated;

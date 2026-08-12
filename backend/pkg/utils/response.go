@@ -56,6 +56,22 @@ func CodedErrorResponse(c *fiber.Ctx, statusCode int, code, message string) erro
 	})
 }
 
+// CodedErrorResponseWithDetails sends an error JSON response with code and additional details
+func CodedErrorResponseWithDetails(c *fiber.Ctx, statusCode int, code, message string, details map[string]interface{}) error {
+	traceID, _ := c.Locals("trace_id").(string)
+	if traceID == "" {
+		traceID = c.GetRespHeader("X-Trace-Id")
+	}
+
+	return c.Status(statusCode).JSON(fiber.Map{
+		"success":  false,
+		"error":    message,
+		"code":     code,
+		"details":  details,
+		"trace_id": traceID,
+	})
+}
+
 // PaginatedResponse sends a paginated JSON response
 func PaginatedResponse(c *fiber.Ctx, data interface{}, page, limit, total int) error {
 	totalPages := 0

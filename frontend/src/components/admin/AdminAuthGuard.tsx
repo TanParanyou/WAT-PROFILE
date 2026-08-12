@@ -1,7 +1,7 @@
 'use client';
 
 import React, { useEffect } from 'react';
-import { useRouter } from "@/navigation";
+import { useRouter, usePathname } from "@/navigation";
 import { useTranslations } from 'next-intl';
 import { useAuth } from '@/hooks/useAuth';
 import { PageLoading } from '@/components/ui/Loading';
@@ -21,12 +21,14 @@ export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
     const { user, isLoading, isAuthenticated, sessionExpired } = useAuth();
     const t = useTranslations("Admin");
     const router = useRouter();
+    const pathname = usePathname();
 
     useEffect(() => {
         if (!isLoading && !isAuthenticated && !sessionExpired) {
-            router.replace('/admin/login');
+            const current = encodeURIComponent(pathname);
+            router.replace(`/admin/login?returnTo=${current}` as any);
         }
-    }, [isLoading, isAuthenticated, sessionExpired, router]);
+    }, [isLoading, isAuthenticated, sessionExpired, router, pathname]);
 
     // กำลังโหลด
     if (isLoading) {
@@ -61,7 +63,10 @@ export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
                             </p>
                         </div>
                         <Button
-                            onClick={() => router.replace('/admin/login')}
+                            onClick={() => {
+                                const current = encodeURIComponent(pathname);
+                                router.replace(`/admin/login?returnTo=${current}` as any);
+                            }}
                             variant="danger"
                             className="w-full flex items-center justify-center gap-2 min-h-11 font-medium"
                         >

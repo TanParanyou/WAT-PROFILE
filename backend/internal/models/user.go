@@ -21,9 +21,19 @@ type User struct {
 	AccountStatus AccountStatus `gorm:"size:32;not null;default:active" json:"account_status"`
 	ClosedAt      *time.Time    `json:"closed_at,omitempty"`
 	PurgeAfter    *time.Time    `gorm:"index" json:"purge_after,omitempty"`
-	LastLoginAt   *time.Time    `json:"last_login_at"`
-	CreatedAt     time.Time     `json:"created_at"`
-	UpdatedAt     time.Time     `json:"updated_at"`
+	FailedLoginAttempts int        `gorm:"default:0;not null" json:"-"`
+	LockedUntil         *time.Time `json:"-"`
+	LastLoginAt         *time.Time `json:"last_login_at"`
+	CreatedAt           time.Time  `json:"created_at"`
+	UpdatedAt           time.Time  `json:"updated_at"`
+}
+
+// IsLockedOut checks if the user is currently locked out due to failed login attempts
+func (u *User) IsLockedOut() bool {
+	if u.LockedUntil == nil {
+		return false
+	}
+	return time.Now().Before(*u.LockedUntil)
 }
 
 // BeforeCreate hook to generate UUID

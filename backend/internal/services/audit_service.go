@@ -70,6 +70,8 @@ var allowedSecurityAuditCategories = map[string]bool{
 	"session_revoked":            true,
 	"session_reuse":              true,
 	"sessions_revoked":           true,
+	"account_locked":             true,
+	"permission_denied":          true,
 }
 
 const maxSecurityAuditUserAgentLength = 512

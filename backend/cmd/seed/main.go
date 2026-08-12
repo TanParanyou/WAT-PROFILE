@@ -157,7 +157,7 @@ func seedAdminUser() {
 	}
 
 	// Hash password
-	hashedPassword, err := utils.HashPassword(adminPassword)
+	hashedPassword, err := utils.HashAdminPassword(adminPassword)
 	if err != nil {
 		log.Fatalf("  Failed to hash password: %v", err)
 	}

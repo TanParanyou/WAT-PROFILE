@@ -2,12 +2,24 @@ package middleware
 
 import (
 	"strings"
+	"sync"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
 	"gorm.io/gorm"
+)
+
+type cachedAdminUser struct {
+	user      models.User
+	fetchedAt time.Time
+}
+
+var (
+	adminCacheMu sync.RWMutex
+	adminCache   = make(map[uuid.UUID]cachedAdminUser)
 )
 
 // AdminAuthRequired verifies an Admin access token (aud=admin) and loads the
@@ -49,11 +61,31 @@ func AdminAuthRequired(db *gorm.DB) fiber.Handler {
 		}
 
 		var user models.User
-		if err := db.Preload("Role").First(&user, "id = ?", userID).Error; err != nil {
-			return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
-				"success": false,
-				"error":   "User not found",
-			})
+		var isCached bool
+
+		adminCacheMu.RLock()
+		cached, ok := adminCache[userID]
+		adminCacheMu.RUnlock()
+
+		if ok && time.Since(cached.fetchedAt) < 30*time.Second {
+			user = cached.user
+			isCached = true
+		}
+
+		if !isCached {
+			if err := db.Preload("Role").First(&user, "id = ?", userID).Error; err != nil {
+				return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{
+					"success": false,
+					"error":   "User not found",
+				})
+			}
+
+			adminCacheMu.Lock()
+			adminCache[userID] = cachedAdminUser{
+				user:      user,
+				fetchedAt: time.Now(),
+			}
+			adminCacheMu.Unlock()
 		}
 
 		if !user.IsActive || user.Role == nil || !user.Role.IsActive || !user.Role.AdminAccess {
@@ -68,6 +100,7 @@ func AdminAuthRequired(db *gorm.DB) fiber.Handler {
 		c.Locals("user", &user)
 		c.Locals("userID", user.ID)
 		c.Locals("user_id", user.ID.String())
+		c.Locals("db", db)
 
 		return c.Next()
 	}

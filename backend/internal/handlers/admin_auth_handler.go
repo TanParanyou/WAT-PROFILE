@@ -102,6 +102,18 @@ func (h *AdminAuthHandler) Login(c *fiber.Ctx) error {
 
 	result, err := h.adminService.LoginAdmin(req.Email, req.Password, c.IP(), c.Get("User-Agent"))
 	if err != nil {
+		var loginErr *services.AdminLoginError
+		if errors.As(err, &loginErr) {
+			_ = h.auditService.LogSecurityEvent(c, "admin.login.failure", "credentials_or_eligibility", "admin_auth", "")
+			details := map[string]interface{}{
+				"remaining_attempts": loginErr.RemainingAttempts,
+			}
+			return utils.CodedErrorResponseWithDetails(c, fiber.StatusUnauthorized, "ADMIN_INVALID_CREDENTIALS", "Invalid email or password", details)
+		}
+		if errors.Is(err, services.ErrAdminAccountLocked) {
+			_ = h.auditService.LogSecurityEvent(c, "admin.login.locked", "account_locked", "admin_auth", "")
+			return utils.CodedErrorResponse(c, fiber.StatusForbidden, "ADMIN_ACCOUNT_LOCKED", "Account is temporarily locked due to too many failed login attempts. Please try again later.")
+		}
 		_ = h.auditService.LogSecurityEvent(c, "admin.login.failure", "credentials_or_eligibility", "admin_auth", "")
 		return utils.CodedErrorResponse(c, fiber.StatusUnauthorized, "ADMIN_INVALID_CREDENTIALS", "Invalid email or password")
 	}
@@ -122,7 +134,7 @@ func (h *AdminAuthHandler) Refresh(c *fiber.Ctx) error {
 		return utils.CodedErrorResponse(c, fiber.StatusUnauthorized, "ADMIN_SESSION_INVALID", "Admin session is invalid or expired")
 	}
 
-	result, err := h.adminService.RefreshAdmin(credential)
+	result, err := h.adminService.RefreshAdmin(credential, c.IP())
 	if err != nil {
 		h.clearAdminRefreshCookie(c)
 		sessionID := adminSessionIDFromCredential(credential)

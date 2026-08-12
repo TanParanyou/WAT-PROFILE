@@ -8,6 +8,7 @@ export interface ApiResponse<T> {
     code?: string;
     message?: string;
     fields?: Record<string, string>;
+    details?: Record<string, unknown>;
 }
 
 export interface PaginatedResponse<T> {

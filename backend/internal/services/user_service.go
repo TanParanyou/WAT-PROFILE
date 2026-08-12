@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/watloungporsai/wat-profile-backend/internal/accountauth"
 	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
@@ -108,15 +109,34 @@ func (s *UserService) GetByID(id uuid.UUID) (*models.User, error) {
 	return &user, nil
 }
 
-// Create creates a new user, hashing their password
+// Create creates a new user, validating password policy and hashing password
 func (s *UserService) Create(user *models.User, password string) error {
+	// Check password strength policy
+	if err := accountauth.ValidatePasswordPolicy(password); err != nil {
+		return err
+	}
+
 	// Check if email already exists
 	var existingUser models.User
 	if err := s.db.Where("email = ?", user.Email).First(&existingUser).Error; err == nil {
 		return errors.New("email already exists")
 	}
 
-	hashedPassword, err := utils.HashPassword(password)
+	isAdmin := false
+	if user.RoleID != nil {
+		var role models.Role
+		if err := s.db.Where("id = ?", user.RoleID).First(&role).Error; err == nil {
+			isAdmin = role.AdminAccess
+		}
+	}
+
+	var hashedPassword string
+	var err error
+	if isAdmin {
+		hashedPassword, err = utils.HashAdminPassword(password)
+	} else {
+		hashedPassword, err = utils.HashPassword(password)
+	}
 	if err != nil {
 		return err
 	}
@@ -137,7 +157,27 @@ func (s *UserService) Update(user *models.User, newPassword string) error {
 
 	passwordChanged := false
 	if newPassword != "" {
-		hashedPassword, err := utils.HashPassword(newPassword)
+		if err := accountauth.ValidatePasswordPolicy(newPassword); err != nil {
+			return err
+		}
+
+		isAdmin := false
+		if user.RoleID != nil {
+			var role models.Role
+			if err := s.db.Where("id = ?", user.RoleID).First(&role).Error; err == nil {
+				isAdmin = role.AdminAccess
+			}
+		} else if user.Role != nil {
+			isAdmin = user.Role.AdminAccess
+		}
+
+		var hashedPassword string
+		var err error
+		if isAdmin {
+			hashedPassword, err = utils.HashAdminPassword(newPassword)
+		} else {
+			hashedPassword, err = utils.HashPassword(newPassword)
+		}
 		if err != nil {
 			return err
 		}
@@ -226,7 +266,19 @@ func (s *UserService) UpdateProfile(userID uuid.UUID, name, email string, avatar
 		if user.PasswordHash == nil || !utils.CheckPasswordHash(currentPassword, *user.PasswordHash) {
 			return nil, errors.New("incorrect current password")
 		}
-		hashedPassword, err := utils.HashPassword(newPassword)
+		if err := accountauth.ValidatePasswordPolicy(newPassword); err != nil {
+			return nil, err
+		}
+
+		isAdmin := user.Role != nil && user.Role.AdminAccess
+
+		var hashedPassword string
+		var err error
+		if isAdmin {
+			hashedPassword, err = utils.HashAdminPassword(newPassword)
+		} else {
+			hashedPassword, err = utils.HashPassword(newPassword)
+		}
 		if err != nil {
 			return nil, err
 		}

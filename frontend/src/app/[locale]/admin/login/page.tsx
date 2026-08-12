@@ -4,6 +4,7 @@ import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import axios from "axios";
 import { useRouter } from "@/navigation";
+import { useSearchParams } from "next/navigation";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
 import { useAuth } from "@/hooks/useAuth";
@@ -17,13 +18,16 @@ export default function AdminLoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const { login, isAuthenticated, isLoading: authLoading, sessionExpired } = useAuth();
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const returnTo = searchParams.get("returnTo");
 
   // ถ้า login แล้ว redirect ไป dashboard
   useEffect(() => {
     if (!authLoading && isAuthenticated) {
-      router.replace("/admin");
+      const safePath = returnTo?.startsWith("/admin") ? returnTo : "/admin";
+      router.replace(safePath as any);
     }
-  }, [authLoading, isAuthenticated, router]);
+  }, [authLoading, isAuthenticated, router, returnTo]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -32,12 +36,30 @@ export default function AdminLoginPage() {
 
     try {
       await login({ email, password });
-      router.push("/admin");
+      const safePath = returnTo?.startsWith("/admin") ? returnTo : "/admin";
+      router.push(safePath as any);
     } catch (err) {
+      setPassword("");
       if (axios.isAxiosError<ApiResponse<never>>(err)) {
         const code = err.response?.data?.code;
-        if (code === "ADMIN_INVALID_CREDENTIALS") {
-          setError(t("login.invalidCredentials"));
+        const status = err.response?.status;
+        const details = err.response?.data?.details as { remaining_attempts?: number } | undefined;
+        const remaining = details?.remaining_attempts;
+
+        if (code === "ADMIN_ACCOUNT_LOCKED") {
+          setError(t("login.accountLocked"));
+        } else if (status === 429) {
+          setError(t("login.rateLimited"));
+        } else if (code === "ADMIN_INVALID_CREDENTIALS") {
+          if (typeof remaining === "number" && remaining > 0) {
+            if (remaining === 1) {
+              setError(t("login.invalidCredentialsLast"));
+            } else {
+              setError(t("login.invalidCredentialsRemaining", { count: remaining }));
+            }
+          } else {
+            setError(t("login.invalidCredentials"));
+          }
         } else {
           setError(t("login.genericError"));
         }

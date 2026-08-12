@@ -65,7 +65,7 @@ export default function ProfilePage() {
       }
       if (!newPassword) {
         errs.newPassword = t("profile.passwordTooShort");
-      } else if (newPassword.length < 8) {
+      } else if (newPassword.length < 12) {
         errs.newPassword = t("profile.passwordTooShort");
       }
       if (newPassword !== confirmPassword) {

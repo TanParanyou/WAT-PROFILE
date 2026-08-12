@@ -5,6 +5,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
+	"github.com/watloungporsai/wat-profile-backend/internal/accountauth"
 	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/middleware"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
@@ -201,7 +202,7 @@ func (h *UserHandler) UpdateAdminProfile(c *fiber.Ctx) error {
 	}
 
 	if req.NewPassword != "" {
-		if err := utils.ValidateMinLength(req.NewPassword, 8, "new_password"); err != nil {
+		if err := accountauth.ValidatePasswordPolicy(req.NewPassword); err != nil {
 			return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 		}
 	}

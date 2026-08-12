@@ -2,6 +2,8 @@ package middleware
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"github.com/watloungporsai/wat-profile-backend/internal/services"
+	"gorm.io/gorm"
 )
 
 // AdminOnly middleware ensures the user's role grants admin access. Eligibility
@@ -66,6 +68,10 @@ func PermissionRequired(resource, action string) fiber.Handler {
 		}
 
 		if !user.Role.HasPermission(resource, action) {
+			if db, ok := c.Locals("db").(*gorm.DB); ok && db != nil {
+				auditService := services.NewAuditService(db)
+				_ = auditService.LogSecurityEvent(c, "admin.permission.denied", "permission_denied", resource, "")
+			}
 			return c.Status(fiber.StatusForbidden).JSON(fiber.Map{
 				"success": false,
 				"error":   "Insufficient permissions",
@@ -75,3 +81,4 @@ func PermissionRequired(resource, action string) fiber.Handler {
 		return c.Next()
 	}
 }
+
