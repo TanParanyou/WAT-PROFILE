@@ -17,5 +17,5 @@ interface DayViewProps {
 }
 
 export function DayView({ controller, entries, variant, onEntryActivate }: DayViewProps) {
-  return <TimeGrid day={formatCalendarDate(controller.selectedDate)} entries={entries} variant={variant} onEntryActivate={onEntryActivate} />;
+  return <div className="overflow-x-auto"><TimeGrid day={formatCalendarDate(controller.selectedDate)} entries={entries} variant={variant} onEntryActivate={onEntryActivate} /></div>;
 }

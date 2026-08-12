@@ -23,7 +23,7 @@ export function CalendarEntryButton({ entry, variant, onActivate, compact = fals
       title={announcement}
       aria-label={announcement}
       onClick={() => onActivate(entry)}
-      className={`block w-full overflow-hidden text-left text-xs leading-tight transition-colors focus-visible:outline-2 ${calendarFocusClass(variant)} ${toneClass} ${compact ? "px-1.5 py-1" : "px-2 py-1.5"}`}
+      className={`block min-h-11 w-full overflow-hidden text-left text-xs leading-tight transition-colors focus-visible:outline-2 ${calendarFocusClass(variant)} ${toneClass} ${compact ? "px-1.5 py-1" : "px-2 py-1.5"}`}
     >
       <span className="block truncate font-medium">{entry.title}</span>
       {!compact ? <span className="block truncate opacity-70">{formatEntryTime(entry)}</span> : null}

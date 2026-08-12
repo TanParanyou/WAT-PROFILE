@@ -13,7 +13,7 @@ interface CalendarToolbarProps {
 
 export function CalendarToolbar({ controller, labels, variant }: CalendarToolbarProps) {
   const buttonClass = variant === "public"
-    ? "border border-site-border bg-site-canvas text-site-foreground hover:bg-site-surface focus-visible:outline-site-accent"
+    ? "border border-site-border bg-site-canvas text-site-foreground hover:bg-site-surface focus-visible:outline-site-focus"
     : "border border-admin-border bg-admin-surface text-admin-body hover:bg-admin-surface-muted focus-visible:outline-admin-focus";
   const periodLabel = labels.periodLabel?.(controller.date, controller.view) ?? controller.visibleRange.startDate;
 
@@ -29,7 +29,7 @@ export function CalendarToolbar({ controller, labels, variant }: CalendarToolbar
         <button type="button" onClick={controller.next} aria-label={labels.next ?? labels.nextMonth} className={`min-h-11 min-w-11 inline-flex items-center justify-center ${buttonClass}`}>
           <ChevronRight aria-hidden="true" size={18} />
         </button>
-        <h2 className="ml-2 text-base font-semibold" aria-live="polite">{periodLabel}</h2>
+        <h2 className="ml-2 min-w-0 truncate text-base font-semibold" aria-live="polite">{periodLabel}</h2>
       </div>
       <CalendarViewTabs view={controller.view} labels={labels} onViewChange={controller.setView} variant={variant} />
     </div>

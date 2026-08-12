@@ -3,6 +3,7 @@ import { PublicImage } from "@/components/public/media/PublicImage";
 
 export type PageHeaderVariant = "image" | "color" | "reading";
 export type PageHeaderAlign = "left" | "center";
+export type PageHeaderDensity = "default" | "compact";
 
 interface PageHeaderProps {
   title: string;
@@ -10,6 +11,7 @@ interface PageHeaderProps {
   children?: ReactNode;
   variant?: PageHeaderVariant;
   align?: PageHeaderAlign;
+  density?: PageHeaderDensity;
   imageSrc?: string | null;
   imageAlt?: string;
 }
@@ -22,6 +24,7 @@ export default function PageHeader({
   children,
   variant = "color",
   align = "center",
+  density = "default",
   imageSrc,
   imageAlt,
 }: PageHeaderProps) {
@@ -29,7 +32,9 @@ export default function PageHeader({
   const isImage = variant === "image";
   const heightClass = isReading
     ? "pb-12 pt-32 md:pb-16 md:pt-36"
-    : "pb-16 pt-36 md:pb-20 md:pt-44";
+    : density === "compact"
+      ? "pb-12 pt-24 md:pb-14 md:pt-28"
+      : "pb-16 pt-36 md:pb-20 md:pt-44";
   const alignmentClass = align === "center" ? "mx-auto text-center" : "text-left";
   const textClass = isImage ? "text-site-on-action" : "text-site-foreground";
   const subtitleClass = isImage ? "text-site-on-action/90" : "text-site-body";

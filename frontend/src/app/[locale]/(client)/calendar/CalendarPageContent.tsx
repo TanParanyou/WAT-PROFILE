@@ -50,7 +50,7 @@ export default function CalendarPageContent() {
 
   return (
     <div className="min-h-screen bg-site-canvas">
-      <PageHeader variant="color" align="left" title={t("title")} subtitle={t("subtitle")} />
+      <PageHeader variant="color" density="compact" align="left" title={t("title")} subtitle={t("subtitle")} />
       <PageContainer width="content">
         <Calendar controller={controller} query={query} variant="public" labels={labels} onEntryActivate={activateEntry} />
       </PageContainer>

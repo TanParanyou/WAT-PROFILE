@@ -23,7 +23,8 @@ export function WeekView({ controller, entries, labels, variant, onEntryActivate
 
   return (
     <div>
-      <div className="hidden grid-cols-7 gap-3 overflow-x-auto pb-3 md:grid">
+      <div className="hidden overflow-x-auto pb-3 md:block">
+        <div className="grid min-w-[960px] grid-cols-7 gap-3">
         {days.map((day, index) => {
           const key = formatCalendarDate(day);
           const allDay = entriesOnDay(entries, key).filter((entry) => entry.allDay);
@@ -36,11 +37,14 @@ export function WeekView({ controller, entries, labels, variant, onEntryActivate
             </div>
           );
         })}
+        </div>
       </div>
-      <div className="hidden md:grid md:grid-cols-7 md:gap-3">
-        {days.map((day) => <TimeGrid key={formatCalendarDate(day)} day={formatCalendarDate(day)} entries={entries} variant={variant} onEntryActivate={onEntryActivate} showHeader={false} />)}
+      <div className="hidden overflow-x-auto md:block">
+        <div className="grid min-w-[960px] grid-cols-7 gap-3">
+          {days.map((day) => <TimeGrid key={formatCalendarDate(day)} day={formatCalendarDate(day)} entries={entries} variant={variant} onEntryActivate={onEntryActivate} showHeader={false} />)}
+        </div>
       </div>
-      <div className="md:hidden">
+      <div className="overflow-x-auto md:hidden">
         <TimeGrid day={selectedDay} entries={entries} variant={variant} onEntryActivate={onEntryActivate} />
       </div>
     </div>
