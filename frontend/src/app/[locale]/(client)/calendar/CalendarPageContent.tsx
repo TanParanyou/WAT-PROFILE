@@ -14,8 +14,10 @@ import { AgendaView } from "@/features/calendar/ui/AgendaView";
 import { discoveryPreset } from "@/features/calendar/presets/discovery";
 import { getCalendarDays } from "@/features/calendar/views/calendar-view-utils";
 import { MonthView } from "@/features/calendar/views/MonthView";
+import { TimeGrid } from "@/features/calendar/views/TimeGrid";
 import {
   formatWatEventTime,
+  getWatEventBarClass,
   getWatEventLocation,
   getWatEventToneClass,
   toCalendarEvents,
@@ -77,9 +79,14 @@ export default function CalendarPageContent() {
     if (event.meta.detail.href) router.push(event.meta.detail.href);
   };
 
-  const visibleDays = getCalendarDays(controller.visibleRange).map((day) => format(day, "yyyy-MM-dd"));
+  const visibleDays = getCalendarDays(controller.visibleRange);
   const formatEventTime = (event: WatCalendarEvent, date: string) => formatWatEventTime(event, date, labels.allDay);
   const renderEvent = (event: WatCalendarEvent) => <span className={getWatEventToneClass(event, "public")}>{event.title}</span>;
+  const getEventBarClass = (
+    event: WatCalendarEvent,
+    density: "summary" | "row" | "timeGrid",
+  ) => getWatEventBarClass(event, "public", density);
+  const timeGridDays = controller.view === "day" ? [controller.selectedDate] : visibleDays;
 
   return (
     <div className="min-h-screen bg-site-canvas">
@@ -120,11 +127,12 @@ export default function CalendarPageContent() {
                 formatTime={formatEventTime}
                 formatLocation={getWatEventLocation}
                 eventClassName="bg-site-surface"
+                getEventClassName={getEventBarClass}
               />
             )}
             renderAgenda={() => (
               <AgendaView
-                days={controller.view === "day" ? [format(controller.selectedDate, "yyyy-MM-dd")] : visibleDays}
+                days={controller.view === "day" ? [format(controller.selectedDate, "yyyy-MM-dd")] : visibleDays.map((day) => format(day, "yyyy-MM-dd"))}
                 events={events}
                 labels={labels}
                 mode={controller.view === "day" ? "day" : "week"}
@@ -133,6 +141,20 @@ export default function CalendarPageContent() {
                 onEventActivate={activateEvent}
                 eventClassName="bg-site-surface"
                 focusClassName="focus-visible:outline-site-focus"
+              />
+            )}
+            renderTimeGrid={() => (
+              <TimeGrid
+                days={timeGridDays}
+                entries={events}
+                labels={labels}
+                variant="public"
+                onEntryActivate={activateEvent}
+                showDayHeaders
+                selectedDate={controller.selectedDate}
+                onDaySelect={controller.selectDate}
+                renderEvent={renderEvent}
+                getEventClassName={(event) => getEventBarClass(event, "timeGrid")}
               />
             )}
             themeClassName="public-theme bg-site-canvas text-site-foreground"

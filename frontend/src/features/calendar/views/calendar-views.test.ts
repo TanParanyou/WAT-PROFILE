@@ -43,9 +43,9 @@ test("week and day share an operating-hour time grid", () => {
   assert.equal(day.days.length, 1);
 });
 
-test("Discovery does not expose a TimeGrid mode", () => {
-  assert.notEqual(discoveryPreset.viewModes.week, "timeGrid");
-  assert.notEqual(discoveryPreset.viewModes.day, "timeGrid");
+test("Discovery exposes TimeGrid mode for Week and Day", () => {
+  assert.equal(discoveryPreset.viewModes.week, "timeGrid");
+  assert.equal(discoveryPreset.viewModes.day, "timeGrid");
 });
 
 test("Planning still has TimeGrid for operational views", () => {
