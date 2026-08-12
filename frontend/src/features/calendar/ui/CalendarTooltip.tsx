@@ -1,7 +1,7 @@
 "use client";
 
 import { Clock, MapPin } from "lucide-react";
-import { useState, type ReactNode } from "react";
+import { useState, useRef, type ReactNode } from "react";
 import type { CalendarVariant } from "../calendar-theme";
 import { calendarTooltipClass } from "../calendar-theme";
 import type { CalendarEventLike } from "../core/types";
@@ -26,6 +26,24 @@ export function CalendarTooltip<TEvent extends CalendarEventLike>({
   children,
 }: CalendarTooltipProps<TEvent>) {
   const [isOpen, setIsOpen] = useState(false);
+  const [position, setPosition] = useState<"top" | "bottom">("top");
+  const triggerRef = useRef<HTMLDivElement>(null);
+
+  const handleOpen = () => {
+    if (triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      if (rect.top < 120) {
+        setPosition("bottom");
+      } else {
+        setPosition("top");
+      }
+    }
+    setIsOpen(true);
+  };
+
+  const handleClose = () => {
+    setIsOpen(false);
+  };
 
   if (!showTooltip) {
     return <>{children}</>;
@@ -53,19 +71,24 @@ export function CalendarTooltip<TEvent extends CalendarEventLike>({
     </div>
   );
 
+  const isTop = position === "top";
+
   return (
     <div
+      ref={triggerRef}
       className="group relative inline-block w-full"
-      onMouseEnter={() => setIsOpen(true)}
-      onMouseLeave={() => setIsOpen(false)}
-      onFocus={() => setIsOpen(true)}
-      onBlur={() => setIsOpen(false)}
+      onMouseEnter={handleOpen}
+      onMouseLeave={handleClose}
+      onFocus={handleOpen}
+      onBlur={handleClose}
     >
       {children}
       {isOpen ? (
         <div
           role="tooltip"
-          className={`pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 px-3 py-2 min-w-40 max-w-xs text-xs whitespace-normal transition-opacity duration-150 ${themeClasses.container}`}
+          className={`pointer-events-none absolute left-1/2 z-50 -translate-x-1/2 px-3 py-2 min-w-40 max-w-xs text-xs whitespace-normal transition-opacity duration-150 ${
+            isTop ? "bottom-full mb-2" : "top-full mt-2"
+          } ${themeClasses.container}`}
         >
           {renderTooltip ? renderTooltip(event) : defaultContent}
         </div>

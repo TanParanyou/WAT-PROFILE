@@ -65,8 +65,7 @@ export function getWatEventBarClass(
   density: "summary" | "row" | "timeGrid",
 ): string {
   const toneClass = getWatEventToneClass(event, scope);
-  return density === "summary"
-    ? `${toneClass} border border-current/15`
-    : `${toneClass} border border-current/15`;
+  const paddingClass = density === "row" ? "px-3 py-2" : "pl-3 pr-2";
+  return `${toneClass} ${paddingClass} border border-current/15`;
 }
 
