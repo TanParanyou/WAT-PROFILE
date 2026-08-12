@@ -3,6 +3,8 @@ import test from "node:test";
 import { getCalendarOverflowCount, buildTimedColumns, groupEntriesByResource } from "../layout";
 import type { CalendarEntry } from "../types";
 import { buildTimeGridModel } from "./time-grid";
+import { discoveryPreset } from "../presets/discovery";
+import { planningPreset } from "../presets/planning";
 
 const entry = (id: string, start: string, end: string): CalendarEntry => ({
   id,
@@ -39,4 +41,14 @@ test("week and day share an operating-hour time grid", () => {
   assert.equal(week.slots.length, day.slots.length);
   assert.equal(week.days.length, 2);
   assert.equal(day.days.length, 1);
+});
+
+test("Discovery does not expose a TimeGrid mode", () => {
+  assert.notEqual(discoveryPreset.viewModes.week, "timeGrid");
+  assert.notEqual(discoveryPreset.viewModes.day, "timeGrid");
+});
+
+test("Planning still has TimeGrid for operational views", () => {
+  assert.equal(planningPreset.viewModes.week, "timeGrid");
+  assert.equal(planningPreset.viewModes.day, "timeGrid");
 });
