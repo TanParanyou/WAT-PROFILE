@@ -16,6 +16,7 @@ export interface CalendarLabels {
   viewDay?: string;
   allDay: string;
   timedEvents: string;
+  eventDetails: string;
   selectedDateLabel: (date: Date) => string;
   formatDayHeader: (date: Date, options: { includeWeekday: boolean }) => string;
   formatTime: (minutes: number) => string;
