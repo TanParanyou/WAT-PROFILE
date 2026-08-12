@@ -16,6 +16,7 @@ import { eventAlertSettingsSchema, fetchAdminEventAlertSettings, saveAdminEventA
 import { eventAdminService } from "@/services/adminService";
 import type { Event } from "@/types/entities";
 import { ImageUpload } from "@/components/admin/ImageUpload";
+import { MediaUrlField } from "@/components/admin/website/MediaUrlField";
 import type { EventsView } from "@/features/public/settings/types";
 
 export default function SettingsPage() {
@@ -191,8 +192,26 @@ export default function SettingsPage() {
         </div>
         <div className="bg-admin-surface rounded-none border border-admin-border p-6 space-y-4">
           <h2 className="text-lg font-semibold text-admin-foreground">{t("sidebar.website")}</h2>
-          <ImageUpload label="โลโก้เว็บไซต์" value={shell.logo_url} onChange={(value) => setShell({ ...shell, logo_url: typeof value === "string" ? value : "" })} />
-          <ImageUpload label="ภาพพื้นหลัง Hero (Hero Background)" value={shell.hero_bg_url} onChange={(value) => setShell({ ...shell, hero_bg_url: typeof value === "string" ? value : "" })} />
+          <MediaUrlField
+            label="โลโก้เว็บไซต์"
+            value={shell.logo_url}
+            onUrlChange={(url) => setShell((prev) => ({ ...prev, logo_url: url }))}
+            inputProps={{
+              value: shell.logo_url,
+              onChange: (e) => setShell((prev) => ({ ...prev, logo_url: e.target.value })),
+              placeholder: "/images/icon/logo.png หรือเลือกจากคลังสื่อ",
+            }}
+          />
+          <MediaUrlField
+            label="ภาพพื้นหลัง Hero (Hero Background)"
+            value={shell.hero_bg_url}
+            onUrlChange={(url) => setShell((prev) => ({ ...prev, hero_bg_url: url }))}
+            inputProps={{
+              value: shell.hero_bg_url,
+              onChange: (e) => setShell((prev) => ({ ...prev, hero_bg_url: e.target.value })),
+              placeholder: "/images/hero-bg.png หรือเลือกจากคลังสื่อ",
+            }}
+          />
           <label className="block text-sm font-medium text-admin-body">ตำแหน่งแถบโซเชียลมีเดียด้านข้าง<select className="mt-1 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-admin-focus" value={shell.social_sidebar_position} onChange={(e) => setShell({ ...shell, social_sidebar_position: e.target.value })}><option value="left">ซ้าย</option><option value="right">ขวา</option></select></label>
           <Input id="youtube-url" label="ลิงก์ช่อง YouTube" type="url" placeholder="https://youtube.com/@channel" value={shell.youtube_url} onChange={(e) => setShell({ ...shell, youtube_url: e.target.value })} />
           <label className="block text-sm font-medium text-admin-body" htmlFor="events-default-view">
