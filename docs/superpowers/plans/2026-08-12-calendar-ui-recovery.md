@@ -52,7 +52,7 @@
   Add this script next to `test:account`:
 
   ```json
-  "test:calendar": "tsx --test src/features/calendar/**/*.test.ts"
+  "test:calendar": "NODE_ENV=development tsx --test src/features/calendar/*.test.ts src/features/calendar/views/*.test.ts"
   ```
 
 - [ ] **Step 2: Run the baseline unit suite before visual edits**

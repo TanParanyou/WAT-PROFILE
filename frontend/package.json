@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "eslint",
     "lint:admin-theme": "node scripts/check-admin-theme-tokens.mjs",
-    "test:account": "tsx --test src/features/public/account/*.test.ts"
+    "test:account": "tsx --test src/features/public/account/*.test.ts",
+    "test:calendar": "NODE_ENV=development tsx --test src/features/calendar/*.test.ts src/features/calendar/views/*.test.ts"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
