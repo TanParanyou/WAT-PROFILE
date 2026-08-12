@@ -2,10 +2,13 @@
 
 import { Clock, MapPin } from "lucide-react";
 import { useState, type ReactNode } from "react";
+import type { CalendarVariant } from "../calendar-theme";
+import { calendarTooltipClass } from "../calendar-theme";
 import type { CalendarEventLike } from "../core/types";
 
 export interface CalendarTooltipProps<TEvent extends CalendarEventLike> {
   event: TEvent;
+  variant?: CalendarVariant;
   showTooltip?: boolean;
   renderTooltip?: (event: TEvent) => ReactNode;
   formatTime?: (event: TEvent) => string | null;
@@ -15,6 +18,7 @@ export interface CalendarTooltipProps<TEvent extends CalendarEventLike> {
 
 export function CalendarTooltip<TEvent extends CalendarEventLike>({
   event,
+  variant = "public",
   showTooltip = true,
   renderTooltip,
   formatTime,
@@ -29,19 +33,20 @@ export function CalendarTooltip<TEvent extends CalendarEventLike>({
 
   const timeStr = formatTime ? formatTime(event) : null;
   const locationStr = formatLocation ? formatLocation(event) : null;
+  const themeClasses = calendarTooltipClass(variant);
 
   const defaultContent = (
     <div className="space-y-1.5 text-xs text-left">
-      <div className="font-semibold text-slate-100 leading-snug">{event.title}</div>
+      <div className="font-medium leading-snug">{event.title}</div>
       {timeStr ? (
-        <div className="flex items-center gap-1.5 text-slate-300">
-          <Clock size={12} className="shrink-0 text-slate-400" aria-hidden="true" />
+        <div className={`flex items-center gap-1.5 ${themeClasses.subtext}`}>
+          <Clock size={12} className={`shrink-0 ${themeClasses.icon}`} aria-hidden="true" />
           <span>{timeStr}</span>
         </div>
       ) : null}
       {locationStr ? (
-        <div className="flex items-center gap-1.5 text-slate-300">
-          <MapPin size={12} className="shrink-0 text-slate-400" aria-hidden="true" />
+        <div className={`flex items-center gap-1.5 ${themeClasses.subtext}`}>
+          <MapPin size={12} className={`shrink-0 ${themeClasses.icon}`} aria-hidden="true" />
           <span className="truncate">{locationStr}</span>
         </div>
       ) : null}
@@ -60,10 +65,9 @@ export function CalendarTooltip<TEvent extends CalendarEventLike>({
       {isOpen ? (
         <div
           role="tooltip"
-          className="pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 rounded-md border border-slate-700/60 bg-slate-900/95 px-3 py-2 text-slate-100 shadow-xl backdrop-blur-sm min-w-40 max-w-xs text-xs whitespace-normal transition-all duration-150 animate-in fade-in zoom-in-95"
+          className={`pointer-events-none absolute bottom-full left-1/2 z-50 mb-2 -translate-x-1/2 px-3 py-2 min-w-40 max-w-xs text-xs whitespace-normal transition-opacity duration-150 ${themeClasses.container}`}
         >
           {renderTooltip ? renderTooltip(event) : defaultContent}
-          <div className="absolute top-full left-1/2 -ml-1 border-4 border-transparent border-t-slate-900/95" />
         </div>
       ) : null}
     </div>

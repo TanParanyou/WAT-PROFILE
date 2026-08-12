@@ -128,6 +128,7 @@ export function MonthView<TMeta>({
                     <CalendarTooltip
                       key={event.id}
                       event={event}
+                      variant={variant}
                       showTooltip={showTooltip}
                       renderTooltip={renderTooltip}
                       formatTime={(item) => formatTime(item, cell.key)}
@@ -187,6 +188,7 @@ export function MonthView<TMeta>({
               renderEvent={(item) => renderEventLabel(item, renderEvent, "row")}
               showTooltip={showTooltip}
               renderTooltip={renderTooltip}
+              variant={variant}
             />
           ))}
           {selectedEntries.length === 0 ? <p className="border border-current/15 p-4 text-sm opacity-70">{labels.noEventsOnDate}</p> : null}

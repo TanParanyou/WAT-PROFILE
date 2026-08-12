@@ -20,3 +20,22 @@ export function calendarEntryToneClass(
 export function calendarFocusClass(variant: CalendarVariant): string {
   return variant === "public" ? "focus-visible:outline-site-focus" : "focus-visible:outline-admin-focus";
 }
+
+export function calendarTooltipClass(variant: CalendarVariant): {
+  container: string;
+  subtext: string;
+  icon: string;
+} {
+  if (variant === "public") {
+    return {
+      container: "border border-site-border bg-site-surface text-site-foreground rounded-none shadow-sm",
+      subtext: "text-site-muted",
+      icon: "text-site-accent opacity-80",
+    };
+  }
+  return {
+    container: "border border-admin-border bg-admin-surface text-admin-foreground rounded-none shadow-sm",
+    subtext: "text-admin-muted",
+    icon: "text-admin-foreground opacity-70",
+  };
+}

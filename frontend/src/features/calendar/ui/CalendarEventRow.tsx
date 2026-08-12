@@ -1,6 +1,7 @@
 "use client";
 
 import type { ReactNode } from "react";
+import type { CalendarVariant } from "../calendar-theme";
 import type { CalendarEvent } from "../core/types";
 import { CalendarTooltip } from "./CalendarTooltip";
 
@@ -16,6 +17,7 @@ export interface CalendarEventRowProps<TMeta> {
   renderEvent?: (event: CalendarEvent<TMeta>) => ReactNode;
   showTooltip?: boolean;
   renderTooltip?: (event: CalendarEvent<TMeta>) => ReactNode;
+  variant?: CalendarVariant;
 }
 
 export function CalendarEventRow<TMeta>({
@@ -30,6 +32,7 @@ export function CalendarEventRow<TMeta>({
   renderEvent,
   showTooltip = true,
   renderTooltip,
+  variant = "public",
 }: CalendarEventRowProps<TMeta>) {
   const time = formatTime(event, date);
   const location = formatLocation(event);
@@ -38,6 +41,7 @@ export function CalendarEventRow<TMeta>({
   return (
     <CalendarTooltip
       event={event}
+      variant={variant}
       showTooltip={showTooltip}
       renderTooltip={renderTooltip}
       formatTime={(item) => formatTime(item, date)}

@@ -72,6 +72,7 @@ function EventButton<TEvent extends CalendarEventLike>({
   return (
     <CalendarTooltip
       event={event}
+      variant={variant}
       showTooltip={showTooltip}
       renderTooltip={renderTooltip ? () => renderTooltip(event) : undefined}
       formatTime={() => (event.allDay ? labels.allDay : `${event.start.slice(11, 16)}–${event.end.slice(11, 16)}`)}
