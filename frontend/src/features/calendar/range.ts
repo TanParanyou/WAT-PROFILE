@@ -1,7 +1,5 @@
 import {
   addDays,
-  endOfMonth,
-  endOfWeek,
   format,
   isAfter,
   isBefore,
@@ -9,11 +7,15 @@ import {
   isValid,
   parse,
   parseISO,
-  startOfDay,
-  startOfMonth,
-  startOfWeek,
 } from "date-fns";
-import type { CalendarEntry, CalendarRange, CalendarView } from "./types";
+import type { CalendarEntry } from "./types";
+import type { CalendarRange, CalendarView } from "./core/types";
+import {
+  getViewStep,
+  getVisibleRange,
+} from "./core/calendar-state";
+
+export type { CalendarRange, CalendarView } from "./core/types";
 
 const dateFormat = "yyyy-MM-dd";
 
@@ -22,41 +24,16 @@ function parseDateOnly(value: string): Date | null {
   return isValid(date) && format(date, dateFormat) === value ? date : null;
 }
 
-function toRange(start: Date, end: Date): CalendarRange {
-  return {
-    startDate: format(start, dateFormat),
-    endDate: format(end, dateFormat),
-  };
-}
-
 export function getCalendarVisibleRange(
   date: Date,
   view: CalendarView,
   weekStartsOn: 0 | 1,
 ): CalendarRange {
-  const day = startOfDay(date);
-
-  if (view === "month") {
-    return toRange(
-      startOfWeek(startOfMonth(day), { weekStartsOn }),
-      endOfWeek(endOfMonth(day), { weekStartsOn }),
-    );
-  }
-
-  if (view === "week") {
-    return toRange(
-      startOfWeek(day, { weekStartsOn }),
-      endOfWeek(day, { weekStartsOn }),
-    );
-  }
-
-  return toRange(day, day);
+  return getVisibleRange(date, view, weekStartsOn);
 }
 
 export function getCalendarStep(view: CalendarView): "month" | "week" | "day" {
-  if (view === "month") return "month";
-  if (view === "week") return "week";
-  return "day";
+  return getViewStep(view);
 }
 
 function getEntryDateKeys(entry: CalendarEntry):

@@ -1,12 +1,16 @@
 "use client";
 
-import { addDays, addMonths, addWeeks, format, isValid, parse, startOfDay } from "date-fns";
+import { format, isValid, parse, startOfDay } from "date-fns";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useSearchParams } from "next/navigation";
 import { usePathname, useRouter } from "@/navigation";
-import { getCalendarStep, getCalendarVisibleRange } from "./range";
+import {
+  getVisibleRange,
+  shiftCalendarDate,
+} from "./core/calendar-state";
 import type { CalendarLabels } from "./calendar-copy";
-import type { CalendarRange, CalendarScope, CalendarView } from "./types";
+import type { CalendarRange, CalendarView } from "./core/types";
+import type { CalendarScope } from "./types";
 
 const dateFormat = "yyyy-MM-dd";
 const calendarViews: readonly CalendarView[] = ["month", "week", "day"];
@@ -61,13 +65,6 @@ function resolveInitialView(options: CalendarStateOptions): CalendarView {
   return "month";
 }
 
-function shiftDate(date: Date, view: CalendarView, direction: -1 | 1): Date {
-  const step = getCalendarStep(view);
-  if (step === "month") return addMonths(date, direction);
-  if (step === "week") return addWeeks(date, direction);
-  return addDays(date, direction);
-}
-
 export function createCalendarState(options: CalendarStateOptions): CalendarController {
   const url = parseUrlOptions(options.url);
   let view = resolveInitialView(options);
@@ -85,13 +82,13 @@ export function createCalendarState(options: CalendarStateOptions): CalendarCont
       return selectedDate;
     },
     get visibleRange() {
-      return getCalendarVisibleRange(date, view, options.weekStartsOn);
+      return getVisibleRange(date, view, options.weekStartsOn);
     },
     previous() {
-      date = shiftDate(date, view, -1);
+      date = shiftCalendarDate(date, view, -1);
     },
     next() {
-      date = shiftDate(date, view, 1);
+      date = shiftCalendarDate(date, view, 1);
     },
     today() {
       date = startOfDay(new Date());
@@ -179,8 +176,8 @@ export function useCalendar(options: UseCalendarOptions): CalendarController {
     },
     [replaceUrl, view],
   );
-  const previous = useCallback(() => setDate(shiftDate(date, view, -1)), [date, setDate, view]);
-  const next = useCallback(() => setDate(shiftDate(date, view, 1)), [date, setDate, view]);
+  const previous = useCallback(() => setDate(shiftCalendarDate(date, view, -1)), [date, setDate, view]);
+  const next = useCallback(() => setDate(shiftCalendarDate(date, view, 1)), [date, setDate, view]);
   const today = useCallback(() => setDate(new Date()), [setDate]);
   const selectDate = useCallback((nextDate: Date) => setSelectedDate(startOfDay(nextDate)), []);
 
@@ -188,7 +185,7 @@ export function useCalendar(options: UseCalendarOptions): CalendarController {
     view,
     date,
     selectedDate,
-    visibleRange: getCalendarVisibleRange(date, view, options.weekStartsOn),
+    visibleRange: getVisibleRange(date, view, options.weekStartsOn),
     previous,
     next,
     today,

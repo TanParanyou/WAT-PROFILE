@@ -1,14 +1,14 @@
-export type CalendarView = "month" | "week" | "day";
+export type {
+  CalendarRange,
+  CalendarResource,
+  CalendarView,
+} from "./core/types";
+
+import type { CalendarRange, CalendarResource } from "./core/types";
 
 export type CalendarScope = "public" | "admin";
 
 export type CalendarLocale = "th" | "en" | "de";
-
-export interface CalendarRange {
-  /** Inclusive visible calendar-day bounds used by the feed query. */
-  startDate: string;
-  endDate: string;
-}
 
 export interface CalendarEntry {
   id: string;
@@ -29,12 +29,6 @@ export interface CalendarEntry {
     description?: string;
     location?: string;
   };
-}
-
-export interface CalendarResource {
-  id: string;
-  title: string;
-  color?: string;
 }
 
 export interface CalendarFeed {
