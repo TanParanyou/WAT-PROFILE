@@ -1,11 +1,8 @@
 "use client";
 
-import React, { useMemo, useState } from "react";
+import React, { useState } from "react";
 import { Link } from "@/navigation";
-import { useLocale, useTranslations } from "next-intl";
-import { format, startOfMonth } from "date-fns";
-import { de, enUS, th } from "date-fns/locale";
-import { toZonedTime } from "date-fns-tz";
+import { useTranslations } from "next-intl";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { PermissionButton } from "@/components/admin/PermissionButton";
@@ -23,8 +20,7 @@ import { Icons } from "@/components/ui/Icons";
 import { useDateFormat } from "@/hooks/useDateFormat";
 import { useAdminListState } from "@/features/admin-list/useAdminListState";
 import { useAdminListQuery } from "@/features/admin-list/useAdminListQuery";
-import { fetchAllAdminPages } from "@/features/admin-list/fetchAllAdminPages";
-import type { AdminFilterRecord, AdminFilterDefinition, AdminListParams, AdminListResult } from "@/features/admin-list/types";
+import type { AdminFilterRecord, AdminFilterDefinition } from "@/features/admin-list/types";
 import { AdminListToolbar } from "@/components/admin/list/AdminListToolbar";
 import { AdminSearchInput } from "@/components/admin/list/AdminSearchInput";
 import { AdminMultiSelectFilter } from "@/components/admin/list/AdminMultiSelectFilter";
@@ -32,11 +28,6 @@ import { AdminDateRangeFilter } from "@/components/admin/list/AdminDateRangeFilt
 import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components/admin/list/AdminActiveFilterChips";
 import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
 import { exportToCsv } from "@/services/adminListExportService";
-import { usePermission } from "@/hooks/usePermission";
-import { CalendarViewToggle } from "@/features/calendar/CalendarViewToggle";
-import { buildCalendarDays, getMonthGridRange } from "@/features/calendar/calendar-domain";
-import type { CalendarLabels, CalendarView } from "@/features/calendar/calendar-copy";
-import { AdminEventsCalendar, toAdminCalendarEvent } from "./_components/AdminEventsCalendar";
 
 interface EventFilters extends AdminFilterRecord {
   status: string[];
@@ -46,18 +37,12 @@ interface EventFilters extends AdminFilterRecord {
 }
 
 export default function EventsListPage() {
-  const locale = useLocale();
   const t = useTranslations("Admin");
   const { formatDateRange } = useDateFormat();
   const { confirm, ConfirmDialog } = useConfirm();
   const { toast } = useToast();
   const selectedIds = useRowSelection();
   const [previewUrl, setPreviewUrl] = useState<string | null>(null);
-  const [view, setView] = useState<CalendarView>("list");
-  const [month, setMonth] = useState(() => startOfMonth(toZonedTime(new Date(), "Europe/Berlin")));
-  const [selectedDate, setSelectedDate] = useState(() => format(toZonedTime(new Date(), "Europe/Berlin"), "yyyy-MM-dd"));
-  const { can } = usePermission();
-  const canUpdate = can("events", "update");
 
   const listState = useAdminListState<EventFilters>({
     schema: {
@@ -76,75 +61,6 @@ export default function EventsListPage() {
     setPage: listState.actions.setPage,
   });
 
-  const weekStartsOn: 0 | 1 = locale === "th" ? 0 : 1;
-  const visibleRange = useMemo(
-    () => getMonthGridRange(month, weekStartsOn),
-    [month, weekStartsOn],
-  );
-  const calendarFrom = listState.params.filters.from && listState.params.filters.from > visibleRange.startDate
-    ? listState.params.filters.from
-    : visibleRange.startDate;
-  const calendarTo = listState.params.filters.to && listState.params.filters.to < visibleRange.endDate
-    ? listState.params.filters.to
-    : visibleRange.endDate;
-  const calendarRangeIsValid = calendarFrom <= calendarTo;
-  const calendarParams = useMemo<AdminListParams<EventFilters>>(
-    () => ({
-      ...listState.params,
-      page: 1,
-      limit: 100,
-      filters: { ...listState.params.filters, from: calendarFrom, to: calendarTo },
-    }),
-    [calendarFrom, calendarTo, listState.params],
-  );
-  const calendarQuery = useAdminListQuery<Event, EventFilters>({
-    queryKey: ["admin", "events", "calendar"],
-    params: calendarParams,
-    fetcher: (params) => {
-      if (!calendarRangeIsValid) {
-        return Promise.resolve<AdminListResult<Event>>({
-          data: [],
-          pagination: { page: 1, limit: 100, total: 0, totalPages: 0 },
-        });
-      }
-      return fetchAllAdminPages(params, (pageParams) => eventAdminService.getPaginated(pageParams));
-    },
-    setPage: () => undefined,
-  });
-
-  const calendarEvents = useMemo(
-    () => calendarQuery.rows.map((event) => toAdminCalendarEvent(event, canUpdate, locale)),
-    [calendarQuery.rows, canUpdate, locale],
-  );
-  const calendarDays = useMemo(
-    () => buildCalendarDays(calendarEvents, visibleRange),
-    [calendarEvents, visibleRange],
-  );
-  const dateFnsLocale = locale === "th" ? th : locale === "de" ? de : enUS;
-  const calendarLabels: CalendarLabels = {
-    previousMonth: t("events.previousMonth"),
-    nextMonth: t("events.nextMonth"),
-    today: t("events.today"),
-    moreEvents: (count) => t("events.moreEvents", { count }),
-    eventsCount: (count) => t("events.eventsCount", { count }),
-    noEventsOnDate: t("events.noEventsOnDate"),
-    calendarInstructions: t("events.calendarInstructions"),
-    dayNames: [
-      t("events.dayNames.sunday"),
-      t("events.dayNames.monday"),
-      t("events.dayNames.tuesday"),
-      t("events.dayNames.wednesday"),
-      t("events.dayNames.thursday"),
-      t("events.dayNames.friday"),
-      t("events.dayNames.saturday"),
-    ],
-  };
-  const handleMonthChange = (nextMonth: Date) => {
-    const normalizedMonth = startOfMonth(nextMonth);
-    setMonth(normalizedMonth);
-    setSelectedDate(format(normalizedMonth, "yyyy-MM-dd"));
-  };
-  const monthLabel = format(month, "LLLL yyyy", { locale: dateFnsLocale });
 
   const filterDefinitions: AdminFilterDefinition<EventFilters>[] = [
     {
@@ -302,13 +218,7 @@ export default function EventsListPage() {
         breadcrumbs={[{ label: t("events.title") }]}
         actions={
           <div className="flex flex-wrap items-center gap-3">
-            <CalendarViewToggle
-              ariaLabel={t("events.viewLabel")}
-              labels={{ calendar: t("events.calendarView"), list: t("events.listView") }}
-              onChange={setView}
-              value={view}
-              variant="admin"
-            />
+            <Link href="/admin/calendar" className="inline-flex min-h-11 items-center border border-admin-border px-4 text-sm hover:bg-admin-surface-muted focus-visible:outline-2 focus-visible:outline-admin-focus">{t("events.calendarView")}</Link>
             <PermissionButton
               resource="events"
               action="create"
@@ -376,8 +286,7 @@ export default function EventsListPage() {
         />
       </AdminListToolbar>
 
-      {view === "list" ? (
-        <>
+      <>
           <BulkActionToolbar
             selectedCount={selectedIds.selectedCount}
             onClear={selectedIds.clearSelection}
@@ -408,26 +317,6 @@ export default function EventsListPage() {
             onSelectAll={(ids) => selectedIds.selectAll(ids)}
           />
         </>
-      ) : calendarQuery.isPending && !calendarQuery.data ? (
-        <div className="h-[34rem] animate-pulse bg-admin-surface-muted" role="status">{t("common.loading")}</div>
-      ) : calendarQuery.isError && !calendarQuery.data ? (
-        <div className="border border-admin-danger bg-admin-danger-surface p-6 text-admin-danger" role="alert">{t("common.error")}</div>
-      ) : (
-        <AdminEventsCalendar
-          canUpdate={canUpdate}
-          days={calendarDays}
-          events={calendarQuery.rows}
-          isLoading={calendarQuery.isFetching}
-          labels={calendarLabels}
-          locale={locale}
-          month={month}
-          monthLabel={monthLabel}
-          onMonthChange={handleMonthChange}
-          onSelectedDateChange={setSelectedDate}
-          selectedDate={selectedDate}
-          weekStartsOn={weekStartsOn}
-        />
-      )}
       <ConfirmDialog />
 
       {/* Drawer Preview */}
