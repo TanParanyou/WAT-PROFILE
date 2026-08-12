@@ -2,6 +2,7 @@
 
 import { Clock, MapPin } from "lucide-react";
 import { useState, useRef, type ReactNode } from "react";
+import { createPortal } from "react-dom";
 import type { CalendarVariant } from "../calendar-theme";
 import { calendarTooltipClass } from "../calendar-theme";
 import type { CalendarEventLike } from "../core/types";
@@ -26,18 +27,21 @@ export function CalendarTooltip<TEvent extends CalendarEventLike>({
   children,
 }: CalendarTooltipProps<TEvent>) {
   const [isOpen, setIsOpen] = useState(false);
-  const [position, setPosition] = useState<"top" | "bottom">("top");
+  const [coords, setCoords] = useState<{ top: number; left: number; isBottom: boolean } | null>(null);
   const triggerRef = useRef<HTMLDivElement>(null);
 
-  const handleOpen = () => {
+  const updateCoords = () => {
     if (triggerRef.current) {
       const rect = triggerRef.current.getBoundingClientRect();
-      if (rect.top < 120) {
-        setPosition("bottom");
-      } else {
-        setPosition("top");
-      }
+      const isNearTop = rect.top < 160;
+      const left = Math.max(16, Math.min(window.innerWidth - 16, rect.left + rect.width / 2));
+      const top = isNearTop ? rect.bottom + 8 : rect.top - 8;
+      setCoords({ top, left, isBottom: isNearTop });
     }
+  };
+
+  const handleOpen = () => {
+    updateCoords();
     setIsOpen(true);
   };
 
@@ -71,7 +75,23 @@ export function CalendarTooltip<TEvent extends CalendarEventLike>({
     </div>
   );
 
-  const isTop = position === "top";
+  const tooltipPortal = isOpen && coords && typeof window !== "undefined" ? (
+    createPortal(
+      <div
+        role="tooltip"
+        style={{
+          position: "fixed",
+          top: `${coords.top}px`,
+          left: `${coords.left}px`,
+          transform: coords.isBottom ? "translate(-50%, 0)" : "translate(-50%, -100%)",
+        }}
+        className={`pointer-events-none z-[9999] px-3 py-2 min-w-40 max-w-xs text-xs whitespace-normal shadow-lg transition-opacity duration-150 ${themeClasses.container}`}
+      >
+        {renderTooltip ? renderTooltip(event) : defaultContent}
+      </div>,
+      document.body
+    )
+  ) : null;
 
   return (
     <div
@@ -83,16 +103,7 @@ export function CalendarTooltip<TEvent extends CalendarEventLike>({
       onBlur={handleClose}
     >
       {children}
-      {isOpen ? (
-        <div
-          role="tooltip"
-          className={`pointer-events-none absolute left-1/2 z-50 -translate-x-1/2 px-3 py-2 min-w-40 max-w-xs text-xs whitespace-normal transition-opacity duration-150 ${
-            isTop ? "bottom-full mb-2" : "top-full mt-2"
-          } ${themeClasses.container}`}
-        >
-          {renderTooltip ? renderTooltip(event) : defaultContent}
-        </div>
-      ) : null}
+      {tooltipPortal}
     </div>
   );
 }
