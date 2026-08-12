@@ -252,6 +252,7 @@
       "email": "Email",
       "phone": "Phone",
       "category": "Category",
+      "filterOptionsError": "Filter options could not be loaded. Please try again.",
       "generalCategory": "General support",
       "cash": "Cash",
       "bankTransfer": "Bank transfer",

@@ -252,6 +252,7 @@
       "email": "E-Mail",
       "phone": "Telefon",
       "category": "Kategorie",
+      "filterOptionsError": "Filteroptionen konnten nicht geladen werden. Bitte versuchen Sie es erneut.",
       "generalCategory": "Allgemeine Unterstützung",
       "cash": "Bargeld",
       "bankTransfer": "Banküberweisung",

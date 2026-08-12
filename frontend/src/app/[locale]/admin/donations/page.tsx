@@ -82,7 +82,7 @@ export default function DonationsPage() {
     setPage: listState.actions.setPage,
   });
 
-  const { data: filterOptions } = useQuery({
+  const { data: filterOptions, isError: isFilterOptionsError } = useQuery({
     queryKey: ["admin", "donations", "filter-options"],
     queryFn: () => donationAdminService.getFilterOptions(),
   });
@@ -295,6 +295,12 @@ export default function DonationsPage() {
       />
 
       {showStaffForm && <StaffDonationForm categories={filterOptions?.categories || []} onSubmit={handleStaffCreate} onCancel={() => setShowStaffForm(false)} />}
+
+      {isFilterOptionsError && (
+        <div className="mt-4 bg-admin-danger-surface border border-admin-danger/20 text-admin-danger text-sm rounded-none px-4 py-3" role="alert">
+          {t("donations.filterOptionsError")}
+        </div>
+      )}
 
       <div className="mt-4">
         <AdminListToolbar
