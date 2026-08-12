@@ -46,6 +46,21 @@ export function getTimedPosition(entry: CalendarEntry, day: string): { startMinu
   };
 }
 
+export function getTimedPositionWithinWindow(
+  entry: CalendarEntry,
+  day: string,
+  windowStartMinutes: number,
+  windowEndMinutes: number,
+): { startMinutes: number; endMinutes: number } | null {
+  if (windowEndMinutes <= windowStartMinutes) return null;
+
+  const position = getTimedPosition(entry, day);
+  const startMinutes = Math.max(position.startMinutes, windowStartMinutes);
+  const endMinutes = Math.min(position.endMinutes, windowEndMinutes);
+
+  return endMinutes > startMinutes ? { startMinutes, endMinutes } : null;
+}
+
 export function formatEntryTime(entry: CalendarEntry): string {
   if (entry.allDay) return entry.start;
   return `${entry.start.slice(11, 16)}–${entry.end.slice(11, 16)}`;
