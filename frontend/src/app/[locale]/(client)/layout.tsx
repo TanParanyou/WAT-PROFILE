@@ -18,10 +18,10 @@ export default function ClientLayout({
         <AccountSessionProvider>
           <PublicSiteSettingsProvider>
             <Navbar />
+            <CookieConsent />
             <main className="grow">{children}</main>
             <Footer />
             <StickySocials />
-            <CookieConsent />
             <JsonLd />
             <div id="public-modal-root" />
           </PublicSiteSettingsProvider>

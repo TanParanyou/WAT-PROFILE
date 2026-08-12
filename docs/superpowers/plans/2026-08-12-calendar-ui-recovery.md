@@ -24,6 +24,7 @@
 | File | Responsibility |
 | --- | --- |
 | `frontend/src/components/layout/CookieConsent.tsx` | Make initial cookie choice visible without obscuring the calendar’s interactive region. |
+| `frontend/src/app/[locale]/(client)/layout.tsx` | Place the non-modal consent region in normal page flow below the navbar. |
 | `frontend/src/app/[locale]/(client)/calendar/CalendarPageContent.tsx` | Compose a compact public calendar page shell. |
 | `frontend/src/components/layout/PageHeader.tsx` | Support a page-specific compact header density without changing existing callers. |
 | `frontend/src/features/calendar/calendar-theme.ts` | Map `variant` and entry tone to the correct visual classes. |
@@ -82,6 +83,7 @@
 
 **Files:**
 - Modify: `frontend/src/components/layout/CookieConsent.tsx`
+- Modify: `frontend/src/app/[locale]/(client)/layout.tsx`
 
 **Interfaces:**
 - Consumes: existing `cookie-consent` local-storage values (`accepted`, `declined`).
@@ -97,10 +99,10 @@
 
   - Remove `aria-modal`, the focus-stealing `dialogRef` effect, and Escape-to-decline behavior.
   - Keep `role="region"`, `aria-labelledby`, and the two explicit accept/decline buttons.
-  - Render the compact banner at the bottom with `pointer-events-auto`, `max-w-3xl`, and a layout that becomes a vertical stack below `md`.
+  - Render the compact banner as a normal-flow region below the public navbar, with `max-w-6xl` content and a layout that keeps the two choices side by side when space allows.
   - Reduce the desktop copy width and padding so it remains a notice rather than a panel. Do not remove the privacy link.
 
-  The banner must remain fixed so it is available on every public page, but it must occupy no more than the bottom 25% of an `800px` viewport at desktop width.
+  The banner must not use fixed positioning or a modal backdrop; it should push page content down without covering any public content.
 
 - [ ] **Step 3: Verify behavior and accessibility**
 
