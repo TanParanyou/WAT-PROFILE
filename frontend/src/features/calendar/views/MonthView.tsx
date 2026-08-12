@@ -3,11 +3,13 @@
 import { isSameDay } from "date-fns";
 import type { CalendarLabels } from "../calendar-copy";
 import type { CalendarVariant } from "../calendar-theme";
+import { calendarFocusClass } from "../calendar-theme";
 import { getCalendarOverflowCount } from "../layout";
 import type { CalendarController } from "../useCalendar";
 import type { CalendarEntry, CalendarResource } from "../types";
 import { CalendarEntryButton } from "./CalendarEntryButton";
 import { entriesOnDay, formatCalendarDate, getCalendarDays } from "./calendar-view-utils";
+import { buildMonthGrid, type MonthGridCell } from "./month-grid";
 
 interface MonthViewProps {
   controller: CalendarController;
@@ -18,41 +20,110 @@ interface MonthViewProps {
   onEntryActivate: (entry: CalendarEntry) => void;
 }
 
+function MonthDayButton({
+  cell,
+  labels,
+  variant,
+  onSelect,
+}: {
+  cell: MonthGridCell;
+  labels: CalendarLabels;
+  variant: CalendarVariant;
+  onSelect: (date: Date) => void;
+}) {
+  const dayName = labels.dayNames[cell.date.getDay()] ?? "";
+  const eventSummary = labels.eventsCount(cell.entries.length + cell.overflowCount);
+
+  return (
+    <button
+      type="button"
+      onClick={() => onSelect(cell.date)}
+      aria-pressed={cell.isSelected}
+      aria-label={`${dayName} ${cell.key}, ${eventSummary}`}
+      className={`flex min-h-12 w-full flex-col items-center justify-center gap-0.5 border-r border-b border-current/15 px-1 text-xs ${calendarFocusClass(variant)} ${cell.isSelected ? "bg-current/10 font-semibold" : ""} ${cell.isOutsideCurrentMonth ? "opacity-45" : ""}`}
+    >
+      <span>{cell.date.getDate()}</span>
+      {cell.entries.length + cell.overflowCount > 0 ? (
+        <span className="inline-flex min-h-4 min-w-4 items-center justify-center rounded-full bg-current/15 px-1 text-[0.65rem] leading-none" aria-hidden="true">
+          {cell.entries.length + cell.overflowCount}
+        </span>
+      ) : null}
+    </button>
+  );
+}
+
 export function MonthView({ controller, entries, labels, variant, onEntryActivate }: MonthViewProps) {
   const days = getCalendarDays(controller.visibleRange);
+  const grid = buildMonthGrid({
+    days,
+    entries,
+    monthDate: controller.date,
+    selectedDate: controller.selectedDate,
+    maxVisibleEntries: 3,
+  });
+  const weekdayDates = days.slice(0, 7);
   const selectedDay = formatCalendarDate(controller.selectedDate);
+  const selectedEntries = entriesOnDay(entries, selectedDay);
 
   return (
     <div className="space-y-4">
-      <div className="hidden grid-cols-7 border-l border-t border-current/15 sm:grid" aria-label="Month grid">
-        {days.map((day, index) => {
-          const key = formatCalendarDate(day);
-          const dayEntries = entriesOnDay(entries, key);
-          const visibleEntries = dayEntries.slice(0, 3);
-          const overflow = getCalendarOverflowCount(dayEntries.length, visibleEntries.length);
-          return (
-            <div key={key} className={`min-h-28 border-b border-r border-current/15 p-2 ${isSameDay(day, controller.selectedDate) ? "bg-current/5" : ""}`}>
-              <button
-                type="button"
-                onClick={() => controller.selectDate(day)}
-                aria-pressed={key === selectedDay}
-                className={`mb-2 min-h-11 min-w-11 px-2 text-left text-sm font-semibold focus-visible:outline-2 ${variant === "public" ? "focus-visible:outline-site-focus" : "focus-visible:outline-admin-focus"}`}
-              >
-                <span className="block text-[0.7rem] font-normal opacity-60">{labels.dayNames[index % 7] ?? ""}</span>
-                {day.getDate()}
-              </button>
-              <div className="space-y-1">
-                {visibleEntries.map((entry) => <CalendarEntryButton key={entry.id} entry={entry} variant={variant} onActivate={onEntryActivate} compact />)}
-                {overflow > 0 ? <button type="button" onClick={() => controller.selectDate(day)} className="min-h-11 px-1 text-xs underline">{labels.moreEvents(overflow)}</button> : null}
-              </div>
+      <div className="hidden sm:block" aria-label="Month grid">
+        <div className="grid grid-cols-7 border-l border-t border-current/15">
+          {weekdayDates.map((day) => (
+            <div key={`weekday-${day.getDay()}`} className="border-r border-b border-current/15 bg-current/5 px-2 py-2 text-xs font-semibold opacity-75">
+              {labels.dayNames[day.getDay()] ?? ""}
             </div>
-          );
-        })}
+          ))}
+          {grid.rows.flat().map((cell) => {
+            const dayEntries = entriesOnDay(entries, cell.key);
+            const visibleEntries = dayEntries.slice(0, 3);
+            const overflow = getCalendarOverflowCount(dayEntries.length, visibleEntries.length);
+            return (
+              <div key={cell.key} className={`min-h-28 border-r border-b border-current/15 p-2 ${isSameDay(cell.date, controller.selectedDate) ? "bg-current/5" : ""} ${cell.isOutsideCurrentMonth ? "opacity-60" : ""}`}>
+                <button
+                  type="button"
+                  onClick={() => controller.selectDate(cell.date)}
+                  aria-pressed={cell.isSelected}
+                  aria-label={`${labels.dayNames[cell.date.getDay()] ?? ""} ${cell.key}`}
+                  className={`mb-2 min-h-11 min-w-11 px-2 text-left text-sm font-semibold focus-visible:outline-2 ${calendarFocusClass(variant)}`}
+                >
+                  <span className="block text-[0.7rem] font-normal opacity-60 sm:hidden">{labels.dayNames[cell.date.getDay()] ?? ""}</span>
+                  {cell.date.getDate()}
+                </button>
+                <div className="space-y-1">
+                  {visibleEntries.map((entry) => <CalendarEntryButton key={entry.id} entry={entry} variant={variant} onActivate={onEntryActivate} compact />)}
+                  {overflow > 0 ? <button type="button" onClick={() => controller.selectDate(cell.date)} className={`min-h-11 px-1 text-xs underline ${calendarFocusClass(variant)}`}>{labels.moreEvents(overflow)}</button> : null}
+                </div>
+              </div>
+            );
+          })}
+        </div>
       </div>
-      <div className="sm:hidden space-y-2">
-        <p className="text-sm font-semibold">{selectedDay}</p>
-        {entriesOnDay(entries, selectedDay).map((entry) => <CalendarEntryButton key={entry.id} entry={entry} variant={variant} onActivate={onEntryActivate} />)}
-        {entriesOnDay(entries, selectedDay).length === 0 ? <p className="border border-current/15 p-4 text-sm opacity-70">{labels.noEventsOnDate}</p> : null}
+
+      <div className="space-y-4 sm:hidden">
+        <div className="border-l border-t border-current/15" aria-label="Month grid">
+          <div className="grid grid-cols-7">
+            {weekdayDates.map((day) => (
+              <div key={`mobile-weekday-${day.getDay()}`} className="border-r border-b border-current/15 bg-current/5 px-1 py-2 text-center text-[0.65rem] font-semibold opacity-75">
+                {labels.dayNames[day.getDay()]?.slice(0, 2) ?? ""}
+              </div>
+            ))}
+            {grid.rows.flat().map((cell) => (
+              <MonthDayButton key={cell.key} cell={cell} labels={labels} variant={variant} onSelect={controller.selectDate} />
+            ))}
+          </div>
+        </div>
+
+        <section aria-labelledby="calendar-selected-date" className="border-t border-current/15 pt-4">
+          <div className="flex items-baseline justify-between gap-3">
+            <h3 id="calendar-selected-date" className="text-sm font-semibold">{selectedDay}</h3>
+            <span className="text-xs opacity-70">{labels.eventsCount(selectedEntries.length)}</span>
+          </div>
+          <div className="mt-3 space-y-2">
+            {selectedEntries.map((entry) => <CalendarEntryButton key={entry.id} entry={entry} variant={variant} onActivate={onEntryActivate} />)}
+            {selectedEntries.length === 0 ? <p className="border border-current/15 p-4 text-sm opacity-70">{labels.noEventsOnDate}</p> : null}
+          </div>
+        </section>
       </div>
     </div>
   );
