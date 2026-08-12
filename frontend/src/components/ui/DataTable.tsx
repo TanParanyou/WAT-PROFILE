@@ -16,11 +16,14 @@ import type { AdminPagination, AdminPageSize } from "@/features/admin-list/types
 import { AdminPageSizeSelect } from "@/components/admin/list/AdminPageSizeSelect";
 
 export interface Column<T> {
-  header: string;
+  id?: string;
+  header: React.ReactNode;
   accessorKey?: keyof T;
   cell?: (value: unknown, row: T) => React.ReactNode;
   className?: string;
   sortable?: boolean;
+  sticky?: "left" | "right" | boolean;
+  isAction?: boolean;
 }
 
 interface DataTableProps<T> {
@@ -34,6 +37,7 @@ interface DataTableProps<T> {
   onSort?: (key: string) => void;
   className?: string;
   hidePagination?: boolean;
+  stickyActionColumn?: boolean;
 
   // Row selection props
   selectable?: boolean;
@@ -53,6 +57,7 @@ export function DataTable<T>({
   onSort,
   className,
   hidePagination = false,
+  stickyActionColumn = true,
   selectable = false,
   selectedIds = new Set(),
   onSelect,
@@ -121,6 +126,43 @@ export function DataTable<T>({
     }
   };
 
+  const getColumnStickyPosition = (
+    col: Column<T>,
+    colIdx: number,
+    totalCols: number
+  ): "left" | "right" | null => {
+    // 1. Explicit sticky flag (highest priority)
+    if (col.sticky === "left") return "left";
+    if (col.sticky === "right" || col.sticky === true) return "right";
+    if (col.sticky === false) return null;
+
+    // 2. Explicit column identifier
+    if (col.isAction) return "right";
+    const colId = (col.id || (col.accessorKey as string) || "").toString().toLowerCase();
+    if (colId === "actions" || colId === "action") return "right";
+
+    // 3. Structural heuristic: Last column with custom cell renderer and no data accessorKey
+    if (stickyActionColumn && colIdx === totalCols - 1 && !col.accessorKey && Boolean(col.cell)) {
+      return "right";
+    }
+
+    // 4. Header text fallback (for string headers in TH / EN / DE)
+    if (typeof col.header === "string") {
+      const headerText = col.header.toLowerCase().trim();
+      if (
+        headerText === "จัดการ" ||
+        headerText.includes("จัดการ") ||
+        headerText === "actions" ||
+        headerText === "action" ||
+        headerText === "aktionen"
+      ) {
+        return "right";
+      }
+    }
+
+    return null;
+  };
+
   return (
     <div className={cn("w-full space-y-4", className)}>
       <div className="w-full rounded-none border border-admin-border bg-admin-surface overflow-hidden">
@@ -143,6 +185,9 @@ export function DataTable<T>({
                 {columns.map((col, idx) => {
                   const isSortable = col.sortable && col.accessorKey && onSort;
                   const isSorted = sortingState.key === col.accessorKey;
+                  const stickyPos = getColumnStickyPosition(col, idx, columns.length);
+                  const isStickyRight = stickyPos === "right";
+                  const isStickyLeft = stickyPos === "left";
 
                   return (
                     <th
@@ -150,6 +195,10 @@ export function DataTable<T>({
                       className={cn(
                         "px-6 py-3 font-medium whitespace-nowrap",
                         isSortable && "cursor-pointer hover:text-admin-foreground",
+                        isStickyRight &&
+                          "sticky right-0 z-20 bg-admin-surface-muted border-l border-admin-border shadow-[-2px_0_4px_rgba(0,0,0,0.05)]",
+                        isStickyLeft &&
+                          "sticky left-0 z-20 bg-admin-surface-muted border-r border-admin-border shadow-[2px_0_4px_rgba(0,0,0,0.05)]",
                         col.className,
                       )}
                       onClick={() =>
@@ -194,7 +243,7 @@ export function DataTable<T>({
                     <tr
                       key={rowId}
                       className={cn(
-                        "hover:bg-admin-surface-muted transition-colors",
+                        "group hover:bg-admin-surface-muted transition-colors",
                         isRowSelected(row) && "bg-admin-selected",
                       )}
                     >
@@ -209,26 +258,46 @@ export function DataTable<T>({
                           />
                         </td>
                       )}
-                      {columns.map((col, colIdx) => (
-                        <td
-                          key={colIdx}
-                          className={cn(
-                            "px-6 py-4 whitespace-nowrap text-admin-body",
-                            col.className,
-                          )}
-                        >
-                          {col.cell
-                            ? col.cell(
-                                col.accessorKey
-                                  ? rowObj[col.accessorKey as string]
-                                  : undefined,
-                                row,
-                              )
-                            : col.accessorKey
-                              ? String(rowObj[col.accessorKey as string] ?? "")
-                              : null}
-                        </td>
-                      ))}
+                      {columns.map((col, colIdx) => {
+                        const stickyPos = getColumnStickyPosition(col, colIdx, columns.length);
+                        const isStickyRight = stickyPos === "right";
+                        const isStickyLeft = stickyPos === "left";
+
+                        return (
+                          <td
+                            key={colIdx}
+                            className={cn(
+                              "px-6 py-4 whitespace-nowrap text-admin-body",
+                              isStickyRight &&
+                                cn(
+                                  "sticky right-0 z-10 border-l border-admin-border shadow-[-2px_0_4px_rgba(0,0,0,0.05)]",
+                                  isRowSelected(row)
+                                    ? "bg-admin-selected"
+                                    : "bg-admin-surface group-hover:bg-admin-surface-muted",
+                                ),
+                              isStickyLeft &&
+                                cn(
+                                  "sticky left-0 z-10 border-r border-admin-border shadow-[2px_0_4px_rgba(0,0,0,0.05)]",
+                                  isRowSelected(row)
+                                    ? "bg-admin-selected"
+                                    : "bg-admin-surface group-hover:bg-admin-surface-muted",
+                                ),
+                              col.className,
+                            )}
+                          >
+                            {col.cell
+                              ? col.cell(
+                                  col.accessorKey
+                                    ? rowObj[col.accessorKey as string]
+                                    : undefined,
+                                  row,
+                                )
+                              : col.accessorKey
+                                ? String(rowObj[col.accessorKey as string] ?? "")
+                                : null}
+                          </td>
+                        );
+                      })}
                     </tr>
                   );
                 })
