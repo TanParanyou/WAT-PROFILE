@@ -67,8 +67,6 @@ but direct `node --test` cannot currently resolve the TypeScript modules.
 - Admin Website CMS always uses the real admin API service.
 - Public CMS fallback selection remains inside the service boundary.
 - Components must not import `src/data/*.json` for new remote-backed behavior.
-- `NEXT_PUBLIC_WEBSITE_CMS_SOURCE=api` selects the public API source.
-- `NEXT_PUBLIC_SKIP_ADMIN_AUTH=true` is local UI-review mode only.
 - Do not expose private credentials in variables prefixed with `NEXT_PUBLIC_`.
 
 ## UI rules

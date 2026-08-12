@@ -12,12 +12,7 @@ import type {
   PublicContentPage,
   ReorderContentSectionsRequest,
 } from "@/types/website-cms";
-import mockPages from "@/data/website-cms.json";
 import { contentPageToPublishedPreview } from "@/utils/websiteCms";
-
-const useMockWebsiteCms = process.env.NEXT_PUBLIC_WEBSITE_CMS_SOURCE !== "api";
-const pages = mockPages as ContentPage[];
-
 function unwrapApiResponse<T>(response: ApiResponse<T>, fallbackMessage: string): T {
   if (!response.success || response.error) {
     const error = new Error(response.error || fallbackMessage);
@@ -28,10 +23,6 @@ function unwrapApiResponse<T>(response: ApiResponse<T>, fallbackMessage: string)
     throw new Error(fallbackMessage);
   }
   return response.data;
-}
-
-function clonePage(page: ContentPage) {
-  return structuredClone(page);
 }
 
 function normalizeSection(section: ContentSection): ContentSection {
@@ -70,8 +61,6 @@ function normalizePublicPage(page: PublicContentPage): PublicContentPage {
     sections: [...(page.sections || [])].map(normalizeSection).sort((a, b) => a.sort_order - b.sort_order),
   };
 }
-
-const toPublicPage = (page: ContentPage): PublicContentPage => contentPageToPublishedPreview(page);
 
 export const websiteCmsAdminService = {
   async getPaginatedPages(params: AdminListParams): Promise<PaginatedResponse<ContentPage>> {
@@ -147,11 +136,6 @@ export const websiteCmsAdminService = {
 
 export const websiteCmsPublicService = {
   async getPage(slug: string) {
-    if (useMockWebsiteCms) {
-      const page = pages.find((item) => item.slug === slug || item.page_key === slug);
-      return page ? normalizePublicPage(toPublicPage(clonePage(page))) : null;
-    }
-
     const res = await publicApi.get<ApiResponse<PublicContentPage>>(`/pages/${slug}`);
     return res.data.data ? normalizePublicPage(res.data.data) : null;
   },
