@@ -6,15 +6,23 @@ export interface CalendarRange {
   endDate: string;
 }
 
-export interface CalendarEvent<TMeta = Record<string, never>> {
+export interface CalendarEventBase {
   id: string;
   title: string;
   start: string;
   end: string;
   allDay: boolean;
   resourceId?: string;
+}
+
+export interface CalendarEvent<TMeta = Record<string, never>>
+  extends CalendarEventBase {
   meta: TMeta;
 }
+
+export type CalendarEventLike<TMeta = unknown> = CalendarEventBase & {
+  meta?: TMeta;
+};
 
 export interface CalendarResource {
   id: string;

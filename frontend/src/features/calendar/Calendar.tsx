@@ -9,6 +9,7 @@ import type { CalendarEntry, CalendarFeed } from "./types";
 import { MonthView } from "./views/MonthView";
 import { WeekView } from "./views/WeekView";
 import { DayView } from "./views/DayView";
+import { toCalendarEvents } from "./adapters/wat-calendar";
 
 interface CalendarProps {
   controller: CalendarController;
@@ -25,6 +26,7 @@ export function Calendar({ controller, query, variant, labels, onEntryActivate, 
     : "admin-theme bg-admin-surface text-admin-foreground";
   const hasData = Boolean(query.data);
   const entries = query.data?.entries ?? [];
+  const monthEvents = toCalendarEvents(entries);
 
   return (
     <section className={`${themeClass} space-y-4`} aria-label={labels.calendarInstructions}>
@@ -41,7 +43,7 @@ export function Calendar({ controller, query, variant, labels, onEntryActivate, 
       ) : null}
       {hasData ? children ?? (
         <div data-calendar-view={controller.view} className="min-h-72">
-          {controller.view === "month" ? <MonthView controller={controller} entries={entries} resources={query.data?.resources ?? []} labels={labels} variant={variant} onEntryActivate={onEntryActivate} /> : null}
+          {controller.view === "month" ? <MonthView controller={controller} entries={monthEvents} resources={query.data?.resources ?? []} labels={labels} variant={variant} onEntryActivate={(event) => onEntryActivate(event.meta.originalEntry)} /> : null}
           {controller.view === "week" ? <WeekView controller={controller} entries={entries} labels={labels} variant={variant} onEntryActivate={onEntryActivate} /> : null}
           {controller.view === "day" ? <DayView controller={controller} entries={entries} labels={labels} variant={variant} onEntryActivate={onEntryActivate} /> : null}
           {entries.length === 0 ? <p className="mt-4 border border-current/20 p-6 text-center text-sm">{labels.empty ?? labels.noEventsOnDate}</p> : null}

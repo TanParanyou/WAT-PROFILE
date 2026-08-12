@@ -6,11 +6,22 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/navigation";
 import PageContainer from "@/components/layout/PageContainer";
 import PageHeader from "@/components/layout/PageHeader";
-import { Calendar } from "@/features/calendar/Calendar";
 import { useCalendar } from "@/features/calendar/useCalendar";
 import { useCalendarEntries } from "@/features/calendar/queries";
 import type { CalendarLabels } from "@/features/calendar/calendar-copy";
-import type { CalendarEntry, CalendarLocale } from "@/features/calendar/types";
+import { CalendarRoot } from "@/features/calendar/ui/CalendarRoot";
+import { AgendaView } from "@/features/calendar/ui/AgendaView";
+import { discoveryPreset } from "@/features/calendar/presets/discovery";
+import { getCalendarDays } from "@/features/calendar/views/calendar-view-utils";
+import { MonthView } from "@/features/calendar/views/MonthView";
+import {
+  formatWatEventTime,
+  getWatEventLocation,
+  getWatEventToneClass,
+  toCalendarEvents,
+  type WatCalendarEvent,
+} from "@/features/calendar/adapters/wat-calendar";
+import type { CalendarLocale } from "@/features/calendar/types";
 
 export default function CalendarPageContent() {
   const localeValue = useLocale();
@@ -36,6 +47,7 @@ export default function CalendarPageContent() {
     viewDay: t("views.day"),
     allDay: t("allDay"),
     timedEvents: t("timedEvents"),
+    eventDetails: t("eventDetails"),
     selectedDateLabel: (date) => t("selectedDate", { date: format(date, "PPP", { locale: dateFnsLocale }) }),
     formatDayHeader: (date, { includeWeekday }) => format(date, includeWeekday ? "EEE d" : "d", { locale: dateFnsLocale }),
     formatTime: (minutes) => format(new Date(2026, 0, 1, Math.floor(minutes / 60), minutes % 60), "HH:mm", { locale: dateFnsLocale }),
@@ -60,15 +72,76 @@ export default function CalendarPageContent() {
     },
   };
 
-  const activateEntry = (entry: CalendarEntry) => {
-    if (entry.detail.href) router.push(entry.detail.href);
+  const events = query.data ? toCalendarEvents(query.data.entries) : [];
+  const activateEvent = (event: WatCalendarEvent) => {
+    if (event.meta.detail.href) router.push(event.meta.detail.href);
   };
+
+  const visibleDays = getCalendarDays(controller.visibleRange).map((day) => format(day, "yyyy-MM-dd"));
+  const formatEventTime = (event: WatCalendarEvent, date: string) => formatWatEventTime(event, date, labels.allDay);
+  const renderEvent = (event: WatCalendarEvent) => <span className={getWatEventToneClass(event, "public")}>{event.title}</span>;
 
   return (
     <div className="min-h-screen bg-site-canvas">
       <PageHeader variant="color" density="compact" align="left" title={t("title")} subtitle={t("subtitle")} />
       <PageContainer width="content">
-        <Calendar controller={controller} query={query} variant="public" labels={labels} onEntryActivate={activateEntry} />
+        {query.isFetching && query.data ? <p className="mb-3 text-sm opacity-70" role="status">{labels.refreshing ?? labels.loading ?? "Refreshing"}</p> : null}
+        {!query.data && query.isPending ? <p className="py-12 text-center text-sm" role="status">{labels.loading ?? "Loading"}</p> : null}
+        {!query.data && query.isError ? (
+          <div className="space-y-3 border border-current/20 p-6 text-center">
+            <p>{labels.error ?? "Unable to load calendar"}</p>
+            <button type="button" onClick={() => void query.refetch()} className="min-h-11 border border-current px-4 text-sm">{labels.retry ?? "Retry"}</button>
+          </div>
+        ) : null}
+        {query.data ? (
+          <CalendarRoot
+            preset={discoveryPreset}
+            view={controller.view}
+            date={controller.date}
+            selectedDate={controller.selectedDate}
+            visibleRange={controller.visibleRange}
+            events={events}
+            labels={labels}
+            onViewChange={controller.setView}
+            onPrevious={controller.previous}
+            onNext={controller.next}
+            onToday={controller.today}
+            onSelectDate={controller.selectDate}
+            onEventActivate={activateEvent}
+            renderEvent={renderEvent}
+            renderMonth={() => (
+              <MonthView
+                controller={controller}
+                entries={events}
+                labels={labels}
+                variant="public"
+                onEntryActivate={activateEvent}
+                renderEvent={renderEvent}
+                formatTime={formatEventTime}
+                formatLocation={getWatEventLocation}
+                eventClassName="bg-site-surface"
+              />
+            )}
+            renderAgenda={() => (
+              <AgendaView
+                days={controller.view === "day" ? [format(controller.selectedDate, "yyyy-MM-dd")] : visibleDays}
+                events={events}
+                labels={labels}
+                mode={controller.view === "day" ? "day" : "week"}
+                formatTime={formatEventTime}
+                formatLocation={getWatEventLocation}
+                onEventActivate={activateEvent}
+                eventClassName="bg-site-surface"
+                focusClassName="focus-visible:outline-site-focus"
+              />
+            )}
+            themeClassName="public-theme bg-site-canvas text-site-foreground"
+            controlClassName="border border-site-border bg-site-canvas text-site-foreground hover:bg-site-surface"
+            activeTabClassName="bg-site-action text-site-on-action"
+            inactiveTabClassName="text-site-foreground hover:bg-site-surface"
+            focusClassName="focus-visible:outline-site-focus"
+          />
+        ) : null}
       </PageContainer>
     </div>
   );

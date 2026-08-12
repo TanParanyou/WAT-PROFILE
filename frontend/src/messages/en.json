@@ -483,6 +483,7 @@
         "eventsCount": "{count} events",
         "allDay": "All-day",
         "timedEvents": "Timed events",
+        "eventDetails": "View details",
         "selectedDate": "Schedule for {date}",
         "noEventsOnDate": "No events on this date",
         "calendarInstructions": "Activity calendar. Select an event to view details.",

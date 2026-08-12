@@ -1,21 +1,34 @@
 "use client";
 
+import type { ReactNode } from "react";
 import type { CalendarLabels } from "../calendar-copy";
 import type { CalendarVariant } from "../calendar-theme";
 import { calendarFocusClass } from "../calendar-theme";
 import type { CalendarController } from "../useCalendar";
-import type { CalendarEntry, CalendarResource } from "../types";
-import { CalendarEntryButton } from "./CalendarEntryButton";
+import type { CalendarEvent, CalendarResource } from "../core/types";
+import { CalendarEventRow } from "../ui/CalendarEventRow";
 import { entriesOnDay, formatCalendarDate, getCalendarDays } from "./calendar-view-utils";
 import { buildMonthGrid, type MonthGridCell } from "./month-grid";
 
-interface MonthViewProps {
+interface MonthViewProps<TMeta> {
   controller: CalendarController;
-  entries: readonly CalendarEntry[];
-  resources: readonly CalendarResource[];
+  entries: readonly CalendarEvent<TMeta>[];
+  resources?: readonly CalendarResource[];
   labels: CalendarLabels;
   variant: CalendarVariant;
-  onEntryActivate: (entry: CalendarEntry) => void;
+  onEntryActivate: (entry: CalendarEvent<TMeta>) => void;
+  renderEvent?: (event: CalendarEvent<TMeta>, density: "summary" | "row") => ReactNode;
+  formatTime?: (event: CalendarEvent<TMeta>, date: string) => string | null;
+  formatLocation?: (event: CalendarEvent<TMeta>) => string | null;
+  eventClassName?: string;
+}
+
+function renderEventLabel<TMeta>(
+  event: CalendarEvent<TMeta>,
+  renderEvent: ((event: CalendarEvent<TMeta>, density: "summary" | "row") => ReactNode) | undefined,
+  density: "summary" | "row",
+): ReactNode {
+  return renderEvent ? renderEvent(event, density) : event.title;
 }
 
 function MonthDayButton({
@@ -49,7 +62,17 @@ function MonthDayButton({
   );
 }
 
-export function MonthView({ controller, entries, labels, variant, onEntryActivate }: MonthViewProps) {
+export function MonthView<TMeta>({
+  controller,
+  entries,
+  labels,
+  variant,
+  onEntryActivate,
+  renderEvent,
+  formatTime = () => null,
+  formatLocation = () => null,
+  eventClassName = "bg-current/5",
+}: MonthViewProps<TMeta>) {
   const days = getCalendarDays(controller.visibleRange);
   const grid = buildMonthGrid({
     days,
@@ -57,11 +80,14 @@ export function MonthView({ controller, entries, labels, variant, onEntryActivat
     monthDate: controller.date,
     selectedDate: controller.selectedDate,
     today: new Date(),
-    maxVisibleEntries: 3,
+    maxVisibleEntries: 2,
   });
   const weekdayDates = days.slice(0, 7);
   const selectedDay = formatCalendarDate(controller.selectedDate);
   const selectedEntries = entriesOnDay(entries, selectedDay);
+  const renderSummary = (event: CalendarEvent<TMeta>) => (
+    <span className="block truncate">{renderEventLabel(event, renderEvent, "summary")}</span>
+  );
 
   return (
     <div className="space-y-4">
@@ -72,26 +98,35 @@ export function MonthView({ controller, entries, labels, variant, onEntryActivat
               {labels.dayNames[day.getDay()] ?? ""}
             </div>
           ))}
-          {grid.rows.flat().map((cell) => {
-            return (
-              <div key={cell.key} className={`min-h-28 border-r border-b border-current/15 p-2 ${cell.isSelected ? "bg-current/5" : ""} ${cell.isOutsideCurrentMonth ? "opacity-60" : ""}`}>
-                <button
-                  type="button"
-                  onClick={() => controller.selectDate(cell.date)}
-                  aria-pressed={cell.isSelected}
-                  aria-label={labels.selectedDateLabel(cell.date)}
-                  className={`mb-2 min-h-11 min-w-11 px-2 text-left text-sm font-semibold focus-visible:outline-2 ${calendarFocusClass(variant)} ${cell.isToday ? "underline decoration-2 underline-offset-4" : ""}`}
-                >
-                  <span className="block text-[0.7rem] font-normal opacity-60 sm:hidden">{labels.dayNames[cell.date.getDay()] ?? ""}</span>
-                  {cell.date.getDate()}
-                </button>
-                <div className="space-y-1">
-                  {cell.entries.map((entry) => <CalendarEntryButton key={entry.id} entry={entry} variant={variant} onActivate={onEntryActivate} compact dense />)}
-                  {cell.overflowCount > 0 ? <button type="button" onClick={() => controller.selectDate(cell.date)} className={`min-h-11 px-1 text-xs underline ${calendarFocusClass(variant)}`}>{labels.moreEvents(cell.overflowCount)}</button> : null}
-                </div>
+          {grid.rows.flat().map((cell) => (
+            <div key={cell.key} className={`min-h-28 border-r border-b border-current/15 p-2 ${cell.isSelected ? "bg-current/5" : ""} ${cell.isOutsideCurrentMonth ? "opacity-60" : ""}`}>
+              <button
+                type="button"
+                onClick={() => controller.selectDate(cell.date)}
+                aria-pressed={cell.isSelected}
+                aria-label={labels.selectedDateLabel(cell.date)}
+                className={`mb-2 min-h-11 min-w-11 px-2 text-left text-sm font-semibold focus-visible:outline-2 ${calendarFocusClass(variant)} ${cell.isToday ? "underline decoration-2 underline-offset-4" : ""}`}
+              >
+                <span className="block text-[0.7rem] font-normal opacity-60 sm:hidden">{labels.dayNames[cell.date.getDay()] ?? ""}</span>
+                {cell.date.getDate()}
+              </button>
+              <div className="space-y-1">
+                {cell.entries.map((event) => (
+                  <button
+                    key={event.id}
+                    type="button"
+                    title={event.title}
+                    aria-label={event.title}
+                    onClick={() => onEntryActivate(event)}
+                    className={`block min-h-8 w-full overflow-hidden px-1.5 py-1 text-left text-xs leading-tight transition-colors focus-visible:outline-2 ${calendarFocusClass(variant)} ${eventClassName}`}
+                  >
+                    {renderSummary(event)}
+                  </button>
+                ))}
+                {cell.overflowCount > 0 ? <button type="button" onClick={() => controller.selectDate(cell.date)} className={`min-h-11 px-1 text-xs underline ${calendarFocusClass(variant)}`}>{labels.moreEvents(cell.overflowCount)}</button> : null}
               </div>
-            );
-          })}
+            </div>
+          ))}
         </div>
       </div>
 
@@ -108,18 +143,31 @@ export function MonthView({ controller, entries, labels, variant, onEntryActivat
             ))}
           </div>
         </div>
-
-        <section aria-labelledby="calendar-selected-date" className="border-t border-current/15 pt-4">
-          <div className="flex items-baseline justify-between gap-3">
-            <h3 id="calendar-selected-date" className="text-sm font-semibold">{labels.selectedDateLabel(controller.selectedDate)}</h3>
-            <span className="text-xs opacity-70">{labels.eventsCount(selectedEntries.length)}</span>
-          </div>
-          <div className="mt-3 space-y-2">
-            {selectedEntries.map((entry) => <CalendarEntryButton key={entry.id} entry={entry} variant={variant} onActivate={onEntryActivate} />)}
-            {selectedEntries.length === 0 ? <p className="border border-current/15 p-4 text-sm opacity-70">{labels.noEventsOnDate}</p> : null}
-          </div>
-        </section>
       </div>
+
+      <section aria-labelledby="calendar-selected-date" className="border-t border-current/15 pt-4">
+        <div className="flex items-baseline justify-between gap-3">
+          <h3 id="calendar-selected-date" className="text-sm font-semibold">{labels.selectedDateLabel(controller.selectedDate)}</h3>
+          <span className="text-xs opacity-70">{labels.eventsCount(selectedEntries.length)}</span>
+        </div>
+        <div className="mt-3 space-y-2">
+          {selectedEntries.map((event) => (
+            <CalendarEventRow
+              key={event.id}
+              event={event}
+              date={selectedDay}
+              formatTime={formatTime}
+              formatLocation={formatLocation}
+              onActivate={onEntryActivate}
+              actionLabel={labels.eventDetails}
+              className={eventClassName}
+              focusClassName={calendarFocusClass(variant)}
+              renderEvent={(item) => renderEventLabel(item, renderEvent, "row")}
+            />
+          ))}
+          {selectedEntries.length === 0 ? <p className="border border-current/15 p-4 text-sm opacity-70">{labels.noEventsOnDate}</p> : null}
+        </div>
+      </section>
     </div>
   );
 }

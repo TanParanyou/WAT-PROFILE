@@ -483,6 +483,7 @@
         "eventsCount": "{count} กิจกรรม",
         "allDay": "ทั้งวัน",
         "timedEvents": "ตามเวลา",
+        "eventDetails": "ดูรายละเอียด",
         "selectedDate": "กำหนดการวันที่ {date}",
         "noEventsOnDate": "ไม่มีกิจกรรมในวันนี้",
         "calendarInstructions": "ปฏิทินกิจกรรม เลือกกิจกรรมเพื่อดูรายละเอียด",
