@@ -33,9 +33,9 @@ export function AdminSearchInput({
   };
 
   return (
-    <div className="flex flex-col gap-1.5 flex-1 min-w-[200px] max-w-md">
+    <div className="flex flex-col gap-1 w-full sm:w-60 md:w-64 lg:w-72 flex-shrink-0">
       {label && (
-        <label className="text-sm font-medium text-admin-body min-h-[24px] flex items-center">
+        <label className="text-xs font-medium text-admin-body h-5 min-h-[20px] flex items-center">
           {label}
         </label>
       )}
@@ -54,7 +54,7 @@ export function AdminSearchInput({
           onKeyDown={handleKeyDown}
           placeholder={placeholder ?? t("searchPlaceholder")}
           aria-label={t("search")}
-          className="min-h-11 w-full pl-9 pr-20 text-sm border border-admin-control-border rounded-none bg-admin-surface text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus transition-colors"
+          className="h-10 min-h-10 w-full pl-8.5 pr-16 text-xs sm:text-sm border border-admin-control-border rounded-none bg-admin-surface text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus transition-colors"
         />
         <div className="absolute right-1 flex items-center gap-1">
           {value && (

@@ -33,7 +33,7 @@ export function DateRangePicker({
   return (
     <div className={cn('flex flex-col gap-1.5 w-full', className)}>
       {label && (
-        <label className="text-sm font-medium text-admin-body flex items-center min-h-[24px]">
+        <label className="text-xs font-medium text-admin-body flex items-center h-5 min-h-[20px]">
           {label}
           {required && <span className="text-admin-danger ml-1">*</span>}
         </label>
@@ -48,7 +48,7 @@ export function DateRangePicker({
           placeholderText="เลือกช่วงเวลา"
           isClearable={true}
           className={cn(
-            'min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted',
+            'h-10 min-h-10 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-1.5 text-xs sm:text-sm text-admin-foreground placeholder:text-admin-muted',
             'focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus',
             'disabled:cursor-not-allowed disabled:bg-admin-surface-muted disabled:text-admin-muted',
             error && 'border-admin-danger focus-visible:border-admin-danger focus-visible:outline-admin-danger'

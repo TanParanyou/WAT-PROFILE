@@ -30,7 +30,7 @@ export function AdminDateRangeFilter({
   };
 
   return (
-    <div className="min-w-[220px]">
+    <div className="flex flex-col gap-1 w-full sm:w-56 md:w-60 flex-shrink-0">
       <DateRangePicker
         label={label}
         value={{ from: parseDate(from), to: parseDate(to) }}

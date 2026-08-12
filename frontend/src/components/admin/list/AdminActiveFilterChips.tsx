@@ -32,7 +32,7 @@ export function AdminActiveFilterChips({
           key={`${chip.key}-${chip.value}-${index}`}
           className="inline-flex items-center gap-1.5 rounded-none bg-admin-selected px-3 py-1 text-xs font-medium text-admin-selected-foreground border border-admin-control-border"
         >
-          <span>{chip.label}</span>
+          <span className="truncate max-w-[180px] sm:max-w-[250px]">{chip.label}</span>
           <button
             type="button"
             onClick={() => onRemove(chip.key, chip.value)}

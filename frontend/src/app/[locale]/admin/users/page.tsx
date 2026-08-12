@@ -245,7 +245,7 @@ export default function UsersListPage() {
             </>
           }
           activeFilters={
-            <div className="flex items-center justify-between">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 w-full">
               <AdminActiveFilterChips
                 filters={activeChips}
                 onRemove={(key, val) => listState.actions.removeFilterValue(key as keyof UserFilters, val)}

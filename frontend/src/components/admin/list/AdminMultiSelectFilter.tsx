@@ -58,8 +58,8 @@ export function AdminMultiSelectFilter({
   const selectedCount = values.length;
 
   return (
-    <div className="relative flex flex-col gap-1.5 min-w-[180px]" ref={containerRef}>
-      <label htmlFor={filterId} className="text-sm font-medium text-admin-body min-h-[24px] flex items-center">
+    <div className="relative flex flex-col gap-1 w-full sm:w-44 md:w-48 lg:w-52 flex-shrink-0" ref={containerRef}>
+      <label htmlFor={filterId} className="text-xs font-medium text-admin-body h-5 min-h-[20px] flex items-center">
         {label}
       </label>
       <button
@@ -67,7 +67,7 @@ export function AdminMultiSelectFilter({
         type="button"
         onClick={() => setIsOpen(!isOpen)}
         className={cn(
-          "flex items-center justify-between w-full min-h-11 rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus",
+          "flex items-center justify-between w-full h-10 min-h-10 rounded-none border border-admin-control-border bg-admin-surface px-3 py-1.5 text-xs sm:text-sm focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus",
           isOpen ? "border-admin-focus" : ""
         )}
       >
@@ -78,7 +78,7 @@ export function AdminMultiSelectFilter({
       </button>
 
       {isOpen && (
-        <div className="absolute top-[calc(100%+4px)] left-0 z-50 flex w-full flex-col rounded-none border border-admin-border bg-admin-surface p-2 text-sm max-h-56 overflow-y-auto min-w-[200px]">
+        <div className="absolute top-[calc(100%+4px)] left-0 z-50 flex w-full min-w-[200px] max-w-[calc(100vw-2rem)] flex-col rounded-none border border-admin-border bg-admin-surface p-2 text-sm max-h-56 overflow-y-auto">
           {options.length > 10 && (
             <div className="relative mb-2">
               <Search className="absolute left-2.5 top-2.5 h-3.5 w-3.5 text-admin-muted" />
