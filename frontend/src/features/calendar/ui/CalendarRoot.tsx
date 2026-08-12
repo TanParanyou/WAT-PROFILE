@@ -1,7 +1,7 @@
 "use client";
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
-import type { ReactNode } from "react";
+import { useRef, type KeyboardEvent, type ReactNode } from "react";
 import type { CalendarEvent, CalendarRange, CalendarView } from "../core/types";
 import type { CalendarLabels } from "../calendar-copy";
 import type { CalendarPreset } from "../presets/types";
@@ -52,6 +52,7 @@ export function CalendarRoot<TMeta>({
   inactiveTabClassName = "text-current hover:bg-current/5",
   focusClassName = "focus-visible:outline-current",
 }: CalendarRootProps<TMeta>) {
+  const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const periodLabel = labels.periodLabel(date, visibleRange, view);
   const viewLabels: Record<CalendarView, string> = {
     month: labels.viewMonth ?? "Month",
@@ -59,6 +60,29 @@ export function CalendarRoot<TMeta>({
     day: labels.viewDay ?? "Day",
   };
   const mode = preset.viewModes[view];
+  const activeIndex = views.indexOf(view);
+  const focusView = (index: number) => {
+    const nextIndex = (index + views.length) % views.length;
+    const nextView = views[nextIndex];
+    if (!nextView) return;
+    onViewChange(nextView);
+    requestAnimationFrame(() => tabRefs.current[nextIndex]?.focus());
+  };
+  const handleTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
+    if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+      event.preventDefault();
+      focusView(activeIndex + 1);
+    } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+      event.preventDefault();
+      focusView(activeIndex - 1);
+    } else if (event.key === "Home") {
+      event.preventDefault();
+      focusView(0);
+    } else if (event.key === "End") {
+      event.preventDefault();
+      focusView(views.length - 1);
+    }
+  };
 
   return (
     <section className={`${themeClassName} space-y-4`} aria-label={labels.calendarInstructions}>
@@ -80,11 +104,13 @@ export function CalendarRoot<TMeta>({
             {views.map((item) => (
               <button
                 key={item}
+                ref={(element) => { tabRefs.current[views.indexOf(item)] = element; }}
                 type="button"
                 role="tab"
                 aria-selected={item === view}
                 tabIndex={item === view ? 0 : -1}
                 onClick={() => onViewChange(item)}
+                onKeyDown={handleTabKeyDown}
                 className={`min-h-11 px-3 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 ${focusClassName} ${item === view ? activeTabClassName : inactiveTabClassName}`}
               >
                 {viewLabels[item]}
