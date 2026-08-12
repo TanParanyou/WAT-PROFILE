@@ -76,7 +76,7 @@ export function AdminEventsCalendar({
       onMonthChange={onMonthChange}
       onSelectedDateChange={onSelectedDateChange}
       renderEvent={(event) => {
-        const className = `block min-h-8 w-full truncate border-l-2 px-2 py-1 text-left text-xs transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus ${event.status === "inactive" ? "border-admin-muted bg-admin-surface-muted text-admin-muted line-through" : "border-admin-action bg-admin-surface-muted text-admin-foreground"}`;
+        const className = `block min-h-11 w-full truncate border-l-2 px-2 py-2 text-left text-xs transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus ${event.status === "inactive" ? "border-admin-warning bg-admin-warning-surface text-admin-warning line-through" : "border-admin-success bg-admin-success-surface text-admin-success"}`;
         if (!event.href) return <span className={className}>{event.title}</span>;
         return <Link className={className} href={event.href}>{event.title}</Link>;
       }}

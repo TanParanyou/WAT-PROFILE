@@ -23,6 +23,7 @@ import { Icons } from "@/components/ui/Icons";
 import { useDateFormat } from "@/hooks/useDateFormat";
 import { useAdminListState } from "@/features/admin-list/useAdminListState";
 import { useAdminListQuery } from "@/features/admin-list/useAdminListQuery";
+import { fetchAllAdminPages } from "@/features/admin-list/fetchAllAdminPages";
 import type { AdminFilterRecord, AdminFilterDefinition, AdminListParams, AdminListResult } from "@/features/admin-list/types";
 import { AdminListToolbar } from "@/components/admin/list/AdminListToolbar";
 import { AdminSearchInput } from "@/components/admin/list/AdminSearchInput";
@@ -106,7 +107,7 @@ export default function EventsListPage() {
           pagination: { page: 1, limit: 100, total: 0, totalPages: 0 },
         });
       }
-      return eventAdminService.getPaginated(params);
+      return fetchAllAdminPages(params, (pageParams) => eventAdminService.getPaginated(pageParams));
     },
     setPage: () => undefined,
   });
@@ -149,10 +150,10 @@ export default function EventsListPage() {
     {
       key: "status",
       kind: "multi",
-      label: "สถานะ",
+      label: t("events.status.label"),
       options: [
-        { value: "active", label: "Active" },
-        { value: "inactive", label: "Inactive" },
+        { value: "active", label: t("events.status.active") },
+        { value: "inactive", label: t("events.status.inactive") },
       ],
     },
     {
@@ -170,10 +171,14 @@ export default function EventsListPage() {
 
   const activeChips: AdminActiveFilterChip[] = [];
   for (const s of listState.params.filters.status || []) {
-    activeChips.push({ key: "status", value: s, label: `สถานะ: ${s}` });
+    activeChips.push({
+      key: "status",
+      value: s,
+      label: `${t("events.status.label")}: ${s === "active" ? t("events.status.active") : t("events.status.inactive")}`,
+    });
   }
   for (const tp of listState.params.filters.type || []) {
-    activeChips.push({ key: "type", value: tp, label: `ประเภท: ${tp}` });
+    activeChips.push({ key: "type", value: tp, label: `${t("events.form.type")}: ${tp}` });
   }
   if (listState.params.filters.from) {
     activeChips.push({ key: "from", value: listState.params.filters.from, label: `ตั้งแต่วันที่: ${listState.params.filters.from}` });
@@ -253,7 +258,7 @@ export default function EventsListPage() {
     {
       header: "สถานะ",
       accessorKey: "is_active",
-      cell: (v) => <StatusBadge label={v ? "Active" : "Inactive"} />,
+      cell: (v) => <StatusBadge label={v ? t("events.status.active") : t("events.status.inactive")} />,
     },
     {
       header: "จัดการ",
@@ -329,13 +334,13 @@ export default function EventsListPage() {
         primaryFilters={
           <>
             <AdminMultiSelectFilter
-              label="สถานะ"
+              label={t("events.status.label")}
               options={filterDefinitions[0].options || []}
               values={listState.params.filters.status || []}
               onChange={(val) => listState.actions.setFilter("status", val)}
             />
             <AdminMultiSelectFilter
-              label="ประเภทกิจกรรม"
+              label={t("events.form.type")}
               options={filterDefinitions[1].options || []}
               values={listState.params.filters.type || []}
               onChange={(val) => listState.actions.setFilter("type", val)}
@@ -403,12 +408,10 @@ export default function EventsListPage() {
             onSelectAll={(ids) => selectedIds.selectAll(ids)}
           />
         </>
-      ) : calendarQuery.isLoading ? (
+      ) : calendarQuery.isPending && !calendarQuery.data ? (
         <div className="h-[34rem] animate-pulse bg-admin-surface-muted" role="status">{t("common.loading")}</div>
-      ) : calendarQuery.isError ? (
+      ) : calendarQuery.isError && !calendarQuery.data ? (
         <div className="border border-admin-danger bg-admin-danger-surface p-6 text-admin-danger" role="alert">{t("common.error")}</div>
-      ) : calendarEvents.length === 0 ? (
-        <div className="border border-admin-border bg-admin-surface p-6 text-admin-muted">{t("common.noData")}</div>
       ) : (
         <AdminEventsCalendar
           canUpdate={canUpdate}

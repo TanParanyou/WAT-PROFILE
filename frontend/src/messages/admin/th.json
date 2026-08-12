@@ -123,6 +123,11 @@
       "calendarView": "ปฏิทิน",
       "listView": "รายการ",
       "viewLabel": "มุมมองกิจกรรม",
+      "status": {
+        "label": "สถานะ",
+        "active": "เปิดใช้งาน",
+        "inactive": "ปิดใช้งาน"
+      },
       "previousMonth": "เดือนก่อนหน้า",
       "nextMonth": "เดือนถัดไป",
       "today": "วันนี้",

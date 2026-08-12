@@ -112,9 +112,11 @@ func (s *EventService) ListActive(limit int, from, to *time.Time) ([]models.Even
 		return db.Order("display_order ASC")
 	}
 	query := s.db.Where("is_active = ?", true).
-		Where("end_date >= CURRENT_DATE").
 		Order("start_date ASC").
 		Preload("Schedules", preloadSchedules)
+	if from == nil {
+		query = query.Where("end_date >= CURRENT_DATE")
+	}
 	if from != nil {
 		query = query.Where("end_date >= ?", *from)
 	}

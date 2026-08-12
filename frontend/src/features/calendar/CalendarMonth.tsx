@@ -7,6 +7,7 @@ import {
 } from "date-fns";
 import type { Locale as DateFnsLocale } from "date-fns";
 import type { ReactNode } from "react";
+import { getCalendarEventOverflowCount } from "./calendar-domain";
 import type { CalendarDay, CalendarEvent } from "./calendar-domain";
 import type { CalendarLabels } from "./calendar-copy";
 
@@ -128,7 +129,7 @@ export function CalendarMonth({
             const isCurrentMonth = isSameMonth(dayDate, month);
             const isSelected = day.date === selectedDate;
             const visibleEvents = day.events.slice(0, 2);
-            const remaining = Math.max(day.events.length - visibleEvents.length, 0);
+            const remaining = getCalendarEventOverflowCount(day.events.length, visibleEvents.length);
             return (
               <div
                 className={`min-h-32 border-b border-r p-2 ${cellClass} ${!isCurrentMonth ? "opacity-50" : ""}`}
@@ -138,7 +139,7 @@ export function CalendarMonth({
                 <button
                   aria-label={`${format(dayDate, "d MMMM yyyy", { locale: dateFnsLocale })}${day.events.length ? `, ${labels.eventsCount(day.events.length)}` : ""}`}
                   aria-pressed={isSelected}
-                  className={`mb-2 min-h-8 min-w-8 px-2 text-left text-sm ${isSelected ? `${selectedClass} font-semibold` : mutedClass} ${focusClass} focus-visible:outline-2 focus-visible:outline-offset-2`}
+                  className={`mb-2 min-h-11 min-w-11 px-2 text-left text-sm ${isSelected ? `${selectedClass} font-semibold` : mutedClass} ${focusClass} focus-visible:outline-2 focus-visible:outline-offset-2`}
                   onClick={() => onSelectedDateChange(day.date)}
                   type="button"
                 >
@@ -150,7 +151,7 @@ export function CalendarMonth({
                   ))}
                   {remaining > 0 ? (
                     <button
-                      className={`min-h-8 text-xs underline ${mutedClass} ${focusClass} focus-visible:outline-2 focus-visible:outline-offset-2`}
+                      className={`min-h-11 text-xs underline ${mutedClass} ${focusClass} focus-visible:outline-2 focus-visible:outline-offset-2`}
                       onClick={() => onSelectedDateChange(day.date)}
                       type="button"
                     >

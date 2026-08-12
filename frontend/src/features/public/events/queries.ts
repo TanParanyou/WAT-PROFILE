@@ -1,4 +1,4 @@
-import { useQuery } from "@tanstack/react-query";
+import { keepPreviousData, useQuery } from "@tanstack/react-query";
 import { fetchPublicEventBySlug, fetchPublicEvents, fetchPublicSchedules } from "./api";
 import { shouldRetryPublicQuery } from "../shared/query-error";
 import type { PublicEventDto, PublicEventsListOptions } from "./types";
@@ -20,6 +20,7 @@ export function usePublicEventsQuery(options: PublicEventsListOptions = {}) {
   return useQuery({
     queryKey: publicEventsKeys.list(options),
     queryFn: () => fetchPublicEvents(options),
+    placeholderData: keepPreviousData,
     staleTime: 60_000,
     retry: shouldRetryPublicQuery,
   });

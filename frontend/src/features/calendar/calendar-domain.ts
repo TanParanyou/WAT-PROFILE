@@ -31,6 +31,13 @@ export interface CalendarDay {
   events: CalendarEvent[];
 }
 
+export function getCalendarEventOverflowCount(
+  totalEvents: number,
+  visibleLimit: number,
+): number {
+  return Math.max(totalEvents - visibleLimit, 0);
+}
+
 const dateFormat = "yyyy-MM-dd";
 
 function parseDateOnly(value: string): Date | null {

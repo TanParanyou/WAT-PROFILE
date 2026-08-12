@@ -123,6 +123,11 @@
       "calendarView": "Kalender",
       "listView": "Liste",
       "viewLabel": "Veranstaltungsansicht",
+      "status": {
+        "label": "Status",
+        "active": "Aktiv",
+        "inactive": "Inaktiv"
+      },
       "previousMonth": "Vorheriger Monat",
       "nextMonth": "Nächster Monat",
       "today": "Heute",

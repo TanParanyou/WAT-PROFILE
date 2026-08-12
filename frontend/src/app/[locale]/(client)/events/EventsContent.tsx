@@ -109,7 +109,7 @@ export default function EventsContent() {
   };
 
   const renderCalendarEvent = (event: CalendarEvent, date: string) => {
-    const className = "block min-h-8 w-full truncate border-l-2 border-site-accent bg-site-surface px-2 py-1 text-left text-xs text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-2 focus-visible:outline-site-focus";
+    const className = "block min-h-11 w-full truncate border-l-2 border-site-accent bg-site-surface px-2 py-2 text-left text-xs text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-2 focus-visible:outline-site-focus";
     if (!event.href) return <span className={className}>{event.title}</span>;
     return <Link aria-label={`${event.title} ${date}`} className={className} href={event.href}>{event.title}</Link>;
   };
@@ -193,20 +193,15 @@ export default function EventsContent() {
               />
             ) : view === "list" ? (
               <EventsList events={events} />
-            ) : calendarQuery.isLoading ? (
+            ) : calendarQuery.isPending && !calendarQuery.data ? (
               <div aria-label={tState("loading")} className="h-[34rem] animate-pulse bg-site-surface" />
-            ) : calendarQuery.isError ? (
+            ) : calendarQuery.isError && !calendarQuery.data ? (
               <QueryErrorState
                 title={tState("errorTitle")}
                 description={tState("errorDescription")}
                 retryLabel={tState("retry")}
                 onRetry={() => calendarQuery.refetch()}
                 isRetrying={calendarQuery.isFetching}
-              />
-            ) : calendarEvents.length === 0 ? (
-              <EmptyState
-                title={tState("emptyEvents")}
-                description={tState("emptyContent")}
               />
             ) : (
               <CalendarMonth

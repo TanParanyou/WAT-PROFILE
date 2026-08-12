@@ -1,3 +1,4 @@
+import { useRef } from "react";
 import type { CalendarView } from "./calendar-copy";
 
 export interface CalendarViewToggleProps {
@@ -20,6 +21,7 @@ export function CalendarViewToggle({
   id = "events-view",
   variant = "public",
 }: CalendarViewToggleProps) {
+  const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const activeClass =
     variant === "public"
       ? "bg-site-action text-site-on-action"
@@ -40,8 +42,13 @@ export function CalendarViewToggle({
       id={id}
       role="tablist"
     >
-      {(["calendar", "list"] as const).map((view) => {
+      {(["calendar", "list"] as const).map((view, index, views) => {
         const selected = value === view;
+        const moveFocus = (nextIndex: number) => {
+          const nextView = views[nextIndex];
+          onChange(nextView);
+          tabRefs.current[nextIndex]?.focus();
+        };
         return (
           <button
             aria-selected={selected}
@@ -49,6 +56,24 @@ export function CalendarViewToggle({
             id={`${id}-${view}`}
             key={view}
             onClick={() => onChange(view)}
+            onKeyDown={(event) => {
+              if (event.key === "ArrowRight" || event.key === "ArrowDown") {
+                event.preventDefault();
+                moveFocus((index + 1) % views.length);
+              } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
+                event.preventDefault();
+                moveFocus((index - 1 + views.length) % views.length);
+              } else if (event.key === "Home") {
+                event.preventDefault();
+                moveFocus(0);
+              } else if (event.key === "End") {
+                event.preventDefault();
+                moveFocus(views.length - 1);
+              }
+            }}
+            ref={(element) => {
+              tabRefs.current[index] = element;
+            }}
             role="tab"
             tabIndex={selected ? 0 : -1}
             type="button"

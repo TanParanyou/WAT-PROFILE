@@ -1,6 +1,10 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { buildCalendarDays, getMonthGridRange } from "./calendar-domain";
+import {
+  buildCalendarDays,
+  getCalendarEventOverflowCount,
+  getMonthGridRange,
+} from "./calendar-domain";
 
 test("month grid contains leading and trailing display days", () => {
   const range = getMonthGridRange(new Date(2026, 7, 1), 1);
@@ -61,4 +65,26 @@ test("day event ordering is stable", () => {
   );
 
   assert.deepEqual(days[0]?.events.map(({ id }) => id), ["a", "b", "c"]);
+});
+
+test("date-only values remain stable around timezone boundary dates", () => {
+  const days = buildCalendarDays(
+    [
+      {
+        id: "dst",
+        title: "DST boundary",
+        startDate: "2026-03-29",
+        endDate: "2026-03-29",
+      },
+    ],
+    { startDate: "2026-03-29", endDate: "2026-03-29" },
+  );
+
+  assert.equal(days[0]?.date, "2026-03-29");
+  assert.equal(days[0]?.events[0]?.startDate, "2026-03-29");
+});
+
+test("overflow count reports only events beyond the visible limit", () => {
+  assert.equal(getCalendarEventOverflowCount(5, 2), 3);
+  assert.equal(getCalendarEventOverflowCount(2, 2), 0);
 });
