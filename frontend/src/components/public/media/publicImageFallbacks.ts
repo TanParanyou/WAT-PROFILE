@@ -19,3 +19,14 @@ function toDataUri(svg: string): string {
 
 export const publicEventFallbackImage = toDataUri(FALLBACK_SVG("Event image unavailable"));
 export const publicMonkFallbackImage = toDataUri(FALLBACK_SVG("Profile image unavailable"));
+
+const HERO_FALLBACK_SVG = `
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 800" role="img" aria-label="Hero image unavailable">
+  <rect width="1200" height="800" fill="#f7ecdd" />
+  <path d="M216 606h768" stroke="#333333" stroke-width="4" opacity=".22" />
+  <rect x="390" y="220" width="420" height="280" fill="none" stroke="#945c26" stroke-width="10" />
+  <circle cx="500" cy="320" r="32" fill="none" stroke="#945c26" stroke-width="10" />
+  <path d="m430 450 112-104 88 78 58-52 82 78" fill="none" stroke="#945c26" stroke-width="10" stroke-linecap="round" stroke-linejoin="round" />
+</svg>`;
+
+export const publicHeroFallbackImage = toDataUri(HERO_FALLBACK_SVG);
