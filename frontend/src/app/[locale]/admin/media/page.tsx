@@ -166,7 +166,7 @@ export default function MediaLibraryPage() {
             </p>
           </div>
 
-          <div>
+          <div className="flex flex-col md:flex-row gap-2">
             <Button
               variant="secondary"
               onClick={() => {
@@ -271,11 +271,10 @@ export default function MediaLibraryPage() {
               <button
                 key={media.id}
                 onClick={() => setSelectedMedia(media)}
-                className={`group relative aspect-video overflow-hidden rounded-none border bg-admin-surface-muted transition focus-visible:outline-2 focus-visible:outline-admin-focus ${
-                  selectedMedia?.id === media.id
-                    ? "border-admin-focus ring-2 ring-admin-focus/20"
-                    : "border-admin-border hover:border-admin-control-border"
-                }`}
+                className={`group relative aspect-video overflow-hidden rounded-none border bg-admin-surface-muted transition focus-visible:outline-2 focus-visible:outline-admin-focus ${selectedMedia?.id === media.id
+                  ? "border-admin-focus ring-2 ring-admin-focus/20"
+                  : "border-admin-border hover:border-admin-control-border"
+                  }`}
               >
                 <img
                   src={media.url}
@@ -295,7 +294,7 @@ export default function MediaLibraryPage() {
           setSelectedMedia(updated);
           void queryClient.invalidateQueries({ queryKey: ["admin", "media"] });
         }}
-          onDeleted={() => {
+        onDeleted={() => {
           setSelectedMedia(null);
           void queryClient.invalidateQueries({ queryKey: ["admin", "media"] });
         }}

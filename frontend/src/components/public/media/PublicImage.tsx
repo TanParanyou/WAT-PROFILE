@@ -1,7 +1,7 @@
 "use client";
 
 import Image, { type ImageProps } from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface PublicImageProps extends Omit<ImageProps, "src" | "alt"> {
   src: string | null | undefined;
@@ -9,9 +9,18 @@ interface PublicImageProps extends Omit<ImageProps, "src" | "alt"> {
   fallbackSrc: string;
 }
 
-export function PublicImage({ src, alt, fallbackSrc, onError, ...props }: PublicImageProps) {
-  const [currentSrc, setCurrentSrc] = useState(src || fallbackSrc);
+export function PublicImage({ src, alt, fallbackSrc, onError, unoptimized, ...props }: PublicImageProps) {
+  const effectiveSrc = src?.trim() ? src.trim() : fallbackSrc;
+  const [currentSrc, setCurrentSrc] = useState(effectiveSrc);
   const [hasFailed, setHasFailed] = useState(false);
+
+  useEffect(() => {
+    setCurrentSrc(effectiveSrc);
+    setHasFailed(false);
+  }, [effectiveSrc]);
+
+  const isExternal = typeof currentSrc === "string" && /^https?:\/\//.test(currentSrc);
+  const shouldBeUnoptimized = unoptimized ?? isExternal;
 
   if (hasFailed) {
     return (
@@ -30,6 +39,7 @@ export function PublicImage({ src, alt, fallbackSrc, onError, ...props }: Public
       {...props}
       src={currentSrc}
       alt={alt}
+      unoptimized={shouldBeUnoptimized}
       onError={(event) => {
         if (currentSrc !== fallbackSrc) {
           setCurrentSrc(fallbackSrc);

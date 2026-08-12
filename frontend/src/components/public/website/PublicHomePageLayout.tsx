@@ -9,6 +9,8 @@ import { getLocalizedText } from '@/utils/localizedText';
 import { SectionLayout } from '@/components/public/SectionLayout';
 import { EventCard } from '@/components/public/EventCard';
 import { MonkCard } from '@/components/public/MonkCard';
+import { usePublicSiteSettingsQuery } from '@/features/public/settings/queries';
+import { PublicImage } from '@/components/public/media/PublicImage';
 
 export function PublicHomePageLayout({
   page,
@@ -30,6 +32,7 @@ export function PublicHomePageLayout({
     viewAll: string;
   };
 }) {
+  const siteSettingsQuery = usePublicSiteSettingsQuery();
   const heroSection = pickSection(page?.sections, ['hero'], 'hero');
   const featuredEventsSection = pickSection(page?.sections, ['featured-events'], 'event_teaser');
   const featuredMonksSection = pickSection(page?.sections, ['featured-monks'], 'monk_teaser');
@@ -38,6 +41,10 @@ export function PublicHomePageLayout({
   const heroSubtitle = sectionText(heroSection, 'description', locale) || getLocalizedText(page?.description, locale) || '';
   const heroCtaLabel = sectionText(heroSection, 'settings.cta_label', locale) || labels.exploreEvents;
   const heroCtaHref = sectionText(heroSection, 'settings.cta_href', locale) || '/events';
+
+  const heroImageRaw = getPathValue(heroSection, 'body.image');
+  const heroImageFromCms = sectionText(heroSection, 'body.image', locale) || (typeof heroImageRaw === 'string' ? heroImageRaw : '');
+  const heroBgUrl = heroImageFromCms || siteSettingsQuery.data?.hero_bg_url?.trim() || '/images/hero-bg.png';
 
   const latestEventsTitle =
     sectionText(featuredEventsSection, 'title', locale) || labels.latestEvents;
@@ -67,7 +74,17 @@ export function PublicHomePageLayout({
           </div>
           </div>
         </div>
-        <div className="min-h-[26rem] bg-[url('/images/hero-bg.png')] bg-cover bg-center lg:min-h-full" />
+        <div className="relative min-h-[26rem] w-full lg:min-h-full overflow-hidden bg-site-surface">
+          <PublicImage
+            src={heroBgUrl}
+            alt={heroTitle || 'Hero background'}
+            fallbackSrc="/images/hero-bg.png"
+            fill
+            priority
+            sizes="(max-width: 1024px) 100vw, 50vw"
+            className="object-cover object-center"
+          />
+        </div>
       </section>
 
       <SectionLayout

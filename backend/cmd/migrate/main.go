@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/golang-migrate/migrate/v4"
 	_ "github.com/golang-migrate/migrate/v4/database/postgres"
@@ -28,6 +29,19 @@ func main() {
 			getEnv("DB_NAME", "wat_profile"),
 			getEnv("DB_SSLMODE", "disable"),
 		)
+	}
+
+	// Auto-detect transaction poolers (e.g. Supabase port 6543 / pooler.supabase.com)
+	// or MIGRATE_NO_LOCK=true to disable pg_advisory_lock which fails on transaction poolers
+	if getEnv("MIGRATE_NO_LOCK", "false") == "true" || strings.Contains(dbURL, ":6543") || strings.Contains(dbURL, "pooler.supabase.com") {
+		if !strings.Contains(dbURL, "x-no-lock=") {
+			if strings.Contains(dbURL, "?") {
+				dbURL += "&x-no-lock=true"
+			} else {
+				dbURL += "?x-no-lock=true"
+			}
+			log.Println("Detected connection pooler or MIGRATE_NO_LOCK=true, added x-no-lock=true to database URL")
+		}
 	}
 
 	// Get command

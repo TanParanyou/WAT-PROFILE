@@ -15,6 +15,7 @@ export interface PublicSiteSettings {
     line: string;
   };
   logoUrl: string;
+  heroBgUrl: string;
   socialSidebarPosition: "left" | "right";
   defaultEventsView: EventsView;
 }

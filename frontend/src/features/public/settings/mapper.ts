@@ -26,6 +26,7 @@ export function getFallbackPublicSiteSettings(): PublicSiteSettings {
       line: siteConfig.social.line ?? "",
     },
     logoUrl: siteConfig.logo.light,
+    heroBgUrl: "/images/hero-bg.png",
     socialSidebarPosition: siteConfig.layout.socialSidebarPosition,
     defaultEventsView: "calendar",
   };
@@ -48,6 +49,7 @@ export function mapPublicSiteSettings(raw: Record<string, string>, fallback = ge
       line: raw.line_url || fallback.social.line,
     },
     logoUrl: (raw.logo_url && raw.logo_url.trim()) ? raw.logo_url.trim() : fallback.logoUrl,
+    heroBgUrl: (raw.hero_bg_url && raw.hero_bg_url.trim()) ? raw.hero_bg_url.trim() : fallback.heroBgUrl,
     socialSidebarPosition: position,
     defaultEventsView,
   };

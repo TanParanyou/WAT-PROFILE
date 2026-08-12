@@ -26,7 +26,7 @@ export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
     useEffect(() => {
         if (!isLoading && !isAuthenticated && !sessionExpired) {
             const current = encodeURIComponent(pathname);
-            router.replace(`/admin/login?returnTo=${current}` as any);
+            router.replace(`/admin/login?returnTo=${current}`);
         }
     }, [isLoading, isAuthenticated, sessionExpired, router, pathname]);
 
@@ -65,7 +65,7 @@ export function AdminAuthGuard({ children }: AdminAuthGuardProps) {
                         <Button
                             onClick={() => {
                                 const current = encodeURIComponent(pathname);
-                                router.replace(`/admin/login?returnTo=${current}` as any);
+                                router.replace(`/admin/login?returnTo=${current}`);
                             }}
                             variant="danger"
                             className="w-full flex items-center justify-center gap-2 min-h-11 font-medium"

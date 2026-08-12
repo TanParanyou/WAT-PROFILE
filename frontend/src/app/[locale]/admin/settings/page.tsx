@@ -27,8 +27,8 @@ export default function SettingsPage() {
   const [alert, setAlert] = useState<EventAlertSettings>({ enabled: false, event_id: 0, delay_seconds: 2, dismiss_hours: 24 });
   const [initialAlert, setInitialAlert] = useState<EventAlertSettings>({ enabled: false, event_id: 0, delay_seconds: 2, dismiss_hours: 24 });
   const [events, setEvents] = useState<Event[]>([]);
-  const [shell, setShell] = useState({ logo_url: "", social_sidebar_position: "left", youtube_url: "" });
-  const [initialShell, setInitialShell] = useState({ logo_url: "", social_sidebar_position: "left", youtube_url: "" });
+  const [shell, setShell] = useState({ logo_url: "", hero_bg_url: "", social_sidebar_position: "left", youtube_url: "" });
+  const [initialShell, setInitialShell] = useState({ logo_url: "", hero_bg_url: "", social_sidebar_position: "left", youtube_url: "" });
   const [eventsDefaultView, setEventsDefaultView] = useState<EventsView>("calendar");
   const [initialEventsDefaultView, setInitialEventsDefaultView] = useState<EventsView>("calendar");
   const { toast } = useToast();
@@ -39,7 +39,7 @@ export default function SettingsPage() {
       const data = await settingsAdminService.getAll();
       setSettings(data);
       const byKey = Object.fromEntries(data.map((item) => [item.key, item.value]));
-      const shellVal = { logo_url: byKey.logo_url ?? "", social_sidebar_position: byKey.social_sidebar_position === "right" ? "right" : "left", youtube_url: byKey.youtube_url ?? "" };
+      const shellVal = { logo_url: byKey.logo_url ?? "", hero_bg_url: byKey.hero_bg_url ?? "", social_sidebar_position: byKey.social_sidebar_position === "right" ? "right" : "left", youtube_url: byKey.youtube_url ?? "" };
       setShell(shellVal);
       setInitialShell(shellVal);
       const defaultView: EventsView = byKey.events_default_view === "list" ? "list" : "calendar";
@@ -85,6 +85,7 @@ export default function SettingsPage() {
       if (isShellChanged) {
         await settingsAdminService.update([
           { key: "logo_url", value: shell.logo_url },
+          { key: "hero_bg_url", value: shell.hero_bg_url },
           { key: "social_sidebar_position", value: shell.social_sidebar_position },
           { key: "youtube_url", value: shell.youtube_url }
         ]);
@@ -104,7 +105,7 @@ export default function SettingsPage() {
 
   // จัดกลุ่มตาม category และกรองข้อมูลติดต่อ โซเชียล และบัญชีสมาคมออก (ย้ายไปอยู่ในข้อมูลเว็บไซต์แล้ว)
   const grouped = settings
-    .filter((s) => s.category !== "contact" && s.category !== "social" && s.category !== "donation" && !["logo_url", "social_sidebar_position", "youtube_url", "event_alert_settings", "events_default_view"].includes(s.key))
+    .filter((s) => s.category !== "contact" && s.category !== "social" && s.category !== "donation" && !["logo_url", "hero_bg_url", "social_sidebar_position", "youtube_url", "event_alert_settings", "events_default_view"].includes(s.key))
     .reduce<Record<string, Setting[]>>((acc, s) => {
       const cat = s.category || "General";
       (acc[cat] ||= []).push(s);
@@ -191,6 +192,7 @@ export default function SettingsPage() {
         <div className="bg-admin-surface rounded-none border border-admin-border p-6 space-y-4">
           <h2 className="text-lg font-semibold text-admin-foreground">{t("sidebar.website")}</h2>
           <ImageUpload label="โลโก้เว็บไซต์" value={shell.logo_url} onChange={(value) => setShell({ ...shell, logo_url: typeof value === "string" ? value : "" })} />
+          <ImageUpload label="ภาพพื้นหลัง Hero (Hero Background)" value={shell.hero_bg_url} onChange={(value) => setShell({ ...shell, hero_bg_url: typeof value === "string" ? value : "" })} />
           <label className="block text-sm font-medium text-admin-body">ตำแหน่งแถบโซเชียลมีเดียด้านข้าง<select className="mt-1 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-admin-focus" value={shell.social_sidebar_position} onChange={(e) => setShell({ ...shell, social_sidebar_position: e.target.value })}><option value="left">ซ้าย</option><option value="right">ขวา</option></select></label>
           <Input id="youtube-url" label="ลิงก์ช่อง YouTube" type="url" placeholder="https://youtube.com/@channel" value={shell.youtube_url} onChange={(e) => setShell({ ...shell, youtube_url: e.target.value })} />
           <label className="block text-sm font-medium text-admin-body" htmlFor="events-default-view">
