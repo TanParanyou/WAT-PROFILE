@@ -12,10 +12,10 @@ const adminCalendarPath = fileURLToPath(
   new URL("../../../app/[locale]/admin/calendar/_components/AdminCalendarContent.tsx", import.meta.url),
 );
 
-test("Discovery uses Agenda for Week and Day", () => {
+test("Discovery uses TimeGrid for Week and Day", () => {
   assert.equal(discoveryPreset.defaultView, "month");
-  assert.equal(discoveryPreset.viewModes.week, "agenda");
-  assert.equal(discoveryPreset.viewModes.day, "agenda");
+  assert.equal(discoveryPreset.viewModes.week, "timeGrid");
+  assert.equal(discoveryPreset.viewModes.day, "timeGrid");
 });
 
 test("Planning keeps TimeGrid for Week and Day", () => {
@@ -23,11 +23,17 @@ test("Planning keeps TimeGrid for Week and Day", () => {
   assert.equal(planningPreset.viewModes.day, "timeGrid");
 });
 
-test("Public calendar composes AgendaView but not TimeGrid", () => {
+test("Public calendar composes TimeGrid but not AgendaView", () => {
   const source = readFileSync(publicCalendarPath, "utf8");
 
-  assert.match(source, /<AgendaView/);
-  assert.doesNotMatch(source, /<TimeGrid/);
+  assert.match(source, /<TimeGrid/);
+  assert.doesNotMatch(source, /<AgendaView/);
+});
+
+test("Public calendar uses the wide page surface for seven-day TimeGrid", () => {
+  const source = readFileSync(publicCalendarPath, "utf8");
+
+  assert.match(source, /<PageContainer width="wide">/);
 });
 
 test("Admin calendar composes TimeGrid but not AgendaView", () => {

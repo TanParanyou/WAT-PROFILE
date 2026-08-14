@@ -10,10 +10,10 @@ import { useCalendar } from "@/features/calendar/useCalendar";
 import { useCalendarEntries } from "@/features/calendar/queries";
 import type { CalendarLabels } from "@/features/calendar/calendar-copy";
 import { CalendarRoot } from "@/features/calendar/ui/CalendarRoot";
-import { AgendaView } from "@/features/calendar/ui/AgendaView";
 import { discoveryPreset } from "@/features/calendar/presets/discovery";
 import { getCalendarDays } from "@/features/calendar/views/calendar-view-utils";
 import { MonthView } from "@/features/calendar/views/MonthView";
+import { TimeGrid } from "@/features/calendar/views/TimeGrid";
 import {
   formatWatEventTime,
   getWatEventBarClass,
@@ -84,11 +84,12 @@ export default function CalendarPageContent() {
     event: WatCalendarEvent,
     density: "summary" | "row" | "timeGrid",
   ) => getWatEventBarClass(event, "public", density);
+  const timeGridDays = controller.view === "day" ? [controller.selectedDate] : visibleDays;
 
   return (
     <div className="min-h-screen bg-site-canvas">
       <PageHeader variant="color" density="compact" align="left" title={t("title")} subtitle={t("subtitle")} />
-      <PageContainer width="content">
+      <PageContainer width="wide">
         {query.isFetching && query.data ? <p className="mb-3 text-sm opacity-70" role="status">{labels.refreshing ?? labels.loading ?? "Refreshing"}</p> : null}
         {!query.data && query.isPending ? <p className="py-12 text-center text-sm" role="status">{labels.loading ?? "Loading"}</p> : null}
         {!query.data && query.isError ? (
@@ -127,17 +128,19 @@ export default function CalendarPageContent() {
                 getEventClassName={getEventBarClass}
               />
             )}
-            renderAgenda={() => (
-              <AgendaView
-                days={controller.view === "day" ? [format(controller.selectedDate, "yyyy-MM-dd")] : visibleDays.map((day) => format(day, "yyyy-MM-dd"))}
-                events={events}
+            renderAgenda={() => null}
+            renderTimeGrid={() => (
+              <TimeGrid
+                days={timeGridDays}
+                entries={events}
                 labels={labels}
-                mode={controller.view === "day" ? "day" : "week"}
-                formatTime={formatEventTime}
-                formatLocation={getWatEventLocation}
-                onEventActivate={activateEvent}
-                eventClassName="bg-site-surface"
-                focusClassName="focus-visible:outline-site-focus"
+                variant="public"
+                onEntryActivate={activateEvent}
+                showDayHeaders
+                selectedDate={controller.selectedDate}
+                onDaySelect={controller.selectDate}
+                renderEvent={renderEvent}
+                getEventClassName={(event) => getEventBarClass(event, "timeGrid")}
               />
             )}
             themeClassName="public-theme bg-site-canvas text-site-foreground"
