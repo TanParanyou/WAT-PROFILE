@@ -48,4 +48,3 @@ export function useClientCalendarLabels(locale: CalendarLocale): CalendarLabels 
     },
   };
 }
-

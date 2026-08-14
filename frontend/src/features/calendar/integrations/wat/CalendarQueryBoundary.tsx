@@ -31,4 +31,3 @@ export function CalendarQueryBoundary<TData>({ query, labels, children }: Calend
     </>
   );
 }
-
