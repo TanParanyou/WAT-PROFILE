@@ -1,16 +1,14 @@
+import type { CalendarEventBase, CalendarRange, CalendarResource } from "./core/types";
+
 export type {
   CalendarRange,
   CalendarResource,
   CalendarView,
 } from "./core/types";
 
-import type { CalendarRange, CalendarResource } from "./core/types";
-
 export type CalendarScope = "public" | "admin";
 
 export type CalendarLocale = "th" | "en" | "de";
-
-import type { CalendarEventBase } from "./core/types";
 
 export interface CalendarEntry extends CalendarEventBase {
   id: string;
