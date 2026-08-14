@@ -64,19 +64,19 @@ export function MultiLangRichText({
   };
 
   return (
-    <div className="space-y-2 font-sans">
-      <div className="flex items-center justify-between">
-        <label className="text-sm font-semibold text-admin-foreground flex items-center">
+    <div className="space-y-1 font-sans">
+      <div className="flex items-center justify-between min-h-[24px]">
+        <label className="text-sm font-medium text-admin-body flex items-center">
           {label}
           {required && <span className="text-admin-danger ml-1">*</span>}
         </label>
-        <div className="flex border border-admin-control-border rounded overflow-hidden">
+        <div className="inline-flex border border-admin-control-border rounded-none overflow-hidden h-6">
           {locales.map((loc) => (
             <button
               key={loc.code}
               type="button"
               onClick={() => setSelectedLocale(loc.code)}
-              className={`px-3 py-1 text-xs font-medium uppercase transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus ${
+              className={`px-2.5 h-full text-xs font-medium uppercase transition-colors inline-flex items-center justify-center focus-visible:outline-2 focus-visible:outline-admin-focus ${
                 activeLocale === loc.code
                   ? "bg-admin-action text-admin-on-action hover:bg-admin-action-hover"
                   : "bg-admin-surface text-admin-muted hover:bg-admin-surface-muted hover:text-admin-foreground"

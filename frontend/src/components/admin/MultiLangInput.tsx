@@ -48,20 +48,20 @@ export function MultiLangInput({
   }, [placeholder, activeLang, label]);
 
   return (
-    <div className="space-y-2 font-sans">
-      <div className="flex items-center justify-between">
-        <label className="text-sm font-semibold text-admin-foreground flex items-center">
+    <div className="space-y-1 font-sans">
+      <div className="flex items-center justify-between min-h-[24px]">
+        <label className="text-sm font-medium text-admin-body flex items-center">
           {label}
           {required && <span className="text-admin-danger ml-1">*</span>}
         </label>
-        <div className="flex border border-admin-control-border rounded overflow-hidden">
+        <div className="inline-flex border border-admin-control-border rounded-none overflow-hidden h-6">
           {langs.map((lang) => (
             <button
               key={lang.key}
               type="button"
               onClick={() => setActiveLang(lang.key)}
               className={cn(
-                "px-3 py-1 text-xs font-medium uppercase transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus",
+                "px-2.5 h-full text-xs font-medium uppercase transition-colors inline-flex items-center justify-center focus-visible:outline-2 focus-visible:outline-admin-focus",
                 activeLang === lang.key
                   ? "bg-admin-action text-admin-on-action hover:bg-admin-action-hover"
                   : "bg-admin-surface text-admin-muted hover:bg-admin-surface-muted hover:text-admin-foreground",

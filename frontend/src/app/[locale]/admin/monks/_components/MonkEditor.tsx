@@ -215,7 +215,7 @@ export function MonkEditor({ id }: MonkEditorProps) {
           {/* Form Content in Split Screen */}
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
             {/* Left Column: Form Fields */}
-            <div className="lg:col-span-7 bg-admin-surface rounded-none border border-admin-border p-6 space-y-4">
+            <div className="lg:col-span-7 bg-admin-surface rounded-none border border-admin-border p-6 space-y-5">
               <Controller
                 control={control}
                 name="name"
@@ -314,7 +314,7 @@ export function MonkEditor({ id }: MonkEditorProps) {
                       onChange={field.onChange}
                     />
                     {getFieldError(errors.image_url) && (
-                      <p className="text-sm text-admin-danger">
+                      <p className="text-sm text-admin-danger mt-1">
                         {getFieldError(errors.image_url)}
                       </p>
                     )}
@@ -322,18 +322,20 @@ export function MonkEditor({ id }: MonkEditorProps) {
                 )}
               />
 
-              <Controller
-                control={control}
-                name="is_active"
-                render={({ field }) => (
-                  <Switch
-                    id="is_active"
-                    label={t("monks.form.active")}
-                    checked={field.value}
-                    onChange={(e) => field.onChange(e.target.checked)}
-                  />
-                )}
-              />
+              <div className="pt-3 border-t border-admin-border">
+                <Controller
+                  control={control}
+                  name="is_active"
+                  render={({ field }) => (
+                    <Switch
+                      id="is_active"
+                      label={t("monks.form.active")}
+                      checked={field.value}
+                      onChange={(e) => field.onChange(e.target.checked)}
+                    />
+                  )}
+                />
+              </div>
             </div>
 
             {/* Right Column: Sticky Live Previews Panel */}

@@ -99,9 +99,13 @@ export function DatePicker({
           selectsMultiple={false}
         />
       </div>
-      <div className={variant === 'public' ? 'min-h-4' : 'min-h-5'}>
-        {error ? <p id={errorId} role="alert" className={cn('text-sm leading-4', variant === 'public' ? 'text-site-danger' : 'text-admin-danger')}>{error}</p> : null}
-      </div>
+      {variant === 'public' ? (
+        <div className="min-h-4">
+          {error ? <p id={errorId} role="alert" className="text-sm leading-4 text-site-danger">{error}</p> : null}
+        </div>
+      ) : (
+        error && <p id={errorId} role="alert" className="text-sm text-admin-danger mt-1">{error}</p>
+      )}
     </div>
   );
 }
