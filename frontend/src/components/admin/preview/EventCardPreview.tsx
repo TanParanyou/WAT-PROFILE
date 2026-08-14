@@ -5,6 +5,7 @@ import { Calendar, Clock, MapPin, Tag, CheckCircle2, Eye, ListOrdered, Image as 
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import { useTranslations } from "next-intl";
+import { formatDateRange, formatTimeRange } from "@/utils/formatters";
 
 type PartialMultiLangText = { th?: string; en?: string; de?: string } | null;
 
@@ -132,14 +133,14 @@ export function EventCardPreview({
             <div className="flex items-center gap-2">
               <Calendar size={14} className="text-admin-action flex-shrink-0" />
               <span>
-                {startDate || "YYYY-MM-DD"} {endDate && endDate !== startDate ? ` - ${endDate}` : ""}
+                {formatDateRange(startDate, endDate, lang) || "YYYY-MM-DD"}
               </span>
             </div>
 
             {(startTime || endTime) && (
               <div className="flex items-center gap-2">
                 <Clock size={14} className="text-admin-action flex-shrink-0" />
-                <span className="font-mono">{startTime || "00:00"} {endTime ? `- ${endTime}` : ""}</span>
+                <span className="font-mono">{formatTimeRange(startTime, endTime, lang)}</span>
               </div>
             )}
 
@@ -161,7 +162,7 @@ export function EventCardPreview({
                 {schedule.map((item, idx) => (
                   <div key={idx} className="text-xs flex items-baseline justify-between gap-2">
                     <span className="font-mono text-admin-action text-[11px] flex-shrink-0">
-                      {item.start_time || "00:00"} {item.end_time ? `- ${item.end_time}` : ""}
+                      {formatTimeRange(item.start_time, item.end_time, lang)}
                     </span>
                     <span className="text-admin-foreground font-medium flex-1 truncate">
                       {getLangText(item.activity, lang, `กิจกรรมลำดับที่ ${idx + 1}`)}

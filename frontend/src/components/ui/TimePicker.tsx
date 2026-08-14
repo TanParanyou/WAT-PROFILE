@@ -3,6 +3,7 @@
 import React, { useMemo } from 'react';
 import ReactDatePicker from 'react-datepicker';
 import { cn } from '@/utils/cn';
+import { formatTimeToHHmm } from '@/utils/formatters';
 import { de, enUS, th } from 'date-fns/locale';
 import type { Locale as DateFnsLocale } from 'date-fns';
 import type { DatePickerLocale, DatePickerVariant } from './DatePicker';
@@ -38,8 +39,9 @@ interface TimePickerProps {
 }
 
 const parseTimeString = (timeStr?: string | null): Date | null => {
-    if (!timeStr) return null;
-    const [hours, minutes] = timeStr.split(':').map(Number);
+    const formatted = formatTimeToHHmm(timeStr);
+    if (!formatted) return null;
+    const [hours, minutes] = formatted.split(':').map(Number);
     if (isNaN(hours) || isNaN(minutes)) return null;
     const d = new Date();
     d.setHours(hours, minutes, 0, 0);
@@ -75,10 +77,10 @@ interface CustomTimeInputProps extends React.InputHTMLAttributes<HTMLInputElemen
 
 const CustomTimeInput = React.forwardRef<HTMLInputElement, CustomTimeInputProps>(
     ({ value, onClick, onChange, onKeyDown, className, ...rest }, ref) => {
-        const [displayVal, setDisplayVal] = React.useState(value || '');
+        const [displayVal, setDisplayVal] = React.useState(() => formatTimeToHHmm(value) || value || '');
 
         React.useEffect(() => {
-            setDisplayVal(value || '');
+            setDisplayVal(formatTimeToHHmm(value) || value || '');
         }, [value]);
 
         const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {

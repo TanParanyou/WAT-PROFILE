@@ -70,6 +70,37 @@ export function formatTime(
   return date.toLocaleTimeString(localeTag, formatOptions);
 }
 
+export function formatTimeToHHmm(
+  timeStr: string | Date | null | undefined,
+): string {
+  if (!timeStr) return "";
+  if (timeStr instanceof Date) {
+    const hours = timeStr.getUTCHours().toString().padStart(2, "0");
+    const minutes = timeStr.getUTCMinutes().toString().padStart(2, "0");
+    return `${hours}:${minutes}`;
+  }
+  if (typeof timeStr === "string") {
+    const trimmed = timeStr.trim();
+    if (!trimmed) return "";
+    if (trimmed.includes("T")) {
+      const timePart = trimmed.split("T")[1].replace("Z", "");
+      const [hours = "00", minutes = "00"] = timePart.split(":");
+      return `${hours.slice(0, 2).padStart(2, "0")}:${minutes.slice(0, 2).padStart(2, "0")}`;
+    }
+    if (isTimeOnlyValue(trimmed)) {
+      const [hours = "00", minutes = "00"] = trimmed.split(":");
+      return `${hours.padStart(2, "0")}:${minutes.padStart(2, "0")}`;
+    }
+    const parsed = parseFlexibleDate(trimmed);
+    if (parsed) {
+      const hours = parsed.getUTCHours().toString().padStart(2, "0");
+      const minutes = parsed.getUTCMinutes().toString().padStart(2, "0");
+      return `${hours}:${minutes}`;
+    }
+  }
+  return "";
+}
+
 export function formatTimeRange(
   startTime: string | Date | null | undefined,
   endTime: string | Date | null | undefined,
@@ -142,29 +173,37 @@ export function formatCurrency(
 }
 
 function parseFlexibleDate(value: string): Date | null {
+  if (value.includes("T")) {
+    const timePart = value.split("T")[1].replace("Z", "");
+    const [hours = "0", minutes = "0", seconds = "0"] = timePart.split(":");
+    const parsedHours = Number(hours.slice(0, 2));
+    const parsedMinutes = Number(minutes.slice(0, 2));
+    const parsedSeconds = Number(seconds.split(".")[0]);
+    if (!Number.isNaN(parsedHours) && !Number.isNaN(parsedMinutes)) {
+      return new Date(Date.UTC(1970, 0, 1, parsedHours, parsedMinutes, Number.isNaN(parsedSeconds) ? 0 : parsedSeconds));
+    }
+  }
+
+  if (isTimeOnlyValue(value)) {
+    const [hours = "0", minutes = "0", seconds = "0"] = value.split(":");
+    const parsedHours = Number(hours);
+    const parsedMinutes = Number(minutes);
+    const parsedSeconds = Number(seconds);
+
+    if (
+      !Number.isNaN(parsedHours) &&
+      !Number.isNaN(parsedMinutes)
+    ) {
+      return new Date(Date.UTC(1970, 0, 1, parsedHours, parsedMinutes, Number.isNaN(parsedSeconds) ? 0 : parsedSeconds));
+    }
+  }
+
   const direct = new Date(value);
   if (!Number.isNaN(direct.getTime())) {
     return direct;
   }
 
-  if (!isTimeOnlyValue(value)) {
-    return null;
-  }
-
-  const [hours = "0", minutes = "0", seconds = "0"] = value.split(":");
-  const parsedHours = Number(hours);
-  const parsedMinutes = Number(minutes);
-  const parsedSeconds = Number(seconds);
-
-  if (
-    Number.isNaN(parsedHours) ||
-    Number.isNaN(parsedMinutes) ||
-    Number.isNaN(parsedSeconds)
-  ) {
-    return null;
-  }
-
-  return new Date(Date.UTC(1970, 0, 1, parsedHours, parsedMinutes, parsedSeconds));
+  return null;
 }
 
 function isTimeOnlyValue(value: string): boolean {

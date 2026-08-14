@@ -39,6 +39,7 @@ import { AdminMultiSelectFilter } from "@/components/admin/list/AdminMultiSelect
 import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components/admin/list/AdminActiveFilterChips";
 import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
 import { exportToCsv } from "@/services/adminListExportService";
+import { formatTimeRange, formatTimeToHHmm } from "@/utils/formatters";
 
 const emptyLang: MultiLangText = { th: "", en: "", de: "" };
 
@@ -160,8 +161,8 @@ export default function SchedulesPage() {
     reset({
       schedule_type: schedule.schedule_type,
       day_of_week: schedule.day_of_week,
-      time_start: schedule.time_start || "",
-      time_end: schedule.time_end || "",
+      time_start: formatTimeToHHmm(schedule.time_start),
+      time_end: formatTimeToHHmm(schedule.time_end),
       activity: schedule.activity || { ...emptyLang },
       location: schedule.location || { ...emptyLang },
       online_link: schedule.online_link || "",
@@ -251,8 +252,8 @@ export default function SchedulesPage() {
           header: "Day",
           accessor: (item) => (item.day_of_week !== null ? getDayLabel(item.day_of_week) : ""),
         },
-        { header: "Start Time", accessor: (item) => item.time_start || "" },
-        { header: "End Time", accessor: (item) => item.time_end || "" },
+        { header: "Start Time", accessor: (item) => formatTimeToHHmm(item.time_start) },
+        { header: "End Time", accessor: (item) => formatTimeToHHmm(item.time_end) },
         { header: "Activity (TH)", accessor: (item) => item.activity?.th || "" },
         { header: "Activity (EN)", accessor: (item) => item.activity?.en || "" },
         { header: "Status", accessor: (item) => (item.is_active ? "Active" : "Inactive") },
@@ -275,10 +276,7 @@ export default function SchedulesPage() {
     },
     {
       header: t("schedules.time"),
-      cell: (_, row) =>
-        row.time_start && row.time_end
-          ? `${row.time_start} - ${row.time_end}`
-          : row.time_start || row.time_end || "-",
+      cell: (_, row) => formatTimeRange(row.time_start, row.time_end),
     },
     {
       header: t("schedules.activity"),
