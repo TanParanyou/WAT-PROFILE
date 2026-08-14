@@ -1,5 +1,5 @@
 import { differenceInCalendarDays, format, isValid, parseISO } from "date-fns";
-import api from "@/services/api";
+import adminApi from "@/services/adminApi";
 import { publicApi } from "@/services/publicService";
 import type {
   CalendarEntry,
@@ -146,7 +146,7 @@ export async function fetchCalendarFeedFromApi(
   input: CalendarFeedRequest,
 ): Promise<CalendarFeed> {
   validateCalendarFeedRange(input.range);
-  const client = input.scope === "public" ? publicApi : api;
+  const client = input.scope === "public" ? publicApi : adminApi;
   const path = input.scope === "public" ? "/calendar" : "/admin/calendar";
   const response = await client.get<unknown>(path, {
     params: {
