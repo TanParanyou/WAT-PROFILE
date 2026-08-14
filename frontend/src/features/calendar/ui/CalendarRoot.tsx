@@ -2,30 +2,21 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef, type KeyboardEvent, type ReactNode } from "react";
-import type { CalendarEvent, CalendarRange, CalendarView } from "../core/types";
+import type { CalendarRange, CalendarView } from "../core/types";
 import type { CalendarLabels } from "../calendar-copy";
 import type { CalendarPreset } from "../presets/types";
 
-export interface CalendarRootProps<TMeta> {
+export interface CalendarRootProps {
   preset: CalendarPreset;
   view: CalendarView;
   date: Date;
-  selectedDate: Date;
   visibleRange: CalendarRange;
-  events: readonly CalendarEvent<TMeta>[];
   labels: CalendarLabels;
   onViewChange: (view: CalendarView) => void;
   onPrevious: () => void;
   onNext: () => void;
   onToday: () => void;
-  onSelectDate: (date: Date) => void;
-  onEventActivate: (event: CalendarEvent<TMeta>) => void;
-  renderEvent: (event: CalendarEvent<TMeta>, density: "summary" | "row" | "timeGrid") => ReactNode;
-  renderMonth: () => ReactNode;
-  renderAgenda: () => ReactNode;
-  renderTimeGrid?: () => ReactNode;
-  showTooltip?: boolean;
-  renderTooltip?: (event: CalendarEvent<TMeta>) => ReactNode;
+  children: ReactNode;
   stickyHeader?: boolean;
   stickyTimeAxis?: boolean;
   themeClassName?: string;
@@ -52,7 +43,7 @@ export function getRovingViewIndex(
   return null;
 }
 
-export function CalendarRoot<TMeta>({
+export function CalendarRoot({
   preset,
   view,
   date,
@@ -62,15 +53,13 @@ export function CalendarRoot<TMeta>({
   onPrevious,
   onNext,
   onToday,
-  renderMonth,
-  renderAgenda,
-  renderTimeGrid,
+  children,
   themeClassName = "",
   controlClassName = "border border-current/20 bg-transparent hover:bg-current/5",
   activeTabClassName = "bg-current text-[Canvas]",
   inactiveTabClassName = "text-current hover:bg-current/5",
   focusClassName = "focus-visible:outline-current",
-}: CalendarRootProps<TMeta>) {
+}: CalendarRootProps) {
   const tabRefs = useRef<Array<HTMLButtonElement | null>>([]);
   const periodLabel = labels.periodLabel(date, visibleRange, view);
   const viewLabels: Record<CalendarView, string> = {
@@ -130,9 +119,7 @@ export function CalendarRoot<TMeta>({
         </div>
       </div>
       <div data-calendar-view={view} data-calendar-mode={mode} className="min-h-72">
-        {mode === "monthGrid" ? renderMonth() : null}
-        {mode === "agenda" ? renderAgenda() : null}
-        {mode === "timeGrid" ? renderTimeGrid ? renderTimeGrid() : <p className="border border-current/15 p-6 text-center text-sm">{labels.error ?? "Calendar view unavailable"}</p> : null}
+        {children}
       </div>
     </section>
   );

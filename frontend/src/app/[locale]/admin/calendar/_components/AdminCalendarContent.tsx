@@ -5,20 +5,15 @@ import { de, enUS, th } from "date-fns/locale";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { useRoutedCalendar } from "@/features/calendar/integrations/next/useRoutedCalendar";
+import { Calendar } from "@/features/calendar/Calendar";
 import { useCalendarEntries } from "@/features/calendar/queries";
 import type { CalendarLabels } from "@/features/calendar/calendar-copy";
 import type { CalendarEntry, CalendarLocale } from "@/features/calendar/types";
-import { CalendarRoot } from "@/features/calendar/ui/CalendarRoot";
 import { planningPreset } from "@/features/calendar/presets/planning";
-import { getCalendarDays } from "@/features/calendar/views/calendar-view-utils";
-import { MonthView } from "@/features/calendar/views/MonthView";
-import { TimeGrid } from "@/features/calendar/views/TimeGrid";
 import {
   formatWatEventTime,
   getWatEventBarClass,
   getWatEventLocation,
-  toCalendarEvents,
-  type WatCalendarEvent,
 } from "@/features/calendar/adapters/wat-calendar";
 import { CalendarEntryDrawer } from "./CalendarEntryDrawer";
 
@@ -72,16 +67,14 @@ export default function AdminCalendarContent() {
     },
   };
 
-  const events = query.data ? toCalendarEvents(query.data.entries) : [];
-  const activateEvent = (event: WatCalendarEvent) => setSelectedEntry(event.meta.originalEntry);
-  const visibleDays = getCalendarDays(controller.visibleRange);
-  const formatEventTime = (event: WatCalendarEvent, date: string) => formatWatEventTime(event, date, labels.allDay);
-  const renderEvent = (event: WatCalendarEvent) => event.title;
+  const events: readonly CalendarEntry[] = query.data?.entries ?? [];
+  const activateEvent = (event: CalendarEntry) => setSelectedEntry(event);
+  const formatEventTime = (event: CalendarEntry, date: string) => formatWatEventTime(event, date, labels.allDay);
+  const renderEvent = (event: CalendarEntry) => event.title;
   const getEventBarClass = (
-    event: WatCalendarEvent,
+    event: CalendarEntry,
     density: "summary" | "row" | "timeGrid",
   ) => getWatEventBarClass(event, "admin", density);
-  const timeGridDays = controller.view === "day" ? [controller.selectedDate] : visibleDays;
 
   return (
     <main className="admin-theme min-h-full bg-admin-canvas px-4 py-6 text-admin-foreground sm:px-6 lg:px-8">
@@ -98,50 +91,17 @@ export default function AdminCalendarContent() {
         </div>
       ) : null}
       {query.data ? (
-        <CalendarRoot
+        <Calendar
           preset={planningPreset}
-          view={controller.view}
-          date={controller.date}
-          selectedDate={controller.selectedDate}
-          visibleRange={controller.visibleRange}
+          controller={controller}
           events={events}
           labels={labels}
-          onViewChange={controller.setView}
-          onPrevious={controller.previous}
-          onNext={controller.next}
-          onToday={controller.today}
-          onSelectDate={controller.selectDate}
+          variant="admin"
           onEventActivate={activateEvent}
           renderEvent={renderEvent}
-          renderMonth={() => (
-            <MonthView
-              controller={controller}
-              entries={events}
-              labels={labels}
-              variant="admin"
-              onEntryActivate={activateEvent}
-              renderEvent={renderEvent}
-              formatTime={formatEventTime}
-              formatLocation={getWatEventLocation}
-              eventClassName="bg-admin-surface-muted"
-              getEventClassName={getEventBarClass}
-            />
-          )}
-          renderAgenda={() => null}
-          renderTimeGrid={() => (
-            <TimeGrid
-              days={timeGridDays}
-              entries={events}
-              labels={labels}
-              variant="admin"
-              onEntryActivate={activateEvent}
-              showDayHeaders
-              selectedDate={controller.selectedDate}
-              onDaySelect={controller.selectDate}
-              renderEvent={renderEvent}
-              getEventClassName={(event) => getEventBarClass(event, "timeGrid")}
-            />
-          )}
+          formatEventTime={formatEventTime}
+          formatEventLocation={getWatEventLocation}
+          getEventClassName={getEventBarClass}
           themeClassName="admin-theme bg-admin-surface text-admin-foreground"
           controlClassName="border border-admin-border bg-admin-surface text-admin-body hover:bg-admin-surface-muted"
           activeTabClassName="bg-admin-action text-admin-on-action"

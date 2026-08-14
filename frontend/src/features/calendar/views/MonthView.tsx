@@ -5,37 +5,37 @@ import type { CalendarLabels } from "../calendar-copy";
 import type { CalendarVariant } from "../calendar-theme";
 import { calendarFocusClass } from "../calendar-theme";
 import type { CalendarController } from "../useCalendar";
-import type { CalendarEvent, CalendarResource } from "../core/types";
+import type { CalendarEventLike, CalendarResource } from "../core/types";
 import { CalendarEventRow } from "../ui/CalendarEventRow";
 import { CalendarTooltip } from "../ui/CalendarTooltip";
 import { MonthDayPopover } from "../ui/MonthDayPopover";
 import { entriesOnDay, formatCalendarDate, getCalendarDays } from "./calendar-view-utils";
 import { buildMonthGrid, type MonthGridCell } from "./month-grid";
 
-interface MonthViewProps<TMeta> {
+interface MonthViewProps<TEvent extends CalendarEventLike> {
   controller: CalendarController;
-  entries: readonly CalendarEvent<TMeta>[];
+  entries: readonly TEvent[];
   resources?: readonly CalendarResource[];
   labels: CalendarLabels;
   variant: CalendarVariant;
-  onEntryActivate: (entry: CalendarEvent<TMeta>) => void;
-  renderEvent?: (event: CalendarEvent<TMeta>, density: "summary" | "row") => ReactNode;
-  formatTime?: (event: CalendarEvent<TMeta>, date: string) => string | null;
-  formatLocation?: (event: CalendarEvent<TMeta>) => string | null;
+  onEntryActivate: (entry: TEvent) => void;
+  renderEvent?: (event: TEvent, density: "summary" | "row") => ReactNode;
+  formatTime?: (event: TEvent, date: string) => string | null;
+  formatLocation?: (event: TEvent) => string | null;
   eventClassName?: string;
   getEventClassName?: (
-    event: CalendarEvent<TMeta>,
+    event: TEvent,
     density: "summary" | "row",
   ) => string;
   showTooltip?: boolean;
-  renderTooltip?: (event: CalendarEvent<TMeta>) => ReactNode;
+  renderTooltip?: (event: TEvent) => ReactNode;
   stickyHeader?: boolean;
   maxVisibleEvents?: number;
 }
 
-function renderEventLabel<TMeta>(
-  event: CalendarEvent<TMeta>,
-  renderEvent: ((event: CalendarEvent<TMeta>, density: "summary" | "row") => ReactNode) | undefined,
+function renderEventLabel<TEvent extends CalendarEventLike>(
+  event: TEvent,
+  renderEvent: ((event: TEvent, density: "summary" | "row") => ReactNode) | undefined,
   density: "summary" | "row",
 ): ReactNode {
   return renderEvent ? renderEvent(event, density) : event.title;
@@ -72,7 +72,7 @@ function MonthDayButton({
   );
 }
 
-export function MonthView<TMeta>({
+export function MonthView<TEvent extends CalendarEventLike>({
   controller,
   entries,
   labels,
@@ -87,7 +87,7 @@ export function MonthView<TMeta>({
   renderTooltip,
   stickyHeader = true,
   maxVisibleEvents = 2,
-}: MonthViewProps<TMeta>) {
+}: MonthViewProps<TEvent>) {
   const getEventClass = getEventClassName ?? (() => eventClassName);
   const days = getCalendarDays(controller.visibleRange);
   const grid = buildMonthGrid({
@@ -101,7 +101,7 @@ export function MonthView<TMeta>({
   const weekdayDates = days.slice(0, 7);
   const selectedDay = formatCalendarDate(controller.selectedDate);
   const selectedEntries = entriesOnDay(entries, selectedDay);
-  const renderSummary = (event: CalendarEvent<TMeta>) => (
+  const renderSummary = (event: TEvent) => (
     <span className="block truncate">{renderEventLabel(event, renderEvent, "summary")}</span>
   );
   const bgClass = variant === "public" ? "bg-site-canvas" : "bg-admin-canvas";

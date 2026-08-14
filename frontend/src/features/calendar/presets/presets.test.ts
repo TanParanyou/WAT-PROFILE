@@ -23,10 +23,11 @@ test("Planning keeps TimeGrid for Week and Day", () => {
   assert.equal(planningPreset.viewModes.day, "timeGrid");
 });
 
-test("Public calendar composes TimeGrid but not AgendaView", () => {
+test("Public calendar composes the reusable Calendar facade", () => {
   const source = readFileSync(publicCalendarPath, "utf8");
 
-  assert.match(source, /<TimeGrid/);
+  assert.match(source, /<Calendar/);
+  assert.doesNotMatch(source, /features\/calendar\/views\/(MonthView|TimeGrid)/);
   assert.doesNotMatch(source, /<AgendaView/);
 });
 
@@ -36,9 +37,10 @@ test("Public calendar uses the wide page surface for seven-day TimeGrid", () => 
   assert.match(source, /<PageContainer width="wide">/);
 });
 
-test("Admin calendar composes TimeGrid but not AgendaView", () => {
+test("Admin calendar composes the reusable Calendar facade", () => {
   const source = readFileSync(adminCalendarPath, "utf8");
 
-  assert.match(source, /<TimeGrid/);
+  assert.match(source, /<Calendar/);
+  assert.doesNotMatch(source, /features\/calendar\/views\/(MonthView|TimeGrid)/);
   assert.doesNotMatch(source, /<AgendaView/);
 });

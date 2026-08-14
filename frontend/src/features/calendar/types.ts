@@ -10,7 +10,9 @@ export type CalendarScope = "public" | "admin";
 
 export type CalendarLocale = "th" | "en" | "de";
 
-export interface CalendarEntry {
+import type { CalendarEventBase } from "./core/types";
+
+export interface CalendarEntry extends CalendarEventBase {
   id: string;
   source: "event" | string;
   title: string;

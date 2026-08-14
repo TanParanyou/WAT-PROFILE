@@ -7,6 +7,7 @@ import { Calendar } from "./Calendar";
 import { createCalendarState } from "./useCalendar";
 import { discoveryPreset } from "./presets/discovery";
 import type { CalendarLabels } from "./calendar-copy";
+import type { CalendarEntry } from "./types";
 
 const testWindow = new Window();
 Object.defineProperties(globalThis, {
@@ -70,25 +71,41 @@ test("Calendar facade composes Month, Week, and Day from the controller", () => 
     initialDate: new Date(2026, 7, 12),
     preset: discoveryPreset,
   });
+  const directEntry: CalendarEntry = {
+    id: "direct-entry",
+    source: "event",
+    title: "Direct entry",
+    start: "2026-08-12T09:00:00+02:00",
+    end: "2026-08-12T10:00:00+02:00",
+    allDay: false,
+    status: "active",
+    display: { tone: "default" },
+    detail: { canEdit: false },
+  };
+  let activated: CalendarEntry | null = null;
   const screen = render(createElement(Calendar, {
     preset: discoveryPreset,
     controller,
-    events: [],
+    events: [directEntry],
     labels,
     variant: "public",
-    onEventActivate: () => undefined,
+    onEventActivate: (entry) => { activated = entry; },
   }));
 
   try {
     assert.equal(screen.container.querySelector("[data-calendar-view=month]")?.getAttribute("data-calendar-mode"), "monthGrid");
+    const eventButton = screen.container.querySelector<HTMLButtonElement>('[aria-label="Direct entry"]');
+    assert.ok(eventButton);
+    act(() => eventButton.dispatchEvent(new MouseEvent("click", { bubbles: true })));
+    assert.equal(activated, directEntry);
     act(() => controller.setView("week"));
     screen.rerender(createElement(Calendar, {
       preset: discoveryPreset,
       controller,
-      events: [],
+      events: [directEntry],
       labels,
       variant: "public",
-      onEventActivate: () => undefined,
+      onEventActivate: (entry) => { activated = entry; },
     }));
     assert.equal(screen.container.querySelector("[data-calendar-view=week]")?.getAttribute("data-calendar-mode"), "timeGrid");
     assert.equal(screen.container.querySelectorAll("[data-calendar-time-grid] section").length, 7);

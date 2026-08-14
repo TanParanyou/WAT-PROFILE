@@ -199,12 +199,7 @@ test("view tabs support Arrow keys, Home, and End", () => {
     onPrevious: () => undefined,
     onNext: () => undefined,
     onToday: () => undefined,
-    onSelectDate: () => undefined,
-    onEventActivate: () => undefined,
-    renderEvent: () => null,
-    renderMonth: () => null,
-    renderAgenda: () => null,
-    renderTimeGrid: () => null,
+    children: null,
   }));
 
   try {
@@ -233,12 +228,7 @@ test("Calendar toolbar and TimeGrid headers use explicit 3px focus outlines", ()
     onPrevious: () => undefined,
     onNext: () => undefined,
     onToday: () => undefined,
-    onSelectDate: () => undefined,
-    onEventActivate: () => undefined,
-    renderEvent: () => null,
-    renderMonth: () => null,
-    renderAgenda: () => null,
-    renderTimeGrid: () => null,
+    children: null,
   }));
   const grid = render(createElement(TimeGrid, {
     days: [new Date(2026, 7, 12)],

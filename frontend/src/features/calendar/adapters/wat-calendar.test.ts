@@ -1,6 +1,6 @@
 import assert from "node:assert/strict";
 import test from "node:test";
-import { getWatEventBarClass, toCalendarEvent } from "./wat-calendar";
+import { getWatEventBarClass } from "./wat-calendar";
 import type { CalendarEntry } from "../types";
 
 function entry(overrides: Partial<CalendarEntry> = {}): CalendarEntry {
@@ -23,22 +23,18 @@ function entry(overrides: Partial<CalendarEntry> = {}): CalendarEntry {
   };
 }
 
-test("maps WAT entry data to generic event metadata without losing detail fields", () => {
+test("keeps render-ready WAT entries intact for direct Calendar consumption", () => {
   const source = entry();
-  const mapped = toCalendarEvent(source);
-
-  assert.equal(mapped.id, "event-1");
-  assert.equal(mapped.meta.detail.href, "/th/events/meditation");
-  assert.equal(mapped.meta.detail.location, "ศาลาปฏิบัติ");
-  assert.equal(mapped.meta.detail.description, "รายละเอียด");
-  assert.equal(mapped.meta.originalEntry, source);
+  assert.equal(source.id, "event-1");
+  assert.equal(source.detail.href, "/th/events/meditation");
+  assert.equal(source.detail.location, "ศาลาปฏิบัติ");
+  assert.equal(source.detail.description, "รายละเอียด");
 });
 
 test("keeps Admin event bar tones in the WAT adapter", () => {
-  const warning = toCalendarEvent(entry({ display: { tone: "warning" } }));
+  const warning = entry({ display: { tone: "warning" } });
   const className = getWatEventBarClass(warning, "admin", "timeGrid");
 
   assert.match(className, /admin-warning/);
   assert.match(className, /border/);
 });
-

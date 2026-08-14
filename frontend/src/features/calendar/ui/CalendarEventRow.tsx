@@ -2,25 +2,25 @@
 
 import type { ReactNode } from "react";
 import type { CalendarVariant } from "../calendar-theme";
-import type { CalendarEvent } from "../core/types";
+import type { CalendarEventLike } from "../core/types";
 import { CalendarTooltip } from "./CalendarTooltip";
 
-export interface CalendarEventRowProps<TMeta> {
-  event: CalendarEvent<TMeta>;
+export interface CalendarEventRowProps<TEvent extends CalendarEventLike> {
+  event: TEvent;
   date: string;
-  formatTime: (event: CalendarEvent<TMeta>, date: string) => string | null;
-  formatLocation: (event: CalendarEvent<TMeta>) => string | null;
-  onActivate: (event: CalendarEvent<TMeta>) => void;
+  formatTime: (event: TEvent, date: string) => string | null;
+  formatLocation: (event: TEvent) => string | null;
+  onActivate: (event: TEvent) => void;
   actionLabel: string;
   className: string;
   focusClassName: string;
-  renderEvent?: (event: CalendarEvent<TMeta>) => ReactNode;
+  renderEvent?: (event: TEvent) => ReactNode;
   showTooltip?: boolean;
-  renderTooltip?: (event: CalendarEvent<TMeta>) => ReactNode;
+  renderTooltip?: (event: TEvent) => ReactNode;
   variant?: CalendarVariant;
 }
 
-export function CalendarEventRow<TMeta>({
+export function CalendarEventRow<TEvent extends CalendarEventLike>({
   event,
   date,
   formatTime,
@@ -33,7 +33,7 @@ export function CalendarEventRow<TMeta>({
   showTooltip = true,
   renderTooltip,
   variant = "public",
-}: CalendarEventRowProps<TMeta>) {
+}: CalendarEventRowProps<TEvent>) {
   const time = formatTime(event, date);
   const location = formatLocation(event);
   const accessibleName = [event.title, time, location].filter(Boolean).join(", ");

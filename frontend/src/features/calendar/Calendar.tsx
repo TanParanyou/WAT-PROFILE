@@ -3,7 +3,7 @@
 import type { ReactNode } from "react";
 import type { CalendarLabels } from "./calendar-copy";
 import type { CalendarConfig } from "./config";
-import type { CalendarEvent, CalendarResource } from "./core/types";
+import type { CalendarEventLike, CalendarResource } from "./core/types";
 import { CalendarRoot } from "./ui/CalendarRoot";
 import { getCalendarDays } from "./views/calendar-view-utils";
 import { MonthView } from "./views/MonthView";
@@ -12,20 +12,20 @@ import type { CalendarController } from "./useCalendar";
 import type { CalendarPreset } from "./presets/types";
 import type { CalendarVariant } from "./calendar-theme";
 
-export interface CalendarProps<TMeta> {
+export interface CalendarProps<TEvent extends CalendarEventLike> {
   preset: CalendarPreset;
   controller: CalendarController;
-  events: readonly CalendarEvent<TMeta>[];
+  events: readonly TEvent[];
   labels: CalendarLabels;
   variant: CalendarVariant;
   resources?: readonly CalendarResource[];
-  onEventActivate: (event: CalendarEvent<TMeta>) => void;
-  renderEvent?: (event: CalendarEvent<TMeta>, density: "summary" | "row" | "timeGrid") => ReactNode;
-  getEventClassName?: (event: CalendarEvent<TMeta>, density: "summary" | "row" | "timeGrid") => string;
-  formatEventTime?: (event: CalendarEvent<TMeta>, date: string) => string | null;
-  formatEventLocation?: (event: CalendarEvent<TMeta>) => string | null;
+  onEventActivate: (event: TEvent) => void;
+  renderEvent?: (event: TEvent, density: "summary" | "row" | "timeGrid") => ReactNode;
+  getEventClassName?: (event: TEvent, density: "summary" | "row" | "timeGrid") => string;
+  formatEventTime?: (event: TEvent, date: string) => string | null;
+  formatEventLocation?: (event: TEvent) => string | null;
   showTooltip?: boolean;
-  renderTooltip?: (event: CalendarEvent<TMeta>) => ReactNode;
+  renderTooltip?: (event: TEvent) => ReactNode;
   themeClassName?: string;
   controlClassName?: string;
   activeTabClassName?: string;
@@ -33,7 +33,7 @@ export interface CalendarProps<TMeta> {
   focusClassName?: string;
 }
 
-function getRootClasses(variant: CalendarVariant): Pick<CalendarProps<unknown>, "themeClassName" | "controlClassName" | "activeTabClassName" | "inactiveTabClassName" | "focusClassName"> {
+function getRootClasses(variant: CalendarVariant): Pick<CalendarProps<CalendarEventLike>, "themeClassName" | "controlClassName" | "activeTabClassName" | "inactiveTabClassName" | "focusClassName"> {
   if (variant === "admin") {
     return {
       themeClassName: "admin-theme bg-admin-canvas text-admin-foreground",
@@ -52,7 +52,7 @@ function getRootClasses(variant: CalendarVariant): Pick<CalendarProps<unknown>, 
   };
 }
 
-export function Calendar<TMeta>({
+export function Calendar<TEvent extends CalendarEventLike>({
   preset,
   controller,
   events,
@@ -71,7 +71,7 @@ export function Calendar<TMeta>({
   activeTabClassName,
   inactiveTabClassName,
   focusClassName,
-}: CalendarProps<TMeta>) {
+}: CalendarProps<TEvent>) {
   const visibleDays = getCalendarDays(controller.visibleRange);
   const timeGridDays = controller.view === "day" ? [controller.selectedDate] : visibleDays;
   const defaults = getRootClasses(variant);
@@ -79,42 +79,27 @@ export function Calendar<TMeta>({
     ...preset,
     enabledViews: controller.config.enabledViews,
   };
-
-  return (
-    <CalendarRoot
-      preset={effectivePreset}
-      view={controller.view}
-      date={controller.date}
-      selectedDate={controller.selectedDate}
-      visibleRange={controller.visibleRange}
-      events={events}
-      labels={labels}
-      onViewChange={controller.setView}
-      onPrevious={controller.previous}
-      onNext={controller.next}
-      onToday={controller.today}
-      onSelectDate={controller.selectDate}
-      onEventActivate={onEventActivate}
-      renderEvent={(event, density) => renderEvent ? renderEvent(event, density) : event.title}
-      renderMonth={() => (
-        <MonthView
-          controller={controller}
-          entries={events}
-          resources={resources}
-          labels={labels}
-          variant={variant}
-          onEntryActivate={onEventActivate}
-          renderEvent={renderEvent}
-          formatTime={formatEventTime}
-          formatLocation={formatEventLocation}
-          getEventClassName={getEventClassName}
-          showTooltip={showTooltip}
-          renderTooltip={renderTooltip}
-          maxVisibleEvents={controller.config.month.maxVisibleEvents}
-        />
-      )}
-      renderAgenda={() => null}
-      renderTimeGrid={() => (
+  const mode = effectivePreset.viewModes[controller.view];
+  const viewContent = mode === "monthGrid"
+    ? (
+      <MonthView
+        controller={controller}
+        entries={events}
+        resources={resources}
+        labels={labels}
+        variant={variant}
+        onEntryActivate={onEventActivate}
+        renderEvent={renderEvent}
+        formatTime={formatEventTime}
+        formatLocation={formatEventLocation}
+        getEventClassName={getEventClassName}
+        showTooltip={showTooltip}
+        renderTooltip={renderTooltip}
+        maxVisibleEvents={controller.config.month.maxVisibleEvents}
+      />
+    )
+    : mode === "timeGrid"
+      ? (
         <TimeGrid
           days={timeGridDays}
           entries={events}
@@ -137,7 +122,21 @@ export function Calendar<TMeta>({
           slotHeight={controller.config.timeGrid.slotHeight}
           minimumDayWidth={controller.config.timeGrid.minimumDayWidth}
         />
-      )}
+      )
+      : null;
+
+  return (
+    <CalendarRoot
+      preset={effectivePreset}
+      view={controller.view}
+      date={controller.date}
+      visibleRange={controller.visibleRange}
+      labels={labels}
+      onViewChange={controller.setView}
+      onPrevious={controller.previous}
+      onNext={controller.next}
+      onToday={controller.today}
+      children={viewContent}
       themeClassName={themeClassName ?? defaults.themeClassName}
       controlClassName={controlClassName ?? defaults.controlClassName}
       activeTabClassName={activeTabClassName ?? defaults.activeTabClassName}
