@@ -6,7 +6,7 @@ export const discoveryPreset: CalendarPreset = {
   enabledViews: ["month", "week", "day"],
   viewModes: {
     month: "monthGrid",
-    week: "timeGrid",
-    day: "timeGrid",
+    week: "agenda",
+    day: "agenda",
   },
 };
