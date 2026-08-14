@@ -136,13 +136,14 @@ export function Calendar<TEvent extends CalendarEventLike>({
       onPrevious={controller.previous}
       onNext={controller.next}
       onToday={controller.today}
-      children={viewContent}
       themeClassName={themeClassName ?? defaults.themeClassName}
       controlClassName={controlClassName ?? defaults.controlClassName}
       activeTabClassName={activeTabClassName ?? defaults.activeTabClassName}
       inactiveTabClassName={inactiveTabClassName ?? defaults.inactiveTabClassName}
       focusClassName={focusClassName ?? defaults.focusClassName}
-    />
+    >
+      {viewContent}
+    </CalendarRoot>
   );
 }
 

@@ -199,8 +199,7 @@ test("view tabs support Arrow keys, Home, and End", () => {
     onPrevious: () => undefined,
     onNext: () => undefined,
     onToday: () => undefined,
-    children: null,
-  }));
+  }, null));
 
   try {
     const weekTab = screen.container.querySelector<HTMLButtonElement>('[role="tab"][aria-selected="true"]');
@@ -228,8 +227,7 @@ test("Calendar toolbar and TimeGrid headers use explicit 3px focus outlines", ()
     onPrevious: () => undefined,
     onNext: () => undefined,
     onToday: () => undefined,
-    children: null,
-  }));
+  }, null));
   const grid = render(createElement(TimeGrid, {
     days: [new Date(2026, 7, 12)],
     entries: [], labels, variant: "public", onEntryActivate: () => undefined, showDayHeaders: true,
