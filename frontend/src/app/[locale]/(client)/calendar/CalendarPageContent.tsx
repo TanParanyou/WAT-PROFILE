@@ -14,7 +14,6 @@ import { AgendaView } from "@/features/calendar/ui/AgendaView";
 import { discoveryPreset } from "@/features/calendar/presets/discovery";
 import { getCalendarDays } from "@/features/calendar/views/calendar-view-utils";
 import { MonthView } from "@/features/calendar/views/MonthView";
-import { TimeGrid } from "@/features/calendar/views/TimeGrid";
 import {
   formatWatEventTime,
   getWatEventBarClass,
@@ -85,7 +84,6 @@ export default function CalendarPageContent() {
     event: WatCalendarEvent,
     density: "summary" | "row" | "timeGrid",
   ) => getWatEventBarClass(event, "public", density);
-  const timeGridDays = controller.view === "day" ? [controller.selectedDate] : visibleDays;
 
   return (
     <div className="min-h-screen bg-site-canvas">
@@ -140,20 +138,6 @@ export default function CalendarPageContent() {
                 onEventActivate={activateEvent}
                 eventClassName="bg-site-surface"
                 focusClassName="focus-visible:outline-site-focus"
-              />
-            )}
-            renderTimeGrid={() => (
-              <TimeGrid
-                days={timeGridDays}
-                entries={events}
-                labels={labels}
-                variant="public"
-                onEntryActivate={activateEvent}
-                showDayHeaders
-                selectedDate={controller.selectedDate}
-                onDaySelect={controller.selectDate}
-                renderEvent={renderEvent}
-                getEventClassName={(event) => getEventBarClass(event, "timeGrid")}
               />
             )}
             themeClassName="public-theme bg-site-canvas text-site-foreground"
