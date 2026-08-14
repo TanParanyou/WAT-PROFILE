@@ -1,10 +1,11 @@
 "use client";
 
-import type { CSSProperties, ReactNode } from "react";
+import { useState, type CSSProperties, type ReactNode } from "react";
 import type { CalendarLabels } from "../calendar-copy";
 import { calendarFocusClass, type CalendarVariant } from "../calendar-theme";
 import type { CalendarEventLike } from "../core/types";
 import { CalendarTooltip } from "../ui/CalendarTooltip";
+import { MonthDayPopover } from "../ui/MonthDayPopover";
 import { formatCalendarDate } from "./calendar-view-utils";
 import { buildTimeGridModel, isTimeGridEmpty, type TimeGridDay } from "./time-grid";
 
@@ -26,6 +27,7 @@ interface TimeGridProps<TEvent extends CalendarEventLike> {
   renderTooltip?: (event: TEvent) => ReactNode;
   stickyHeader?: boolean;
   stickyTimeAxis?: boolean;
+  maxVisibleAllDayEvents?: number;
 }
 
 const slotMinMinutes = 8 * 60;
@@ -110,7 +112,13 @@ export function TimeGrid<TEvent extends CalendarEventLike>({
   renderTooltip,
   stickyHeader = true,
   stickyTimeAxis = true,
+  maxVisibleAllDayEvents = 2,
 }: TimeGridProps<TEvent>) {
+  const [allDayOverflow, setAllDayOverflow] = useState<{
+    date: string;
+    entries: readonly TEvent[];
+    targetRect: DOMRect;
+  } | null>(null);
   const dayKeys = days.map(formatCalendarDate);
   const model = buildTimeGridModel({
     days: dayKeys,
@@ -129,8 +137,17 @@ export function TimeGrid<TEvent extends CalendarEventLike>({
 
   const bgClass = variant === "public" ? "bg-site-canvas" : "bg-admin-canvas";
 
+  const visibleAllDayCount = Math.max(1, Math.floor(maxVisibleAllDayEvents));
+  const formatEventTime = (event: TEvent) => event.allDay
+    ? labels.allDay
+    : `${event.start.slice(11, 16)}–${event.end.slice(11, 16)}`;
+
   return (
-    <div className="overflow-auto max-h-[calc(100vh-220px)] min-h-[450px]" data-calendar-time-grid>
+    <div data-calendar-time-grid>
+      {model.days.length > 1 && labels.scrollHorizontally ? (
+        <p className="mb-2 text-xs opacity-70" role="note">{labels.scrollHorizontally}</p>
+      ) : null}
+      <div className="overflow-auto max-h-[calc(100vh-220px)] min-h-[450px]">
       <div className="border-l border-t border-current/15" style={gridStyle}>
         <div className={`${stickyHeader ? "sticky top-0 z-20" : ""} ${bgClass}`}>
           {showDayHeaders ? (
@@ -158,13 +175,27 @@ export function TimeGrid<TEvent extends CalendarEventLike>({
             <div className={`border-r border-current/15 px-2 py-2 text-right text-xs font-medium opacity-70 ${stickyTimeAxis ? "sticky left-0 z-30" : ""} ${bgClass}`}>
               {labels.allDay}
             </div>
-            {model.days.map((day) => (
+            {model.days.map((day) => {
+              const visibleEntries = day.allDayEntries.slice(0, visibleAllDayCount);
+              const overflowEntries = day.allDayEntries.slice(visibleAllDayCount);
+              return (
               <div key={day.date} className="min-h-11 space-y-1 border-r border-current/15 p-1">
-                {day.allDayEntries.map((event) => (
+                {visibleEntries.map((event) => (
                   <EventButton key={event.id} event={event} labels={labels} variant={variant} onActivate={onEntryActivate} renderEvent={renderEvent} getEventClassName={getEventClassName} showTooltip={showTooltip} renderTooltip={renderTooltip} />
                 ))}
+                {overflowEntries.length > 0 ? (
+                  <button
+                    type="button"
+                    className={`min-h-11 w-full px-1 text-left text-xs underline focus-visible:outline-[3px] focus-visible:outline-offset-2 ${calendarFocusClass(variant)}`}
+                    aria-label={labels.moreEvents(overflowEntries.length)}
+                    onClick={(event) => setAllDayOverflow({ date: day.date, entries: overflowEntries, targetRect: event.currentTarget.getBoundingClientRect() })}
+                  >
+                    {labels.moreEvents(overflowEntries.length)}
+                  </button>
+                ) : null}
               </div>
-            ))}
+              );
+            })}
           </div>
         </div>
 
@@ -188,6 +219,25 @@ export function TimeGrid<TEvent extends CalendarEventLike>({
           ))}
         </div>
       </div>
+      </div>
+      {allDayOverflow ? (
+        <MonthDayPopover
+          date={new Date(`${allDayOverflow.date}T00:00:00`)}
+          dateKey={allDayOverflow.date}
+          entries={allDayOverflow.entries}
+          targetRect={allDayOverflow.targetRect}
+          labels={labels}
+          variant={variant}
+          showTooltip={showTooltip}
+          renderTooltip={renderTooltip}
+          formatTime={(event) => formatEventTime(event)}
+          formatLocation={() => null}
+          getEventClass={(event) => getEventClassName?.(event, "timeGrid") ?? "bg-current/5"}
+          renderEventLabel={(event) => renderEvent ? renderEvent(event, "timeGrid") : event.title}
+          onEntryActivate={onEntryActivate}
+          onClose={() => setAllDayOverflow(null)}
+        />
+      ) : null}
       {isEmpty ? <p className="border-x border-b border-current/15 p-4 text-sm opacity-70">{labels.noEventsOnDate}</p> : null}
     </div>
   );

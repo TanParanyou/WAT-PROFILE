@@ -206,6 +206,7 @@
       "error": "Der Kalender konnte nicht geladen werden",
       "noEventsOnDate": "Keine Veranstaltungen an diesem Tag",
       "calendarInstructions": "Aktivitätskalender. Veranstaltung für Details auswählen.",
+      "scrollHorizontally": "Horizontal scrollen, um die ganze Woche zu sehen",
       "moreEvents": "+ {count} weitere",
       "eventsCount": "{count} Veranstaltungen",
       "allDay": "Ganztägig",

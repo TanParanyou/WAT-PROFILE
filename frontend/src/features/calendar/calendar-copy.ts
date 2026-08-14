@@ -26,5 +26,6 @@ export interface CalendarLabels {
   empty?: string;
   error?: string;
   closeDialog?: string;
+  scrollHorizontally?: string;
   periodLabel: (date: Date, visibleRange: CalendarRange, view: CalendarView) => string;
 }

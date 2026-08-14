@@ -493,6 +493,7 @@
         "empty": "No activities in this period",
         "error": "The calendar could not be loaded",
         "closeDialog": "Close dialog",
+        "scrollHorizontally": "Scroll horizontally to view the full week",
         "views": { "month": "Month", "week": "Week", "day": "Day" },
         "dayNames": { "sunday": "Sunday", "monday": "Monday", "tuesday": "Tuesday", "wednesday": "Wednesday", "thursday": "Thursday", "friday": "Friday", "saturday": "Saturday" }
     },

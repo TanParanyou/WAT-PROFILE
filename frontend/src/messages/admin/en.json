@@ -206,6 +206,7 @@
       "error": "The calendar could not be loaded",
       "noEventsOnDate": "No events on this date",
       "calendarInstructions": "Activity calendar. Select an event to view details.",
+      "scrollHorizontally": "Scroll horizontally to view the full week",
       "moreEvents": "+ {count} more",
       "eventsCount": "{count} events",
       "allDay": "All-day",

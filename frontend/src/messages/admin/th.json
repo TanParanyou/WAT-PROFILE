@@ -206,6 +206,7 @@
       "error": "ไม่สามารถโหลดปฏิทินได้",
       "noEventsOnDate": "ไม่มีกิจกรรมในวันนี้",
       "calendarInstructions": "ปฏิทินกิจกรรม เลือกกิจกรรมเพื่อดูรายละเอียด",
+      "scrollHorizontally": "เลื่อนในแนวนอนเพื่อดูกำหนดการครบทั้งสัปดาห์",
       "moreEvents": "+ อีก {count} รายการ",
       "eventsCount": "{count} กิจกรรม",
       "allDay": "ทั้งวัน",

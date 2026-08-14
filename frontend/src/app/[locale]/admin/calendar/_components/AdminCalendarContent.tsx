@@ -55,6 +55,7 @@ export default function AdminCalendarContent() {
     retry: t("retry"),
     empty: t("empty"),
     error: t("error"),
+    scrollHorizontally: t("scrollHorizontally"),
     periodLabel: (date, visibleRange, view) => {
       if (view === "month") return format(date, "LLLL yyyy", { locale: dateFnsLocale });
       if (view === "day") return format(date, "PPP", { locale: dateFnsLocale });

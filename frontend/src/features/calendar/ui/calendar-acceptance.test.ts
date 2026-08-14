@@ -46,6 +46,7 @@ const labels: CalendarLabels = {
   timedEvents: "Timed events",
   eventDetails: "Event details",
   closeDialog: "Close dialog",
+  scrollHorizontally: "Scroll horizontally to view the full week",
   selectedDateLabel: (date) => `date:${date.toISOString().slice(0, 10)}`,
   formatDayHeader: (date, { includeWeekday }) => includeWeekday
     ? `${labels.dayNames[date.getDay()]} ${date.getDate()}`
@@ -298,5 +299,40 @@ test("month overflow dialog manages focus and closes with Escape", () => {
   } finally {
     screen.cleanup();
     trigger.remove();
+  }
+});
+
+test("TimeGrid bounds all-day entries and opens the overflow dialog", () => {
+  const allDayEntries: CalendarEvent[] = ["retreat", "ceremony", "market"].map((id) => ({
+    id,
+    title: id,
+    start: "2026-08-12T00:00:00+02:00",
+    end: "2026-08-13T00:00:00+02:00",
+    allDay: true,
+    meta: {},
+  }));
+  const screen = render(createElement(TimeGrid, {
+    days: [new Date(2026, 7, 12), new Date(2026, 7, 13)],
+    entries: allDayEntries,
+    labels,
+    variant: "public",
+    onEntryActivate: () => undefined,
+    showDayHeaders: true,
+    showTooltip: false,
+  }));
+
+  try {
+    assert.match(screen.container.textContent ?? "", /Scroll horizontally to view the full week/);
+    assert.equal(screen.container.querySelectorAll('[aria-label="retreat"], [aria-label="ceremony"]').length, 2);
+    const overflow = screen.container.querySelector<HTMLButtonElement>('[aria-label="+1 more"]');
+    assert.ok(overflow);
+    act(() => {
+      overflow.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+    });
+    const dialog = document.body.querySelector<HTMLElement>('[role="dialog"]');
+    assert.ok(dialog);
+    assert.match(dialog.textContent ?? "", /market/);
+  } finally {
+    screen.cleanup();
   }
 });

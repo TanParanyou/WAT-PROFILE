@@ -6,27 +6,27 @@ import { createPortal } from "react-dom";
 import type { CalendarLabels } from "../calendar-copy";
 import type { CalendarVariant } from "../calendar-theme";
 import { calendarFocusClass } from "../calendar-theme";
-import type { CalendarEvent } from "../core/types";
+import type { CalendarEventLike } from "../core/types";
 import { CalendarTooltip } from "./CalendarTooltip";
 
-export interface MonthDayPopoverProps<TMeta> {
+export interface MonthDayPopoverProps<TEvent extends CalendarEventLike> {
   date: Date;
   dateKey: string;
-  entries: readonly CalendarEvent<TMeta>[];
+  entries: readonly TEvent[];
   targetRect: DOMRect;
   labels: CalendarLabels;
   variant: CalendarVariant;
   showTooltip?: boolean;
-  renderTooltip?: (event: CalendarEvent<TMeta>) => ReactNode;
-  formatTime: (event: CalendarEvent<TMeta>, date: string) => string | null;
-  formatLocation: (event: CalendarEvent<TMeta>) => string | null;
-  getEventClass: (event: CalendarEvent<TMeta>, density: "summary" | "row") => string;
-  renderEventLabel: (event: CalendarEvent<TMeta>, density: "summary" | "row") => ReactNode;
-  onEntryActivate: (event: CalendarEvent<TMeta>) => void;
+  renderTooltip?: (event: TEvent) => ReactNode;
+  formatTime: (event: TEvent, date: string) => string | null;
+  formatLocation: (event: TEvent) => string | null;
+  getEventClass: (event: TEvent, density: "summary" | "row") => string;
+  renderEventLabel: (event: TEvent, density: "summary" | "row") => ReactNode;
+  onEntryActivate: (event: TEvent) => void;
   onClose: () => void;
 }
 
-export function MonthDayPopover<TMeta>({
+export function MonthDayPopover<TEvent extends CalendarEventLike>({
   date,
   dateKey,
   entries,
@@ -41,7 +41,7 @@ export function MonthDayPopover<TMeta>({
   renderEventLabel,
   onEntryActivate,
   onClose,
-}: MonthDayPopoverProps<TMeta>) {
+}: MonthDayPopoverProps<TEvent>) {
   const popoverRef = useRef<HTMLDivElement>(null);
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const returnFocusRef = useRef<HTMLElement | null>(null);
