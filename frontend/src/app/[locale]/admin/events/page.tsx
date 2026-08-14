@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Link } from "@/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { PermissionButton } from "@/components/admin/PermissionButton";
@@ -38,6 +38,7 @@ interface EventFilters extends AdminFilterRecord {
 
 export default function EventsListPage() {
   const t = useTranslations("Admin");
+  const locale = useLocale();
   const { formatDateRange } = useDateFormat();
   const { confirm, ConfirmDialog } = useConfirm();
   const { toast } = useToast();
@@ -182,7 +183,7 @@ export default function EventsListPage() {
         <div className="flex gap-2">
           <button
             type="button"
-            onClick={() => setPreviewUrl(`/events/${row.slug || row.id}`)}
+            onClick={() => setPreviewUrl(`/${locale}/events/${row.slug || row.id}`)}
             className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
             title={t("website.viewPublic")}
           >

@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Link } from "@/navigation";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { PermissionButton } from "@/components/admin/PermissionButton";
@@ -34,6 +34,7 @@ interface MonkFilters extends AdminFilterRecord {
 
 export default function MonksListPage() {
   const t = useTranslations("Admin");
+  const locale = useLocale();
   const { getMonkPositionLabel } = useAppOptions();
   const { confirm, ConfirmDialog } = useConfirm();
   const { toast } = useToast();
@@ -165,7 +166,7 @@ export default function MonksListPage() {
         <div className="flex gap-1.5">
           <button
             type="button"
-            onClick={() => setPreviewUrl(`/monks/${row.slug || row.id}`)}
+            onClick={() => setPreviewUrl(`/${locale}/monks/${row.slug || row.id}`)}
             className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
             title="ดูหน้าเว็บสาธารณะ"
           >
