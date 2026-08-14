@@ -47,7 +47,8 @@ func (s *EventSource) List(ctx context.Context, request Request, canEdit bool) (
 // Entry materializes an Event into the source-neutral calendar contract.
 // Event dates are inclusive in persistence; all-day feed ends are exclusive.
 func MaterializeEntry(event models.Event, locale string, canEdit bool) Entry {
-	startDate := event.StartDate.Format(dateOnly)
+	startDate := event.StartDate.In(berlin)
+	endDate := event.EndDate.In(berlin)
 	entry := Entry{
 		ID:      fmt.Sprint(event.ID),
 		Source:  "event",
@@ -66,14 +67,16 @@ func MaterializeEntry(event models.Event, locale string, canEdit bool) Entry {
 
 	if event.StartTime == nil || event.EndTime == nil {
 		entry.AllDay = true
-		entry.Start = startDate
-		entry.End = event.EndDate.AddDate(0, 0, 1).Format(dateOnly)
+		entry.Start = startDate.Format(dateOnly)
+		entry.End = endDate.AddDate(0, 0, 1).Format(dateOnly)
 		return entry
 	}
 
-	startYear, startMonth, startDay := event.StartDate.Date()
-	endYear, endMonth, endDay := event.EndDate.Date()
-	entry.Start = time.Date(startYear, startMonth, startDay, event.StartTime.Hour(), event.StartTime.Minute(), event.StartTime.Second(), 0, berlin).Format(berlinDateTime)
-	entry.End = time.Date(endYear, endMonth, endDay, event.EndTime.Hour(), event.EndTime.Minute(), event.EndTime.Second(), 0, berlin).Format(berlinDateTime)
+	startTime := event.StartTime.In(berlin)
+	endTime := event.EndTime.In(berlin)
+	startYear, startMonth, startDay := startDate.Date()
+	endYear, endMonth, endDay := endDate.Date()
+	entry.Start = time.Date(startYear, startMonth, startDay, startTime.Hour(), startTime.Minute(), startTime.Second(), 0, berlin).Format(berlinDateTime)
+	entry.End = time.Date(endYear, endMonth, endDay, endTime.Hour(), endTime.Minute(), endTime.Second(), 0, berlin).Format(berlinDateTime)
 	return entry
 }

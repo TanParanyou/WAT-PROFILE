@@ -19,6 +19,7 @@
 - Public controls keep square corners, 44px minimum targets, and focus indicators at least 3px.
 - Components do not fetch data or construct API URLs.
 - The backend returns render-ready calendar entries; the public page must not reconstruct dates, ranges, status, permissions, or URLs.
+- Calendar fetches the real `/public/calendar` API in every environment; no runtime mock feed or mock-source environment flag is supported.
 - Do not use TypeScript `any`, `as any`, `@ts-ignore`, or direct frontend database access.
 - Do not extract a distributable package until the public and Admin consumers both pass the same contract tests.
 
@@ -35,7 +36,7 @@
 - [x] Week and Day operating-hour TimeGrid with all-day and overlapping timed entries.
 - [x] Sticky header/time axis and grid-scoped horizontal scrolling.
 - [x] Tooltip customization and WAT event tones.
-- [x] Mock feed covering multi-day, all-day, overlap, inactive, and localized events.
+- [x] Runtime mock feed removal and real API-only verification.
 - [x] Public and Admin calendar API routes with typed frontend validation.
 - [x] Public Week/Day restoration and baseline tests (`49/49`).
 
@@ -47,6 +48,74 @@
 - [ ] External calendar synchronization.
 
 Deferred items are not implementation tasks in this plan. They require a new requirement and design review.
+
+---
+
+### Task 0: Remove the runtime mock feed and require the real API
+
+**Files:**
+- Modify: `frontend/src/features/calendar/api.ts`
+- Delete: `frontend/src/features/calendar/mock-data.ts`
+- Delete: `frontend/src/features/calendar/mock-data.test.ts`
+- Test: `frontend/src/features/calendar/queries.test.ts`
+
+**Interfaces:**
+- Consumes: `fetchCalendarFeedFromApi(input)` and `CalendarFeedRequest`.
+- Produces: `fetchCalendarFeed(input)` as a direct alias for the real API request in development and production.
+
+- [x] **Step 1: Remove the mock-source branch**
+
+  Delete `NEXT_PUBLIC_CALENDAR_SOURCE`, `canUseMockCalendar`, and the mock-feed import. Keep the existing response-envelope validation before returning data.
+
+- [x] **Step 2: Delete the unused runtime fixture module and its tests**
+
+  Remove only the Calendar runtime mock files. Existing focused unit-test event factories remain valid test fixtures and are not a fallback data source.
+
+- [x] **Step 3: Run static verification**
+
+  Run `cd frontend && npm run test:calendar`, `./node_modules/.bin/tsc --noEmit`, and focused ESLint for `api.ts`.
+
+- [x] **Step 4: Record the live API smoke-test dependency**
+
+  When the backend is running, request `GET /api/v1/public/calendar?from=2026-08-09&to=2026-08-15&locale=th` and confirm its envelope passes the frontend parser. Do not reintroduce mock data if the service is unavailable.
+
+- [x] **Step 5: Commit the API-only source boundary**
+
+  Commit: `refactor(calendar): remove runtime mock feed`
+
+---
+
+### Task 0.5: Preserve Europe/Berlin wall dates and times in the feed
+
+**Files:**
+- Modify: `backend/internal/calendar/event_source.go`
+- Modify: `backend/internal/calendar/event_source_test.go`
+
+**Interfaces:**
+- Consumes: persisted event date/time values produced by the Admin event editor as `Europe/Berlin` instants.
+- Produces: `MaterializeEntry` values whose calendar date and clock time are interpreted in `Europe/Berlin` before the feed string is emitted.
+
+- [x] **Step 1: Write the timezone regression test**
+
+  Construct an event whose date is stored as `2026-08-13T22:00:00Z` (Berlin midnight on 14 August), whose start time is `2026-08-13T22:00:00Z`, and whose end time is `2026-08-14T21:45:00Z`. Assert the feed returns `2026-08-14T00:00:00+02:00` through `2026-08-14T23:45:00+02:00`.
+
+- [x] **Step 2: Run the focused test to prove the UTC-component bug**
+
+  Run: `cd backend && GOCACHE=/private/tmp/wat-profile-go-cache go test ./internal/calendar -run TestEventSourceMaterializesBerlinWallTime -count=1`
+
+  Expected: FAIL because the current source reads UTC date/time components directly.
+
+- [x] **Step 3: Convert persisted instants into Europe/Berlin before extracting components**
+
+  Convert `StartDate`, `EndDate`, `StartTime`, and `EndTime` with `.In(berlin)` before calling `Date`, `Hour`, `Minute`, or `Second`. Keep the feed output contract unchanged.
+
+- [x] **Step 4: Verify the regression and package**
+
+  Run the focused test and `go test ./internal/calendar ./internal/handlers`. The live endpoint must no longer emit an end instant before its start instant for the reproduced record.
+
+- [x] **Step 5: Commit the timezone correction**
+
+  Commit: `fix(calendar): materialize event times in berlin`
 
 ---
 
@@ -410,34 +479,32 @@ Deferred items are not implementation tasks in this plan. They require a new req
 
 ---
 
-### Task 7: Switch Client mock/API behavior through one explicit seam
+### Task 7: Document the real API development workflow
 
 **Files:**
 - Modify: `frontend/src/features/calendar/api.ts`
-- Modify: `frontend/src/features/calendar/mock-data.ts`
-- Modify: `frontend/src/features/calendar/mock-data.test.ts`
 - Modify: `frontend/.env.example`
 - Create: `frontend/src/features/calendar/README.md`
 
 **Interfaces:**
 - Consumes: `fetchCalendarFeed` and `CalendarFeedRequest`.
-- Produces: one documented source selector where production is always API and development can deliberately choose `mock` or `api`.
+- Produces: a documented real-API workflow for development, testing, and release validation.
 
-- [ ] **Step 1: Write source-selection tests**
+- [ ] **Step 1: Write API-only source tests**
 
-  Assert production never uses mock data. Assert development uses mock only for `NEXT_PUBLIC_CALENDAR_SOURCE=mock`; `api` uses the real service. Invalid values fail fast in development.
+  Assert `fetchCalendarFeed` delegates to the real API request regardless of `NODE_ENV` and never imports a fixture module.
 
-- [ ] **Step 2: Make mock selection explicit**
+- [ ] **Step 2: Keep API configuration explicit**
 
-  Replace the current implicit development default with the documented selector. Keep all mock data behind `getMockCalendarFeed`; components never import mock fixtures.
+  Document `NEXT_PUBLIC_API_URL` as the sole public Calendar runtime configuration. Do not add a Calendar source selector.
 
 - [ ] **Step 3: Document the local QA workflow**
 
-  Explain how to run mock mode, API mode, the August 2026 overlap fixture, Calendar tests, and the required locale/view/viewport browser matrix.
+  Explain how to run the backend API, use the real calendar endpoint, run Calendar tests, and perform the required locale/view/viewport browser matrix.
 
 - [ ] **Step 4: Run tests and commit**
 
-  Commit: `docs(calendar): define mock and api workflow`
+  Commit: `docs(calendar): define real api workflow`
 
 ---
 
@@ -523,11 +590,13 @@ Deferred items are not implementation tasks in this plan. They require a new req
 
 ## Delivery Order and Checkpoints
 
-1. **Client visual completion:** Tasks 1–2.
-2. **Easy reusable frontend API:** Tasks 3–5.
-3. **Production data boundary:** Tasks 6–7.
-4. **Second consumer proof:** Task 8.
-5. **Personal library/extraction readiness:** Task 9.
+1. **API-only source boundary:** Task 0.
+2. **Timezone-correct feed materialization:** Task 0.5.
+3. **Client visual completion:** Tasks 1–2.
+4. **Easy reusable frontend API:** Tasks 3–5.
+5. **Production data boundary:** Tasks 6–7.
+6. **Second consumer proof:** Task 8.
+7. **Personal library/extraction readiness:** Task 9.
 
 Do not start the next checkpoint until the previous checkpoint passes its tests and receives user approval. Timeline, DayGrid, resource lanes, editing interactions, recurrence, and external sync remain outside this plan.
 
@@ -536,7 +605,7 @@ Do not start the next checkpoint until the previous checkpoint passes its tests 
 - Public Month, Week, and Day are understandable and usable in `th`, `en`, and `de` at mobile and desktop widths.
 - A consumer uses one `useCalendar`-family hook and one `<Calendar>` component; it never imports individual views.
 - WAT pages pass backend entries directly without reconstructing event business rules.
-- Mock/API selection is explicit and production cannot silently use mock data.
+- Calendar uses the real API in development and production, with no runtime mock fallback.
 - Public and Admin feeds stay typed, permission-aware, range-bounded, localized, and documented in OpenAPI.
 - Client and Admin share the same view implementation and contract tests.
 - The generic Calendar module has no Next.js, WAT API, locale-file, or Admin dependency.
