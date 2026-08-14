@@ -9,7 +9,6 @@ import type {
   CalendarResource,
   CalendarScope,
 } from "./types";
-import { getMockCalendarFeed } from "./mock-data";
 
 export interface CalendarFeedRequest {
   scope: CalendarScope;
@@ -144,13 +143,8 @@ export async function fetchCalendarFeedFromApi(
   return parseCalendarFeed(response.data);
 }
 
-const canUseMockCalendar =
-  process.env.NODE_ENV === "development" &&
-  process.env.NEXT_PUBLIC_CALENDAR_SOURCE !== "api";
-
 export async function fetchCalendarFeed(
   input: CalendarFeedRequest,
 ): Promise<CalendarFeed> {
-  if (canUseMockCalendar) return getMockCalendarFeed(input);
   return fetchCalendarFeedFromApi(input);
 }
