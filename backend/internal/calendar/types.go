@@ -7,6 +7,11 @@ import (
 
 type Locale string
 
+// MaxRangeDays is the largest inclusive visible range accepted by the feed.
+// It covers month grids with adjacent-week padding while preventing unbounded
+// source queries from a public endpoint.
+const MaxRangeDays = 93
+
 const (
 	LocaleThai    Locale = "th"
 	LocaleEnglish Locale = "en"

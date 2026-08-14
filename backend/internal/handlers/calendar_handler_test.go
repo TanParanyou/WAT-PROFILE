@@ -38,6 +38,34 @@ func TestPublicCalendarRejectsMissingRangeAndUnsupportedLocale(t *testing.T) {
 	}
 }
 
+func TestPublicCalendarRejectsRangesLongerThanMaximum(t *testing.T) {
+	handler := &CalendarHandler{source: calendarSourceStub{}}
+	app := fiber.New()
+	app.Get("/calendar", handler.GetPublic)
+
+	response, err := app.Test(httptest.NewRequest(http.MethodGet, "/calendar?from=2026-01-01&to=2026-04-04&locale=th", nil))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if response.StatusCode != fiber.StatusBadRequest {
+		t.Fatalf("got %d, want %d", response.StatusCode, fiber.StatusBadRequest)
+	}
+}
+
+func TestPublicCalendarAcceptsMaximumInclusiveRange(t *testing.T) {
+	handler := &CalendarHandler{source: calendarSourceStub{}}
+	app := fiber.New()
+	app.Get("/calendar", handler.GetPublic)
+
+	response, err := app.Test(httptest.NewRequest(http.MethodGet, "/calendar?from=2026-01-01&to=2026-04-03&locale=th", nil))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if response.StatusCode != fiber.StatusOK {
+		t.Fatalf("got %d, want %d", response.StatusCode, fiber.StatusOK)
+	}
+}
+
 func TestCalendarFeedIncludesTimezoneAndInclusiveRequestRange(t *testing.T) {
 	handler := &CalendarHandler{source: calendarSourceStub{}}
 	app := fiber.New()

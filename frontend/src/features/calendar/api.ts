@@ -1,4 +1,4 @@
-import { format, isValid, parseISO } from "date-fns";
+import { differenceInCalendarDays, format, isValid, parseISO } from "date-fns";
 import api from "@/services/api";
 import { publicApi } from "@/services/publicService";
 import type {
@@ -16,6 +16,8 @@ export interface CalendarFeedRequest {
   range: CalendarRange;
 }
 
+export const CALENDAR_MAX_RANGE_DAYS = 93;
+
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === "object" && value !== null;
 }
@@ -32,6 +34,18 @@ function isDateOnly(value: unknown): value is string {
   if (!isString(value) || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const parsed = parseISO(value);
   return isValid(parsed) && format(parsed, "yyyy-MM-dd") === value;
+}
+
+export function validateCalendarFeedRange(range: CalendarRange): void {
+  if (!isDateOnly(range.startDate) || !isDateOnly(range.endDate)) {
+    throw new Error("Invalid calendar feed range");
+  }
+  const start = parseISO(range.startDate);
+  const end = parseISO(range.endDate);
+  const inclusiveDays = differenceInCalendarDays(end, start) + 1;
+  if (inclusiveDays < 1 || inclusiveDays > CALENDAR_MAX_RANGE_DAYS) {
+    throw new Error(`Calendar feed range must be between 1 and ${CALENDAR_MAX_RANGE_DAYS} days`);
+  }
 }
 
 function isDateTime(value: unknown): value is string {
@@ -131,6 +145,7 @@ function parseCalendarFeed(payload: unknown): CalendarFeed {
 export async function fetchCalendarFeedFromApi(
   input: CalendarFeedRequest,
 ): Promise<CalendarFeed> {
+  validateCalendarFeedRange(input.range);
   const client = input.scope === "public" ? publicApi : api;
   const path = input.scope === "public" ? "/calendar" : "/admin/calendar";
   const response = await client.get<unknown>(path, {

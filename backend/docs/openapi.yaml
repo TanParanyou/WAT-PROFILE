@@ -3394,7 +3394,7 @@ components:
     CalendarFromParam:
       name: from
       in: query
-      description: Inclusive visible calendar range start (YYYY-MM-DD)
+      description: Inclusive visible calendar range start (YYYY-MM-DD). The inclusive range must be no longer than 93 days.
       required: true
       schema:
         type: string
@@ -3402,7 +3402,7 @@ components:
     CalendarToParam:
       name: to
       in: query
-      description: Inclusive visible calendar range end (YYYY-MM-DD)
+      description: Inclusive visible calendar range end (YYYY-MM-DD). The inclusive range must be no longer than 93 days.
       required: true
       schema:
         type: string
@@ -4255,10 +4255,10 @@ components:
           type: string
         start:
           type: string
-          description: ISO datetime, or YYYY-MM-DD for all-day entries
+          description: Europe/Berlin ISO datetime for timed entries, or YYYY-MM-DD for all-day entries
         end:
           type: string
-          description: Exclusive ISO datetime/date boundary
+          description: Europe/Berlin ISO datetime for timed entries; exclusive YYYY-MM-DD boundary for all-day entries
         allDay:
           type: boolean
         resourceId:
@@ -4285,8 +4285,10 @@ components:
               type: boolean
             description:
               type: string
+              description: Localized event description when available
             location:
               type: string
+              description: Localized event location when available
 
     CalendarResource:
       type: object

@@ -62,3 +62,29 @@ func TestEventSourceMaterializesBerlinWallTime(t *testing.T) {
 		t.Fatalf("end = %s", entry.End)
 	}
 }
+
+func TestEventSourceMaterializesCalendarPresentationFields(t *testing.T) {
+	startTime := time.Date(2026, time.August, 14, 23, 30, 0, 0, berlin)
+	endTime := time.Date(2026, time.August, 15, 1, 15, 0, 0, berlin)
+	entry := MaterializeEntry(models.Event{
+		ID:        45,
+		Slug:      "night-chanting",
+		Title:     models.MultiLangText{"en": "Night chanting"},
+		Location:  models.MultiLangText{"en": "Main hall"},
+		StartDate: mustDate("2026-08-14"),
+		EndDate:   mustDate("2026-08-15"),
+		StartTime: &startTime,
+		EndTime:   &endTime,
+		IsActive:  false,
+	}, "de", true)
+
+	if entry.Start != "2026-08-14T23:30:00+02:00" || entry.End != "2026-08-15T01:15:00+02:00" {
+		t.Fatalf("unexpected timed range: %#v", entry)
+	}
+	if entry.Title != "Night chanting" || entry.Detail.Location != "Main hall" || entry.Status != "inactive" || entry.Display.Tone != "muted" {
+		t.Fatalf("unexpected localized presentation: %#v", entry)
+	}
+	if entry.Detail.Href != "/events/night-chanting" || entry.Detail.EditorHref != "/admin/events/45" || !entry.Detail.CanEdit {
+		t.Fatalf("unexpected navigation metadata: %#v", entry.Detail)
+	}
+}

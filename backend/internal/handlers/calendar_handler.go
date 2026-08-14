@@ -66,6 +66,9 @@ func parseCalendarRequest(c *fiber.Ctx) (calendar.Request, error) {
 	if from.After(to) {
 		return calendar.Request{}, fmt.Errorf("from must not be after to")
 	}
+	if int(to.Sub(from).Hours()/24)+1 > calendar.MaxRangeDays {
+		return calendar.Request{}, fmt.Errorf("calendar range must not exceed %d days", calendar.MaxRangeDays)
+	}
 	locale := calendar.Locale(strings.TrimSpace(c.Query("locale")))
 	if !locale.Valid() {
 		return calendar.Request{}, fmt.Errorf("locale must be one of th, en, de")
