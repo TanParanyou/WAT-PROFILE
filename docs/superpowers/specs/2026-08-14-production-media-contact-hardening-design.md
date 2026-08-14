@@ -106,9 +106,11 @@ If an allowed image cannot be loaded because of CORS, network failure, or an inv
 The managed-media behavior applies wherever `MediaPickerDialog` is used, including:
 
 - Event and monk editors.
-- Website CMS About, Privacy, Hero, Map, and rich-text sections.
+- Website CMS About, Privacy, Hero, and rich-text sections.
 - Admin Settings logo and hero-image fields.
 - Rich-text toolbars that insert Media Library images.
+
+The Website CMS Map editor currently reuses `MediaUrlField` for a map embed URL. Because a map embed is not media, that field is changed back to a normal URL input and does not open Media Library or crop controls.
 
 Public Account avatar cropping and the standalone gallery upload flow use separate local-file crop/upload paths and are not changed.
 
@@ -154,7 +156,7 @@ Required server-only environment values:
 - `CONTACT_EMAIL_FROM`
 - `RESEND_API_KEY`
 
-The recipient is not derived from public site settings, so a content editor cannot redirect private inquiries. Application logs include the contact ID, outbox job ID, outcome, and trace ID, but never the visitor email or message body.
+The recipient is not derived from public site settings, so a content editor cannot redirect private inquiries. Application logs include the contact ID, outbox job ID, outcome, and an operation trace ID derived from the outbox job ID, but never the visitor email or message body. The original HTTP trace ID is not copied into the outbox payload.
 
 Existing outbox claiming, ownership, retry, and exponential-backoff behavior remains authoritative. A delivery failure is recorded on the job and retried without changing the visitor-visible submission result.
 
