@@ -492,6 +492,7 @@
         "retry": "Try again",
         "empty": "No activities in this period",
         "error": "The calendar could not be loaded",
+        "closeDialog": "Close dialog",
         "views": { "month": "Month", "week": "Week", "day": "Day" },
         "dayNames": { "sunday": "Sunday", "monday": "Monday", "tuesday": "Tuesday", "wednesday": "Wednesday", "thursday": "Thursday", "friday": "Friday", "saturday": "Saturday" }
     },

@@ -492,6 +492,7 @@
         "retry": "Erneut versuchen",
         "empty": "Keine Aktivitäten in diesem Zeitraum",
         "error": "Der Kalender konnte nicht geladen werden",
+        "closeDialog": "Dialog schließen",
         "views": { "month": "Monat", "week": "Woche", "day": "Tag" },
         "dayNames": { "sunday": "Sonntag", "monday": "Montag", "tuesday": "Dienstag", "wednesday": "Mittwoch", "thursday": "Donnerstag", "friday": "Freitag", "saturday": "Samstag" }
     },

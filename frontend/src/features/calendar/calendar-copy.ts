@@ -25,5 +25,6 @@ export interface CalendarLabels {
   retry?: string;
   empty?: string;
   error?: string;
+  closeDialog?: string;
   periodLabel: (date: Date, visibleRange: CalendarRange, view: CalendarView) => string;
 }

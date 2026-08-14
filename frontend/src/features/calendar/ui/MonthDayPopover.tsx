@@ -43,10 +43,37 @@ export function MonthDayPopover<TMeta>({
   onClose,
 }: MonthDayPopoverProps<TMeta>) {
   const popoverRef = useRef<HTMLDivElement>(null);
+  const closeButtonRef = useRef<HTMLButtonElement>(null);
+  const returnFocusRef = useRef<HTMLElement | null>(null);
 
   useEffect(() => {
+    returnFocusRef.current = document.activeElement instanceof HTMLElement
+      ? document.activeElement
+      : null;
+    closeButtonRef.current?.focus();
+
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape") onClose();
+      if (e.key === "Escape") {
+        e.preventDefault();
+        onClose();
+        return;
+      }
+      if (e.key !== "Tab" || !popoverRef.current) return;
+
+      const focusable = Array.from(
+        popoverRef.current.querySelectorAll<HTMLButtonElement>("button:not([disabled])"),
+      );
+      if (focusable.length === 0) return;
+
+      const activeElement = document.activeElement;
+      const currentIndex = activeElement instanceof HTMLElement
+        ? focusable.findIndex((button) => button === activeElement)
+        : -1;
+      const nextIndex = e.shiftKey
+        ? currentIndex <= 0 ? focusable.length - 1 : currentIndex - 1
+        : currentIndex >= focusable.length - 1 ? 0 : currentIndex + 1;
+      e.preventDefault();
+      focusable[nextIndex]?.focus();
     };
     const handleClickOutside = (e: MouseEvent) => {
       if (popoverRef.current && !popoverRef.current.contains(e.target as Node)) {
@@ -59,6 +86,7 @@ export function MonthDayPopover<TMeta>({
     return () => {
       document.removeEventListener("keydown", handleKeyDown);
       document.removeEventListener("mousedown", handleClickOutside);
+      returnFocusRef.current?.focus();
     };
   }, [onClose]);
 
@@ -100,9 +128,10 @@ export function MonthDayPopover<TMeta>({
         </div>
         <button
           type="button"
+          ref={closeButtonRef}
           onClick={onClose}
-          aria-label="Close"
-          className={`p-1 opacity-70 hover:opacity-100 ${calendarFocusClass(variant)}`}
+          aria-label={labels.closeDialog ?? "Close"}
+          className={`inline-flex min-h-11 min-w-11 items-center justify-center opacity-70 hover:opacity-100 focus-visible:outline-[3px] focus-visible:outline-offset-2 ${calendarFocusClass(variant)}`}
         >
           <X size={16} />
         </button>
@@ -129,7 +158,7 @@ export function MonthDayPopover<TMeta>({
                   onEntryActivate(event);
                   onClose();
                 }}
-                className={`flex w-full min-h-9 flex-col overflow-hidden px-2.5 py-1.5 text-left text-xs leading-tight transition-colors focus-visible:outline-2 ${calendarFocusClass(variant)} ${getEventClass(event, "row")}`}
+                className={`flex min-h-11 w-full flex-col overflow-hidden px-2.5 py-1.5 text-left text-xs leading-tight transition-colors focus-visible:outline-[3px] focus-visible:outline-offset-2 ${calendarFocusClass(variant)} ${getEventClass(event, "row")}`}
               >
                 <div className="font-medium truncate">{renderEventLabel(event, "row")}</div>
                 {time || location ? (

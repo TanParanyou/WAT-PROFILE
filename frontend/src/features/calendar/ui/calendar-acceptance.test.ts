@@ -10,6 +10,7 @@ import { discoveryPreset } from "../presets/discovery";
 import { MonthView } from "../views/MonthView";
 import { TimeGrid } from "../views/TimeGrid";
 import { CalendarRoot } from "./CalendarRoot";
+import { MonthDayPopover } from "./MonthDayPopover";
 
 const testWindow = new Window();
 Object.defineProperties(globalThis, {
@@ -17,6 +18,7 @@ Object.defineProperties(globalThis, {
   document: { configurable: true, value: testWindow.document },
   navigator: { configurable: true, value: testWindow.navigator },
   HTMLElement: { configurable: true, value: testWindow.HTMLElement },
+  HTMLButtonElement: { configurable: true, value: testWindow.HTMLButtonElement },
   Node: { configurable: true, value: testWindow.Node },
   Event: { configurable: true, value: testWindow.Event },
   KeyboardEvent: { configurable: true, value: testWindow.KeyboardEvent },
@@ -43,6 +45,7 @@ const labels: CalendarLabels = {
   allDay: "All day",
   timedEvents: "Timed events",
   eventDetails: "Event details",
+  closeDialog: "Close dialog",
   selectedDateLabel: (date) => `date:${date.toISOString().slice(0, 10)}`,
   formatDayHeader: (date, { includeWeekday }) => includeWeekday
     ? `${labels.dayNames[date.getDay()]} ${date.getDate()}`
@@ -71,6 +74,11 @@ function render(element: ReactElement) {
 
   return {
     container,
+    rerender(nextElement: ReactElement) {
+      act(() => {
+        root.render(nextElement);
+      });
+    },
     cleanup() {
       act(() => {
         root.unmount();
@@ -243,5 +251,52 @@ test("Calendar toolbar and TimeGrid headers use explicit 3px focus outlines", ()
   } finally {
     toolbar.cleanup();
     grid.cleanup();
+  }
+});
+
+test("month overflow dialog manages focus and closes with Escape", () => {
+  const trigger = document.createElement("button");
+  document.body.append(trigger);
+  trigger.focus();
+  let closeCalls = 0;
+  const screen = render(createElement(MonthDayPopover, {
+    date: new Date(2026, 7, 12),
+    dateKey: "2026-08-12",
+    entries: [event],
+    targetRect: new testWindow.DOMRect(0, 0, 1, 1),
+    labels,
+    variant: "public",
+    showTooltip: false,
+    formatTime: () => "09:00–10:00",
+    formatLocation: () => null,
+    getEventClass: () => "bg-current/5",
+    renderEventLabel: (item) => item.title,
+    onEntryActivate: () => undefined,
+    onClose: () => { closeCalls += 1; },
+  }));
+
+  try {
+    const dialog = document.body.querySelector<HTMLElement>('[role="dialog"]');
+    const closeButton = dialog?.querySelector<HTMLButtonElement>('[aria-label="Close dialog"]');
+    const eventButton = dialog?.querySelectorAll<HTMLButtonElement>("button")[1];
+    assert.ok(closeButton);
+    assert.ok(eventButton);
+    assert.equal(document.activeElement, closeButton);
+
+    assert.match(eventButton.textContent ?? "", /Morning meditation/);
+
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true }));
+    assert.equal(document.activeElement, eventButton);
+
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Tab", bubbles: true }));
+    assert.equal(document.activeElement, closeButton);
+
+    document.dispatchEvent(new KeyboardEvent("keydown", { key: "Escape", bubbles: true }));
+    screen.rerender(createElement("div"));
+    assert.equal(closeCalls, 1);
+    assert.equal(document.activeElement, trigger);
+  } finally {
+    screen.cleanup();
+    trigger.remove();
   }
 });
