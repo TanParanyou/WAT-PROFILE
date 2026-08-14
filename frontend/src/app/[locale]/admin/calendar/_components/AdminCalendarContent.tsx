@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { useRoutedCalendar } from "@/features/calendar/integrations/next/useRoutedCalendar";
 import { Calendar } from "@/features/calendar/Calendar";
+import { CalendarQueryBoundary } from "@/features/calendar/integrations/wat/CalendarQueryBoundary";
 import { useCalendarEntries } from "@/features/calendar/queries";
 import type { CalendarLabels } from "@/features/calendar/calendar-copy";
 import type { CalendarEntry, CalendarLocale } from "@/features/calendar/types";
@@ -67,7 +68,6 @@ export default function AdminCalendarContent() {
     },
   };
 
-  const events: readonly CalendarEntry[] = query.data?.entries ?? [];
   const activateEvent = (event: CalendarEntry) => setSelectedEntry(event);
   const formatEventTime = (event: CalendarEntry, date: string) => formatWatEventTime(event, date, labels.allDay);
   const renderEvent = (event: CalendarEntry) => event.title;
@@ -82,33 +82,27 @@ export default function AdminCalendarContent() {
         <h1 className="text-2xl font-semibold">{t("title")}</h1>
         <p className="mt-1 text-sm text-admin-muted">{t("subtitle")}</p>
       </header>
-      {query.isFetching && query.data ? <p className="mb-3 text-sm text-admin-muted" role="status">{labels.refreshing ?? labels.loading ?? "Refreshing"}</p> : null}
-      {!query.data && query.isPending ? <p className="py-12 text-center text-sm" role="status">{labels.loading ?? "Loading"}</p> : null}
-      {!query.data && query.isError ? (
-        <div className="space-y-3 border border-admin-border p-6 text-center">
-          <p>{labels.error ?? "Unable to load calendar"}</p>
-          <button type="button" onClick={() => void query.refetch()} className="min-h-11 border border-admin-border px-4 text-sm">{labels.retry ?? "Retry"}</button>
-        </div>
-      ) : null}
-      {query.data ? (
-        <Calendar
-          preset={planningPreset}
-          controller={controller}
-          events={events}
-          labels={labels}
-          variant="admin"
-          onEventActivate={activateEvent}
-          renderEvent={renderEvent}
-          formatEventTime={formatEventTime}
-          formatEventLocation={getWatEventLocation}
-          getEventClassName={getEventBarClass}
-          themeClassName="admin-theme bg-admin-surface text-admin-foreground"
-          controlClassName="border border-admin-border bg-admin-surface text-admin-body hover:bg-admin-surface-muted"
-          activeTabClassName="bg-admin-action text-admin-on-action"
-          inactiveTabClassName="text-admin-body hover:bg-admin-surface-muted"
-          focusClassName="focus-visible:outline-admin-focus"
-        />
-      ) : null}
+      <CalendarQueryBoundary query={query} labels={labels}>
+        {(data) => (
+          <Calendar
+            preset={planningPreset}
+            controller={controller}
+            events={data.entries}
+            labels={labels}
+            variant="admin"
+            onEventActivate={activateEvent}
+            renderEvent={renderEvent}
+            formatEventTime={formatEventTime}
+            formatEventLocation={getWatEventLocation}
+            getEventClassName={getEventBarClass}
+            themeClassName="admin-theme bg-admin-surface text-admin-foreground"
+            controlClassName="border border-admin-border bg-admin-surface text-admin-body hover:bg-admin-surface-muted"
+            activeTabClassName="bg-admin-action text-admin-on-action"
+            inactiveTabClassName="text-admin-body hover:bg-admin-surface-muted"
+            focusClassName="focus-visible:outline-admin-focus"
+          />
+        )}
+      </CalendarQueryBoundary>
       <CalendarEntryDrawer entry={selectedEntry} open={selectedEntry !== null} onClose={() => setSelectedEntry(null)} labels={{ edit: t("drawer.edit"), close: t("drawer.close"), source: t("drawer.source"), status: t("drawer.status"), active: t("drawer.active"), inactive: t("drawer.inactive"), location: t("drawer.location"), description: t("drawer.description") }} />
     </main>
   );
