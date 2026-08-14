@@ -6,7 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useRouter } from "@/navigation";
 import PageContainer from "@/components/layout/PageContainer";
 import PageHeader from "@/components/layout/PageHeader";
-import { useCalendar } from "@/features/calendar/useCalendar";
+import { useRoutedCalendar } from "@/features/calendar/integrations/next/useRoutedCalendar";
 import { useCalendarEntries } from "@/features/calendar/queries";
 import type { CalendarLabels } from "@/features/calendar/calendar-copy";
 import { CalendarRoot } from "@/features/calendar/ui/CalendarRoot";
@@ -28,7 +28,7 @@ export default function CalendarPageContent() {
   const locale: CalendarLocale = localeValue === "de" || localeValue === "en" ? localeValue : "th";
   const t = useTranslations("CalendarPage");
   const router = useRouter();
-  const controller = useCalendar({ scope: "public", weekStartsOn: locale === "th" ? 0 : 1, initialView: "month" });
+  const controller = useRoutedCalendar({ scope: "public", weekStartsOn: locale === "th" ? 0 : 1, initialView: "month" });
   const query = useCalendarEntries({ scope: "public", locale, range: controller.visibleRange });
   const dateFnsLocale = locale === "th" ? th : locale === "de" ? de : enUS;
   const labels: CalendarLabels = {

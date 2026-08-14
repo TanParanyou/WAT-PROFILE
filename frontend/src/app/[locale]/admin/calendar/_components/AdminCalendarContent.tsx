@@ -4,7 +4,7 @@ import { format, isSameMonth, isSameYear, parse } from "date-fns";
 import { de, enUS, th } from "date-fns/locale";
 import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
-import { useCalendar } from "@/features/calendar/useCalendar";
+import { useRoutedCalendar } from "@/features/calendar/integrations/next/useRoutedCalendar";
 import { useCalendarEntries } from "@/features/calendar/queries";
 import type { CalendarLabels } from "@/features/calendar/calendar-copy";
 import type { CalendarEntry, CalendarLocale } from "@/features/calendar/types";
@@ -27,7 +27,7 @@ export default function AdminCalendarContent() {
   const locale: CalendarLocale = localeValue === "de" || localeValue === "en" ? localeValue : "th";
   const t = useTranslations("Admin.calendar");
   const [selectedEntry, setSelectedEntry] = useState<CalendarEntry | null>(null);
-  const controller = useCalendar({ scope: "admin", weekStartsOn: locale === "th" ? 0 : 1, initialView: "month" });
+  const controller = useRoutedCalendar({ scope: "admin", weekStartsOn: locale === "th" ? 0 : 1, initialView: "month" });
   const query = useCalendarEntries({ scope: "admin", locale, range: controller.visibleRange });
   const dateFnsLocale = locale === "th" ? th : locale === "de" ? de : enUS;
   const labels: CalendarLabels = {
