@@ -120,7 +120,7 @@
 - [x] **Step 1: Add an Admin consumer test** for opening an entry drawer and retaining edit permission/navigation behavior.
 - [x] **Step 2: Replace direct `CalendarRoot`/view composition** with `Calendar`, `useRoutedCalendar`, and Admin presentation callbacks.
 - [x] **Step 3: Retain RBAC boundaries:** the calendar only emits the selected entry; drawer decides whether edit affordances are shown.
-- [x] **Step 4: Verify public and Admin Calendar DOM tests, TypeScript, ESLint, and the Admin route manually.**
+- [ ] **Step 4: Verify public and Admin Calendar DOM tests, TypeScript, ESLint, and the Admin route manually (Admin session is not available in this run).**
 - [x] **Step 5: Commit** `refactor(calendar): migrate admin consumer`.
 
 ### Task 7: Freeze and document the library boundary
