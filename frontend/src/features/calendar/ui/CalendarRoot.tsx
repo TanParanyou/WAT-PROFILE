@@ -35,7 +35,22 @@ export interface CalendarRootProps<TMeta> {
   focusClassName?: string;
 }
 
-const views: readonly CalendarView[] = ["month", "week", "day"];
+export function getCalendarTabViews(preset: CalendarPreset): readonly CalendarView[] {
+  return preset.enabledViews;
+}
+
+export function getRovingViewIndex(
+  activeIndex: number,
+  key: string,
+  viewCount: number,
+): number | null {
+  if (viewCount === 0) return null;
+  if (key === "Home") return 0;
+  if (key === "End") return viewCount - 1;
+  if (key === "ArrowRight" || key === "ArrowDown") return (activeIndex + 1) % viewCount;
+  if (key === "ArrowLeft" || key === "ArrowUp") return (activeIndex - 1 + viewCount) % viewCount;
+  return null;
+}
 
 export function CalendarRoot<TMeta>({
   preset,
@@ -64,28 +79,19 @@ export function CalendarRoot<TMeta>({
     day: labels.viewDay ?? "Day",
   };
   const mode = preset.viewModes[view];
-  const activeIndex = views.indexOf(view);
+  const tabViews = getCalendarTabViews(preset);
+  const activeIndex = tabViews.indexOf(view);
   const focusView = (index: number) => {
-    const nextIndex = (index + views.length) % views.length;
-    const nextView = views[nextIndex];
+    const nextView = tabViews[index];
     if (!nextView) return;
     onViewChange(nextView);
-    requestAnimationFrame(() => tabRefs.current[nextIndex]?.focus());
+    requestAnimationFrame(() => tabRefs.current[index]?.focus());
   };
   const handleTabKeyDown = (event: KeyboardEvent<HTMLButtonElement>) => {
-    if (event.key === "ArrowRight" || event.key === "ArrowDown") {
-      event.preventDefault();
-      focusView(activeIndex + 1);
-    } else if (event.key === "ArrowLeft" || event.key === "ArrowUp") {
-      event.preventDefault();
-      focusView(activeIndex - 1);
-    } else if (event.key === "Home") {
-      event.preventDefault();
-      focusView(0);
-    } else if (event.key === "End") {
-      event.preventDefault();
-      focusView(views.length - 1);
-    }
+    const nextIndex = getRovingViewIndex(activeIndex, event.key, tabViews.length);
+    if (nextIndex === null) return;
+    event.preventDefault();
+    focusView(nextIndex);
   };
 
   return (
@@ -105,10 +111,10 @@ export function CalendarRoot<TMeta>({
         </div>
         <div className="max-w-full overflow-x-auto whitespace-nowrap" role="tablist" aria-label={labels.calendarInstructions}>
           <div className="flex min-w-max border border-current/15">
-            {views.map((item) => (
+            {tabViews.map((item, index) => (
               <button
                 key={item}
-                ref={(element) => { tabRefs.current[views.indexOf(item)] = element; }}
+                ref={(element) => { tabRefs.current[index] = element; }}
                 type="button"
                 role="tab"
                 aria-selected={item === view}
