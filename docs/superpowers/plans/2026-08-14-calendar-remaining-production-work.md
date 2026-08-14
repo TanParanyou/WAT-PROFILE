@@ -130,11 +130,11 @@ Deferred items are not implementation tasks in this plan. They require a new req
 - Consumes: current `CalendarRoot`, `MonthView`, `TimeGrid`, `CalendarController`, and `CalendarEventLike` contracts.
 - Produces: executable DOM assertions that protect Month, Week, and Day while the public interface is refactored.
 
-- [ ] **Step 1: Add a happy-dom test harness without a new dependency**
+- [x] **Step 1: Add a happy-dom test harness without a new dependency**
 
   Use the already-installed `happy-dom`, `react`, and `react-dom` packages. Add a helper that installs `window`, `document`, `navigator`, `requestAnimationFrame`, and a root container, then restores them after each test.
 
-- [ ] **Step 2: Write baseline interaction tests**
+- [x] **Step 2: Write baseline interaction tests**
 
   Cover these exact behaviors:
 
@@ -145,17 +145,17 @@ Deferred items are not implementation tasks in this plan. They require a new req
   - Clicking an event calls `onEventActivate` with the original typed event.
   - Arrow keys, Home, and End move the active view tab.
 
-- [ ] **Step 3: Add a focused calendar DOM test command**
+- [x] **Step 3: Add a focused calendar DOM test command**
 
   Add `test:calendar:dom` and include it in `test:calendar` so the command remains the single calendar verification entry point.
 
-- [ ] **Step 4: Run the tests and confirm the baseline passes**
+- [x] **Step 4: Run the tests and confirm the baseline passes**
 
   Run: `cd frontend && npm run test:calendar`
 
   Expected: the new baseline tests pass before UX changes begin. Accessibility gaps added in Task 2 must start with their own failing assertions.
 
-- [ ] **Step 5: Commit the executable acceptance contract**
+- [x] **Step 5: Commit the executable acceptance contract**
 
   Commit: `test(calendar): lock client view behavior`
 
