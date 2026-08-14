@@ -107,7 +107,7 @@
 - [x] **Step 2: Enforce a documented bounded range** before loading sources, returning typed HTTP validation errors for invalid requests.
 - [x] **Step 3: Add materialization cases** for all-day, multi-day, overlapping, inactive, and Europe/Berlin DST-boundary events.
 - [x] **Step 4: Align OpenAPI and frontend parser** with exact query constraints and error envelopes.
-- [ ] **Step 5: Verify** focused Go tests/vet, frontend parser tests, and a live endpoint smoke test (the local API is not running in this session).
+- [x] **Step 5: Verify** focused Go tests/vet, frontend parser tests, and a live endpoint smoke test on a temporary backend port.
 - [x] **Step 6: Commit** `fix(calendar): harden public feed contract`.
 
 ### Task 6: Migrate Admin as the second consumer
