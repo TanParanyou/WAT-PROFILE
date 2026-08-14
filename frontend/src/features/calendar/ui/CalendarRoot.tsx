@@ -98,13 +98,13 @@ export function CalendarRoot<TMeta>({
     <section className={`${themeClassName} space-y-4`} aria-label={labels.calendarInstructions}>
       <div className="flex flex-col gap-3 border-b border-current/15 pb-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex min-w-0 items-center gap-2">
-          <button type="button" onClick={onPrevious} aria-label={labels.previous ?? labels.previousMonth} className={`inline-flex min-h-11 min-w-11 items-center justify-center ${controlClassName} ${focusClassName}`}>
+          <button type="button" onClick={onPrevious} aria-label={labels.previous ?? labels.previousMonth} className={`inline-flex min-h-11 min-w-11 items-center justify-center focus-visible:outline-[3px] focus-visible:outline-offset-2 ${controlClassName} ${focusClassName}`}>
             <ChevronLeft aria-hidden="true" size={18} />
           </button>
-          <button type="button" onClick={onToday} className={`min-h-11 px-4 text-sm ${controlClassName} ${focusClassName}`}>
+          <button type="button" onClick={onToday} className={`min-h-11 px-4 text-sm focus-visible:outline-[3px] focus-visible:outline-offset-2 ${controlClassName} ${focusClassName}`}>
             {labels.today}
           </button>
-          <button type="button" onClick={onNext} aria-label={labels.next ?? labels.nextMonth} className={`inline-flex min-h-11 min-w-11 items-center justify-center ${controlClassName} ${focusClassName}`}>
+          <button type="button" onClick={onNext} aria-label={labels.next ?? labels.nextMonth} className={`inline-flex min-h-11 min-w-11 items-center justify-center focus-visible:outline-[3px] focus-visible:outline-offset-2 ${controlClassName} ${focusClassName}`}>
             <ChevronRight aria-hidden="true" size={18} />
           </button>
           <h2 className="ml-2 min-w-0 truncate text-base font-semibold" aria-live="polite">{periodLabel}</h2>
@@ -121,7 +121,7 @@ export function CalendarRoot<TMeta>({
                 tabIndex={item === view ? 0 : -1}
                 onClick={() => onViewChange(item)}
                 onKeyDown={handleTabKeyDown}
-                className={`min-h-11 px-3 text-sm focus-visible:outline-2 focus-visible:outline-offset-2 ${focusClassName} ${item === view ? activeTabClassName : inactiveTabClassName}`}
+                className={`min-h-11 px-3 text-sm focus-visible:outline-[3px] focus-visible:outline-offset-2 ${focusClassName} ${item === view ? activeTabClassName : inactiveTabClassName}`}
               >
                 {viewLabels[item]}
               </button>

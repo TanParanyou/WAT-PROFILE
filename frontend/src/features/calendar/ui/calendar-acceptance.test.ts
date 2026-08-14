@@ -211,3 +211,37 @@ test("view tabs support Arrow keys, Home, and End", () => {
     screen.cleanup();
   }
 });
+
+test("Calendar toolbar and TimeGrid headers use explicit 3px focus outlines", () => {
+  const toolbar = render(createElement(CalendarRoot, {
+    preset: discoveryPreset,
+    view: "week",
+    date: new Date(2026, 7, 12),
+    selectedDate: new Date(2026, 7, 12),
+    visibleRange: { startDate: "2026-08-09", endDate: "2026-08-15" },
+    events: [], labels,
+    onViewChange: () => undefined,
+    onPrevious: () => undefined,
+    onNext: () => undefined,
+    onToday: () => undefined,
+    onSelectDate: () => undefined,
+    onEventActivate: () => undefined,
+    renderEvent: () => null,
+    renderMonth: () => null,
+    renderAgenda: () => null,
+    renderTimeGrid: () => null,
+  }));
+  const grid = render(createElement(TimeGrid, {
+    days: [new Date(2026, 7, 12)],
+    entries: [], labels, variant: "public", onEntryActivate: () => undefined, showDayHeaders: true,
+  }));
+
+  try {
+    const controls = [...toolbar.container.querySelectorAll("button"), ...grid.container.querySelectorAll("button")];
+    assert.ok(controls.length > 0);
+    assert.ok(controls.every((control) => control.className.includes("focus-visible:outline-[3px]")));
+  } finally {
+    toolbar.cleanup();
+    grid.cleanup();
+  }
+});
