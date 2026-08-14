@@ -9,8 +9,11 @@ import {
   shiftCalendarDate,
 } from "./core/calendar-state";
 import type { CalendarLabels } from "./calendar-copy";
+import { resolveCalendarConfig, type CalendarConfig, type CalendarConfigInput } from "./config";
 import type { CalendarRange, CalendarView } from "./core/types";
 import type { CalendarScope } from "./types";
+import { discoveryPreset } from "./presets/discovery";
+import type { CalendarPreset } from "./presets/types";
 
 const dateFormat = "yyyy-MM-dd";
 const calendarViews: readonly CalendarView[] = ["month", "week", "day"];
@@ -20,6 +23,7 @@ export interface CalendarController {
   date: Date;
   selectedDate: Date;
   visibleRange: CalendarRange;
+  config: CalendarConfig;
   previous(): void;
   next(): void;
   today(): void;
@@ -34,6 +38,8 @@ export interface CalendarStateOptions {
   url?: string;
   weekStartsOn: 0 | 1;
   initialDate?: Date;
+  preset?: CalendarPreset;
+  config?: CalendarConfigInput;
 }
 
 export function isCalendarView(value: string | null | undefined): value is CalendarView {
@@ -56,18 +62,19 @@ function parseUrlOptions(url: string | undefined): { view: string | null; date: 
   return { view: params.get("view"), date: parseDateOnly(params.get("date")) };
 }
 
-function resolveInitialView(options: CalendarStateOptions): CalendarView {
+function resolveInitialView(options: CalendarStateOptions, enabledViews: readonly CalendarView[] = calendarViews): CalendarView {
   const url = parseUrlOptions(options.url);
-  if (isCalendarView(url.view)) return url.view;
+  if (isCalendarView(url.view) && enabledViews.includes(url.view)) return url.view;
   if (url.view !== null) return "month";
-  if (isCalendarView(options.savedView)) return options.savedView;
-  if (isCalendarView(options.initialView)) return options.initialView;
-  return "month";
+  if (isCalendarView(options.savedView) && enabledViews.includes(options.savedView)) return options.savedView;
+  if (isCalendarView(options.initialView) && enabledViews.includes(options.initialView)) return options.initialView;
+  return enabledViews.includes("month") ? "month" : enabledViews[0] ?? "month";
 }
 
 export function createCalendarState(options: CalendarStateOptions): CalendarController {
+  const config = resolveCalendarConfig(options.preset ?? discoveryPreset, options.config);
   const url = parseUrlOptions(options.url);
-  let view = resolveInitialView(options);
+  let view = resolveInitialView(options, config.enabledViews);
   let date = startOfDay(url.date ?? options.initialDate ?? new Date());
   let selectedDate = date;
 
@@ -84,6 +91,7 @@ export function createCalendarState(options: CalendarStateOptions): CalendarCont
     get visibleRange() {
       return getVisibleRange(date, view, options.weekStartsOn);
     },
+    config,
     previous() {
       date = shiftCalendarDate(date, view, -1);
     },
@@ -95,7 +103,7 @@ export function createCalendarState(options: CalendarStateOptions): CalendarCont
       selectedDate = date;
     },
     setView(nextView) {
-      view = nextView;
+      view = config.enabledViews.includes(nextView) ? nextView : config.enabledViews[0] ?? "month";
     },
     setDate(nextDate) {
       date = startOfDay(nextDate);
@@ -112,6 +120,8 @@ export interface UseCalendarOptions {
   scope: CalendarScope;
   weekStartsOn: 0 | 1;
   initialView?: CalendarView;
+  preset?: CalendarPreset;
+  config?: CalendarConfigInput;
 }
 
 function readSavedView(scope: CalendarScope): string | undefined {
@@ -124,13 +134,19 @@ export function useCalendar(options: UseCalendarOptions): CalendarController {
   const pathname = usePathname();
   const router = useRouter();
   const initialUrl = useMemo(() => `?${searchParams.toString()}`, [searchParams]);
+  const calendarConfig = useMemo(
+    () => resolveCalendarConfig(options.preset ?? discoveryPreset, options.config),
+    [options.config, options.preset],
+  );
   const [view, setViewState] = useState<CalendarView>(() =>
     resolveInitialView({
       initialView: options.initialView,
       savedView: readSavedView(options.scope),
       url: initialUrl,
       weekStartsOn: options.weekStartsOn,
-    }),
+      preset: options.preset,
+      config: options.config,
+    }, calendarConfig.enabledViews),
   );
   const [date, setDateState] = useState<Date>(() => {
     const parsed = parseUrlOptions(initialUrl).date;
@@ -164,10 +180,13 @@ export function useCalendar(options: UseCalendarOptions): CalendarController {
 
   const setView = useCallback(
     (nextView: CalendarView) => {
-      setViewState(nextView);
-      replaceUrl(nextView, date);
+      const resolvedView = calendarConfig.enabledViews.includes(nextView)
+        ? nextView
+        : calendarConfig.enabledViews[0] ?? "month";
+      setViewState(resolvedView);
+      replaceUrl(resolvedView, date);
     },
-    [date, replaceUrl],
+    [calendarConfig.enabledViews, date, replaceUrl],
   );
   const setDate = useCallback(
     (nextDate: Date) => {
@@ -196,6 +215,7 @@ export function useCalendar(options: UseCalendarOptions): CalendarController {
     date,
     selectedDate,
     visibleRange: getVisibleRange(date, view, options.weekStartsOn),
+    config: calendarConfig,
     previous,
     next,
     today,

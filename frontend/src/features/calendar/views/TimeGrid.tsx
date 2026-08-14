@@ -28,19 +28,23 @@ interface TimeGridProps<TEvent extends CalendarEventLike> {
   stickyHeader?: boolean;
   stickyTimeAxis?: boolean;
   maxVisibleAllDayEvents?: number;
+  minMinutes?: number;
+  maxMinutes?: number;
+  slotDurationMinutes?: number;
+  slotHeight?: number;
+  minimumDayWidth?: number;
 }
 
 const slotMinMinutes = 8 * 60;
 const slotMaxMinutes = 20 * 60;
-const slotDurationMinutes = 30;
-const slotHeight = 44;
 const timeAxisWidth = 64;
-const minimumDayWidth = 136;
 
 function getEventStyle(
   position: TimeGridDay["timedEntries"][number]["position"],
+  minMinutes: number,
+  maxMinutes: number,
 ): CSSProperties {
-  const visibleMinutes = slotMaxMinutes - slotMinMinutes;
+  const visibleMinutes = maxMinutes - minMinutes;
   const left = (position.column / position.columnCount) * 100;
   const width = 100 / position.columnCount;
 
@@ -113,6 +117,11 @@ export function TimeGrid<TEvent extends CalendarEventLike>({
   stickyHeader = true,
   stickyTimeAxis = true,
   maxVisibleAllDayEvents = 2,
+  minMinutes = slotMinMinutes,
+  maxMinutes = slotMaxMinutes,
+  slotDurationMinutes = 30,
+  slotHeight = 44,
+  minimumDayWidth = 136,
 }: TimeGridProps<TEvent>) {
   const [allDayOverflow, setAllDayOverflow] = useState<{
     date: string;
@@ -123,8 +132,8 @@ export function TimeGrid<TEvent extends CalendarEventLike>({
   const model = buildTimeGridModel({
     days: dayKeys,
     entries,
-    slotMinMinutes,
-    slotMaxMinutes,
+    slotMinMinutes: minMinutes,
+    slotMaxMinutes: maxMinutes,
     slotDurationMinutes,
   });
   const selectedDay = selectedDate ? formatCalendarDate(selectedDate) : null;
@@ -211,7 +220,7 @@ export function TimeGrid<TEvent extends CalendarEventLike>({
             <section key={day.date} className="relative border-r border-current/15" style={{ height: gridHeight }} aria-label={days[index] ? labels.formatDayHeader(days[index], { includeWeekday: true }) : labels.timedEvents}>
               {model.slots.map((slot, index) => <div key={slot.minutes} className="absolute left-0 right-0 border-t border-current/10" style={{ top: index * slotHeight }} />)}
               {day.timedEntries.map(({ entry, position }) => (
-                <div key={entry.id} className="absolute min-h-11" style={getEventStyle(position)}>
+                  <div key={entry.id} className="absolute min-h-11" style={getEventStyle(position, minMinutes, maxMinutes)}>
                   <EventButton event={entry} labels={labels} variant={variant} onActivate={onEntryActivate} renderEvent={renderEvent} getEventClassName={getEventClassName} showTooltip={showTooltip} renderTooltip={renderTooltip} />
                 </div>
               ))}

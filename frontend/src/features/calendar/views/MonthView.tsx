@@ -30,6 +30,7 @@ interface MonthViewProps<TMeta> {
   showTooltip?: boolean;
   renderTooltip?: (event: CalendarEvent<TMeta>) => ReactNode;
   stickyHeader?: boolean;
+  maxVisibleEvents?: number;
 }
 
 function renderEventLabel<TMeta>(
@@ -85,6 +86,7 @@ export function MonthView<TMeta>({
   showTooltip = true,
   renderTooltip,
   stickyHeader = true,
+  maxVisibleEvents = 2,
 }: MonthViewProps<TMeta>) {
   const getEventClass = getEventClassName ?? (() => eventClassName);
   const days = getCalendarDays(controller.visibleRange);
@@ -94,7 +96,7 @@ export function MonthView<TMeta>({
     monthDate: controller.date,
     selectedDate: controller.selectedDate,
     today: new Date(),
-    maxVisibleEntries: 2,
+    maxVisibleEntries: Math.max(1, Math.floor(maxVisibleEvents)),
   });
   const weekdayDates = days.slice(0, 7);
   const selectedDay = formatCalendarDate(controller.selectedDate);
