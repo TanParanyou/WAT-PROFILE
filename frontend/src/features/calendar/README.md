@@ -38,7 +38,7 @@ Override only the values needed by a consumer. Timeline and DayGrid are intentio
 
 Application adapters own labels, URL/history persistence, query state, API parsing, event tones, and navigation. In WAT, use `useRoutedCalendar`, `useCalendarEntries`, `CalendarQueryBoundary`, and the WAT presentation helpers. The backend `/api/v1/public/calendar` or `/api/v1/admin/calendar` feed is the only production data source; configure its base URL with `NEXT_PUBLIC_API_URL`.
 
-For local QA, run the backend and frontend dev servers, open `/th/calendar`, and verify `month`, `week`, and `day` at 390px and 1280px in `th`, `en`, and `de`. Run `npm run test:calendar` and `./node_modules/.bin/tsc --noEmit` before release.
+For local QA, run the backend and frontend dev servers with `NEXT_PUBLIC_API_URL` pointing at the backend (the repository default is `http://localhost:8080`), open `/th/calendar`, and verify `month`, `week`, and `day` at 390px and 1280px in `th`, `en`, and `de`. Run `npm run test:calendar` and `./node_modules/.bin/tsc --noEmit` before release.
 
 ## Extension rules
 
