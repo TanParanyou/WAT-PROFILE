@@ -88,3 +88,16 @@ func TestEventSourceMaterializesCalendarPresentationFields(t *testing.T) {
 		t.Fatalf("unexpected navigation metadata: %#v", entry.Detail)
 	}
 }
+
+func TestEventSourceKeepsOverlappingEntriesIndependent(t *testing.T) {
+	first := MaterializeEntry(models.Event{
+		ID: 46, Slug: "overlap-a", StartDate: mustDate("2026-08-14"), EndDate: mustDate("2026-08-14"), IsActive: true,
+	}, "th", false)
+	second := MaterializeEntry(models.Event{
+		ID: 47, Slug: "overlap-b", StartDate: mustDate("2026-08-14"), EndDate: mustDate("2026-08-14"), IsActive: true,
+	}, "th", false)
+
+	if first.ID == second.ID || first.Start != second.Start || first.End != second.End {
+		t.Fatalf("overlapping entries were not materialized independently: %#v %#v", first, second)
+	}
+}
