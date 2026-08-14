@@ -2,7 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { CalendarEntry } from "../types";
 import type { CalendarEvent } from "../core/types";
-import { buildTimeGridModel } from "./time-grid";
+import { buildTimeGridModel, isTimeGridEmpty } from "./time-grid";
 
 function entry(overrides: Partial<CalendarEntry> = {}): CalendarEntry {
   return {
@@ -32,6 +32,7 @@ test("uses one 30-minute time axis for all week columns", () => {
   assert.equal(model.slots.at(-1)?.minutes, 19 * 60 + 30);
   assert.equal(model.days.length, 7);
   assert.ok(model.days.every((day) => day.timedEntries.length === 0));
+  assert.equal(isTimeGridEmpty(model), true);
 });
 
 test("keeps all-day entries above timed entries and divides overlaps", () => {
@@ -53,6 +54,7 @@ test("keeps all-day entries above timed entries and divides overlaps", () => {
     model.days[0]?.timedEntries[0]?.position.column,
     model.days[0]?.timedEntries[1]?.position.column,
   );
+  assert.equal(isTimeGridEmpty(model), false);
 });
 
 test("keeps a multi-day event's geometry with the day where it is rendered", () => {
@@ -93,4 +95,3 @@ test("accepts generic CalendarEvent metadata in the TimeGrid model", () => {
   });
   assert.equal(model.days[0]?.timedEntries[0]?.entry.meta.tone, "default");
 });
-

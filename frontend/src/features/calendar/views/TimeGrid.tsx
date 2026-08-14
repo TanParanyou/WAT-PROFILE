@@ -6,7 +6,7 @@ import { calendarFocusClass, type CalendarVariant } from "../calendar-theme";
 import type { CalendarEventLike } from "../core/types";
 import { CalendarTooltip } from "../ui/CalendarTooltip";
 import { formatCalendarDate } from "./calendar-view-utils";
-import { buildTimeGridModel, type TimeGridDay } from "./time-grid";
+import { buildTimeGridModel, isTimeGridEmpty, type TimeGridDay } from "./time-grid";
 
 interface TimeGridProps<TEvent extends CalendarEventLike> {
   days: readonly Date[];
@@ -70,6 +70,9 @@ function EventButton<TEvent extends CalendarEventLike>({
   renderTooltip?: (event: TEvent) => ReactNode;
 }) {
   const eventClass = getEventClassName?.(event, "timeGrid") ?? "bg-current/5";
+  const controlClass = variant === "public"
+    ? "min-h-[55px] px-6 pt-[13px] pb-3"
+    : "min-h-11 px-2 py-1.5";
 
   return (
     <CalendarTooltip
@@ -83,7 +86,7 @@ function EventButton<TEvent extends CalendarEventLike>({
         type="button"
         onClick={() => onActivate(event)}
         aria-label={event.title}
-        className={`block min-h-11 w-full overflow-hidden border border-current/15 px-2 py-1.5 text-left text-xs leading-tight transition-colors focus-visible:outline-2 ${calendarFocusClass(variant)} ${eventClass}`}
+        className={`block w-full overflow-hidden border border-current/15 text-left text-xs leading-tight transition-colors focus-visible:outline-[3px] focus-visible:outline-offset-2 ${controlClass} ${calendarFocusClass(variant)} ${eventClass}`}
       >
         <span className="block truncate font-medium">{renderEvent ? renderEvent(event, "timeGrid") : event.title}</span>
         <span className="block truncate opacity-70">{event.allDay ? labels.allDay : `${event.start.slice(11, 16)}–${event.end.slice(11, 16)}`}</span>
@@ -122,9 +125,7 @@ export function TimeGrid<TEvent extends CalendarEventLike>({
     minWidth: `${timeAxisWidth + (model.days.length * minimumDayWidth)}px`,
   };
   const gridHeight = model.slots.length * slotHeight;
-  const isSingleDayEmpty = model.days.length === 1
-    && model.days[0]?.allDayEntries.length === 0
-    && model.days[0]?.timedEntries.length === 0;
+  const isEmpty = isTimeGridEmpty(model);
 
   const bgClass = variant === "public" ? "bg-site-canvas" : "bg-admin-canvas";
 
@@ -141,7 +142,7 @@ export function TimeGrid<TEvent extends CalendarEventLike>({
                 if (!date) return null;
 
                 return onDaySelect ? (
-                  <button key={day.date} type="button" onClick={() => onDaySelect(date)} aria-pressed={isSelected} className={`min-h-11 border-r border-current/15 px-2 py-2 text-center text-sm font-semibold ${calendarFocusClass(variant)} ${isSelected ? "bg-current/10" : "bg-current/5"}`}>
+                  <button key={day.date} type="button" onClick={() => onDaySelect(date)} aria-pressed={isSelected} className={`min-h-11 border-r border-current/15 text-center text-sm font-semibold focus-visible:outline-[3px] focus-visible:outline-offset-2 ${variant === "public" ? "px-6 pt-[13px] pb-3" : "px-2 py-2"} ${calendarFocusClass(variant)} ${isSelected ? "bg-current/10" : "bg-current/5"}`}>
                     {labels.formatDayHeader(date, { includeWeekday: true })}
                   </button>
                 ) : (
@@ -175,8 +176,8 @@ export function TimeGrid<TEvent extends CalendarEventLike>({
               </div>
             ))}
           </div>
-          {model.days.map((day) => (
-            <section key={day.date} className="relative border-r border-current/15" style={{ height: gridHeight }} aria-label={labels.timedEvents}>
+          {model.days.map((day, index) => (
+            <section key={day.date} className="relative border-r border-current/15" style={{ height: gridHeight }} aria-label={days[index] ? labels.formatDayHeader(days[index], { includeWeekday: true }) : labels.timedEvents}>
               {model.slots.map((slot, index) => <div key={slot.minutes} className="absolute left-0 right-0 border-t border-current/10" style={{ top: index * slotHeight }} />)}
               {day.timedEntries.map(({ entry, position }) => (
                 <div key={entry.id} className="absolute min-h-11" style={getEventStyle(position)}>
@@ -187,7 +188,7 @@ export function TimeGrid<TEvent extends CalendarEventLike>({
           ))}
         </div>
       </div>
-      {isSingleDayEmpty ? <p className="border-x border-b border-current/15 p-4 text-sm opacity-70">{labels.noEventsOnDate}</p> : null}
+      {isEmpty ? <p className="border-x border-b border-current/15 p-4 text-sm opacity-70">{labels.noEventsOnDate}</p> : null}
     </div>
   );
 }

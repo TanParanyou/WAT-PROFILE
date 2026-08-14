@@ -38,6 +38,14 @@ export interface TimeGridModel<TEvent extends CalendarEventLike = CalendarEventL
   days: TimeGridDay<TEvent>[];
 }
 
+export function isTimeGridEmpty<TEvent extends CalendarEventLike>(
+  model: Pick<TimeGridModel<TEvent>, "days">,
+): boolean {
+  return model.days.every(
+    (day) => day.allDayEntries.length === 0 && day.timedEntries.length === 0,
+  );
+}
+
 function normalizeMinute(value: number): number {
   return Math.max(0, Math.min(minutesPerDay, Math.floor(value)));
 }
