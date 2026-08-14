@@ -51,7 +51,7 @@ export function CalendarEventRow<TMeta>({
         type="button"
         onClick={() => onActivate(event)}
         aria-label={accessibleName}
-        className={`flex min-h-11 w-full items-start justify-between gap-3 rounded-sm border border-current/15 px-3 py-2 text-left transition-colors hover:bg-current/5 focus-visible:outline-2 focus-visible:outline-offset-2 ${focusClassName} ${className}`}
+        className={`flex min-h-11 w-full items-start justify-between gap-3 border border-current/15 px-3 py-2 text-left transition-colors hover:bg-current/5 focus-visible:outline-[3px] focus-visible:outline-offset-2 ${focusClassName} ${className}`}
       >
         <span className="min-w-0">
           {time ? <span className="block text-xs opacity-70">{time}</span> : null}

@@ -2144,6 +2144,134 @@ paths:
         '201':
           description: Gallery item created
 
+  /admin/gallery/batch:
+    post:
+      tags: [Admin - Gallery]
+      summary: Batch create gallery items
+      security:
+        - AdminBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                items:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Gallery'
+      responses:
+        '201':
+          description: Gallery items created
+
+  /admin/gallery/bulk-status:
+    patch:
+      tags: [Admin - Gallery]
+      summary: Bulk update gallery status
+      security:
+        - AdminBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids, is_active]
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: integer
+                is_active:
+                  type: boolean
+      responses:
+        '200':
+          description: Status updated
+
+  /admin/gallery/bulk-category:
+    patch:
+      tags: [Admin - Gallery]
+      summary: Bulk update gallery category
+      security:
+        - AdminBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids]
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: integer
+                category_id:
+                  type: integer
+                  nullable: true
+      responses:
+        '200':
+          description: Category updated
+
+  /admin/gallery/bulk-event:
+    patch:
+      tags: [Admin - Gallery]
+      summary: Bulk update gallery event
+      security:
+        - AdminBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids]
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: integer
+                event_id:
+                  type: integer
+                  nullable: true
+      responses:
+        '200':
+          description: Event updated
+
+  /admin/gallery/reorder:
+    put:
+      tags: [Admin - Gallery]
+      summary: Reorder gallery items
+      security:
+        - AdminBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids]
+              properties:
+                ids:
+                  type: array
+                  items:
+                    type: integer
+      responses:
+        '200':
+          description: Gallery items reordered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Gallery'
+
   /admin/gallery/{id}:
     put:
       tags: [Admin - Gallery]

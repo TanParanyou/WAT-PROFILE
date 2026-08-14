@@ -18,8 +18,10 @@ export const gallerySchema = z.object({
     }),
   caption: multiLangSchema("Caption").optional(),
   category_id: z.number().nullable().optional(),
+  event_id: z.number().nullable().optional(),
   display_order: z.number(),
   is_active: z.boolean(),
 });
 
 export type GalleryFormData = z.infer<typeof gallerySchema>;
+

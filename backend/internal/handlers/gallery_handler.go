@@ -234,3 +234,81 @@ func (h *GalleryHandler) BulkDeleteCategories(c *fiber.Ctx) error {
 
 	return utils.MessageResponse(c, "Gallery categories deleted successfully")
 }
+
+// BulkUpdateStatus - Admin: Update status for multiple gallery items
+func (h *GalleryHandler) BulkUpdateStatus(c *fiber.Ctx) error {
+	var req models.BulkGalleryStatusRequest
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+	if len(req.IDs) == 0 {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "No IDs provided")
+	}
+	if err := h.galleryService.BulkUpdateStatus(req.IDs, req.IsActive); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to update gallery status")
+	}
+	return utils.MessageResponse(c, "Gallery status updated successfully")
+}
+
+// BulkUpdateCategory - Admin: Update category for multiple gallery items
+func (h *GalleryHandler) BulkUpdateCategory(c *fiber.Ctx) error {
+	var req models.BulkGalleryCategoryRequest
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+	if len(req.IDs) == 0 {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "No IDs provided")
+	}
+	if err := h.galleryService.BulkUpdateCategory(req.IDs, req.CategoryID); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to update gallery category")
+	}
+	return utils.MessageResponse(c, "Gallery category updated successfully")
+}
+
+// BulkUpdateEvent - Admin: Update event for multiple gallery items
+func (h *GalleryHandler) BulkUpdateEvent(c *fiber.Ctx) error {
+	var req models.BulkGalleryEventRequest
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+	if len(req.IDs) == 0 {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "No IDs provided")
+	}
+	if err := h.galleryService.BulkUpdateEvent(req.IDs, req.EventID); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to update gallery event")
+	}
+	return utils.MessageResponse(c, "Gallery event updated successfully")
+}
+
+// BatchCreateGalleries - Admin: Create multiple gallery items
+func (h *GalleryHandler) BatchCreateGalleries(c *fiber.Ctx) error {
+	var req models.BatchCreateGalleryRequest
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+	if len(req.Items) == 0 {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "No items provided")
+	}
+	created, err := h.galleryService.CreateBatch(req.Items)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to create gallery items")
+	}
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "data": created})
+}
+
+// ReorderGalleries - Admin: Reorder gallery items
+func (h *GalleryHandler) ReorderGalleries(c *fiber.Ctx) error {
+	var req models.ReorderGalleryRequest
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+	if len(req.IDs) == 0 {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "No IDs provided")
+	}
+	updated, err := h.galleryService.Reorder(req.IDs)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to reorder gallery items")
+	}
+	return utils.SuccessResponse(c, updated)
+}
+

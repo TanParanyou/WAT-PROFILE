@@ -59,7 +59,7 @@ function MonthDayButton({
       onClick={() => onSelect(cell.date)}
       aria-pressed={cell.isSelected}
       aria-label={`${labels.selectedDateLabel(cell.date)}, ${eventSummary}`}
-      className={`flex min-h-12 w-full flex-col items-center justify-center gap-0.5 border-r border-b border-current/15 px-1 text-xs ${calendarFocusClass(variant)} ${cell.isSelected ? "bg-current/10 font-semibold" : ""} ${cell.isToday ? "underline decoration-2 underline-offset-2" : ""} ${cell.isOutsideCurrentMonth ? "opacity-45" : ""}`}
+      className={`flex min-h-12 w-full flex-col items-center justify-center gap-0.5 border-r border-b border-current/15 px-1 text-xs focus-visible:outline-[3px] focus-visible:outline-offset-2 ${calendarFocusClass(variant)} ${cell.isSelected ? "bg-current/10 font-semibold" : ""} ${cell.isToday ? "underline decoration-2 underline-offset-2" : ""} ${cell.isOutsideCurrentMonth ? "opacity-45" : ""}`}
     >
       <span>{cell.date.getDate()}</span>
       {cell.entries.length + cell.overflowCount > 0 ? (
@@ -127,7 +127,7 @@ export function MonthView<TMeta>({
                 onClick={() => controller.selectDate(cell.date)}
                 aria-pressed={cell.isSelected}
                 aria-label={labels.selectedDateLabel(cell.date)}
-                className={`mb-2 min-h-11 min-w-11 px-2 text-left text-sm font-semibold focus-visible:outline-2 ${calendarFocusClass(variant)} ${cell.isToday ? "underline decoration-2 underline-offset-4" : ""}`}
+                className={`mb-2 min-h-11 min-w-11 px-2 text-left text-sm font-semibold focus-visible:outline-[3px] focus-visible:outline-offset-2 ${calendarFocusClass(variant)} ${cell.isToday ? "underline decoration-2 underline-offset-4" : ""}`}
               >
                 <span className="block text-[0.7rem] font-normal opacity-60 sm:hidden">{labels.dayNames[cell.date.getDay()] ?? ""}</span>
                 {cell.date.getDate()}
@@ -149,7 +149,7 @@ export function MonthView<TMeta>({
                         type="button"
                         aria-label={event.title}
                         onClick={() => onEntryActivate(event)}
-                        className={`flex min-h-8 w-full items-center overflow-hidden px-1.5 py-1 text-left text-xs leading-tight transition-colors focus-visible:outline-2 ${calendarFocusClass(variant)} ${getEventClass(event, "summary")}`}
+                        className={`flex min-h-11 w-full items-center overflow-hidden px-1.5 py-1 text-left text-xs leading-tight transition-colors focus-visible:outline-[3px] focus-visible:outline-offset-2 ${calendarFocusClass(variant)} ${getEventClass(event, "summary")}`}
                       >
                         {time && !event.allDay ? <span className="mr-1 font-medium shrink-0">{time.slice(0, 5)}</span> : null}
                         {renderSummary(event)}
@@ -168,7 +168,7 @@ export function MonthView<TMeta>({
                         rect: e.currentTarget.getBoundingClientRect(),
                       });
                     }}
-                    className={`min-h-11 px-1 text-xs underline ${calendarFocusClass(variant)}`}
+                    className={`min-h-11 px-1 text-xs underline focus-visible:outline-[3px] focus-visible:outline-offset-2 ${calendarFocusClass(variant)}`}
                   >
                     {labels.moreEvents(cell.overflowCount)}
                   </button>

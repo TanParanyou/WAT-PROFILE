@@ -27,3 +27,32 @@ type Gallery struct {
 	CreatedAt    time.Time        `json:"created_at"`
 	UpdatedAt    time.Time        `json:"updated_at"`
 }
+
+// BulkGalleryStatusRequest represents request to update status for multiple gallery items
+type BulkGalleryStatusRequest struct {
+	IDs      []int `json:"ids"`
+	IsActive bool  `json:"is_active"`
+}
+
+// BulkGalleryCategoryRequest represents request to update category for multiple gallery items
+type BulkGalleryCategoryRequest struct {
+	IDs        []int `json:"ids"`
+	CategoryID *int  `json:"category_id"`
+}
+
+// BulkGalleryEventRequest represents request to update event for multiple gallery items
+type BulkGalleryEventRequest struct {
+	IDs     []int `json:"ids"`
+	EventID *int  `json:"event_id"`
+}
+
+// BatchCreateGalleryRequest represents request to create multiple gallery items
+type BatchCreateGalleryRequest struct {
+	Items []Gallery `json:"items"`
+}
+
+// ReorderGalleryRequest represents request to reorder gallery items
+type ReorderGalleryRequest struct {
+	IDs []int `json:"ids"`
+}
+

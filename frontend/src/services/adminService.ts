@@ -73,7 +73,26 @@ export function createAdminService<T>(resource: string) {
 
 export const eventAdminService = createAdminService<Event>("events");
 export const monkAdminService = createAdminService<Monk>("monks");
-export const galleryAdminService = createAdminService<Gallery>("gallery");
+export const galleryAdminService = {
+  ...createAdminService<Gallery>("gallery"),
+  async bulkUpdateStatus(ids: (number | string)[], is_active: boolean): Promise<void> {
+    await api.patch("/admin/gallery/bulk-status", { ids, is_active });
+  },
+  async bulkUpdateCategory(ids: (number | string)[], category_id: number | null): Promise<void> {
+    await api.patch("/admin/gallery/bulk-category", { ids, category_id });
+  },
+  async bulkUpdateEvent(ids: (number | string)[], event_id: number | null): Promise<void> {
+    await api.patch("/admin/gallery/bulk-event", { ids, event_id });
+  },
+  async createBatch(items: Partial<Gallery>[]): Promise<Gallery[]> {
+    const res = await api.post<ApiResponse<Gallery[]>>("/admin/gallery/batch", { items });
+    return res.data.data || [];
+  },
+  async reorder(ids: (number | string)[]): Promise<Gallery[]> {
+    const res = await api.put<ApiResponse<Gallery[]>>("/admin/gallery/reorder", { ids });
+    return res.data.data || [];
+  },
+};
 export const scheduleAdminService = createAdminService<Schedule>("schedules");
 export const donationAdminService = {
   ...createAdminService<Donation>("donations"),

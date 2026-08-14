@@ -228,3 +228,42 @@ func (s *GalleryService) BulkDelete(ids []int) error {
 func (s *GalleryService) BulkDeleteCategories(ids []int) error {
 	return s.db.Where("id IN ?", ids).Delete(&models.GalleryCategory{}).Error
 }
+
+// BulkUpdateStatus updates the is_active status for multiple gallery items
+func (s *GalleryService) BulkUpdateStatus(ids []int, isActive bool) error {
+	return s.db.Model(&models.Gallery{}).Where("id IN ?", ids).Update("is_active", isActive).Error
+}
+
+// BulkUpdateCategory updates the category_id for multiple gallery items
+func (s *GalleryService) BulkUpdateCategory(ids []int, categoryID *int) error {
+	return s.db.Model(&models.Gallery{}).Where("id IN ?", ids).Update("category_id", categoryID).Error
+}
+
+// BulkUpdateEvent updates the event_id for multiple gallery items
+func (s *GalleryService) BulkUpdateEvent(ids []int, eventID *int) error {
+	return s.db.Model(&models.Gallery{}).Where("id IN ?", ids).Update("event_id", eventID).Error
+}
+
+// CreateBatch creates multiple gallery items in a single batch
+func (s *GalleryService) CreateBatch(items []models.Gallery) ([]models.Gallery, error) {
+	if len(items) == 0 {
+		return []models.Gallery{}, nil
+	}
+	err := s.db.Create(&items).Error
+	return items, err
+}
+
+// Reorder updates display_order for a list of gallery IDs and returns the updated items
+func (s *GalleryService) Reorder(ids []int) ([]models.Gallery, error) {
+	var updatedItems []models.Gallery
+	err := s.db.Transaction(func(tx *gorm.DB) error {
+		for index, id := range ids {
+			if err := tx.Model(&models.Gallery{}).Where("id = ?", id).Update("display_order", index+1).Error; err != nil {
+				return err
+			}
+		}
+		return tx.Preload("Category").Preload("Event").Where("id IN ?", ids).Order("display_order ASC").Find(&updatedItems).Error
+	})
+	return updatedItems, err
+}
+
