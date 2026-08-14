@@ -60,3 +60,31 @@ test("a deferred URL view overrides a valid saved preference", () => {
 
   assert.equal(controller.view, "month");
 });
+
+test("selecting a date synchronizes the active date and visible range", () => {
+  const controller = createCalendarState({
+    initialView: "month",
+    url: "?view=day&date=2026-08-12",
+    weekStartsOn: 1,
+  });
+
+  controller.selectDate(new Date(2026, 7, 20));
+
+  assert.equal(controller.date.getDate(), 20);
+  assert.equal(controller.selectedDate.getDate(), 20);
+  assert.deepEqual(controller.visibleRange, {
+    startDate: "2026-08-20",
+    endDate: "2026-08-20",
+  });
+});
+
+test("invalid view retains a valid date while canonicalizing to month", () => {
+  const controller = createCalendarState({
+    initialView: "week",
+    url: "?view=unsupported&date=2026-08-12",
+    weekStartsOn: 1,
+  });
+
+  assert.equal(controller.view, "month");
+  assert.equal(controller.date.getDate(), 12);
+});

@@ -101,7 +101,9 @@ export function createCalendarState(options: CalendarStateOptions): CalendarCont
       date = startOfDay(nextDate);
     },
     selectDate(nextDate) {
-      selectedDate = startOfDay(nextDate);
+      const normalized = startOfDay(nextDate);
+      date = normalized;
+      selectedDate = normalized;
     },
   };
 }
@@ -179,7 +181,15 @@ export function useCalendar(options: UseCalendarOptions): CalendarController {
   const previous = useCallback(() => setDate(shiftCalendarDate(date, view, -1)), [date, setDate, view]);
   const next = useCallback(() => setDate(shiftCalendarDate(date, view, 1)), [date, setDate, view]);
   const today = useCallback(() => setDate(new Date()), [setDate]);
-  const selectDate = useCallback((nextDate: Date) => setSelectedDate(startOfDay(nextDate)), []);
+  const selectDate = useCallback(
+    (nextDate: Date) => {
+      const normalized = startOfDay(nextDate);
+      setDateState(normalized);
+      setSelectedDate(normalized);
+      replaceUrl(view, normalized);
+    },
+    [replaceUrl, view],
+  );
 
   return {
     view,
