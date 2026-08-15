@@ -3,7 +3,7 @@ import type { AccountLocale } from "../account/types";
 export type RegistrationLocale = AccountLocale;
 export type RegistrationStatus = "pending" | "confirmed" | "cancelled" | "attended";
 export type RegistrationType = "guest" | "account" | "member";
-export type AvailabilityState = "disabled" | "closed" | "started" | "full" | "available";
+export type AvailabilityState = "disabled" | "closed" | "full" | "available";
 export const MAX_REGISTRATION_PARTICIPANTS = 10;
 
 export type RegistrationErrorCode =
@@ -19,14 +19,15 @@ export type RegistrationErrorCode =
   | "REGISTRATION_NOT_FOUND"
   | "REGISTRATION_UNAUTHORIZED"
   | "REGISTRATION_CONFLICT"
+  | "REGISTRATION_RATE_LIMITED"
   | "REGISTRATION_UNKNOWN";
 
 export interface RegistrationAvailability {
   enabled: boolean;
   deadline: string | null;
   max_participants: number | null;
-  reserved_participants: number;
-  remaining_capacity: number | null;
+  registered_count: number;
+  remaining: number | null;
   availability: AvailabilityState;
   can_register: boolean;
   unavailable_code: RegistrationErrorCode | null;
@@ -121,6 +122,10 @@ export interface AdminRegistrationListParams {
   status?: readonly RegistrationStatus[];
   event_id?: readonly number[];
   registration_type?: readonly RegistrationType[];
+  sort?: string;
+  order?: "asc" | "desc";
+  from?: string;
+  to?: string;
 }
 
 export interface AdminRegistrationPage {

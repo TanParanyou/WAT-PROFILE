@@ -2,7 +2,7 @@ import type { RegistrationFormValues } from "./schema";
 import type { RegistrationLocale } from "./types";
 
 export const EVENT_REGISTRATION_PRIVACY_NOTICE_VERSION =
-  process.env.NEXT_PUBLIC_EVENT_REGISTRATION_PRIVACY_NOTICE_VERSION ?? "v1";
+  process.env.NEXT_PUBLIC_EVENT_REGISTRATION_PRIVACY_NOTICE_VERSION ?? "2026-08";
 
 export function createRegistrationDefaults(locale: RegistrationLocale): RegistrationFormValues {
   return {

@@ -14,7 +14,13 @@ export function RegistrationManageContent() {
   const locale = useLocale();
   const [token, setToken] = useState<string | null>(null);
   useEffect(() => {
-    const read = () => setToken(managementTokenFromHash(window.location.hash));
+    const read = () => {
+      const nextToken = managementTokenFromHash(window.location.hash);
+      setToken(nextToken);
+      if (nextToken) {
+        window.history.replaceState(window.history.state, "", `${window.location.pathname}${window.location.search}`);
+      }
+    };
     read();
     window.addEventListener("hashchange", read);
     return () => window.removeEventListener("hashchange", read);

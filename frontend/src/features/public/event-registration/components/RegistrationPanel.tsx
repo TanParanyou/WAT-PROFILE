@@ -10,7 +10,7 @@ export function RegistrationPanel({ slug, availability }: { slug: string; availa
   const t = useTranslations("EventDetailPage");
   const locale = useLocale();
   if (!availability?.enabled) return null;
-  const count = availability.remaining_capacity ?? availability.max_participants;
+  const count = availability.remaining ?? availability.max_participants;
   return <div className="space-y-4 border-2 border-site-border bg-site-surface p-6">
     <h3 className="flex items-center gap-2 font-heading text-lg font-bold text-site-foreground"><CheckCircle2 size={18} className="shrink-0 text-site-accent" aria-hidden="true" />{t("registrationTitle")}</h3>
     <p className="text-sm leading-6 text-site-body">{t("registrationDesc")}</p>

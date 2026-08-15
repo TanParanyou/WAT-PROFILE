@@ -568,6 +568,8 @@
       "backToList": "Zurück zu Anmeldungen",
       "contact": "Kontakt",
       "participants": "Teilnehmende",
+      "addParticipant": "Teilnehmer hinzufügen",
+      "removeParticipant": "Teilnehmer entfernen",
       "attendance": "Teilnahme",
       "markAttended": "Als teilgenommen markieren",
       "markNotAttended": "Als nicht teilgenommen markieren",

@@ -3,8 +3,10 @@ package routes
 import (
 	"os"
 	"strings"
+	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/limiter"
 	"github.com/watloungporsai/wat-profile-backend/internal/config"
 	"github.com/watloungporsai/wat-profile-backend/internal/handlers"
 	"github.com/watloungporsai/wat-profile-backend/internal/middleware"
@@ -12,6 +14,16 @@ import (
 	"github.com/watloungporsai/wat-profile-backend/internal/storage"
 	"gorm.io/gorm"
 )
+
+func registrationLimiter() fiber.Handler {
+	return limiter.New(limiter.Config{
+		Max:        20,
+		Expiration: time.Minute,
+		LimitReached: func(c *fiber.Ctx) error {
+			return c.Status(fiber.StatusTooManyRequests).JSON(fiber.Map{"success": false, "error": "Too many registration requests. Please try again later.", "code": "REGISTRATION_RATE_LIMITED"})
+		},
+	})
+}
 
 // adminAllowedOrigins returns the explicit origin allowlist for Admin auth
 // cookie endpoints. It falls back to ALLOWED_ORIGINS when ADMIN_ALLOWED_ORIGINS
@@ -101,13 +113,13 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 
 	// Event Registration (public - no auth)
 	if accountCfg.Enabled {
-		public.Post("/events/:id/register", middleware.PublicAccountOptional(db, []byte(os.Getenv("JWT_SECRET"))), registrationHandler.RegisterForEvent)
+		public.Post("/events/:id/register", registrationLimiter(), middleware.PublicAccountOptional(db, []byte(os.Getenv("JWT_SECRET"))), registrationHandler.RegisterForEvent)
 	} else {
-		public.Post("/events/:id/register", registrationHandler.RegisterForEvent)
+		public.Post("/events/:id/register", registrationLimiter(), registrationHandler.RegisterForEvent)
 	}
-	public.Post("/event-registrations/manage", registrationHandler.ResolveGuestRegistration)
-	public.Patch("/event-registrations/manage", registrationHandler.UpdateGuestRegistration)
-	public.Post("/event-registrations/cancel", registrationHandler.CancelGuestRegistration)
+	public.Post("/event-registrations/manage", registrationLimiter(), registrationHandler.ResolveGuestRegistration)
+	public.Patch("/event-registrations/manage", registrationLimiter(), registrationHandler.UpdateGuestRegistration)
+	public.Post("/event-registrations/cancel", registrationLimiter(), registrationHandler.CancelGuestRegistration)
 
 	// ============ AUTH ROUTES ============
 	auth := api.Group("/auth")

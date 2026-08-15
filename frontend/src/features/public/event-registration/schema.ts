@@ -27,7 +27,7 @@ export function createRegistrationFormSchema(messages: RegistrationFormMessages)
           first_name: requiredText,
           last_name: requiredText,
           email: z.string().trim().toLowerCase().email(messages.emailInvalid),
-          phone: requiredText,
+          phone: z.string().trim(),
         })
         .strict(),
       participants: z.array(participant).min(1, messages.required).max(MAX_REGISTRATION_PARTICIPANTS, messages.maxParticipants),
@@ -52,6 +52,7 @@ export const registrationErrorCodes: readonly RegistrationErrorCode[] = [
   "REGISTRATION_NOT_FOUND",
   "REGISTRATION_UNAUTHORIZED",
   "REGISTRATION_CONFLICT",
+  "REGISTRATION_RATE_LIMITED",
   "REGISTRATION_UNKNOWN",
 ];
 

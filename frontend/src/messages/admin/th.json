@@ -568,6 +568,8 @@
       "backToList": "กลับไปรายการลงทะเบียน",
       "contact": "ข้อมูลผู้ติดต่อ",
       "participants": "ผู้เข้าร่วม",
+      "addParticipant": "เพิ่มผู้เข้าร่วม",
+      "removeParticipant": "ลบผู้เข้าร่วม",
       "attendance": "การเข้าร่วม",
       "markAttended": "ทำเครื่องหมายว่าเข้าร่วม",
       "markNotAttended": "ทำเครื่องหมายว่ายังไม่เข้าร่วม",

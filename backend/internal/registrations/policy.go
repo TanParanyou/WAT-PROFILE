@@ -2,6 +2,7 @@ package registrations
 
 import (
 	"net/mail"
+	"os"
 	"strconv"
 	"strings"
 	"time"
@@ -19,6 +20,8 @@ func NormalizeAndValidateCreate(request CreateRequest) (CreateInput, *DomainErro
 		fields["privacy_notice_version"] = "Privacy notice version is required"
 	} else if runeLength(request.PrivacyNoticeVersion) > MaxPrivacyNoticeVersionLength {
 		fields["privacy_notice_version"] = "Privacy notice version is too long"
+	} else if strings.TrimSpace(request.PrivacyNoticeVersion) != CurrentPrivacyNoticeVersion() {
+		fields["privacy_notice_version"] = "Privacy notice version is not current"
 	}
 	if !request.PrivacyConsent {
 		fields["privacy_consent"] = "Privacy consent is required"
@@ -40,6 +43,16 @@ func NormalizeAndValidateCreate(request CreateRequest) (CreateInput, *DomainErro
 	}, nil
 }
 
+// CurrentPrivacyNoticeVersion is server-controlled so clients cannot choose an
+// arbitrary notice version while still allowing an explicit deployment change.
+func CurrentPrivacyNoticeVersion() string {
+	version := strings.TrimSpace(os.Getenv("EVENT_REGISTRATION_PRIVACY_NOTICE_VERSION"))
+	if version == "" {
+		return DefaultPrivacyNoticeVersion
+	}
+	return version
+}
+
 func NormalizeAndValidateUpdate(request UpdateRequest) (UpdateInput, *DomainError) {
 	locale, fields := normalizeLocale(request.Locale)
 	contact, contactFields := normalizeContact(request.Contact)
@@ -59,12 +72,12 @@ func NormalizeAndValidateUpdate(request UpdateRequest) (UpdateInput, *DomainErro
 
 func DeriveAvailability(window EventWindow, now time.Time, activeCount int) Availability {
 	availability := Availability{
-		Enabled:              window.Enabled,
-		Deadline:             window.Deadline,
-		MaxParticipants:      window.MaxParticipants,
-		ReservedParticipants: activeCount,
-		State:                AvailabilityAvailable,
-		CanRegister:          true,
+		Enabled:         window.Enabled,
+		Deadline:        window.Deadline,
+		MaxParticipants: window.MaxParticipants,
+		RegisteredCount: activeCount,
+		State:           AvailabilityAvailable,
+		CanRegister:     true,
 	}
 	if !window.Enabled {
 		availability.State = AvailabilityDisabled
@@ -73,7 +86,7 @@ func DeriveAvailability(window EventWindow, now time.Time, activeCount int) Avai
 		return availability
 	}
 	if !window.StartsAt.IsZero() && !now.Before(window.StartsAt) {
-		availability.State = AvailabilityStarted
+		availability.State = AvailabilityClosed
 		availability.CanRegister = false
 		availability.UnavailableCode = codePtr(CodeClosed)
 		return availability
@@ -89,7 +102,7 @@ func DeriveAvailability(window EventWindow, now time.Time, activeCount int) Avai
 		if remaining < 0 {
 			remaining = 0
 		}
-		availability.RemainingCapacity = &remaining
+		availability.Remaining = &remaining
 		if activeCount >= *window.MaxParticipants {
 			availability.State = AvailabilityFull
 			availability.CanRegister = false

@@ -17,7 +17,7 @@ export function RegistrationManageForm({ token, registration, availability }: { 
   const locale: RegistrationLocale = localeValue === "en" || localeValue === "de" ? localeValue : "th";
   const t = useTranslations("EventRegistration");
   const schema = useMemo(() => createRegistrationFormSchema({ required: t("required"), emailInvalid: t("emailInvalid"), maxParticipants: t("maxParticipants"), privacyRequired: t("privacyRequired") }), [t]);
-  const defaults: RegistrationFormValues = useMemo(() => ({ locale, contact: registration.contact, participants: registration.participants.map(({ id, first_name, last_name, dietary_restrictions, special_needs, additional_notes }) => ({ id, first_name, last_name, dietary_restrictions, special_needs, additional_notes })), privacy_notice_version: EVENT_REGISTRATION_PRIVACY_NOTICE_VERSION, privacy_consent: true }), [locale, registration]);
+  const defaults: RegistrationFormValues = useMemo(() => ({ locale, contact: registration.contact, participants: registration.participants.filter((participant) => participant.attendance_status !== "cancelled").map(({ id, first_name, last_name, dietary_restrictions, special_needs, additional_notes }) => ({ id, first_name, last_name, dietary_restrictions, special_needs, additional_notes })), privacy_notice_version: EVENT_REGISTRATION_PRIVACY_NOTICE_VERSION, privacy_consent: true }), [locale, registration]);
   const { register, control, reset, handleSubmit, setError, formState: { errors } } = useForm<RegistrationFormValues>({ resolver: zodResolver(schema), defaultValues: defaults, mode: "onBlur" });
   const update = useUpdateGuestRegistration();
   const cancel = useCancelGuestRegistration();
@@ -31,6 +31,7 @@ export function RegistrationManageForm({ token, registration, availability }: { 
   };
   const handleCancel = async () => {
     setRootError("");
+    if (!window.confirm(t("cancelConfirm"))) return;
     try { await cancel.mutateAsync({ token }); setCancelled(true); } catch { setRootError(t("cancelError")); }
   };
   if (cancelled) return <div className="border border-site-border bg-site-surface p-6"><h1 className="font-heading text-2xl font-semibold text-site-foreground">{t("cancelledTitle")}</h1><p className="mt-2 text-sm text-site-body">{t("cancelledDescription")}</p><Link href={`/events/${registration.event.slug}`} className="mt-5 inline-flex min-h-11 items-center border border-site-border bg-site-action px-5 text-sm font-semibold text-site-on-action">{t("backToEvent")}</Link></div>;

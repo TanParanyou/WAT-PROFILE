@@ -38,12 +38,26 @@ func (s *RegistrationService) AdminList(ctx context.Context, filter registration
 	if len(filter.RegistrationTypes) > 0 {
 		query = query.Where("registration_type IN ?", filter.RegistrationTypes)
 	}
+	if filter.From != nil {
+		query = query.Where("created_at >= ?", *filter.From)
+	}
+	if filter.To != nil {
+		query = query.Where("created_at < ?", filter.To.AddDate(0, 0, 1))
+	}
 	var total int64
 	if err := query.Count(&total).Error; err != nil {
 		return registrations.AdminPage{}, err
 	}
 	var rows []models.EventRegistration
-	if err := query.Preload("Event").Preload("Participants").Order("created_at DESC, id DESC").Offset((page - 1) * limit).Limit(limit).Find(&rows).Error; err != nil {
+	sortColumn := registrationSortColumns[filter.Sort]
+	if sortColumn == "" {
+		sortColumn = "created_at"
+	}
+	order := strings.ToLower(filter.Order)
+	if order != "asc" {
+		order = "desc"
+	}
+	if err := query.Preload("Event").Preload("Participants").Order(sortColumn + " " + order + ", id " + order).Offset((page - 1) * limit).Limit(limit).Find(&rows).Error; err != nil {
 		return registrations.AdminPage{}, err
 	}
 	items := make([]registrations.ListItem, 0, len(rows))

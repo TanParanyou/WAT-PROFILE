@@ -61,7 +61,7 @@ func (s *RegistrationService) Create(ctx context.Context, eventID int, identity 
 			return duplicateErr
 		}
 
-		if availability.MaxParticipants != nil && availability.ReservedParticipants+len(input.Participants) > *availability.MaxParticipants {
+		if availability.MaxParticipants != nil && availability.RegisteredCount+len(input.Participants) > *availability.MaxParticipants {
 			return registrations.NewDomainError(registrations.CodeFull, "There is not enough capacity for this group", nil)
 		}
 

@@ -1,5 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { shouldRetryPublicQuery } from "../shared/query-error";
+import { publicEventsKeys } from "../events/queries";
 import {
   cancelAccountRegistration,
   cancelGuestRegistration,
@@ -33,7 +34,8 @@ export const eventRegistrationKeys = {
 };
 
 export function useCreateEventRegistration() {
-  return useMutation({ mutationFn: ({ eventId, input }: { eventId: number; input: RegistrationCreateInput }) => createEventRegistration(eventId, input) });
+  const client = useQueryClient();
+  return useMutation({ mutationFn: ({ eventId, input }: { eventId: number; input: RegistrationCreateInput }) => createEventRegistration(eventId, input), onSuccess: () => { client.invalidateQueries({ queryKey: publicEventsKeys.all }); } });
 }
 
 export function useGuestRegistrationQuery(token: string) {
@@ -42,11 +44,12 @@ export function useGuestRegistrationQuery(token: string) {
 
 export function useUpdateGuestRegistration() {
   const client = useQueryClient();
-  return useMutation({ mutationFn: (input: RegistrationManageInput) => updateGuestRegistration(input), onSuccess: (data, input) => { client.setQueryData(eventRegistrationKeys.guest(input.token), data); } });
+  return useMutation({ mutationFn: (input: RegistrationManageInput) => updateGuestRegistration(input), onSuccess: (data, input) => { client.setQueryData(eventRegistrationKeys.guest(input.token), data); client.invalidateQueries({ queryKey: publicEventsKeys.all }); } });
 }
 
 export function useCancelGuestRegistration() {
-  return useMutation({ mutationFn: cancelGuestRegistration });
+  const client = useQueryClient();
+  return useMutation({ mutationFn: cancelGuestRegistration, onSuccess: () => { client.invalidateQueries({ queryKey: publicEventsKeys.all }); } });
 }
 
 export function useAccountRegistrationsQuery(enabled = true) {
@@ -55,12 +58,12 @@ export function useAccountRegistrationsQuery(enabled = true) {
 
 export function useUpdateAccountRegistration() {
   const client = useQueryClient();
-  return useMutation({ mutationFn: ({ id, input }: { id: number; input: RegistrationUpdateInput }) => updateAccountRegistration(id, input), onSuccess: () => { client.invalidateQueries({ queryKey: eventRegistrationKeys.account() }); } });
+  return useMutation({ mutationFn: ({ id, input }: { id: number; input: RegistrationUpdateInput }) => updateAccountRegistration(id, input), onSuccess: () => { client.invalidateQueries({ queryKey: eventRegistrationKeys.account() }); client.invalidateQueries({ queryKey: publicEventsKeys.all }); } });
 }
 
 export function useCancelAccountRegistration() {
   const client = useQueryClient();
-  return useMutation({ mutationFn: ({ id, input }: { id: number; input?: RegistrationCancelInput }) => cancelAccountRegistration(id, input), onSuccess: () => { client.invalidateQueries({ queryKey: eventRegistrationKeys.account() }); } });
+  return useMutation({ mutationFn: ({ id, input }: { id: number; input?: RegistrationCancelInput }) => cancelAccountRegistration(id, input), onSuccess: () => { client.invalidateQueries({ queryKey: eventRegistrationKeys.account() }); client.invalidateQueries({ queryKey: publicEventsKeys.all }); } });
 }
 
 export function useAdminEventRegistrationsQuery(params: AdminRegistrationListParams) {

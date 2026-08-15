@@ -3494,6 +3494,10 @@ paths:
         - $ref: '#/components/parameters/PageParam'
         - $ref: '#/components/parameters/LimitParam'
         - $ref: '#/components/parameters/SearchParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/OrderParam'
+        - $ref: '#/components/parameters/FromParam'
+        - $ref: '#/components/parameters/ToParam'
         - name: status
           in: query
           schema:
@@ -5052,14 +5056,14 @@ components:
         max_participants:
           type: integer
           nullable: true
-        reserved_participants:
+        registered_count:
           type: integer
-        remaining_capacity:
+        remaining:
           type: integer
           nullable: true
         availability:
           type: string
-          enum: [disabled, closed, started, full, available]
+          enum: [disabled, closed, full, available]
         can_register:
           type: boolean
         unavailable_code:

@@ -279,7 +279,7 @@ func (h *RegistrationHandler) GetAdminRegistrationList(c *fiber.Ctx) error {
 	}
 
 	page, err := h.registrationService.AdminList(c.UserContext(), registrations.AdminListFilter{
-		Page: common.Page, Limit: common.Limit, Search: common.Search,
+		Page: common.Page, Limit: common.Limit, Search: common.Search, Sort: common.Sort, Order: common.Order, From: common.From, To: common.To,
 		Statuses: statuses, EventIDs: eventIDs, RegistrationTypes: listquery.ExtractMulti(c, "registration_type"),
 	})
 	if err != nil {

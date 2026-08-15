@@ -72,6 +72,10 @@ export default function RegistrationsPage() {
         page: params.page,
         limit: params.limit,
         search: params.search,
+        sort: params.sort,
+        order: params.order,
+        from: params.filters.from,
+        to: params.filters.to,
         status: statuses,
         event_id: (params.filters.event ?? []).map((value) => Number(value)).filter((value) => Number.isInteger(value)),
       });

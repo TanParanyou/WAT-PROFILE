@@ -15,6 +15,7 @@ const (
 	MaxPhoneLength                 = 20
 	MaxFreeTextLength              = 2000
 	MaxPrivacyNoticeVersionLength  = 50
+	DefaultPrivacyNoticeVersion    = "2026-08"
 )
 
 type Code string
@@ -32,6 +33,7 @@ const (
 	CodeNotFound           Code = "REGISTRATION_NOT_FOUND"
 	CodeUnauthorized       Code = "REGISTRATION_UNAUTHORIZED"
 	CodeConflict           Code = "REGISTRATION_CONFLICT"
+	CodeRateLimited        Code = "REGISTRATION_RATE_LIMITED"
 )
 
 type DomainError struct {
@@ -122,7 +124,6 @@ type AvailabilityState string
 const (
 	AvailabilityDisabled  AvailabilityState = "disabled"
 	AvailabilityClosed    AvailabilityState = "closed"
-	AvailabilityStarted   AvailabilityState = "started"
 	AvailabilityFull      AvailabilityState = "full"
 	AvailabilityAvailable AvailabilityState = "available"
 )
@@ -135,14 +136,14 @@ type EventWindow struct {
 }
 
 type Availability struct {
-	Enabled              bool              `json:"enabled"`
-	Deadline             *time.Time        `json:"deadline"`
-	MaxParticipants      *int              `json:"max_participants"`
-	ReservedParticipants int               `json:"reserved_participants"`
-	RemainingCapacity    *int              `json:"remaining_capacity"`
-	State                AvailabilityState `json:"availability"`
-	CanRegister          bool              `json:"can_register"`
-	UnavailableCode      *Code             `json:"unavailable_code"`
+	Enabled         bool              `json:"enabled"`
+	Deadline        *time.Time        `json:"deadline"`
+	MaxParticipants *int              `json:"max_participants"`
+	RegisteredCount int               `json:"registered_count"`
+	Remaining       *int              `json:"remaining"`
+	State           AvailabilityState `json:"availability"`
+	CanRegister     bool              `json:"can_register"`
+	UnavailableCode *Code             `json:"unavailable_code"`
 }
 
 type EventSummary struct {
@@ -198,6 +199,10 @@ type AdminListFilter struct {
 	Page              int
 	Limit             int
 	Search            string
+	Sort              string
+	Order             string
+	From              *time.Time
+	To                *time.Time
 	Statuses          []string
 	EventIDs          []int
 	RegistrationTypes []string

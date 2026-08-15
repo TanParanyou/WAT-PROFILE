@@ -118,7 +118,7 @@ func (s *RegistrationService) updateRegistrationWithOptions(ctx context.Context,
 		if err != nil {
 			return err
 		}
-		if availability.MaxParticipants != nil && availability.ReservedParticipants-currentActive+len(input.Participants) > *availability.MaxParticipants {
+		if availability.MaxParticipants != nil && availability.RegisteredCount-currentActive+len(input.Participants) > *availability.MaxParticipants {
 			return registrations.NewDomainError(registrations.CodeFull, "There is not enough capacity for this group", nil)
 		}
 
@@ -142,15 +142,17 @@ func (s *RegistrationService) updateRegistrationWithOptions(ctx context.Context,
 				return registrations.NewDomainError(registrations.CodeValidation, "Registration details are invalid", map[string]string{fmt.Sprintf("participants.%d.id", index): "Participant does not belong to this registration"})
 			}
 			if participant.AttendanceStatus == "cancelled" {
-				added = true
+				return registrations.NewDomainError(registrations.CodeConflict, "A cancelled participant cannot be reactivated", map[string]string{fmt.Sprintf("participants.%d.id", index): "Participant is cancelled"})
 			}
 			participant.FirstName = inputParticipant.FirstName
 			participant.LastName = inputParticipant.LastName
 			participant.DietaryRestrictions = inputParticipant.DietaryRestrictions
 			participant.SpecialNeeds = inputParticipant.SpecialNeeds
 			participant.AdditionalNotes = inputParticipant.AdditionalNotes
-			participant.AttendanceStatus = "registered"
-			participant.CancelledAt = nil
+			if participant.AttendanceStatus != "attended" {
+				participant.AttendanceStatus = "registered"
+				participant.AttendedAt = nil
+			}
 			if err := tx.Save(&participant).Error; err != nil {
 				return err
 			}
@@ -161,7 +163,7 @@ func (s *RegistrationService) updateRegistrationWithOptions(ctx context.Context,
 			if _, ok := seen[participant.ID]; ok {
 				continue
 			}
-			if participant.AttendanceStatus == "cancelled" {
+			if participant.AttendanceStatus == "cancelled" || participant.AttendanceStatus == "attended" {
 				continue
 			}
 			participant.AttendanceStatus = "cancelled"
@@ -223,7 +225,7 @@ func (s *RegistrationService) cancelRegistration(ctx context.Context, input Regi
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&event, registration.EventID).Error; err != nil {
 			return err
 		}
-		if cutoff := registrationEditCutoff(&event); cutoff != nil && !s.now().Before(*cutoff) {
+		if cutoff := eventRegistrationStart(&event); cutoff != nil && !s.now().Before(*cutoff) {
 			return registrations.NewDomainError(registrations.CodeNotEditable, "The registration deadline has passed", nil)
 		}
 		now := s.now()

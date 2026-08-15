@@ -568,6 +568,8 @@
       "backToList": "Back to registrations",
       "contact": "Contact",
       "participants": "Participants",
+      "addParticipant": "Add participant",
+      "removeParticipant": "Remove participant",
       "attendance": "Attendance",
       "markAttended": "Mark attended",
       "markNotAttended": "Mark not attended",
