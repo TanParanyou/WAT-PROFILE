@@ -39,7 +39,7 @@ export function BulkActionButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`flex items-center gap-1.5 px-3 py-2 min-h-[38px] rounded-none border transition-colors text-xs sm:text-sm font-medium shrink-0 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${variantStyles[variant]} ${className}`}
+      className={`flex items-center gap-1.5 px-3 py-2 min-h-[38px] rounded-none border transition-colors text-xs sm:text-sm font-medium shrink-0 whitespace-nowrap active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${variantStyles[variant]} ${className}`}
     >
       {icon}
       <span>{label}</span>
@@ -76,7 +76,7 @@ export function BulkActionToolbar({
     <div
       role="region"
       aria-label="Bulk actions"
-      className="fixed bottom-3 sm:bottom-5 left-3 right-3 sm:left-1/2 sm:-translate-x-1/2 z-50 bg-admin-action text-admin-on-action rounded-none border border-admin-control-border shadow-2xl p-3 sm:px-5 sm:py-3 flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-6 sm:w-auto sm:max-w-4xl animate-in fade-in-0 slide-in-from-bottom-4 duration-200 backdrop-blur-md"
+      className="fixed bottom-3 sm:bottom-5 left-3 right-3 sm:left-1/2 sm:-translate-x-1/2 z-50 bg-admin-action text-admin-on-action rounded-none border border-admin-control-border shadow-2xl p-3 sm:px-5 sm:py-3 flex flex-col sm:flex-row sm:items-center justify-between sm:justify-start gap-3 sm:gap-6 w-auto max-w-[calc(100vw-24px)] sm:max-w-[calc(100vw-48px)] animate-in fade-in-0 slide-in-from-bottom-4 duration-200 backdrop-blur-md"
     >
       {/* Selection Info + Clear Button (Top row on mobile, left side on desktop) */}
       <div className="flex items-center justify-between sm:justify-start gap-3 shrink-0">
@@ -102,8 +102,8 @@ export function BulkActionToolbar({
       </div>
 
       {/* Action Buttons + Desktop Clear Button */}
-      <div className="flex items-center gap-2 overflow-x-auto pb-0.5 sm:pb-0 scrollbar-none w-full sm:w-auto">
-        <div className="flex items-center gap-2 shrink-0">
+      <div className="flex items-center gap-2 overflow-x-auto sm:overflow-visible pb-0.5 sm:pb-0 scrollbar-none w-full sm:w-auto">
+        <div className="flex items-center gap-2 shrink-0 sm:shrink sm:flex-nowrap">
           {children}
         </div>
 
@@ -112,7 +112,7 @@ export function BulkActionToolbar({
           <button
             type="button"
             onClick={onClear}
-            className="flex items-center justify-center w-8 h-8 rounded-none hover:bg-admin-on-action/15 transition-colors text-admin-on-action/80 hover:text-admin-on-action focus-visible:outline-2 focus-visible:outline-admin-focus"
+            className="flex items-center justify-center min-w-8 min-h-8 w-8 h-8 rounded-none hover:bg-admin-on-action/15 transition-colors text-admin-on-action/80 hover:text-admin-on-action focus-visible:outline-2 focus-visible:outline-admin-focus"
             title={t("common.clear")}
             aria-label={t("common.clear")}
           >
