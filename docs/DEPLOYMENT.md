@@ -38,9 +38,6 @@ Frontend:
   least one HTTPS origin; do not use wildcards, paths, or credentials.
 - `NEXT_PUBLIC_PUBLIC_ACCOUNT_AUTH_ENABLED` — `true` renders the public account UI
   and the account entry in the navigation (build-time flag)
-- `RESEND_API_KEY` is server-only despite living in the frontend application.
-- `EMAIL_FROM`
-- `CONTACT_EMAIL`
 
 Backend:
 
@@ -52,6 +49,8 @@ Backend:
 - `R2_BUCKET_NAME`, `R2_PUBLIC_URL`
 - `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASSWORD`
 - `SMTP_FROM_EMAIL`, `SMTP_FROM_NAME`
+- `CONTACT_EMAIL_FROM`, `CONTACT_NOTIFICATION_TO` — Resend sender and operator
+  recipient consumed only by `operations-worker` for durable Contact notifications.
 - `ADMIN_EMAIL`, `ADMIN_PASSWORD`, `ADMIN_NAME`
 
 Public account auth (backend):
@@ -125,9 +124,24 @@ Never place real values in this file or committed env examples.
 2. Back up the target PostgreSQL database.
 3. Apply reviewed migrations with `go run cmd/migrate/main.go up`.
 4. Deploy the backend and verify `/health`.
-5. Deploy the frontend with the matching API URL.
-6. Smoke-test public reads, admin login, one permission-restricted route, and media access.
-7. Verify error logs contain trace IDs and no secrets.
+5. Deploy `operations-worker` with `RESEND_API_KEY`, `CONTACT_EMAIL_FROM`, and
+   `CONTACT_NOTIFICATION_TO`; verify it can claim and retry outbox jobs.
+6. Deploy the frontend with the matching API URL.
+7. Smoke-test public reads, admin login, one permission-restricted route, Contact
+   submission/outbox creation, and media access.
+8. Verify error logs contain trace IDs and no secrets.
+
+## Contact notifications
+
+- Set `RESEND_API_KEY`, `CONTACT_EMAIL_FROM`, and `CONTACT_NOTIFICATION_TO` only in
+  the backend/worker environment; the frontend must not contain email provider keys.
+- Apply migration `000042_add_contact_communication_locale` before serving the new
+  Contact form, then deploy the backend and operations worker before the frontend.
+- A successful Contact API response means one `contact_inquiries` row and one
+  `contact.notification` outbox row committed together.
+- Resend failure leaves the inquiry intact and the outbox job failed/retryable.
+- The removed `/api/send-email` route must remain absent (404); no browser-side
+  provider call is part of the production Contact flow.
 
 Public account rollout (after the baseline steps above):
 

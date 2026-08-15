@@ -1,1 +1,0 @@
-export { sendContactEmail } from './emailService';
