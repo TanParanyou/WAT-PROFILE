@@ -47,6 +47,31 @@ func (s *PersonalDataRequestService) Create(_ context.Context, input PersonalDat
 	return request, nil
 }
 
+func (s *PersonalDataRequestService) CreatePublic(_ context.Context, input PersonalDataRequestInput) (*models.PersonalDataRequest, error) {
+	input.RequestType = strings.ToLower(strings.TrimSpace(input.RequestType))
+	if input.RequestType != "access" && input.RequestType != "erasure" {
+		return nil, fmt.Errorf("request type must be access or erasure")
+	}
+	email := strings.ToLower(strings.TrimSpace(input.SubjectEmail))
+	memberCode := strings.TrimSpace(input.SubjectMemberCode)
+	if email == "" && memberCode == "" {
+		return nil, fmt.Errorf("subject email or member code is required")
+	}
+	request := &models.PersonalDataRequest{
+		SubjectEmail:       email,
+		SubjectMemberCode:  memberCode,
+		RequestType:        input.RequestType,
+		Notes:              strings.TrimSpace(input.Notes),
+		Status:             "open",
+		VerificationStatus: "unverified",
+		CreatedByID:        nil,
+	}
+	if err := s.db.Create(request).Error; err != nil {
+		return nil, err
+	}
+	return request, nil
+}
+
 func (s *PersonalDataRequestService) List() ([]models.PersonalDataRequest, error) {
 	var rows []models.PersonalDataRequest
 	err := s.db.Preload("Items").Order("created_at DESC").Find(&rows).Error

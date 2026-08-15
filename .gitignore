@@ -55,3 +55,6 @@ graphify-out/
 next-env.d.ts
 
 .superpowers
+.logs/
+.playwright-cli/
+.playwright-mcp/

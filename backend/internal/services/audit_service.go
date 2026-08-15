@@ -202,7 +202,7 @@ func (s *AuditService) List(options AuditListOptions) ([]models.AuditLog, int64,
 
 type AuditFilterOptions struct {
 	Actions     []string `json:"actions"`
-	EntityTypes []string `json:"entityTypes"`
+	EntityTypes []string `json:"entity_types"`
 }
 
 func (s *AuditService) GetFilterOptions() (*AuditFilterOptions, error) {

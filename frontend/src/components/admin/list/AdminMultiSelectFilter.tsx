@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useId, useRef, useEffect } from "react";
+import { useTranslations } from "next-intl";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { Search, ChevronDown } from "lucide-react";
 import type { AdminFilterOption } from "@/features/admin-list/types";
@@ -21,6 +22,7 @@ export function AdminMultiSelectFilter({
   values = [],
   onChange,
 }: AdminMultiSelectFilterProps) {
+  const t = useTranslations("admin.list");
   const generatedId = useId();
   const filterId = customId ?? generatedId;
   const [optionSearch, setOptionSearch] = useState("");
@@ -57,6 +59,15 @@ export function AdminMultiSelectFilter({
 
   const selectedCount = values.length;
 
+  const getButtonText = () => {
+    if (selectedCount === 0) {
+      return t.has("all") ? t("all") : "ทั้งหมด";
+    }
+    return t.has("selectedCount")
+      ? t("selectedCount", { count: selectedCount })
+      : `เลือกแล้ว ${selectedCount} รายการ`;
+  };
+
   return (
     <div className="relative flex flex-col gap-1 w-full sm:w-44 md:w-48 lg:w-52 flex-shrink-0" ref={containerRef}>
       <label htmlFor={filterId} className="text-xs font-medium text-admin-body h-5 min-h-[20px] flex items-center">
@@ -72,7 +83,7 @@ export function AdminMultiSelectFilter({
         )}
       >
         <span className="truncate text-admin-foreground">
-          {selectedCount === 0 ? "ทั้งหมด" : `เลือกแล้ว ${selectedCount} รายการ`}
+          {getButtonText()}
         </span>
         <ChevronDown className={cn("h-4 w-4 text-admin-muted transition-transform", isOpen && "rotate-180")} />
       </button>
@@ -86,14 +97,14 @@ export function AdminMultiSelectFilter({
                 type="text"
                 value={optionSearch}
                 onChange={(e) => setOptionSearch(e.target.value)}
-                placeholder="ค้นหาตัวเลือก..."
+                placeholder={t.has("searchOptions") ? t("searchOptions") : "ค้นหาตัวเลือก..."}
                 className="w-full rounded-none border border-admin-control-border bg-admin-surface py-1 pl-8 pr-2 text-xs text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-admin-focus"
               />
             </div>
           )}
           {filteredOptions.length === 0 ? (
             <span className="py-2 text-center text-xs text-admin-muted">
-              ไม่พบตัวเลือก
+              {t.has("noOptions") ? t("noOptions") : "ไม่พบตัวเลือก"}
             </span>
           ) : (
             <div className="flex flex-col gap-1">

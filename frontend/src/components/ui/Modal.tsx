@@ -100,25 +100,25 @@ const Modal: React.FC<ModalProps> = ({
         <div className="admin-theme">
             {/* Backdrop */}
             <div
-                className="fixed inset-0 z-50 bg-black/45"
+                className="fixed inset-0 z-[9999] bg-black/50 backdrop-blur-xs"
                 onClick={closeOnOverlayClick ? onClose : undefined}
             />
-            {/* Modal */}
-            <div className="fixed inset-0 z-50 flex items-end justify-center p-3 pointer-events-none sm:items-center sm:p-4">
+            {/* Modal Container */}
+            <div className="fixed inset-0 z-[9999] flex items-center justify-center p-3 pointer-events-none sm:p-4">
                 <div
                     role="dialog"
                     aria-modal="true"
                     aria-labelledby={title ? titleId : undefined}
                     aria-describedby={description ? descriptionId : undefined}
-                    className={`max-h-[calc(100vh-1.5rem)] w-full ${sizeClasses[size]} overflow-hidden border border-admin-border bg-admin-surface rounded-none shadow-2xl pointer-events-auto`}
+                    className={`max-h-[calc(100vh-2rem)] w-full ${sizeClasses[size]} overflow-hidden border border-admin-border bg-admin-surface rounded-none shadow-2xl pointer-events-auto flex flex-col my-auto`}
                     onClick={(e) => e.stopPropagation()}
                 >
-                    {/* Header */}
+                    {/* Header (Fixed) */}
                     {(title || showCloseButton) && (
-                        <div className="flex items-start justify-between gap-4 border-b border-admin-border px-4 py-3 sm:px-5">
-                            <div className="min-w-0">
-                                {title && <h2 id={titleId} className="text-base font-semibold text-admin-foreground">{title}</h2>}
-                                {description && <p id={descriptionId} className="mt-1 text-sm text-admin-muted">{description}</p>}
+                        <div className="shrink-0 flex items-start justify-between gap-4 border-b border-admin-border px-4 py-3 sm:px-5 bg-admin-surface">
+                            <div className="min-w-0 flex-1">
+                                {title && <h2 id={titleId} className="text-base font-semibold text-admin-foreground leading-snug break-words">{title}</h2>}
+                                {description && <p id={descriptionId} className="mt-1 text-xs sm:text-sm text-admin-muted leading-relaxed">{description}</p>}
                             </div>
                             {showCloseButton && (
                                 <button
@@ -132,11 +132,11 @@ const Modal: React.FC<ModalProps> = ({
                             )}
                         </div>
                     )}
-                    {/* Body */}
-                    {children && <div className="max-h-[70vh] overflow-auto px-4 py-4 sm:px-5 text-admin-body">{children}</div>}
-                    {/* Footer */}
+                    {/* Body (Scrollable) */}
+                    {children && <div className="flex-1 overflow-y-auto px-4 py-4 sm:px-5 text-admin-body">{children}</div>}
+                    {/* Footer (Fixed) */}
                     {footer && (
-                        <div className="flex flex-wrap items-center justify-end gap-3 border-t border-admin-border bg-admin-surface-muted px-4 py-3 sm:px-5">
+                        <div className="shrink-0 flex flex-wrap items-center justify-end gap-3 border-t border-admin-border bg-admin-surface px-4 py-3 sm:px-5">
                             {footer}
                         </div>
                     )}
@@ -196,23 +196,44 @@ const FormModal: React.FC<FormModalProps> = ({
     size = 'md',
     submitDisabled = false,
 }) => {
+    const formRef = React.useRef<HTMLFormElement>(null);
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         await onSubmit(e);
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title={title} size={size} closeOnOverlayClick={!isLoading} closeOnEscape={!isLoading}>
-            <form onSubmit={handleSubmit}>
-                <div className="space-y-4">{children}</div>
-                <div className="mt-6 flex justify-end gap-3 border-t border-admin-border pt-4">
-                    <button type="button" onClick={onClose} disabled={isLoading} className="border border-admin-control-border bg-admin-surface px-4 py-2 min-h-11 rounded-none text-sm font-medium text-admin-body hover:bg-admin-surface-muted disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus">
+        <Modal
+            isOpen={isOpen}
+            onClose={onClose}
+            title={title}
+            size={size}
+            closeOnOverlayClick={!isLoading}
+            closeOnEscape={!isLoading}
+            footer={
+                <>
+                    <button
+                        type="button"
+                        onClick={onClose}
+                        disabled={isLoading}
+                        className="border border-admin-control-border bg-admin-surface px-4 py-2 min-h-11 rounded-none text-sm font-medium text-admin-body hover:bg-admin-surface-muted disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus"
+                    >
                         {cancelText}
                     </button>
-                    <button type="submit" disabled={isLoading || submitDisabled} className="flex items-center gap-2 bg-admin-action px-6 py-2 min-h-11 rounded-none text-sm font-medium text-admin-on-action hover:bg-admin-action-hover disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus">
+                    <button
+                        type="button"
+                        onClick={() => formRef.current?.requestSubmit()}
+                        disabled={isLoading || submitDisabled}
+                        className="flex items-center gap-2 bg-admin-action px-6 py-2 min-h-11 rounded-none text-sm font-medium text-admin-on-action hover:bg-admin-action-hover disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus"
+                    >
                         {isLoading ? <Loading size="sm" /> : submitText}
                     </button>
-                </div>
+                </>
+            }
+        >
+            <form ref={formRef} onSubmit={handleSubmit} className="space-y-4">
+                {children}
             </form>
         </Modal>
     );

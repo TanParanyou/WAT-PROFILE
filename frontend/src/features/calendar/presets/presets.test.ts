@@ -22,6 +22,11 @@ test("Discovery uses TimeGrid for Week and Day", () => {
   assert.equal(discoveryPreset.defaultView, "month");
   assert.equal(discoveryPreset.viewModes.week, "timeGrid");
   assert.equal(discoveryPreset.viewModes.day, "timeGrid");
+  assert.deepEqual(discoveryPreset.layouts?.mobile, {
+    month: "monthAgenda",
+    week: "dayStrip",
+    day: "timeGrid",
+  });
 });
 
 test("Planning keeps TimeGrid for Week and Day", () => {

@@ -14,6 +14,10 @@ export const auditLogAdminService = {
 
   async getFilterOptions(): Promise<{ actions: string[]; entity_types: string[] }> {
     const res = await api.get("/admin/audit-logs/filter-options");
-    return res.data.data || { actions: [], entity_types: [] };
+    const raw = res.data?.data || {};
+    return {
+      actions: raw.actions || [],
+      entity_types: raw.entity_types || raw.entityTypes || [],
+    };
   },
 };

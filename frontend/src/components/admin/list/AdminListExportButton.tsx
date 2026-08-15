@@ -36,7 +36,7 @@ export function AdminListExportButton({
       ) : (
         <>
           <Download className="h-4 w-4 text-admin-muted" />
-          <span>ส่งออก CSV</span>
+          <span>{t.has("exportCsv") ? t("exportCsv") : "Export CSV"}</span>
         </>
       )}
     </button>

@@ -57,6 +57,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 	contentHandler := handlers.NewContentHandler(db)
 	publicContentHandler := handlers.NewPublicContentHandler(db)
 	eventAlertHandler := handlers.NewEventAlertHandler(db)
+	personalDataRequestHandler := handlers.NewPersonalDataRequestHandler(db)
 
 	// ============ PUBLIC ROUTES (No Auth Required) ============
 	public := api.Group("/public")
@@ -89,6 +90,9 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 
 	// Contact
 	public.Post("/contact", contactHandler.SubmitContact)
+
+	// Privacy Data Subject Requests (public - no auth)
+	public.Post("/privacy-requests", personalDataRequestHandler.SubmitPublic)
 
 	// Settings
 	public.Get("/settings", settingsHandler.GetPublicSettings)

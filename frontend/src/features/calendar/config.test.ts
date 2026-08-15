@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import { resolveCalendarConfig } from "./config";
 import { discoveryPreset } from "./presets/discovery";
+import { planningPreset } from "./presets/planning";
 
 test("calendar config resolves production defaults", () => {
   const config = resolveCalendarConfig(discoveryPreset);
@@ -11,6 +12,26 @@ test("calendar config resolves production defaults", () => {
   assert.equal(config.timeGrid.maxMinutes, 1200);
   assert.equal(config.timeGrid.slotDurationMinutes, 30);
   assert.equal(config.timeGrid.maxVisibleAllDayEvents, 2);
+  assert.equal(config.layouts.desktop.month, "monthGrid");
+  assert.equal(config.layouts.mobile.week, "dayStrip");
+  assert.equal(config.layouts.mobileBreakpoint, 640);
+});
+
+test("calendar config resolves responsive layouts with safe fallbacks", () => {
+  const config = resolveCalendarConfig(planningPreset);
+  assert.deepEqual(config.layouts.mobile, {
+    month: "monthGrid",
+    week: "timeGrid",
+    day: "timeGrid",
+  });
+
+  assert.throws(
+    () => resolveCalendarConfig({
+      ...discoveryPreset,
+      layouts: { ...discoveryPreset.layouts, mobileBreakpoint: 0 },
+    }),
+    /mobileBreakpoint must be a positive finite number/,
+  );
 });
 
 test("calendar config deduplicates views and preserves explicit layout settings", () => {

@@ -290,6 +290,70 @@ paths:
                 $ref: '#/components/schemas/ErrorResponse'
         '429': {$ref: '#/components/responses/TooManyRequests'}
 
+  /public/privacy-requests:
+    post:
+      tags: [Privacy]
+      summary: Submit public data subject privacy request (PDPA/GDPR)
+      description: >-
+        Submits a data subject access or erasure request from the public website.
+        Requests with a non-empty `website` honeypot return the same success response
+        without persistence. Request bodies are capped at 32 KiB.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [request_type]
+              properties:
+                subject_email:
+                  type: string
+                  format: email
+                  example: user@example.com
+                subject_member_code:
+                  type: string
+                  example: M-10023
+                request_type:
+                  type: string
+                  enum: [access, erasure]
+                  example: access
+                notes:
+                  type: string
+                  example: ขอรับสำเนาข้อมูลส่วนบุคคลทั้งหมด
+                website:
+                  type: string
+                  description: Honeypot field; must be empty
+      responses:
+        '201':
+          description: Privacy request accepted
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      id:
+                        type: string
+                        format: uuid
+                      request_type:
+                        type: string
+                      created_at:
+                        type: string
+                        format: date-time
+                      message:
+                        type: string
+        '400':
+          description: Invalid request or validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
   /public/contact:
     post:
       tags: [Contact]
@@ -1865,6 +1929,21 @@ paths:
       responses:
         '200':
           description: Distinct filter options for audit logs
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        type: object
+                        properties:
+                          actions:
+                            type: array
+                            items: {type: string}
+                          entity_types:
+                            type: array
+                            items: {type: string}
 
   /admin/audit-logs:
     get:

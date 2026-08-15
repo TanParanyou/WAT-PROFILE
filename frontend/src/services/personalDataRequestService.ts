@@ -12,4 +12,5 @@ export const personalDataRequestService = {
   async select(id: string, items: PersonalDataRequestItem[]): Promise<PersonalDataRequest> { const res = await adminApi.post<ApiResponse<PersonalDataRequest>>(`/admin/privacy-requests/${id}/items`, { items }); return res.data.data!; },
   async complete(id: string): Promise<{ affected_count: number }> { const res = await adminApi.post<ApiResponse<{ affected_count: number }>>(`/admin/privacy-requests/${id}/complete`); return res.data.data!; },
   async export(id: string): Promise<Blob> { const res = await adminApi.get(`/admin/privacy-requests/${id}/export`, { responseType: "blob" }); return res.data as Blob; },
+  async reject(id: string): Promise<void> { await adminApi.post(`/admin/privacy-requests/${id}/reject`); },
 };

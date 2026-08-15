@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import { useTranslations } from "next-intl";
 import { DateRangePicker } from "@/components/ui/DateRangePicker";
 import { parse, format } from "date-fns";
 
@@ -18,6 +19,8 @@ export function AdminDateRangeFilter({
   to,
   onChange,
 }: AdminDateRangeFilterProps) {
+  const t = useTranslations("admin.list");
+
   const parseDate = (d?: string) => {
     if (!d) return undefined;
     const parsed = parse(d, "yyyy-MM-dd", new Date());
@@ -33,6 +36,7 @@ export function AdminDateRangeFilter({
     <div className="flex flex-col gap-1 w-full sm:w-56 md:w-60 flex-shrink-0">
       <DateRangePicker
         label={label}
+        placeholderText={t.has("selectDateRange") ? t("selectDateRange") : "เลือกช่วงเวลา"}
         value={{ from: parseDate(from), to: parseDate(to) }}
         onChange={(range) =>
           onChange({

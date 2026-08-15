@@ -9,6 +9,7 @@ interface DateRangePickerProps {
   value: { from: Date | undefined; to: Date | undefined };
   onChange: (range: { from: Date | undefined; to: Date | undefined }) => void;
   label?: string;
+  placeholderText?: string;
   error?: string;
   required?: boolean;
   className?: string;
@@ -18,6 +19,7 @@ export function DateRangePicker({
   value,
   onChange,
   label,
+  placeholderText = "เลือกช่วงเวลา",
   error,
   required,
   className,
@@ -45,7 +47,7 @@ export function DateRangePicker({
           endDate={value.to ?? null}
           onChange={handleChange}
           dateFormat="dd/MM/yyyy"
-          placeholderText="เลือกช่วงเวลา"
+          placeholderText={placeholderText}
           isClearable={true}
           className={cn(
             'h-10 min-h-10 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-1.5 text-xs sm:text-sm text-admin-foreground placeholder:text-admin-muted',

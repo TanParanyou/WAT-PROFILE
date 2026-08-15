@@ -146,10 +146,14 @@ export const mediaAdminService = {
 export const auditLogAdminService = {
   ...createAdminService<Record<string, unknown>>("audit-logs"),
   async getFilterOptions(): Promise<{ actions: string[]; entity_types: string[] }> {
-    const res = await api.get<ApiResponse<{ actions: string[]; entity_types: string[] }>>(
+    const res = await api.get<ApiResponse<{ actions?: string[]; entity_types?: string[]; entityTypes?: string[] }>>(
       "/admin/audit-logs/filter-options"
     );
-    return res.data.data || { actions: [], entity_types: [] };
+    const raw = res.data?.data || {};
+    return {
+      actions: raw.actions || [],
+      entity_types: raw.entity_types || raw.entityTypes || [],
+    };
   },
 };
 

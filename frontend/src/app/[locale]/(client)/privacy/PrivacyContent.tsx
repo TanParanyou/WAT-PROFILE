@@ -1,12 +1,15 @@
 "use client";
 
+import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
+import { ShieldCheck } from "lucide-react";
 import { RichTextContent } from "@/components/admin/rich-text/RichTextContent";
 import { PublicReadingPage } from "@/components/public/layout/PublicReadingPage";
 import { PublicContentStateBoundary } from "@/features/public/content/components/PublicContentStateBoundary";
 import { usePublicPrivacyQuery } from "@/features/public/content/queries";
 import { toPublicQueryError } from "@/features/public/shared/query-error";
 import { getLocalizedText } from "@/utils/localizedText";
+import { PrivacyRequestModal } from "@/components/public/privacy/PrivacyRequestModal";
 
 export default function PrivacyContent() {
   const locale = useLocale();
@@ -18,6 +21,8 @@ export default function PrivacyContent() {
   const subtitle = lastUpdated
     ? `${t("lastUpdated")}: ${new Date(lastUpdated).toLocaleDateString(locale)}`
     : undefined;
+
+  const [isModalOpen, setIsModalOpen] = useState(false);
 
   return (
     <PublicReadingPage title={title} subtitle={subtitle}>
@@ -33,9 +38,38 @@ export default function PrivacyContent() {
         loading={<ReadingSkeleton />}
       >
         {page?.body.content ? (
-          <RichTextContent value={page.body.content} locale={locale} defaultLocale="th" />
+          <div className="space-y-8">
+            <RichTextContent value={page.body.content} locale={locale} defaultLocale="th" />
+
+            {/* Privacy DSR Action Box */}
+            <div className="border border-site-border bg-site-surface p-6 space-y-3 mt-8">
+              <div className="flex items-center gap-2 text-site-action">
+                <ShieldCheck className="h-5 w-5" />
+                <h3 className="text-base font-bold text-site-foreground">
+                  {t("requestCtaTitle")}
+                </h3>
+              </div>
+              <p className="text-xs text-site-muted leading-relaxed">
+                {t("requestCtaDesc")}
+              </p>
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={() => setIsModalOpen(true)}
+                  className="inline-flex items-center justify-center px-5 py-2.5 bg-site-action text-site-on-action text-xs font-semibold hover:bg-site-action-hover transition-colors"
+                >
+                  {t("requestCtaButton")}
+                </button>
+              </div>
+            </div>
+          </div>
         ) : null}
       </PublicContentStateBoundary>
+
+      <PrivacyRequestModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </PublicReadingPage>
   );
 }

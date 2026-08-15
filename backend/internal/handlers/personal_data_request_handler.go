@@ -65,6 +65,49 @@ func (h *PersonalDataRequestHandler) Create(c *fiber.Ctx) error {
 	return c.Status(201).JSON(fiber.Map{"success": true, "data": row})
 }
 
+// SubmitPublic - Public: Submit a data subject privacy request (no auth required)
+func (h *PersonalDataRequestHandler) SubmitPublic(c *fiber.Ctx) error {
+	if len(c.Body()) > 32*1024 {
+		return utils.FieldErrorResponse(c, fiber.StatusBadRequest, "Request is too large", map[string]string{"message": "Request is too large"})
+	}
+	var input struct {
+		SubjectEmail      string `json:"subject_email"`
+		SubjectMemberCode string `json:"subject_member_code"`
+		RequestType       string `json:"request_type"`
+		Notes             string `json:"notes"`
+		Website           string `json:"website"`
+	}
+	if err := c.BodyParser(&input); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+	if strings.TrimSpace(input.Website) != "" {
+		return utils.MessageResponseWithStatus(c, fiber.StatusCreated, "Privacy request received successfully")
+	}
+	reqInput := services.PersonalDataRequestInput{
+		SubjectEmail:      strings.TrimSpace(input.SubjectEmail),
+		SubjectMemberCode: strings.TrimSpace(input.SubjectMemberCode),
+		RequestType:       strings.TrimSpace(input.RequestType),
+		Notes:             strings.TrimSpace(input.Notes),
+	}
+	row, err := h.requests.CreatePublic(c.UserContext(), reqInput)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+	_ = h.audit.LogAction(c, "privacy_request_created", "personal_data_request", row.ID.String(), map[string]interface{}{
+		"request_type": row.RequestType,
+		"source":       "public",
+	})
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
+		"success": true,
+		"data": fiber.Map{
+			"id":           row.ID.String(),
+			"request_type": row.RequestType,
+			"created_at":   row.CreatedAt,
+			"message":      "Privacy request received successfully",
+		},
+	})
+}
+
 func (h *PersonalDataRequestHandler) Get(c *fiber.Ctx) error {
 	id, err := uuid.Parse(c.Params("id"))
 	if err != nil {
