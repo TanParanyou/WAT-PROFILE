@@ -12,6 +12,7 @@ import { Link } from "@/navigation";
 import { PublicContactPageLayout } from "@/components/public/website/PublicContactPageLayout";
 import { getLocalizedText } from "@/utils/localizedText";
 import { sendContactEmail } from "@/services/emailService";
+import { publicService } from "@/services/publicService";
 import type { ContactContentFormData } from "@/types/public-content";
 import { usePublicContactQuery } from "@/features/public/content/queries";
 import { QueryErrorState } from "@/components/public/states/QueryErrorState";
@@ -65,11 +66,25 @@ export default function ContactContent({ locale, cmsPage }: ContactContentProps)
     }
     setStatus("loading");
     try {
-      await sendContactEmail(formData);
+      // 1. บันทึกลง Database ผ่าน Go Backend API
+      await publicService.submitContact({
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        subject: formData.subject.trim(),
+        message: formData.message.trim(),
+        inquiry_type: "general",
+      });
+
+      // 2. ส่งอีเมลแจ้งเตือนผ่าน Resend (ไม่บล็อกถ้ายังไม่ได้ตั้งค่า Email)
+      sendContactEmail(formData).catch((err) => {
+        console.warn("Contact notification email skipped/failed:", err);
+      });
+
       setStatus("success");
       setFormData({ name: "", email: "", subject: "", message: "" });
       setTimeout(() => setStatus("idle"), 5000);
-    } catch {
+    } catch (error) {
+      console.error("Failed to submit contact inquiry:", error);
       setErrorMsg(t("errorSend"));
       setStatus("error");
     }
