@@ -10,6 +10,7 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
+	"github.com/watloungporsai/wat-profile-backend/internal/registrations"
 	"github.com/watloungporsai/wat-profile-backend/internal/richtext"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
@@ -17,14 +18,16 @@ import (
 )
 
 type EventHandler struct {
-	eventService *services.EventService
-	auditService *services.AuditService
+	eventService        *services.EventService
+	auditService        *services.AuditService
+	registrationService *services.RegistrationService
 }
 
 func NewEventHandler(db *gorm.DB) *EventHandler {
 	return &EventHandler{
-		eventService: services.NewEventService(db),
-		auditService: services.NewAuditService(db),
+		eventService:        services.NewEventService(db),
+		auditService:        services.NewAuditService(db),
+		registrationService: services.NewRegistrationService(db),
 	}
 }
 
@@ -120,7 +123,16 @@ func (h *EventHandler) GetEvent(c *fiber.Ctx) error {
 		}
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch event")
 	}
-	return utils.SuccessResponse(c, event)
+	availability, err := h.registrationService.Availability(c.UserContext(), event.ID)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch event registration availability")
+	}
+	return utils.SuccessResponse(c, publicEventDetail{Event: event, Registration: availability})
+}
+
+type publicEventDetail struct {
+	*models.Event
+	Registration registrations.Availability `json:"registration"`
 }
 
 // GetEventByID - Admin: Get single event by ID

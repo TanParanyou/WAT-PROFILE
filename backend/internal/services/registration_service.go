@@ -4,19 +4,50 @@ import (
 	"crypto/rand"
 	"encoding/hex"
 	"errors"
+	"os"
 
 	"github.com/google/uuid"
+	"github.com/watloungporsai/wat-profile-backend/internal/accountauth"
 	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
+	"github.com/watloungporsai/wat-profile-backend/internal/registrations"
 	"gorm.io/gorm"
 )
 
 type RegistrationService struct {
-	db *gorm.DB
+	db        *gorm.DB
+	outbox    RegistrationOutbox
+	clock     accountauth.Clock
+	tokenGen  accountauth.TokenGenerator
+	cipher    *registrations.TokenCipher
+	cipherErr error
 }
 
 func NewRegistrationService(db *gorm.DB) *RegistrationService {
-	return &RegistrationService{db: db}
+	secret := []byte(os.Getenv("JWT_SECRET"))
+	cipher, cipherErr := registrations.NewTokenCipher(secret)
+	return &RegistrationService{
+		db:        db,
+		outbox:    NewOperationOutboxService(db),
+		clock:     accountauth.SystemClock{},
+		tokenGen:  accountauth.NewOpaqueToken,
+		cipher:    cipher,
+		cipherErr: cipherErr,
+	}
+}
+
+func NewRegistrationServiceWithDependencies(db *gorm.DB, outbox RegistrationOutbox, clock accountauth.Clock, tokenGen accountauth.TokenGenerator, cipher *registrations.TokenCipher) *RegistrationService {
+	if clock == nil {
+		clock = accountauth.SystemClock{}
+	}
+	if tokenGen == nil {
+		tokenGen = accountauth.NewOpaqueToken
+	}
+	return &RegistrationService{db: db, outbox: outbox, clock: clock, tokenGen: tokenGen, cipher: cipher}
+}
+
+type RegistrationOutbox interface {
+	EnqueueTx(db *gorm.DB, input OutboxJobInput) (*models.OperationOutbox, error)
 }
 
 type RegistrationListOptions struct {
@@ -26,9 +57,9 @@ type RegistrationListOptions struct {
 }
 
 var registrationSortColumns = map[string]string{
-	"id":                   "event_registrations.id",
-	"name":                 "event_registrations.first_name",
-	"event_title":          "event_registrations.event_id",
+	"id":                  "event_registrations.id",
+	"name":                "event_registrations.first_name",
+	"event_title":         "event_registrations.event_id",
 	"first_name":          "event_registrations.first_name",
 	"last_name":           "event_registrations.last_name",
 	"email":               "event_registrations.email",

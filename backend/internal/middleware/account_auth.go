@@ -102,6 +102,20 @@ func PublicAccountRequired(db *gorm.DB, secret []byte) fiber.Handler {
 	}
 }
 
+// PublicAccountOptional authenticates a supplied public-account bearer token
+// while allowing anonymous requests to continue. A malformed or expired token
+// is still rejected; an attempted authenticated request never silently becomes
+// a guest request.
+func PublicAccountOptional(db *gorm.DB, secret []byte) fiber.Handler {
+	required := PublicAccountRequired(db, secret)
+	return func(c *fiber.Ctx) error {
+		if strings.TrimSpace(c.Get("Authorization")) == "" {
+			return c.Next()
+		}
+		return required(c)
+	}
+}
+
 // AccountOriginGuard restricts cookie-bearing account endpoints to the same
 // origin or an explicit allowlist. Requests without an Origin header pass
 // through (server-to-server and same-origin navigation).

@@ -44,6 +44,12 @@ func (s *PersonalDataExportService) Export(id uuid.UUID) ([]byte, error) {
 			value = row
 		case "event_registration":
 			var row models.EventRegistration
+			if err := s.db.Preload("Participants").First(&row, item.RecordID).Error; err != nil {
+				return nil, err
+			}
+			value = row
+		case "event_registration_participant":
+			var row models.EventRegistrationParticipant
 			if err := s.db.First(&row, item.RecordID).Error; err != nil {
 				return nil, err
 			}

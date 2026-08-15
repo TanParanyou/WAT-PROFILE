@@ -51,7 +51,11 @@ func (s *PersonalDataActionService) AnonymiseSelected(_ context.Context, request
 					return err
 				}
 			case "event_registration":
-				if err := tx.Model(&models.EventRegistration{}).Where("id = ?", id).Updates(map[string]interface{}{"first_name": "Redacted", "last_name": "", "email": "redacted@privacy.invalid", "phone": "", "dietary_restrictions": "", "special_needs": "", "additional_notes": ""}).Error; err != nil {
+				if err := tx.Model(&models.EventRegistration{}).Where("id = ?", id).Updates(map[string]interface{}{"first_name": "Redacted", "last_name": "", "email": "redacted@privacy.invalid", "phone": "", "dietary_restrictions": "", "special_needs": "", "additional_notes": "", "user_id": nil, "member_id": nil, "manage_token_hash": nil, "manage_token_expires_at": nil, "confirmation_code": "redacted-" + id}).Error; err != nil {
+					return err
+				}
+			case "event_registration_participant":
+				if err := tx.Model(&models.EventRegistrationParticipant{}).Where("id = ?", id).Updates(map[string]interface{}{"first_name": "Redacted", "last_name": "", "dietary_restrictions": "", "special_needs": "", "additional_notes": ""}).Error; err != nil {
 					return err
 				}
 			case "member":

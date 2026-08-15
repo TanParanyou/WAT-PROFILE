@@ -101,6 +101,7 @@ func MigrateModels() error {
 		&models.PersonalDataRequestItem{},
 		&models.OperationOutbox{},
 		&models.EventRegistration{},
+		&models.EventRegistrationParticipant{},
 		&models.ContactInquiry{},
 	)
 

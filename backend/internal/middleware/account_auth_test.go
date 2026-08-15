@@ -125,6 +125,38 @@ func TestPublicAccountRequiredInvalidToken(t *testing.T) {
 	}
 }
 
+func TestPublicAccountOptionalAllowsAnonymousRequest(t *testing.T) {
+	app := fiber.New()
+	app.Post("/optional", PublicAccountOptional(nil, []byte(accountAuthTestSecret)), func(c *fiber.Ctx) error {
+		return c.SendStatus(fiber.StatusNoContent)
+	})
+
+	response, err := app.Test(httptest.NewRequest(http.MethodPost, "/optional", nil))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if response.StatusCode != fiber.StatusNoContent {
+		t.Fatalf("status=%d want %d", response.StatusCode, fiber.StatusNoContent)
+	}
+}
+
+func TestPublicAccountOptionalRejectsInvalidSuppliedToken(t *testing.T) {
+	app := fiber.New()
+	app.Post("/optional", PublicAccountOptional(nil, []byte(accountAuthTestSecret)), func(c *fiber.Ctx) error {
+		return c.SendStatus(fiber.StatusNoContent)
+	})
+
+	request := httptest.NewRequest(http.MethodPost, "/optional", nil)
+	request.Header.Set("Authorization", "Bearer invalid")
+	response, err := app.Test(request)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if response.StatusCode != fiber.StatusUnauthorized {
+		t.Fatalf("status=%d want %d", response.StatusCode, fiber.StatusUnauthorized)
+	}
+}
+
 func TestPublicAccountRequiredRejectsAdminAudienceToken(t *testing.T) {
 	t.Setenv("JWT_SECRET", accountAuthTestSecret)
 	db := accountAuthTestDB(t)

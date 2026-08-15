@@ -100,7 +100,14 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 	public.Get("/pages/:slug", contentHandler.GetPublicPage)
 
 	// Event Registration (public - no auth)
-	public.Post("/events/:id/register", registrationHandler.RegisterForEvent)
+	if accountCfg.Enabled {
+		public.Post("/events/:id/register", middleware.PublicAccountOptional(db, []byte(os.Getenv("JWT_SECRET"))), registrationHandler.RegisterForEvent)
+	} else {
+		public.Post("/events/:id/register", registrationHandler.RegisterForEvent)
+	}
+	public.Post("/event-registrations/manage", registrationHandler.ResolveGuestRegistration)
+	public.Patch("/event-registrations/manage", registrationHandler.UpdateGuestRegistration)
+	public.Post("/event-registrations/cancel", registrationHandler.CancelGuestRegistration)
 
 	// ============ AUTH ROUTES ============
 	auth := api.Group("/auth")
@@ -124,6 +131,10 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 		} else {
 			handlers.RegisterAccountRoutes(api, accountHandler, accountCfg.AllowedOrigins)
 		}
+		accountRegistrations := api.Group("/account", middleware.PublicAccountRequired(db, []byte(os.Getenv("JWT_SECRET"))))
+		accountRegistrations.Get("/registrations", registrationHandler.GetAccountRegistrations)
+		accountRegistrations.Patch("/registrations/:id", registrationHandler.UpdateAccountRegistration)
+		accountRegistrations.Post("/registrations/:id/cancel", registrationHandler.CancelAccountRegistration)
 	}
 
 	// ============ ADMIN AUTH ROUTES (Origin-Guarded, Cookie-Based) ============

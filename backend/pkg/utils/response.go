@@ -56,6 +56,22 @@ func CodedErrorResponse(c *fiber.Ctx, statusCode int, code, message string) erro
 	})
 }
 
+// CodedFieldErrorResponse sends an error response with a stable code and field-level validation.
+func CodedFieldErrorResponse(c *fiber.Ctx, statusCode int, code, message string, fields map[string]string) error {
+	traceID, _ := c.Locals("trace_id").(string)
+	if traceID == "" {
+		traceID = c.GetRespHeader("X-Trace-Id")
+	}
+
+	return c.Status(statusCode).JSON(fiber.Map{
+		"success":  false,
+		"error":    message,
+		"code":     code,
+		"fields":   fields,
+		"trace_id": traceID,
+	})
+}
+
 // CodedErrorResponseWithDetails sends an error JSON response with code and additional details
 func CodedErrorResponseWithDetails(c *fiber.Ctx, statusCode int, code, message string, details map[string]interface{}) error {
 	traceID, _ := c.Locals("trace_id").(string)

@@ -52,11 +52,14 @@ func (s *PersonalDataDiscoveryService) Discover(_ context.Context, search Person
 		q = q.Where("LOWER(email) = ?", email)
 	}
 	var registrations []models.EventRegistration
-	if err := q.Find(&registrations).Error; err != nil {
+	if err := q.Preload("Participants").Find(&registrations).Error; err != nil {
 		return nil, err
 	}
 	for _, item := range registrations {
 		result = append(result, PersonalDataCandidate{"event_registration", fmt.Sprint(item.ID), "email", strings.TrimSpace(item.FirstName + " " + item.LastName), maskEmail(item.Email)})
+		for _, participant := range item.Participants {
+			result = append(result, PersonalDataCandidate{"event_registration_participant", fmt.Sprint(participant.ID), "registration_email", strings.TrimSpace(participant.FirstName + " " + participant.LastName), maskEmail(item.Email)})
+		}
 	}
 
 	q = s.db
