@@ -1,18 +1,31 @@
 package services
 
 import (
+	"context"
+	"strconv"
+
 	"github.com/google/uuid"
+	"github.com/watloungporsai/wat-profile-backend/internal/contacts"
 	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"gorm.io/gorm"
 )
 
 type ContactService struct {
-	db *gorm.DB
+	db     *gorm.DB
+	outbox ContactOutbox
 }
 
 func NewContactService(db *gorm.DB) *ContactService {
-	return &ContactService{db: db}
+	return NewContactServiceWithOutbox(db, NewOperationOutboxService(db))
+}
+
+type ContactOutbox interface {
+	EnqueueTx(*gorm.DB, OutboxJobInput) (*models.OperationOutbox, error)
+}
+
+func NewContactServiceWithOutbox(db *gorm.DB, outbox ContactOutbox) *ContactService {
+	return &ContactService{db: db, outbox: outbox}
 }
 
 type ContactListOptions struct {
@@ -85,10 +98,38 @@ func (s *ContactService) ListOptions(options ContactListOptions) ([]models.Conta
 	return inquiries, total, err
 }
 
-// Submit creates a new contact inquiry
-func (s *ContactService) Submit(inquiry *models.ContactInquiry) error {
-	inquiry.Status = "new"
-	return s.db.Create(inquiry).Error
+// Submit creates a new contact inquiry and notification job atomically.
+func (s *ContactService) Submit(ctx context.Context, input contacts.Submission) (*models.ContactInquiry, error) {
+	inquiry := &models.ContactInquiry{
+		Name:                input.Name,
+		Email:               input.Email,
+		Subject:             input.Subject,
+		Message:             input.Message,
+		CommunicationLocale: input.Locale,
+		InquiryType:         "general",
+		Status:              "new",
+	}
+	if s.outbox == nil {
+		return nil, gorm.ErrInvalidDB
+	}
+	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(inquiry).Error; err != nil {
+			return err
+		}
+		id := strconv.Itoa(inquiry.ID)
+		_, err := s.outbox.EnqueueTx(tx, OutboxJobInput{
+			JobKey:        "contact:notification:" + id,
+			Kind:          "contact.notification",
+			AggregateType: "contact",
+			AggregateID:   id,
+			Payload:       models.JSONMap{"contact_id": inquiry.ID},
+		})
+		return err
+	})
+	if err != nil {
+		return nil, err
+	}
+	return inquiry, nil
 }
 
 // List returns paginated contact inquiries with filters
