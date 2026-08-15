@@ -4,20 +4,20 @@
 
 **Status:** Approved for implementation planning
 
-**Scope:** Public client registration, member/guest management, admin approval, participant check-in, backend contracts, and database changes
+**Scope:** Public client registration, account/guest management, admin approval, participant check-in, backend contracts, and database changes
 
 ## Summary
 
-WAT-PROFILE will support group event registration through one primary contact and one to ten named participants. A registration can be created by either a guest or an authenticated member. Every new registration starts as `pending`, immediately reserves capacity for all active participants, and requires admin approval before becoming `confirmed`.
+WAT-PROFILE will support group event registration through one primary contact and one to ten named participants. A registration can be created by either a guest or an authenticated Public Account. Every new registration starts as `pending`, immediately reserves capacity for all active participants, and requires admin approval before becoming `confirmed`.
 
-Guests manage or cancel a registration through a secret link delivered by email. Authenticated members can also manage registrations linked to their member profile. Before the registration deadline, a pending registration can add, update, or remove participants. A confirmed registration can update participant details or remove participants; adding a participant returns the group to `pending` for admin review. Removing a participant immediately releases one seat. Cancelling the group releases all its active seats.
+Guests manage or cancel a registration through a secret link delivered by email. Authenticated Public Accounts can also manage registrations linked directly to their user ID. When that user also has a temple Member record, the registration keeps the optional Member relationship without requiring or creating one. Before the registration deadline, a pending registration can add, update, or remove participants. A confirmed registration can update participant details or remove participants; adding a participant returns the group to `pending` for admin review. Removing a participant immediately releases one seat. Cancelling the group releases all its active seats.
 
 The first release does not include a waitlist, split payments, paid registration, group sizes above ten, or per-event group-size configuration.
 
 ## Goals
 
 - Let visitors register without creating an account.
-- Prefill contact information for authenticated members without trusting client-supplied identity fields.
+- Prefill available contact information for authenticated Public Accounts without trusting client-supplied identity fields.
 - Represent every attendee explicitly so capacity, dietary needs, accessibility needs, and check-in remain accurate.
 - Prevent overbooking and duplicate active registrations under concurrent requests.
 - Give guests a secure self-service path for edits and cancellation.
@@ -36,7 +36,7 @@ The first release does not include a waitlist, split payments, paid registration
 
 ## Confirmed product decisions
 
-1. Registration is hybrid: guests and authenticated members can submit the same form.
+1. Registration is hybrid: guests and authenticated Public Accounts can submit the same form.
 2. One registration has one primary contact and one to ten named participants.
 3. The primary contact may or may not be a participant.
 4. A new `pending` registration reserves all participant seats immediately.
@@ -74,7 +74,7 @@ The form is a single responsive journey rather than a multi-page wizard:
 6. Review the event, participant count, and contact details.
 7. Submit once.
 
-At least one participant is required. When the contact is attending, the client creates a participant entry from the contact name but keeps the fields editable. Member data is prefilled as a convenience; the member may correct contact details before submission.
+At least one participant is required. When the contact is attending, the client creates a participant entry from the contact name but keeps the fields editable. Public Account data is prefilled as a convenience; the account holder may correct contact details before submission.
 
 ### Submission result
 
@@ -130,9 +130,10 @@ this is an audited administrative correction rather than a normal lifecycle path
 
 ### `event_registrations`
 
-The existing table remains the group record and primary contact boundary. It keeps the existing identifier, event relationship, member relationship, contact fields, status, confirmation code, cancellation fields, and timestamps. The schema adds:
+The existing table remains the group record and primary contact boundary. It keeps the existing identifier, event relationship, optional temple Member relationship, contact fields, status, confirmation code, cancellation fields, and timestamps. The schema adds:
 
 - `locale VARCHAR(5) NOT NULL DEFAULT 'th'` constrained to `th`, `en`, or `de`;
+- `user_id UUID` referencing `users(id)` with `ON DELETE SET NULL` and an index;
 - `privacy_notice_version VARCHAR(50)` for compatibility with legacy rows;
 - `privacy_consent_at TIMESTAMPTZ` for compatibility with legacy rows;
 - `manage_token_hash VARCHAR(64)` with a partial unique index when present;
@@ -145,7 +146,12 @@ historical consent evidence or recoverable plaintext management token. Admin can
 issue a new management link for a legacy registration after verifying the
 contact request.
 
-`registration_type` remains `guest` or `member`, but the server derives it. `member_id` is populated only from authenticated server context. Neither field is accepted from the public request body.
+The server derives `registration_type` as `guest` for anonymous submissions,
+`account` for an authenticated Public Account without a temple Member record,
+or `member` when the authenticated user has a linked Member record. It populates
+`user_id` from authenticated server context and looks up `member_id` by that user
+ID. The registration flow never creates or mutates a temple Member record. None
+of these identity fields are accepted from the public request body.
 
 The confirmation code is a public reference, not an authentication secret. It cannot be used alone to view, edit, or cancel a registration.
 
@@ -174,11 +180,12 @@ The migration pair must be the next unused six-digit version at implementation t
 
 1. add the group-management columns;
 2. create the participant table and indexes;
-3. backfill one participant for every existing registration using the existing registrant name and participant-specific notes; cancelled groups produce a cancelled participant, attended groups or rows with `attended = true` produce an attended participant, and all other groups produce a registered participant;
-4. preserve all existing registration IDs and statuses;
-5. add a partial unique index on `(event_id, lower(email))` for group statuses `pending`, `confirmed`, and legacy `attended`;
-6. fail rather than silently discard data if existing active duplicate emails violate the unique index;
-7. provide a down migration that removes only the newly introduced table, columns, constraints, and indexes.
+3. backfill `user_id` from the linked Member's `user_id` when the existing registration has a Member relationship;
+4. backfill one participant for every existing registration using the existing registrant name and participant-specific notes; cancelled groups produce a cancelled participant, attended groups or rows with `attended = true` produce an attended participant, and all other groups produce a registered participant;
+5. preserve all existing registration IDs and statuses;
+6. add a partial unique index on `(event_id, lower(email))` for group statuses `pending`, `confirmed`, and legacy `attended`;
+7. fail rather than silently discard data if existing active duplicate emails violate the unique index;
+8. provide a down migration that removes only the newly introduced table, columns, constraints, and indexes.
 
 Existing participant-specific columns on `event_registrations` remain during the compatibility release but receive no new writes. Removing them requires a later migration after the new model has been deployed and verified.
 
@@ -253,15 +260,15 @@ When an event has no registration deadline, its edit cutoff is the event start.
 An event start is the `start_date` plus `start_time` in `Europe/Berlin`; when
 `start_time` is absent, the start is 00:00 on `start_date` in that time zone.
 
-### Member management
+### Public Account management
 
-Authenticated members can list and manage registrations linked to their server-derived `member_id`:
+Authenticated Public Accounts can list and manage registrations linked to their server-derived `user_id`:
 
-- the existing `GET /api/v1/member/registrations` returns the group and participant projection;
-- `PATCH /api/v1/member/registrations/{id}` applies the same edit policy as the guest management endpoint;
-- `POST /api/v1/member/registrations/{id}/cancel` applies the same cancellation policy.
+- `GET /api/v1/account/registrations` returns the group and participant projection;
+- `PATCH /api/v1/account/registrations/{id}` applies the same edit policy as the guest management endpoint;
+- `POST /api/v1/account/registrations/{id}/cancel` applies the same cancellation policy.
 
-Member authorization is ownership-based and enforced by the backend. Frontend route guards are only a UX boundary.
+Account authorization is ownership-based and enforced by the backend. Frontend route guards are only a UX boundary. The legacy `GET /api/v1/member/registrations` remains available for existing temple-member clients during the compatibility release, but the new public client uses `/account/registrations`.
 
 ### Admin operations
 
@@ -285,7 +292,7 @@ Every mutation retains `PermissionRequired("events", action)` and writes an audi
 
 ### Contracts and handlers
 
-Request-only structs live outside persisted models. Handlers parse and validate path parameters and payload shape, obtain optional authenticated member context, call the registration service, and map domain error codes to HTTP responses. Handlers do not access GORM directly.
+Request-only structs live outside persisted models. Handlers parse and validate path parameters and payload shape, obtain optional authenticated Public Account context, call the registration service, and map domain error codes to HTTP responses. Handlers do not access GORM directly.
 
 ### Registration service transaction
 
@@ -354,7 +361,7 @@ Stable domain error codes:
 | `REGISTRATION_DISABLED` | 409 | Explain that this event is not accepting registrations. |
 | `REGISTRATION_CLOSED` | 409 | Refresh the event summary and show the deadline state. |
 | `EVENT_FULL` | 409 | Refresh capacity and show the remaining-seat state. |
-| `ALREADY_REGISTERED` | 409 | Offer member navigation or instructions to use the emailed management link. |
+| `ALREADY_REGISTERED` | 409 | Offer account navigation or instructions to use the emailed management link. |
 | `GROUP_LIMIT_EXCEEDED` | 422 | Attach the error to the participant section. |
 | `VALIDATION_ERROR` | 422 | Map field errors to contact or participant inputs. |
 | `MANAGE_TOKEN_INVALID` | 401 | Show an invalid-link state without exposing registration data. |
@@ -366,13 +373,13 @@ Unexpected errors preserve the common trace ID and show a retry action. A failed
 ## Privacy and security
 
 - Public requests are rate limited by IP and normalized email.
-- The public handler binds only dedicated input contracts, preventing mass assignment of IDs, member relationships, statuses, timestamps, or tokens.
+- The public handler binds only dedicated input contracts, preventing mass assignment of IDs, account or Member relationships, statuses, timestamps, or tokens.
 - Management tokens are never logged, returned by list APIs, stored in plaintext, or included in analytics.
 - Email templates contain the secret link, but admin screens and exports contain only the confirmation code.
 - Public event responses expose counts only, never registrant identities.
 - Privacy consent records the accepted notice version and timestamp.
 - Participant and contact data remain included in the existing personal-data discovery, export, and redaction workflows.
-- Error responses do not reveal whether an arbitrary email belongs to a member account.
+- Error responses do not reveal whether an arbitrary email belongs to a Public Account or temple Member.
 
 ## Email notifications
 
@@ -406,7 +413,7 @@ Messages use the registration locale and include the event date in `Europe/Berli
 - Edit tests cover positive and negative participant deltas, the ten-person limit, confirmed-to-pending revision, and deadline enforcement.
 - Cancellation tests prove capacity release and token revocation.
 - Token utility tests cover generation, hashing, invalid tokens, and expiry.
-- Handler tests cover contract validation, stable error mapping, optional member linkage, and response redaction.
+- Handler tests cover contract validation, stable error mapping, optional account and Member linkage, and response redaction.
 - Migration verification covers an empty database and an upgrade with existing registrations.
 
 ### Frontend
@@ -432,14 +439,14 @@ The feature can be disabled per event through the existing `registration_enabled
 
 ## Acceptance criteria
 
-- A guest or authenticated member can register one to ten named participants.
+- A guest or authenticated Public Account can register one to ten named participants.
 - The server derives identity and status fields and never mass-assigns the persisted model.
 - Pending and confirmed participants consume capacity; cancelled participants do not.
 - Concurrent requests cannot exceed event capacity.
 - Active duplicate registrations for the same event and normalized contact email cannot be created.
 - Admin can confirm or cancel a group and check in participants individually.
 - Guests can securely edit before the deadline and cancel before the event starts.
-- Members can manage only registrations linked to their member profile.
+- Public Accounts can manage only registrations linked to their server-derived user ID; temple Member linkage remains optional.
 - All notification paths are durable and localized.
 - Public and admin contracts, OpenAPI, migrations, models, permissions, and frontend types remain synchronized.
 - Relevant backend tests, vet, build, frontend lint, type-check, and build pass before completion.
