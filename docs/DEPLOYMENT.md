@@ -33,6 +33,9 @@ Frontend:
 - `NEXT_PUBLIC_API_URL`
 - `NEXT_PUBLIC_SKIP_ADMIN_AUTH`
 - `NEXT_PUBLIC_WEBSITE_CMS_SOURCE`
+- `NEXT_PUBLIC_MEDIA_ALLOWED_ORIGINS` — comma-separated explicit origins for managed
+  media (for example `https://media.example.com`). Production builds require at
+  least one HTTPS origin; do not use wildcards, paths, or credentials.
 - `NEXT_PUBLIC_PUBLIC_ACCOUNT_AUTH_ENABLED` — `true` renders the public account UI
   and the account entry in the navigation (build-time flag)
 - `RESEND_API_KEY` is server-only despite living in the frontend application.
@@ -82,6 +85,11 @@ Never place real values in this file or committed env examples.
 - Use a non-default `JWT_SECRET` and explicit admin seed credentials.
 - Restrict `ALLOWED_ORIGINS` to deployed frontend origins.
 - Provide R2 credentials only to the backend runtime.
+- Set `NEXT_PUBLIC_MEDIA_ALLOWED_ORIGINS` to the public origin used by `R2_PUBLIC_URL`
+  (or its CDN), then rebuild the frontend whenever this value changes.
+- Configure the R2 bucket/CDN to return explicit CORS headers for image `GET`/`HEAD`
+  requests from every deployed frontend origin. Include `Content-Type` in the
+  response headers; avoid `*` when credentials or an allowlist is required.
 - Run one migration executor per release.
 
 ## Public account auth invariants
