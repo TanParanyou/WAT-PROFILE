@@ -45,7 +45,10 @@ export function RegistrationForm({ eventId, availability }: RegistrationFormProp
           mapped += 1;
         }
       }
-      if (mapped === 0) setRootError(t(`errors.${apiError.code}`, { default: t("submitError") }));
+      if (mapped === 0) {
+        const localizedCodes = ["REGISTRATION_DISABLED", "REGISTRATION_CLOSED", "EVENT_FULL", "ALREADY_REGISTERED", "GROUP_LIMIT_EXCEEDED", "REGISTRATION_CONFLICT"] as const;
+        setRootError(localizedCodes.includes(apiError.code as (typeof localizedCodes)[number]) ? t(`errors.${apiError.code}`) : t("submitError"));
+      }
     }
   };
 
