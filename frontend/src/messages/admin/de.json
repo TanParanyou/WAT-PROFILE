@@ -561,7 +561,21 @@
       "pending": "Ausstehend",
       "approved": "Genehmigt",
       "rejected": "Abgelehnt",
-      "cancelled": "Storniert"
+      "cancelled": "Storniert",
+      "attended": "Teilgenommen",
+      "view": "Ansehen",
+      "detailTitle": "Anmeldungsdetails",
+      "backToList": "Zurück zu Anmeldungen",
+      "contact": "Kontakt",
+      "participants": "Teilnehmende",
+      "attendance": "Teilnahme",
+      "markAttended": "Als teilgenommen markieren",
+      "markNotAttended": "Als nicht teilgenommen markieren",
+      "reason": "Grund",
+      "reasonPlaceholder": "Warum wird der Status geändert?",
+      "saveStatus": "Status speichern",
+      "loadError": "Anmeldungsdetails konnten nicht geladen werden."
+      ,"rotateLink": "Neuen Verwaltungslink senden"
     },
     "settings": {
       "title": "Einstellungen",

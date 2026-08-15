@@ -26,7 +26,7 @@ func NormalizeAndValidateCreate(request CreateRequest) (CreateInput, *DomainErro
 	if len(participants) < 1 {
 		fields["participants"] = "At least one participant is required"
 	} else if len(participants) > MaxParticipantsPerRegistration {
-		return CreateInput{}, NewDomainError(CodeGroupLimitExceeded, "A registration cannot contain more than ten participants", map[string]string{"participants": "Too many participants"})
+		return CreateInput{}, NewDomainError(CodeGroupLimitExceeded, "A registration cannot contain more than "+strconv.Itoa(MaxParticipantsPerRegistration)+" participants", map[string]string{"participants": "Too many participants"})
 	}
 	if len(fields) > 0 {
 		return CreateInput{}, NewDomainError(CodeValidation, "Registration details are invalid", fields)
@@ -49,7 +49,7 @@ func NormalizeAndValidateUpdate(request UpdateRequest) (UpdateInput, *DomainErro
 	if len(participants) < 1 {
 		fields["participants"] = "At least one participant is required"
 	} else if len(participants) > MaxParticipantsPerRegistration {
-		return UpdateInput{}, NewDomainError(CodeGroupLimitExceeded, "A registration cannot contain more than ten participants", map[string]string{"participants": "Too many participants"})
+		return UpdateInput{}, NewDomainError(CodeGroupLimitExceeded, "A registration cannot contain more than "+strconv.Itoa(MaxParticipantsPerRegistration)+" participants", map[string]string{"participants": "Too many participants"})
 	}
 	if len(fields) > 0 {
 		return UpdateInput{}, NewDomainError(CodeValidation, "Registration details are invalid", fields)

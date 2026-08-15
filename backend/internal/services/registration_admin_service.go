@@ -98,6 +98,10 @@ func (s *RegistrationService) AdminSetStatus(ctx context.Context, actorID uuid.U
 			}
 			return err
 		}
+		var event models.Event
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&event, registration.EventID).Error; err != nil {
+			return err
+		}
 		if registration.RegistrationStatus == "cancelled" && status != "cancelled" {
 			return registrations.NewDomainError(registrations.CodeConflict, "A cancelled registration cannot be reopened", nil)
 		}
@@ -117,7 +121,7 @@ func (s *RegistrationService) AdminSetStatus(ctx context.Context, actorID uuid.U
 			updates["cancellation_reason"] = strings.TrimSpace(input.Reason)
 			updates["cancellation_origin"] = "admin"
 			updates["cancelled_at"] = now
-			updates["manage_token_hash"] = ""
+			updates["manage_token_hash"] = nil
 			updates["manage_token_expires_at"] = nil
 			if err := tx.Model(&models.EventRegistrationParticipant{}).Where("registration_id = ? AND attendance_status <> ?", id, "cancelled").Updates(map[string]interface{}{"attendance_status": "cancelled", "cancelled_at": now}).Error; err != nil {
 				return err

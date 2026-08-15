@@ -186,6 +186,9 @@ func (s *RegistrationService) updateRegistrationWithOptions(ctx context.Context,
 			return mapRegistrationDatabaseError(err)
 		}
 		if added && registration.RegistrationStatus == "pending" {
+			if s.outbox == nil {
+				return errors.New("registration outbox is not configured")
+			}
 			if _, err := s.outbox.EnqueueTx(tx, OutboxJobInput{
 				JobKey: fmt.Sprintf("registration:review_required:%d:%d", registration.ID, now.UnixNano()), Kind: "registration.review_required", AggregateType: "event_registration", AggregateID: fmt.Sprintf("%d", registration.ID),
 				Payload: models.JSONMap{"registration_id": registration.ID, "locale": registration.Locale}, AvailableAt: now,
@@ -226,13 +229,16 @@ func (s *RegistrationService) cancelRegistration(ctx context.Context, input Regi
 		now := s.now()
 		updates := map[string]interface{}{
 			"registration_status": "cancelled", "cancellation_reason": strings.TrimSpace(input.Reason), "cancellation_origin": "registrant", "cancelled_at": now,
-			"manage_token_hash": "", "manage_token_expires_at": nil,
+			"manage_token_hash": nil, "manage_token_expires_at": nil,
 		}
 		if err := tx.Model(&models.EventRegistration{}).Where("id = ?", registration.ID).Updates(updates).Error; err != nil {
 			return err
 		}
 		if err := tx.Model(&models.EventRegistrationParticipant{}).Where("registration_id = ? AND attendance_status <> ?", registration.ID, "cancelled").Updates(map[string]interface{}{"attendance_status": "cancelled", "cancelled_at": now}).Error; err != nil {
 			return err
+		}
+		if s.outbox == nil {
+			return errors.New("registration outbox is not configured")
 		}
 		_, err = s.outbox.EnqueueTx(tx, OutboxJobInput{
 			JobKey: fmt.Sprintf("registration:cancelled:%d:%d", registration.ID, now.UnixNano()), Kind: "registration.cancelled", AggregateType: "event_registration", AggregateID: fmt.Sprintf("%d", registration.ID),

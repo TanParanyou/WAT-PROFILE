@@ -1,4 +1,5 @@
 import type { LocalizedRichTextDto, LocalizedTextDto } from "../shared/api-types";
+import type { RegistrationAvailability } from "../event-registration/types";
 
 export interface PublicEventScheduleDto {
   id: number;
@@ -34,6 +35,7 @@ export interface PublicEventDto {
   contact_email?: string | null;
   transport_info?: LocalizedTextDto | null;
   schedules?: readonly PublicEventScheduleDto[];
+  registration?: RegistrationAvailability;
 }
 
 export interface PublicEventsListOptions {

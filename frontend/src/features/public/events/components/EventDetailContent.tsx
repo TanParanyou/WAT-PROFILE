@@ -7,7 +7,6 @@ import {
   MapPin,
   Radio,
   ChevronDown,
-  CheckCircle2,
   ExternalLink,
   Phone,
   MessageCircle,
@@ -20,7 +19,7 @@ import {
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/navigation";
-import { formatDate, formatDateRange, formatTimeRange, toCalendarDateTime } from "@/utils/formatters";
+import { formatDateRange, formatTimeRange, toCalendarDateTime } from "@/utils/formatters";
 import { EmptyState } from "@/components/public/states/EmptyState";
 import { QueryErrorState } from "@/components/public/states/QueryErrorState";
 import EventPrinter from "@/components/events/EventPrinter";
@@ -34,6 +33,7 @@ import { usePublicEventQuery, usePublicEventsQuery } from "../queries";
 import type { PublicEventDto } from "../types";
 import { EventDetailSkeleton } from "./EventDetailSkeleton";
 import { getLocalizedPlainText } from "@/features/public/shared/rich-text";
+import { RegistrationPanel } from "@/features/public/event-registration/components/RegistrationPanel";
 
 interface EventDetailContentProps {
   slug: string;
@@ -447,37 +447,7 @@ export function EventDetailContent({ slug, initialEvent }: EventDetailContentPro
         {/* Right Column: Sidebar Action & Info Cards */}
         <aside className="space-y-6 lg:col-span-4">
           {/* Registration Card */}
-          {event.registration_enabled && (
-            <div className="border-2 border-site-border bg-site-surface p-6 space-y-4">
-              <h3 className="font-heading text-lg font-bold text-site-foreground flex items-center gap-2">
-                <CheckCircle2 size={18} className="text-site-accent shrink-0" />
-                {t("registrationTitle")}
-              </h3>
-              <p className="text-xs text-site-body leading-relaxed">
-                {t("registrationDesc")}
-              </p>
-
-              {event.max_participants ? (
-                <div className="text-xs font-semibold text-site-accent">
-                  {t("seatsLeft", { count: event.max_participants })}
-                </div>
-              ) : null}
-
-              {event.registration_deadline && (
-                <div className="text-xs text-site-muted">
-                  <strong>{t("registrationDeadline")}</strong>{" "}
-                  {formatDate(event.registration_deadline, locale)}
-                </div>
-              )}
-
-              <Link
-                href={`/contact?event=${encodeURIComponent(event.slug)}`}
-                className="inline-flex min-h-11 w-full items-center justify-center border border-site-border bg-site-action px-4 py-2.5 text-sm font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
-              >
-                {t("registerNow")}
-              </Link>
-            </div>
-          )}
+          <RegistrationPanel slug={event.slug} availability={event.registration} />
 
           {/* Donation Support Card */}
           {event.donation_enabled && (

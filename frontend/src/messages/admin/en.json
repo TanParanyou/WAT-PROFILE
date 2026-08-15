@@ -561,7 +561,21 @@
       "pending": "Pending",
       "approved": "Approved",
       "rejected": "Rejected",
-      "cancelled": "Cancelled"
+      "cancelled": "Cancelled",
+      "attended": "Attended",
+      "view": "View",
+      "detailTitle": "Registration details",
+      "backToList": "Back to registrations",
+      "contact": "Contact",
+      "participants": "Participants",
+      "attendance": "Attendance",
+      "markAttended": "Mark attended",
+      "markNotAttended": "Mark not attended",
+      "reason": "Reason",
+      "reasonPlaceholder": "Why is this status changing?",
+      "saveStatus": "Save status",
+      "loadError": "Registration details could not be loaded."
+      ,"rotateLink": "Send new management link"
     },
     "settings": {
       "title": "Settings",

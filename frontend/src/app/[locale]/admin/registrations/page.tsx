@@ -7,6 +7,8 @@ import { StatusBadge } from "@/components/admin/StatusBadge";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { Select } from "@/components/ui/Select";
 import { registrationAdminService, eventAdminService } from "@/services/adminService";
+import { fetchAdminEventRegistrations, setAdminEventRegistrationStatus } from "@/features/admin/event-registrations/api";
+import { toAdminRegistrationTableRow, type AdminRegistrationTableRow } from "@/features/admin/event-registrations/mappers";
 import { useToast } from "@/hooks/useToast";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
@@ -15,7 +17,7 @@ import { useConfirm } from "@/hooks/useConfirm";
 import { Icons } from "@/components/ui/Icons";
 import { useAdminListState } from "@/features/admin-list/useAdminListState";
 import { useAdminListQuery } from "@/features/admin-list/useAdminListQuery";
-import type { AdminFilterRecord, AdminFilterDefinition } from "@/features/admin-list/types";
+import type { AdminFilterRecord, AdminFilterDefinition, AdminPageSize } from "@/features/admin-list/types";
 import { AdminListToolbar } from "@/components/admin/list/AdminListToolbar";
 import { AdminSearchInput } from "@/components/admin/list/AdminSearchInput";
 import { AdminMultiSelectFilter } from "@/components/admin/list/AdminMultiSelectFilter";
@@ -24,6 +26,8 @@ import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components
 import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
 import { exportToCsv } from "@/services/adminListExportService";
 import { useQuery } from "@tanstack/react-query";
+import { useLocale } from "next-intl";
+import { Link } from "@/navigation";
 
 interface RegistrationFilters extends AdminFilterRecord {
   status: string[];
@@ -34,6 +38,8 @@ interface RegistrationFilters extends AdminFilterRecord {
 
 export default function RegistrationsPage() {
   const t = useTranslations("Admin");
+  const localeValue = useLocale();
+  const locale = localeValue === "en" || localeValue === "de" ? localeValue : "th";
 
   const statusOptions = [
     { value: "pending", label: t("registrations.pending") },
@@ -57,10 +63,20 @@ export default function RegistrationsPage() {
     },
   });
 
-  const listQuery = useAdminListQuery<Record<string, unknown>, RegistrationFilters>({
+  const listQuery = useAdminListQuery<AdminRegistrationTableRow, RegistrationFilters>({
     queryKey: ["admin", "registrations"],
     params: listState.params,
-    fetcher: (params) => registrationAdminService.getPaginated(params),
+    fetcher: async (params) => {
+      const statuses = params.filters.status.filter((value): value is "pending" | "confirmed" | "cancelled" | "attended" => ["pending", "confirmed", "cancelled", "attended"].includes(value));
+      const result = await fetchAdminEventRegistrations({
+        page: params.page,
+        limit: params.limit,
+        search: params.search,
+        status: statuses,
+        event_id: (params.filters.event ?? []).map((value) => Number(value)).filter((value) => Number.isInteger(value)),
+      });
+      return { data: result.items.map((item) => toAdminRegistrationTableRow(item, locale)), pagination: { ...result.pagination, limit: result.pagination.limit as AdminPageSize } };
+    },
     setPage: listState.actions.setPage,
   });
 
@@ -175,7 +191,7 @@ export default function RegistrationsPage() {
   const handleStatusUpdate = async (id: number, newStatus: string) => {
     setUpdatingId(id);
     try {
-      await registrationAdminService.updateStatus(id, newStatus);
+      await setAdminEventRegistrationStatus(id, newStatus as "pending" | "confirmed" | "cancelled" | "attended");
       toast.success(t("common.success"));
       listQuery.refetch();
     } catch {
@@ -185,7 +201,7 @@ export default function RegistrationsPage() {
     }
   };
 
-  const columns: Column<Record<string, unknown>>[] = [
+  const columns: Column<AdminRegistrationTableRow>[] = [
     {
       header: t("columns.name"),
       accessorKey: "name",
@@ -247,6 +263,7 @@ export default function RegistrationsPage() {
       header: t("columns.actions"),
       cell: (_, row) => (
         <div className="flex gap-1.5">
+          <Link href={`/admin/registrations/${String(row.id)}`} className="inline-flex min-h-11 items-center border border-admin-border px-3 text-xs font-semibold text-admin-foreground hover:bg-admin-surface">{t("registrations.view")}</Link>
           <PermissionGuard resource="events" action="delete">
             <button
               type="button"

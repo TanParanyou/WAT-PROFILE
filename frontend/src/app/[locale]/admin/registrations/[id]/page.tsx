@@ -1,0 +1,41 @@
+"use client";
+
+import { use, useState } from "react";
+import { useLocale, useTranslations } from "next-intl";
+import { Link } from "@/navigation";
+import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { PermissionGuard } from "@/components/admin/PermissionGuard";
+import { useAdminEventRegistrationQuery, useAdminEventRegistrationStatus, useAdminParticipantAttendance, useRotateAdminRegistrationManageLink, useUpdateAdminEventRegistration } from "@/features/admin/event-registrations/queries";
+import { getLocalizedText } from "@/features/public/events/mappers";
+import type { RegistrationStatus } from "@/features/public/event-registration/types";
+
+export default function AdminRegistrationDetailPage({ params }: { params: Promise<{ id: string }> }) {
+  const { id: rawId } = use(params);
+  const id = Number(rawId);
+  const t = useTranslations("Admin");
+  const localeValue = useLocale();
+  const locale = localeValue === "en" || localeValue === "de" ? localeValue : "th";
+  const query = useAdminEventRegistrationQuery(Number.isInteger(id) ? id : null);
+  const statusMutation = useAdminEventRegistrationStatus();
+  const attendanceMutation = useAdminParticipantAttendance();
+  const rotateMutation = useRotateAdminRegistrationManageLink();
+  const updateMutation = useUpdateAdminEventRegistration();
+  const [status, setStatus] = useState<RegistrationStatus | "">("");
+  const [reason, setReason] = useState("");
+  const [contact, setContact] = useState<{ first_name: string; last_name: string; email: string; phone: string } | null>(null);
+  if (query.isLoading || !query.data) return <div className="p-6 text-admin-muted">{query.isError ? t("registrations.loadError") : t("common.loading")}</div>;
+  const detail = query.data;
+  const selectedStatus = status || detail.registration_status;
+  const currentContact = contact ?? detail.contact;
+  return <div className="p-4 sm:p-6">
+    <AdminPageHeader title={t("registrations.detailTitle")} breadcrumbs={[{ label: t("registrations.title"), href: "/admin/registrations" }, { label: detail.confirmation_code }]} />
+    <div className="grid gap-6 lg:grid-cols-[minmax(0,1fr)_20rem]">
+      <section className="space-y-5 border border-admin-border bg-admin-surface p-5">
+        <div><h2 className="text-lg font-semibold text-admin-foreground">{getLocalizedText(detail.event.title, locale)}</h2><p className="mt-1 text-sm text-admin-muted">{detail.confirmation_code} · {detail.registration_type}</p></div>
+        <div><h3 className="text-sm font-semibold text-admin-foreground">{t("registrations.contact")}</h3><div className="mt-2 grid gap-3 sm:grid-cols-2"><input value={currentContact.first_name} onChange={(event) => setContact({ ...currentContact, first_name: event.target.value })} className="min-h-11 border border-admin-border bg-admin-canvas px-3 text-sm" aria-label={t("columns.name")} /><input value={currentContact.last_name} onChange={(event) => setContact({ ...currentContact, last_name: event.target.value })} className="min-h-11 border border-admin-border bg-admin-canvas px-3 text-sm" aria-label={t("columns.name")} /><input value={currentContact.email} onChange={(event) => setContact({ ...currentContact, email: event.target.value })} className="min-h-11 border border-admin-border bg-admin-canvas px-3 text-sm" aria-label={t("columns.email")} /><input value={currentContact.phone} onChange={(event) => setContact({ ...currentContact, phone: event.target.value })} className="min-h-11 border border-admin-border bg-admin-canvas px-3 text-sm" aria-label={t("columns.phone")} /><PermissionGuard resource="events" action="update"><button type="button" disabled={updateMutation.isPending} onClick={() => void updateMutation.mutateAsync({ id: detail.id, input: { locale, contact: currentContact, participants: detail.participants.map(({ id, first_name, last_name, dietary_restrictions, special_needs, additional_notes }) => ({ id, first_name, last_name, dietary_restrictions, special_needs, additional_notes })) } })} className="min-h-11 bg-admin-action px-4 text-sm font-semibold text-admin-on-action sm:col-span-2 disabled:opacity-60">{t("common.save")}</button></PermissionGuard></div></div>
+        <div><h3 className="text-sm font-semibold text-admin-foreground">{t("registrations.participants")}</h3><div className="mt-2 space-y-2">{detail.participants.map((participant) => <div key={participant.id} className="flex flex-wrap items-center justify-between gap-3 border border-admin-border p-3 text-sm"><div><p className="font-medium text-admin-foreground">{participant.first_name} {participant.last_name}</p><p className="text-admin-muted">{participant.dietary_restrictions || "—"}</p></div><PermissionGuard resource="events" action="update"><button type="button" onClick={() => void attendanceMutation.mutateAsync({ registrationId: detail.id, participantId: participant.id, attended: participant.attendance_status !== "attended" })} className="min-h-11 border border-admin-border px-3 text-xs font-semibold text-admin-foreground hover:bg-admin-surface">{participant.attendance_status === "attended" ? t("registrations.markNotAttended") : t("registrations.markAttended")}</button></PermissionGuard></div>)}</div></div>
+      </section>
+      <aside className="h-fit space-y-4 border border-admin-border bg-admin-surface p-5"><label className="block text-sm font-medium text-admin-foreground" htmlFor="registration-status">{t("registrations.updateStatus")}</label><select id="registration-status" value={selectedStatus} onChange={(event) => setStatus(event.target.value as RegistrationStatus)} className="min-h-11 w-full border border-admin-border bg-admin-canvas px-3 text-sm"><option value="pending">{t("registrations.pending")}</option><option value="confirmed">{t("registrations.approved")}</option><option value="attended">{t("registrations.attended")}</option><option value="cancelled">{t("registrations.cancelled")}</option></select><label className="block text-sm font-medium text-admin-foreground" htmlFor="registration-reason">{t("registrations.reason")}</label><textarea id="registration-reason" rows={3} value={reason} onChange={(event) => setReason(event.target.value)} placeholder={t("registrations.reasonPlaceholder")} className="w-full border border-admin-border bg-admin-canvas px-3 py-2 text-sm" /><PermissionGuard resource="events" action="update"><button type="button" disabled={statusMutation.isPending} onClick={() => void statusMutation.mutateAsync({ id: detail.id, status: selectedStatus, reason })} className="min-h-11 w-full bg-admin-action px-4 text-sm font-semibold text-admin-on-action disabled:opacity-60">{t("registrations.saveStatus")}</button><button type="button" disabled={rotateMutation.isPending} onClick={() => void rotateMutation.mutateAsync(detail.id)} className="min-h-11 w-full border border-admin-border px-4 text-sm font-semibold text-admin-foreground disabled:opacity-60">{t("registrations.rotateLink")}</button></PermissionGuard><Link href="/admin/registrations" className="inline-flex min-h-11 w-full items-center justify-center border border-admin-border px-4 text-sm font-semibold text-admin-foreground">{t("registrations.backToList")}</Link></aside>
+    </div>
+  </div>;
+}
