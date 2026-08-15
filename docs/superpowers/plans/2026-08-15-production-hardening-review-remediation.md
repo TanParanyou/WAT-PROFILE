@@ -338,4 +338,3 @@ Report verification output, any known repository-wide lint baseline, and confirm
 that `docs/DEPLOYMENT_TH.md` plus
 `docs/superpowers/plans/2026-08-13-client-hero-mobile-fallback.md` remain
 untracked user files.
-
