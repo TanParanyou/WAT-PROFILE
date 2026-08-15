@@ -3,6 +3,7 @@ package calendar
 import (
 	"context"
 	"fmt"
+	"sort"
 	"time"
 
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
@@ -33,7 +34,7 @@ func (s *EventSource) List(ctx context.Context, request Request, canEdit bool) (
 	if !canEdit {
 		query = query.Where("events.is_active = ?", true)
 	}
-	if err := query.Find(&events).Error; err != nil {
+	if err := query.Preload("ResourceAssignments.Resource").Find(&events).Error; err != nil {
 		return nil, err
 	}
 
@@ -42,6 +43,31 @@ func (s *EventSource) List(ctx context.Context, request Request, canEdit bool) (
 		entries = append(entries, MaterializeEntry(event, string(request.Locale), canEdit))
 	}
 	return entries, nil
+}
+
+func (s *EventSource) ListResources(ctx context.Context, locale Locale, canEdit bool) ([]Resource, error) {
+	var resources []models.CalendarResource
+	query := s.db.WithContext(ctx).
+		Where("calendar_resources.is_active = ?", true).
+		Order("calendar_resources.display_order ASC, calendar_resources.id ASC")
+	if !canEdit {
+		query = query.Where("calendar_resources.is_public = ?", true)
+	}
+	if err := query.Find(&resources).Error; err != nil {
+		return nil, err
+	}
+
+	result := make([]Resource, 0, len(resources)+1)
+	result = append(result, Resource{ID: "default", Title: "Calendar"})
+	for _, resource := range resources {
+		result = append(result, Resource{
+			ID:    resource.Slug,
+			Title: resource.Title.Get(string(locale)),
+			Color: resource.Color,
+			Group: resource.ResourceType,
+		})
+	}
+	return result, nil
 }
 
 // Entry materializes an Event into the source-neutral calendar contract.
@@ -63,6 +89,21 @@ func MaterializeEntry(event models.Event, locale string, canEdit bool) Entry {
 	}
 	if canEdit {
 		entry.Detail.EditorHref = fmt.Sprintf("/admin/events/%d", event.ID)
+	}
+	resourceIDs := make([]string, 0, len(event.ResourceAssignments))
+	for _, assignment := range event.ResourceAssignments {
+		resource := assignment.Resource
+		if resource == nil || !resource.IsActive || (!canEdit && !resource.IsPublic) {
+			continue
+		}
+		if resource.Slug != "" {
+			resourceIDs = append(resourceIDs, resource.Slug)
+		}
+	}
+	sort.Strings(resourceIDs)
+	if len(resourceIDs) > 0 {
+		entry.ResourceIDs = resourceIDs
+		entry.ResourceID = resourceIDs[0]
 	}
 
 	if event.StartTime == nil || event.EndTime == nil {

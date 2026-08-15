@@ -36,6 +36,13 @@ func (h *CalendarHandler) getFeed(c *fiber.Ctx, canEdit bool) error {
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch calendar")
 	}
+	resources := []calendar.Resource{{ID: "default", Title: "Calendar"}}
+	if resourceSource, ok := h.source.(calendar.ResourceSource); ok {
+		resources, err = resourceSource.ListResources(c.Context(), request.Locale, canEdit)
+		if err != nil {
+			return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch calendar resources")
+		}
+	}
 	return utils.SuccessResponse(c, calendar.Feed{
 		Scope:    map[bool]string{true: "admin", false: "public"}[canEdit],
 		Locale:   request.Locale,
@@ -45,7 +52,7 @@ func (h *CalendarHandler) getFeed(c *fiber.Ctx, canEdit bool) error {
 			EndDate:   request.To.Format("2006-01-02"),
 		},
 		Entries:   entries,
-		Resources: []calendar.Resource{{ID: "default", Title: "Calendar"}},
+		Resources: resources,
 	})
 }
 

@@ -101,3 +101,32 @@ func TestEventSourceKeepsOverlappingEntriesIndependent(t *testing.T) {
 		t.Fatalf("overlapping entries were not materialized independently: %#v %#v", first, second)
 	}
 }
+
+func TestEventSourceMaterializesMultipleVisibleResources(t *testing.T) {
+	entry := MaterializeEntry(models.Event{
+		ID: 48,
+		ResourceAssignments: []models.EventResourceAssignment{
+			{Resource: &models.CalendarResource{Slug: "projector", IsActive: true, IsPublic: true}},
+			{Resource: &models.CalendarResource{Slug: "main-hall", IsActive: true, IsPublic: true}},
+		},
+		StartDate: mustDate("2026-08-14"),
+		EndDate:   mustDate("2026-08-14"),
+	}, "en", false)
+	if len(entry.ResourceIDs) != 2 || entry.ResourceIDs[0] != "main-hall" || entry.ResourceIDs[1] != "projector" || entry.ResourceID != "main-hall" {
+		t.Fatalf("unexpected resource IDs: %#v", entry)
+	}
+}
+
+func TestEventSourceHidesPrivateResourceFromPublicEntry(t *testing.T) {
+	entry := MaterializeEntry(models.Event{
+		ID: 49,
+		ResourceAssignments: []models.EventResourceAssignment{
+			{Resource: &models.CalendarResource{Slug: "staff-room", IsActive: true, IsPublic: false}},
+		},
+		StartDate: mustDate("2026-08-14"),
+		EndDate:   mustDate("2026-08-14"),
+	}, "en", false)
+	if len(entry.ResourceIDs) != 0 || entry.ResourceID != "" {
+		t.Fatalf("private resource leaked into public entry: %#v", entry)
+	}
+}

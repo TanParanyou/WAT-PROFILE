@@ -30,6 +30,10 @@ function isOptionalString(value: unknown): value is string | undefined {
   return value === undefined || isString(value);
 }
 
+function isOptionalStringArray(value: unknown): value is readonly string[] {
+  return value === undefined || (Array.isArray(value) && value.every(isString));
+}
+
 function isDateOnly(value: unknown): value is string {
   if (!isString(value) || !/^\d{4}-\d{2}-\d{2}$/.test(value)) return false;
   const parsed = parseISO(value);
@@ -68,6 +72,7 @@ function parseCalendarEntry(value: unknown): CalendarEntry | null {
     (display.tone !== "default" && display.tone !== "muted" && display.tone !== "warning") ||
     typeof detail.canEdit !== "boolean" ||
     !isOptionalString(value.resourceId) ||
+    !isOptionalStringArray(value.resourceIds) ||
     !isOptionalString(detail.href) ||
     !isOptionalString(detail.editorHref) ||
     !isOptionalString(detail.description) ||
@@ -88,6 +93,7 @@ function parseCalendarEntry(value: unknown): CalendarEntry | null {
     end: value.end,
     allDay: value.allDay,
     resourceId: value.resourceId,
+    resourceIds: value.resourceIds,
     status: value.status,
     display: { tone: display.tone },
     detail: {
@@ -102,8 +108,8 @@ function parseCalendarEntry(value: unknown): CalendarEntry | null {
 
 function parseCalendarResource(value: unknown): CalendarResource | null {
   if (!isRecord(value) || !isString(value.id) || !isString(value.title)) return null;
-  if (!isOptionalString(value.color)) return null;
-  return { id: value.id, title: value.title, color: value.color };
+  if (!isOptionalString(value.color) || !isOptionalString(value.group)) return null;
+  return { id: value.id, title: value.title, color: value.color, group: value.group };
 }
 
 function parseCalendarFeed(payload: unknown): CalendarFeed {

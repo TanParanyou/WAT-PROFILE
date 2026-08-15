@@ -35,8 +35,19 @@ test("admin calendar feed uses the authenticated admin API client", async () => 
           locale: "th",
           timezone: "Europe/Berlin",
           range: { startDate: "2026-08-10", endDate: "2026-08-16" },
-          entries: [],
-          resources: [],
+          entries: [{
+            id: "event-1",
+            source: "event",
+            title: "Merit",
+            start: "2026-08-12",
+            end: "2026-08-13",
+            allDay: true,
+            resourceIds: ["main-hall", "projector"],
+            status: "active",
+            display: { tone: "default" },
+            detail: { canEdit: true },
+          }],
+          resources: [{ id: "main-hall", title: "Main hall", group: "location" }],
         },
       },
       status: 200,
@@ -55,6 +66,8 @@ test("admin calendar feed uses the authenticated admin API client", async () => 
     });
 
     assert.equal(feed.scope, "admin");
+    assert.deepEqual(feed.entries[0]?.resourceIds, ["main-hall", "projector"]);
+    assert.equal(feed.resources[0]?.group, "location");
     assert.equal(capturedRequest?.url, "/admin/calendar");
     assert.equal(capturedRequest?.headers.Authorization, "Bearer calendar-admin-test-token");
   } finally {

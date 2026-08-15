@@ -4894,6 +4894,10 @@ components:
           type: boolean
         resourceId:
           type: string
+        resourceIds:
+          type: array
+          items:
+            type: string
         status:
           type: string
           enum: [active, inactive]
@@ -4930,6 +4934,8 @@ components:
         title:
           type: string
         color:
+          type: string
+        group:
           type: string
 
     CalendarResourceInput:

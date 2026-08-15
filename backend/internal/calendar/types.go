@@ -29,16 +29,17 @@ type Request struct {
 }
 
 type Entry struct {
-	ID         string  `json:"id"`
-	Source     string  `json:"source"`
-	Title      string  `json:"title"`
-	Start      string  `json:"start"`
-	End        string  `json:"end"`
-	AllDay     bool    `json:"allDay"`
-	ResourceID string  `json:"resourceId,omitempty"`
-	Status     string  `json:"status"`
-	Display    Display `json:"display"`
-	Detail     Detail  `json:"detail"`
+	ID          string   `json:"id"`
+	Source      string   `json:"source"`
+	Title       string   `json:"title"`
+	Start       string   `json:"start"`
+	End         string   `json:"end"`
+	AllDay      bool     `json:"allDay"`
+	ResourceID  string   `json:"resourceId,omitempty"`
+	ResourceIDs []string `json:"resourceIds,omitempty"`
+	Status      string   `json:"status"`
+	Display     Display  `json:"display"`
+	Detail      Detail   `json:"detail"`
 }
 
 type Display struct {
@@ -57,6 +58,7 @@ type Resource struct {
 	ID    string `json:"id"`
 	Title string `json:"title"`
 	Color string `json:"color,omitempty"`
+	Group string `json:"group,omitempty"`
 }
 
 type Feed struct {
@@ -76,4 +78,11 @@ type Range struct {
 type Source interface {
 	Name() string
 	List(context.Context, Request, bool) ([]Entry, error)
+}
+
+// ResourceSource is an optional extension for sources that expose calendar
+// lanes. Keeping it separate preserves compatibility with existing adapters.
+type ResourceSource interface {
+	Source
+	ListResources(context.Context, Locale, bool) ([]Resource, error)
 }
