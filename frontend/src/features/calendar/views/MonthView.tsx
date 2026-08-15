@@ -6,13 +6,13 @@ import type { CalendarVariant } from "../calendar-theme";
 import { calendarFocusClass } from "../calendar-theme";
 import type { CalendarController } from "../useCalendar";
 import type { CalendarEventLike, CalendarResource } from "../core/types";
-import { CalendarEventRow } from "../ui/CalendarEventRow";
 import { CalendarTooltip } from "../ui/CalendarTooltip";
 import { MonthDayPopover } from "../ui/MonthDayPopover";
-import { entriesOnDay, formatCalendarDate, getCalendarDays } from "./calendar-view-utils";
-import { buildMonthGrid, type MonthGridCell } from "./month-grid";
+import { entriesOnDay, getCalendarDays } from "./calendar-view-utils";
+import { buildMonthGrid } from "./month-grid";
+import { SelectedDateAgenda } from "../ui/SelectedDateAgenda";
 
-interface MonthViewProps<TEvent extends CalendarEventLike> {
+export interface MonthViewProps<TEvent extends CalendarEventLike> {
   controller: CalendarController;
   entries: readonly TEvent[];
   resources?: readonly CalendarResource[];
@@ -39,37 +39,6 @@ function renderEventLabel<TEvent extends CalendarEventLike>(
   density: "summary" | "row",
 ): ReactNode {
   return renderEvent ? renderEvent(event, density) : event.title;
-}
-
-function MonthDayButton({
-  cell,
-  labels,
-  variant,
-  onSelect,
-}: {
-  cell: MonthGridCell;
-  labels: CalendarLabels;
-  variant: CalendarVariant;
-  onSelect: (date: Date) => void;
-}) {
-  const eventSummary = labels.eventsCount(cell.entries.length + cell.overflowCount);
-
-  return (
-    <button
-      type="button"
-      onClick={() => onSelect(cell.date)}
-      aria-pressed={cell.isSelected}
-      aria-label={`${labels.selectedDateLabel(cell.date)}, ${eventSummary}`}
-      className={`flex min-h-12 w-full flex-col items-center justify-center gap-0.5 border-r border-b border-current/15 px-1 text-xs focus-visible:outline-[3px] focus-visible:outline-offset-2 ${calendarFocusClass(variant)} ${cell.isSelected ? "bg-current/10 font-semibold" : ""} ${cell.isToday ? "underline decoration-2 underline-offset-2" : ""} ${cell.isOutsideCurrentMonth ? "opacity-45" : ""}`}
-    >
-      <span>{cell.date.getDate()}</span>
-      {cell.entries.length + cell.overflowCount > 0 ? (
-        <span className="inline-flex min-h-4 min-w-4 items-center justify-center rounded-full bg-current/15 px-1 text-[0.65rem] leading-none" aria-hidden="true">
-          {cell.entries.length + cell.overflowCount}
-        </span>
-      ) : null}
-    </button>
-  );
 }
 
 export function MonthView<TEvent extends CalendarEventLike>({
@@ -99,8 +68,6 @@ export function MonthView<TEvent extends CalendarEventLike>({
     maxVisibleEntries: Math.max(1, Math.floor(maxVisibleEvents)),
   });
   const weekdayDates = days.slice(0, 7);
-  const selectedDay = formatCalendarDate(controller.selectedDate);
-  const selectedEntries = entriesOnDay(entries, selectedDay);
   const renderSummary = (event: TEvent) => (
     <span className="block truncate">{renderEventLabel(event, renderEvent, "summary")}</span>
   );
@@ -113,7 +80,7 @@ export function MonthView<TEvent extends CalendarEventLike>({
 
   return (
     <div className="space-y-4">
-      <div className="hidden sm:block" aria-label="Month grid">
+      <div className="hidden sm:block" aria-label="Month grid" role="grid">
         <div className={`grid grid-cols-7 border-l border-t border-current/15 ${stickyHeader ? `sticky top-0 z-10 ${bgClass}` : ""}`}>
           {weekdayDates.map((day) => (
             <div key={`weekday-${day.getDay()}`} className="border-r border-b border-current/15 bg-current/5 px-2 py-2 text-xs font-semibold opacity-75">
@@ -181,47 +148,19 @@ export function MonthView<TEvent extends CalendarEventLike>({
         </div>
       </div>
 
-      <div className="space-y-4 sm:hidden">
-        <div className="border-l border-t border-current/15" aria-label="Month grid">
-          <div className="grid grid-cols-7">
-            {weekdayDates.map((day) => (
-              <div key={`mobile-weekday-${day.getDay()}`} className="border-r border-b border-current/15 bg-current/5 px-1 py-2 text-center text-[0.65rem] font-semibold opacity-75">
-                {labels.dayNames[day.getDay()]?.slice(0, 2) ?? ""}
-              </div>
-            ))}
-            {grid.rows.flat().map((cell) => (
-              <MonthDayButton key={cell.key} cell={cell} labels={labels} variant={variant} onSelect={controller.selectDate} />
-            ))}
-          </div>
-        </div>
-      </div>
-
-      <section aria-labelledby="calendar-selected-date" className="border-t border-current/15 pt-4">
-        <div className="flex items-baseline justify-between gap-3">
-          <h3 id="calendar-selected-date" className="text-sm font-semibold">{labels.selectedDateLabel(controller.selectedDate)}</h3>
-          <span className="text-xs opacity-70">{labels.eventsCount(selectedEntries.length)}</span>
-        </div>
-        <div className="mt-3 space-y-2">
-          {selectedEntries.map((event) => (
-            <CalendarEventRow
-              key={event.id}
-              event={event}
-              date={selectedDay}
-              formatTime={formatTime}
-              formatLocation={formatLocation}
-              onActivate={onEntryActivate}
-              actionLabel={labels.eventDetails}
-              className={getEventClass(event, "row")}
-              focusClassName={calendarFocusClass(variant)}
-              renderEvent={(item) => renderEventLabel(item, renderEvent, "row")}
-              showTooltip={showTooltip}
-              renderTooltip={renderTooltip}
-              variant={variant}
-            />
-          ))}
-          {selectedEntries.length === 0 ? <p className="border border-current/15 p-4 text-sm opacity-70">{labels.noEventsOnDate}</p> : null}
-        </div>
-      </section>
+      <SelectedDateAgenda
+        selectedDate={controller.selectedDate}
+        entries={entries}
+        labels={labels}
+        variant={variant}
+        onEntryActivate={onEntryActivate}
+        renderEvent={(event, density) => renderEventLabel(event, renderEvent, density)}
+        formatTime={formatTime}
+        formatLocation={formatLocation}
+        getEventClassName={getEventClass}
+        showTooltip={showTooltip}
+        renderTooltip={renderTooltip}
+      />
 
       {popoverState ? (
         <MonthDayPopover

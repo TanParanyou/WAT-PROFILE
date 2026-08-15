@@ -7,8 +7,10 @@ import type { CalendarEventLike, CalendarResource } from "./core/types";
 import { CalendarRoot } from "./ui/CalendarRoot";
 import { getCalendarDays } from "./views/calendar-view-utils";
 import { MonthView } from "./views/MonthView";
+import { MonthAgenda } from "./views/MonthAgenda";
 import { TimeGrid } from "./views/TimeGrid";
 import type { CalendarController } from "./useCalendar";
+import { useCalendarLayout } from "./useCalendarLayout";
 import type { CalendarPreset } from "./presets/types";
 import type { CalendarVariant } from "./calendar-theme";
 
@@ -79,8 +81,8 @@ export function Calendar<TEvent extends CalendarEventLike>({
     ...preset,
     enabledViews: controller.config.enabledViews,
   };
-  const mode = effectivePreset.viewModes[controller.view];
-  const viewContent = mode === "monthGrid"
+  const layout = useCalendarLayout(controller.view, controller.config.layouts);
+  const viewContent = layout === "monthGrid"
     ? (
       <MonthView
         controller={controller}
@@ -98,7 +100,25 @@ export function Calendar<TEvent extends CalendarEventLike>({
         maxVisibleEvents={controller.config.month.maxVisibleEvents}
       />
     )
-    : mode === "timeGrid"
+    : layout === "monthAgenda"
+      ? (
+        <MonthAgenda
+          controller={controller}
+          entries={events}
+          resources={resources}
+          labels={labels}
+          variant={variant}
+          onEntryActivate={onEventActivate}
+          renderEvent={renderEvent}
+          formatTime={formatEventTime}
+          formatLocation={formatEventLocation}
+          getEventClassName={getEventClassName}
+          showTooltip={showTooltip}
+          renderTooltip={renderTooltip}
+          maxVisibleEvents={controller.config.month.maxVisibleEvents}
+        />
+      )
+      : layout === "timeGrid"
       ? (
         <TimeGrid
           days={timeGridDays}
@@ -131,6 +151,7 @@ export function Calendar<TEvent extends CalendarEventLike>({
       view={controller.view}
       date={controller.date}
       visibleRange={controller.visibleRange}
+      layout={layout}
       labels={labels}
       onViewChange={controller.setView}
       onPrevious={controller.previous}

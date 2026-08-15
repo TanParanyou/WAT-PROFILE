@@ -4,13 +4,14 @@ import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef, type KeyboardEvent, type ReactNode } from "react";
 import type { CalendarRange, CalendarView } from "../core/types";
 import type { CalendarLabels } from "../calendar-copy";
-import type { CalendarPreset } from "../presets/types";
+import type { CalendarLayout, CalendarPreset } from "../presets/types";
 
 export interface CalendarRootProps {
   preset: CalendarPreset;
   view: CalendarView;
   date: Date;
   visibleRange: CalendarRange;
+  layout?: CalendarLayout;
   labels: CalendarLabels;
   onViewChange: (view: CalendarView) => void;
   onPrevious: () => void;
@@ -48,6 +49,7 @@ export function CalendarRoot({
   view,
   date,
   visibleRange,
+  layout,
   labels,
   onViewChange,
   onPrevious,
@@ -67,7 +69,7 @@ export function CalendarRoot({
     week: labels.viewWeek ?? "Week",
     day: labels.viewDay ?? "Day",
   };
-  const mode = preset.viewModes[view];
+  const mode = layout ?? preset.viewModes[view];
   const tabViews = getCalendarTabViews(preset);
   const activeIndex = tabViews.indexOf(view);
   const focusView = (index: number) => {
