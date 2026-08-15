@@ -31,7 +31,7 @@ export default function EventsContent() {
             {schedulesQuery.isLoading ? <div className="grid animate-pulse gap-6 lg:grid-cols-2" aria-label={tState("loading")}><div className="h-64 bg-site-surface" /><div className="h-64 bg-site-surface" /></div> : schedulesQuery.isError ? <QueryErrorState title={tState("errorTitle")} description={tState("errorDescription")} retryLabel={tState("retry")} onRetry={() => schedulesQuery.refetch()} isRetrying={schedulesQuery.isFetching} /> : schedules.length === 0 ? <EmptyState title={tState("emptySchedules")} description={tState("emptyContent")} /> : <SchedulesSection schedules={schedules} />}
           </div>
         </section>
-        <section className="mt-16 border-t border-site-border pt-12 sm:pt-16" aria-labelledby="calendar-heading">
+        <section className="mt-16 sm:mt-20" aria-labelledby="calendar-heading">
           <PublicSectionHeading
             id="calendar-heading"
             title={tPage("calendarTitle")}
@@ -41,7 +41,7 @@ export default function EventsContent() {
             <PublicCalendarSection />
           </div>
         </section>
-        <section className="mt-20 border-t border-site-border pt-16" aria-labelledby="events-heading">
+        <section className="mt-16 sm:mt-20" aria-labelledby="events-heading">
           <PublicSectionHeading id="events-heading" title={tPage("upcomingEvents")} description={tPage("subtitle")} />
           <div className="mt-8">
             {eventsQuery.isLoading ? <EventsListSkeleton /> : eventsQuery.isError ? <QueryErrorState title={tState("errorTitle")} description={tState("errorDescription")} retryLabel={tState("retry")} onRetry={() => eventsQuery.refetch()} isRetrying={eventsQuery.isFetching} /> : events.length === 0 ? <EmptyState title={tState("emptyEvents")} description={tState("emptyContent")} /> : <EventsList events={events} />}
