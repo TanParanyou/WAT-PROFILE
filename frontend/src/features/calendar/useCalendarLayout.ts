@@ -5,7 +5,7 @@ import type { CalendarView } from "./core/types";
 import type { CalendarLayout, CalendarResponsiveLayouts } from "./presets/types";
 
 function subscribeToMediaQuery(query: string, callback: () => void): () => void {
-  if (typeof window === "undefined") return () => undefined;
+  if (typeof window === "undefined" || typeof window.matchMedia !== "function") return () => undefined;
 
   const mediaQuery = window.matchMedia(query);
   const listener = () => callback();
@@ -27,7 +27,7 @@ export function useCalendarLayout(
     [query],
   );
   const getSnapshot = useCallback(
-    () => typeof window !== "undefined" && window.matchMedia(query).matches,
+    () => typeof window !== "undefined" && typeof window.matchMedia === "function" && window.matchMedia(query).matches,
     [query],
   );
   const isMobile = useSyncExternalStore(subscribe, getSnapshot, () => false);

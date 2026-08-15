@@ -3,10 +3,9 @@
 import type { CalendarLabels } from "../calendar-copy";
 import { calendarFocusClass, type CalendarVariant } from "../calendar-theme";
 import { SelectedDateAgenda } from "../ui/SelectedDateAgenda";
-import type { CalendarController } from "../useCalendar";
 import type { CalendarEventLike } from "../core/types";
 import { buildMonthGrid, type MonthGridCell } from "./month-grid";
-import { formatCalendarDate, getCalendarDays } from "./calendar-view-utils";
+import { getCalendarDays } from "./calendar-view-utils";
 import type { MonthViewProps } from "./MonthView";
 
 function MonthAgendaDayButton({
