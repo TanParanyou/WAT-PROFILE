@@ -1,5 +1,6 @@
 import type { NextConfig } from "next";
 import createNextIntlPlugin from 'next-intl/plugin';
+import { parseManagedMediaOrigins } from "./src/lib/mediaOrigins";
 
 const withNextIntl = createNextIntlPlugin('./src/i18n.ts');
 
@@ -8,6 +9,13 @@ if (process.env.NODE_ENV === "production" && process.env.NEXT_PUBLIC_PUBLIC_ACCO
   if (!apiUrl || !apiUrl.startsWith("https://")) {
     throw new Error("NEXT_PUBLIC_API_URL must be an HTTPS URL when public account auth is enabled in production");
   }
+}
+
+if (process.env.NODE_ENV === "production") {
+  parseManagedMediaOrigins(process.env.NEXT_PUBLIC_MEDIA_ALLOWED_ORIGINS, {
+    allowHttp: false,
+    requireAtLeastOne: true,
+  });
 }
 
 const nextConfig: NextConfig = {
