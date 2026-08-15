@@ -387,7 +387,7 @@ export default function GalleryListPage() {
         title={t("gallery.title")}
         breadcrumbs={[{ label: t("gallery.title") }]}
         actions={
-          <div className="flex items-center gap-2">
+          <div className="flex flex-wrap items-center gap-2">
             <ViewModeToggle value={viewMode} onChange={handleChangeViewMode} />
 
             <PermissionButton

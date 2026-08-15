@@ -50,9 +50,9 @@ export function AdminPageHeader({ title, breadcrumbs, actions }: AdminPageHeader
             )}
 
             {/* Title + Actions */}
-            <div className="flex items-center justify-between">
-                <h1 className="text-2xl font-bold text-admin-foreground">{title}</h1>
-                {actions && <div className="flex items-center gap-2">{actions}</div>}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
+                <h1 className="text-xl sm:text-2xl font-bold text-admin-foreground tracking-tight">{title}</h1>
+                {actions && <div className="flex flex-wrap items-center gap-2 sm:shrink-0">{actions}</div>}
             </div>
         </div>
     );
