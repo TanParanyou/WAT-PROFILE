@@ -1,5 +1,10 @@
 import { isBefore, parseISO } from "date-fns";
-import type { CalendarEventLike, CalendarResource } from "./core/types";
+import {
+  DEFAULT_RESOURCE_ID,
+  getCalendarEventResourceIds,
+  type CalendarEventLike,
+  type CalendarResource,
+} from "./core/types";
 
 export interface TimedEntryLayout {
   column: number;
@@ -95,15 +100,18 @@ export function buildTimedColumns(
 export function groupEntriesByResource<TEvent extends CalendarEventLike>(
   entries: readonly TEvent[],
   resources: readonly CalendarResource[],
+  unassignedResourceId = DEFAULT_RESOURCE_ID,
 ): Map<string, TEvent[]> {
   const lanes = new Map<string, TEvent[]>();
   for (const resource of resources) lanes.set(resource.id, []);
-  if (!lanes.has("default")) lanes.set("default", []);
 
   for (const entry of entries) {
-    const resourceId = entry.resourceId ?? "default";
-    if (!lanes.has(resourceId)) lanes.set(resourceId, []);
-    lanes.get(resourceId)?.push(entry);
+    const resourceIds = getCalendarEventResourceIds(entry);
+    const assignedResourceIds = resourceIds.length > 0 ? resourceIds : [unassignedResourceId];
+    for (const resourceId of assignedResourceIds) {
+      if (!lanes.has(resourceId)) lanes.set(resourceId, []);
+      lanes.get(resourceId)?.push(entry);
+    }
   }
 
   return lanes;

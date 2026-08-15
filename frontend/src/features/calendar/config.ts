@@ -3,10 +3,12 @@ import type {
   CalendarLayout,
   CalendarPreset,
   CalendarResponsiveLayouts,
+  CalendarResponsiveLayoutsInput,
 } from "./presets/types";
 
 export interface CalendarConfigInput {
   enabledViews?: readonly CalendarView[];
+  layouts?: CalendarResponsiveLayoutsInput;
   month?: {
     maxVisibleEvents?: number;
   };
@@ -62,8 +64,14 @@ const defaultConfig: CalendarConfig = {
 
 const validLayouts: Record<CalendarView, readonly CalendarLayout[]> = {
   month: ["monthGrid", "monthAgenda"],
-  week: ["timeGrid", "dayStrip"],
-  day: ["timeGrid"],
+  week: ["timeGrid", "dayStrip", "timeline"],
+  day: ["timeGrid", "timeline", "resourceDayGrid"],
+};
+
+const fallbackLayouts: Record<CalendarView, CalendarLayout> = {
+  month: "monthGrid",
+  week: "timeGrid",
+  day: "timeGrid",
 };
 
 function positiveFinite(value: number | undefined, fallback: number, name: string): number {
@@ -97,17 +105,20 @@ export function resolveCalendarConfig(
   }
 
   const desktop = (Object.keys(validLayouts) as CalendarView[]).reduce<Record<CalendarView, CalendarLayout>>((resolved, view) => {
-    const requested = preset.layouts?.desktop?.[view] ?? preset.viewModes[view];
-    resolved[view] = validLayouts[view].includes(requested) ? requested : preset.viewModes[view];
+    const presetLayout = validLayouts[view].includes(preset.viewModes[view])
+      ? preset.viewModes[view]
+      : fallbackLayouts[view];
+    const requested = input.layouts?.desktop?.[view] ?? preset.layouts?.desktop?.[view] ?? presetLayout;
+    resolved[view] = validLayouts[view].includes(requested) ? requested : presetLayout;
     return resolved;
   }, { month: "monthGrid", week: "timeGrid", day: "timeGrid" });
   const mobile = (Object.keys(validLayouts) as CalendarView[]).reduce<Record<CalendarView, CalendarLayout>>((resolved, view) => {
-    const requested = preset.layouts?.mobile?.[view] ?? desktop[view];
-    resolved[view] = validLayouts[view].includes(requested) ? requested : preset.viewModes[view];
+    const requested = input.layouts?.mobile?.[view] ?? preset.layouts?.mobile?.[view] ?? desktop[view];
+    resolved[view] = validLayouts[view].includes(requested) ? requested : desktop[view];
     return resolved;
   }, { month: "monthGrid", week: "timeGrid", day: "timeGrid" });
   const mobileBreakpoint = positiveFinite(
-    preset.layouts?.mobileBreakpoint,
+    input.layouts?.mobileBreakpoint ?? preset.layouts?.mobileBreakpoint,
     defaultConfig.layouts.mobileBreakpoint,
     "mobileBreakpoint",
   );

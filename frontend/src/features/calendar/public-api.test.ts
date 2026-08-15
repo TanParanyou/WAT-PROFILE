@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import {
   Calendar,
+  getCalendarEventResourceIds,
   discoveryPreset,
   planningPreset,
   resolveCalendarConfig,
@@ -11,6 +12,7 @@ import type { CalendarLayout, CalendarResponsiveLayouts, CalendarResponsiveLayou
 
 test("calendar barrel exposes the supported reusable API", () => {
   assert.equal(typeof Calendar, "function");
+  assert.equal(typeof getCalendarEventResourceIds, "function");
   assert.equal(typeof useCalendar, "function");
   assert.equal(typeof resolveCalendarConfig, "function");
   assert.equal(discoveryPreset.enabledViews.join(","), "month,week,day");

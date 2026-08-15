@@ -49,6 +49,22 @@ test("calendar config deduplicates views and preserves explicit layout settings"
   assert.equal(config.timeGrid.stickyTimeAxis, true);
 });
 
+test("calendar config accepts developer layout overrides and rejects incompatible layouts", () => {
+  const config = resolveCalendarConfig(planningPreset, {
+    layouts: {
+      desktop: { week: "timeline", day: "resourceDayGrid", month: "timeline" },
+      mobile: { week: "timeline", day: "resourceDayGrid" },
+      mobileBreakpoint: 720,
+    },
+  });
+  assert.equal(config.layouts.desktop.week, "timeline");
+  assert.equal(config.layouts.desktop.day, "resourceDayGrid");
+  assert.equal(config.layouts.desktop.month, "monthGrid");
+  assert.equal(config.layouts.mobile.week, "timeline");
+  assert.equal(config.layouts.mobile.day, "resourceDayGrid");
+  assert.equal(config.layouts.mobileBreakpoint, 720);
+});
+
 test("calendar config rejects invalid time windows and dimensions", () => {
   assert.throws(
     () => resolveCalendarConfig(discoveryPreset, { timeGrid: { minMinutes: 1200, maxMinutes: 480 } }),

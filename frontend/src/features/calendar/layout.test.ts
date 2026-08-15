@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import test from "node:test";
 import type { CalendarEntry } from "./types";
 import { buildTimedColumns, groupEntriesByResource } from "./layout";
+import { getCalendarEventResourceIds } from "./core/types";
 
 function entry(overrides: Partial<CalendarEntry> = {}): CalendarEntry {
   return {
@@ -42,4 +43,20 @@ test("entries without a resource use the default lane", () => {
     groupEntriesByResource([entry({ resourceId: undefined })], []).get("default")?.length,
     1,
   );
+});
+
+test("plural resource IDs take precedence over the legacy alias", () => {
+  assert.deepEqual(
+    getCalendarEventResourceIds(entry({ resourceId: "hall", resourceIds: ["hall", "projector", "hall", ""] })),
+    ["hall", "projector"],
+  );
+});
+
+test("multi-resource entries appear once in each assigned lane", () => {
+  const lanes = groupEntriesByResource(
+    [entry({ resourceIds: ["hall", "projector"] })],
+    [{ id: "hall", title: "Main hall" }, { id: "projector", title: "Projector" }],
+  );
+  assert.equal(lanes.get("hall")?.length, 1);
+  assert.equal(lanes.get("projector")?.length, 1);
 });

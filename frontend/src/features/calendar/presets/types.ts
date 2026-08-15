@@ -1,6 +1,11 @@
 import type { CalendarView } from "../core/types";
 
-export type CalendarViewMode = "monthGrid" | "agenda" | "timeGrid";
+export type CalendarViewMode =
+  | "monthGrid"
+  | "agenda"
+  | "timeGrid"
+  | "timeline"
+  | "resourceDayGrid";
 
 export type CalendarLayout = CalendarViewMode | "monthAgenda" | "dayStrip";
 
