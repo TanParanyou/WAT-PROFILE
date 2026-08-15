@@ -89,11 +89,6 @@ export default function GalleryListPage() {
     setPage: listState.actions.setPage,
   });
 
-  // Keep localItems synced when listQuery rows change from server
-  React.useEffect(() => {
-    setLocalItems(listQuery.rows);
-  }, [listQuery.rows]);
-
   const displayItems = localItems ?? listQuery.rows;
 
   const { data: categoriesData = [] } = useQuery({
@@ -272,19 +267,16 @@ export default function GalleryListPage() {
     setIsReordering(true);
 
     try {
-      const updated = await galleryAdminService.reorder(optimisticallyUpdated.map((it) => it.id));
-      if (updated && updated.length > 0) {
-        setLocalItems(updated);
-      }
+      await galleryAdminService.reorder(optimisticallyUpdated.map((it) => it.id));
       toast.success(t("gallery.reorderSuccess"));
       // Invalidate to refresh cache in background
-      queryClient.invalidateQueries({ queryKey: ["admin", "gallery"] });
+      await queryClient.invalidateQueries({ queryKey: ["admin", "gallery"] });
     } catch {
       toast.error(t("gallery.reorderFailed"));
-      setLocalItems(listQuery.rows);
       listQuery.refetch();
     } finally {
       setIsReordering(false);
+      setLocalItems(null);
     }
   };
 

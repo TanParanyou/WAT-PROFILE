@@ -1,5 +1,5 @@
 import { keepPreviousData, useQuery } from "@tanstack/react-query";
-import { useEffect } from "react";
+import { useEffect, useMemo } from "react";
 import type {
   AdminFilterRecord,
   AdminListParams,
@@ -40,14 +40,22 @@ export function useAdminListQuery<TItem, TFilters extends AdminFilterRecord>(
     }
   }, [currentPage, totalPages, setPage]);
 
+  const rows = useMemo(() => query.data?.data ?? [], [query.data?.data]);
+
+  const effectivePagination = useMemo(
+    () =>
+      pagination ?? {
+        page: options.params.page,
+        limit: options.params.limit,
+        total: 0,
+        totalPages: 0,
+      },
+    [pagination, options.params.page, options.params.limit]
+  );
+
   return {
     ...query,
-    rows: query.data?.data ?? [],
-    pagination: pagination ?? {
-      page: options.params.page,
-      limit: options.params.limit,
-      total: 0,
-      totalPages: 0,
-    },
+    rows,
+    pagination: effectivePagination,
   };
 }
