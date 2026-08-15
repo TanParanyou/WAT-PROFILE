@@ -50,13 +50,17 @@ test("Public calendar uses the wide page surface for seven-day TimeGrid", () => 
   assert.match(source, /<PageContainer width="wide">/);
 });
 
-test("Events page composes the shared public calendar section before schedules", () => {
+test("Events page places the shared public calendar section between schedules and events", () => {
   const source = readFileSync(eventsPagePath, "utf8");
-  const calendarIndex = source.indexOf("<PublicCalendarSection");
   const scheduleIndex = source.indexOf('aria-labelledby="schedule-heading"');
+  const calendarIndex = source.indexOf('aria-labelledby="calendar-heading"');
+  const eventsIndex = source.indexOf('aria-labelledby="events-heading"');
 
-  assert.ok(calendarIndex >= 0);
-  assert.ok(scheduleIndex > calendarIndex);
+  assert.ok(scheduleIndex >= 0);
+  assert.ok(calendarIndex > scheduleIndex);
+  assert.ok(eventsIndex > calendarIndex);
+  assert.match(source, /<PageContainer width="content">/);
+  assert.match(source, /<PublicCalendarSection/);
   assert.doesNotMatch(source, /href="\/calendar"/);
   assert.match(source, /title=\{tPage\("calendarTitle"\)\}/);
   assert.match(source, /description=\{tPage\("calendarDescription"\)\}/);

@@ -30,7 +30,7 @@
 - Produces: Events page order `header → schedules → Calendar → upcoming events` on `PageContainer width="content"`.
 - Guarantees: Calendar URL state and view behavior continue to be provided by `PublicCalendarSection` without new props.
 
-- [ ] **Step 1: Write the failing layout-order source test.**
+- [x] **Step 1: Write the failing layout-order source test.**
 
 In the `Events page composes the shared public calendar section before schedules` test, replace the order assertion with:
 
@@ -47,7 +47,7 @@ assert.match(source, /<PageContainer width="content">/);
 
 Keep the assertions that `PublicCalendarSection` is rendered, the `/calendar` action link is absent, and localized Calendar title/description are used.
 
-- [ ] **Step 2: Run the source test to verify it fails.**
+- [x] **Step 2: Run the source test to verify it fails.**
 
 Run:
 
@@ -57,7 +57,7 @@ cd frontend && NODE_ENV=development npx tsx --test src/features/calendar/presets
 
 Expected: FAIL because Calendar currently appears before schedules and the page uses `wide`.
 
-- [ ] **Step 3: Move the existing Calendar section after schedules.**
+- [x] **Step 3: Move the existing Calendar section after schedules.**
 
 In `EventsContent.tsx`, keep the existing schedule query and state rendering unchanged. Use this top-level section sequence inside `PageContainer`:
 
@@ -82,7 +82,7 @@ In `EventsContent.tsx`, keep the existing schedule query and state rendering unc
 
 Set the container back to `<PageContainer width="content">`. Do not add a `max-w-*` wrapper around `PublicCalendarSection`; the content surface is the intentional compact boundary and Week/Day retain their own narrow-screen scrolling.
 
-- [ ] **Step 4: Run focused tests to verify the compact layout contract.**
+- [x] **Step 4: Run focused tests to verify the compact layout contract.**
 
 Run:
 
@@ -93,7 +93,7 @@ cd frontend && npm run test:calendar
 
 Expected: all tests pass, including the new order and content-width assertions.
 
-- [ ] **Step 5: Run type, lint, build, and browser verification.**
+- [x] **Step 5: Run type, lint, build, and browser verification.**
 
 Run:
 
@@ -105,7 +105,7 @@ cd frontend && NEXT_PUBLIC_PUBLIC_ACCOUNT_AUTH_ENABLED=false npm run build
 
 Browser-check `/th/events?view=month&date=2026-08-12` at 390px and 1280px. Verify schedules precede Calendar, Calendar precedes upcoming events, the page has no horizontal overflow, and switching to Week then Day retains the `/th/events` pathname while updating the `view` query parameter.
 
-- [ ] **Step 6: Commit the compact placement.**
+- [x] **Step 6: Commit the compact placement.**
 
 ```bash
 git add frontend/src/app/[locale]/(client)/events/EventsContent.tsx frontend/src/features/calendar/presets/presets.test.ts docs/superpowers/plans/2026-08-15-events-calendar-compact-placement.md
