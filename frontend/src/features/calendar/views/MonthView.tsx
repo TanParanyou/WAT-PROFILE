@@ -83,14 +83,14 @@ export function MonthView<TEvent extends CalendarEventLike>({
       <div className="hidden sm:block" aria-label="Month grid" role="grid">
         <div className={`grid grid-cols-7 border-l border-t border-current/15 ${stickyHeader ? `sticky top-0 z-10 ${bgClass}` : ""}`}>
           {weekdayDates.map((day) => (
-            <div key={`weekday-${day.getDay()}`} className="border-r border-b border-current/15 bg-current/5 px-2 py-2 text-xs font-semibold opacity-75">
+            <div key={`weekday-${day.getDay()}`} role="columnheader" className="border-r border-b border-current/15 bg-current/5 px-2 py-2 text-xs font-semibold opacity-75">
               {labels.dayNames[day.getDay()] ?? ""}
             </div>
           ))}
         </div>
         <div className="grid grid-cols-7 border-l border-current/15">
           {grid.rows.flat().map((cell) => (
-            <div key={cell.key} className={`min-h-28 border-r border-b border-current/15 p-2 ${cell.isSelected ? "bg-current/5" : ""} ${cell.isOutsideCurrentMonth ? "opacity-60" : ""}`}>
+            <div key={cell.key} role="gridcell" className={`min-h-28 border-r border-b border-current/15 p-2 ${cell.isSelected ? "bg-current/5" : ""} ${cell.isOutsideCurrentMonth ? "opacity-60" : ""}`}>
               <button
                 type="button"
                 onClick={() => controller.selectDate(cell.date)}

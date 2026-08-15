@@ -9,6 +9,9 @@ import type { CalendarEvent } from "../core/types";
 import { discoveryPreset } from "../presets/discovery";
 import { MonthView } from "../views/MonthView";
 import { TimeGrid } from "../views/TimeGrid";
+import { CalendarEntryButton } from "../views/CalendarEntryButton";
+import type { CalendarEntry } from "../types";
+import { formatCalendarDate } from "../views/calendar-view-utils";
 import { CalendarRoot } from "./CalendarRoot";
 import { MonthDayPopover } from "./MonthDayPopover";
 
@@ -47,7 +50,7 @@ const labels: CalendarLabels = {
   eventDetails: "Event details",
   closeDialog: "Close dialog",
   scrollHorizontally: "Scroll horizontally to view the full week",
-  selectedDateLabel: (date) => `date:${date.toISOString().slice(0, 10)}`,
+  selectedDateLabel: (date) => `date:${formatCalendarDate(date)}`,
   formatDayHeader: (date, { includeWeekday }) => includeWeekday
     ? `${labels.dayNames[date.getDay()]} ${date.getDate()}`
     : String(date.getDate()),
@@ -62,6 +65,18 @@ const event: CalendarEvent = {
   end: "2026-08-12T10:00:00+02:00",
   allDay: false,
   meta: {},
+};
+
+const watEvent: CalendarEntry = {
+  id: event.id,
+  title: event.title,
+  start: event.start,
+  end: event.end,
+  allDay: event.allDay,
+  source: "event",
+  status: "active",
+  display: { tone: "default" },
+  detail: { canEdit: false },
 };
 
 function render(element: ReactElement) {
@@ -107,12 +122,14 @@ test("Month renders seven weekday headers and selects a date", () => {
     const desktopGrid = screen.container.querySelector<HTMLElement>('[aria-label="Month grid"].hidden');
     assert.ok(desktopGrid);
     assert.equal(desktopGrid.querySelectorAll(":scope > div:first-child > div").length, 7);
-    const dateButton = screen.container.querySelector<HTMLButtonElement>('[aria-label="date:2026-08-13"]');
+    assert.equal(desktopGrid.querySelectorAll('[role="columnheader"]').length, 7);
+    assert.equal(desktopGrid.querySelectorAll('[role="gridcell"]').length, 42);
+    const dateButton = screen.container.querySelector<HTMLButtonElement>('button[aria-label="date:2026-08-13"]');
     assert.ok(dateButton);
     act(() => {
-      dateButton.dispatchEvent(new MouseEvent("click", { bubbles: true }));
+      dateButton.click();
     });
-    assert.equal(controller.selectedDate.toISOString().slice(0, 10), "2026-08-13");
+    assert.equal(formatCalendarDate(controller.selectedDate), "2026-08-13");
   } finally {
     screen.cleanup();
   }
@@ -258,14 +275,29 @@ test("Calendar toolbar and TimeGrid headers use explicit 3px focus outlines", ()
     days: [new Date(2026, 7, 12)],
     entries: [], labels, variant: "public", onEntryActivate: () => undefined, showDayHeaders: true,
   }));
+  const month = render(createElement(MonthView, {
+    controller: createCalendarState({ weekStartsOn: 0, initialDate: new Date(2026, 7, 12) }),
+    entries: [event], labels, variant: "public", onEntryActivate: () => undefined, showTooltip: false,
+  }));
+  const entry = render(createElement(CalendarEntryButton, {
+    entry: watEvent, variant: "public", onActivate: () => undefined,
+  }));
 
   try {
-    const controls = [...toolbar.container.querySelectorAll("button"), ...grid.container.querySelectorAll("button")];
+    const controls = [
+      ...toolbar.container.querySelectorAll("button"),
+      ...grid.container.querySelectorAll("button"),
+      ...month.container.querySelectorAll("button"),
+      ...entry.container.querySelectorAll("button"),
+    ];
     assert.ok(controls.length > 0);
     assert.ok(controls.every((control) => control.className.includes("focus-visible:outline-[3px]")));
+    assert.ok(controls.every((control) => (control.getAttribute("aria-label") ?? control.textContent ?? "").trim().length > 0));
   } finally {
     toolbar.cleanup();
     grid.cleanup();
+    month.cleanup();
+    entry.cleanup();
   }
 });
 

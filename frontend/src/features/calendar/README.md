@@ -34,6 +34,30 @@ const controller = useCalendar({
 
 Override only the values needed by a consumer. Timeline and DayGrid are intentionally deferred. Resource lanes, recurrence, drag/drop, and external sync are not part of this contract.
 
+### Responsive presentation presets
+
+The semantic view stays `month`, `week`, or `day`; a preset may choose a different
+presentation at the mobile breakpoint without changing URL state or controller behavior:
+
+```tsx
+const preset: CalendarPreset = {
+  id: "discovery",
+  defaultView: "month",
+  enabledViews: ["month", "week", "day"],
+  viewModes: { month: "monthGrid", week: "timeGrid", day: "timeGrid" },
+  layouts: {
+    desktop: { month: "monthGrid", week: "timeGrid", day: "timeGrid" },
+    mobile: { month: "monthAgenda", week: "dayStrip", day: "timeGrid" },
+    mobileBreakpoint: 640,
+  },
+};
+```
+
+`monthAgenda` shows a compact date picker with the selected day's event register.
+`dayStrip` keeps the semantic Week view while showing seven day controls and one
+selected-day TimeGrid. Only compatible layout/view pairs are accepted; invalid values
+fall back to the preset's `viewModes`.
+
 ## Integration boundary
 
 Application adapters own labels, URL/history persistence, query state, API parsing, event tones, and navigation. In WAT, use `useRoutedCalendar`, `useCalendarEntries`, `CalendarQueryBoundary`, and the WAT presentation helpers. The backend `/api/v1/public/calendar` or `/api/v1/admin/calendar` feed is the only production data source; configure its base URL with `NEXT_PUBLIC_API_URL`.
