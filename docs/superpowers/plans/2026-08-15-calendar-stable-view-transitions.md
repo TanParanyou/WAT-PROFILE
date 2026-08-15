@@ -128,7 +128,7 @@ cd frontend && NEXT_PUBLIC_PUBLIC_ACCOUNT_AUTH_ENABLED=false npm run build
 
 In the browser, switch Month → Week → Day and use previous/next at `390px` and `1280px`. Confirm the toolbar's top position stays fixed while the refresh badge fades without changing grid position; confirm `prefers-reduced-motion: reduce` shows no opacity transition.
 
-- [ ] **Step 7: Commit the implementation.**
+- [x] **Step 7: Commit the implementation.**
 
 ```bash
 git add frontend/package.json frontend/src/features/calendar/integrations/wat/CalendarQueryBoundary.tsx frontend/src/features/calendar/integrations/wat/CalendarQueryBoundary.test.tsx
