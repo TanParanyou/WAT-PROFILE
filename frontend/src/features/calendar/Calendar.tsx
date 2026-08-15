@@ -8,6 +8,7 @@ import { CalendarRoot } from "./ui/CalendarRoot";
 import { getCalendarDays } from "./views/calendar-view-utils";
 import { MonthView } from "./views/MonthView";
 import { MonthAgenda } from "./views/MonthAgenda";
+import { DayStrip } from "./views/DayStrip";
 import { TimeGrid } from "./views/TimeGrid";
 import type { CalendarController } from "./useCalendar";
 import { useCalendarLayout } from "./useCalendarLayout";
@@ -118,6 +119,30 @@ export function Calendar<TEvent extends CalendarEventLike>({
           maxVisibleEvents={controller.config.month.maxVisibleEvents}
         />
       )
+      : layout === "dayStrip"
+        ? (
+          <DayStrip
+            days={visibleDays}
+            selectedDate={controller.selectedDate}
+            entries={events}
+            labels={labels}
+            variant={variant}
+            onDaySelect={controller.selectDate}
+            onEntryActivate={onEventActivate}
+            renderEvent={renderEvent}
+            getEventClassName={getEventClassName}
+            showTooltip={showTooltip}
+            renderTooltip={renderTooltip}
+            stickyHeader={controller.config.timeGrid.stickyHeader}
+            stickyTimeAxis={controller.config.timeGrid.stickyTimeAxis}
+            maxVisibleAllDayEvents={controller.config.timeGrid.maxVisibleAllDayEvents}
+            minMinutes={controller.config.timeGrid.minMinutes}
+            maxMinutes={controller.config.timeGrid.maxMinutes}
+            slotDurationMinutes={controller.config.timeGrid.slotDurationMinutes}
+            slotHeight={controller.config.timeGrid.slotHeight}
+            minimumDayWidth={controller.config.timeGrid.minimumDayWidth}
+          />
+        )
       : layout === "timeGrid"
       ? (
         <TimeGrid

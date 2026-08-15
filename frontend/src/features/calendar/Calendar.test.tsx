@@ -6,6 +6,7 @@ import { createRoot } from "react-dom/client";
 import { Calendar } from "./Calendar";
 import { createCalendarState } from "./useCalendar";
 import { discoveryPreset } from "./presets/discovery";
+import type { CalendarPreset } from "./presets/types";
 import type { CalendarLabels } from "./calendar-copy";
 import type { CalendarEntry } from "./types";
 
@@ -109,6 +110,42 @@ test("Calendar facade composes Month, Week, and Day from the controller", () => 
     }));
     assert.equal(screen.container.querySelector("[data-calendar-view=week]")?.getAttribute("data-calendar-mode"), "timeGrid");
     assert.equal(screen.container.querySelectorAll("[data-calendar-time-grid] section").length, 7);
+  } finally {
+    screen.cleanup();
+  }
+});
+
+test("Calendar keeps semantic Week state while the configured layout selects a day", () => {
+  const responsiveWeekPreset: CalendarPreset = {
+    ...discoveryPreset,
+    layouts: {
+      desktop: { month: "monthGrid", week: "dayStrip", day: "timeGrid" },
+      mobile: { month: "monthGrid", week: "dayStrip", day: "timeGrid" },
+      mobileBreakpoint: 640,
+    },
+  };
+  const controller = createCalendarState({
+    weekStartsOn: 0,
+    initialView: "week",
+    initialDate: new Date(2026, 7, 12),
+    preset: responsiveWeekPreset,
+  });
+  const screen = render(createElement(Calendar, {
+    preset: responsiveWeekPreset,
+    controller,
+    events: [],
+    labels,
+    variant: "public",
+    onEventActivate: () => undefined,
+  }));
+
+  try {
+    assert.equal(screen.container.querySelector('[data-calendar-view="week"]')?.getAttribute("data-calendar-mode"), "dayStrip");
+    const dayTabs = screen.container.querySelectorAll<HTMLButtonElement>('[data-calendar-day-strip] [role="tab"]');
+    const nextDay = dayTabs[1];
+    assert.ok(nextDay);
+    act(() => nextDay.click());
+    assert.equal(controller.view, "week");
   } finally {
     screen.cleanup();
   }
