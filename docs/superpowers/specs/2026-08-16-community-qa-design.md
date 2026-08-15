@@ -2,7 +2,7 @@
 
 **Date:** 2026-08-16
 
-**Status:** Proposed; design sections approved in conversation, awaiting written-spec review
+**Status:** Approved for implementation planning
 
 **Scope:** Public Community Q&A for verified public accounts
 **Product:** WAT-PROFILE
@@ -276,10 +276,26 @@ dedupe key, read timestamp, and creation timestamp.
 `community_notification_preferences` stores per-event email choices. Essential
 moderation notices remain enabled; engagement email may be disabled.
 
-`community_notification_outbox` stores a unique dedupe key, sanitized template
-payload, attempt count, next attempt, delivered timestamp, and dead-letter state.
-The payload does not contain credentials, access tokens, report details, or a copied
-email address. The worker resolves the current recipient address when dispatching.
+Community email jobs reuse the existing `operation_outbox` table and
+`OperationOutboxService`. The job key is the unique dedupe key; existing status,
+attempt, availability, completion, locking, and error fields provide retry and
+dead-letter semantics. The sanitized payload does not contain credentials, access
+tokens, report details, or a copied email address. The worker resolves the current
+recipient address when dispatching.
+
+### `community_rate_limit_buckets`
+
+- `subject_hash`, SHA-256 of the account ID or normalized IP prefix
+- `subject_type`: `account` or `ip`
+- `surface`: `question`, `answer`, `comment`, `vote`, `report`, or `search`
+- `window_started_at`
+- `count`
+- `expires_at`
+- primary key `(subject_hash, subject_type, surface, window_started_at)`
+
+An atomic PostgreSQL upsert increments each fixed-window bucket. Account mutations
+check both account and IP buckets; anonymous search checks the IP bucket. Raw IP
+addresses are not stored. Expired buckets are removed by the retention worker.
 
 ## Database indexes and search
 
@@ -541,11 +557,11 @@ approval, and moderation decisions. Helpful votes aggregate into one in-app even
 never send one email per vote. Users may disable engagement email by event type.
 Essential moderation delivery remains enabled.
 
-Notification rows and email outbox rows are written in the domain transaction. A Go
-worker running inside the API process claims batches using `FOR UPDATE SKIP LOCKED`,
-uses exponential backoff, deduplicates by event key, and moves exhausted work to a
-dead-letter state. Multi-instance operation remains safe. Email failure never rolls
-back a published contribution.
+Notification rows and generic operation-outbox rows are written in the domain
+transaction. The existing `cmd/operations-worker` process claims batches using
+`FOR UPDATE SKIP LOCKED`, uses exponential backoff, deduplicates by event key, and
+moves exhausted work to a failed/dead-letter state. Concurrent worker invocations
+remain safe. Email failure never rolls back a published contribution.
 
 ## Privacy and retention
 
