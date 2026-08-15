@@ -2,10 +2,11 @@
 
 import { useEffect, useState } from "react";
 import { Controller, FormProvider, useFieldArray, useForm } from "react-hook-form";
-import { ArrowDown, ArrowUp, FileText, Plus, Save, Search, Trash2 } from "lucide-react";
+import { ArrowDown, ArrowUp, FileText, Plus, Search, Trash2 } from "lucide-react";
 
 import { MultiLangInput } from "@/components/admin/MultiLangInput";
 import { MultiLangRichText } from "@/components/admin/rich-text/MultiLangRichText";
+import { FormActionBar } from "@/components/admin/FormActionBar";
 import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/Loading";
 import { Input } from "@/components/ui/Input";
@@ -18,11 +19,6 @@ import { useWebsiteCmsEditorStore } from "@/stores/website-cms-editor-store";
 import type { ContentPage } from "@/types/website-cms";
 import { SeoEditorTab } from "../shared/SeoEditorTab";
 
-const richTextLocales = [
-  { code: "th", label: "TH" },
-  { code: "en", label: "EN" },
-  { code: "de", label: "DE" },
-] as const;
 
 function normalizePrivacySections(value: unknown): PrivacySectionFormData[] {
   if (!Array.isArray(value)) {
@@ -36,7 +32,7 @@ function normalizePrivacySections(value: unknown): PrivacySectionFormData[] {
         typeof item.title === "object" && item.title !== null
           ? (item.title as PrivacySectionFormData["title"])
           : { th: "", en: "", de: "" },
-      content: normalizeLocalizedRichText(item.content, richTextLocales.map((locale) => locale.code), "th"),
+      content: normalizeLocalizedRichText(item.content),
     }));
 }
 
@@ -89,7 +85,7 @@ function hasLegacyPrivacyBody(value: unknown): boolean {
 function createEmptyPrivacySection(): PrivacySectionFormData {
   return {
     title: { th: "", en: "", de: "" },
-    content: normalizeLocalizedRichText({}, richTextLocales.map((locale) => locale.code), "th"),
+    content: normalizeLocalizedRichText({}),
   };
 }
 
@@ -315,9 +311,7 @@ export function PrivacyPageEditor() {
                           render={({ field: { onChange, value } }) => (
                             <MultiLangRichText
                               label="Section Content"
-                              locales={[...richTextLocales]}
-                              defaultLocale="th"
-                              value={normalizeLocalizedRichText(value, richTextLocales.map((locale) => locale.code), "th")}
+                              value={normalizeLocalizedRichText(value)}
                               onChange={onChange}
                             />
                           )}
@@ -339,39 +333,23 @@ export function PrivacyPageEditor() {
           )}
         </div>
 
-        <div className="sticky bottom-0 z-40 -mx-4 -mb-4 mt-8 flex items-center justify-between border-t border-admin-border bg-admin-surface/80 px-4 py-4 backdrop-blur-md sm:-mx-6 sm:-mb-6 sm:px-6">
-          <div className="flex items-center gap-3">
-            {isDirty ? (
-              <span className="flex items-center gap-1.5 text-xs font-medium text-admin-warning">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-admin-warning opacity-75"></span>
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-admin-warning"></span>
-                </span>
-                Unsaved changes
-              </span>
-            ) : null}
-          </div>
-          <div className="flex w-full items-center gap-3 sm:w-auto">
+        <FormActionBar
+          isDirty={isDirty}
+          isLoading={updateMutation.isPending}
+          saveText="Save Changes"
+          showCancel={false}
+          extraActions={
             <Button
               type="button"
               variant="outline"
               onClick={handlePublish}
               isLoading={publishMutation.isPending}
-              className="flex-1 shadow-sm sm:flex-none"
+              className="flex-1 shadow-sm sm:flex-none sm:w-auto"
             >
               Publish
             </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              isLoading={updateMutation.isPending}
-              icon={<Save size={16} />}
-              className="flex-1 shadow-sm sm:flex-none"
-            >
-              Save Changes
-            </Button>
-          </div>
-        </div>
+          }
+        />
       </form>
     </FormProvider>
   );

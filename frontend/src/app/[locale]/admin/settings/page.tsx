@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from "react";
 import { useTranslations } from "next-intl";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
+import { FormActionBar } from "@/components/admin/FormActionBar";
 import { Input } from "@/components/ui/Input";
 import { Switch } from "@/components/ui/Switch";
 import { Textarea } from "@/components/ui/Textarea";
@@ -240,31 +241,16 @@ export default function SettingsPage() {
           </div>
         ))}
         {/* Sticky Action Bar */}
-        <div className="sticky bottom-0 z-40 -mx-4 -mb-4 mt-8 flex items-center justify-between border-t border-admin-border bg-admin-surface/80 px-4 py-4 backdrop-blur-md sm:-mx-6 sm:-mb-6 sm:px-6">
-          <div className="flex items-center gap-3">
-            {hasChanges && (
-              <span className="flex items-center gap-1.5 text-xs font-medium text-admin-warning">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-admin-warning/75 opacity-75"></span>
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-admin-warning"></span>
-                </span>
-                {t("settings.unsavedChanges")}
-              </span>
-            )}
-          </div>
-          <div className="flex gap-3 w-full sm:w-auto justify-end">
-            <Button
-              onClick={handleSave}
-              disabled={isSaving || !hasChanges}
-              isLoading={isSaving}
-              icon={<Icons.Save size={16} />}
-              variant="primary"
-              className="w-full sm:w-auto"
-            >
-              {t("common.saveChanges")}
-            </Button>
-          </div>
-        </div>
+        <FormActionBar
+          isDirty={hasChanges}
+          unsavedText={t("settings.unsavedChanges")}
+          isLoading={isSaving}
+          isSaveDisabled={isSaving || !hasChanges}
+          onSave={handleSave}
+          saveButtonType="button"
+          saveText={t("common.saveChanges")}
+          showCancel={false}
+        />
       </div>
     </div>
   );

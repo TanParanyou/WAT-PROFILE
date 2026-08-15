@@ -7,12 +7,6 @@ import { MultiLangRichText } from "@/components/admin/rich-text/MultiLangRichTex
 import type { AboutPageMasterFormData } from "@/schemas/website-page.schema";
 import { normalizeLocalizedRichText } from "@/lib/rich-text/document";
 
-const richTextLocales = [
-  { code: "th", label: "TH" },
-  { code: "en", label: "EN" },
-  { code: "de", label: "DE" },
-] as const;
-
 interface AboutIntroTabProps {
   disabled?: boolean;
 }
@@ -134,9 +128,7 @@ export function AboutIntroTab({ disabled = false }: AboutIntroTabProps) {
           render={({ field }) => (
             <MultiLangRichText
               label="Quote / core statement"
-              locales={[...richTextLocales]}
-              defaultLocale="th"
-              value={normalizeLocalizedRichText(field.value, richTextLocales.map((locale) => locale.code), "th")}
+              value={normalizeLocalizedRichText(field.value)}
               onChange={field.onChange}
               disabled={disabled}
             />

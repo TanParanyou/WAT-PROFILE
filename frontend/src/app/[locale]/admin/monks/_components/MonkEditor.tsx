@@ -20,31 +20,16 @@ import { useTranslations } from "next-intl";
 import { useForm, Controller, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { monkSchema, type MonkFormData } from "@/schemas/monk.schema";
-import { ArrowLeft, Eye, Save, X } from "lucide-react";
+import { ArrowLeft, Eye, X } from "lucide-react";
+import { FormActionBar } from "@/components/admin/FormActionBar";
 import { useAppOptions } from "@/hooks/useAppOptions";
 import { hasLegacyLocalizedRichText, normalizeLocalizedRichText } from "@/lib/rich-text/document";
 import { richTextMigrationService } from "@/services/richTextMigrationService";
+import { getFieldError } from "@/utils/form-errors";
+import { emptyLang } from "@/constants";
 import { MonkCardPreview, GoogleSearchPreview } from "@/components/admin/preview";
 
-const emptyLang: MultiLangText = { th: "", en: "", de: "" };
-const richTextLocales = ["th", "en", "de"] as const;
 
-const getFieldError = (fieldError: unknown): string | undefined => {
-  if (!fieldError) return undefined;
-  if (typeof fieldError === "object") {
-    const err = fieldError as Record<string, unknown>;
-    if (typeof err.message === "string") return err.message;
-
-    const th = err.th as Record<string, unknown> | undefined;
-    const en = err.en as Record<string, unknown> | undefined;
-    const de = err.de as Record<string, unknown> | undefined;
-
-    if (th && typeof th.message === "string") return th.message;
-    if (en && typeof en.message === "string") return en.message;
-    if (de && typeof de.message === "string") return de.message;
-  }
-  return undefined;
-};
 
 interface MonkEditorProps {
   id?: string;
@@ -93,11 +78,7 @@ export function MonkEditor({ id }: MonkEditorProps) {
     const load = async () => {
       try {
         const monk = await monkAdminService.getById(id);
-        const normalizedBio = normalizeLocalizedRichText(
-          monk.bio,
-          [...richTextLocales],
-          "th",
-        );
+        const normalizedBio = normalizeLocalizedRichText(monk.bio);
 
         reset({
           name: monk.name || { ...emptyLang },
@@ -290,13 +271,7 @@ export function MonkEditor({ id }: MonkEditorProps) {
                 render={({ field }) => (
                   <MultiLangRichText
                     label={t("monks.form.bio")}
-                    locales={[
-                      { code: "th", label: "TH" },
-                      { code: "en", label: "EN" },
-                      { code: "de", label: "DE" }
-                    ]}
-                    defaultLocale="th"
-                    value={normalizeLocalizedRichText(field.value, [...richTextLocales], "th")}
+                    value={normalizeLocalizedRichText(field.value)}
                     onChange={field.onChange}
                     error={getFieldError(errors.bio)}
                   />
@@ -360,38 +335,12 @@ export function MonkEditor({ id }: MonkEditorProps) {
         </div>
 
         {/* Sticky Action Bar */}
-        <div className="sticky bottom-0 z-40 -mx-4 -mb-4 mt-8 flex items-center justify-between border-t border-admin-border bg-admin-surface/80 px-4 py-4 backdrop-blur-md sm:-mx-6 sm:-mb-6 sm:px-6">
-          <div className="flex items-center gap-3">
-            {isDirty && (
-              <span className="flex items-center gap-1.5 text-xs font-medium text-admin-warning">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-admin-warning/75 opacity-75"></span>
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-admin-warning"></span>
-                </span>
-                {t("website.unsavedEdits")}
-              </span>
-            )}
-          </div>
-          <div className="flex gap-3 w-full sm:w-auto justify-end">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.push("/admin/monks")}
-              className="w-full sm:w-auto"
-            >
-              {t("common.cancel")}
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              isLoading={isLoading}
-              icon={<Save size={16} />}
-              className="w-full sm:w-auto"
-            >
-              {isEditMode ? t("common.saveChanges") : t("common.save")}
-            </Button>
-          </div>
-        </div>
+        <FormActionBar
+          isDirty={isDirty}
+          isLoading={isLoading}
+          isEditMode={isEditMode}
+          onCancel={() => router.push("/admin/monks")}
+        />
 
         {/* Mobile Preview Drawer Modal */}
         {isMobilePreviewOpen && (

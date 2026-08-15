@@ -40,8 +40,8 @@ import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components
 import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
 import { exportToCsv } from "@/services/adminListExportService";
 import { formatTimeRange, formatTimeToHHmm } from "@/utils/formatters";
+import { emptyLang } from "@/constants";
 
-const emptyLang: MultiLangText = { th: "", en: "", de: "" };
 
 interface ScheduleFilters extends AdminFilterRecord {
   status: string[];

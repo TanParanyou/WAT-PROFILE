@@ -3,9 +3,10 @@
 import React, { useMemo, useState } from "react";
 import type { LocalizedRichText, RichTextDocument } from "@/lib/rich-text/document";
 import { getLocalizedRichText } from "@/lib/rich-text/document";
+import { DEFAULT_RICH_TEXT_LOCALE_CONFIGS, DEFAULT_LOCALE, type RichTextLocaleConfig } from "@/constants";
 import { RichTextEditor } from "./RichTextEditor";
 
-type RichTextLocale = { code: string; label: string };
+export type RichTextLocale = RichTextLocaleConfig;
 
 const DEFAULT_RICH_TEXT_PLACEHOLDERS: Record<string, string> = {
   th: "เขียนคำอธิบาย...",
@@ -13,10 +14,10 @@ const DEFAULT_RICH_TEXT_PLACEHOLDERS: Record<string, string> = {
   de: "Beschreibung schreiben...",
 };
 
-type MultiLangRichTextProps = {
+export type MultiLangRichTextProps = {
   label: string;
-  locales: RichTextLocale[];
-  defaultLocale: string;
+  locales?: readonly RichTextLocale[] | RichTextLocale[];
+  defaultLocale?: string;
   value?: LocalizedRichText;
   onChange: (value: LocalizedRichText) => void;
   disabled?: boolean;
@@ -27,8 +28,8 @@ type MultiLangRichTextProps = {
 
 export function MultiLangRichText({
   label,
-  locales,
-  defaultLocale,
+  locales = DEFAULT_RICH_TEXT_LOCALE_CONFIGS,
+  defaultLocale = DEFAULT_LOCALE,
   value,
   onChange,
   disabled = false,

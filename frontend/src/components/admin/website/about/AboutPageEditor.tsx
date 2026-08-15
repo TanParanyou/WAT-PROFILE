@@ -3,7 +3,8 @@
 import { useState, useEffect } from "react";
 import { useForm, FormProvider, type Resolver } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { FileText, Compass, Home, Users, Search, Save } from "lucide-react";
+import { FileText, Compass, Home, Users, Search } from "lucide-react";
+import { FormActionBar } from "@/components/admin/FormActionBar";
 
 import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/Loading";
@@ -211,28 +212,12 @@ export function AboutPageEditor() {
         </div>
 
         {/* Sticky Bottom Action Bar */}
-        <div className="sticky bottom-0 z-40 -mx-4 -mb-4 mt-8 flex items-center justify-between border-t border-admin-border bg-admin-surface/80 px-4 py-4 backdrop-blur-md sm:-mx-6 sm:-mb-6 sm:px-6">
-          <div className="flex items-center gap-3">
-            {isDirty && (
-              <span className="flex items-center gap-1.5 text-xs font-medium text-admin-warning">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-admin-warning opacity-75"></span>
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-admin-warning"></span>
-                </span>
-                Unsaved changes
-              </span>
-            )}
-          </div>
-          <Button
-            type="submit"
-            variant="primary"
-            isLoading={updateMutation.isPending}
-            icon={<Save size={16} />}
-            className="w-full sm:w-auto shadow-sm"
-          >
-            Save Changes
-          </Button>
-        </div>
+        <FormActionBar
+          isDirty={isDirty}
+          isLoading={updateMutation.isPending}
+          saveText="Save Changes"
+          showCancel={false}
+        />
       </form>
     </FormProvider>
   );

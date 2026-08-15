@@ -6,12 +6,6 @@ import { MultiLangRichText } from "@/components/admin/rich-text/MultiLangRichTex
 import type { AboutPageMasterFormData } from "@/schemas/website-page.schema";
 import { normalizeLocalizedRichText } from "@/lib/rich-text/document";
 
-const richTextLocales = [
-  { code: "th", label: "TH" },
-  { code: "en", label: "EN" },
-  { code: "de", label: "DE" },
-] as const;
-
 interface AboutHistoryTabProps {
   disabled?: boolean;
 }
@@ -44,9 +38,7 @@ export function AboutHistoryTab({ disabled = false }: AboutHistoryTabProps) {
           render={({ field }) => (
             <MultiLangRichText
               label="Administration Content"
-              locales={[...richTextLocales]}
-              defaultLocale="th"
-              value={normalizeLocalizedRichText(field.value, richTextLocales.map((locale) => locale.code), "th")}
+              value={normalizeLocalizedRichText(field.value)}
               onChange={field.onChange}
               disabled={disabled}
             />
@@ -77,9 +69,7 @@ export function AboutHistoryTab({ disabled = false }: AboutHistoryTabProps) {
           render={({ field }) => (
             <MultiLangRichText
               label="History Content"
-              locales={[...richTextLocales]}
-              defaultLocale="th"
-              value={normalizeLocalizedRichText(field.value, richTextLocales.map((locale) => locale.code), "th")}
+              value={normalizeLocalizedRichText(field.value)}
               onChange={field.onChange}
               disabled={disabled}
             />
@@ -89,3 +79,4 @@ export function AboutHistoryTab({ disabled = false }: AboutHistoryTabProps) {
     </div>
   );
 }
+

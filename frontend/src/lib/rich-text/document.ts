@@ -26,7 +26,11 @@ export function hasLegacyLocalizedRichText(value: unknown): boolean {
   return Object.values(value).some((entry) => typeof entry === "string");
 }
 
-export function normalizeLocalizedRichText(value: unknown, locales: string[], defaultLocale: string): LocalizedRichText {
+export function normalizeLocalizedRichText(
+  value: unknown,
+  locales: readonly string[] | string[] = ["th", "en", "de"],
+  defaultLocale: string = "th"
+): LocalizedRichText {
   const source = isLocalizedRichTextSource(value) ? value : {};
   const localeSet = new Set<string>([defaultLocale, ...locales, ...Object.keys(source)]);
   const normalized: LocalizedRichText = {};
@@ -38,7 +42,7 @@ export function normalizeLocalizedRichText(value: unknown, locales: string[], de
   return normalized;
 }
 
-export function getLocalizedRichText(value: unknown, locale: string, defaultLocale: string): RichTextDocument {
+export function getLocalizedRichText(value: unknown, locale: string = "th", defaultLocale: string = "th"): RichTextDocument {
   if (!isLocalizedRichTextSource(value)) {
     return normalizeLegacyRichText(value);
   }

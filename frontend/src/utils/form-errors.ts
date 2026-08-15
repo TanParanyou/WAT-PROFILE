@@ -51,3 +51,26 @@ export function hasLanguageError(lang: "th" | "en" | "de", errors: DeepFieldErro
 
   return false;
 }
+
+/**
+ * Safely extracts an error message string from a FieldError or nested multi-lang error object
+ * without requiring unsafe 'any' assertions.
+ */
+export function getFieldError(fieldError: unknown): string | undefined {
+  if (!fieldError) return undefined;
+  if (typeof fieldError === "object") {
+    const err = fieldError as Record<string, unknown>;
+    if (typeof err.message === "string") return err.message;
+
+    // Check nested multi-lang fields (th, en, de)
+    const th = err.th as Record<string, unknown> | undefined;
+    const en = err.en as Record<string, unknown> | undefined;
+    const de = err.de as Record<string, unknown> | undefined;
+
+    if (th && typeof th.message === "string") return th.message;
+    if (en && typeof en.message === "string") return en.message;
+    if (de && typeof de.message === "string") return de.message;
+  }
+  return undefined;
+}
+

@@ -27,8 +27,8 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { gallerySchema, type GalleryFormData } from "@/schemas/gallery.schema";
 import { Upload, X, CheckCircle, AlertCircle, GripVertical } from "lucide-react";
 import { cn } from "@/utils/cn";
+import { emptyLang } from "@/constants";
 
-const emptyLang: MultiLangText = { th: "", en: "", de: "" };
 
 async function uploadGalleryImage(file: File): Promise<string> {
   const formData = new FormData();

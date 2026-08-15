@@ -20,7 +20,8 @@ import { useTranslations } from "next-intl";
 import { useForm, Controller, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { eventSchema, type EventFormData } from "@/schemas/event.schema";
-import { FileText, MapPin, Save, ArrowLeft } from "lucide-react";
+import { FileText, MapPin, ArrowLeft } from "lucide-react";
+import { FormActionBar } from "@/components/admin/FormActionBar";
 import { EventScheduleEditor } from "@/components/admin/events/EventScheduleEditor";
 import { useAppOptions } from "@/hooks/useAppOptions";
 import { fromZonedTime, formatInTimeZone } from "date-fns-tz";
@@ -28,6 +29,8 @@ import { format, parse } from "date-fns";
 import { DateRangePicker } from "@/components/ui/DateRangePicker";
 import { hasLegacyLocalizedRichText, normalizeLocalizedRichText } from "@/lib/rich-text/document";
 import { richTextMigrationService } from "@/services/richTextMigrationService";
+import { getFieldError } from "@/utils/form-errors";
+import { emptyLang, TIMEZONE } from "@/constants";
 import {
   EventCardPreview,
   GoogleSearchPreview,
@@ -35,28 +38,7 @@ import {
   MobilePreviewDrawer,
 } from "@/components/admin/preview";
 
-const emptyLang: MultiLangText = { th: "", en: "", de: "" };
-const richTextLocales = ["th", "en", "de"] as const;
-const TIMEZONE = "Europe/Berlin";
 
-// Safe helper to extract error message without using 'any'
-const getFieldError = (fieldError: unknown): string | undefined => {
-  if (!fieldError) return undefined;
-  if (typeof fieldError === "object") {
-    const err = fieldError as Record<string, unknown>;
-    if (typeof err.message === "string") return err.message;
-
-    // Check nested multi-lang fields
-    const th = err.th as Record<string, unknown> | undefined;
-    const en = err.en as Record<string, unknown> | undefined;
-    const de = err.de as Record<string, unknown> | undefined;
-
-    if (th && typeof th.message === "string") return th.message;
-    if (en && typeof en.message === "string") return en.message;
-    if (de && typeof de.message === "string") return de.message;
-  }
-  return undefined;
-};
 
 interface EventEditorProps {
   id?: string;
@@ -112,11 +94,7 @@ export function EventEditor({ id }: EventEditorProps) {
     const load = async () => {
       try {
         const event = await eventAdminService.getById(id);
-        const normalizedDescription = normalizeLocalizedRichText(
-          event.description,
-          [...richTextLocales],
-          "th",
-        );
+        const normalizedDescription = normalizeLocalizedRichText(event.description);
 
         reset({
           title: event.title || { ...emptyLang },
@@ -400,13 +378,7 @@ export function EventEditor({ id }: EventEditorProps) {
                     render={({ field }) => (
                       <MultiLangRichText
                         label={t("events.form.description")}
-                        locales={[
-                          { code: "th", label: "TH" },
-                          { code: "en", label: "EN" },
-                          { code: "de", label: "DE" }
-                        ]}
-                        defaultLocale="th"
-                        value={normalizeLocalizedRichText(field.value, [...richTextLocales], "th")}
+                        value={normalizeLocalizedRichText(field.value)}
                         onChange={field.onChange}
                         error={getFieldError(errors.description)}
                       />
@@ -618,40 +590,12 @@ export function EventEditor({ id }: EventEditorProps) {
         </div>
 
         {/* Sticky Action Bar */}
-        <div className="sticky bottom-0 z-40 -mx-4 -mb-4 mt-8 flex items-center justify-between border-t border-admin-border bg-admin-surface/80 px-4 py-4 backdrop-blur-md sm:-mx-6 sm:-mb-6 sm:px-6">
-          <div className="flex items-center gap-3">
-            {isDirty && (
-              <span className="flex items-center gap-1.5 text-xs font-medium text-admin-warning">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-admin-warning/75 opacity-75"></span>
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-admin-warning"></span>
-                </span>
-                {t("website.unsavedEdits")}
-              </span>
-            )}
-          </div>
-          <div className="flex gap-3 w-full sm:w-auto justify-end">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.push("/admin/events")}
-              className="w-full sm:w-auto"
-            >
-              {t("common.cancel")}
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              isLoading={isLoading}
-              icon={<Save size={16} />}
-              className="w-full sm:w-auto"
-            >
-              {isEditMode ? t("common.saveChanges") : t("common.save")}
-            </Button>
-          </div>
-        </div>
-
-
+        <FormActionBar
+          isDirty={isDirty}
+          isLoading={isLoading}
+          isEditMode={isEditMode}
+          onCancel={() => router.push("/admin/events")}
+        />
       </form>
     </FormProvider>
   );

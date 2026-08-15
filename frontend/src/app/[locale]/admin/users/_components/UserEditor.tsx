@@ -18,7 +18,8 @@ import {
   updateUserSchema,
   type UpdateUserFormData,
 } from "@/schemas/user.schema";
-import { Save, ArrowLeft } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
+import { FormActionBar } from "@/components/admin/FormActionBar";
 
 interface UserEditorProps {
   id?: string;
@@ -206,38 +207,12 @@ export function UserEditor({ id }: UserEditorProps) {
         </div>
 
         {/* Sticky Action Bar */}
-        <div className="sticky bottom-0 z-40 -mx-4 -mb-4 mt-8 flex items-center justify-between border-t border-admin-border bg-admin-surface/80 px-4 py-4 backdrop-blur-md sm:-mx-6 sm:-mb-6 sm:px-6">
-          <div className="flex items-center gap-3">
-            {isDirty && (
-              <span className="flex items-center gap-1.5 text-xs font-medium text-admin-warning">
-                <span className="relative flex h-2 w-2">
-                  <span className="absolute inline-flex h-full w-full animate-ping rounded-full bg-admin-warning/75 opacity-75"></span>
-                  <span className="relative inline-flex h-2 w-2 rounded-full bg-admin-warning"></span>
-                </span>
-                มีข้อมูลที่ยังไม่ได้เซฟ
-              </span>
-            )}
-          </div>
-          <div className="flex gap-3 w-full sm:w-auto justify-end">
-            <Button
-              type="button"
-              variant="outline"
-              onClick={() => router.push("/admin/users")}
-              className="w-full sm:w-auto"
-            >
-              {t("common.cancel")}
-            </Button>
-            <Button
-              type="submit"
-              variant="primary"
-              isLoading={isLoading}
-              icon={<Save size={16} />}
-              className="w-full sm:w-auto"
-            >
-              {isEditMode ? t("common.saveChanges") : t("common.save")}
-            </Button>
-          </div>
-        </div>
+        <FormActionBar
+          isDirty={isDirty}
+          isLoading={isLoading}
+          isEditMode={isEditMode}
+          onCancel={() => router.push("/admin/users")}
+        />
       </form>
     </FormProvider>
   );

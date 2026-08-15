@@ -36,8 +36,8 @@ import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components
 import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
 import { exportToCsv } from "@/services/adminListExportService";
 import { Icons } from "@/components/ui/Icons";
+import { emptyLang } from "@/constants";
 
-const emptyLang: MultiLangText = { th: "", en: "", de: "" };
 
 interface DonationCategoryFilters extends AdminFilterRecord {
   status: string[];

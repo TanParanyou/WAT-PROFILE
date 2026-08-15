@@ -36,8 +36,8 @@ import { AdminMultiSelectFilter } from "@/components/admin/list/AdminMultiSelect
 import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components/admin/list/AdminActiveFilterChips";
 import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
 import { exportToCsv } from "@/services/adminListExportService";
+import { emptyLang } from "@/constants";
 
-const emptyLang: MultiLangText = { th: "", en: "", de: "" };
 
 interface GalleryCategoryFilters extends AdminFilterRecord {
   status: string[];

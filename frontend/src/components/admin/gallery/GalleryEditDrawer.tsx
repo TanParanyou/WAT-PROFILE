@@ -17,8 +17,8 @@ import { useToast } from "@/hooks/useToast";
 import { useApiError } from "@/hooks/useApiError";
 import type { Gallery, GalleryCategory, Event } from "@/types/entities";
 import type { MultiLangText } from "@/types/api";
+import { emptyLang } from "@/constants";
 
-const emptyLang: MultiLangText = { th: "", en: "", de: "" };
 
 interface GalleryEditDrawerProps {
   isOpen: boolean;
