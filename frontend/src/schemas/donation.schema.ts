@@ -10,22 +10,72 @@ export const donationCategorySchema = z.object({
 
 export type DonationCategoryFormData = z.infer<typeof donationCategorySchema>;
 
-export const staffDonationSchema = z.object({
-  donor_name: z.string().optional(),
-  donor_email: z.string().email("Invalid email").or(z.literal("")),
-  donor_phone: z.string().optional(),
-  amount: z.coerce.number().positive().refine((value) => Number.isInteger(value * 100), "Amount supports at most two decimals"),
-  currency: z.literal("EUR"),
-  donation_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, "Donation date is required"),
-  donation_time: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, "Donation time is required"),
-  donation_method: z.enum(["cash", "bank_transfer", "paypal"]),
-  category_id: z.number().int().positive().nullable().optional(),
-  receipt_requested: z.boolean(),
-}).superRefine((value, ctx) => {
-  if (value.receipt_requested && !value.donor_email) ctx.addIssue({ code: "custom", path: ["donor_email"], message: "Email is required for a receipt" });
-  const phone = value.donor_phone?.trim() || "";
-  if (phone && (!/^[+0-9() -]{1,32}$/.test(phone) || (phone.match(/[0-9]/g) || []).length < 7 || (phone.match(/[0-9]/g) || []).length > 15)) ctx.addIssue({ code: "custom", path: ["donor_phone"], message: "Invalid phone" });
-});
+export const createStaffDonationSchema = (t?: (key: string) => string) => {
+  const msg = (key: string, fallback: string) => (t ? t(key) : fallback);
+  return z
+    .object({
+      donor_name: z.string().optional(),
+      donor_email: z.string().optional(),
+      donor_phone: z.string().optional(),
+      donor_address: z.string().optional(),
+      donor_type: z.string().optional(),
+      is_anonymous: z.boolean().default(false),
+      amount: z.coerce
+        .number({ message: msg("donations.amountRequired", "Amount must be greater than 0") })
+        .positive(msg("donations.amountRequired", "Amount must be greater than 0"))
+        .refine(
+          (value) => Number.isInteger(value * 100),
+          msg("donations.amountMaxDecimals", "Amount supports at most two decimals")
+        ),
+      currency: z.literal("EUR").default("EUR"),
+      donation_date: z.string().regex(/^\d{4}-\d{2}-\d{2}$/, msg("donations.dateRequired", "Donation date is required")),
+      donation_time: z.string().regex(/^(?:[01]\d|2[0-3]):[0-5]\d$/, msg("donations.timeRequired", "Donation time is required")),
+      donation_method: z.enum(["cash", "bank_transfer", "paypal"]),
+      category_id: z.number().int().positive().nullable().optional(),
+      receipt_requested: z.boolean().default(false),
+      notes: z.string().optional(),
+    })
+    .superRefine((value, ctx) => {
+      if (!value.is_anonymous && (!value.donor_name || !value.donor_name.trim())) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["donor_name"],
+          message: msg("donations.donorNameRequired", "Donor name is required when not anonymous"),
+        });
+      }
+
+      const email = value.donor_email?.trim() || "";
+      if (value.receipt_requested && !email) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["donor_email"],
+          message: msg("donations.emailRequiredForReceipt", "Email is required for a receipt"),
+        });
+      } else if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["donor_email"],
+          message: msg("donations.invalidEmail", "Invalid email format"),
+        });
+      }
+
+      const phone = value.donor_phone?.trim() || "";
+      if (
+        phone &&
+        (!/^[+0-9() -]{7,32}$/.test(phone) ||
+          (phone.match(/[0-9]/g) || []).length < 7 ||
+          (phone.match(/[0-9]/g) || []).length > 15)
+      ) {
+        ctx.addIssue({
+          code: "custom",
+          path: ["donor_phone"],
+          message: msg("donations.invalidPhone", "Invalid phone number"),
+        });
+      }
+    });
+};
+
+export const staffDonationSchema = createStaffDonationSchema();
 
 export type StaffDonationFormData = z.infer<typeof staffDonationSchema>;
 

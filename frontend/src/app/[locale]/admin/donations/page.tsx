@@ -13,6 +13,8 @@ import { useToast } from "@/hooks/useToast";
 import type { Donation } from "@/types/entities";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { Icons } from "@/components/ui/Icons";
+import { Button } from "@/components/ui/Button";
+import { Eye, FileImage, CheckCircle2, Send, XCircle } from "lucide-react";
 import { useAdminListState } from "@/features/admin-list/useAdminListState";
 import { useAdminListQuery } from "@/features/admin-list/useAdminListQuery";
 import type { AdminFilterRecord, AdminFilterDefinition } from "@/features/admin-list/types";
@@ -49,6 +51,7 @@ export default function DonationsPage() {
   const { confirm, ConfirmDialog } = useConfirm();
   const selectedIds = useRowSelection();
   const [showStaffForm, setShowStaffForm] = useState(false);
+  const [selectedDonationForView, setSelectedDonationForView] = useState<Donation | null>(null);
   const [cancelID, setCancelID] = useState<number | null>(null);
   const [isProofPreviewOpen, setIsProofPreviewOpen] = useState(false);
   const [proofPreview, setProofPreview] = useState<DonationProofPreviewState | null>(null);
@@ -277,10 +280,74 @@ export default function DonationsPage() {
       header: t("columns.actions"),
       cell: (_, row) => (
         <div className="flex gap-1.5">
-          {row.source === "self_reported" && <PermissionGuard resource="donations" action="read"><button type="button" onClick={() => void handleProof(row.id)} disabled={proofPreviewLoadingId === row.id} aria-busy={proofPreviewLoadingId === row.id} className="flex min-h-11 min-w-11 items-center justify-center rounded-none text-admin-muted transition-colors hover:bg-admin-surface-muted disabled:cursor-wait disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus" title={t("donations.viewProof")} aria-label={t("donations.viewProof")}><Icons.View size={16} /></button></PermissionGuard>}
-          {row.status === "pending" && <PermissionGuard resource="donations" action="update"><button type="button" onClick={() => void handleConfirm(row.id)} className="p-1.5 rounded hover:bg-admin-success-surface text-admin-success" title={t("donations.confirm")}><Icons.Save size={16} /></button></PermissionGuard>}
-          {row.status === "confirmed" && row.receipt_requested && row.donor_email && !row.receipt_dispatched_at && <PermissionGuard resource="donations" action="update"><button type="button" onClick={() => void handleReceipt(row.id)} className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted" title={t("donations.sendReceipt")}><Icons.FileText size={16} /></button></PermissionGuard>}
-          {row.status !== "cancelled" && <PermissionGuard resource="donations" action="update"><button type="button" onClick={() => void handleCancel(row.id)} className="p-1.5 rounded hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger" title={t("donations.cancelAction")}><Icons.Delete size={16} /></button></PermissionGuard>}
+          <PermissionGuard resource="donations" action="read">
+            <button
+              type="button"
+              onClick={() => {
+                setSelectedDonationForView(row);
+                setShowStaffForm(true);
+              }}
+              className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors"
+              title={t("donations.viewDetails")}
+              aria-label={t("donations.viewDetails")}
+            >
+              <Eye size={16} />
+            </button>
+          </PermissionGuard>
+          {row.source === "self_reported" && (
+            <PermissionGuard resource="donations" action="read">
+              <button
+                type="button"
+                onClick={() => void handleProof(row.id)}
+                disabled={proofPreviewLoadingId === row.id}
+                aria-busy={proofPreviewLoadingId === row.id}
+                className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors disabled:cursor-wait disabled:opacity-50"
+                title={t("donations.viewProof")}
+                aria-label={t("donations.viewProof")}
+              >
+                <FileImage size={16} />
+              </button>
+            </PermissionGuard>
+          )}
+          {row.status === "pending" && (
+            <PermissionGuard resource="donations" action="update">
+              <button
+                type="button"
+                onClick={() => void handleConfirm(row.id)}
+                className="p-1.5 rounded hover:bg-admin-success-surface text-admin-success transition-colors"
+                title={t("donations.confirm")}
+                aria-label={t("donations.confirm")}
+              >
+                <CheckCircle2 size={16} />
+              </button>
+            </PermissionGuard>
+          )}
+          {row.status === "confirmed" && row.receipt_requested && row.donor_email && !row.receipt_dispatched_at && (
+            <PermissionGuard resource="donations" action="update">
+              <button
+                type="button"
+                onClick={() => void handleReceipt(row.id)}
+                className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-action transition-colors"
+                title={t("donations.sendReceipt")}
+                aria-label={t("donations.sendReceipt")}
+              >
+                <Send size={16} />
+              </button>
+            </PermissionGuard>
+          )}
+          {row.status !== "cancelled" && (
+            <PermissionGuard resource="donations" action="update">
+              <button
+                type="button"
+                onClick={() => void handleCancel(row.id)}
+                className="p-1.5 rounded hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger transition-colors"
+                title={t("donations.cancelAction")}
+                aria-label={t("donations.cancelAction")}
+              >
+                <XCircle size={16} />
+              </button>
+            </PermissionGuard>
+          )}
         </div>
       ),
     },
@@ -291,10 +358,22 @@ export default function DonationsPage() {
       <AdminPageHeader
         title={t("donations.title")}
         breadcrumbs={[{ label: t("donations.title") }]}
-        actions={<PermissionGuard resource="donations" action="create"><button type="button" onClick={() => setShowStaffForm((value) => !value)} className="min-h-11 bg-admin-action px-4 py-2 text-sm font-semibold text-admin-on-action">{t("donations.createStaff")}</button></PermissionGuard>}
+        actions={
+          <PermissionGuard resource="donations" action="create">
+            <Button
+              type="button"
+              onClick={() => {
+                setSelectedDonationForView(null);
+                setShowStaffForm(true);
+              }}
+              className="min-h-11 bg-admin-action px-4 py-2 text-sm font-semibold text-admin-on-action"
+            >
+              <Icons.Plus size={16} className="mr-1.5" />
+              {t("donations.createStaff")}
+            </Button>
+          </PermissionGuard>
+        }
       />
-
-      {showStaffForm && <StaffDonationForm categories={filterOptions?.categories || []} onSubmit={handleStaffCreate} onCancel={() => setShowStaffForm(false)} />}
 
       {isFilterOptionsError && (
         <div className="mt-4 bg-admin-danger-surface border border-admin-danger/20 text-admin-danger text-sm rounded-none px-4 py-3" role="alert">
@@ -407,6 +486,22 @@ export default function DonationsPage() {
       />
       <ConfirmDialog />
       <CancelDonationDialog open={cancelID !== null} onSubmit={submitCancellation} onClose={() => setCancelID(null)} />
+      <StaffDonationForm
+        isOpen={showStaffForm}
+        mode={selectedDonationForView ? "view" : "create"}
+        viewDonation={selectedDonationForView}
+        categories={filterOptions?.categories || []}
+        onSubmit={handleStaffCreate}
+        onCancel={() => {
+          setShowStaffForm(false);
+          setSelectedDonationForView(null);
+        }}
+        onClose={() => {
+          setShowStaffForm(false);
+          setSelectedDonationForView(null);
+        }}
+        onViewProof={handleProof}
+      />
     </div>
   );
 }
