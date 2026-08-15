@@ -24,9 +24,9 @@ export default function EventPrinter({ event, locale }: EventPrinterProps) {
       <button
         type="button"
         onClick={() => reactToPrintFn()}
-        className="inline-flex min-h-11 items-center gap-2 border border-site-border bg-site-canvas px-5 py-[13px] text-sm font-semibold text-site-foreground transition-colors hover:bg-site-surface hover:text-site-accent focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
+        className="inline-flex min-h-11 items-center gap-2 border border-site-border bg-site-canvas px-4 py-2.5 text-xs font-semibold text-site-foreground transition-colors hover:bg-site-surface hover:text-site-accent focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
       >
-        <Printer size={18} aria-hidden="true" />
+        <Printer size={15} aria-hidden="true" />
         <span>{t("printButton")}</span>
       </button>
 

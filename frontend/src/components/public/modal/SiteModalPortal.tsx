@@ -14,7 +14,7 @@ export function SiteModalPortal({ children }: SiteModalPortalProps) {
     () => false,
   );
 
-  if (!mounted) return null;
-  const root = document.getElementById("public-modal-root");
-  return root ? createPortal(children, root) : null;
+  if (!mounted || typeof document === "undefined") return null;
+  const root = document.getElementById("public-modal-root") || document.body;
+  return createPortal(children, root);
 }

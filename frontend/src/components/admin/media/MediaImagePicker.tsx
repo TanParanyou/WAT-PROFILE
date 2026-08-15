@@ -2,8 +2,7 @@
 
 import React, { useState } from "react";
 import { X, Eye, Image as ImageIcon } from "lucide-react";
-import Lightbox from "yet-another-react-lightbox";
-import "yet-another-react-lightbox/styles.css";
+import { PublicLightboxModal } from "@/components/public/modal";
 import { MediaPickerDialog } from "./MediaPickerDialog";
 import { classifyMediaSource } from "@/lib/mediaOrigins";
 import { useTranslations } from "next-intl";
@@ -61,37 +60,39 @@ export function MediaImagePicker({
               e.stopPropagation();
               setIsLightboxOpen(true);
             }}
-            className="absolute inset-0 bg-black/40 text-admin-on-action rounded-none flex items-center justify-center opacity-0 group-hover/preview:opacity-100 transition-opacity focus-visible:outline-2 focus-visible:outline-admin-focus"
-            title="ดูภาพขนาดเต็ม"
+            className="absolute bottom-1 right-1 p-1 bg-black/60 hover:bg-black/80 text-white rounded-none opacity-0 group-hover/preview:opacity-100 transition-opacity"
+            title={t("viewFullImage") || "ดูรูปขนาดเต็ม"}
+            aria-label={t("viewFullImage") || "ดูรูปขนาดเต็ม"}
           >
-            <Eye size={20} strokeWidth={1.5} />
+            <Eye size={14} />
           </button>
           
           <button
             type="button"
             onClick={handleRemove}
-            className="absolute -top-2 -right-2 h-6 w-6 bg-admin-danger hover:brightness-90 text-admin-on-action rounded-none flex items-center justify-center shadow-md transition-colors z-10 focus-visible:outline-2 focus-visible:outline-admin-focus"
-            title="ลบรูปภาพ"
+            className="absolute top-1 right-1 p-1 bg-admin-danger/80 hover:bg-admin-danger text-white rounded-none opacity-0 group-hover/preview:opacity-100 transition-opacity"
+            title={t("removeImage") || "ลบรูปภาพ"}
+            aria-label={t("removeImage") || "ลบรูปภาพ"}
           >
             <X size={14} />
           </button>
-          {isExternal ? (
-            <span className="mt-2 block text-xs font-medium text-admin-warning" role="status">
-              {t("externalBadge")} — {t("externalDescription")}
-            </span>
-          ) : null}
+          {isExternal && (
+            <div className="mt-1 text-[10px] text-admin-warning">
+              {t("externalHostNotice") || "สื่อภายนอก (External Host)"}
+            </div>
+          )}
         </div>
       ) : (
         <div
           onClick={() => setIsPickerOpen(true)}
-          className="flex flex-col items-center justify-center w-36 h-36 border-2 border-dashed border-admin-control-border bg-admin-surface hover:border-admin-focus hover:bg-admin-selected rounded-none transition-all cursor-pointer group"
+          className="flex flex-col items-center justify-center p-4 border border-dashed border-admin-border bg-admin-surface-muted hover:border-admin-action hover:bg-admin-surface cursor-pointer transition-colors group h-24 w-full"
         >
           <ImageIcon
             size={20}
             className="text-admin-muted group-hover:text-admin-action mb-1 transition-colors"
           />
           <span className="text-xs text-admin-muted group-hover:text-admin-selected-foreground font-medium">
-            เลือกจากคลังสื่อ
+            {t("selectFromMedia") || "เลือกจากคลังสื่อ"}
           </span>
         </div>
       )}
@@ -103,10 +104,11 @@ export function MediaImagePicker({
       />
 
       {previewSrc && (
-        <Lightbox
+        <PublicLightboxModal
           open={isLightboxOpen}
-          close={() => setIsLightboxOpen(false)}
-          slides={[{ src: previewSrc }]}
+          initialIndex={0}
+          onClose={() => setIsLightboxOpen(false)}
+          slides={[{ src: previewSrc, title: label || "Image Preview" }]}
         />
       )}
     </div>

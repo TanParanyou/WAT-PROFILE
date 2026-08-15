@@ -4309,6 +4309,26 @@ components:
           type: boolean
         display_order:
           type: integer
+        gallery_urls:
+          type: array
+          items:
+            type: string
+        online_join_url:
+          type: string
+        dress_code:
+          $ref: '#/components/schemas/MultiLangText'
+        what_to_bring:
+          $ref: '#/components/schemas/MultiLangText'
+        donation_enabled:
+          type: boolean
+        contact_phone:
+          type: string
+        contact_line:
+          type: string
+        contact_email:
+          type: string
+        transport_info:
+          $ref: '#/components/schemas/MultiLangText'
         schedules:
           type: array
           items:

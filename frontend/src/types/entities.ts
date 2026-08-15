@@ -46,6 +46,15 @@ export interface Event {
   registration_deadline: string | null;
   is_active: boolean;
   display_order: number;
+  gallery_urls?: string[];
+  online_join_url?: string;
+  dress_code?: MultiLangText;
+  what_to_bring?: MultiLangText;
+  donation_enabled?: boolean;
+  contact_phone?: string;
+  contact_line?: string;
+  contact_email?: string;
+  transport_info?: MultiLangText;
   schedules?: EventSchedule[];
   created_at: string;
   updated_at: string;

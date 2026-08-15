@@ -479,7 +479,16 @@
             "thursday": "Thursday",
             "friday": "Friday",
             "saturday": "Saturday"
-        }
+        },
+        "types": {
+            "ceremony": "Ceremony",
+            "meditation_course": "Meditation Course",
+            "festival": "Festival",
+            "other": "General Event"
+        },
+        "liveStreaming": "Live Stream",
+        "registrationOpen": "Registration Open",
+        "donationSupport": "Support Event"
     },
     "CalendarPage": {
         "title": "Activity calendar",
@@ -640,18 +649,66 @@
         "biography": "Biography"
     },
     "EventDetailPage": {
+        "types": {
+            "ceremony": "Ceremony",
+            "meditation_course": "Meditation Course",
+            "festival": "Festival",
+            "other": "General Event"
+        },
         "relatedEvents": "Related Events",
+        "viewAllEvents": "View all events",
         "backToEvents": "Back to Events",
         "schedule": "Schedule",
-        "openMap": "Open Map",
+        "scheduleSubtitle": "Local Germany Time",
+        "openMap": "Open Map / Directions",
         "addToCalendar": "Add to Calendar",
+        "googleCalendar": "Google Calendar",
+        "appleCalendar": "Apple Calendar / iCal (.ics)",
+        "outlookCalendar": "Outlook Calendar",
+        "printPdf": "Print Schedule (PDF)",
         "share": "Share",
         "copied": "Link copied",
         "breadcrumbs": {
             "home": "Home",
             "events": "Events"
         },
-        "note": "*** Note: The schedule may be subject to change ***"
+        "note": "*** Note: The schedule may be subject to change ***",
+        "statusUpcoming": "Upcoming",
+        "statusToday": "Happening Today",
+        "statusPast": "Past Event",
+        "daysRemaining": "in {days} days",
+        "hasLive": "Live Stream Available",
+        "liveBannerTitle": "Online Live Streaming",
+        "liveBannerDesc": "For devotees unable to attend in person, join live chants and Dhamma sermon online.",
+        "watchLive": "Watch Live",
+        "zoomPoster": "View Full Poster",
+        "posterModalTitle": "Official Event Poster",
+        "galleryTitle": "Event Photo Gallery",
+        "guidelines": "Visitor Guidelines",
+        "dressCodeTitle": "Dress Code",
+        "whatToBringTitle": "What to Bring / Offerings",
+        "registrationTitle": "Event Registration",
+        "registrationDesc": "Register to help us prepare food offerings and seating.",
+        "registrationDeadline": "Registration Deadline:",
+        "seatsLeft": "{count} seats remaining",
+        "registeredCount": "{current}/{max} registered",
+        "registerButton": "Register for Event",
+        "registerNow": "Register for Event",
+        "donationTitle": "Merit & Sponsorship",
+        "donationDesc": "Sponsor food offerings, kitchen dana, or support this event.",
+        "donationButton": "Support This Event",
+        "makeDonation": "Support This Event",
+        "locationTitle": "Location & Transportation",
+        "directions": "Directions on Google Maps",
+        "transitTitle": "Transit Guidance",
+        "transportTitle": "Transit & Parking Guidance",
+        "contactTitle": "Contact & Inquiries",
+        "contactInquiry": "Contact & Inquiries",
+        "phone": "Phone",
+        "line": "LINE ID",
+        "email": "Email",
+        "sendMessage": "Send Message",
+        "close": "Close"
     },
     "EventPrinter": {
         "title": "Wat Loung Por Sai",

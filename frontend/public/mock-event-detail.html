@@ -1,0 +1,1165 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>หน้ารายละเอียดกิจกรรม (ฉบับสมบูรณ์) | วัดหลวงพ่อใส</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Thai:wght@300;400;500;600;700&family=Pridi:wght@400;500;600&display=swap" rel="stylesheet">
+  <style>
+    /* Design Tokens ตาม DESIGN.md (The Apothecary Register) */
+    :root {
+      --site-canvas: #FFFEF2;
+      --site-ink: #333333;
+      --site-deep-graphite: #242424;
+      --site-quiet-graphite: #666666;
+      --site-surface: #F7ECDD;
+      --site-divider: #E4E9EA;
+      --site-terracotta: #945C26;
+      --site-inverse: #FFFEF2;
+      --site-border: #333333;
+      --site-subtle-border: #D8D6C8;
+      --site-green: #15803D;
+      --site-green-surface: #F0FDF4;
+      --site-blue: #1D4ED8;
+      --site-blue-surface: #EFF6FF;
+      --font-thai: 'Noto Sans Thai', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+      --font-heading: 'Pridi', Georgia, serif;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      background-color: var(--site-canvas);
+      color: var(--site-ink);
+      font-family: var(--font-thai);
+      font-size: 16px;
+      line-height: 1.7;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Container */
+    .container {
+      max-width: 1160px;
+      margin: 0 auto;
+      padding: 0 20px;
+    }
+
+    /* Top Banner / Mockup Notice */
+    .mockup-bar {
+      background: var(--site-surface);
+      border-bottom: 1px solid var(--site-border);
+      padding: 8px 16px;
+      font-size: 13px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      color: var(--site-terracotta);
+      font-weight: 500;
+    }
+
+    /* Header & Nav */
+    header {
+      border-bottom: 1px solid var(--site-border);
+      padding: 16px 0;
+      background: var(--site-canvas);
+    }
+    .header-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .logo {
+      font-family: var(--font-heading);
+      font-size: 20px;
+      font-weight: 600;
+      text-decoration: none;
+      color: var(--site-ink);
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .nav-links {
+      display: flex;
+      gap: 20px;
+      list-style: none;
+      font-size: 14px;
+      font-weight: 500;
+    }
+    .nav-links a {
+      color: var(--site-ink);
+      text-decoration: none;
+    }
+    .nav-links a:hover {
+      color: var(--site-terracotta);
+    }
+
+    /* Hero / Page Header Section */
+    .hero-header {
+      background: var(--site-surface);
+      border-bottom: 1px solid var(--site-border);
+      padding: 44px 0 32px 0;
+    }
+    .breadcrumbs {
+      display: flex;
+      gap: 8px;
+      align-items: center;
+      font-size: 13px;
+      color: var(--site-quiet-graphite);
+      margin-bottom: 16px;
+    }
+    .breadcrumbs a {
+      color: var(--site-quiet-graphite);
+      text-decoration: none;
+    }
+    .breadcrumbs a:hover {
+      text-decoration: underline;
+    }
+    .breadcrumbs .current {
+      color: var(--site-ink);
+      font-weight: 500;
+    }
+
+    .badge-row {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 10px;
+      border: 1px solid var(--site-border);
+      background: var(--site-canvas);
+      font-size: 12px;
+      font-weight: 600;
+    }
+    .badge-upcoming {
+      color: var(--site-green);
+      background: var(--site-green-surface);
+      border-color: var(--site-green);
+    }
+    .badge-online {
+      color: #B91C1C;
+      background: #FEF2F2;
+      border-color: #B91C1C;
+    }
+    .badge-registration {
+      color: var(--site-blue);
+      background: var(--site-blue-surface);
+      border-color: var(--site-blue);
+    }
+    .badge-dot {
+      width: 7px;
+      height: 7px;
+      background: currentColor;
+      display: inline-block;
+    }
+
+    .event-main-title {
+      font-family: var(--font-heading);
+      font-size: clamp(1.8rem, 3.5vw, 2.8rem);
+      line-height: 1.25;
+      font-weight: 600;
+      color: var(--site-ink);
+      margin-bottom: 18px;
+    }
+
+    .meta-bar {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 20px 28px;
+      padding-top: 16px;
+      border-top: 1px solid var(--site-subtle-border);
+      font-size: 15px;
+      color: var(--site-ink);
+    }
+    .meta-item {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .meta-item svg {
+      stroke: var(--site-terracotta);
+      flex-shrink: 0;
+    }
+
+    /* Action Buttons Bar */
+    .action-bar {
+      border-bottom: 1px solid var(--site-border);
+      background: var(--site-canvas);
+      padding: 14px 0;
+      position: sticky;
+      top: 0;
+      z-index: 50;
+    }
+    .action-buttons {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      align-items: center;
+    }
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
+      padding: 11px 18px;
+      font-size: 14px;
+      font-weight: 600;
+      text-decoration: none;
+      cursor: pointer;
+      border-radius: 0px;
+      transition: all 0.15s ease;
+      font-family: inherit;
+      border: 1px solid transparent;
+    }
+    .btn-primary {
+      background: var(--site-ink);
+      color: var(--site-inverse);
+      border-color: var(--site-ink);
+    }
+    .btn-primary:hover {
+      background: var(--site-deep-graphite);
+    }
+    .btn-secondary {
+      background: var(--site-canvas);
+      color: var(--site-ink);
+      border-color: var(--site-border);
+    }
+    .btn-secondary:hover {
+      background: var(--site-surface);
+      color: var(--site-terracotta);
+    }
+    .btn-terracotta {
+      background: var(--site-terracotta);
+      color: #FFFFFF;
+      border-color: var(--site-terracotta);
+    }
+    .btn-terracotta:hover {
+      background: #7a4a1d;
+    }
+    .btn-outline-terracotta {
+      background: transparent;
+      color: var(--site-terracotta);
+      border-color: var(--site-terracotta);
+    }
+    .btn-outline-terracotta:hover {
+      background: var(--site-surface);
+    }
+
+    /* Main Grid Layout */
+    .main-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 40px;
+      padding: 40px 0;
+    }
+    @media (min-width: 960px) {
+      .main-grid {
+        grid-template-columns: 1fr 360px;
+      }
+    }
+
+    /* Left Column: Content */
+    .content-col {
+      display: flex;
+      flex-direction: column;
+      gap: 36px;
+    }
+
+    /* Flyer / Poster Preview Box */
+    .poster-box {
+      border: 1px solid var(--site-border);
+      background: var(--site-surface);
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .poster-img-wrapper {
+      position: relative;
+      background: #E8DECF;
+      height: 360px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      overflow: hidden;
+      border: 1px solid var(--site-subtle-border);
+      cursor: pointer;
+      transition: opacity 0.2s ease;
+    }
+    .poster-img-wrapper:hover {
+      opacity: 0.95;
+    }
+    .poster-placeholder-text {
+      text-align: center;
+      padding: 20px;
+      color: var(--site-ink);
+    }
+    .poster-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 13px;
+      color: var(--site-quiet-graphite);
+    }
+
+    /* Section Heading */
+    .section-title {
+      font-family: var(--font-heading);
+      font-size: 22px;
+      font-weight: 600;
+      color: var(--site-ink);
+      border-bottom: 1px solid var(--site-border);
+      padding-bottom: 10px;
+      margin-bottom: 18px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    /* Rich Text Area */
+    .rich-content {
+      font-size: 16px;
+      line-height: 1.8;
+      color: var(--site-ink);
+    }
+    .rich-content p {
+      margin-bottom: 14px;
+    }
+    .rich-content ul {
+      margin-left: 24px;
+      margin-bottom: 14px;
+    }
+
+    /* Feature Info Box (Dress code / Preparations) */
+    .feature-info-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 16px;
+    }
+    .info-card {
+      border: 1px solid var(--site-border);
+      background: var(--site-canvas);
+      padding: 18px;
+    }
+    .info-card-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 600;
+      font-size: 15px;
+      color: var(--site-terracotta);
+      margin-bottom: 8px;
+    }
+    .info-card p {
+      font-size: 14px;
+      color: var(--site-ink);
+      line-height: 1.6;
+    }
+
+    /* Online Live Stream Banner */
+    .live-stream-box {
+      border: 1px solid #B91C1C;
+      background: #FEF2F2;
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    @media (min-width: 640px) {
+      .live-stream-box {
+        flex-direction: row;
+        align-items: center;
+        justify-content: space-between;
+      }
+    }
+    .live-stream-title {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-weight: 700;
+      color: #991B1B;
+      font-size: 15px;
+    }
+    .live-stream-desc {
+      font-size: 13px;
+      color: #7F1D1D;
+      margin-top: 4px;
+    }
+
+    /* Visual Timeline Schedule */
+    .timeline-container {
+      border: 1px solid var(--site-border);
+      background: var(--site-canvas);
+    }
+    .timeline-header {
+      padding: 16px 20px;
+      background: var(--site-surface);
+      border-bottom: 1px solid var(--site-border);
+      font-weight: 600;
+      font-size: 16px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .timeline-list {
+      list-style: none;
+      padding: 24px 20px;
+      display: flex;
+      flex-direction: column;
+      gap: 22px;
+      position: relative;
+    }
+    .timeline-item {
+      display: grid;
+      grid-template-columns: 95px 24px 1fr;
+      gap: 14px;
+      align-items: flex-start;
+      position: relative;
+    }
+    .timeline-time {
+      font-weight: 700;
+      color: var(--site-terracotta);
+      font-size: 14px;
+      font-variant-numeric: tabular-nums;
+    }
+    .timeline-node {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      height: 100%;
+    }
+    .timeline-dot {
+      width: 10px;
+      height: 10px;
+      border: 2px solid var(--site-ink);
+      background: var(--site-canvas);
+      margin-top: 5px;
+    }
+    .timeline-line {
+      width: 1px;
+      background: var(--site-subtle-border);
+      flex-grow: 1;
+      min-height: 28px;
+      margin-top: 4px;
+    }
+    .timeline-desc {
+      font-size: 15px;
+      color: var(--site-ink);
+    }
+    .timeline-note {
+      padding: 12px 20px;
+      background: #FFFDF7;
+      border-top: 1px dashed var(--site-subtle-border);
+      font-size: 13px;
+      color: var(--site-quiet-graphite);
+      font-style: italic;
+    }
+
+    /* Monk / Speaker Highlight */
+    .speaker-card {
+      border: 1px solid var(--site-border);
+      background: var(--site-surface);
+      padding: 16px 20px;
+      display: flex;
+      align-items: center;
+      gap: 16px;
+    }
+    .speaker-avatar {
+      width: 56px;
+      height: 56px;
+      border: 1px solid var(--site-border);
+      background: var(--site-canvas);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    .speaker-info h4 {
+      font-family: var(--font-heading);
+      font-size: 16px;
+      color: var(--site-ink);
+    }
+    .speaker-info p {
+      font-size: 13px;
+      color: var(--site-quiet-graphite);
+    }
+
+    /* Right Column: Sidebar */
+    .sidebar-col {
+      display: flex;
+      flex-direction: column;
+      gap: 24px;
+    }
+
+    /* Registration Box */
+    .registration-box {
+      border: 2px solid var(--site-blue);
+      background: var(--site-blue-surface);
+      padding: 22px;
+    }
+    .registration-box h3 {
+      font-family: var(--font-heading);
+      font-size: 18px;
+      color: var(--site-blue);
+      margin-bottom: 6px;
+    }
+    .registration-box p {
+      font-size: 13px;
+      color: var(--site-ink);
+      margin-bottom: 14px;
+    }
+    .progress-bar-wrap {
+      margin-bottom: 14px;
+    }
+    .progress-bar-label {
+      display: flex;
+      justify-content: space-between;
+      font-size: 12px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .progress-bar {
+      height: 8px;
+      background: #DBEAFE;
+      border: 1px solid var(--site-blue);
+    }
+    .progress-bar-fill {
+      height: 100%;
+      background: var(--site-blue);
+      width: 80%;
+    }
+
+    /* Donation / Host Box */
+    .cta-merit-box {
+      border: 1px solid var(--site-terracotta);
+      background: var(--site-surface);
+      padding: 22px;
+      text-align: center;
+    }
+    .cta-merit-box h4 {
+      font-family: var(--font-heading);
+      font-size: 18px;
+      color: var(--site-terracotta);
+      margin-bottom: 8px;
+    }
+    .cta-merit-box p {
+      font-size: 13px;
+      color: var(--site-ink);
+      margin-bottom: 16px;
+      line-height: 1.5;
+    }
+
+    /* Sidebar Standard Card */
+    .sidebar-card {
+      border: 1px solid var(--site-border);
+      background: var(--site-canvas);
+      padding: 22px;
+    }
+    .sidebar-card-title {
+      font-family: var(--font-heading);
+      font-size: 17px;
+      font-weight: 600;
+      border-bottom: 1px solid var(--site-subtle-border);
+      padding-bottom: 10px;
+      margin-bottom: 14px;
+    }
+    .sidebar-info-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      font-size: 14px;
+      margin-bottom: 18px;
+    }
+    .sidebar-info-row {
+      display: flex;
+      gap: 10px;
+      line-height: 1.5;
+    }
+    .sidebar-info-label {
+      color: var(--site-quiet-graphite);
+      width: 75px;
+      flex-shrink: 0;
+    }
+    .sidebar-info-value {
+      font-weight: 500;
+      color: var(--site-ink);
+    }
+
+    /* Related Events Section */
+    .related-section {
+      border-top: 1px solid var(--site-border);
+      padding: 56px 0;
+      background: var(--site-surface);
+    }
+    .related-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 24px;
+      margin-top: 20px;
+    }
+    .event-card {
+      border: 1px solid var(--site-border);
+      background: var(--site-canvas);
+      display: flex;
+      flex-direction: column;
+      transition: transform 0.15s ease;
+    }
+    .event-card:hover {
+      border-color: var(--site-terracotta);
+    }
+    .card-thumb {
+      height: 160px;
+      background: #E8DECF;
+      border-bottom: 1px solid var(--site-subtle-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--site-quiet-graphite);
+      font-size: 13px;
+    }
+    .card-body {
+      padding: 20px;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+    .card-date {
+      font-size: 12px;
+      font-weight: 600;
+      color: var(--site-terracotta);
+      margin-bottom: 8px;
+    }
+    .card-title {
+      font-family: var(--font-heading);
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--site-ink);
+      margin-bottom: 10px;
+      line-height: 1.4;
+    }
+    .card-location {
+      font-size: 13px;
+      color: var(--site-quiet-graphite);
+      margin-bottom: 16px;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+    .card-btn {
+      margin-top: auto;
+      padding: 8px 14px;
+      font-size: 13px;
+      font-weight: 600;
+      text-align: center;
+      border: 1px solid var(--site-border);
+      color: var(--site-ink);
+      text-decoration: none;
+    }
+    .card-btn:hover {
+      background: var(--site-ink);
+      color: var(--site-inverse);
+    }
+
+    /* Modal / Lightbox Mockup */
+    .lightbox-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.85);
+      z-index: 999;
+      justify-content: center;
+      align-items: center;
+      padding: 20px;
+    }
+    .lightbox-overlay.active {
+      display: flex;
+    }
+    .lightbox-content {
+      max-width: 800px;
+      width: 100%;
+      background: var(--site-canvas);
+      border: 1px solid var(--site-ink);
+      padding: 24px;
+      position: relative;
+    }
+    .lightbox-close {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      background: none;
+      border: 1px solid var(--site-border);
+      padding: 4px 10px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    /* Footer */
+    footer {
+      border-top: 1px solid var(--site-border);
+      background: var(--site-canvas);
+      padding: 32px 0;
+      font-size: 14px;
+      color: var(--site-quiet-graphite);
+      text-align: center;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Mockup Notice Header -->
+  <div class="mockup-bar">
+    <span>💡 <strong>Full Event Detail Prototype:</strong> หน้ารายละเอียดกิจกรรมหลังเพิ่มข้อมูลสำคัญครบทุกมิติ (Register, Live, Dress Code, Timeline, Merit)</span>
+    <span>WAT-PROFILE Live Demo</span>
+  </div>
+
+  <!-- Header -->
+  <header>
+    <div class="container header-inner">
+      <a href="/th/events" class="logo">
+        <span>🏛️</span> วัดหลวงพ่อใส (Wat Loung Por Sai)
+      </a>
+      <nav>
+        <ul class="nav-links">
+          <li><a href="/th/home">หน้าแรก</a></li>
+          <li><a href="/th/events" style="font-weight: 700; color: var(--site-terracotta);">กิจกรรม</a></li>
+          <li><a href="/th/monks">ทำเนียบพระสงฆ์</a></li>
+          <li><a href="/th/gallery">ภาพกิจกรรม</a></li>
+          <li><a href="/th/donate">ร่วมทำบุญ</a></li>
+          <li><a href="/th/contact">ติดต่อวัด</a></li>
+        </ul>
+      </nav>
+    </div>
+  </header>
+
+  <!-- Hero / Header Section -->
+  <section class="hero-header">
+    <div class="container">
+      <div class="breadcrumbs">
+        <a href="/th/home">หน้าแรก</a>
+        <span>/</span>
+        <a href="/th/events">กิจกรรม</a>
+        <span>/</span>
+        <span class="current">งานบำเพ็ญกุศลวันวิสาขบูชา 2569</span>
+      </div>
+
+      <!-- 1. ป้ายสถานะกิจกรรม & Badges คุณลักษณะงาน -->
+      <div class="badge-row">
+        <div class="badge badge-upcoming">
+          <span class="badge-dot"></span>
+          <span>กำลังจะมาถึง (อีก 5 วัน)</span>
+        </div>
+        <div class="badge badge-online">
+          <span class="badge-dot"></span>
+          <span>มีถ่ายทอดสดออนไลน์ (Live)</span>
+        </div>
+        <div class="badge badge-registration">
+          <span>📝 เปิดลงทะเบียนเข้าร่วม</span>
+        </div>
+        <div class="badge">
+          <span>🙏 เปิดรับเจ้าภาพโรงทาน/ภัตตาหาร</span>
+        </div>
+      </div>
+
+      <h1 class="event-main-title">งานบำเพ็ญกุศลวันวิสาขบูชา ประจำปี 2569</h1>
+
+      <!-- Meta Bar -->
+      <div class="meta-bar">
+        <div class="meta-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          <strong>วันอาทิตย์ที่ 15 พฤษภาคม 2569</strong>
+        </div>
+        <div class="meta-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          <span>09:00 - 16:30 น. (เวลาเยอรมนี CEST)</span>
+        </div>
+        <div class="meta-item">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+          <span>ศาลาปฏิบัติธรรม วัดหลวงพ่อใส (Berlin, Germany)</span>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 2. Action Bar (Quick Actions) -->
+  <section class="action-bar">
+    <div class="container">
+      <div class="action-buttons">
+        <a href="https://maps.google.com" target="_blank" class="btn btn-primary">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="3 6 9 3 15 6 21 3 21 18 15 21 9 18 3 21"></polygon><line x1="9" y1="3" x2="9" y2="18"></line><line x1="15" y1="6" x2="15" y2="21"></line></svg>
+          เปิดแผนที่นำทาง
+        </a>
+
+        <!-- Add to Calendar Multi-choice -->
+        <a href="#" class="btn btn-secondary" onclick="alert('เลือกเพิ่มลง Google Calendar, Apple Calendar (.ics), หรือ Outlook'); return false;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+          เพิ่มลงปฏิทิน ▾
+        </a>
+
+        <!-- Print PDF -->
+        <button type="button" class="btn btn-secondary" onclick="window.print()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 6 2 18 2 18 9"></polyline><path d="M6 18H4a2 2 0 0 1-2-2v-5a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v5a2 2 0 0 1-2 2h-2"></path><rect x="6" y="14" width="12" height="8"></rect></svg>
+          พิมพ์ตาราง PDF
+        </button>
+
+        <!-- Attachment PDF Link -->
+        <a href="#" class="btn btn-secondary" onclick="alert('ดาวน์โหลดไฟล์แผ่นพับกำหนดการฉบับทางการ (PDF)'); return false;">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg>
+          ดาวน์โหลดแผ่นพับ
+        </a>
+
+        <!-- Share -->
+        <button type="button" class="btn btn-secondary" onclick="navigator.clipboard.writeText(window.location.href); alert('คัดลอกลิงก์กิจกรรมแล้ว!');">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="3"></circle><circle cx="6" cy="12" r="3"></circle><circle cx="18" cy="19" r="3"></circle><line x1="8.59" y1="13.51" x2="15.42" y2="17.49"></line><line x1="15.41" y1="6.51" x2="8.59" y2="10.49"></line></svg>
+          แชร์กิจกรรม
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Main Content Area -->
+  <main class="container">
+    <div class="main-grid">
+
+      <!-- LEFT: Main Narrative & Schedule -->
+      <div class="content-col">
+
+        <!-- 3. Live Stream Box (ถ้ามีถ่ายทอดสด) -->
+        <div class="live-stream-box">
+          <div>
+            <div class="live-stream-title">
+              <span style="font-size: 18px;">🔴</span> ถ่ายทอดสดออนไลน์ (Live Streaming)
+            </div>
+            <div class="live-stream-desc">
+              สำหรับสาธุชนที่ไม่สะดวกเดินทาง สามารถร่วมสวดมนต์และฟังธรรมเทศนาสดได้ตั้งแต่เวลา 09:30 น.
+            </div>
+          </div>
+          <a href="https://youtube.com" target="_blank" class="btn btn-primary" style="background: #B91C1C; border-color: #B91C1C; white-space: nowrap;">
+            ▶ รับชมถ่ายทอดสด
+          </a>
+        </div>
+
+        <!-- 4. Poster / Flyer Preview Box -->
+        <div class="poster-box">
+          <div class="poster-img-wrapper" onclick="document.getElementById('lightbox').classList.add('active');">
+            <div class="poster-placeholder-text">
+              <div style="font-size: 38px; margin-bottom: 8px;">🖼️</div>
+              <strong style="font-size: 18px;">โปสเตอร์ประชาสัมพันธ์งานบำเพ็ญกุศลวันวิสาขบูชา 2569</strong><br>
+              <span style="font-size: 13px; color: var(--site-terracotta); text-decoration: underline;">[คลิกเพื่อดูภาพความละเอียดสูง / ซูมอ่านโปสเตอร์ฉบับเต็ม]</span>
+            </div>
+          </div>
+          <div class="poster-footer">
+            <span>เอกสารประชาสัมพันธ์ทางการของวัด</span>
+            <button class="btn btn-secondary" style="min-height: 32px; padding: 4px 12px; font-size: 12px;" onclick="document.getElementById('lightbox').classList.add('active');">
+              🔍 ดูภาพขยาย
+            </button>
+          </div>
+        </div>
+
+        <!-- 5. Event Description -->
+        <article>
+          <h2 class="section-title">เกี่ยวกับกิจกรรม</h2>
+          <div class="rich-content">
+            <p>
+              ขอเชิญพุทธศาสนิกชนและศิษยานุศิษย์ทุกท่าน ร่วมงานบำเพ็ญกุศลเนื่องใน <strong>"วันวิสาขบูชา"</strong> ประจำปีพุทธศักราช 2569 ณ วัดหลวงพ่อใส สหพันธ์สาธารณรัฐเยอรมนี
+            </p>
+            <p>
+              วันวิสาขบูชาเป็นวันสำคัญสากลของโลก เพื่อน้อมรำลึกถึงพระสัมมาสัมพุทธเจ้า ทั้งในวันประสูติ ตรัสรู้ และปรินิพพาน ทางวัดขอเชิญชวนร่วมทำบุญตักบาตร สวดมนต์ ฟังพระธรรมเทศนา และร่วมพิธีเวียนเทียน เพื่อความเป็นสิริมงคลแก่ตนเองและครอบครัว
+            </p>
+          </div>
+        </article>
+
+        <!-- 6. Dress Code & Preparations (สิ่งที่ต้องเตรียม & การแต่งกาย) -->
+        <section>
+          <h2 class="section-title">ข้อแนะนำสำหรับผู้มาร่วมงาน</h2>
+          <div class="feature-info-grid">
+            <div class="info-card">
+              <div class="info-card-header">
+                <span>👔</span> การแต่งกาย (Dress Code)
+              </div>
+              <p>กรุณาแต่งกายด้วยชุดสุภาพเรียบร้อย หรือชุดขาวปฏิบัติธรรม เพื่อความสำรวมในเขตพุทธาวาส</p>
+            </div>
+            <div class="info-card">
+              <div class="info-card-header">
+                <span>🍚</span> สิ่งของที่ต้องเตรียมมาร่วมบุญ
+              </div>
+              <p>ข้าวสาร อาหารแห้ง ดอกไม้ ธูปเทียน สำหรับตักบาตรและเวียนเทียน (ทางวัดมีดอกไม้ธูปเทียนสำรองบริการ)</p>
+            </div>
+          </div>
+        </section>
+
+        <!-- 7. Preacher / Monk in charge (พระอาจารย์องค์แสดงธรรม) -->
+        <div class="speaker-card">
+          <div class="speaker-avatar">🧘‍♂️</div>
+          <div class="speaker-info">
+            <h4>พระครูวิเทศธรรมารักษ์ (พระอาจารย์สมชาย)</h4>
+            <p>ประธานสงฆ์ และองค์แสดงพระธรรมเทศนาประจำงานวันวิสาขบูชา</p>
+          </div>
+          <a href="/th/monks/somchai" class="btn btn-outline-terracotta" style="margin-left: auto; min-height: 36px; padding: 6px 14px; font-size: 13px;">
+            ดูประวัติพระสงฆ์ &rarr;
+          </a>
+        </div>
+
+        <!-- 8. Visual Timeline Schedule -->
+        <section class="timeline-container">
+          <div class="timeline-header">
+            <span>🕒 กำหนดการพิธีสงฆ์และกิจกรรมตลอดวัน</span>
+            <span style="font-size: 13px; font-weight: normal; color: var(--site-quiet-graphite);">เวลาท้องถิ่นเยอรมนี</span>
+          </div>
+          <ul class="timeline-list">
+            <li class="timeline-item">
+              <div class="timeline-time">09:00 น.</div>
+              <div class="timeline-node">
+                <div class="timeline-dot"></div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="timeline-desc">
+                <strong>สาธุชนพร้อมเพรียงกัน ณ ศาลาปฏิบัติธรรม</strong><br>
+                <span style="font-size: 13px; color: var(--site-quiet-graphite);">ลงทะเบียนร่วมงาน และจัดเตรียมสำรับภัตตาหาร</span>
+              </div>
+            </li>
+
+            <li class="timeline-item">
+              <div class="timeline-time">09:45 น.</div>
+              <div class="timeline-node">
+                <div class="timeline-dot"></div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="timeline-desc">
+                <strong>พิธีทำบุญตักบาตรข้าวสารอาหารแห้ง</strong><br>
+                <span style="font-size: 13px; color: var(--site-quiet-graphite);">ตักบาตรพระภิกษุสงฆ์ ณ บริเวณลานธรรมหน้าศาลา</span>
+              </div>
+            </li>
+
+            <li class="timeline-item">
+              <div class="timeline-time">10:30 น.</div>
+              <div class="timeline-node">
+                <div class="timeline-dot"></div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="timeline-desc">
+                <strong>พระสงฆ์เจริญพระพุทธมนต์สมโภช</strong><br>
+                <span style="font-size: 13px; color: var(--site-quiet-graphite);">ถวายสังฆทานและทอดผ้าป่าสามัคคีบำรุงวัด</span>
+              </div>
+            </li>
+
+            <li class="timeline-item">
+              <div class="timeline-time">11:15 น.</div>
+              <div class="timeline-node">
+                <div class="timeline-dot"></div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="timeline-desc">
+                <strong>ถวายภัตตาหารเพลแด่พระภิกษุสงฆ์</strong><br>
+                <span style="font-size: 13px; color: var(--site-quiet-graphite);">ญาติโยมร่วมรับประทานอาหารกลางวัน ณ โรงทาน</span>
+              </div>
+            </li>
+
+            <li class="timeline-item">
+              <div class="timeline-time">13:30 น.</div>
+              <div class="timeline-node">
+                <div class="timeline-dot"></div>
+                <div class="timeline-line"></div>
+              </div>
+              <div class="timeline-desc">
+                <strong>แสดงพระธรรมเทศนา 1 กัณฑ์ & นั่งสมาธิเจริญจิตตภาวนา</strong><br>
+                <span style="font-size: 13px; color: var(--site-quiet-graphite);">โดย พระอาจารย์ประจำวัดหลวงพ่อใส</span>
+              </div>
+            </li>
+
+            <li class="timeline-item">
+              <div class="timeline-time">15:00 น.</div>
+              <div class="timeline-node">
+                <div class="timeline-dot"></div>
+              </div>
+              <div class="timeline-desc">
+                <strong>พิธีเวียนเทียนเนื่องในวันวิสาขบูชา</strong><br>
+                <span style="font-size: 13px; color: var(--site-quiet-graphite);">เวียนเทียนประทักษิณาวรรต 3 รอบรอบศาลาปฏิบัติธรรม เป็นอันเสร็จพิธี</span>
+              </div>
+            </li>
+          </ul>
+          <div class="timeline-note">
+            *** หมายเหตุ: กำหนดการอาจมีการปรับเปลี่ยนตามความเหมาะสมของสภาพอากาศและเวลา ***
+          </div>
+        </section>
+
+      </div>
+
+      <!-- RIGHT: Sidebar Info & Actions -->
+      <aside class="sidebar-col">
+
+        <!-- 9. Registration Card (ถ้าเปิดรับลงทะเบียน) -->
+        <div class="registration-box">
+          <h3>📝 ลงทะเบียนเข้าร่วมงาน</h3>
+          <p>เพื่อความสะดวกในการจัดเตรียมสำรับและที่นั่งปฏิบัติธรรม</p>
+          
+          <div class="progress-bar-wrap">
+            <div class="progress-bar-label">
+              <span>ลงทะเบียนแล้ว 65/80 ท่าน</span>
+              <span style="color: var(--site-green); font-weight: 700;">เหลืออีก 15 ที่นั่ง</span>
+            </div>
+            <div class="progress-bar">
+              <div class="progress-bar-fill"></div>
+            </div>
+          </div>
+
+          <div style="font-size: 12px; color: var(--site-quiet-graphite); margin-bottom: 14px;">
+            ⏳ ปิดรับลงทะเบียน: <strong>12 พ.ค. 2569 (23:59 น.)</strong>
+          </div>
+
+          <button type="button" class="btn btn-primary" style="width: 100%; justify-content: center; background: var(--site-blue); border-color: var(--site-blue);" onclick="alert('เปิดฟอร์มลงทะเบียนเข้าร่วมงาน');">
+            ลงทะเบียนเข้าร่วมงานฟรี &rarr;
+          </button>
+        </div>
+
+        <!-- 10. Donation / Merit Box (ร่วมเป็นเจ้าภาพ) -->
+        <div class="cta-merit-box">
+          <h4>🙏 ร่วมเป็นเจ้าภาพทำบุญ</h4>
+          <p>ร่วมทำบุญตักบาตร ถวายภัตตาหาร หรือร่วมเป็นเจ้าภาพโรงทานในงานวันวิสาขบูชา</p>
+          <a href="/th/donate" class="btn btn-terracotta" style="width: 100%; justify-content: center;">
+            ร่วมทำบุญสำหรับงานนี้
+          </a>
+        </div>
+
+        <!-- 11. Venue & Transit Guide Card -->
+        <div class="sidebar-card">
+          <h3 class="sidebar-card-title">สถานที่ & การเดินทาง</h3>
+          <div class="sidebar-info-list">
+            <div class="sidebar-info-row">
+              <span class="sidebar-info-label">สถานที่:</span>
+              <span class="sidebar-info-value">ศาลาปฏิบัติธรรม วัดหลวงพ่อใส</span>
+            </div>
+            <div class="sidebar-info-row">
+              <span class="sidebar-info-label">ที่อยู่:</span>
+              <span class="sidebar-info-value">Musterstraße 12, 12345 Berlin, Germany</span>
+            </div>
+            <div class="sidebar-info-row">
+              <span class="sidebar-info-label">รถไฟฟ้า:</span>
+              <span class="sidebar-info-value">S-Bahn สาย S1/S2 ลงสถานี Muster Hbf ต่อบัส 100</span>
+            </div>
+            <div class="sidebar-info-row">
+              <span class="sidebar-info-label">ที่จอดรถ:</span>
+              <span class="sidebar-info-value">มีที่จอดรถรองรับ 25 คัน ด้านหลังศาลา</span>
+            </div>
+          </div>
+          <a href="https://maps.google.com" target="_blank" class="btn btn-secondary" style="width: 100%; justify-content: center;">
+            📍 ขอเส้นทางใน Google Maps
+          </a>
+        </div>
+
+        <!-- 12. Contact & Inquiries Card -->
+        <div class="sidebar-card">
+          <h3 class="sidebar-card-title">ติดต่อสอบถามข้อมูล</h3>
+          <div class="sidebar-info-list">
+            <div class="sidebar-info-row">
+              <span class="sidebar-info-label">โทรศัพท์:</span>
+              <span class="sidebar-info-value">+49 (0) 30 1234567</span>
+            </div>
+            <div class="sidebar-info-row">
+              <span class="sidebar-info-label">LINE ID:</span>
+              <span class="sidebar-info-value">@watloungporsai</span>
+            </div>
+            <div class="sidebar-info-row">
+              <span class="sidebar-info-label">อีเมล:</span>
+              <span class="sidebar-info-value">contact@watloungporsai.de</span>
+            </div>
+          </div>
+          <a href="/th/contact" class="btn btn-secondary" style="width: 100%; justify-content: center;">
+            ✉️ ส่งข้อความสอบถาม
+          </a>
+        </div>
+
+      </aside>
+
+    </div>
+  </main>
+
+  <!-- 13. Related / Upcoming Events Section -->
+  <section class="related-section">
+    <div class="container">
+      <h2 class="section-title">
+        <span>กิจกรรมอื่นๆ ที่น่าสนใจ</span>
+        <a href="/th/events" style="font-size: 14px; font-weight: normal; color: var(--site-terracotta); text-decoration: none;">ดูกิจกรรมทั้งหมด &rarr;</a>
+      </h2>
+
+      <div class="related-grid">
+        <!-- Event Card 1 -->
+        <div class="event-card">
+          <div class="card-thumb">🖼️ ภาพกิจกรรม</div>
+          <div class="card-body">
+            <span class="card-date">28 มิถุนายน 2569</span>
+            <h3 class="card-title">พิธีหล่อเทียนพรรษา และตักบาตรประจำสัปดาห์</h3>
+            <div class="card-location">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              <span>ศาลาปฏิบัติธรรม</span>
+            </div>
+            <a href="/th/events/candle-ceremony" class="card-btn">อ่านรายละเอียด</a>
+          </div>
+        </div>
+
+        <!-- Event Card 2 -->
+        <div class="event-card">
+          <div class="card-thumb">🖼️ ภาพกิจกรรม</div>
+          <div class="card-body">
+            <span class="card-date">12 กรกฎาคม 2569</span>
+            <h3 class="card-title">งานทำบุญวันอาสาฬหบูชาและวันเข้าพรรษา</h3>
+            <div class="card-location">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              <span>อุโบสถวัดหลวงพ่อใส</span>
+            </div>
+            <a href="/th/events/asalha-puja" class="card-btn">อ่านรายละเอียด</a>
+          </div>
+        </div>
+
+        <!-- Event Card 3 -->
+        <div class="event-card">
+          <div class="card-thumb">🖼️ ภาพกิจกรรม</div>
+          <div class="card-body">
+            <span class="card-date">ทุกวันอาทิตย์ (10:00 น.)</span>
+            <h3 class="card-title">คลาสปฏิบัติธรรมและสวดมนต์ประจำสัปดาห์</h3>
+            <div class="card-location">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              <span>ห้องสมาธิ</span>
+            </div>
+            <a href="/th/events/weekly-meditation" class="card-btn">อ่านรายละเอียด</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Lightbox Modal Mockup -->
+  <div id="lightbox" class="lightbox-overlay" onclick="this.classList.remove('active')">
+    <div class="lightbox-content" onclick="event.stopPropagation()">
+      <button class="lightbox-close" onclick="document.getElementById('lightbox').classList.remove('active')">✕ ปิด</button>
+      <h3 style="font-family: var(--font-heading); margin-bottom: 12px;">โปสเตอร์ประชาสัมพันธ์งาน (ขนาดเต็ม)</h3>
+      <div style="height: 480px; background: #E8DECF; display: flex; align-items: center; justify-content: center; border: 1px solid var(--site-subtle-border);">
+        <p style="text-align: center; color: var(--site-ink); line-height: 1.8;">
+          <strong>[ แสดงภาพโปสเตอร์ความละเอียดสูง ]</strong><br>
+          <span style="font-size: 13px; color: var(--site-quiet-graphite);">ช่วยให้อ่านตัวหนังสือ กำหนดการ รายนามพระสงฆ์ และเลขบัญชีร่วมบุญได้คมชัดทุกอุปกรณ์</span>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <p>© 2026 วัดหลวงพ่อใส (Wat Loung Por Sai e.V. - Germany). All rights reserved.</p>
+    </div>
+  </footer>
+
+</body>
+</html>

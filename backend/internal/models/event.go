@@ -18,15 +18,24 @@ type Event struct {
 	ImageURL             string        `gorm:"size:255" json:"image_url"`
 	MapURL               string        `gorm:"type:text" json:"map_url"`
 	EventType            string        `gorm:"size:50;index" json:"event_type"` // 'meditation_course', 'ceremony', 'festival'
-	IsRecurring          bool          `gorm:"default:false" json:"is_recurring"`
-	RecurringPattern     string        `gorm:"size:50" json:"recurring_pattern"` // 'monthly', 'yearly'
-	MaxParticipants      *int          `json:"max_participants"`                  // NULL = unlimited
-	RegistrationEnabled  bool          `gorm:"default:false" json:"registration_enabled"`
-	RegistrationDeadline *time.Time    `json:"registration_deadline"`
-	IsActive             bool          `gorm:"default:true;index" json:"is_active"`
-	DisplayOrder         int           `gorm:"default:0" json:"display_order"`
-	CreatedAt            time.Time     `json:"created_at"`
-	UpdatedAt            time.Time     `json:"updated_at"`
+	IsRecurring          bool              `gorm:"default:false" json:"is_recurring"`
+	RecurringPattern     string            `gorm:"size:50" json:"recurring_pattern"` // 'monthly', 'yearly'
+	MaxParticipants      *int              `json:"max_participants"`                  // NULL = unlimited
+	RegistrationEnabled  bool              `gorm:"default:false" json:"registration_enabled"`
+	RegistrationDeadline *time.Time        `json:"registration_deadline"`
+	IsActive             bool              `gorm:"default:true;index" json:"is_active"`
+	DisplayOrder         int               `gorm:"default:0" json:"display_order"`
+	GalleryURLs          StringSlice       `gorm:"type:jsonb;default:'[]'" json:"gallery_urls"`
+	OnlineJoinURL        string            `gorm:"size:255" json:"online_join_url"`
+	DressCode            MultiLangText     `gorm:"type:jsonb" json:"dress_code"`
+	WhatToBring          MultiLangText     `gorm:"type:jsonb" json:"what_to_bring"`
+	DonationEnabled      bool              `gorm:"default:false" json:"donation_enabled"`
+	ContactPhone         string            `gorm:"size:50" json:"contact_phone"`
+	ContactLine          string            `gorm:"size:50" json:"contact_line"`
+	ContactEmail         string            `gorm:"size:100" json:"contact_email"`
+	TransportInfo        MultiLangText     `gorm:"type:jsonb" json:"transport_info"`
+	CreatedAt            time.Time         `json:"created_at"`
+	UpdatedAt            time.Time         `json:"updated_at"`
 
 	// Relations
 	Schedules []EventSchedule `gorm:"foreignKey:EventID;constraint:OnDelete:CASCADE" json:"schedules,omitempty"`

@@ -3,14 +3,13 @@
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
 import { AnimatePresence, motion, useReducedMotion } from "framer-motion";
-import Lightbox from "yet-another-react-lightbox";
-import "yet-another-react-lightbox/styles.css";
 import PageHeader from "@/components/layout/PageHeader";
 import PageContainer from "@/components/layout/PageContainer";
 import { getLocalizedText } from "@/utils/i18n";
 import { PublicImage } from "@/components/public/media/PublicImage";
 import { QueryErrorState } from "@/components/public/states/QueryErrorState";
 import { EmptyState } from "@/components/public/states/EmptyState";
+import { PublicLightboxModal, type LightboxSlide } from "@/components/public/modal";
 import {
   usePublicGalleryCategoriesQuery,
   usePublicGalleryQuery,
@@ -149,11 +148,13 @@ export default function GalleryContent({ cmsPage }: { cmsPage: PublicContentPage
           </motion.div>
         )}
 
-        <Lightbox
-          index={index}
-          slides={slides}
+        {/* Central Public Lightbox Modal with Carousel and Thumbnails */}
+        <PublicLightboxModal
           open={index >= 0}
-          close={() => setIndex(-1)}
+          initialIndex={index >= 0 ? index : 0}
+          onClose={() => setIndex(-1)}
+          slides={slides}
+          closeLabel={t("close") || "Close"}
         />
       </PageContainer>
     </div>

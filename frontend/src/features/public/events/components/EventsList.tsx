@@ -1,7 +1,7 @@
-import { Calendar, MapPin } from "lucide-react";
+import { Calendar, Clock, MapPin, Radio, UserCheck, HeartHandshake } from "lucide-react";
 import { Link } from "@/navigation";
 import { useLocale, useTranslations } from "next-intl";
-import { formatDateRange } from "@/utils/formatters";
+import { formatDateRange, formatTimeRange } from "@/utils/formatters";
 import { getLocalizedText } from "../mappers";
 import { getLocalizedPlainText } from "@/features/public/shared/rich-text";
 import type { EventListItem } from "../types";
@@ -20,6 +20,7 @@ export function EventsList({ events }: EventsListProps) {
     <div className="grid border-t border-site-border">
       {events.map((event) => {
         const title = getLocalizedText(event.title, locale);
+        const timeRange = formatTimeRange(event.startTime, event.endTime, locale);
 
         return (
           <article
@@ -35,21 +36,60 @@ export function EventsList({ events }: EventsListProps) {
                 className="object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                 sizes="(max-width: 768px) 100vw, 40vw"
               />
+              {event.eventType && (
+                <div className="absolute top-3 left-3 z-10">
+                  <span className="bg-black/75 text-white text-[11px] font-semibold px-2.5 py-1 uppercase tracking-wider border border-white/20 backdrop-blur-sm">
+                    {t.has(`types.${event.eventType}`)
+                      ? t(`types.${event.eventType}`)
+                      : event.eventType}
+                  </span>
+                </div>
+              )}
             </div>
             <div className="flex flex-col p-6 md:p-8">
+              {/* Badges / Tags */}
+              <div className="flex flex-wrap items-center gap-2 mb-3">
+                {event.onlineJoinUrl && (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300 px-2 py-0.5 border border-red-200 dark:border-red-800">
+                    <Radio size={11} className="animate-pulse text-red-600" />
+                    {t("liveStreaming") || "ถ่ายทอดสด"}
+                  </span>
+                )}
+                {event.registrationEnabled && (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 px-2 py-0.5 border border-emerald-200 dark:border-emerald-800">
+                    <UserCheck size={11} />
+                    {t("registrationOpen") || "เปิดลงทะเบียน"}
+                  </span>
+                )}
+                {event.donationEnabled && (
+                  <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-amber-50 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 px-2 py-0.5 border border-amber-200 dark:border-amber-800">
+                    <HeartHandshake size={11} />
+                    {t("donationSupport") || "ร่วมทำบุญ"}
+                  </span>
+                )}
+              </div>
+
+              {/* Event Metadata */}
               <div className="flex flex-wrap gap-x-5 gap-y-2 text-sm text-site-muted">
-                <span className="flex items-center gap-2">
-                  <Calendar size={16} aria-hidden="true" />
+                <span className="flex items-center gap-1.5 font-medium text-site-foreground">
+                  <Calendar size={15} className="text-site-accent" aria-hidden="true" />
                   <time dateTime={event.startDate}>
                     {formatDateRange(event.startDate, event.endDate, locale)}
                   </time>
                 </span>
-                <span className="flex items-center gap-2">
-                  <MapPin size={16} aria-hidden="true" />
-                  {getLocalizedText(event.location, locale)}
+                {timeRange && (
+                  <span className="flex items-center gap-1.5 text-site-muted">
+                    <Clock size={15} aria-hidden="true" />
+                    <span>{timeRange}</span>
+                  </span>
+                )}
+                <span className="flex items-center gap-1.5 text-site-muted">
+                  <MapPin size={15} aria-hidden="true" />
+                  <span>{getLocalizedText(event.location, locale)}</span>
                 </span>
               </div>
-              <h3 className="mt-4 font-heading text-2xl font-medium leading-tight text-site-foreground text-balance">
+
+              <h3 className="mt-3 font-heading text-2xl font-semibold leading-tight text-site-foreground text-balance">
                 <Link
                   href={`/events/${event.slug}`}
                   className="transition-colors hover:text-site-accent focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
@@ -57,12 +97,14 @@ export function EventsList({ events }: EventsListProps) {
                   {title}
                 </Link>
               </h3>
-              <p className="mt-4 line-clamp-3 max-w-[65ch] text-base leading-7 text-site-body">
+
+              <p className="mt-3 line-clamp-3 max-w-[65ch] text-base leading-7 text-site-body">
                 {event.description
                   ? getLocalizedPlainText(event.description, locale).slice(0, 220)
                   : ""}
               </p>
-              <div className="mt-7">
+
+              <div className="mt-6 pt-2">
                 <Link
                   href={`/events/${event.slug}`}
                   className="inline-flex min-h-11 items-center bg-site-action px-5 py-[13px] text-sm font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"

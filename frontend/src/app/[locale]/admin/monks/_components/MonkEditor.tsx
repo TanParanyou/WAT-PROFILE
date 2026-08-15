@@ -26,6 +26,7 @@ import { useAppOptions } from "@/hooks/useAppOptions";
 import { hasLegacyLocalizedRichText, normalizeLocalizedRichText } from "@/lib/rich-text/document";
 import { richTextMigrationService } from "@/services/richTextMigrationService";
 import { getFieldError } from "@/utils/form-errors";
+import { generateDefaultSlug } from "@/utils/slug";
 import { emptyLang } from "@/constants";
 import { MonkCardPreview, GoogleSearchPreview } from "@/components/admin/preview";
 
@@ -54,7 +55,7 @@ export function MonkEditor({ id }: MonkEditorProps) {
       name: { ...emptyLang },
       title: { ...emptyLang },
       bio: { ...emptyLang },
-      slug: "",
+      slug: isEditMode ? "" : generateDefaultSlug("monk"),
       position: "monk",
       image_url: "",
       ordination_date: "",

@@ -478,7 +478,16 @@
             "thursday": "พฤหัสบดี",
             "friday": "ศุกร์",
             "saturday": "เสาร์"
-        }
+        },
+        "types": {
+            "ceremony": "พิธีกรรม",
+            "meditation_course": "คอร์สปฏิบัติธรรม",
+            "festival": "งานเทศกาล",
+            "other": "กิจกรรมทั่วไป"
+        },
+        "liveStreaming": "ถ่ายทอดสด",
+        "registrationOpen": "เปิดลงทะเบียน",
+        "donationSupport": "ร่วมทำบุญ"
     },
     "CalendarPage": {
         "title": "ปฏิทินกิจกรรม",
@@ -639,18 +648,66 @@
         "biography": "ประวัติ"
     },
     "EventDetailPage": {
+        "types": {
+            "ceremony": "พิธีกรรม",
+            "meditation_course": "คอร์สปฏิบัติธรรม",
+            "festival": "งานเทศกาล",
+            "other": "กิจกรรมทั่วไป"
+        },
         "relatedEvents": "กิจกรรมที่น่าสนใจ",
+        "viewAllEvents": "ดูกิจกรรมทั้งหมด",
         "backToEvents": "กลับไปหน้ากิจกรรม",
         "schedule": "กำหนดการ",
-        "openMap": "เปิดแผนที่",
+        "scheduleSubtitle": "เวลาท้องถิ่นเยอรมนี",
+        "openMap": "เปิดแผนที่นำทาง",
         "addToCalendar": "เพิ่มลงปฏิทิน",
+        "googleCalendar": "Google Calendar",
+        "appleCalendar": "Apple Calendar / iCal (.ics)",
+        "outlookCalendar": "Outlook Calendar",
+        "printPdf": "พิมพ์ตาราง PDF",
         "share": "แชร์",
         "copied": "คัดลอกลิงก์แล้ว",
         "breadcrumbs": {
             "home": "หน้าแรก",
             "events": "กิจกรรม"
         },
-        "note": "*** ปล. กำหนดการอาจมีการเปลี่ยนตามความเหมาะสม ***"
+        "note": "*** ปล. กำหนดการอาจมีการเปลี่ยนตามความเหมาะสม ***",
+        "statusUpcoming": "กำลังจะมาถึง",
+        "statusToday": "กำลังจัดงานวันนี้",
+        "statusPast": "กิจกรรมสิ้นสุดแล้ว",
+        "daysRemaining": "อีก {days} วัน",
+        "hasLive": "ถ่ายทอดสดออนไลน์",
+        "liveBannerTitle": "ถ่ายทอดสดออนไลน์ (Live Streaming)",
+        "liveBannerDesc": "สำหรับสาธุชนที่ไม่สะดวกเดินทาง สามารถร่วมสวดมนต์และฟังธรรมเทศนาสดได้",
+        "watchLive": "รับชมถ่ายทอดสด",
+        "zoomPoster": "ดูภาพโปสเตอร์ขนาดเต็ม",
+        "posterModalTitle": "โปสเตอร์ประชาสัมพันธ์งาน",
+        "galleryTitle": "ประมวลภาพกิจกรรม",
+        "guidelines": "ข้อแนะนำสำหรับผู้มาร่วมงาน",
+        "dressCodeTitle": "การแต่งกาย (Dress Code)",
+        "whatToBringTitle": "สิ่งของที่ต้องเตรียมมาร่วมบุญ",
+        "registrationTitle": "ลงทะเบียนเข้าร่วมงาน",
+        "registrationDesc": "เพื่อความสะดวกในการจัดเตรียมสำรับและที่นั่งปฏิบัติธรรม",
+        "registrationDeadline": "ปิดรับลงทะเบียน:",
+        "seatsLeft": "เหลือ {count} ที่นั่ง",
+        "registeredCount": "ลงทะเบียนแล้ว {current}/{max} ท่าน",
+        "registerButton": "ลงทะเบียนเข้าร่วมงาน",
+        "registerNow": "ลงทะเบียนเข้าร่วมงาน",
+        "donationTitle": "ร่วมเป็นเจ้าภาพทำบุญ",
+        "donationDesc": "ร่วมทำบุญตักบาตร ถวายภัตตาหาร หรือร่วมเป็นเจ้าภาพโรงทานสำหรับงานนี้",
+        "donationButton": "ร่วมทำบุญสำหรับงานนี้",
+        "makeDonation": "ร่วมทำบุญสำหรับงานนี้",
+        "locationTitle": "สถานที่ & การเดินทาง",
+        "directions": "ขอเส้นทางใน Google Maps",
+        "transitTitle": "การเดินทาง",
+        "transportTitle": "คำแนะนำการเดินทาง & ที่จอดรถ",
+        "contactTitle": "ติดต่อสอบถามข้อมูล",
+        "contactInquiry": "ติดต่อสอบถามข้อมูล",
+        "phone": "โทรศัพท์",
+        "line": "LINE ID",
+        "email": "อีเมล",
+        "sendMessage": "ส่งข้อความสอบถาม",
+        "close": "ปิด"
     },
     "EventPrinter": {
         "title": "วัดหลวงพ่อใส",

@@ -479,7 +479,16 @@
             "thursday": "Donnerstag",
             "friday": "Freitag",
             "saturday": "Samstag"
-        }
+        },
+        "types": {
+            "ceremony": "Zeremonie",
+            "meditation_course": "Meditationskurs",
+            "festival": "Fest / Feier",
+            "other": "Allgemeine Veranstaltung"
+        },
+        "liveStreaming": "Live-Übertragung",
+        "registrationOpen": "Anmeldung offen",
+        "donationSupport": "Spendenaktion"
     },
     "CalendarPage": {
         "title": "Aktivitätskalender",
@@ -640,18 +649,66 @@
         "biography": "Biografie"
     },
     "EventDetailPage": {
+        "types": {
+            "ceremony": "Zeremonie",
+            "meditation_course": "Meditationskurs",
+            "festival": "Fest / Feier",
+            "other": "Allgemeine Veranstaltung"
+        },
         "relatedEvents": "Ähnliche Veranstaltungen",
+        "viewAllEvents": "Alle Veranstaltungen anzeigen",
         "backToEvents": "Zurück zu Veranstaltungen",
         "schedule": "Zeitplan",
-        "openMap": "Karte öffnen",
+        "scheduleSubtitle": "Ortszeit Deutschland",
+        "openMap": "Karte / Route öffnen",
         "addToCalendar": "Zum Kalender hinzufügen",
+        "googleCalendar": "Google Kalender",
+        "appleCalendar": "Apple Kalender / iCal (.ics)",
+        "outlookCalendar": "Outlook Kalender",
+        "printPdf": "Zeitplan drucken (PDF)",
         "share": "Teilen",
         "copied": "Link kopiert",
         "breadcrumbs": {
             "home": "Startseite",
             "events": "Veranstaltungen"
         },
-        "note": "*** Beachte: Die Termine können sich je nach Bedeutung ändern ***"
+        "note": "*** Beachte: Die Termine können sich je nach Bedeutung ändern ***",
+        "statusUpcoming": "Bevorstehend",
+        "statusToday": "Findet heute statt",
+        "statusPast": "Vergangene Veranstaltung",
+        "daysRemaining": "in {days} Tagen",
+        "hasLive": "Live-Übertragung verfügbar",
+        "liveBannerTitle": "Online Live-Übertragung",
+        "liveBannerDesc": "Für Gläubige, die nicht persönlich anreisen können, übertragen wir Gesänge und Dhamma-Vorträge live.",
+        "watchLive": "Live ansehen",
+        "zoomPoster": "Vollständiges Plakat ansehen",
+        "posterModalTitle": "Offizielles Veranstaltungsplakat",
+        "galleryTitle": "Veranstaltungs-Bildergalerie",
+        "guidelines": "Hinweise für Besucher",
+        "dressCodeTitle": "Kleiderordnung",
+        "whatToBringTitle": "Mitzubringende Gaben",
+        "registrationTitle": "Veranstaltungsanmeldung",
+        "registrationDesc": "Melden Sie sich an, um uns bei der Vorbereitung von Mahlzeiten und Sitzplätzen zu unterstützen.",
+        "registrationDeadline": "Anmeldeschluss:",
+        "seatsLeft": "Noch {count} Plätze frei",
+        "registeredCount": "{current}/{max} angemeldet",
+        "registerButton": "Zur Veranstaltung anmelden",
+        "registerNow": "Zur Veranstaltung anmelden",
+        "donationTitle": "Spenden & Patenschaften",
+        "donationDesc": "Unterstützen Sie Mahlzeitenspenden oder die Durchführung dieser Veranstaltung.",
+        "donationButton": "Diese Veranstaltung unterstützen",
+        "makeDonation": "Diese Veranstaltung unterstützen",
+        "locationTitle": "Ort & Anfahrt",
+        "directions": "Route in Google Maps",
+        "transitTitle": "Anfahrtshinweise",
+        "transportTitle": "Anfahrt & Parkmöglichkeiten",
+        "contactTitle": "Kontakt & Fragen",
+        "contactInquiry": "Kontakt & Fragen",
+        "phone": "Telefon",
+        "line": "LINE ID",
+        "email": "E-Mail",
+        "sendMessage": "Nachricht senden",
+        "close": "Schließen"
     },
     "EventPrinter": {
         "title": "Wat Loung Por Sai",

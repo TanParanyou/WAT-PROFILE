@@ -28,6 +28,7 @@ import { AdminDateRangeFilter } from "@/components/admin/list/AdminDateRangeFilt
 import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components/admin/list/AdminActiveFilterChips";
 import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
 import { exportToCsv } from "@/services/adminListExportService";
+import { PublicLightboxModal, type LightboxSlide } from "@/components/public/modal";
 
 interface EventFilters extends AdminFilterRecord {
   status: string[];
@@ -39,7 +40,7 @@ interface EventFilters extends AdminFilterRecord {
 export default function EventsListPage() {
   const t = useTranslations("Admin");
   const locale = useLocale();
-  const { formatDateRange } = useDateFormat();
+  const { formatDateRange, formatTimeRange } = useDateFormat();
   const { confirm, ConfirmDialog } = useConfirm();
   const { toast } = useToast();
   const selectedIds = useRowSelection();
@@ -158,53 +159,192 @@ export default function EventsListPage() {
     );
   };
 
+  const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
+  const [lightboxSlides, setLightboxSlides] = useState<LightboxSlide[]>([]);
+
+  const handleOpenLightbox = (eventItem: Event) => {
+    const slides: LightboxSlide[] = [];
+    const title = (eventItem.title?.[locale as "th" | "en" | "de"] || eventItem.title?.th || eventItem.title?.en || "-") as string;
+    const desc = (eventItem.description?.[locale as "th" | "en" | "de"] || eventItem.description?.th || "") as string;
+    const location = (eventItem.location?.[locale as "th" | "en" | "de"] || eventItem.location?.th || "") as string;
+
+    const timeStr = formatTimeRange(eventItem.start_time, eventItem.end_time);
+    const categoryTranslated = eventItem.event_type
+      ? t.has(`events.types.${eventItem.event_type}`)
+        ? t(`events.types.${eventItem.event_type}`)
+        : eventItem.event_type
+      : undefined;
+
+    const eventMeta = {
+      date: formatDateRange(eventItem.start_date, eventItem.end_date),
+      time: timeStr || undefined,
+      location: location || undefined,
+      category: categoryTranslated,
+    };
+
+    if (eventItem.image_url) {
+      slides.push({
+        src: eventItem.image_url,
+        alt: title,
+        title: title,
+        description: desc || undefined,
+        meta: eventMeta,
+      });
+    }
+
+    if (Array.isArray(eventItem.gallery_urls)) {
+      eventItem.gallery_urls.forEach((url, i) => {
+        slides.push({
+          src: url,
+          alt: `${title} ${i + 1}`,
+          title: `${title} (${i + 1}/${eventItem.gallery_urls?.length})`,
+          description: desc || undefined,
+          meta: eventMeta,
+        });
+      });
+    }
+
+    if (slides.length > 0) {
+      setLightboxSlides(slides);
+      setLightboxIndex(0);
+    }
+  };
+
   const columns: Column<Event>[] = [
     {
-      header: "ชื่อ (TH)",
+      header: t("columns.image") || "รูป",
+      accessorKey: "image_url",
+      cell: (v, row) => {
+        const imgUrl = (v as string) || row.gallery_urls?.[0];
+        const title = row.title?.[locale as "th" | "en" | "de"] || row.title?.th || "Event";
+        return imgUrl ? (
+          <button
+            type="button"
+            onClick={() => handleOpenLightbox(row)}
+            className="relative h-12 w-16 overflow-hidden border border-admin-border bg-admin-surface-muted group block text-left"
+            title={t("events.listBadges.viewImage") || t("events.form.previewLightbox") || "ดูรูปภาพ"}
+          >
+            <img
+              src={imgUrl}
+              alt={title}
+              className="h-full w-full object-cover transition-transform group-hover:scale-110"
+            />
+            <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+              <Icons.View size={14} className="text-white" />
+            </div>
+          </button>
+        ) : (
+          <div className="h-12 w-16 border border-dashed border-admin-border bg-admin-surface-muted flex items-center justify-center text-admin-muted text-[10px]">
+            {t("events.listBadges.noImage") || "No img"}
+          </div>
+        );
+      },
+    },
+    {
+      header: t("columns.name") || "ชื่อกิจกรรม",
       accessorKey: "title",
-      cell: (v) => (v as Event["title"])?.th || "-",
+      cell: (v, row) => {
+        const title = (v as Event["title"])?.[locale as "th" | "en" | "de"] || (v as Event["title"])?.th || "-";
+        const location = row.location?.[locale as "th" | "en" | "de"] || row.location?.th;
+        return (
+          <div className="space-y-1 py-1 max-w-xs sm:max-w-md">
+            <Link
+              href={`/admin/events/${row.id}`}
+              className="font-medium text-admin-foreground hover:text-admin-action hover:underline block leading-snug"
+            >
+              {title}
+            </Link>
+            <div className="flex flex-wrap items-center gap-2 text-xs text-admin-muted">
+              {location && (
+                <span className="inline-flex items-center gap-1">
+                  <span>📍</span> {location}
+                </span>
+              )}
+              {row.online_join_url && (
+                <span className="inline-flex items-center gap-1 text-[10px] text-red-600 bg-red-50 dark:bg-red-950/30 px-1.5 py-0.2 border border-red-200">
+                  {t("events.listBadges.live") || "Live"}
+                </span>
+              )}
+              {row.registration_enabled && (
+                <span className="inline-flex items-center gap-1 text-[10px] text-emerald-600 bg-emerald-50 dark:bg-emerald-950/30 px-1.5 py-0.2 border border-emerald-200">
+                  {t("events.listBadges.registration") || "ลงทะเบียน"}
+                </span>
+              )}
+            </div>
+          </div>
+        );
+      },
       sortable: true,
     },
-    { header: "ประเภท", accessorKey: "event_type", sortable: true },
     {
-      header: "วันที่",
+      header: t("columns.category") || "ประเภท",
+      accessorKey: "event_type",
+      cell: (v) => {
+        const val = v as string;
+        const label = val
+          ? t.has(`events.types.${val}`)
+            ? t(`events.types.${val}`)
+            : val
+          : "-";
+        return (
+          <span className="inline-block px-2 py-0.5 text-xs font-medium border border-admin-border bg-admin-surface-muted text-admin-foreground">
+            {label}
+          </span>
+        );
+      },
+      sortable: true,
+    },
+    {
+      header: t("columns.date") || "วันที่จัดงาน",
       accessorKey: "start_date",
-      cell: (_, row) => formatDateRange(row.start_date, row.end_date),
+      cell: (_, row) => {
+        const timeStr = formatTimeRange(row.start_time, row.end_time);
+        return (
+          <div className="text-xs space-y-0.5">
+            <div className="font-medium text-admin-foreground">{formatDateRange(row.start_date, row.end_date)}</div>
+            {timeStr && (
+              <div className="text-admin-muted font-mono">
+                {timeStr}
+              </div>
+            )}
+          </div>
+        );
+      },
       sortable: true,
     },
     {
-      header: "สถานะ",
+      header: t("columns.status") || "สถานะ",
       accessorKey: "is_active",
       cell: (v) => <StatusBadge label={v ? t("events.status.active") : t("events.status.inactive")} />,
     },
     {
-      header: "จัดการ",
+      header: t("columns.actions") || "จัดการ",
       cell: (_, row) => (
-        <div className="flex gap-2">
+        <div className="flex gap-1.5">
           <button
             type="button"
             onClick={() => setPreviewUrl(`/${locale}/events/${row.slug || row.id}`)}
-            className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
+            className="p-1.5 rounded-none hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors border border-transparent hover:border-admin-border focus-visible:outline-2 focus-visible:outline-admin-focus"
             title={t("website.viewPublic")}
           >
-            <Icons.View size={16} />
+            <Icons.View size={15} />
           </button>
           <PermissionGuard resource="events" action="update">
             <Link
               href={`/admin/events/${row.id}`}
-              className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
+              className="p-1.5 rounded-none hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors border border-transparent hover:border-admin-border focus-visible:outline-2 focus-visible:outline-admin-focus"
             >
-              <Icons.Edit size={16} />
+              <Icons.Edit size={15} />
             </Link>
           </PermissionGuard>
           <PermissionGuard resource="events" action="delete">
             <button
               type="button"
               onClick={() => handleDelete(row.id)}
-              className="p-1.5 rounded hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
+              className="p-1.5 rounded-none hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger transition-colors border border-transparent hover:border-admin-border focus-visible:outline-2 focus-visible:outline-admin-focus"
               title={t("common.delete")}
             >
-              <Icons.Delete size={16} />
+              <Icons.Delete size={15} />
             </button>
           </PermissionGuard>
         </div>
@@ -331,6 +471,17 @@ export default function EventsListPage() {
           <IframePreview url={previewUrl} title="Event Public Preview" />
         )}
       </Drawer>
+
+      {/* Lightbox Modal for Quick Image & Event Info Preview */}
+      {lightboxIndex !== null && (
+        <PublicLightboxModal
+          open={lightboxIndex !== null}
+          initialIndex={lightboxIndex}
+          onClose={() => setLightboxIndex(null)}
+          slides={lightboxSlides}
+          closeLabel={t("common.close")}
+        />
+      )}
     </div>
   );
 }

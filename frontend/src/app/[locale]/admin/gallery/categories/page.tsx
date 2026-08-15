@@ -36,6 +36,7 @@ import { AdminMultiSelectFilter } from "@/components/admin/list/AdminMultiSelect
 import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components/admin/list/AdminActiveFilterChips";
 import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
 import { exportToCsv } from "@/services/adminListExportService";
+import { generateDefaultSlug } from "@/utils/slug";
 import { emptyLang } from "@/constants";
 
 
@@ -155,7 +156,7 @@ export default function GalleryCategoriesPage() {
     resolver: zodResolver(galleryCategorySchema),
     defaultValues: {
       name: { ...emptyLang },
-      slug: "",
+      slug: generateDefaultSlug("cat"),
       display_order: 0,
       is_active: true,
     },
@@ -165,7 +166,7 @@ export default function GalleryCategoriesPage() {
     setEditingCategory(null);
     reset({
       name: { ...emptyLang },
-      slug: "",
+      slug: generateDefaultSlug("cat"),
       display_order: 0,
       is_active: true,
     });
