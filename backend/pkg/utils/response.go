@@ -90,10 +90,15 @@ func PaginatedResponse(c *fiber.Ctx, data interface{}, page, limit, total int) e
 	})
 }
 
-// MessageResponse sends a simple message response
-func MessageResponse(c *fiber.Ctx, message string) error {
-	return c.JSON(fiber.Map{
+// MessageResponseWithStatus sends a simple message response with an explicit status code.
+func MessageResponseWithStatus(c *fiber.Ctx, statusCode int, message string) error {
+	return c.Status(statusCode).JSON(fiber.Map{
 		"success": true,
 		"message": message,
 	})
+}
+
+// MessageResponse sends a simple HTTP 200 message response.
+func MessageResponse(c *fiber.Ctx, message string) error {
+	return MessageResponseWithStatus(c, fiber.StatusOK, message)
 }

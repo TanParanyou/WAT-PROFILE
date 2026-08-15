@@ -34,3 +34,26 @@ func TestFieldErrorResponseIncludesFieldsAndTraceID(t *testing.T) {
 		t.Fatalf("unexpected response: %+v", body)
 	}
 }
+
+func TestMessageResponseWithStatusUsesMessageEnvelope(t *testing.T) {
+	app := fiber.New()
+	app.Post("/", func(c *fiber.Ctx) error {
+		return MessageResponseWithStatus(c, fiber.StatusCreated, "Message received.")
+	})
+
+	response, err := app.Test(httptest.NewRequest(http.MethodPost, "/", nil))
+	if err != nil {
+		t.Fatal(err)
+	}
+	defer response.Body.Close()
+	var body struct {
+		Success bool   `json:"success"`
+		Message string `json:"message"`
+	}
+	if err := json.NewDecoder(response.Body).Decode(&body); err != nil {
+		t.Fatal(err)
+	}
+	if response.StatusCode != fiber.StatusCreated || !body.Success || body.Message != "Message received." {
+		t.Fatalf("unexpected response: status=%d body=%+v", response.StatusCode, body)
+	}
+}

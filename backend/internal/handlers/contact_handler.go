@@ -33,7 +33,7 @@ func (h *ContactHandler) SubmitContact(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
 	}
 	if strings.TrimSpace(request.Website) != "" {
-		return c.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "message": "Message received."})
+		return utils.MessageResponseWithStatus(c, fiber.StatusCreated, "Message received.")
 	}
 	input, validationErr := contacts.NormalizeAndValidate(request)
 	if validationErr != nil {
@@ -42,7 +42,7 @@ func (h *ContactHandler) SubmitContact(c *fiber.Ctx) error {
 	if _, err := h.contactService.Submit(c.UserContext(), input); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Unable to receive message")
 	}
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "message": "Message received."})
+	return utils.MessageResponseWithStatus(c, fiber.StatusCreated, "Message received.")
 }
 
 // GetContacts - Admin: List all contact inquiries with pagination and filters
