@@ -116,6 +116,9 @@ func (s *RegistrationService) AdminSetStatus(ctx context.Context, actorID uuid.U
 		if status == "attended" {
 			updates["attended"] = true
 			updates["attended_at"] = now
+		} else {
+			updates["attended"] = false
+			updates["attended_at"] = nil
 		}
 		if status == "cancelled" {
 			updates["cancellation_reason"] = strings.TrimSpace(input.Reason)
@@ -161,6 +164,9 @@ func (s *RegistrationService) AdminSetAttendance(ctx context.Context, _ uuid.UUI
 				return registrations.NewDomainError(registrations.CodeNotFound, "Participant not found", nil)
 			}
 			return err
+		}
+		if participant.AttendanceStatus == "cancelled" {
+			return registrations.NewDomainError(registrations.CodeConflict, "A cancelled participant cannot be checked in", nil)
 		}
 		now := s.now()
 		if input.Attended {
