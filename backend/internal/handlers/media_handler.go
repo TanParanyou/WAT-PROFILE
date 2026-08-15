@@ -8,6 +8,7 @@ import (
 	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/middleware"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
+	"github.com/watloungporsai/wat-profile-backend/pkg/logger"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
 	"gorm.io/gorm"
 )
@@ -163,7 +164,12 @@ func (h *MediaHandler) UpdateMedia(c *fiber.Ctx) error {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
 			return utils.ErrorResponse(c, fiber.StatusNotFound, "Media not found")
 		}
+		logger.Log.Error().Err(err).Str("media_id", id.String()).Msg("Failed to update media")
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to update media")
+	}
+
+	if h.auditService != nil {
+		_ = h.auditService.LogAction(c, "update", "media", id.String(), map[string]interface{}{"metadata": req.Metadata})
 	}
 
 	return utils.SuccessResponse(c, media)

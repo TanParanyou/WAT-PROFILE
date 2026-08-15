@@ -131,4 +131,55 @@ func TestMediaServiceRestoreClearsLifecycleFields(t *testing.T) {
 	}
 }
 
+func TestMediaServiceUpdateMetadata(t *testing.T) {
+	db := testDatabase(t)
+	media := models.Media{
+		ID:       uuid.New(),
+		Filename: "update.png",
+		URL:      "https://example.test/update.png",
+	}
+	if err := db.Create(&media).Error; err != nil {
+		t.Fatal(err)
+	}
+
+	svc := NewMediaService(db)
+	metadata := map[string]interface{}{
+		"alt": map[string]interface{}{
+			"th": "คำอธิบายภาพ",
+			"en": "Image description",
+			"de": "Bildbeschreibung",
+		},
+		"caption": "ภาพกิจกรรม",
+		"credit":  "ช่างภาพวัด",
+	}
+
+	updated, err := svc.UpdateMetadata(media.ID, metadata)
+	if err != nil {
+		t.Fatalf("UpdateMetadata failed: %v", err)
+	}
+
+	if updated.AltTexts["th"] != "คำอธิบายภาพ" || updated.AltTexts["en"] != "Image description" || updated.AltTexts["de"] != "Bildbeschreibung" {
+		t.Fatalf("unexpected alt_texts: %#v", updated.AltTexts)
+	}
+	if updated.AltText != "คำอธิบายภาพ" {
+		t.Fatalf("unexpected alt_text: %q", updated.AltText)
+	}
+	if updated.Metadata["caption"] != "ภาพกิจกรรม" || updated.Metadata["credit"] != "ช่างภาพวัด" {
+		t.Fatalf("unexpected metadata: %#v", updated.Metadata)
+	}
+
+	// Verify persistence in DB
+	refetched, err := svc.GetByID(media.ID)
+	if err != nil {
+		t.Fatalf("GetByID failed: %v", err)
+	}
+	if refetched.AltTexts["th"] != "คำอธิบายภาพ" {
+		t.Fatalf("persisted alt_texts mismatch: %#v", refetched.AltTexts)
+	}
+	if refetched.Metadata["caption"] != "ภาพกิจกรรม" {
+		t.Fatalf("persisted metadata mismatch: %#v", refetched.Metadata)
+	}
+}
+
 func ptrTime(value time.Time) *time.Time { return &value }
+

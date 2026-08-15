@@ -221,7 +221,12 @@ func (s *MediaService) UpdateMetadata(id uuid.UUID, metadata map[string]interfac
 		return nil, err
 	}
 
-	media.Metadata = metadata
+	if metadata == nil {
+		media.Metadata = models.JSONMap{}
+	} else {
+		media.Metadata = models.JSONMap(metadata)
+	}
+
 	if alt, ok := metadata["alt"]; ok {
 		encoded, marshalErr := json.Marshal(alt)
 		if marshalErr != nil {
@@ -232,6 +237,15 @@ func (s *MediaService) UpdateMetadata(id uuid.UUID, metadata map[string]interfac
 			return nil, unmarshalErr
 		}
 		media.AltTexts = localized
+		if localized["th"] != "" {
+			media.AltText = localized["th"]
+		} else if localized["en"] != "" {
+			media.AltText = localized["en"]
+		} else if localized["de"] != "" {
+			media.AltText = localized["de"]
+		} else {
+			media.AltText = ""
+		}
 	}
 	if err := s.db.Save(media).Error; err != nil {
 		return nil, err
