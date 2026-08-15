@@ -861,6 +861,14 @@
       "replaceExternal": "Upload replacement",
       "selectImage": "Select image"
     },
+    "mediaUrlField": {
+      "chooseManaged": "Choose from media library",
+      "advanced": "Advanced: edit URL directly",
+      "managed": "Managed media",
+      "external": "External image",
+      "externalWarning": "External images can be used, but managed media is recommended for reliable production delivery.",
+      "empty": "Choose an image from the media library or edit the URL directly"
+    },
     "cropDialog": {
       "title": "Crop Image",
       "aspectRatio": "Aspect Ratio:",

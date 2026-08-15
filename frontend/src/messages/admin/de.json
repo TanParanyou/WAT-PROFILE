@@ -861,6 +861,14 @@
       "replaceExternal": "Ersatz hochladen",
       "selectImage": "Bild auswählen"
     },
+    "mediaUrlField": {
+      "chooseManaged": "Aus Medienbibliothek auswählen",
+      "advanced": "Erweitert: URL direkt bearbeiten",
+      "managed": "Verwaltetes Medium",
+      "external": "Externes Bild",
+      "externalWarning": "Externe Bilder sind möglich, verwaltete Medien werden für eine zuverlässige Produktion empfohlen.",
+      "empty": "Bild aus der Medienbibliothek auswählen oder URL direkt bearbeiten"
+    },
     "cropDialog": {
       "title": "Bild zuschneiden",
       "aspectRatio": "Seitenverhältnis:",
