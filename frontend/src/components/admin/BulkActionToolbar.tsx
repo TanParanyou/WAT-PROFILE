@@ -3,6 +3,59 @@
 import React from "react";
 import { X } from "lucide-react";
 import { useTranslations } from "next-intl";
+import { PermissionGuard } from "@/components/admin/PermissionGuard";
+import type { PermissionAction, PermissionResource } from "@/types/auth";
+
+export interface BulkActionButtonProps {
+  icon?: React.ReactNode;
+  label: React.ReactNode;
+  onClick: () => void;
+  variant?: "default" | "success" | "muted" | "danger";
+  resource?: PermissionResource;
+  action?: PermissionAction;
+  disabled?: boolean;
+  className?: string;
+}
+
+export function BulkActionButton({
+  icon,
+  label,
+  onClick,
+  variant = "default",
+  resource,
+  action,
+  disabled,
+  className = "",
+}: BulkActionButtonProps) {
+  const variantStyles = {
+    default: "bg-admin-surface hover:bg-admin-surface-muted text-admin-foreground border-admin-border",
+    success: "bg-admin-surface hover:bg-admin-surface-muted text-admin-success border-admin-border",
+    muted: "bg-admin-surface hover:bg-admin-surface-muted text-admin-muted border-admin-border",
+    danger: "bg-admin-danger hover:brightness-90 text-admin-on-action border-transparent",
+  };
+
+  const button = (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className={`flex items-center gap-1.5 px-3 py-2 min-h-[38px] rounded-none border transition-colors text-xs sm:text-sm font-medium shrink-0 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${variantStyles[variant]} ${className}`}
+    >
+      {icon}
+      <span>{label}</span>
+    </button>
+  );
+
+  if (resource && action) {
+    return (
+      <PermissionGuard resource={resource} action={action}>
+        {button}
+      </PermissionGuard>
+    );
+  }
+
+  return button;
+}
 
 interface BulkActionToolbarProps {
   selectedCount: number;

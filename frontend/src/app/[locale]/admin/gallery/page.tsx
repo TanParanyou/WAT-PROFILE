@@ -4,19 +4,7 @@ import React, { useState } from "react";
 import { Link } from "@/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { getLocalizedText } from "@/utils/localizedText";
-import {
-  FolderOpen,
-  LayoutGrid,
-  LayoutList,
-  Eye,
-  Edit3,
-  Copy,
-  Check,
-  FolderCheck,
-  Tag,
-  CheckCircle2,
-  XCircle,
-} from "lucide-react";
+import { FolderOpen, Eye } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { PermissionButton } from "@/components/admin/PermissionButton";
@@ -32,7 +20,6 @@ import {
 import { useToast } from "@/hooks/useToast";
 import type { Gallery } from "@/types/entities";
 import { useRowSelection } from "@/hooks/useRowSelection";
-import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
 import { Icons } from "@/components/ui/Icons";
 import { useAdminListState } from "@/features/admin-list/useAdminListState";
 import { useAdminListQuery } from "@/features/admin-list/useAdminListQuery";
@@ -44,9 +31,12 @@ import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components
 import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
 import { exportToCsv } from "@/services/adminListExportService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { ViewModeToggle } from "@/components/admin/ViewModeToggle";
 import { GalleryGridView } from "@/components/admin/gallery/GalleryGridView";
 import { GalleryLightboxModal } from "@/components/admin/gallery/GalleryLightboxModal";
 import { GalleryEditDrawer } from "@/components/admin/gallery/GalleryEditDrawer";
+import { GalleryBulkToolbar } from "@/components/admin/gallery/GalleryBulkToolbar";
+import { GalleryRowActions } from "@/components/admin/gallery/GalleryRowActions";
 import { BulkCategoryModal, BulkEventModal } from "@/components/admin/gallery/GalleryBulkModals";
 
 interface GalleryFilters extends AdminFilterRecord {
@@ -385,53 +375,15 @@ export default function GalleryListPage() {
     {
       header: t("columns.actions"),
       cell: (_, row) => {
-        const index = listQuery.rows.findIndex((item) => item.id === row.id);
+        const index = displayItems.findIndex((item) => item.id === row.id);
         return (
-          <div className="flex items-center gap-1">
-            <button
-              type="button"
-              onClick={() => setLightboxIndex(index >= 0 ? index : 0)}
-              className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-none hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors"
-              title={t("gallery.viewFull")}
-            >
-              <Eye size={16} />
-            </button>
-
-            <PermissionGuard resource="gallery" action="update">
-              <button
-                type="button"
-                onClick={() => setEditingGallery(row)}
-                className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-none hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors"
-                title={t("gallery.edit")}
-              >
-                <Edit3 size={16} />
-              </button>
-            </PermissionGuard>
-
-            <button
-              type="button"
-              onClick={() => handleCopyUrl(row.image_url, row.id)}
-              className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-none hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors"
-              title={t("gallery.copyUrl")}
-            >
-              {copiedId === row.id ? (
-                <Check size={16} className="text-admin-success" />
-              ) : (
-                <Copy size={16} />
-              )}
-            </button>
-
-            <PermissionGuard resource="gallery" action="delete">
-              <button
-                type="button"
-                onClick={() => handleDelete(row.id)}
-                className="p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-none hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
-                title={t("common.delete")}
-              >
-                <Icons.Delete size={16} />
-              </button>
-            </PermissionGuard>
-          </div>
+          <GalleryRowActions
+            onPreview={() => setLightboxIndex(index >= 0 ? index : 0)}
+            onEdit={() => setEditingGallery(row)}
+            onCopyUrl={() => handleCopyUrl(row.image_url, row.id)}
+            onDelete={() => handleDelete(row.id)}
+            isCopied={copiedId === row.id}
+          />
         );
       },
     },
@@ -444,33 +396,7 @@ export default function GalleryListPage() {
         breadcrumbs={[{ label: t("gallery.title") }]}
         actions={
           <div className="flex items-center gap-2">
-            {/* View Mode Toggle Button */}
-            <div className="flex items-center rounded-none border border-admin-border bg-admin-surface p-0.5">
-              <button
-                type="button"
-                onClick={() => handleChangeViewMode("grid")}
-                className={`p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-none transition-colors ${
-                  viewMode === "grid"
-                    ? "bg-admin-primary text-admin-on-action"
-                    : "text-admin-muted hover:text-admin-foreground"
-                }`}
-                title={t("gallery.gridView")}
-              >
-                <LayoutGrid size={16} />
-              </button>
-              <button
-                type="button"
-                onClick={() => handleChangeViewMode("table")}
-                className={`p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-none transition-colors ${
-                  viewMode === "table"
-                    ? "bg-admin-primary text-admin-on-action"
-                    : "text-admin-muted hover:text-admin-foreground"
-                }`}
-                title={t("gallery.tableView")}
-              >
-                <LayoutList size={16} />
-              </button>
-            </div>
+            <ViewModeToggle value={viewMode} onChange={handleChangeViewMode} />
 
             <PermissionButton
               resource="gallery"
@@ -548,65 +474,15 @@ export default function GalleryListPage() {
       </div>
 
       {/* Enhanced Bulk Action Toolbar */}
-      <BulkActionToolbar
+      <GalleryBulkToolbar
         selectedCount={selectedIds.selectedCount}
         onClear={selectedIds.clearSelection}
-      >
-        <PermissionGuard resource="gallery" action="update">
-          <button
-            type="button"
-            onClick={() => setIsCategoryModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-2 min-h-[38px] bg-admin-surface hover:bg-admin-surface-muted text-admin-foreground rounded-none border border-admin-border transition-colors text-xs sm:text-sm font-medium shrink-0 active:scale-95"
-          >
-            <FolderCheck size={15} />
-            <span>{t("gallery.bulkCategory")}</span>
-          </button>
-        </PermissionGuard>
-
-        <PermissionGuard resource="gallery" action="update">
-          <button
-            type="button"
-            onClick={() => setIsEventModalOpen(true)}
-            className="flex items-center gap-1.5 px-3 py-2 min-h-[38px] bg-admin-surface hover:bg-admin-surface-muted text-admin-foreground rounded-none border border-admin-border transition-colors text-xs sm:text-sm font-medium shrink-0 active:scale-95"
-          >
-            <Tag size={15} />
-            <span>{t("gallery.bulkEvent")}</span>
-          </button>
-        </PermissionGuard>
-
-        <PermissionGuard resource="gallery" action="update">
-          <button
-            type="button"
-            onClick={() => handleBulkStatus(true)}
-            className="flex items-center gap-1.5 px-3 py-2 min-h-[38px] bg-admin-surface hover:bg-admin-surface-muted text-admin-success rounded-none border border-admin-border transition-colors text-xs sm:text-sm font-medium shrink-0 active:scale-95"
-          >
-            <CheckCircle2 size={15} />
-            <span>{t("gallery.bulkActive")}</span>
-          </button>
-        </PermissionGuard>
-
-        <PermissionGuard resource="gallery" action="update">
-          <button
-            type="button"
-            onClick={() => handleBulkStatus(false)}
-            className="flex items-center gap-1.5 px-3 py-2 min-h-[38px] bg-admin-surface hover:bg-admin-surface-muted text-admin-muted rounded-none border border-admin-border transition-colors text-xs sm:text-sm font-medium shrink-0 active:scale-95"
-          >
-            <XCircle size={15} />
-            <span>{t("gallery.bulkInactive")}</span>
-          </button>
-        </PermissionGuard>
-
-        <PermissionGuard resource="gallery" action="delete">
-          <button
-            type="button"
-            onClick={handleBulkDelete}
-            className="flex items-center gap-1.5 px-3.5 py-2 min-h-[38px] bg-admin-danger hover:brightness-90 text-admin-on-action rounded-none transition-colors text-xs sm:text-sm font-medium shrink-0 focus-visible:outline-2 focus-visible:outline-admin-focus active:scale-95"
-          >
-            <Icons.Delete size={15} />
-            <span>{t("common.delete")}</span>
-          </button>
-        </PermissionGuard>
-      </BulkActionToolbar>
+        onBulkCategory={() => setIsCategoryModalOpen(true)}
+        onBulkEvent={() => setIsEventModalOpen(true)}
+        onBulkActive={() => handleBulkStatus(true)}
+        onBulkInactive={() => handleBulkStatus(false)}
+        onBulkDelete={handleBulkDelete}
+      />
 
       {/* Main View Area (Table or Grid) */}
       <div className="mt-6">
