@@ -233,6 +233,7 @@ export interface ContactInquiry {
   phone: string;
   subject: string;
   message: string;
+  communication_locale: "th" | "en" | "de";
   inquiry_type: string;
   status: string;
   replied_by_id: string | null;
