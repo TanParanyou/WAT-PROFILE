@@ -395,9 +395,9 @@ Expected: Calendar tests, type-check, focused ESLint, and production build all p
 
 - [x] **Step 5: Run browser QA at both breakpoints.**
 
-At 390px, verify `/th/events?view=month&date=2026-08-12` renders `data-calendar-mode="monthAgenda"`; Week renders `dayStrip` with one TimeGrid day; Day renders `timeGrid`; page width does not overflow; selecting a Week day retains `view=week`; event activation opens the existing detail route. Core responsive smoke passed against the local app; the full dynamic locale pass is dependent on the backend API being available.
+At 390px, verify `/th/events?view=month&date=2026-08-12` renders `data-calendar-mode="monthAgenda"`; Week renders `dayStrip` with one TimeGrid day; Day renders `timeGrid`; page width does not overflow; selecting a Week day retains `view=week`; event activation opens the existing detail route. The full responsive smoke passed against the local app and real API for `th`, `en`, and `de`.
 
-At 1280px, verify both `/th/events` and `/th/calendar` retain `monthGrid` and seven-day `timeGrid`. The real API and Thai responsive smoke pass. The `/en` and `/de` dynamic locale pass remains blocked by the current repository state: `frontend/src/proxy.ts` was removed in the unrelated privacy commit, so next-intl falls back to Thai; restoring that cross-cutting routing file requires separate approval.
+At 1280px, verify both `/th/events` and `/th/calendar` retain `monthGrid` and seven-day `timeGrid`. The real API and the full `th`/`en`/`de` responsive browser smoke pass. The public route pages scope their route locale through `NextIntlClientProvider`, so this verification does not require restoring the unrelated deleted proxy.
 
 - [x] **Step 6: Commit the responsive toolbar and completed checklist.**
 
@@ -417,4 +417,4 @@ git commit -m "feat(calendar): polish mobile calendar controls"
 - `e046f57` closes the active-view accessibility baseline: 44px event controls, 3px focus treatment, Month grid semantics, and control/name assertions.
 - `b105c49` adds long German title coverage so visual truncation never removes the accessible event name.
 - The real public feed smoke returned HTTP 200 with `Europe/Berlin` entries; frontend Calendar tests, backend tests/vet/build, TypeScript, ESLint, production build, and 390px/1280px core browser smoke passed.
-- Locale browser verification is the only remaining external blocker and is intentionally not hidden by a mock or by changing the unrelated privacy worktree.
+- Locale browser verification now passes through the scoped public route providers; the unrelated privacy worktree remains untouched.

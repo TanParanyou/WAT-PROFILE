@@ -8,11 +8,17 @@ import { planningPreset } from "./planning";
 const publicCalendarPath = fileURLToPath(
   new URL("../../../app/[locale]/(client)/calendar/CalendarPageContent.tsx", import.meta.url),
 );
+const publicCalendarRoutePath = fileURLToPath(
+  new URL("../../../app/[locale]/(client)/calendar/page.tsx", import.meta.url),
+);
 const publicCalendarSectionPath = fileURLToPath(
   new URL("../integrations/wat/PublicCalendarSection.tsx", import.meta.url),
 );
 const eventsPagePath = fileURLToPath(
   new URL("../../../app/[locale]/(client)/events/EventsContent.tsx", import.meta.url),
+);
+const eventsRoutePath = fileURLToPath(
+  new URL("../../../app/[locale]/(client)/events/page.tsx", import.meta.url),
 );
 const adminCalendarPath = fileURLToPath(
   new URL("../../../app/[locale]/admin/calendar/_components/AdminCalendarContent.tsx", import.meta.url),
@@ -53,6 +59,16 @@ test("Public calendar uses the wide page surface for seven-day TimeGrid", () => 
   const source = readFileSync(publicCalendarPath, "utf8");
 
   assert.match(source, /<PageContainer width="wide">/);
+});
+
+test("public Calendar consumers scope next-intl messages to the route locale", () => {
+  const calendarRoute = readFileSync(publicCalendarRoutePath, "utf8");
+  const eventsRoute = readFileSync(eventsRoutePath, "utf8");
+
+  for (const source of [calendarRoute, eventsRoute]) {
+    assert.match(source, /getMessages\(\{ locale \}\)/);
+    assert.match(source, /<NextIntlClientProvider locale=\{locale\} messages=\{messages\}>/);
+  }
 });
 
 test("Events page places the shared public calendar section between schedules and events", () => {
