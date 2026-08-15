@@ -442,6 +442,8 @@
     "EventsPage": {
         "title": "กิจกรรมและงานบุญ",
         "subtitle": "ปฏิทินกิจกรรม",
+        "calendarTitle": "ปฏิทินกิจกรรม",
+        "calendarDescription": "เลือกดูวัน เวลา และรายละเอียดกิจกรรมของวัด",
         "readMore": "อ่านรายละเอียด",
         "calendarView": "มุมมองปฏิทิน",
         "listView": "มุมมองรายการ",

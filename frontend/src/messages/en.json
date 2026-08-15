@@ -443,6 +443,8 @@
     "EventsPage": {
         "title": "Events & Ceremonies",
         "subtitle": "Upcoming Events",
+        "calendarTitle": "Activity calendar",
+        "calendarDescription": "Browse temple activities by date, time, and detail.",
         "readMore": "Read More",
         "calendarView": "Calendar View",
         "listView": "List View",

@@ -443,6 +443,8 @@
     "EventsPage": {
         "title": "Veranstaltungen & Zeremonien",
         "subtitle": "Kommende Veranstaltungen",
+        "calendarTitle": "Aktivitätskalender",
+        "calendarDescription": "Entdecken Sie Tempelaktivitäten nach Datum, Uhrzeit und Details.",
         "readMore": "Weiterlesen",
         "calendarView": "Kalenderansicht",
         "listView": "Listenansicht",

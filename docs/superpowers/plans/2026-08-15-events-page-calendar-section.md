@@ -33,7 +33,7 @@
 - Consumes: `useRoutedCalendar`, `useClientCalendarLabels`, `CalendarQueryBoundary`, `Calendar`, `discoveryPreset`, and existing WAT adapter functions.
 - Guarantees: Both public routes render the same Calendar facade and no page component imports Calendar views directly.
 
-- [ ] **Step 1: Extend the source-boundary test with the Events page contract.**
+- [x] **Step 1: Extend the source-boundary test with the Events page contract.**
 
 In `presets.test.ts`, add an `eventsPagePath` using this exact relative URL:
 
@@ -57,7 +57,7 @@ test("Events page composes the shared public calendar section before schedules",
 });
 ```
 
-- [ ] **Step 2: Run the test to verify it fails.**
+- [x] **Step 2: Run the test to verify it fails.**
 
 Run:
 
@@ -67,7 +67,7 @@ cd frontend && NODE_ENV=development npx tsx --test src/features/calendar/presets
 
 Expected: FAIL because `EventsContent` currently has no `PublicCalendarSection` and still links to `/calendar`.
 
-- [ ] **Step 3: Create `PublicCalendarSection`.**
+- [x] **Step 3: Create `PublicCalendarSection`.**
 
 Move these concerns from `CalendarPageContent` into the new component without changing their behavior:
 
@@ -86,7 +86,7 @@ const labels = useClientCalendarLabels(locale);
 
 Render `CalendarQueryBoundary` and the existing `<Calendar>` props exactly as the dedicated page does today. Keep `onEventActivate` navigating through `event.detail.href`; preserve the public theme, feed, presentation adapters, tooltip defaults, and `discoveryPreset`.
 
-- [ ] **Step 4: Reduce `CalendarPageContent` to page shell plus section.**
+- [x] **Step 4: Reduce `CalendarPageContent` to page shell plus section.**
 
 Keep only locale-independent page text and page layout in `CalendarPageContent`:
 
@@ -101,7 +101,7 @@ Keep only locale-independent page text and page layout in `CalendarPageContent`:
 
 Remove its direct imports of Calendar state, query, label, adapter, and navigation dependencies. Do not move `PageHeader` or `PageContainer` into the reusable section.
 
-- [ ] **Step 5: Run the focused source test and verify it passes.**
+- [x] **Step 5: Run the focused source test and verify it passes.**
 
 Run:
 
@@ -111,7 +111,7 @@ cd frontend && NODE_ENV=development npx tsx --test src/features/calendar/presets
 
 Expected: all existing Calendar facade tests pass and the new source test confirms the Events consumer is ready for composition.
 
-- [ ] **Step 6: Commit the extraction.**
+- [x] **Step 6: Commit the extraction.**
 
 ```bash
 git add frontend/src/features/calendar/integrations/wat/PublicCalendarSection.tsx frontend/src/app/[locale]/(client)/calendar/CalendarPageContent.tsx frontend/src/features/calendar/presets/presets.test.ts
@@ -131,7 +131,7 @@ git commit -m "refactor(calendar): extract public calendar section"
 - Consumes: `PublicCalendarSection` from Task 1 and `EventsPage.calendarTitle` / `EventsPage.calendarDescription` message keys.
 - Produces: the Events route with the full Calendar between header and schedules, while schedules and event list remain independent sections.
 
-- [ ] **Step 1: Add complete localized section copy.**
+- [x] **Step 1: Add complete localized section copy.**
 
 Add two keys to each `EventsPage` locale object:
 
@@ -149,7 +149,7 @@ Add two keys to each `EventsPage` locale object:
 "calendarDescription": "Entdecken Sie Tempelaktivitäten nach Datum, Uhrzeit und Details."
 ```
 
-- [ ] **Step 2: Compose the Calendar section before schedules.**
+- [x] **Step 2: Compose the Calendar section before schedules.**
 
 Replace the current direct `/calendar` action link with this section immediately inside `PageContainer`, before the existing schedule section:
 
@@ -168,7 +168,7 @@ Replace the current direct `/calendar` action link with this section immediately
 
 Change the former schedule section to `className="mt-20 border-t border-site-border pt-16"`. Keep its `aria-labelledby="schedule-heading"`, queries, and state branches unchanged. Remove the now-unused `Link` import and the upcoming-events heading `action` prop.
 
-- [ ] **Step 3: Tighten the source test.**
+- [x] **Step 3: Tighten the source test.**
 
 Update the Task 1 test to also assert:
 
@@ -179,7 +179,7 @@ assert.match(source, /description=\{tPage\("calendarDescription"\)\}/);
 
 This proves the embedded Calendar has a localized section heading rather than silently inheriting the route title.
 
-- [ ] **Step 4: Run focused tests and Calendar gate.**
+- [x] **Step 4: Run focused tests and Calendar gate.**
 
 Run:
 
@@ -190,7 +190,7 @@ cd frontend && npm run test:calendar
 
 Expected: the section-order/localization assertion passes and all Calendar behavior remains green.
 
-- [ ] **Step 5: Run TypeScript, focused ESLint, build, and browser QA.**
+- [x] **Step 5: Run TypeScript, focused ESLint, build, and browser QA.**
 
 Run:
 
@@ -202,7 +202,7 @@ cd frontend && NEXT_PUBLIC_PUBLIC_ACCOUNT_AUTH_ENABLED=false npm run build
 
 Browser-check `/th/events?view=month&date=2026-08-12` at `390px` and `1280px`, then switch to Week and Day. Confirm the URL updates on `/events`, the Calendar appears before schedules, event activation opens the existing detail route, no page-width overflow appears, and localized `/en/events` and `/de/events` headings render.
 
-- [ ] **Step 6: Commit Events composition.**
+- [x] **Step 6: Commit Events composition.**
 
 ```bash
 git add frontend/src/app/[locale]/(client)/events/EventsContent.tsx frontend/src/messages/th.json frontend/src/messages/en.json frontend/src/messages/de.json frontend/src/features/calendar/presets/presets.test.ts
