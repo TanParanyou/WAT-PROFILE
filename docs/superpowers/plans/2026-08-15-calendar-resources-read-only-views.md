@@ -15,7 +15,7 @@
 - Backend owns persistence, permissions, public visibility, and `Europe/Berlin` time semantics.
 - Preserve complete `th`, `en`, and `de` public/admin messages, 44px controls, 3px focus indicators, keyboard operation, 200% zoom, reduced motion, and a non-horizontal-only mobile fallback.
 - Production screens use API data; fixtures are only for automated tests.
-- Do not alter the uncommitted Event-detail files or migration `000043_add_event_extended_fields`; this slice creates `000044`.
+- Do not alter the uncommitted Event-detail files or migrations `000043_add_event_extended_fields` and `000044_add_group_event_registrations`; this slice creates `000045`.
 - Update OpenAPI, backend contracts, frontend parser/client, and tests together for every API change.
 - Drag/drop, resize, recurrence, conflict validation, and external sync are out of scope for this read-only slice.
 
@@ -142,7 +142,7 @@ Stage only Task 1 files and commit with `feat(calendar): support resource layout
 ### Task 2: Add resource and assignment persistence
 
 **Files:**
-- Create: `backend/migrations/000044_create_calendar_resources.up.sql`, `backend/migrations/000044_create_calendar_resources.down.sql`
+- Create: `backend/migrations/000045_create_calendar_resources.up.sql`, `backend/migrations/000045_create_calendar_resources.down.sql`
 - Create: `backend/internal/models/calendar_resource.go`, `backend/internal/models/calendar_resource_test.go`
 - Modify: `backend/internal/models/event.go`
 
