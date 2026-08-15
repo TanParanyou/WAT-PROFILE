@@ -850,7 +850,16 @@
       "loading": "Loading images...",
       "empty": "No images found in media library",
       "crop": "Crop",
-      "cropTooltip": "Crop this image"
+      "cropTooltip": "Crop this image",
+      "searchPlaceholder": "Search images...",
+      "searchLabel": "Search",
+      "searchNoResults": "No matching images",
+      "searchNoResultsDescription": "No images match \"{query}\"",
+      "managedBadge": "Managed",
+      "externalBadge": "External",
+      "externalDescription": "External images can be selected but not cropped.",
+      "replaceExternal": "Upload replacement",
+      "selectImage": "Select image"
     },
     "cropDialog": {
       "title": "Crop Image",

@@ -850,7 +850,16 @@
       "loading": "Bilder werden geladen...",
       "empty": "Keine Bilder in der Medienbibliothek gefunden",
       "crop": "Zuschneiden",
-      "cropTooltip": "Dieses Bild zuschneiden"
+      "cropTooltip": "Dieses Bild zuschneiden",
+      "searchPlaceholder": "Bilder suchen...",
+      "searchLabel": "Suchen",
+      "searchNoResults": "Keine passenden Bilder",
+      "searchNoResultsDescription": "Keine Bilder passen zu \"{query}\"",
+      "managedBadge": "Verwaltet",
+      "externalBadge": "Extern",
+      "externalDescription": "Externe Bilder können ausgewählt, aber nicht zugeschnitten werden.",
+      "replaceExternal": "Ersatz hochladen",
+      "selectImage": "Bild auswählen"
     },
     "cropDialog": {
       "title": "Bild zuschneiden",

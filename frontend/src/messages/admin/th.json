@@ -850,7 +850,16 @@
       "loading": "กำลังโหลดรูปภาพ...",
       "empty": "ไม่พบรูปภาพในคลังสื่อ",
       "crop": "ครอป",
-      "cropTooltip": "ครอบตัดรูปภาพนี้"
+      "cropTooltip": "ครอบตัดรูปภาพนี้",
+      "searchPlaceholder": "ค้นหารูปภาพ...",
+      "searchLabel": "ค้นหา",
+      "searchNoResults": "ไม่พบรูปภาพที่ค้นหา",
+      "searchNoResultsDescription": "ไม่พบรูปภาพที่ตรงกับคำค้นหา \"{query}\"",
+      "managedBadge": "จัดการโดยระบบ",
+      "externalBadge": "ภายนอก",
+      "externalDescription": "เลือกรูปได้ แต่ครอปไม่ได้",
+      "replaceExternal": "อัปโหลดรูปแทน",
+      "selectImage": "เลือกรูปภาพ"
     },
     "cropDialog": {
       "title": "ครอบตัดรูปภาพ (Crop Image)",

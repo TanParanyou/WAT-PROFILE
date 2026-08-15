@@ -5,6 +5,8 @@ import { Upload, Loader2, Crop } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { mediaService } from "@/services/mediaService";
+import type { Media } from "@/types/entities";
+import { classifyMediaSource } from "@/lib/mediaOrigins";
 import { useTranslations } from "next-intl";
 import { ImageCropDialog } from "./ImageCropDialog";
 import {
@@ -28,7 +30,7 @@ export function MediaPickerDialog({
 }: MediaPickerDialogProps) {
   const t = useTranslations("Admin.mediaPicker");
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [mediaItems, setMediaItems] = useState<Media[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [error, setError] = useState("");
@@ -50,14 +52,14 @@ export function MediaPickerDialog({
     setError("");
     try {
       const media = await mediaService.list();
-      const urls = Array.from(
-        new Set(
+      const uniqueMedia = Array.from(
+        new Map(
           media
-            .map((item) => item.url)
-            .filter((url): url is string => typeof url === "string" && url !== ""),
-        ),
+            .filter((item) => typeof item.url === "string" && item.url.trim() !== "")
+            .map((item) => [item.url, item]),
+        ).values(),
       );
-      setGalleryImages(urls);
+      setMediaItems(uniqueMedia);
     } catch {
       setError(t("fetchError"));
     } finally {
@@ -66,10 +68,13 @@ export function MediaPickerDialog({
   };
 
   const filteredImages = useMemo(() => {
-    if (!searchQuery.trim()) return galleryImages;
+    if (!searchQuery.trim()) return mediaItems;
     const q = searchQuery.toLowerCase();
-    return galleryImages.filter((url) => url.toLowerCase().includes(q));
-  }, [galleryImages, searchQuery]);
+    return mediaItems.filter((item) =>
+      [item.original_filename, item.filename, item.url]
+        .some((value) => value.toLowerCase().includes(q)),
+    );
+  }, [mediaItems, searchQuery]);
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -100,9 +105,10 @@ export function MediaPickerDialog({
     }
   };
 
-  const handleOpenCropForGallery = (url: string, e: React.MouseEvent) => {
+  const handleOpenCropForGallery = (item: Media, e: React.MouseEvent) => {
     e.stopPropagation();
-    setCropSrc(url);
+    if (classifyMediaSource(item.url) !== "managed") return;
+    setCropSrc(item.url);
     setCropFileName("gallery-cropped.jpg");
     setIsCropOpen(true);
   };
@@ -129,10 +135,10 @@ export function MediaPickerDialog({
       {
         key: "search",
         value: searchQuery,
-        label: `ค้นหา: "${searchQuery}"`,
+        label: `${t("searchLabel")}: "${searchQuery}"`,
       },
     ];
-  }, [searchQuery]);
+  }, [searchQuery, t]);
 
   return (
     <>
@@ -175,7 +181,7 @@ export function MediaPickerDialog({
               <AdminSearchInput
                 value={searchQuery}
                 isDebouncing={false}
-                placeholder="ค้นหารูปภาพ..."
+                placeholder={t("searchPlaceholder")}
                 onChange={(val) => setSearchQuery(val)}
                 onSubmit={(val) => setSearchQuery(val)}
                 onClear={() => setSearchQuery("")}
@@ -207,44 +213,72 @@ export function MediaPickerDialog({
             <AdminListEmptyState
               hasActiveQuery={Boolean(searchQuery.trim())}
               onClear={() => setSearchQuery("")}
-              title={searchQuery.trim() ? "ไม่พบรูปภาพที่ค้นหา" : t("empty")}
+              title={searchQuery.trim() ? t("searchNoResults") : t("empty")}
               description={
                 searchQuery.trim()
-                  ? `ไม่พบรูปภาพที่ตรงกับคำค้นหา "${searchQuery}"`
+                  ? t("searchNoResultsDescription", { query: searchQuery })
                   : undefined
               }
             />
           ) : (
             <div className="grid grid-cols-3 sm:grid-cols-4 gap-3 max-h-[340px] overflow-y-auto pr-1">
-              {filteredImages.map((url, idx) => (
+              {filteredImages.map((item) => {
+                const sourceKind = classifyMediaSource(item.url);
+                const canCrop = sourceKind === "managed";
+
+                return (
                 <div
-                  key={idx}
-                  className="group aspect-square border border-admin-border rounded-none overflow-hidden bg-admin-surface-muted hover:border-admin-focus transition-all relative cursor-pointer"
-                  onClick={() => {
-                    onSelect(url);
-                    onClose();
-                  }}
+                  key={item.id || item.url}
+                  className="group relative aspect-square overflow-hidden border border-admin-border rounded-none bg-admin-surface-muted transition-all hover:border-admin-focus"
                 >
                   <img
-                    src={url}
-                    alt="Gallery item"
+                    src={item.url}
+                    alt={item.alt_text || item.original_filename || t("selectImage")}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform"
                     loading="lazy"
                   />
-                  {/* Overlay buttons */}
-                  <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-1.5">
-                    <button
-                      type="button"
-                      onClick={(e) => handleOpenCropForGallery(url, e)}
-                      className="p-1.5 bg-admin-surface/90 hover:bg-admin-surface text-admin-foreground rounded-none transition-colors text-xs flex items-center gap-1 font-medium focus-visible:outline-2 focus-visible:outline-admin-focus"
-                      title={t("cropTooltip")}
-                    >
-                      <Crop size={14} className="text-admin-action" />
-                      <span>{t("crop")}</span>
-                    </button>
+                  <button
+                    type="button"
+                    className="absolute inset-0 z-0 cursor-pointer focus-visible:outline-2 focus-visible:outline-admin-focus"
+                    onClick={() => {
+                      onSelect(item.url);
+                      onClose();
+                    }}
+                    aria-label={`${t("selectImage")}: ${item.original_filename || item.url}`}
+                  >
+                    <span className="sr-only">{t("selectImage")}</span>
+                  </button>
+                  <div className="pointer-events-none absolute left-1.5 top-1.5 z-10 flex gap-1 text-[10px] font-semibold uppercase tracking-wide">
+                    <span className="bg-admin-surface/95 px-1.5 py-1 text-admin-foreground">
+                      {sourceKind === "managed" ? t("managedBadge") : t("externalBadge")}
+                    </span>
+                  </div>
+                  <div className="pointer-events-none absolute inset-x-0 bottom-0 z-10 flex justify-center gap-1.5 bg-black/30 p-1.5 opacity-0 transition-opacity group-hover:opacity-100 group-focus-within:opacity-100">
+                    {canCrop ? (
+                      <button
+                        type="button"
+                        onClick={(e) => handleOpenCropForGallery(item, e)}
+                        className="pointer-events-auto inline-flex min-h-11 items-center gap-1 rounded-none bg-admin-surface/95 px-2.5 py-2 text-xs font-medium text-admin-foreground transition-colors hover:bg-admin-surface focus-visible:outline-2 focus-visible:outline-admin-focus"
+                        title={t("cropTooltip")}
+                      >
+                        <Crop size={14} className="text-admin-action" aria-hidden="true" />
+                        <span>{t("crop")}</span>
+                      </button>
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => fileInputRef.current?.click()}
+                        className="pointer-events-auto inline-flex min-h-11 items-center gap-1 rounded-none bg-admin-surface/95 px-2.5 py-2 text-xs font-medium text-admin-foreground transition-colors hover:bg-admin-surface focus-visible:outline-2 focus-visible:outline-admin-focus"
+                        title={t("replaceExternal")}
+                      >
+                        <Upload size={14} aria-hidden="true" />
+                        <span>{t("replaceExternal")}</span>
+                      </button>
+                    )}
                   </div>
                 </div>
-              ))}
+                );
+              })}
             </div>
           )}
         </div>

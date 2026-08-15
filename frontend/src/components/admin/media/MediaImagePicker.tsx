@@ -5,6 +5,8 @@ import { X, Eye, Image as ImageIcon } from "lucide-react";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import { MediaPickerDialog } from "./MediaPickerDialog";
+import { classifyMediaSource } from "@/lib/mediaOrigins";
+import { useTranslations } from "next-intl";
 
 interface MediaImagePickerProps {
   label?: string;
@@ -19,6 +21,7 @@ export function MediaImagePicker({
   onChange,
   className = "",
 }: MediaImagePickerProps) {
+  const t = useTranslations("Admin.mediaPicker");
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isPickerOpen, setIsPickerOpen] = useState(false);
 
@@ -28,6 +31,7 @@ export function MediaImagePicker({
   };
 
   const previewSrc = value?.trim() || "";
+  const isExternal = previewSrc !== "" && classifyMediaSource(previewSrc) === "external";
 
   return (
     <div className={`space-y-2 font-sans ${className}`}>
@@ -71,6 +75,11 @@ export function MediaImagePicker({
           >
             <X size={14} />
           </button>
+          {isExternal ? (
+            <span className="mt-2 block text-xs font-medium text-admin-warning" role="status">
+              {t("externalBadge")} — {t("externalDescription")}
+            </span>
+          ) : null}
         </div>
       ) : (
         <div
