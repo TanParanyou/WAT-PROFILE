@@ -79,6 +79,15 @@ const watEvent: CalendarEntry = {
   detail: { canEdit: false },
 };
 
+const longEvent: CalendarEvent = {
+  id: "long-title-event",
+  title: "Ein sehr langer deutscher Veranstaltungstitel für die vollständige Kalenderansicht",
+  start: event.start,
+  end: event.end,
+  allDay: false,
+  meta: {},
+};
+
 function render(element: ReactElement) {
   const container = document.createElement("div");
   document.body.append(container);
@@ -200,6 +209,25 @@ test("TimeGrid activates the original event", () => {
     assert.equal(activated, event);
   } finally {
     screen.cleanup();
+  }
+});
+
+test("long event titles retain complete accessible names when visually truncated", () => {
+  const month = render(createElement(MonthView, {
+    controller: createCalendarState({ weekStartsOn: 0, initialDate: new Date(2026, 7, 12) }),
+    entries: [longEvent], labels, variant: "public", onEntryActivate: () => undefined, showTooltip: false,
+  }));
+  const timeGrid = render(createElement(TimeGrid, {
+    days: [new Date(2026, 7, 12)],
+    entries: [longEvent], labels, variant: "public", onEntryActivate: () => undefined, showDayHeaders: true, showTooltip: false,
+  }));
+
+  try {
+    assert.ok(month.container.querySelector(`button[aria-label="${longEvent.title}"]`));
+    assert.ok(timeGrid.container.querySelector(`button[aria-label="${longEvent.title}"]`));
+  } finally {
+    month.cleanup();
+    timeGrid.cleanup();
   }
 });
 
