@@ -397,7 +397,7 @@ Expected: Calendar tests, type-check, focused ESLint, and production build all p
 
 At 390px, verify `/th/events?view=month&date=2026-08-12` renders `data-calendar-mode="monthAgenda"`; Week renders `dayStrip` with one TimeGrid day; Day renders `timeGrid`; page width does not overflow; selecting a Week day retains `view=week`; event activation opens the existing detail route. Core responsive smoke passed against the local app; the full dynamic locale pass is dependent on the backend API being available.
 
-At 1280px, verify both `/th/events` and `/th/calendar` retain `monthGrid` and seven-day `timeGrid`. Locale message keys for `/en/events` and `/de/events` were checked statically; the clean-proxy EN heading check passed, while the dynamic DE/API pass could not complete because the local backend process was unavailable.
+At 1280px, verify both `/th/events` and `/th/calendar` retain `monthGrid` and seven-day `timeGrid`. The real API and Thai responsive smoke pass. The `/en` and `/de` dynamic locale pass remains blocked by the current repository state: `frontend/src/proxy.ts` was removed in the unrelated privacy commit, so next-intl falls back to Thai; restoring that cross-cutting routing file requires separate approval.
 
 - [x] **Step 6: Commit the responsive toolbar and completed checklist.**
 
@@ -411,3 +411,10 @@ git commit -m "feat(calendar): polish mobile calendar controls"
 - Spec coverage: Tasks 1–2 cover developer configuration, fallback, validation, breakpoint behavior, and hydration. Tasks 3–4 cover MonthAgenda, DayStrip, event activation, URL semantics, keyboard behavior, and one-day TimeGrid. Task 5 covers toolbar, localization, desktop preservation, and complete verification.
 - Placeholder scan: every implementation step names exact files, APIs, assertions, commands, and expected results.
 - Type consistency: `CalendarLayout`, `CalendarResponsiveLayoutsInput`, `CalendarResponsiveLayouts`, `CalendarConfig.layouts`, and `useCalendarLayout` use the same names across all tasks.
+
+## Post-plan hardening evidence
+
+- `e046f57` closes the active-view accessibility baseline: 44px event controls, 3px focus treatment, Month grid semantics, and control/name assertions.
+- `b105c49` adds long German title coverage so visual truncation never removes the accessible event name.
+- The real public feed smoke returned HTTP 200 with `Europe/Berlin` entries; frontend Calendar tests, backend tests/vet/build, TypeScript, ESLint, production build, and 390px/1280px core browser smoke passed.
+- Locale browser verification is the only remaining external blocker and is intentionally not hidden by a mock or by changing the unrelated privacy worktree.
