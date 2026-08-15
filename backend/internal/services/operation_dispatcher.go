@@ -29,10 +29,15 @@ type OperationDispatcher struct {
 	media         *MediaRetentionService
 	contacts      *ContactService
 	notifications *ContactNotificationService
+	registrations *RegistrationEmailService
 }
 
-func NewOperationDispatcher(donations *DonationService, emails *DonationEmailService, store PrivateObjectReader, media *MediaRetentionService, contacts *ContactService, notifications *ContactNotificationService) *OperationDispatcher {
-	return &OperationDispatcher{donations: donations, emails: emails, store: store, media: media, contacts: contacts, notifications: notifications}
+func NewOperationDispatcher(donations *DonationService, emails *DonationEmailService, store PrivateObjectReader, media *MediaRetentionService, contacts *ContactService, notifications *ContactNotificationService, registrations ...*RegistrationEmailService) *OperationDispatcher {
+	var registrationEmails *RegistrationEmailService
+	if len(registrations) > 0 {
+		registrationEmails = registrations[0]
+	}
+	return &OperationDispatcher{donations: donations, emails: emails, store: store, media: media, contacts: contacts, notifications: notifications, registrations: registrationEmails}
 }
 
 func (d *OperationDispatcher) Dispatch(ctx context.Context, job models.OperationOutbox) error {
@@ -49,6 +54,11 @@ func (d *OperationDispatcher) Dispatch(ctx context.Context, job models.Operation
 		return err
 	case "contact.notification":
 		return d.dispatchContactNotification(ctx, job)
+	case "registration.received", "registration.confirmed", "registration.cancelled", "registration.review_required":
+		if d.registrations == nil {
+			return fmt.Errorf("registration email service is not configured")
+		}
+		return d.registrations.Send(ctx, job)
 	default:
 		return fmt.Errorf("unsupported outbox job kind %q", job.Kind)
 	}

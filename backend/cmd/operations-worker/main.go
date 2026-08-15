@@ -12,6 +12,7 @@ import (
 	"github.com/joho/godotenv"
 	"github.com/watloungporsai/wat-profile-backend/internal/accountauth"
 	"github.com/watloungporsai/wat-profile-backend/internal/config"
+	"github.com/watloungporsai/wat-profile-backend/internal/registrations"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
 	"github.com/watloungporsai/wat-profile-backend/internal/storage"
 )
@@ -48,7 +49,15 @@ func main() {
 	donations := services.NewDonationServiceWithOutbox(config.DB, outbox)
 	contacts := services.NewContactService(config.DB)
 	notifications := services.NewContactNotificationService(contactSender, recipient)
-	dispatcher := services.NewOperationDispatcher(donations, services.NewDonationEmailService(sender), r2, retention, contacts, notifications)
+	tokenCipher, err := registrations.NewTokenCipher([]byte(os.Getenv("JWT_SECRET")))
+	if err != nil {
+		log.Fatal(err)
+	}
+	registrationEmails, err := services.NewRegistrationEmailService(config.DB, sender, os.Getenv("PUBLIC_ACCOUNT_FRONTEND_URL"), tokenCipher, os.Getenv("ENV"))
+	if err != nil {
+		log.Fatal(err)
+	}
+	dispatcher := services.NewOperationDispatcher(donations, services.NewDonationEmailService(sender), r2, retention, contacts, notifications, registrationEmails)
 
 	// A daily deterministic job makes media retention durable and safe to run
 	// from cron more than once. The worker also processes donation email jobs.

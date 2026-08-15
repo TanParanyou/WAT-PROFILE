@@ -65,6 +65,11 @@ Public account auth (backend):
 - `AUTH_ACCESS_TOKEN_EXPIRY` (default `15m`), `AUTH_REFRESH_TOKEN_EXPIRY` (default `30d`)
 - `AUTH_EMAIL_DELIVERY_MODE` — `capture` (development only; forbidden in production)
   or `resend`; `resend` requires `RESEND_API_KEY` and `ACCOUNT_EMAIL_FROM`
+- Group event registration email is dispatched by `operations-worker` even when
+  `PUBLIC_ACCOUNT_AUTH_ENABLED=false`. It requires `JWT_SECRET` (at least 32
+  bytes), `PUBLIC_ACCOUNT_FRONTEND_URL`, and the configured account email sender.
+  The worker stores only an encrypted management-token payload in the outbox and
+  never persists the raw token.
 - `AUTH_REGISTER_LIMIT`, `AUTH_LOGIN_LIMIT`, `AUTH_VERIFY_RESEND_LIMIT`,
   `AUTH_FORGOT_PASSWORD_LIMIT`, `AUTH_REFRESH_LIMIT`, `AUTH_GOOGLE_LIMIT`,
   `AUTH_AVATAR_UPLOAD_LIMIT`
@@ -126,7 +131,8 @@ Never place real values in this file or committed env examples.
 2. Back up the target PostgreSQL database.
 3. Apply reviewed migrations with `go run cmd/migrate/main.go up`.
 4. Deploy the backend and verify `/health`.
-5. Deploy `operations-worker` with `RESEND_API_KEY`, `CONTACT_EMAIL_FROM`, and
+5. Deploy `operations-worker` with `JWT_SECRET`, `PUBLIC_ACCOUNT_FRONTEND_URL`,
+   `RESEND_API_KEY`, `ACCOUNT_EMAIL_FROM`, `CONTACT_EMAIL_FROM`, and
    `CONTACT_NOTIFICATION_TO`; verify it can claim and retry outbox jobs.
 6. Deploy the frontend with the matching API URL.
 7. Smoke-test public reads, admin login, one permission-restricted route, Contact
