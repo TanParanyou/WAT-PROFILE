@@ -1,11 +1,18 @@
 "use client";
 
 import type { ReactNode } from "react";
-import type { UseQueryResult } from "@tanstack/react-query";
 import type { CalendarLabels } from "../../calendar-copy";
 
+export interface CalendarQueryState<TData> {
+  data: TData | undefined;
+  isPending: boolean;
+  isError: boolean;
+  isFetching: boolean;
+  refetch: () => Promise<unknown>;
+}
+
 interface CalendarQueryBoundaryProps<TData> {
-  query: UseQueryResult<TData, Error>;
+  query: CalendarQueryState<TData>;
   labels: CalendarLabels;
   children: (data: TData) => ReactNode;
 }
@@ -25,9 +32,17 @@ export function CalendarQueryBoundary<TData>({ query, labels, children }: Calend
   if (!query.data) return null;
 
   return (
-    <>
-      {query.isFetching ? <p className="mb-3 text-sm opacity-70" role="status">{labels.refreshing ?? labels.loading ?? "Refreshing"}</p> : null}
+    <div className="relative" aria-busy={query.isFetching}>
+      <p
+        data-calendar-refresh-status
+        role="status"
+        aria-live="polite"
+        aria-hidden={!query.isFetching}
+        className={`pointer-events-none absolute right-0 top-0 z-30 border border-current/15 bg-current/10 px-2 py-1 text-xs motion-safe:transition-opacity motion-safe:duration-150 motion-reduce:transition-none ${query.isFetching ? "opacity-100" : "opacity-0"}`}
+      >
+        {labels.refreshing ?? labels.loading ?? "Refreshing"}
+      </p>
       {children(query.data)}
-    </>
+    </div>
   );
 }

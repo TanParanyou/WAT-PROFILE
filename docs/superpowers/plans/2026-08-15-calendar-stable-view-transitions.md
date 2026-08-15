@@ -32,7 +32,7 @@
 - Consumes: `UseQueryResult<TData, Error>` fields `data`, `isPending`, `isError`, `isFetching`, and `refetch`.
 - Produces: `CalendarQueryBoundary<TData>` where a successful, stale query renders a stable wrapper with `aria-busy`, and a `data-calendar-refresh-status` overlay that never occupies layout flow.
 
-- [ ] **Step 1: Add the DOM test runner glob for WAT integrations.**
+- [x] **Step 1: Add the DOM test runner glob for WAT integrations.**
 
 Change `test:calendar` so the middle `tsx --test` command includes this exact glob:
 
@@ -42,7 +42,7 @@ Change `test:calendar` so the middle `tsx --test` command includes this exact gl
 
 This makes the new boundary test part of the required Calendar gate rather than a manually invoked test.
 
-- [ ] **Step 2: Write the failing refresh-layout test.**
+- [x] **Step 2: Write the failing refresh-layout test.**
 
 Create `CalendarQueryBoundary.test.tsx` with happy-dom globals matching `ui/calendar-acceptance.test.ts`. Render the boundary with `data: { id: "calendar" }`, `isPending: false`, `isError: false`, and `isFetching: true`.
 
@@ -62,7 +62,7 @@ assert.match(screen.container.textContent ?? "", /Calendar body/);
 
 Rerender with `isFetching: false`, then assert the wrapper reports `aria-busy="false"` and the same status node has the `opacity-0` class. This test must fail against the current in-flow `<p className="mb-3 ...">` implementation.
 
-- [ ] **Step 3: Run the new test and verify the expected failure.**
+- [x] **Step 3: Run the new test and verify the expected failure.**
 
 Run:
 
@@ -72,7 +72,7 @@ cd frontend && NODE_ENV=development npx tsx --test src/features/calendar/integra
 
 Expected: FAIL because the refresh status has no `data-calendar-refresh-status` marker, is not absolutely positioned, and pushes the Calendar down with `mb-3`.
 
-- [ ] **Step 4: Narrow the boundary contract and implement the overlay.**
+- [x] **Step 4: Narrow the boundary contract and implement the overlay.**
 
 Replace the broad query prop with this local structural contract so the component declares exactly what it needs:
 
@@ -95,7 +95,7 @@ Keep the existing initial loading and error branches unchanged. For the successf
     role="status"
     aria-live="polite"
     aria-hidden={!query.isFetching}
-    className={`pointer-events-none absolute right-0 top-0 z-30 border border-current/15 bg-[Canvas] px-2 py-1 text-xs opacity-0 motion-safe:transition-opacity motion-safe:duration-150 motion-reduce:transition-none ${query.isFetching ? "opacity-100" : ""}`}
+    className={`pointer-events-none absolute right-0 top-0 z-30 border border-current/15 bg-current/10 px-2 py-1 text-xs opacity-0 motion-safe:transition-opacity motion-safe:duration-150 motion-reduce:transition-none ${query.isFetching ? "opacity-100" : ""}`}
   >
     {labels.refreshing ?? labels.loading ?? "Refreshing"}
   </p>
@@ -105,7 +105,7 @@ Keep the existing initial loading and error branches unchanged. For the successf
 
 The badge is always mounted after initial data exists so `opacity-100` to `opacity-0` can transition. It uses only opacity on a compact, isolated surface. Do not add `useEffect`, timers, `startTransition`, DOM measurement, `will-change`, or view-layout animation.
 
-- [ ] **Step 5: Run the focused test and the full Calendar suite.**
+- [x] **Step 5: Run the focused test and the full Calendar suite.**
 
 Run:
 
@@ -116,7 +116,7 @@ cd frontend && npm run test:calendar
 
 Expected: the new test passes; existing Month/Week/Day, URL-state, API, and Admin drawer tests stay green.
 
-- [ ] **Step 6: Run quality gates and manual browser verification.**
+- [x] **Step 6: Run quality gates and manual browser verification.**
 
 Run:
 

@@ -10,7 +10,7 @@
     "lint:admin-theme": "node scripts/check-admin-theme-tokens.mjs",
     "test:account": "tsx --test src/features/public/account/*.test.ts",
     "test:calendar:dom": "NODE_ENV=development tsx --test src/features/calendar/ui/*.test.ts",
-    "test:calendar": "npm run test:calendar:dom && NODE_ENV=development tsx --test src/features/calendar/*.test.ts src/features/calendar/*.test.tsx src/features/calendar/core/*.test.ts src/features/calendar/presets/*.test.ts src/features/calendar/adapters/*.test.ts src/features/calendar/ui/*.test.ts src/features/calendar/views/*.test.ts src/features/calendar/integrations/next/*.test.ts && NODE_ENV=development tsx 'src/app/[locale]/admin/calendar/_components/CalendarEntryDrawer.test.ts'"
+    "test:calendar": "npm run test:calendar:dom && NODE_ENV=development tsx --test src/features/calendar/*.test.ts src/features/calendar/*.test.tsx src/features/calendar/core/*.test.ts src/features/calendar/presets/*.test.ts src/features/calendar/adapters/*.test.ts src/features/calendar/ui/*.test.ts src/features/calendar/views/*.test.ts src/features/calendar/integrations/next/*.test.ts src/features/calendar/integrations/wat/*.test.tsx && NODE_ENV=development tsx 'src/app/[locale]/admin/calendar/_components/CalendarEntryDrawer.test.ts'"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",
