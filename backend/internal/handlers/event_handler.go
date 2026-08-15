@@ -23,6 +23,13 @@ type EventHandler struct {
 	registrationService *services.RegistrationService
 }
 
+// eventMutationInput keeps resource assignment IDs at the request boundary;
+// callers never write join rows directly through a nested GORM association.
+type eventMutationInput struct {
+	models.Event
+	ResourceIDs []int `json:"resource_ids"`
+}
+
 func NewEventHandler(db *gorm.DB) *EventHandler {
 	return &EventHandler{
 		eventService:        services.NewEventService(db),
@@ -150,18 +157,23 @@ func (h *EventHandler) GetEventByID(c *fiber.Ctx) error {
 
 // CreateEvent - Admin: Create new event
 func (h *EventHandler) CreateEvent(c *fiber.Ctx) error {
-	var event models.Event
-	if err := c.BodyParser(&event); err != nil {
+	var input eventMutationInput
+	if err := c.BodyParser(&input); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
 	}
+	event := input.Event
 	if err := richtext.ValidateLocalized(event.Description); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
-	if err := h.eventService.Create(&event); err != nil {
+	event.ResourceAssignments = nil
+	if err := h.eventService.CreateWithResourceIDs(&event, input.ResourceIDs); err != nil {
+		if errors.Is(err, services.ErrInvalidResourceAssignments) || errors.Is(err, services.ErrInvalidEventResourceIDs) {
+			return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+		}
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to create event")
 	}
 
-	_ = h.auditService.LogAction(c, "create", "events", "", map[string]interface{}{"title": event.Title})
+	_ = h.auditService.LogAction(c, "create", "events", "", map[string]interface{}{"title": event.Title, "resource_ids": input.ResourceIDs})
 
 	c.Status(fiber.StatusCreated)
 	return utils.SuccessResponse(c, event)
@@ -177,20 +189,33 @@ func (h *EventHandler) UpdateEvent(c *fiber.Ctx) error {
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusNotFound, "Event not found")
 	}
-	if err := c.BodyParser(event); err != nil {
+	input := eventMutationInput{Event: *event}
+	if err := c.BodyParser(&input); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
 	}
-	if err := richtext.ValidateLocalized(event.Description); err != nil {
+	updated := input.Event
+	updated.ID = event.ID
+	updated.ResourceAssignments = event.ResourceAssignments
+	if err := richtext.ValidateLocalized(updated.Description); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
-	if err := h.eventService.Update(event); err != nil {
-		return utils.ErrorResponse(c, fiber.StatusInternalServerError, err.Error())
+	var updateErr error
+	if input.ResourceIDs == nil {
+		updateErr = h.eventService.Update(&updated)
+	} else {
+		updateErr = h.eventService.UpdateWithResourceIDs(&updated, input.ResourceIDs)
+	}
+	if updateErr != nil {
+		if errors.Is(updateErr, services.ErrInvalidResourceAssignments) || errors.Is(updateErr, services.ErrInvalidEventResourceIDs) {
+			return utils.ErrorResponse(c, fiber.StatusBadRequest, updateErr.Error())
+		}
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, updateErr.Error())
 	}
 
-	uid := fmt.Sprint(event.ID)
-	_ = h.auditService.LogAction(c, "update", "events", uid, map[string]interface{}{"title": event.Title})
+	uid := fmt.Sprint(updated.ID)
+	_ = h.auditService.LogAction(c, "update", "events", uid, map[string]interface{}{"title": updated.Title, "resource_ids": input.ResourceIDs})
 
-	return utils.SuccessResponse(c, event)
+	return utils.SuccessResponse(c, updated)
 }
 
 // DeleteEvent - Admin: Delete event

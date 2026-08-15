@@ -2171,6 +2171,151 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
 
+  /admin/calendar-resources:
+    get:
+      tags: [Admin - Events]
+      summary: List calendar resources
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/OrderParam'
+        - name: status
+          in: query
+          description: Active status filter (repeated value for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [active, inactive]
+        - name: type
+          in: query
+          description: Resource type filter (repeated value for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: Paginated calendar resources
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/CalendarResourceAdmin'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Admin - Events]
+      summary: Create a calendar resource
+      security:
+        - AdminBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CalendarResourceInput'
+      responses:
+        '201':
+          description: Calendar resource created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/CalendarResourceAdmin'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
+  /admin/calendar-resources/{id}:
+    get:
+      tags: [Admin - Events]
+      summary: Get a calendar resource
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Calendar resource
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/CalendarResourceAdmin'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    put:
+      tags: [Admin - Events]
+      summary: Update a calendar resource
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CalendarResourceInput'
+      responses:
+        '200':
+          description: Calendar resource updated
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/CalendarResourceAdmin'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+    delete:
+      tags: [Admin - Events]
+      summary: Delete a calendar resource
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Calendar resource deleted
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
   /admin/events:
     get:
       tags: [Admin - Events]
@@ -4670,6 +4815,23 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/EventSchedule'
+        resource_ids:
+          type: array
+          uniqueItems: true
+          items:
+            type: integer
+          description: Active calendar resource IDs to assign to the event
+        resource_assignments:
+          type: array
+          readOnly: true
+          items:
+            type: object
+            required: [event_id, resource_id]
+            properties:
+              event_id:
+                type: integer
+              resource_id:
+                type: integer
         created_at:
           type: string
           format: date-time
@@ -4769,6 +4931,65 @@ components:
           type: string
         color:
           type: string
+
+    CalendarResourceInput:
+      type: object
+      required: [slug, resource_type, title]
+      properties:
+        slug:
+          type: string
+          pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$'
+          maxLength: 100
+        resource_type:
+          type: string
+          maxLength: 50
+        title:
+          type: object
+          required: [th, en, de]
+          properties:
+            th:
+              type: string
+            en:
+              type: string
+            de:
+              type: string
+        color:
+          type: string
+          pattern: '^#[0-9a-fA-F]{6}$'
+        capacity:
+          type: integer
+          minimum: 1
+          nullable: true
+        metadata:
+          type: object
+          additionalProperties: true
+        is_active:
+          type: boolean
+          default: true
+        is_public:
+          type: boolean
+          default: false
+        display_order:
+          type: integer
+          minimum: 0
+
+    CalendarResourceAdmin:
+      allOf:
+        - $ref: '#/components/schemas/CalendarResourceInput'
+        - type: object
+          required: [id, assignment_count, created_at, updated_at]
+          properties:
+            id:
+              type: integer
+            assignment_count:
+              type: integer
+              format: int64
+            created_at:
+              type: string
+              format: date-time
+            updated_at:
+              type: string
+              format: date-time
 
     EventSchedule:
       type: object

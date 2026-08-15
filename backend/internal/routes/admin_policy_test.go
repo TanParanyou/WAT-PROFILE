@@ -77,3 +77,29 @@ func TestAdminRoutesRegisterAppliesPermissionMiddleware(t *testing.T) {
 		t.Fatalf("expected 401 from permission middleware without auth, got %d", resp.StatusCode)
 	}
 }
+
+func TestCalendarResourceRoutesUseDedicatedPermissionResource(t *testing.T) {
+	defs := adminRouteDefinitions()
+	want := map[string]string{
+		"GET /admin/calendar-resources":        "read",
+		"GET /admin/calendar-resources/:id":    "read",
+		"POST /admin/calendar-resources":       "create",
+		"PUT /admin/calendar-resources/:id":    "update",
+		"DELETE /admin/calendar-resources/:id": "delete",
+	}
+	for key, action := range want {
+		found := false
+		for _, definition := range defs {
+			if definition.Method+" /admin"+definition.Path != key {
+				continue
+			}
+			found = true
+			if definition.Resource != "calendar_resources" || definition.Action != action {
+				t.Errorf("route %s has permission %s/%s", key, definition.Resource, definition.Action)
+			}
+		}
+		if !found {
+			t.Errorf("missing route %s", key)
+		}
+	}
+}

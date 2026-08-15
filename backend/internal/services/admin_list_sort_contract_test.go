@@ -18,6 +18,7 @@ func TestAdminListSortContractsAcceptCommonFrontendKeys(t *testing.T) {
 		"media":               mediaSortColumns,
 		"users":               userSortColumns,
 		"monks":               monkSortColumns,
+		"calendar_resources":  calendarResourceSortColumns,
 	}
 	wants := map[string][]string{
 		"events":              {"id", "title", "event_type", "start_date", "end_date", "created_at"},
@@ -34,6 +35,7 @@ func TestAdminListSortContractsAcceptCommonFrontendKeys(t *testing.T) {
 		"media":               {"id", "filename", "file_size", "created_at", "mime_type"},
 		"users":               {"id", "name", "email", "created_at"},
 		"monks":               {"id", "name", "position", "pansa", "ordination_date", "display_order", "status", "created_at"},
+		"calendar_resources":  {"id", "slug", "resource_type", "display_order", "created_at"},
 	}
 	for resource, keys := range wants {
 		for _, key := range keys {

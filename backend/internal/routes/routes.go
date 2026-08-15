@@ -218,6 +218,11 @@ func adminRouteDefinitions() []AdminRouteDefinition {
 
 		// Events Management
 		{Method: fiber.MethodGet, Path: "/calendar", Resource: "events", Action: "read", HandlerKey: "calendar.admin"},
+		{Method: fiber.MethodGet, Path: "/calendar-resources", Resource: "calendar_resources", Action: "read", HandlerKey: "calendarResources.list"},
+		{Method: fiber.MethodGet, Path: "/calendar-resources/:id", Resource: "calendar_resources", Action: "read", HandlerKey: "calendarResources.get"},
+		{Method: fiber.MethodPost, Path: "/calendar-resources", Resource: "calendar_resources", Action: "create", HandlerKey: "calendarResources.create"},
+		{Method: fiber.MethodPut, Path: "/calendar-resources/:id", Resource: "calendar_resources", Action: "update", HandlerKey: "calendarResources.update"},
+		{Method: fiber.MethodDelete, Path: "/calendar-resources/:id", Resource: "calendar_resources", Action: "delete", HandlerKey: "calendarResources.delete"},
 		{Method: fiber.MethodGet, Path: "/events", Resource: "events", Action: "read", HandlerKey: "events.list"},
 		{Method: fiber.MethodGet, Path: "/events/:id", Resource: "events", Action: "read", HandlerKey: "events.get"},
 		{Method: fiber.MethodPost, Path: "/events", Resource: "events", Action: "create", HandlerKey: "events.create"},
@@ -383,6 +388,7 @@ func adminRouteDefinitions() []AdminRouteDefinition {
 func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service) map[string]fiber.Handler {
 	eventHandler := handlers.NewEventHandler(db)
 	calendarHandler := handlers.NewCalendarHandler(db)
+	calendarResourceHandler := handlers.NewCalendarResourceHandler(db)
 	monkHandler := handlers.NewMonkHandler(db)
 	galleryHandler := handlers.NewGalleryHandler(db)
 	scheduleHandler := handlers.NewScheduleHandler(db)
@@ -410,6 +416,11 @@ func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service) map[string]fiber.Handle
 
 	return map[string]fiber.Handler{
 		"calendar.admin":                calendarHandler.GetAdmin,
+		"calendarResources.list":        calendarResourceHandler.GetAdminCalendarResources,
+		"calendarResources.get":         calendarResourceHandler.GetCalendarResource,
+		"calendarResources.create":      calendarResourceHandler.CreateCalendarResource,
+		"calendarResources.update":      calendarResourceHandler.UpdateCalendarResource,
+		"calendarResources.delete":      calendarResourceHandler.DeleteCalendarResource,
 		"dashboard.stats":               dashboardHandler.GetDashboardStats,
 		"audit.filterOptions":           auditHandler.GetFilterOptions,
 		"audit.list":                    auditHandler.GetAuditLogs,

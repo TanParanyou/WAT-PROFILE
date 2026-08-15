@@ -1,6 +1,7 @@
 package services
 
 import (
+	"errors"
 	"strconv"
 	"time"
 
@@ -38,6 +39,8 @@ var eventSortColumns = map[string]string{
 	"created_at":    "events.created_at",
 	"display_order": "events.display_order",
 }
+
+var ErrInvalidEventResourceIDs = errors.New("invalid event resource IDs")
 
 // ListAdmin returns a paginated list of all events for admin management
 func (s *EventService) ListAdmin(options EventListOptions) ([]models.Event, int64, error) {
@@ -97,6 +100,7 @@ func (s *EventService) ListAdmin(options EventListOptions) ([]models.Event, int6
 		return db.Order("display_order ASC")
 	}
 	err := query.Preload("Schedules", preloadSchedules).
+		Preload("ResourceAssignments.Resource").
 		Order(sortCol + " " + orderDir + ", events.id " + orderDir).
 		Offset(offset).
 		Limit(options.Common.Limit).
@@ -113,7 +117,8 @@ func (s *EventService) ListActive(limit int, from, to *time.Time) ([]models.Even
 	}
 	query := s.db.Where("is_active = ?", true).
 		Order("start_date ASC").
-		Preload("Schedules", preloadSchedules)
+		Preload("Schedules", preloadSchedules).
+		Preload("ResourceAssignments.Resource")
 	if from == nil {
 		query = query.Where("end_date >= CURRENT_DATE")
 	}
@@ -136,7 +141,9 @@ func (s *EventService) GetBySlug(slug string) (*models.Event, error) {
 	preloadSchedules := func(db *gorm.DB) *gorm.DB {
 		return db.Order("display_order ASC")
 	}
-	query := s.db.Where("is_active = ?", true).Preload("Schedules", preloadSchedules)
+	query := s.db.Where("is_active = ?", true).
+		Preload("Schedules", preloadSchedules).
+		Preload("ResourceAssignments.Resource")
 	if id, err := strconv.Atoi(slug); err == nil {
 		query = query.Where("slug = ? OR id = ?", slug, id)
 	} else {
@@ -154,10 +161,22 @@ func (s *EventService) Create(event *models.Event) error {
 	return s.db.Create(event).Error
 }
 
+// CreateWithResourceIDs creates an event and its resource links in one
+// transaction. Resource IDs are validated against active resources before the
+// join rows are written.
+func (s *EventService) CreateWithResourceIDs(event *models.Event, resourceIDs []int) error {
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Create(event).Error; err != nil {
+			return err
+		}
+		return s.ReplaceResourceAssignments(tx, event.ID, resourceIDs)
+	})
+}
+
 // GetByID returns an event by ID
 func (s *EventService) GetByID(id int) (*models.Event, error) {
 	var event models.Event
-	err := s.db.Preload("Schedules").First(&event, id).Error
+	err := s.db.Preload("Schedules").Preload("ResourceAssignments.Resource").First(&event, id).Error
 	if err != nil {
 		return nil, err
 	}
@@ -166,6 +185,16 @@ func (s *EventService) GetByID(id int) (*models.Event, error) {
 
 // Update saves changes to an event
 func (s *EventService) Update(event *models.Event) error {
+	return s.update(event, nil)
+}
+
+// UpdateWithResourceIDs updates an event and replaces its resource links in
+// one transaction. An empty slice intentionally clears all links.
+func (s *EventService) UpdateWithResourceIDs(event *models.Event, resourceIDs []int) error {
+	return s.update(event, &resourceIDs)
+}
+
+func (s *EventService) update(event *models.Event, resourceIDs *[]int) error {
 	return s.db.Transaction(func(tx *gorm.DB) error {
 		if err := tx.Session(&gorm.Session{FullSaveAssociations: true}).Save(event).Error; err != nil {
 			return err
@@ -173,8 +202,34 @@ func (s *EventService) Update(event *models.Event) error {
 		if err := tx.Model(event).Association("Schedules").Replace(event.Schedules); err != nil {
 			return err
 		}
+		if resourceIDs != nil {
+			if err := s.ReplaceResourceAssignments(tx, event.ID, *resourceIDs); err != nil {
+				return err
+			}
+		}
 		return nil
 	})
+}
+
+func (s *EventService) ReplaceResourceAssignments(tx *gorm.DB, eventID int, resourceIDs []int) error {
+	normalized, err := NormalizeResourceIDs(resourceIDs)
+	if err != nil {
+		return ErrInvalidEventResourceIDs
+	}
+	if err := NewCalendarResourceService(tx).ValidateActiveIDs(tx, normalized); err != nil {
+		return err
+	}
+	if err := tx.Where("event_id = ?", eventID).Delete(&models.EventResourceAssignment{}).Error; err != nil {
+		return err
+	}
+	if len(normalized) == 0 {
+		return nil
+	}
+	assignments := make([]models.EventResourceAssignment, len(normalized))
+	for index, resourceID := range normalized {
+		assignments[index] = models.EventResourceAssignment{EventID: eventID, ResourceID: resourceID}
+	}
+	return tx.Create(&assignments).Error
 }
 
 // Delete removes an event by ID
