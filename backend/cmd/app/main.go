@@ -17,6 +17,7 @@ import (
 	"github.com/watloungporsai/wat-profile-backend/internal/routes"
 	"github.com/watloungporsai/wat-profile-backend/internal/storage"
 	"github.com/watloungporsai/wat-profile-backend/pkg/logger"
+	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
 )
 
 func globalCORSConfig(allowOrigins string) cors.Config {
@@ -26,6 +27,17 @@ func globalCORSConfig(allowOrigins string) cors.Config {
 		AllowHeaders:     "Origin,Content-Type,Accept,Authorization",
 		AllowCredentials: true,
 	}
+}
+
+func contactLimiter() fiber.Handler {
+	return limiter.New(limiter.Config{
+		Max:        5,
+		Expiration: 1 * time.Minute,
+		LimitReached: func(c *fiber.Ctx) error {
+			c.Set(fiber.HeaderRetryAfter, "60")
+			return utils.CodedErrorResponse(c, fiber.StatusTooManyRequests, "CONTACT_RATE_LIMITED", "Too many contact requests. Please try again later.")
+		},
+	})
 }
 
 func main() {
@@ -144,10 +156,7 @@ func main() {
 			})
 		},
 	}))
-	app.Use("/api/v1/public/contact", limiter.New(limiter.Config{
-		Max:        5,
-		Expiration: 1 * time.Minute,
-	}))
+	app.Use("/api/v1/public/contact", contactLimiter())
 	// Donation proof uploads have their own budget so they cannot consume
 	// contact or account-auth rate limits. Keep this deliberately conservative.
 	app.Use("/api/v1/public/donations", limiter.New(limiter.Config{

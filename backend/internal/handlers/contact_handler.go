@@ -1,7 +1,10 @@
 package handlers
 
 import (
+	"strings"
+
 	"github.com/gofiber/fiber/v2"
+	"github.com/watloungporsai/wat-profile-backend/internal/contacts"
 	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/middleware"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
@@ -22,28 +25,24 @@ func NewContactHandler(db *gorm.DB) *ContactHandler {
 
 // SubmitContact - Public: Submit a contact inquiry (no auth required)
 func (h *ContactHandler) SubmitContact(c *fiber.Ctx) error {
-	var inquiry models.ContactInquiry
-	if err := c.BodyParser(&inquiry); err != nil {
+	if len(c.Body()) > 32*1024 {
+		return utils.FieldErrorResponse(c, fiber.StatusBadRequest, "Contact request is too large", map[string]string{"message": "Contact request is too large"})
+	}
+	var request contacts.SubmitRequest
+	if err := c.BodyParser(&request); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
 	}
-
-	if inquiry.Name == "" || inquiry.Email == "" || inquiry.Message == "" {
-		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Name, email, and message are required")
+	if strings.TrimSpace(request.Website) != "" {
+		return c.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "message": "Message received."})
 	}
-
-	if !utils.ValidateEmail(inquiry.Email) {
-		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid email format")
+	input, validationErr := contacts.NormalizeAndValidate(request)
+	if validationErr != nil {
+		return utils.FieldErrorResponse(c, fiber.StatusBadRequest, validationErr.Error(), validationErr.Fields)
 	}
-
-	if err := h.contactService.Submit(&inquiry); err != nil {
-		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to submit contact inquiry")
+	if _, err := h.contactService.Submit(c.UserContext(), input); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Unable to receive message")
 	}
-
-	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
-		"success": true,
-		"message": "Thank you for your message. We will respond soon.",
-		"data":    inquiry,
-	})
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "message": "Message received."})
 }
 
 // GetContacts - Admin: List all contact inquiries with pagination and filters

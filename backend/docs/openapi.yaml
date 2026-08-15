@@ -294,7 +294,11 @@ paths:
     post:
       tags: [Contact]
       summary: Submit contact form
-      description: Rate limited to 5 requests per minute
+      description: >-
+        Persists a contact inquiry and queues an operator notification in one
+        transaction. Requests with a non-empty `website` honeypot return the
+        same success response without persistence. Rate limited to 5 requests
+        per minute; request bodies are capped at 32 KiB.
       requestBody:
         required: true
         content:
@@ -303,11 +307,40 @@ paths:
               $ref: '#/components/schemas/ContactInput'
       responses:
         '201':
-          description: Contact submitted
+          description: Contact accepted; the response never includes visitor data
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/MessageResponse'
+                  - type: object
+                    example:
+                      success: true
+                      message: Message received.
         '400':
-          $ref: '#/components/responses/BadRequest'
+          description: Invalid contact fields or oversized request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
         '429':
-          $ref: '#/components/responses/TooManyRequests'
+          description: Contact rate limit reached
+          headers:
+            Retry-After:
+              description: Integer seconds until another request may be attempted
+              schema:
+                type: integer
+                example: 60
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '500':
+          description: Contact could not be durably accepted
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
 
   /public/settings:
     get:
@@ -4662,25 +4695,32 @@ components:
     # ===== Contact =====
     ContactInput:
       type: object
-      required: [name, email, message]
+      required: [name, email, subject, message, locale]
+      description: >-
+        Public contact submission. Length limits count Unicode code points.
+        `website` is a honeypot and must remain empty for real visitors.
       properties:
         name:
           type: string
-          maxLength: 255
+          maxLength: 120
         email:
           type: string
           format: email
-        phone:
-          type: string
+          maxLength: 254
         subject:
           type: string
-          maxLength: 500
+          maxLength: 200
         message:
           type: string
           maxLength: 5000
-        inquiry_type:
+        locale:
           type: string
-          enum: [general, event, donation, volunteer]
+          enum: [th, en, de]
+          description: Visitor communication locale
+        website:
+          type: string
+          maxLength: 200
+          description: Honeypot field; leave empty
 
     ContactInquiry:
       type: object
@@ -4697,6 +4737,9 @@ components:
           type: string
         message:
           type: string
+        communication_locale:
+          type: string
+          enum: [th, en, de]
         inquiry_type:
           type: string
         status:
