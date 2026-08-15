@@ -84,11 +84,13 @@ Never place real values in this file or committed env examples.
 - Use a non-default `JWT_SECRET` and explicit admin seed credentials.
 - Restrict `ALLOWED_ORIGINS` to deployed frontend origins.
 - Provide R2 credentials only to the backend runtime.
-- Set `NEXT_PUBLIC_MEDIA_ALLOWED_ORIGINS` to the public origin used by `R2_PUBLIC_URL`
-  (or its CDN), then rebuild the frontend whenever this value changes.
-- Configure the R2 bucket/CDN to return explicit CORS headers for image `GET`/`HEAD`
-  requests from every deployed frontend origin. Include `Content-Type` in the
-  response headers; avoid `*` when credentials or an allowlist is required.
+1. Configure the exact managed-media origin and R2/CDN CORS for image `GET` and
+   `HEAD` requests from every deployed frontend origin. Verify the response
+   includes `Content-Type`; avoid `*` when credentials or an allowlist is required.
+2. Set `NEXT_PUBLIC_MEDIA_ALLOWED_ORIGINS` to that same `R2_PUBLIC_URL` origin
+   (or its CDN).
+3. Only then build and deploy the frontend. Rebuild whenever the media allowlist
+   changes.
 - Run one migration executor per release.
 
 ## Public account auth invariants
