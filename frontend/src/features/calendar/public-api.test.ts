@@ -16,7 +16,7 @@ test("calendar barrel exposes the supported reusable API", () => {
   assert.equal(typeof useCalendar, "function");
   assert.equal(typeof resolveCalendarConfig, "function");
   assert.equal(discoveryPreset.enabledViews.join(","), "month,week,day");
-  assert.equal(planningPreset.viewModes.week, "timeGrid");
+  assert.equal(planningPreset.viewModes.week, "timeline");
   const layout: CalendarLayout = "dayStrip";
   const input: CalendarResponsiveLayoutsInput = { mobile: { week: layout } };
   const resolved: CalendarResponsiveLayouts = resolveCalendarConfig(discoveryPreset).layouts;

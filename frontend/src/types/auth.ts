@@ -75,4 +75,5 @@ export type PermissionResource =
   | "website"
   | "dashboard"
   | "privacy_requests"
-  | "account_operations";
+  | "account_operations"
+  | "calendar_resources";

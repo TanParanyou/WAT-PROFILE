@@ -94,3 +94,28 @@ func TestCalendarFeedIncludesTimezoneAndInclusiveRequestRange(t *testing.T) {
 		t.Fatalf("unexpected payload: %#v", payload)
 	}
 }
+
+func TestCalendarRequestNormalizesRepeatedResourceFilters(t *testing.T) {
+	app := fiber.New()
+	app.Get("/calendar", func(c *fiber.Ctx) error {
+		request, err := parseCalendarRequest(c)
+		if err != nil {
+			return err
+		}
+		return c.JSON(request.ResourceIDs)
+	})
+	response, err := app.Test(httptest.NewRequest(http.MethodGet, "/calendar?from=2026-08-01&to=2026-08-31&locale=th&resourceId=projector&resourceId=main-hall&resourceId=projector", nil))
+	if err != nil {
+		t.Fatal(err)
+	}
+	if response.StatusCode != fiber.StatusOK {
+		t.Fatalf("got %d", response.StatusCode)
+	}
+	var ids []string
+	if err := json.NewDecoder(response.Body).Decode(&ids); err != nil {
+		t.Fatal(err)
+	}
+	if len(ids) != 2 || ids[0] != "main-hall" || ids[1] != "projector" {
+		t.Fatalf("unexpected resource filters: %#v", ids)
+	}
+}

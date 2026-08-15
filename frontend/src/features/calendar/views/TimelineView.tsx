@@ -4,7 +4,7 @@ import type { CSSProperties, ReactNode } from "react";
 import type { CalendarLabels } from "../calendar-copy";
 import type { CalendarVariant } from "../calendar-theme";
 import { buildTimedColumns, groupEntriesByResource } from "../layout";
-import type { CalendarEventLike, CalendarResource } from "../core/types";
+import { DEFAULT_RESOURCE_ID, type CalendarEventLike, type CalendarResource } from "../core/types";
 import type { CalendarController } from "../useCalendar";
 import { CalendarEntryButton } from "./CalendarEntryButton";
 import { entriesOnDay, formatCalendarDate, getTimedPositionWithinWindow } from "./calendar-view-utils";
@@ -57,7 +57,7 @@ export function TimelineView<TEvent extends CalendarEventLike>({
       <div className="overflow-x-auto border border-current/15" role="grid" aria-label={labels.calendarInstructions}>
         <div className="min-w-[960px]">
           <div className={`grid grid-cols-[minmax(9rem,20%)_1fr] border-b border-current/15 text-xs opacity-70 ${stickyHeader ? "sticky top-0 z-10 bg-current/5" : ""}`} role="row">
-            <div className="border-r border-current/15 p-2" role="columnheader">{labels.calendarInstructions}</div>
+            <div className="border-r border-current/15 p-2" role="columnheader">{labels.resourceLabel ?? labels.calendarInstructions}</div>
             <div className="relative p-2" role="columnheader">
               {markers.map((minute) => <span key={minute} className="absolute -translate-x-1/2" style={markerStyle(minute)}>{labels.formatTime(minute)}</span>)}
             </div>
@@ -68,7 +68,7 @@ export function TimelineView<TEvent extends CalendarEventLike>({
             const resource = resources.find((item) => item.id === resourceId);
             return (
               <div key={resourceId} className="grid min-h-24 grid-cols-[minmax(9rem,20%)_1fr] border-b border-current/15 last:border-b-0" role="row">
-                <div className="border-r border-current/15 bg-current/5 p-3 text-sm font-semibold" role="rowheader">{resource?.title ?? resourceId}</div>
+                <div className="border-r border-current/15 bg-current/5 p-3 text-sm font-semibold" role="rowheader">{resource?.title ?? (resourceId === DEFAULT_RESOURCE_ID ? labels.unassignedResource : resourceId)}</div>
                 <div className="relative min-h-24" role="gridcell">
                   {markers.slice(0, -1).map((minute) => <span key={minute} aria-hidden="true" className="absolute inset-y-0 border-l border-current/10" style={markerStyle(minute)} />)}
                   {laneEntries.map((entry) => {

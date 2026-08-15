@@ -12,3 +12,11 @@ test("calendar query keys change with scope, locale, and visible range", () => {
     calendarKeys.feed("public", "th", { startDate: "2026-08-02", endDate: "2026-08-31" }),
   );
 });
+
+test("calendar query keys normalize resource filter order", () => {
+  const range = { startDate: "2026-08-01", endDate: "2026-08-31" };
+  assert.deepEqual(
+    calendarKeys.feed("admin", "en", range, ["projector", "main-hall"]),
+    calendarKeys.feed("admin", "en", range, ["main-hall", "projector"]),
+  );
+});

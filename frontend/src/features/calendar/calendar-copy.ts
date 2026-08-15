@@ -8,6 +8,8 @@ export interface CalendarLabels {
   eventsCount: (count: number) => string;
   noEventsOnDate: string;
   calendarInstructions: string;
+  resourceLabel?: string;
+  unassignedResource?: string;
   dayNames: readonly string[];
   previous?: string;
   next?: string;

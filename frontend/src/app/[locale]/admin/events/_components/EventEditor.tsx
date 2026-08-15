@@ -16,7 +16,7 @@ import api from "@/services/adminApi";
 import { useToast } from "@/hooks/useToast";
 import { useApiError } from "@/hooks/useApiError";
 import type { MultiLangText } from "@/types/api";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { useForm, Controller, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { eventSchema, type EventFormData } from "@/schemas/event.schema";
@@ -42,6 +42,9 @@ import {
 import { PublicLightboxModal, type LightboxSlide } from "@/components/public/modal";
 import { toPlainText } from "@/features/public/shared/rich-text";
 import { useDateFormat } from "@/hooks/useDateFormat";
+import { useQuery } from "@tanstack/react-query";
+import { calendarResourceAdminService } from "@/services/adminService";
+import type { CalendarResourceEntity } from "@/types/entities";
 
 interface EventEditorProps {
   id?: string;
@@ -50,6 +53,8 @@ interface EventEditorProps {
 export function EventEditor({ id }: EventEditorProps) {
   const isEditMode = !!id;
   const t = useTranslations("Admin");
+  const localeValue = useLocale();
+  const resourceLocale = localeValue === "de" || localeValue === "en" ? localeValue : "th";
   const router = useRouter();
   const { formatDateRange, formatTimeRange } = useDateFormat();
   const { toast } = useToast();
@@ -89,6 +94,7 @@ export function EventEditor({ id }: EventEditorProps) {
       registration_deadline: "",
       max_participants: undefined,
       schedule: [],
+      resource_ids: [],
     },
   });
 
@@ -103,6 +109,13 @@ export function EventEditor({ id }: EventEditorProps) {
     watch,
     formState: { errors, isDirty },
   } = methods;
+
+  const resourcesQuery = useQuery({
+    queryKey: ["admin", "calendar-resources", "active"],
+    queryFn: () => calendarResourceAdminService.getAll({ status: "active" }),
+    staleTime: 60_000,
+  });
+  const calendarResources: CalendarResourceEntity[] = resourcesQuery.data?.data ?? [];
 
   // Fetch initial data if editing
   useEffect(() => {
@@ -156,6 +169,7 @@ export function EventEditor({ id }: EventEditorProps) {
               : "",
             activity: s.activity || { ...emptyLang },
           })),
+          resource_ids: event.resource_ids ?? event.resource_assignments?.map((assignment) => assignment.resource_id) ?? [],
         });
 
         if (hasLegacyLocalizedRichText(event.description)) {
@@ -517,6 +531,40 @@ export function EventEditor({ id }: EventEditorProps) {
                             )}
                           </div>
                         );
+                      }}
+                    />
+                  </div>
+
+                  <div className="space-y-3 border-t border-admin-border pt-4">
+                    <div>
+                      <h3 className="text-sm font-medium text-admin-body">{t("events.form.resources")}</h3>
+                      <p className="text-xs text-admin-muted">{t("events.form.resourcesDescription")}</p>
+                    </div>
+                    <Controller
+                      control={control}
+                      name="resource_ids"
+                      render={({ field }) => {
+                        const selected = new Set(field.value ?? []);
+                        return calendarResources.length > 0 ? (
+                          <div className="grid gap-2 sm:grid-cols-2">
+                            {calendarResources.map((resource) => (
+                              <label key={resource.id} className="flex min-h-11 items-center gap-2 border border-admin-border px-3 text-sm text-admin-body">
+                                <input
+                                  type="checkbox"
+                                  checked={selected.has(resource.id)}
+                                  onChange={(event) => {
+                                    const next = new Set(selected);
+                                    if (event.target.checked) next.add(resource.id);
+                                    else next.delete(resource.id);
+                                    field.onChange([...next].sort((a, b) => a - b));
+                                  }}
+                                  className="h-4 w-4 accent-admin-action"
+                                />
+                                <span>{resource.title[resourceLocale]}</span>
+                              </label>
+                            ))}
+                          </div>
+                        ) : <p className="text-sm text-admin-muted">{t("events.form.resourcesEmpty")}</p>;
                       }}
                     />
                   </div>

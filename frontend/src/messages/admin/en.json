@@ -44,6 +44,7 @@
       "dashboard": "Dashboard",
       "events": "Events",
       "calendar": "Calendar",
+      "calendarResources": "Calendar resources",
       "monks": "Monks",
       "gallery": "Gallery",
       "schedules": "Schedules",
@@ -67,6 +68,28 @@
       "registrations": "Registrations",
       "audit_logs": "Audit Logs",
       "privacyRequests": "Privacy Requests"
+    },
+    "permissions": {
+      "system": "Resource",
+      "all": "All",
+      "actions": { "read": "Read", "create": "Create", "update": "Update", "delete": "Delete" },
+      "resources": {
+        "events": "Events",
+        "monks": "Monks",
+        "gallery": "Gallery",
+        "schedules": "Schedules",
+        "donations": "Donations",
+        "members": "Members",
+        "contacts": "Contacts",
+        "settings": "Settings",
+        "users": "Users and roles",
+        "registrations": "Registrations",
+        "website": "Website",
+        "audit_logs": "Audit logs",
+        "privacy_requests": "Privacy requests",
+        "account_operations": "Public accounts",
+        "calendar_resources": "Calendar resources"
+      }
     },
     "header": {
       "logout": "Logout",
@@ -174,6 +197,9 @@
         "image": "Cover Image",
         "gallery": "Additional Images / Gallery",
         "galleryDesc": "Add additional atmosphere photos or posters (up to 10 photos)",
+        "resources": "Calendar resources",
+        "resourcesDescription": "Assign this event to one or more active calendar resources.",
+        "resourcesEmpty": "No active calendar resources are available.",
         "addGalleryImage": "Add Image",
         "previewLightbox": "View full size",
         "zoomPoster": "Zoom poster image",
@@ -234,6 +260,9 @@
       "error": "The calendar could not be loaded",
       "noEventsOnDate": "No events on this date",
       "calendarInstructions": "Activity calendar. Select an event to view details.",
+      "resourceLabel": "Resource",
+      "unassignedResource": "Unassigned",
+      "resourceFilter": { "label": "Filter resources", "clear": "Clear resource filter" },
       "scrollHorizontally": "Scroll horizontally to view the full week",
       "moreEvents": "+ {count} more",
       "eventsCount": "{count} events",
@@ -244,6 +273,13 @@
       "views": { "month": "Month", "week": "Week", "day": "Day" },
       "dayNames": { "sunday": "Sunday", "monday": "Monday", "tuesday": "Tuesday", "wednesday": "Wednesday", "thursday": "Thursday", "friday": "Friday", "saturday": "Saturday" },
       "drawer": { "source": "Source", "status": "Status", "active": "Active", "inactive": "Inactive", "location": "Location", "description": "Description", "edit": "Edit activity", "close": "Close" }
+    },
+    "calendarResources": {
+      "title": "Calendar resources",
+      "breadcrumb": "Calendar resources",
+      "form": { "createTitle": "Add resource", "editTitle": "Edit resource", "slug": "Slug", "type": "Resource type", "title": "Localized title", "color": "Color", "colorPlaceholder": "Hex color", "capacity": "Capacity", "order": "Display order", "active": "Active", "public": "Visible on public calendar", "save": "Save resource", "saving": "Saving...", "cancel": "Cancel" },
+      "list": { "title": "Resource registry", "loading": "Loading...", "resource": "Resource", "type": "Type", "visibility": "Visibility", "assignments": "Assignments", "actions": "Actions", "public": "Public", "private": "Admin only", "edit": "Edit", "delete": "Delete", "assigned": "Cannot delete an assigned resource", "empty": "No resources configured" },
+      "messages": { "saved": "Resource saved", "saveError": "Unable to save resource", "deleted": "Resource deleted", "deleteError": "Unable to delete resource", "deleteTitle": "Delete resource", "deleteConfirm": "Delete this calendar resource? Events must be unassigned first." }
     },
     "monks": {
       "title": "Monks",

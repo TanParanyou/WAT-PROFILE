@@ -23,9 +23,10 @@ func (l Locale) Valid() bool {
 }
 
 type Request struct {
-	From   time.Time
-	To     time.Time
-	Locale Locale
+	From        time.Time
+	To          time.Time
+	Locale      Locale
+	ResourceIDs []string
 }
 
 type Entry struct {
@@ -59,6 +60,19 @@ type Resource struct {
 	Title string `json:"title"`
 	Color string `json:"color,omitempty"`
 	Group string `json:"group,omitempty"`
+}
+
+const DefaultResourceID = "default"
+
+func DefaultResource(locale Locale) Resource {
+	title := "Calendar"
+	switch locale {
+	case LocaleThai:
+		title = "ปฏิทิน"
+	case LocaleGerman:
+		title = "Kalender"
+	}
+	return Resource{ID: DefaultResourceID, Title: title}
 }
 
 type Feed struct {

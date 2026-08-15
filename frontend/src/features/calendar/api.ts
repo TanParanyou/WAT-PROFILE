@@ -14,6 +14,7 @@ export interface CalendarFeedRequest {
   scope: CalendarScope;
   locale: CalendarLocale;
   range: CalendarRange;
+  resourceIds?: readonly string[];
 }
 
 export const CALENDAR_MAX_RANGE_DAYS = 93;
@@ -30,8 +31,12 @@ function isOptionalString(value: unknown): value is string | undefined {
   return value === undefined || isString(value);
 }
 
-function isOptionalStringArray(value: unknown): value is readonly string[] {
-  return value === undefined || (Array.isArray(value) && value.every(isString));
+function parseOptionalResourceIds(value: unknown): readonly string[] | null | undefined {
+  if (value === undefined) return undefined;
+  if (!Array.isArray(value) || value.some((item) => !isString(item) || item.trim().length === 0)) return null;
+  const ids = value.map((item) => item.trim());
+  if (new Set(ids).size !== ids.length) return null;
+  return ids;
 }
 
 function isDateOnly(value: unknown): value is string {
@@ -63,6 +68,7 @@ function parseCalendarEntry(value: unknown): CalendarEntry | null {
   const display = value.display;
   const detail = value.detail;
   if (!isRecord(display) || !isRecord(detail)) return null;
+  const resourceIds = parseOptionalResourceIds(value.resourceIds);
   if (
     !isString(value.id) ||
     !isString(value.source) ||
@@ -72,7 +78,7 @@ function parseCalendarEntry(value: unknown): CalendarEntry | null {
     (display.tone !== "default" && display.tone !== "muted" && display.tone !== "warning") ||
     typeof detail.canEdit !== "boolean" ||
     !isOptionalString(value.resourceId) ||
-    !isOptionalStringArray(value.resourceIds) ||
+    resourceIds === null ||
     !isOptionalString(detail.href) ||
     !isOptionalString(detail.editorHref) ||
     !isOptionalString(detail.description) ||
@@ -93,7 +99,7 @@ function parseCalendarEntry(value: unknown): CalendarEntry | null {
     end: value.end,
     allDay: value.allDay,
     resourceId: value.resourceId,
-    resourceIds: value.resourceIds,
+    resourceIds,
     status: value.status,
     display: { tone: display.tone },
     detail: {
@@ -152,6 +158,7 @@ export async function fetchCalendarFeedFromApi(
   input: CalendarFeedRequest,
 ): Promise<CalendarFeed> {
   validateCalendarFeedRange(input.range);
+  const resourceIds = [...new Set((input.resourceIds ?? []).map((id) => id.trim()).filter((id) => id.length > 0))].sort();
   const client = input.scope === "public" ? publicApi : adminApi;
   const path = input.scope === "public" ? "/calendar" : "/admin/calendar";
   const response = await client.get<unknown>(path, {
@@ -159,7 +166,9 @@ export async function fetchCalendarFeedFromApi(
       from: input.range.startDate,
       to: input.range.endDate,
       locale: input.locale,
+      resourceId: resourceIds,
     },
+    paramsSerializer: { indexes: null },
   });
   return parseCalendarFeed(response.data);
 }

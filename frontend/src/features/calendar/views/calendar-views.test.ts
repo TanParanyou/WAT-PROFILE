@@ -43,14 +43,14 @@ test("week and day share an operating-hour time grid", () => {
   assert.equal(day.days.length, 1);
 });
 
-test("Discovery and Planning share TimeGrid for Week and Day", () => {
+test("Discovery keeps TimeGrid while Planning uses resource layouts", () => {
   assert.equal(discoveryPreset.viewModes.week, "timeGrid");
   assert.equal(discoveryPreset.viewModes.day, "timeGrid");
-  assert.equal(planningPreset.viewModes.week, "timeGrid");
-  assert.equal(planningPreset.viewModes.day, "timeGrid");
+  assert.equal(planningPreset.viewModes.week, "timeline");
+  assert.equal(planningPreset.viewModes.day, "resourceDayGrid");
 });
 
-test("Planning still has TimeGrid for operational views", () => {
-  assert.equal(planningPreset.viewModes.week, "timeGrid");
-  assert.equal(planningPreset.viewModes.day, "timeGrid");
+test("Planning falls back to compact mobile layouts", () => {
+  assert.equal(planningPreset.layouts?.mobile?.week, "dayStrip");
+  assert.equal(planningPreset.layouts?.mobile?.day, "timeGrid");
 });

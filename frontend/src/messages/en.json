@@ -504,6 +504,8 @@
         "selectedDate": "Schedule for {date}",
         "noEventsOnDate": "No events on this date",
         "calendarInstructions": "Activity calendar. Select an event to view details.",
+        "resourceLabel": "Resource",
+        "unassignedResource": "Unassigned",
         "loading": "Loading calendar...",
         "refreshing": "Refreshing calendar...",
         "retry": "Try again",

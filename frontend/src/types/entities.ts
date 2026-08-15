@@ -56,6 +56,29 @@ export interface Event {
   contact_email?: string;
   transport_info?: MultiLangText;
   schedules?: EventSchedule[];
+  resource_ids?: number[];
+  resource_assignments?: EventResourceAssignment[];
+  created_at: string;
+  updated_at: string;
+}
+
+export interface EventResourceAssignment {
+  event_id: number;
+  resource_id: number;
+}
+
+export interface CalendarResourceEntity {
+  id: number;
+  slug: string;
+  resource_type: string;
+  title: MultiLangText;
+  color: string | null;
+  capacity: number | null;
+  metadata: Record<string, unknown>;
+  is_active: boolean;
+  is_public: boolean;
+  display_order: number;
+  assignment_count: number;
   created_at: string;
   updated_at: string;
 }

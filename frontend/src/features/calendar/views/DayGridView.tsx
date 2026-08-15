@@ -4,7 +4,7 @@ import type { ReactNode } from "react";
 import type { CalendarLabels } from "../calendar-copy";
 import type { CalendarVariant } from "../calendar-theme";
 import { groupEntriesByResource } from "../layout";
-import type { CalendarEventLike, CalendarResource } from "../core/types";
+import { DEFAULT_RESOURCE_ID, type CalendarEventLike, type CalendarResource } from "../core/types";
 import type { CalendarController } from "../useCalendar";
 import { CalendarEntryButton } from "./CalendarEntryButton";
 import { entriesOnDay, formatCalendarDate } from "./calendar-view-utils";
@@ -43,7 +43,7 @@ export function DayGridView<TEvent extends CalendarEventLike>({
       <div className="overflow-x-auto border border-current/15" role="grid" aria-label={labels.calendarInstructions}>
         {[...lanes].map(([resourceId, laneEntries]) => (
           <div key={resourceId} className="grid min-h-20 min-w-[28rem] grid-cols-[minmax(9rem,20%)_1fr] border-b border-current/15 last:border-b-0" role="row">
-            <div className="border-r border-current/15 bg-current/5 p-3 text-sm font-semibold" role="rowheader">{resources.find((resource) => resource.id === resourceId)?.title ?? resourceId}</div>
+            <div className="border-r border-current/15 bg-current/5 p-3 text-sm font-semibold" role="rowheader">{resources.find((resource) => resource.id === resourceId)?.title ?? (resourceId === DEFAULT_RESOURCE_ID ? labels.unassignedResource : resourceId)}</div>
             <div className="space-y-1 p-2" role="gridcell">
               {laneEntries.map((entry) => <CalendarEntryButton key={entry.id} entry={entry} variant={variant} onActivate={onEntryActivate} renderEvent={(item) => renderEvent?.(item, "row")} formatTime={formatTime} toneClassName={getEventClassName?.(entry, "row")} />)}
             </div>

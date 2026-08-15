@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 	"time"
 
@@ -36,7 +37,7 @@ func (h *CalendarHandler) getFeed(c *fiber.Ctx, canEdit bool) error {
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch calendar")
 	}
-	resources := []calendar.Resource{{ID: "default", Title: "Calendar"}}
+	resources := []calendar.Resource{calendar.DefaultResource(request.Locale)}
 	if resourceSource, ok := h.source.(calendar.ResourceSource); ok {
 		resources, err = resourceSource.ListResources(c.Context(), request.Locale, canEdit)
 		if err != nil {
@@ -80,5 +81,19 @@ func parseCalendarRequest(c *fiber.Ctx) (calendar.Request, error) {
 	if !locale.Valid() {
 		return calendar.Request{}, fmt.Errorf("locale must be one of th, en, de")
 	}
-	return calendar.Request{From: from, To: to, Locale: locale}, nil
+	resourceIDs := make([]string, 0)
+	seenResourceIDs := make(map[string]struct{})
+	for _, rawID := range c.Context().QueryArgs().PeekMulti("resourceId") {
+		resourceID := strings.TrimSpace(string(rawID))
+		if resourceID == "" {
+			return calendar.Request{}, fmt.Errorf("resourceId must not be empty")
+		}
+		if _, seen := seenResourceIDs[resourceID]; seen {
+			continue
+		}
+		seenResourceIDs[resourceID] = struct{}{}
+		resourceIDs = append(resourceIDs, resourceID)
+	}
+	sort.Strings(resourceIDs)
+	return calendar.Request{From: from, To: to, Locale: locale, ResourceIDs: resourceIDs}, nil
 }

@@ -2,29 +2,31 @@
 
 import React from "react";
 import { Checkbox } from "@/components/ui/Checkbox";
+import { useTranslations } from "next-intl";
 
 const RESOURCES = [
-  { key: "events", label: "กิจกรรม (Events)" },
-  { key: "monks", label: "พระสงฆ์ (Monks)" },
-  { key: "gallery", label: "แกลเลอรี (Gallery)" },
-  { key: "schedules", label: "ตารางเวลา (Schedules)" },
-  { key: "donations", label: "เงินบริจาค (Donations)" },
-  { key: "members", label: "สมาชิก (Members)" },
-  { key: "contacts", label: "ผู้ติดต่อ (Contacts)" },
-  { key: "settings", label: "ตั้งค่า (Settings)" },
-  { key: "users", label: "ผู้ใช้งานและบทบาท (Users/Roles)" },
-  { key: "registrations", label: "ลงทะเบียน (Registrations)" },
-  { key: "website", label: "เว็บไซต์ (Website)" },
-  { key: "audit_logs", label: "บันทึกการใช้งาน (Audit Logs)" },
-  { key: "privacy_requests", label: "คำขอข้อมูลส่วนบุคคล (Privacy Requests)" },
-  { key: "account_operations", label: "บัญชีผู้ใช้สาธารณะ (Public Accounts)" },
+  "events",
+  "monks",
+  "gallery",
+  "schedules",
+  "donations",
+  "members",
+  "contacts",
+  "settings",
+  "users",
+  "registrations",
+  "website",
+  "audit_logs",
+  "privacy_requests",
+  "account_operations",
+  "calendar_resources",
 ];
 
 const ACTIONS = [
-  { key: "read", label: "ดู (Read)" },
-  { key: "create", label: "สร้าง (Create)" },
-  { key: "update", label: "แก้ไข (Update)" },
-  { key: "delete", label: "ลบ (Delete)" },
+  "read",
+  "create",
+  "update",
+  "delete",
 ];
 
 interface PermissionEditorProps {
@@ -33,6 +35,7 @@ interface PermissionEditorProps {
 }
 
 export function PermissionEditor({ value, onChange }: PermissionEditorProps) {
+  const t = useTranslations("Admin.permissions");
   const handleCheck = (resource: string, action: string, checked: boolean) => {
     const currentResValue = value[resource];
     let newResValue: string | string[] = [];
@@ -50,7 +53,7 @@ export function PermissionEditor({ value, onChange }: PermissionEditorProps) {
           newResValue = "all"; // remains all
         } else {
           // It was all, but user unchecked one. We downgrade 'all' to specific array minus the unchecked.
-          newResValue = ACTIONS.map((a) => a.key).filter((k) => k !== action);
+          newResValue = ACTIONS.filter((key) => key !== action);
         }
       } else {
         let currentArr: string[] = [];
@@ -104,35 +107,35 @@ export function PermissionEditor({ value, onChange }: PermissionEditorProps) {
         <thead className="bg-admin-surface-muted border-b border-admin-border">
           <tr>
             <th className="px-4 py-3 font-medium text-admin-body">
-              ระบบ (Resource)
+              {t("system")}
             </th>
-            {ACTIONS.map((a) => (
+            {ACTIONS.map((action) => (
               <th
-                key={a.key}
+                key={action}
                 className="px-4 py-3 font-medium text-admin-body text-center"
               >
-                {a.label}
+                {t(`actions.${action}`)}
               </th>
             ))}
             <th className="px-4 py-3 font-medium text-admin-body text-center border-l border-admin-border">
-              ALL
+              {t("all")}
             </th>
           </tr>
         </thead>
         <tbody className="divide-y divide-admin-border">
-          {RESOURCES.map((res) => (
-            <tr key={res.key} className="hover:bg-admin-selected/50">
+          {RESOURCES.map((resource) => (
+            <tr key={resource} className="hover:bg-admin-selected/50">
               <td className="px-4 py-3 font-medium text-admin-foreground">
-                {res.label}
+                {t(`resources.${resource}`)}
               </td>
 
-              {ACTIONS.map((a) => (
-                <td key={a.key} className="px-4 py-3 text-center">
+              {ACTIONS.map((action) => (
+                <td key={action} className="px-4 py-3 text-center">
                   <Checkbox
-                    id={`perm-${res.key}-${a.key}`}
-                    checked={isChecked(res.key, a.key)}
+                    id={`perm-${resource}-${action}`}
+                    checked={isChecked(resource, action)}
                     onChange={(e) =>
-                      handleCheck(res.key, a.key, e.target.checked)
+                      handleCheck(resource, action, e.target.checked)
                     }
                   />
                 </td>
@@ -140,10 +143,10 @@ export function PermissionEditor({ value, onChange }: PermissionEditorProps) {
 
               <td className="px-4 py-3 text-center border-l border-admin-border bg-admin-surface-muted/50">
                 <Checkbox
-                  id={`perm-${res.key}-all`}
-                  checked={isChecked(res.key, "all")}
+                  id={`perm-${resource}-all`}
+                  checked={isChecked(resource, "all")}
                   onChange={(e) =>
-                    handleCheck(res.key, "all", e.target.checked)
+                    handleCheck(resource, "all", e.target.checked)
                   }
                 />
               </td>

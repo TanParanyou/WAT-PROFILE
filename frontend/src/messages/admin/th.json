@@ -44,6 +44,7 @@
       "dashboard": "แดชบอร์ด",
       "events": "กิจกรรม",
       "calendar": "ปฏิทิน",
+      "calendarResources": "ทรัพยากรปฏิทิน",
       "monks": "พระสงฆ์",
       "gallery": "แกลเลอรี",
       "schedules": "ตารางเวลา",
@@ -67,6 +68,28 @@
       "registrations": "ลงทะเบียน",
       "audit_logs": "บันทึกการใช้งาน",
       "privacyRequests": "คำขอข้อมูลส่วนบุคคล"
+    },
+    "permissions": {
+      "system": "ระบบ",
+      "all": "ทั้งหมด",
+      "actions": { "read": "ดู", "create": "สร้าง", "update": "แก้ไข", "delete": "ลบ" },
+      "resources": {
+        "events": "กิจกรรม",
+        "monks": "พระสงฆ์",
+        "gallery": "แกลเลอรี",
+        "schedules": "ตารางเวลา",
+        "donations": "เงินบริจาค",
+        "members": "สมาชิก",
+        "contacts": "ผู้ติดต่อ",
+        "settings": "ตั้งค่า",
+        "users": "ผู้ใช้งานและบทบาท",
+        "registrations": "ลงทะเบียน",
+        "website": "เว็บไซต์",
+        "audit_logs": "บันทึกการใช้งาน",
+        "privacy_requests": "คำขอข้อมูลส่วนบุคคล",
+        "account_operations": "บัญชีผู้ใช้สาธารณะ",
+        "calendar_resources": "ทรัพยากรปฏิทิน"
+      }
     },
     "header": {
       "logout": "ออกจากระบบ",
@@ -174,6 +197,9 @@
         "image": "รูปภาพหน้าปกกิจกรรม",
         "gallery": "รูปภาพเพิ่มเติม / ภาพบรรยากาศ",
         "galleryDesc": "เพิ่มรูปภาพบรรยากาศหรือโปสเตอร์เพิ่มเติม (สูงสุด 10 รูป)",
+        "resources": "ทรัพยากรปฏิทิน",
+        "resourcesDescription": "กำหนดกิจกรรมนี้ให้กับทรัพยากรปฏิทินที่เปิดใช้งานได้หลายรายการ",
+        "resourcesEmpty": "ยังไม่มีทรัพยากรปฏิทินที่เปิดใช้งาน",
         "addGalleryImage": "เพิ่มรูปภาพ",
         "previewLightbox": "ดูรูปภาพขนาดใหญ่",
         "zoomPoster": "ดูรูปโปสเตอร์ขนาดใหญ่",
@@ -234,6 +260,9 @@
       "error": "ไม่สามารถโหลดปฏิทินได้",
       "noEventsOnDate": "ไม่มีกิจกรรมในวันนี้",
       "calendarInstructions": "ปฏิทินกิจกรรม เลือกกิจกรรมเพื่อดูรายละเอียด",
+      "resourceLabel": "ทรัพยากร",
+      "unassignedResource": "ยังไม่กำหนดทรัพยากร",
+      "resourceFilter": { "label": "กรองตามทรัพยากร", "clear": "ล้างตัวกรองทรัพยากร" },
       "scrollHorizontally": "เลื่อนในแนวนอนเพื่อดูกำหนดการครบทั้งสัปดาห์",
       "moreEvents": "+ อีก {count} รายการ",
       "eventsCount": "{count} กิจกรรม",
@@ -244,6 +273,13 @@
       "views": { "month": "เดือน", "week": "สัปดาห์", "day": "วัน" },
       "dayNames": { "sunday": "อาทิตย์", "monday": "จันทร์", "tuesday": "อังคาร", "wednesday": "พุธ", "thursday": "พฤหัสบดี", "friday": "ศุกร์", "saturday": "เสาร์" },
       "drawer": { "source": "แหล่งข้อมูล", "status": "สถานะ", "active": "เปิดใช้งาน", "inactive": "ปิดใช้งาน", "location": "สถานที่", "description": "รายละเอียด", "edit": "แก้ไขกิจกรรม", "close": "ปิด" }
+    },
+    "calendarResources": {
+      "title": "ทรัพยากรปฏิทิน",
+      "breadcrumb": "ทรัพยากรปฏิทิน",
+      "form": { "createTitle": "เพิ่มทรัพยากร", "editTitle": "แก้ไขทรัพยากร", "slug": "Slug", "type": "ประเภททรัพยากร", "title": "ชื่อหลายภาษา", "color": "สี", "colorPlaceholder": "รหัสสี Hex", "capacity": "ความจุ", "order": "ลำดับการแสดงผล", "active": "เปิดใช้งาน", "public": "แสดงในปฏิทินสาธารณะ", "save": "บันทึกทรัพยากร", "saving": "กำลังบันทึก...", "cancel": "ยกเลิก" },
+      "list": { "title": "ทะเบียนทรัพยากร", "loading": "กำลังโหลด...", "resource": "ทรัพยากร", "type": "ประเภท", "visibility": "การมองเห็น", "assignments": "จำนวนกิจกรรม", "actions": "การดำเนินการ", "public": "สาธารณะ", "private": "เฉพาะผู้ดูแล", "edit": "แก้ไข", "delete": "ลบ", "assigned": "ไม่สามารถลบทรัพยากรที่ถูกใช้งาน", "empty": "ยังไม่มีทรัพยากร" },
+      "messages": { "saved": "บันทึกทรัพยากรแล้ว", "saveError": "บันทึกทรัพยากรไม่สำเร็จ", "deleted": "ลบทรัพยากรแล้ว", "deleteError": "ลบทรัพยากรไม่สำเร็จ", "deleteTitle": "ลบทรัพยากร", "deleteConfirm": "ต้องการลบทรัพยากรปฏิทินนี้หรือไม่? ต้องยกเลิกการกำหนดกิจกรรมก่อน" }
     },
     "monks": {
       "title": "พระสงฆ์",

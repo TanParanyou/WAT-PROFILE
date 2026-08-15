@@ -15,6 +15,7 @@ import type {
   Setting,
   User,
   Role,
+  CalendarResourceEntity,
 } from "@/types/entities";
 
 // Generic CRUD helpers สำหรับ admin endpoints
@@ -72,6 +73,7 @@ export function createAdminService<T>(resource: string) {
 }
 
 export const eventAdminService = createAdminService<Event>("events");
+export const calendarResourceAdminService = createAdminService<CalendarResourceEntity>("calendar-resources");
 export const monkAdminService = createAdminService<Monk>("monks");
 export const galleryAdminService = {
   ...createAdminService<Gallery>("gallery"),

@@ -6,12 +6,13 @@ export const calendarKeys = {
     scope: CalendarFeedRequest["scope"],
     locale: CalendarFeedRequest["locale"],
     range: CalendarFeedRequest["range"],
-  ) => ["calendar", scope, locale, range.startDate, range.endDate] as const,
+    resourceIds: CalendarFeedRequest["resourceIds"] = [],
+  ) => ["calendar", scope, locale, range.startDate, range.endDate, [...resourceIds].sort()] as const,
 };
 
 export function useCalendarEntries(input: CalendarFeedRequest) {
   return useQuery({
-    queryKey: calendarKeys.feed(input.scope, input.locale, input.range),
+    queryKey: calendarKeys.feed(input.scope, input.locale, input.range, input.resourceIds),
     queryFn: () => fetchCalendarFeed(input),
     placeholderData: keepPreviousData,
     staleTime: 60_000,

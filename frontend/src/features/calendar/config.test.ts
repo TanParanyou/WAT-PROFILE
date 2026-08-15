@@ -20,8 +20,8 @@ test("calendar config resolves production defaults", () => {
 test("calendar config resolves responsive layouts with safe fallbacks", () => {
   const config = resolveCalendarConfig(planningPreset);
   assert.deepEqual(config.layouts.mobile, {
-    month: "monthGrid",
-    week: "timeGrid",
+    month: "monthAgenda",
+    week: "dayStrip",
     day: "timeGrid",
   });
 

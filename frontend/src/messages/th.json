@@ -503,6 +503,8 @@
         "selectedDate": "กำหนดการวันที่ {date}",
         "noEventsOnDate": "ไม่มีกิจกรรมในวันนี้",
         "calendarInstructions": "ปฏิทินกิจกรรม เลือกกิจกรรมเพื่อดูรายละเอียด",
+        "resourceLabel": "ทรัพยากร",
+        "unassignedResource": "ยังไม่กำหนดทรัพยากร",
         "loading": "กำลังโหลดปฏิทิน...",
         "refreshing": "กำลังอัปเดตปฏิทิน...",
         "retry": "ลองใหม่",

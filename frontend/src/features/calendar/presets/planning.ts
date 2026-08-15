@@ -6,7 +6,12 @@ export const planningPreset: CalendarPreset = {
   enabledViews: ["month", "week", "day"],
   viewModes: {
     month: "monthGrid",
-    week: "timeGrid",
-    day: "timeGrid",
+    week: "timeline",
+    day: "resourceDayGrid",
+  },
+  layouts: {
+    desktop: { month: "monthGrid", week: "timeline", day: "resourceDayGrid" },
+    mobile: { month: "monthAgenda", week: "dayStrip", day: "timeGrid" },
+    mobileBreakpoint: 640,
   },
 };

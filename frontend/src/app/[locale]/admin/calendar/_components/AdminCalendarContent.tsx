@@ -17,14 +17,16 @@ import {
   getWatEventLocation,
 } from "@/features/calendar/adapters/wat-calendar";
 import { CalendarEntryDrawer } from "./CalendarEntryDrawer";
+import { CalendarResourceFilter } from "./CalendarResourceFilter";
 
 export default function AdminCalendarContent() {
   const localeValue = useLocale();
   const locale: CalendarLocale = localeValue === "de" || localeValue === "en" ? localeValue : "th";
   const t = useTranslations("Admin.calendar");
   const [selectedEntry, setSelectedEntry] = useState<CalendarEntry | null>(null);
+  const [resourceIds, setResourceIds] = useState<readonly string[]>([]);
   const controller = useRoutedCalendar({ scope: "admin", weekStartsOn: locale === "th" ? 0 : 1, initialView: "month" });
-  const query = useCalendarEntries({ scope: "admin", locale, range: controller.visibleRange });
+  const query = useCalendarEntries({ scope: "admin", locale, range: controller.visibleRange, resourceIds });
   const dateFnsLocale = locale === "th" ? th : locale === "de" ? de : enUS;
   const labels: CalendarLabels = {
     previousMonth: t("previous"),
@@ -36,6 +38,8 @@ export default function AdminCalendarContent() {
     eventsCount: (count) => t("eventsCount", { count }),
     noEventsOnDate: t("noEventsOnDate"),
     calendarInstructions: t("calendarInstructions"),
+    resourceLabel: t("resourceLabel"),
+    unassignedResource: t("unassignedResource"),
     dayNames: [t("dayNames.sunday"), t("dayNames.monday"), t("dayNames.tuesday"), t("dayNames.wednesday"), t("dayNames.thursday"), t("dayNames.friday"), t("dayNames.saturday")],
     viewMonth: t("views.month"),
     viewWeek: t("views.week"),
@@ -84,23 +88,33 @@ export default function AdminCalendarContent() {
       </header>
       <CalendarQueryBoundary query={query} labels={labels}>
         {(data) => (
-          <Calendar
-            preset={planningPreset}
-            controller={controller}
-            events={data.entries}
-            labels={labels}
-            variant="admin"
-            onEventActivate={activateEvent}
-            renderEvent={renderEvent}
-            formatEventTime={formatEventTime}
-            formatEventLocation={getWatEventLocation}
-            getEventClassName={getEventBarClass}
-            themeClassName="admin-theme bg-admin-surface text-admin-foreground"
-            controlClassName="border border-admin-border bg-admin-surface text-admin-body hover:bg-admin-surface-muted"
-            activeTabClassName="bg-admin-action text-admin-on-action"
-            inactiveTabClassName="text-admin-body hover:bg-admin-surface-muted"
-            focusClassName="focus-visible:outline-admin-focus"
-          />
+          <div className="space-y-4">
+            <CalendarResourceFilter
+              resources={data.resources}
+              value={resourceIds}
+              onChange={setResourceIds}
+              label={t("resourceFilter.label")}
+              clearLabel={t("resourceFilter.clear")}
+            />
+            <Calendar
+              preset={planningPreset}
+              controller={controller}
+              events={data.entries}
+              resources={data.resources}
+              labels={labels}
+              variant="admin"
+              onEventActivate={activateEvent}
+              renderEvent={renderEvent}
+              formatEventTime={formatEventTime}
+              formatEventLocation={getWatEventLocation}
+              getEventClassName={getEventBarClass}
+              themeClassName="admin-theme bg-admin-surface text-admin-foreground"
+              controlClassName="border border-admin-border bg-admin-surface text-admin-body hover:bg-admin-surface-muted"
+              activeTabClassName="bg-admin-action text-admin-on-action"
+              inactiveTabClassName="text-admin-body hover:bg-admin-surface-muted"
+              focusClassName="focus-visible:outline-admin-focus"
+            />
+          </div>
         )}
       </CalendarQueryBoundary>
       <CalendarEntryDrawer entry={selectedEntry} open={selectedEntry !== null} onClose={() => setSelectedEntry(null)} labels={{ edit: t("drawer.edit"), close: t("drawer.close"), source: t("drawer.source"), status: t("drawer.status"), active: t("drawer.active"), inactive: t("drawer.inactive"), location: t("drawer.location"), description: t("drawer.description") }} />

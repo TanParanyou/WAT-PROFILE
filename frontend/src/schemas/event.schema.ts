@@ -35,6 +35,7 @@ export const baseEventSchema = z.object({
       }),
     )
     .optional(),
+  resource_ids: z.array(z.number().int().positive()).default([]),
 });
 
 export const eventSchema = baseEventSchema.superRefine((data, ctx) => {
@@ -72,5 +73,3 @@ export const eventSchema = baseEventSchema.superRefine((data, ctx) => {
 });
 
 export type EventFormData = z.infer<typeof eventSchema>;
-
-

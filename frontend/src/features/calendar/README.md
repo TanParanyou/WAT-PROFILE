@@ -32,7 +32,10 @@ const controller = useCalendar({
 - TimeGrid: 08:00–20:00, 30-minute slots, 44px slot height, 136px minimum day width
 - sticky day header/time axis and two visible all-day entries before overflow
 
-Override only the values needed by a consumer. Timeline and DayGrid are intentionally deferred. Resource lanes, recurrence, drag/drop, and external sync are not part of this contract.
+Override only the values needed by a consumer. Timeline and Resource DayGrid
+are generic, read-only resource layouts. Hosts provide normalized `resources`
+and choose mobile fallbacks; recurrence, drag/drop, and external sync remain
+separate contracts.
 
 ### Responsive presentation presets
 

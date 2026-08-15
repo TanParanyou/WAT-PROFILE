@@ -35,9 +35,10 @@ test("Discovery uses TimeGrid for Week and Day", () => {
   });
 });
 
-test("Planning keeps TimeGrid for Week and Day", () => {
-  assert.equal(planningPreset.viewModes.week, "timeGrid");
-  assert.equal(planningPreset.viewModes.day, "timeGrid");
+test("Planning uses resource layouts on desktop and compact layouts on mobile", () => {
+  assert.equal(planningPreset.viewModes.week, "timeline");
+  assert.equal(planningPreset.viewModes.day, "resourceDayGrid");
+  assert.deepEqual(planningPreset.layouts?.mobile, { month: "monthAgenda", week: "dayStrip", day: "timeGrid" });
 });
 
 test("Public calendar route composes the shared public calendar section", () => {

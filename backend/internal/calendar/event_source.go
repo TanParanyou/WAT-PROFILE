@@ -34,6 +34,12 @@ func (s *EventSource) List(ctx context.Context, request Request, canEdit bool) (
 	if !canEdit {
 		query = query.Where("events.is_active = ?", true)
 	}
+	if len(request.ResourceIDs) > 0 {
+		query = query.Where(
+			"EXISTS (SELECT 1 FROM event_resource_assignments era JOIN calendar_resources cr ON cr.id = era.resource_id WHERE era.event_id = events.id AND cr.slug IN ?)",
+			request.ResourceIDs,
+		)
+	}
 	if err := query.Preload("ResourceAssignments.Resource").Find(&events).Error; err != nil {
 		return nil, err
 	}
@@ -58,7 +64,7 @@ func (s *EventSource) ListResources(ctx context.Context, locale Locale, canEdit 
 	}
 
 	result := make([]Resource, 0, len(resources)+1)
-	result = append(result, Resource{ID: "default", Title: "Calendar"})
+	result = append(result, DefaultResource(locale))
 	for _, resource := range resources {
 		result = append(result, Resource{
 			ID:    resource.Slug,

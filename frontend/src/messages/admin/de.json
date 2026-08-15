@@ -44,6 +44,7 @@
       "dashboard": "Dashboard",
       "events": "Veranstaltungen",
       "calendar": "Kalender",
+      "calendarResources": "Kalenderressourcen",
       "monks": "Mönche",
       "gallery": "Galerie",
       "schedules": "Zeitplan",
@@ -67,6 +68,28 @@
       "registrations": "Anmeldungen",
       "audit_logs": "Audit-Logs",
       "privacyRequests": "Datenschutzanfragen"
+    },
+    "permissions": {
+      "system": "Ressource",
+      "all": "Alle",
+      "actions": { "read": "Lesen", "create": "Erstellen", "update": "Bearbeiten", "delete": "Löschen" },
+      "resources": {
+        "events": "Veranstaltungen",
+        "monks": "Mönche",
+        "gallery": "Galerie",
+        "schedules": "Zeitplan",
+        "donations": "Spenden",
+        "members": "Mitglieder",
+        "contacts": "Kontakte",
+        "settings": "Einstellungen",
+        "users": "Benutzer und Rollen",
+        "registrations": "Anmeldungen",
+        "website": "Website",
+        "audit_logs": "Audit-Logs",
+        "privacy_requests": "Datenschutzanfragen",
+        "account_operations": "Öffentliche Konten",
+        "calendar_resources": "Kalenderressourcen"
+      }
     },
     "header": {
       "logout": "Abmelden",
@@ -174,6 +197,9 @@
         "image": "Titelbild",
         "gallery": "Zusätzliche Bilder / Galerie",
         "galleryDesc": "Fügen Sie weitere Bilder oder Poster hinzu (maximal 10 Bilder)",
+        "resources": "Kalenderressourcen",
+        "resourcesDescription": "Ordnen Sie diese Veranstaltung einer oder mehreren aktiven Kalenderressourcen zu.",
+        "resourcesEmpty": "Keine aktiven Kalenderressourcen verfügbar.",
         "addGalleryImage": "Bild hinzufügen",
         "previewLightbox": "In voller Größe ansehen",
         "zoomPoster": "Poster vergrößern",
@@ -234,6 +260,9 @@
       "error": "Der Kalender konnte nicht geladen werden",
       "noEventsOnDate": "Keine Veranstaltungen an diesem Tag",
       "calendarInstructions": "Aktivitätskalender. Veranstaltung für Details auswählen.",
+      "resourceLabel": "Ressource",
+      "unassignedResource": "Nicht zugewiesen",
+      "resourceFilter": { "label": "Ressourcen filtern", "clear": "Ressourcenfilter löschen" },
       "scrollHorizontally": "Horizontal scrollen, um die ganze Woche zu sehen",
       "moreEvents": "+ {count} weitere",
       "eventsCount": "{count} Veranstaltungen",
@@ -244,6 +273,13 @@
       "views": { "month": "Monat", "week": "Woche", "day": "Tag" },
       "dayNames": { "sunday": "Sonntag", "monday": "Montag", "tuesday": "Dienstag", "wednesday": "Mittwoch", "thursday": "Donnerstag", "friday": "Freitag", "saturday": "Samstag" },
       "drawer": { "source": "Quelle", "status": "Status", "active": "Aktiv", "inactive": "Inaktiv", "location": "Ort", "description": "Beschreibung", "edit": "Aktivität bearbeiten", "close": "Schließen" }
+    },
+    "calendarResources": {
+      "title": "Kalenderressourcen",
+      "breadcrumb": "Kalenderressourcen",
+      "form": { "createTitle": "Ressource hinzufügen", "editTitle": "Ressource bearbeiten", "slug": "Slug", "type": "Ressourcentyp", "title": "Lokalisierter Titel", "color": "Farbe", "colorPlaceholder": "Hex-Farbe", "capacity": "Kapazität", "order": "Anzeigereihenfolge", "active": "Aktiv", "public": "Im öffentlichen Kalender sichtbar", "save": "Ressource speichern", "saving": "Wird gespeichert...", "cancel": "Abbrechen" },
+      "list": { "title": "Ressourcenregister", "loading": "Wird geladen...", "resource": "Ressource", "type": "Typ", "visibility": "Sichtbarkeit", "assignments": "Zuordnungen", "actions": "Aktionen", "public": "Öffentlich", "private": "Nur Admin", "edit": "Bearbeiten", "delete": "Löschen", "assigned": "Zugewiesene Ressource kann nicht gelöscht werden", "empty": "Keine Ressourcen konfiguriert" },
+      "messages": { "saved": "Ressource gespeichert", "saveError": "Ressource konnte nicht gespeichert werden", "deleted": "Ressource gelöscht", "deleteError": "Ressource konnte nicht gelöscht werden", "deleteTitle": "Ressource löschen", "deleteConfirm": "Diese Kalenderressource löschen? Veranstaltungen müssen zuerst entfernt werden." }
     },
     "monks": {
       "title": "Mönche",

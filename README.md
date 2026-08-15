@@ -56,3 +56,34 @@ Database migrations and seed data are separate operations. Read
 
 Frontend and backend rules live in their respective `AGENTS.md` files. Historical
 implementation plans are intentionally not part of the production documentation.
+
+## Calendar resources
+
+Calendar resources are managed in the Admin Panel at `/admin/calendar/resources`
+and through the protected `/api/v1/admin/calendar-resources` CRUD endpoints. The
+permission resource is `calendar_resources`; grant `read`, `create`, `update`,
+and `delete` independently through the role editor. A resource must have a
+localized Thai, English, and German title. Deletion is rejected while events are
+assigned to it.
+
+Events accept `resource_ids: number[]` in their existing Admin create/update
+payload. The backend validates active resources and replaces assignments inside
+the event transaction. Calendar feeds return localized active resources, expose
+`resourceIds` on entries, and keep `resourceId` as the first-ID compatibility
+alias. Public feeds include only resources with `is_public = true`; Admin feeds
+may include private active resources.
+
+The reusable Calendar keeps semantic views (`month`, `week`, `day`) separate from
+presentation layouts. Hosts can configure layouts without coupling the core to
+WAT or a transport client:
+
+```ts
+const planningLayouts = {
+  desktop: { month: "monthGrid", week: "timeline", day: "resourceDayGrid" },
+  mobile: { month: "monthAgenda", week: "dayStrip", day: "timeGrid" },
+  mobileBreakpoint: 640,
+};
+```
+
+Interactions, recurrence/exception rules, conflict validation, and external
+calendar synchronization remain deferred to their owning calendar slices.

@@ -504,6 +504,8 @@
         "selectedDate": "Programm für {date}",
         "noEventsOnDate": "Keine Veranstaltungen an diesem Tag",
         "calendarInstructions": "Aktivitätskalender. Veranstaltung für Details auswählen.",
+        "resourceLabel": "Ressource",
+        "unassignedResource": "Nicht zugewiesen",
         "loading": "Kalender wird geladen...",
         "refreshing": "Kalender wird aktualisiert...",
         "retry": "Erneut versuchen",

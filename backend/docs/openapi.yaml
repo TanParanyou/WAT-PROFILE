@@ -146,6 +146,7 @@ paths:
         - $ref: '#/components/parameters/CalendarFromParam'
         - $ref: '#/components/parameters/CalendarToParam'
         - $ref: '#/components/parameters/CalendarLocaleParam'
+        - $ref: '#/components/parameters/CalendarResourceParam'
       responses:
         '200':
           description: Calendar feed
@@ -2153,6 +2154,7 @@ paths:
         - $ref: '#/components/parameters/CalendarFromParam'
         - $ref: '#/components/parameters/CalendarToParam'
         - $ref: '#/components/parameters/CalendarLocaleParam'
+        - $ref: '#/components/parameters/CalendarResourceParam'
       responses:
         '200':
           description: Admin calendar feed
@@ -3980,6 +3982,15 @@ components:
       schema:
         type: string
         enum: [th, en, de]
+    CalendarResourceParam:
+      name: resourceId
+      in: query
+      description: Optional repeated resource slug filter
+      required: false
+      schema:
+        type: array
+        items:
+          type: string
 
     IdParam:
       name: id

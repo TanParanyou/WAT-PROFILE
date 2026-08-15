@@ -29,6 +29,15 @@ func TestEventSourceMaterializesLocalizedCalendarEntry(t *testing.T) {
 	}
 }
 
+func TestDefaultResourceUsesRequestLocale(t *testing.T) {
+	if got := DefaultResource(LocaleThai); got.Title != "ปฏิทิน" {
+		t.Fatalf("Thai default resource title = %q", got.Title)
+	}
+	if got := DefaultResource(LocaleGerman); got.Title != "Kalender" {
+		t.Fatalf("German default resource title = %q", got.Title)
+	}
+}
+
 func TestEventSourceUsesExclusiveEndForAllDayEntries(t *testing.T) {
 	entry := MaterializeEntry(models.Event{
 		ID:        43,

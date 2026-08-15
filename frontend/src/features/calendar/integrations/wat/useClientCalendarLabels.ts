@@ -20,6 +20,8 @@ export function useClientCalendarLabels(locale: CalendarLocale): CalendarLabels 
     eventsCount: (count) => t("eventsCount", { count }),
     noEventsOnDate: t("noEventsOnDate"),
     calendarInstructions: t("calendarInstructions"),
+    resourceLabel: t("resourceLabel"),
+    unassignedResource: t("unassignedResource"),
     dayNames: [t("dayNames.sunday"), t("dayNames.monday"), t("dayNames.tuesday"), t("dayNames.wednesday"), t("dayNames.thursday"), t("dayNames.friday"), t("dayNames.saturday")],
     viewMonth: t("views.month"),
     viewWeek: t("views.week"),
