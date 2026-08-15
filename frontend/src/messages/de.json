@@ -437,7 +437,12 @@
         "formDisabled": "Das Nachrichtenformular wurde vom Administrator deaktiviert",
         "errorRequired": "Bitte füllen Sie alle Pflichtfelder aus",
         "errorEmail": "Ungültiges E-Mail-Format",
+        "errorNameLength": "Der Name darf 120 Zeichen nicht überschreiten",
+        "errorEmailLength": "Die E-Mail darf 254 Zeichen nicht überschreiten",
+        "errorSubjectLength": "Der Betreff darf 200 Zeichen nicht überschreiten",
         "errorMessageLength": "Die Nachricht darf 5.000 Zeichen nicht überschreiten",
+        "errorRateLimit": "Zu viele Nachrichten. Bitte versuchen Sie es in {seconds} Sekunden erneut.",
+        "sending": "Wird gesendet...",
         "errorSend": "Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut."
     },
     "EventsPage": {

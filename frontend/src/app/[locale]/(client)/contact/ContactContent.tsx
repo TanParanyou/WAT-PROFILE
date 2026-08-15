@@ -7,15 +7,19 @@ import {
   AlertCircle,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
+import { useMemo, useState } from "react";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm, type UseFormRegisterReturn } from "react-hook-form";
 import { Link } from "@/navigation";
 import { PublicContactPageLayout } from "@/components/public/website/PublicContactPageLayout";
 import { getLocalizedText } from "@/utils/localizedText";
-import { sendContactEmail } from "@/services/emailService";
-import { publicService } from "@/services/publicService";
 import type { ContactContentFormData } from "@/types/public-content";
 import { usePublicContactQuery } from "@/features/public/content/queries";
 import { QueryErrorState } from "@/components/public/states/QueryErrorState";
+import { createContactSchema, type ContactFormValues } from "@/features/public/contact/schema";
+import { useSubmitPublicContact } from "@/features/public/contact/queries";
+import { isPublicContactApiError } from "@/features/public/contact/types";
+import type { ContactField, ContactLocale } from "@/features/public/contact/types";
 
 interface ContactContentProps {
   locale: string;
@@ -26,68 +30,68 @@ export default function ContactContent({ locale, cmsPage }: ContactContentProps)
   const t = useTranslations("ContactPage");
   const currentLocale = useLocale();
   const activeLocale = locale || currentLocale;
+  const communicationLocale: ContactLocale = activeLocale === "en" || activeLocale === "de" ? activeLocale : "th";
   const query = usePublicContactQuery();
   const resolvedPage = query.data ?? cmsPage;
   const successMessage = resolvedPage
     ? getLocalizedText(resolvedPage.body.contact_form.success_message, activeLocale) || t("messageSent")
     : t("messageSent");
   const privacyLink = resolvedPage?.body.contact_form.privacy_page_link || "/privacy";
-  const [formData, setFormData] = useState({ name: "", email: "", subject: "", message: "" });
-  const [status, setStatus] = useState<"idle" | "loading" | "success" | "error">("idle");
-  const [errorMsg, setErrorMsg] = useState("");
+  const schema = useMemo(() => createContactSchema({
+    required: t("errorRequired"),
+    invalidEmail: t("errorEmail"),
+    nameLimit: t("errorNameLength"),
+    emailLimit: t("errorEmailLength"),
+    subjectLimit: t("errorSubjectLength"),
+    messageLimit: t("errorMessageLength"),
+  }), [t]);
+  const { register, handleSubmit, reset, setError, formState: { errors } } = useForm<ContactFormValues>({
+    resolver: zodResolver(schema),
+    mode: "onBlur",
+    reValidateMode: "onChange",
+    shouldFocusError: true,
+    defaultValues: { name: "", email: "", subject: "", message: "", website: "" },
+  });
+  const submitMutation = useSubmitPublicContact();
+  const [submitted, setSubmitted] = useState(false);
+  const [rootError, setRootError] = useState("");
 
   const pageTitle = resolvedPage ? getLocalizedText(resolvedPage.title, activeLocale) || t("title") : t("title");
   const pageSubtitle = resolvedPage ? getLocalizedText(resolvedPage.description, activeLocale) || t("subtitle") : t("subtitle");
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-    const { id, value } = e.target;
-    setFormData((prev) => ({ ...prev, [id]: value }));
-    if (status === "error") setStatus("idle");
-  };
-
-  const validateForm = () => {
-    if (!formData.name.trim() || !formData.email.trim() || !formData.subject.trim() || !formData.message.trim()) {
-      return t("errorRequired");
-    }
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) return t("errorEmail");
-    if (formData.message.length > 5000) return t("errorMessageLength");
-    return null;
-  };
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setErrorMsg("");
-    const validationError = validateForm();
-    if (validationError) {
-      setErrorMsg(validationError);
-      setStatus("error");
-      return;
-    }
-    setStatus("loading");
+  const onSubmit = async (values: ContactFormValues) => {
+    setSubmitted(false);
+    setRootError("");
     try {
-      // 1. บันทึกลง Database ผ่าน Go Backend API
-      await publicService.submitContact({
-        name: formData.name.trim(),
-        email: formData.email.trim(),
-        subject: formData.subject.trim(),
-        message: formData.message.trim(),
-        inquiry_type: "general",
+      await submitMutation.mutateAsync({
+        ...values,
+        locale: communicationLocale,
       });
-
-      // 2. ส่งอีเมลแจ้งเตือนผ่าน Resend (ไม่บล็อกถ้ายังไม่ได้ตั้งค่า Email)
-      sendContactEmail(formData).catch((err) => {
-        console.warn("Contact notification email skipped/failed:", err);
-      });
-
-      setStatus("success");
-      setFormData({ name: "", email: "", subject: "", message: "" });
-      setTimeout(() => setStatus("idle"), 5000);
-    } catch (error) {
-      console.error("Failed to submit contact inquiry:", error);
-      setErrorMsg(t("errorSend"));
-      setStatus("error");
+      reset();
+      setSubmitted(true);
+    } catch (error: unknown) {
+      if (isPublicContactApiError(error)) {
+        let mappedFields = 0;
+        for (const [fieldName, message] of Object.entries(error.fields)) {
+          if (isVisibleContactField(fieldName)) {
+            mappedFields += 1;
+            setError(fieldName, { type: "server", message }, { shouldFocus: mappedFields === 1 });
+          }
+        }
+        if (error.code === "CONTACT_RATE_LIMITED") {
+          setRootError(t("errorRateLimit", { seconds: Math.max(1, error.retryAfterSeconds) }));
+        } else if (mappedFields === 0) {
+          setRootError(t("errorSend"));
+        }
+        return;
+      }
+      setRootError(t("errorSend"));
     }
+  };
+
+  const fieldError = (field: Exclude<ContactField, "locale">) => {
+    const message = errors[field]?.message;
+    return message ? String(message) : undefined;
   };
 
   return (
@@ -159,25 +163,29 @@ export default function ContactContent({ locale, cmsPage }: ContactContentProps)
       formSlot={
         <form
           className="space-y-5"
-          onSubmit={handleSubmit}
-          aria-describedby={status === "error" ? "contact-form-error" : undefined}
+          onSubmit={handleSubmit(onSubmit)}
+          aria-describedby={rootError ? "contact-form-error" : undefined}
         >
           {query.isError ? <QueryErrorState title={t("contentErrorTitle")} description={t("contentErrorDescription")} retryLabel={t("retryContent")} onRetry={() => query.refetch()} isRetrying={query.isFetching} /> : null}
           <div className="grid gap-4 md:grid-cols-2">
-            <Field id="name" label={t("fullName")} value={formData.name} onChange={handleChange} />
-            <Field id="email" label={t("email")} value={formData.email} onChange={handleChange} type="email" />
+            <Field id="name" label={t("fullName")} registration={register("name")} error={fieldError("name")} maxLength={120} autoComplete="name" />
+            <Field id="email" label={t("email")} registration={register("email")} error={fieldError("email")} type="email" maxLength={254} autoComplete="email" />
           </div>
-          <Field id="subject" label={t("subject")} value={formData.subject} onChange={handleChange} />
-          <Field id="message" label={t("message")} value={formData.message} onChange={handleChange} textarea />
-          {errorMsg && (
+          <Field id="subject" label={t("subject")} registration={register("subject")} error={fieldError("subject")} maxLength={200} />
+          <Field id="message" label={t("message")} registration={register("message")} error={fieldError("message")} maxLength={5000} textarea />
+          <div aria-hidden="true" className="absolute -left-[10000px] h-px w-px overflow-hidden">
+            <label htmlFor="contact-website">Website</label>
+            <input id="contact-website" tabIndex={-1} autoComplete="off" {...register("website")} />
+          </div>
+          {rootError && (
             <div id="contact-form-error" role="alert" className="flex items-start gap-2 border border-red-700 bg-red-50 p-3 text-sm text-red-700">
-              <AlertCircle size={16} className="mt-0.5 shrink-0" />
-              <span>{errorMsg}</span>
+              <AlertCircle size={16} className="mt-0.5 shrink-0" aria-hidden="true" />
+              <span>{rootError}</span>
             </div>
           )}
-          {status === "success" && (
+          {submitted && (
             <div role="status" aria-live="polite" className="flex items-center gap-2 border border-emerald-700 bg-emerald-50 p-3 text-sm text-emerald-700">
-              <CheckCircle size={16} />
+              <CheckCircle size={16} aria-hidden="true" />
               <span>{successMessage}</span>
             </div>
           )}
@@ -189,11 +197,11 @@ export default function ContactContent({ locale, cmsPage }: ContactContentProps)
           </p>
           <button
             type="submit"
-            disabled={status === "loading"}
+            disabled={submitMutation.isPending}
             className="inline-flex min-h-11 items-center gap-2 bg-site-action px-6 py-[13px] font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-60"
           >
-            {status === "loading" ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-            {t("sendMessage")}
+            {submitMutation.isPending ? <Loader2 size={16} className="animate-spin" aria-hidden="true" /> : <Send size={16} aria-hidden="true" />}
+            {submitMutation.isPending ? t("sending") : t("sendMessage")}
           </button>
         </form>
       }
@@ -204,27 +212,39 @@ export default function ContactContent({ locale, cmsPage }: ContactContentProps)
 function Field({
   id,
   label,
-  value,
-  onChange,
+  registration,
+  error,
   type = "text",
   textarea = false,
+  maxLength,
+  autoComplete,
 }: {
   id: string;
   label: string;
-  value: string;
-  onChange: (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void;
-  type?: string;
+  registration: UseFormRegisterReturn;
+  error?: string;
+  type?: "text" | "email";
   textarea?: boolean;
+  maxLength: number;
+  autoComplete?: string;
 }) {
   const base = "mt-2 min-h-11 w-full border border-site-border bg-site-canvas px-3 py-2.5 text-base text-site-foreground outline-none transition-colors placeholder:text-site-muted focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus";
+  const errorId = `${id}-error`;
   return (
-    <label className="block text-sm font-semibold text-text-800" htmlFor={id}>
+    <div>
+      <label className="block text-sm font-semibold text-text-800" htmlFor={id}>
       {label}
       {textarea ? (
-        <textarea id={id} value={value} onChange={onChange} rows={6} className={base} required />
+        <textarea id={id} rows={6} className={base} required maxLength={maxLength} aria-invalid={Boolean(error)} aria-describedby={error ? errorId : undefined} {...registration} />
       ) : (
-        <input id={id} type={type} value={value} onChange={onChange} className={base} required />
+        <input id={id} type={type} className={base} required maxLength={maxLength} autoComplete={autoComplete} aria-invalid={Boolean(error)} aria-describedby={error ? errorId : undefined} {...registration} />
       )}
-    </label>
+      </label>
+      {error ? <p id={errorId} role="alert" className="mt-1 text-sm text-red-700">{error}</p> : null}
+    </div>
   );
+}
+
+function isVisibleContactField(value: string): value is Exclude<ContactField, "locale"> {
+  return value === "name" || value === "email" || value === "subject" || value === "message";
 }

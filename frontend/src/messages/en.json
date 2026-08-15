@@ -437,7 +437,12 @@
         "formDisabled": "Message form is disabled by the administrator",
         "errorRequired": "Please fill in all required fields",
         "errorEmail": "Invalid email format",
+        "errorNameLength": "Name must not exceed 120 characters",
+        "errorEmailLength": "Email must not exceed 254 characters",
+        "errorSubjectLength": "Subject must not exceed 200 characters",
         "errorMessageLength": "Message must not exceed 5,000 characters",
+        "errorRateLimit": "Too many messages. Please try again in {seconds} seconds.",
+        "sending": "Sending...",
         "errorSend": "Failed to send message. Please try again."
     },
     "EventsPage": {
