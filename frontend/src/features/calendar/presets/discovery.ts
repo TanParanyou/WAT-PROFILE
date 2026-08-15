@@ -9,4 +9,9 @@ export const discoveryPreset: CalendarPreset = {
     week: "timeGrid",
     day: "timeGrid",
   },
+  layouts: {
+    desktop: { month: "monthGrid", week: "timeGrid", day: "timeGrid" },
+    mobile: { month: "monthAgenda", week: "dayStrip", day: "timeGrid" },
+    mobileBreakpoint: 640,
+  },
 };

@@ -1,5 +1,9 @@
 import type { CalendarView } from "./core/types";
-import type { CalendarPreset } from "./presets/types";
+import type {
+  CalendarLayout,
+  CalendarPreset,
+  CalendarResponsiveLayouts,
+} from "./presets/types";
 
 export interface CalendarConfigInput {
   enabledViews?: readonly CalendarView[];
@@ -33,6 +37,7 @@ export interface CalendarConfig {
     stickyHeader: boolean;
     stickyTimeAxis: boolean;
   };
+  layouts: CalendarResponsiveLayouts;
 }
 
 const defaultConfig: CalendarConfig = {
@@ -48,6 +53,17 @@ const defaultConfig: CalendarConfig = {
     stickyHeader: true,
     stickyTimeAxis: true,
   },
+  layouts: {
+    desktop: { month: "monthGrid", week: "timeGrid", day: "timeGrid" },
+    mobile: { month: "monthGrid", week: "timeGrid", day: "timeGrid" },
+    mobileBreakpoint: 640,
+  },
+};
+
+const validLayouts: Record<CalendarView, readonly CalendarLayout[]> = {
+  month: ["monthGrid", "monthAgenda"],
+  week: ["timeGrid", "dayStrip"],
+  day: ["timeGrid"],
 };
 
 function positiveFinite(value: number | undefined, fallback: number, name: string): number {
@@ -80,6 +96,22 @@ export function resolveCalendarConfig(
     throw new RangeError("timeGrid.maxMinutes must be greater than timeGrid.minMinutes");
   }
 
+  const desktop = (Object.keys(validLayouts) as CalendarView[]).reduce<Record<CalendarView, CalendarLayout>>((resolved, view) => {
+    const requested = preset.layouts?.desktop?.[view] ?? preset.viewModes[view];
+    resolved[view] = validLayouts[view].includes(requested) ? requested : preset.viewModes[view];
+    return resolved;
+  }, { month: "monthGrid", week: "timeGrid", day: "timeGrid" });
+  const mobile = (Object.keys(validLayouts) as CalendarView[]).reduce<Record<CalendarView, CalendarLayout>>((resolved, view) => {
+    const requested = preset.layouts?.mobile?.[view] ?? desktop[view];
+    resolved[view] = validLayouts[view].includes(requested) ? requested : preset.viewModes[view];
+    return resolved;
+  }, { month: "monthGrid", week: "timeGrid", day: "timeGrid" });
+  const mobileBreakpoint = positiveFinite(
+    preset.layouts?.mobileBreakpoint,
+    defaultConfig.layouts.mobileBreakpoint,
+    "mobileBreakpoint",
+  );
+
   return {
     enabledViews: resolvedViews,
     month: { maxVisibleEvents: Math.floor(monthMaxVisibleEvents) },
@@ -93,5 +125,6 @@ export function resolveCalendarConfig(
       stickyHeader: input.timeGrid?.stickyHeader ?? defaultConfig.timeGrid.stickyHeader,
       stickyTimeAxis: input.timeGrid?.stickyTimeAxis ?? defaultConfig.timeGrid.stickyTimeAxis,
     },
+    layouts: { desktop, mobile, mobileBreakpoint },
   };
 }
