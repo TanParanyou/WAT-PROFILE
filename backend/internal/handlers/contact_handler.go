@@ -9,6 +9,7 @@ import (
 	"github.com/watloungporsai/wat-profile-backend/internal/middleware"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
+	"github.com/watloungporsai/wat-profile-backend/pkg/logger"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
 	"gorm.io/gorm"
 )
@@ -40,6 +41,7 @@ func (h *ContactHandler) SubmitContact(c *fiber.Ctx) error {
 		return utils.FieldErrorResponse(c, fiber.StatusBadRequest, validationErr.Error(), validationErr.Fields)
 	}
 	if _, err := h.contactService.Submit(c.UserContext(), input); err != nil {
+		logger.Log.Error().Err(err).Msg("Failed to submit contact inquiry")
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Unable to receive message")
 	}
 	return utils.MessageResponseWithStatus(c, fiber.StatusCreated, "Message received.")
