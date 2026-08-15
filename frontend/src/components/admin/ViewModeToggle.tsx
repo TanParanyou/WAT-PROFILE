@@ -30,8 +30,8 @@ export function ViewModeToggle({
         onClick={() => onChange("grid")}
         className={`p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-none transition-colors ${
           value === "grid"
-            ? "bg-admin-primary text-admin-on-action"
-            : "text-admin-muted hover:text-admin-foreground"
+            ? "bg-admin-action text-admin-on-action font-medium"
+            : "text-admin-muted hover:text-admin-foreground hover:bg-admin-surface-muted"
         }`}
         title={t("gallery.gridView")}
         aria-pressed={value === "grid"}
@@ -43,8 +43,8 @@ export function ViewModeToggle({
         onClick={() => onChange("table")}
         className={`p-2 min-w-[36px] min-h-[36px] flex items-center justify-center rounded-none transition-colors ${
           value === "table"
-            ? "bg-admin-primary text-admin-on-action"
-            : "text-admin-muted hover:text-admin-foreground"
+            ? "bg-admin-action text-admin-on-action font-medium"
+            : "text-admin-muted hover:text-admin-foreground hover:bg-admin-surface-muted"
         }`}
         title={t("gallery.tableView")}
         aria-pressed={value === "table"}

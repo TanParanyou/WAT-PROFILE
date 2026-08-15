@@ -351,8 +351,8 @@ export default function GalleryUploadPage() {
               onClick={() => setMode("batch")}
               className={`px-3.5 py-2 min-h-[38px] rounded-none transition-colors ${
                 mode === "batch"
-                  ? "bg-admin-primary text-admin-on-action"
-                  : "text-admin-muted hover:text-admin-foreground"
+                  ? "bg-admin-action text-admin-on-action font-medium"
+                  : "text-admin-muted hover:text-admin-foreground hover:bg-admin-surface-muted"
               }`}
             >
               {t("gallery.batchUpload")}
@@ -362,8 +362,8 @@ export default function GalleryUploadPage() {
               onClick={() => setMode("single")}
               className={`px-3.5 py-2 min-h-[38px] rounded-none transition-colors ${
                 mode === "single"
-                  ? "bg-admin-primary text-admin-on-action"
-                  : "text-admin-muted hover:text-admin-foreground"
+                  ? "bg-admin-action text-admin-on-action font-medium"
+                  : "text-admin-muted hover:text-admin-foreground hover:bg-admin-surface-muted"
               }`}
             >
               {t("gallery.singleUpload")}
@@ -417,7 +417,7 @@ export default function GalleryUploadPage() {
                 </div>
                 <div className="w-full bg-admin-surface-muted h-2 rounded-none overflow-hidden border border-admin-border">
                   <div
-                    className="bg-admin-primary h-full transition-all duration-300"
+                    className="bg-admin-action h-full transition-all duration-300"
                     style={{
                       width: `${(uploadProgress.current / (uploadProgress.total || 1)) * 100}%`,
                     }}
