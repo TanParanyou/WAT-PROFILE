@@ -37,19 +37,33 @@ export function BulkActionButton({
   };
 
   const button = (
-    <button
-      type="button"
-      onClick={onClick}
-      disabled={disabled}
-      title={label}
-      aria-label={label}
-      className={`flex items-center justify-center min-w-[38px] min-h-[38px] w-[38px] h-[38px] sm:min-w-10 sm:min-h-10 sm:w-10 sm:h-10 p-2 rounded-none border transition-colors shrink-0 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-admin-focus ${variantStyles[variant]} ${
-        showLabel ? "w-auto sm:w-auto px-3 gap-1.5" : ""
-      } ${className}`}
-    >
-      {icon}
-      {showLabel && <span className="text-xs sm:text-sm font-medium whitespace-nowrap">{label}</span>}
-    </button>
+    <div className="relative group/btn flex items-center justify-center">
+      <button
+        type="button"
+        onClick={onClick}
+        disabled={disabled}
+        aria-label={label}
+        className={`flex items-center justify-center min-w-[38px] min-h-[38px] w-[38px] h-[38px] sm:min-w-10 sm:min-h-10 sm:w-10 sm:h-10 p-2 rounded-none border transition-colors shrink-0 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-admin-focus ${variantStyles[variant]} ${
+          showLabel ? "w-auto sm:w-auto px-3 gap-1.5" : ""
+        } ${className}`}
+      >
+        {icon}
+        {showLabel && <span className="text-xs sm:text-sm font-medium whitespace-nowrap">{label}</span>}
+      </button>
+
+      {/* Instant Floating Tooltip */}
+      {!showLabel && (
+        <div
+          role="tooltip"
+          className="pointer-events-none absolute bottom-full left-1/2 -translate-x-1/2 mb-2.5 hidden group-hover/btn:flex group-focus-within/btn:flex flex-col items-center z-[60] animate-in fade-in-0 zoom-in-95 duration-100"
+        >
+          <div className="whitespace-nowrap rounded-none bg-[#1c1c1c] text-[#fbf5ea] border border-[#333333] px-2.5 py-1 text-xs font-medium shadow-2xl drop-shadow-md">
+            {label}
+          </div>
+          <div className="w-2 h-2 -mt-1 rotate-45 bg-[#1c1c1c] border-r border-b border-[#333333]" />
+        </div>
+      )}
+    </div>
   );
 
   if (resource && action) {
@@ -97,7 +111,7 @@ export function BulkActionToolbar({
       {/* Divider */}
       <div className="h-5 w-px bg-admin-on-action/25 shrink-0" />
 
-      {/* Action Buttons (Icon-only with Tooltip) */}
+      {/* Action Buttons */}
       <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
         {children}
       </div>
@@ -105,16 +119,27 @@ export function BulkActionToolbar({
       {/* Divider */}
       <div className="h-5 w-px bg-admin-on-action/25 shrink-0" />
 
-      {/* Clear Button */}
-      <button
-        type="button"
-        onClick={onClear}
-        className="flex items-center justify-center w-8 h-8 min-w-8 min-h-8 rounded-none hover:bg-admin-on-action/15 transition-colors text-admin-on-action/80 hover:text-admin-on-action focus-visible:outline-2 focus-visible:outline-admin-focus active:scale-95 shrink-0"
-        title={t("common.clear")}
-        aria-label={t("common.clear")}
-      >
-        <X size={18} />
-      </button>
+      {/* Clear Button with Tooltip */}
+      <div className="relative group/clear flex items-center justify-center">
+        <button
+          type="button"
+          onClick={onClear}
+          className="flex items-center justify-center w-8 h-8 min-w-8 min-h-8 rounded-none hover:bg-admin-on-action/15 transition-colors text-admin-on-action/80 hover:text-admin-on-action focus-visible:outline-2 focus-visible:outline-admin-focus active:scale-95 shrink-0"
+          aria-label={t("common.clear")}
+        >
+          <X size={18} />
+        </button>
+
+        <div
+          role="tooltip"
+          className="pointer-events-none absolute bottom-full right-0 sm:left-1/2 sm:-translate-x-1/2 mb-2.5 hidden group-hover/clear:flex group-focus-within/clear:flex flex-col items-center z-[60] animate-in fade-in-0 zoom-in-95 duration-100"
+        >
+          <div className="whitespace-nowrap rounded-none bg-[#1c1c1c] text-[#fbf5ea] border border-[#333333] px-2.5 py-1 text-xs font-medium shadow-2xl drop-shadow-md">
+            {t("common.clear")}
+          </div>
+          <div className="w-2 h-2 -mt-1 rotate-45 bg-[#1c1c1c] border-r border-b border-[#333333]" />
+        </div>
+      </div>
     </div>
   );
 }
