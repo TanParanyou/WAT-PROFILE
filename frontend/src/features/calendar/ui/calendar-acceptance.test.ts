@@ -215,6 +215,32 @@ test("view tabs support Arrow keys, Home, and End", () => {
   }
 });
 
+test("mobile toolbar keeps semantic tabs compact and exposes resolved presentation mode", () => {
+  const screen = render(createElement(CalendarRoot, {
+    preset: discoveryPreset,
+    view: "month",
+    layout: "monthAgenda",
+    date: new Date(2026, 7, 12),
+    selectedDate: new Date(2026, 7, 12),
+    visibleRange: { startDate: "2026-08-01", endDate: "2026-09-05" },
+    events: [], labels,
+    onViewChange: () => undefined,
+    onPrevious: () => undefined,
+    onNext: () => undefined,
+    onToday: () => undefined,
+  }, null));
+
+  try {
+    const tabs = screen.container.querySelector<HTMLElement>("[data-calendar-view-tabs]");
+    assert.ok(tabs);
+    assert.equal(tabs.className.includes("overflow-x-auto"), false);
+    assert.equal(tabs.querySelectorAll('[role="tab"]').length, 3);
+    assert.equal(screen.container.querySelector('[data-calendar-view="month"]')?.getAttribute("data-calendar-mode"), "monthAgenda");
+  } finally {
+    screen.cleanup();
+  }
+});
+
 test("Calendar toolbar and TimeGrid headers use explicit 3px focus outlines", () => {
   const toolbar = render(createElement(CalendarRoot, {
     preset: discoveryPreset,

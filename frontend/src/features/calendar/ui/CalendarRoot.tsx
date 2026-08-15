@@ -100,24 +100,22 @@ export function CalendarRoot({
           </button>
           <h2 className="ml-2 min-w-0 truncate text-base font-semibold" aria-live="polite">{periodLabel}</h2>
         </div>
-        <div className="max-w-full overflow-x-auto whitespace-nowrap" role="tablist" aria-label={labels.calendarInstructions}>
-          <div className="flex min-w-max border border-current/15">
-            {tabViews.map((item, index) => (
-              <button
-                key={item}
-                ref={(element) => { tabRefs.current[index] = element; }}
-                type="button"
-                role="tab"
-                aria-selected={item === view}
-                tabIndex={item === view ? 0 : -1}
-                onClick={() => onViewChange(item)}
-                onKeyDown={handleTabKeyDown}
-                className={`min-h-11 px-3 text-sm focus-visible:outline-[3px] focus-visible:outline-offset-2 ${focusClassName} ${item === view ? activeTabClassName : inactiveTabClassName}`}
-              >
-                {viewLabels[item]}
-              </button>
-            ))}
-          </div>
+        <div data-calendar-view-tabs className="grid w-full grid-cols-3 border border-current/15 sm:flex sm:w-auto" role="tablist" aria-label={labels.calendarInstructions}>
+          {tabViews.map((item, index) => (
+            <button
+              key={item}
+              ref={(element) => { tabRefs.current[index] = element; }}
+              type="button"
+              role="tab"
+              aria-selected={item === view}
+              tabIndex={item === view ? 0 : -1}
+              onClick={() => onViewChange(item)}
+              onKeyDown={handleTabKeyDown}
+              className={`min-h-11 min-w-0 flex-1 px-2 text-sm focus-visible:outline-[3px] focus-visible:outline-offset-2 sm:px-3 ${focusClassName} ${item === view ? activeTabClassName : inactiveTabClassName}`}
+            >
+              {viewLabels[item]}
+            </button>
+          ))}
         </div>
       </div>
       <div data-calendar-view={view} data-calendar-mode={mode} className="min-h-72">
