@@ -1,67 +1,18 @@
 "use client";
 
-import { useLocale, useTranslations } from "next-intl";
-import { useRouter } from "@/navigation";
+import { useTranslations } from "next-intl";
 import PageContainer from "@/components/layout/PageContainer";
 import PageHeader from "@/components/layout/PageHeader";
-import { useRoutedCalendar } from "@/features/calendar/integrations/next/useRoutedCalendar";
-import { Calendar } from "@/features/calendar/Calendar";
-import { useCalendarEntries } from "@/features/calendar/queries";
-import { discoveryPreset } from "@/features/calendar/presets/discovery";
-import {
-  formatWatEventTime,
-  getWatEventBarClass,
-  getWatEventLocation,
-} from "@/features/calendar/adapters/wat-calendar";
-import type { CalendarEntry, CalendarLocale } from "@/features/calendar/types";
-import { useClientCalendarLabels } from "@/features/calendar/integrations/wat/useClientCalendarLabels";
-import { CalendarQueryBoundary } from "@/features/calendar/integrations/wat/CalendarQueryBoundary";
+import { PublicCalendarSection } from "@/features/calendar/integrations/wat/PublicCalendarSection";
 
 export default function CalendarPageContent() {
-  const localeValue = useLocale();
-  const locale: CalendarLocale = localeValue === "de" || localeValue === "en" ? localeValue : "th";
   const t = useTranslations("CalendarPage");
-  const router = useRouter();
-  const controller = useRoutedCalendar({ scope: "public", weekStartsOn: locale === "th" ? 0 : 1, initialView: "month" });
-  const query = useCalendarEntries({ scope: "public", locale, range: controller.visibleRange });
-  const labels = useClientCalendarLabels(locale);
-
-  const activateEvent = (event: CalendarEntry) => {
-    if (event.detail.href) router.push(event.detail.href);
-  };
-
-  const formatEventTime = (event: CalendarEntry, date: string) => formatWatEventTime(event, date, labels.allDay);
-  const renderEvent = (event: CalendarEntry) => event.title;
-  const getEventBarClass = (
-    event: CalendarEntry,
-    density: "summary" | "row" | "timeGrid",
-  ) => getWatEventBarClass(event, "public", density);
 
   return (
     <div className="min-h-screen bg-site-canvas">
       <PageHeader variant="color" density="compact" align="left" title={t("title")} subtitle={t("subtitle")} />
       <PageContainer width="wide">
-        <CalendarQueryBoundary query={query} labels={labels}>
-          {(data) => (
-          <Calendar
-            preset={discoveryPreset}
-            controller={controller}
-            events={data.entries}
-            labels={labels}
-            variant="public"
-            onEventActivate={activateEvent}
-            renderEvent={renderEvent}
-            formatEventTime={formatEventTime}
-            formatEventLocation={getWatEventLocation}
-            getEventClassName={getEventBarClass}
-            themeClassName="public-theme bg-site-canvas text-site-foreground"
-            controlClassName="border border-site-border bg-site-canvas text-site-foreground hover:bg-site-surface"
-            activeTabClassName="bg-site-action text-site-on-action"
-            inactiveTabClassName="text-site-foreground hover:bg-site-surface"
-            focusClassName="focus-visible:outline-site-focus"
-          />
-          )}
-        </CalendarQueryBoundary>
+        <PublicCalendarSection />
       </PageContainer>
     </div>
   );
