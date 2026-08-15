@@ -7,14 +7,15 @@ import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import type { PermissionAction, PermissionResource } from "@/types/auth";
 
 export interface BulkActionButtonProps {
-  icon?: React.ReactNode;
-  label: React.ReactNode;
+  icon: React.ReactNode;
+  label: string;
   onClick: () => void;
   variant?: "default" | "success" | "muted" | "danger";
   resource?: PermissionResource;
   action?: PermissionAction;
   disabled?: boolean;
   className?: string;
+  showLabel?: boolean;
 }
 
 export function BulkActionButton({
@@ -26,6 +27,7 @@ export function BulkActionButton({
   action,
   disabled,
   className = "",
+  showLabel = false,
 }: BulkActionButtonProps) {
   const variantStyles = {
     default: "bg-admin-surface hover:bg-admin-surface-muted text-admin-foreground border-admin-border",
@@ -39,10 +41,14 @@ export function BulkActionButton({
       type="button"
       onClick={onClick}
       disabled={disabled}
-      className={`flex items-center gap-1.5 px-3 py-2 min-h-[38px] rounded-none border transition-colors text-xs sm:text-sm font-medium shrink-0 whitespace-nowrap active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed ${variantStyles[variant]} ${className}`}
+      title={label}
+      aria-label={label}
+      className={`flex items-center justify-center min-w-[38px] min-h-[38px] w-[38px] h-[38px] sm:min-w-10 sm:min-h-10 sm:w-10 sm:h-10 p-2 rounded-none border transition-colors shrink-0 active:scale-95 disabled:opacity-50 disabled:cursor-not-allowed focus-visible:outline-2 focus-visible:outline-admin-focus ${variantStyles[variant]} ${
+        showLabel ? "w-auto sm:w-auto px-3 gap-1.5" : ""
+      } ${className}`}
     >
       {icon}
-      <span>{label}</span>
+      {showLabel && <span className="text-xs sm:text-sm font-medium whitespace-nowrap">{label}</span>}
     </button>
   );
 
@@ -76,50 +82,39 @@ export function BulkActionToolbar({
     <div
       role="region"
       aria-label="Bulk actions"
-      className="fixed bottom-3 sm:bottom-5 left-3 right-3 sm:left-1/2 sm:-translate-x-1/2 z-50 bg-admin-action text-admin-on-action rounded-none border border-admin-control-border shadow-2xl p-3 sm:px-5 sm:py-3 flex flex-col sm:flex-row sm:items-center justify-between sm:justify-start gap-3 sm:gap-6 w-auto max-w-[calc(100vw-24px)] sm:max-w-[calc(100vw-48px)] animate-in fade-in-0 slide-in-from-bottom-4 duration-200 backdrop-blur-md"
+      className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50 bg-admin-action text-admin-on-action rounded-none border border-admin-control-border shadow-2xl px-3 py-2 sm:px-4 sm:py-2.5 flex items-center justify-between sm:justify-center gap-2.5 sm:gap-4 max-w-[calc(100vw-24px)] animate-in fade-in-0 slide-in-from-bottom-4 duration-200 backdrop-blur-md"
     >
-      {/* Selection Info + Clear Button (Top row on mobile, left side on desktop) */}
-      <div className="flex items-center justify-between sm:justify-start gap-3 shrink-0">
-        <div className="flex items-center gap-2.5">
-          <span className="flex items-center justify-center min-w-6 h-6 px-1.5 rounded-none bg-admin-on-action/20 text-admin-on-action text-xs font-mono font-bold">
-            {selectedCount}
-          </span>
-          <span className="text-xs sm:text-sm font-medium tracking-tight whitespace-nowrap">
-            {t("common.selectedItems", { count: selectedCount })}
-          </span>
-        </div>
-
-        {/* Clear button on mobile */}
-        <button
-          type="button"
-          onClick={onClear}
-          className="sm:hidden flex items-center justify-center w-10 h-10 -mr-1 rounded-none hover:bg-admin-on-action/15 text-admin-on-action/80 hover:text-admin-on-action transition-colors active:scale-95"
-          title={t("common.clear")}
-          aria-label={t("common.clear")}
-        >
-          <X size={18} />
-        </button>
+      {/* Selection Info */}
+      <div className="flex items-center gap-2 shrink-0">
+        <span className="flex items-center justify-center min-w-6 h-6 px-1.5 rounded-none bg-admin-on-action/20 text-admin-on-action text-xs font-mono font-bold">
+          {selectedCount}
+        </span>
+        <span className="hidden sm:inline text-xs sm:text-sm font-medium tracking-tight whitespace-nowrap">
+          {t("common.selectedItems", { count: selectedCount })}
+        </span>
       </div>
 
-      {/* Action Buttons + Desktop Clear Button */}
-      <div className="flex items-center gap-2 overflow-x-auto sm:overflow-visible pb-0.5 sm:pb-0 scrollbar-none w-full sm:w-auto">
-        <div className="flex items-center gap-2 shrink-0 sm:shrink sm:flex-nowrap">
-          {children}
-        </div>
+      {/* Divider */}
+      <div className="h-5 w-px bg-admin-on-action/25 shrink-0" />
 
-        {/* Desktop Divider & Clear Button */}
-        <div className="hidden sm:flex items-center pl-2 ml-2 border-l border-admin-on-action/25 shrink-0">
-          <button
-            type="button"
-            onClick={onClear}
-            className="flex items-center justify-center min-w-8 min-h-8 w-8 h-8 rounded-none hover:bg-admin-on-action/15 transition-colors text-admin-on-action/80 hover:text-admin-on-action focus-visible:outline-2 focus-visible:outline-admin-focus"
-            title={t("common.clear")}
-            aria-label={t("common.clear")}
-          >
-            <X size={18} />
-          </button>
-        </div>
+      {/* Action Buttons (Icon-only with Tooltip) */}
+      <div className="flex items-center gap-1.5 sm:gap-2 shrink-0">
+        {children}
       </div>
+
+      {/* Divider */}
+      <div className="h-5 w-px bg-admin-on-action/25 shrink-0" />
+
+      {/* Clear Button */}
+      <button
+        type="button"
+        onClick={onClear}
+        className="flex items-center justify-center w-8 h-8 min-w-8 min-h-8 rounded-none hover:bg-admin-on-action/15 transition-colors text-admin-on-action/80 hover:text-admin-on-action focus-visible:outline-2 focus-visible:outline-admin-focus active:scale-95 shrink-0"
+        title={t("common.clear")}
+        aria-label={t("common.clear")}
+      >
+        <X size={18} />
+      </button>
     </div>
   );
 }

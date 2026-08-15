@@ -32,7 +32,7 @@ export function GalleryBulkToolbar({
       <BulkActionButton
         resource="gallery"
         action="update"
-        icon={<FolderCheck size={15} />}
+        icon={<FolderCheck size={17} />}
         label={t("gallery.bulkCategory")}
         onClick={onBulkCategory}
       />
@@ -40,7 +40,7 @@ export function GalleryBulkToolbar({
       <BulkActionButton
         resource="gallery"
         action="update"
-        icon={<Tag size={15} />}
+        icon={<Tag size={17} />}
         label={t("gallery.bulkEvent")}
         onClick={onBulkEvent}
       />
@@ -49,7 +49,7 @@ export function GalleryBulkToolbar({
         resource="gallery"
         action="update"
         variant="success"
-        icon={<CheckCircle2 size={15} />}
+        icon={<CheckCircle2 size={17} />}
         label={t("gallery.bulkActive")}
         onClick={onBulkActive}
       />
@@ -58,7 +58,7 @@ export function GalleryBulkToolbar({
         resource="gallery"
         action="update"
         variant="muted"
-        icon={<XCircle size={15} />}
+        icon={<XCircle size={17} />}
         label={t("gallery.bulkInactive")}
         onClick={onBulkInactive}
       />
@@ -67,7 +67,7 @@ export function GalleryBulkToolbar({
         resource="gallery"
         action="delete"
         variant="danger"
-        icon={<Icons.Delete size={15} />}
+        icon={<Icons.Delete size={17} />}
         label={t("common.delete")}
         onClick={onBulkDelete}
       />
