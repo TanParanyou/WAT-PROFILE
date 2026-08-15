@@ -862,7 +862,8 @@
       "applyAndUpload": "Zuschneiden & Hochladen",
       "processing": "Wird verarbeitet...",
       "defaultError": "Beim Zuschneiden des Bildes ist ein Fehler aufgetreten",
-      "loadError": "Bild konnte nicht von URL geladen werden"
+      "loadError": "Bild konnte nicht von URL geladen werden",
+      "loadActionError": "Dieses Bild kann nicht bearbeitet werden. Laden Sie die Datei erneut hoch."
     },
     "list": {
       "searchPlaceholder": "Suchen...",

@@ -1,3 +1,5 @@
+import { classifyMediaSource } from "@/lib/mediaOrigins";
+
 export interface PixelCrop {
   x: number;
   y: number;
@@ -5,40 +7,54 @@ export interface PixelCrop {
   height: number;
 }
 
+export type MediaCropLoadCode = "unmanaged_source" | "load_failed" | "invalid_image";
+
+export class MediaCropLoadError extends Error {
+  constructor(readonly code: MediaCropLoadCode) {
+    super(code);
+    this.name = "MediaCropLoadError";
+  }
+}
+
+async function browserImageSource(url: string): Promise<{ src: string; cleanup: () => void }> {
+  const kind = classifyMediaSource(url);
+
+  if (kind === "local") {
+    return { src: url, cleanup: () => undefined };
+  }
+
+  if (kind !== "managed") {
+    throw new MediaCropLoadError("unmanaged_source");
+  }
+
+  try {
+    const response = await fetch(url, { mode: "cors", credentials: "omit" });
+    const contentType = response.headers.get("content-type") ?? "";
+    if (!response.ok || !contentType.toLowerCase().startsWith("image/")) {
+      throw new MediaCropLoadError("invalid_image");
+    }
+
+    const objectUrl = URL.createObjectURL(await response.blob());
+    return { src: objectUrl, cleanup: () => URL.revokeObjectURL(objectUrl) };
+  } catch (error: unknown) {
+    if (error instanceof MediaCropLoadError) {
+      throw error;
+    }
+    throw new MediaCropLoadError("load_failed");
+  }
+}
+
 export async function createImage(
   url: string
 ): Promise<{ image: HTMLImageElement; cleanup: () => void }> {
-  let imageSrc = url;
-  let cleanup = () => {};
-
-  if (url.startsWith("http://") || url.startsWith("https://")) {
-    try {
-      // Proxy through dedicated Next.js API route to fetch cross-origin images without CORS issues
-      const proxiedUrl = `/api/media-proxy?url=${encodeURIComponent(url)}`;
-      const response = await fetch(proxiedUrl);
-      if (response.ok) {
-        const blob = await response.blob();
-        imageSrc = URL.createObjectURL(blob);
-        cleanup = () => URL.revokeObjectURL(imageSrc);
-      } else {
-        const directResponse = await fetch(url, { mode: "cors" });
-        if (directResponse.ok) {
-          const blob = await directResponse.blob();
-          imageSrc = URL.createObjectURL(blob);
-          cleanup = () => URL.revokeObjectURL(imageSrc);
-        }
-      }
-    } catch {
-      imageSrc = url;
-    }
-  }
+  const { src: imageSrc, cleanup } = await browserImageSource(url);
 
   return new Promise((resolve, reject) => {
     const image = new Image();
     image.addEventListener("load", () => resolve({ image, cleanup }));
     image.addEventListener("error", () => {
       cleanup();
-      reject(new Error(`ไม่สามารถโหลดรูปภาพได้จาก URL: ${url}`));
+      reject(new MediaCropLoadError("load_failed"));
     });
 
     if (imageSrc.startsWith("blob:") || imageSrc.startsWith("data:")) {

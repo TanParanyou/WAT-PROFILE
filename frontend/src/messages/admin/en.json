@@ -862,7 +862,8 @@
       "applyAndUpload": "Crop & Upload",
       "processing": "Processing...",
       "defaultError": "An error occurred while cropping the image",
-      "loadError": "Failed to load image from URL"
+      "loadError": "Failed to load image from URL",
+      "loadActionError": "This image cannot be loaded for editing. Upload the file again."
     },
     "list": {
       "searchPlaceholder": "Search...",

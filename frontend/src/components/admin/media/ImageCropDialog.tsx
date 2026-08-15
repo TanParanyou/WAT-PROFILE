@@ -6,7 +6,7 @@ import { RotateCw, RotateCcw, ZoomIn, ZoomOut, Loader2 } from "lucide-react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { useTranslations } from "next-intl";
-import { getCroppedImg, PixelCrop } from "./cropUtils";
+import { getCroppedImg, MediaCropLoadError, PixelCrop } from "./cropUtils";
 
 interface ImageCropDialogProps {
   isOpen: boolean;
@@ -80,9 +80,7 @@ export function ImageCropDialog({
       );
       await onCropComplete(croppedFile);
     } catch (err: unknown) {
-      const msg = err instanceof Error ? err.message : t("defaultError");
-      setError(msg);
-      console.error("Failed to crop image:", msg);
+      setError(err instanceof MediaCropLoadError ? t("loadActionError") : t("defaultError"));
     } finally {
       setIsProcessing(false);
     }
