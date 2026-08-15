@@ -10,6 +10,7 @@ import (
 
 	"github.com/google/uuid"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
+	"github.com/watloungporsai/wat-profile-backend/pkg/logger"
 )
 
 // PrivateObjectReader is the small storage contract needed by background
@@ -22,14 +23,16 @@ type PrivateObjectReader interface {
 // handler is idempotent: a successful job can be safely claimed again after a
 // worker crash without creating a second donation or receipt record.
 type OperationDispatcher struct {
-	donations *DonationService
-	emails    *DonationEmailService
-	store     PrivateObjectReader
-	media     *MediaRetentionService
+	donations     *DonationService
+	emails        *DonationEmailService
+	store         PrivateObjectReader
+	media         *MediaRetentionService
+	contacts      *ContactService
+	notifications *ContactNotificationService
 }
 
-func NewOperationDispatcher(donations *DonationService, emails *DonationEmailService, store PrivateObjectReader, media *MediaRetentionService) *OperationDispatcher {
-	return &OperationDispatcher{donations: donations, emails: emails, store: store, media: media}
+func NewOperationDispatcher(donations *DonationService, emails *DonationEmailService, store PrivateObjectReader, media *MediaRetentionService, contacts *ContactService, notifications *ContactNotificationService) *OperationDispatcher {
+	return &OperationDispatcher{donations: donations, emails: emails, store: store, media: media, contacts: contacts, notifications: notifications}
 }
 
 func (d *OperationDispatcher) Dispatch(ctx context.Context, job models.OperationOutbox) error {
@@ -44,9 +47,48 @@ func (d *OperationDispatcher) Dispatch(ctx context.Context, job models.Operation
 		}
 		_, err := d.media.PurgeDue(ctx)
 		return err
+	case "contact.notification":
+		return d.dispatchContactNotification(ctx, job)
 	default:
 		return fmt.Errorf("unsupported outbox job kind %q", job.Kind)
 	}
+}
+
+func (d *OperationDispatcher) dispatchContactNotification(ctx context.Context, job models.OperationOutbox) error {
+	if d.contacts == nil || d.notifications == nil {
+		err := fmt.Errorf("contact notification dependencies are not configured")
+		logContactNotification(job, "failure", err)
+		return err
+	}
+	id, err := outboxContactID(job)
+	if err != nil {
+		logContactNotification(job, "failure", err)
+		return err
+	}
+	inquiry, err := d.contacts.GetByID(id)
+	if err != nil {
+		logContactNotification(job, "failure", err)
+		return err
+	}
+	if err := d.notifications.Send(ctx, inquiry); err != nil {
+		logContactNotification(job, "failure", err)
+		return err
+	}
+	logContactNotification(job, "success", nil)
+	return nil
+}
+
+func logContactNotification(job models.OperationOutbox, outcome string, dispatchErr error) {
+	event := logger.Log.Info()
+	if dispatchErr != nil {
+		event = logger.Log.Error().Err(dispatchErr)
+	}
+	event.
+		Str("contact_id", job.AggregateID).
+		Str("outbox_job_id", job.ID.String()).
+		Str("operation_trace_id", job.ID.String()).
+		Str("outcome", outcome).
+		Msg("contact notification dispatch")
 }
 
 func (d *OperationDispatcher) dispatchDonationAcknowledgement(ctx context.Context, job models.OperationOutbox) error {
@@ -132,6 +174,17 @@ func outboxDonationID(job models.OperationOutbox) (int, error) {
 	id, err := strconv.Atoi(job.AggregateID)
 	if err != nil || id <= 0 {
 		return 0, fmt.Errorf("invalid outbox donation id %q", job.AggregateID)
+	}
+	return id, nil
+}
+
+func outboxContactID(job models.OperationOutbox) (int, error) {
+	if job.AggregateID == "" {
+		return 0, fmt.Errorf("outbox contact id is missing")
+	}
+	id, err := strconv.Atoi(job.AggregateID)
+	if err != nil || id <= 0 {
+		return 0, fmt.Errorf("invalid outbox contact id %q", job.AggregateID)
 	}
 	return id, nil
 }

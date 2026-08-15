@@ -32,7 +32,7 @@ func main() {
 	}); err != nil {
 		log.Fatal(err)
 	}
-	dispatcher := services.NewOperationDispatcher(nil, nil, r2, retention)
+	dispatcher := services.NewOperationDispatcher(nil, nil, r2, retention, nil, nil)
 	count, err := outbox.RunOnceKinds(context.Background(), "media-retention", 1, dispatcher.Dispatch, "media.purge_due")
 	if err != nil {
 		log.Fatal(err)

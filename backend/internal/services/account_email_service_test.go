@@ -33,6 +33,15 @@ func TestNewAccountEmailSenderResendRequiresKeys(t *testing.T) {
 	}
 }
 
+func TestNewResendEmailSenderRequiresConfiguration(t *testing.T) {
+	if _, err := NewResendEmailSender("", "contact@example.invalid"); err == nil {
+		t.Fatal("expected missing API key error")
+	}
+	if _, err := NewResendEmailSender("re_test", ""); err == nil {
+		t.Fatal("expected missing sender error")
+	}
+}
+
 func TestResendEmailSenderRejectsEmptyFrom(t *testing.T) {
 	sender := &resendEmailSender{apiKey: "re_key", from: ""}
 	if err := sender.Send(t.Context(), accountauth.EmailMessage{}); err == nil {

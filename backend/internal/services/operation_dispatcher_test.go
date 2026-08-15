@@ -21,3 +21,10 @@ func TestOperationDispatcherRequiresMediaRetentionForPurge(t *testing.T) {
 		t.Fatalf("expected missing retention dependency error, got %v", err)
 	}
 }
+
+func TestOperationDispatcherRequiresContactDependencies(t *testing.T) {
+	err := (&OperationDispatcher{}).Dispatch(context.Background(), models.OperationOutbox{Kind: "contact.notification", AggregateID: "42"})
+	if err == nil || !strings.Contains(err.Error(), "contact notification dependencies") {
+		t.Fatalf("expected missing contact dependency error, got %v", err)
+	}
+}

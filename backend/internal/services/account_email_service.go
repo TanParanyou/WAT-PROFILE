@@ -143,11 +143,19 @@ func NewAccountEmailSender(cfg config.AccountAuthConfig) (accountauth.EmailSende
 		}
 		return &captureEmailSender{sink: &memoryCaptureSink{}}, nil
 	case "resend":
-		if cfg.ResendAPIKey == "" || cfg.EmailFrom == "" {
-			return nil, errors.New("resend email mode requires RESEND_API_KEY and ACCOUNT_EMAIL_FROM")
-		}
-		return &resendEmailSender{apiKey: cfg.ResendAPIKey, from: cfg.EmailFrom}, nil
+		return NewResendEmailSender(cfg.ResendAPIKey, cfg.EmailFrom)
 	default:
 		return nil, fmt.Errorf("unknown email delivery mode %q", cfg.EmailMode)
 	}
+}
+
+// NewResendEmailSender constructs the shared Resend adapter for worker-owned
+// notifications. It rejects incomplete configuration before a worker starts.
+func NewResendEmailSender(apiKey, from string) (accountauth.EmailSender, error) {
+	apiKey = strings.TrimSpace(apiKey)
+	from = strings.TrimSpace(from)
+	if apiKey == "" || from == "" {
+		return nil, errors.New("resend email sender requires an API key and from address")
+	}
+	return &resendEmailSender{apiKey: apiKey, from: from}, nil
 }

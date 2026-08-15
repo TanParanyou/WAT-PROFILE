@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -33,8 +34,21 @@ func main() {
 	if err != nil {
 		log.Fatal(err)
 	}
+	contactSender, err := services.NewResendEmailSender(
+		strings.TrimSpace(os.Getenv("RESEND_API_KEY")),
+		strings.TrimSpace(os.Getenv("CONTACT_EMAIL_FROM")),
+	)
+	if err != nil {
+		log.Fatal(err)
+	}
+	recipient := strings.TrimSpace(os.Getenv("CONTACT_NOTIFICATION_TO"))
+	if recipient == "" {
+		log.Fatal("CONTACT_NOTIFICATION_TO is required")
+	}
 	donations := services.NewDonationServiceWithOutbox(config.DB, outbox)
-	dispatcher := services.NewOperationDispatcher(donations, services.NewDonationEmailService(sender), r2, retention)
+	contacts := services.NewContactService(config.DB)
+	notifications := services.NewContactNotificationService(contactSender, recipient)
+	dispatcher := services.NewOperationDispatcher(donations, services.NewDonationEmailService(sender), r2, retention, contacts, notifications)
 
 	// A daily deterministic job makes media retention durable and safe to run
 	// from cron more than once. The worker also processes donation email jobs.
