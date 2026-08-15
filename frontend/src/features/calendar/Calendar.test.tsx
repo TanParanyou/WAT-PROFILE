@@ -150,3 +150,57 @@ test("Calendar keeps semantic Week state while the configured layout selects a d
     screen.cleanup();
   }
 });
+
+test("Calendar facade renders configured resource layouts with generic events", () => {
+  const resourcePreset: CalendarPreset = {
+    ...discoveryPreset,
+    layouts: {
+      desktop: { month: "monthGrid", week: "timeline", day: "resourceDayGrid" },
+      mobile: { month: "monthAgenda", week: "timeline", day: "resourceDayGrid" },
+      mobileBreakpoint: 640,
+    },
+  };
+  const controller = createCalendarState({
+    weekStartsOn: 0,
+    initialView: "week",
+    initialDate: new Date(2026, 7, 12),
+    preset: resourcePreset,
+  });
+  const genericEvent = {
+    id: "generic-entry",
+    title: "Generic entry",
+    start: "2026-08-12T09:00:00+02:00",
+    end: "2026-08-12T10:00:00+02:00",
+    allDay: false,
+    resourceIds: ["main-hall"],
+    meta: { source: "test" },
+  };
+  const screen = render(createElement(Calendar, {
+    preset: resourcePreset,
+    controller,
+    events: [genericEvent],
+    resources: [{ id: "main-hall", title: "Main hall" }],
+    labels,
+    variant: "public",
+    onEventActivate: () => undefined,
+  }));
+
+  try {
+    assert.equal(screen.container.querySelector('[data-calendar-view="week"]')?.getAttribute("data-calendar-mode"), "timeline");
+    assert.match(screen.container.textContent ?? "", /Main hall/);
+    controller.setView("day");
+    screen.rerender(createElement(Calendar, {
+      preset: resourcePreset,
+      controller,
+      events: [genericEvent],
+      resources: [{ id: "main-hall", title: "Main hall" }],
+      labels,
+      variant: "public",
+      onEventActivate: () => undefined,
+    }));
+    assert.equal(screen.container.querySelector('[data-calendar-view="day"]')?.getAttribute("data-calendar-mode"), "resourceDayGrid");
+    assert.ok(screen.container.querySelector('[role="grid"]'));
+  } finally {
+    screen.cleanup();
+  }
+});

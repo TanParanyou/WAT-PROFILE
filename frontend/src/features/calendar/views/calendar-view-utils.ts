@@ -1,6 +1,5 @@
 import { eachDayOfInterval, format, parse } from "date-fns";
 import type { CalendarEventLike, CalendarRange } from "../core/types";
-import type { CalendarEntry } from "../types";
 
 const dateFormat = "yyyy-MM-dd";
 
@@ -67,7 +66,7 @@ export function getTimedPositionWithinWindow(
   return endMinutes > startMinutes ? { startMinutes, endMinutes } : null;
 }
 
-export function formatEntryTime(entry: CalendarEntry): string {
+export function formatEntryTime(entry: CalendarEventLike): string {
   if (entry.allDay) return entry.start;
   return `${entry.start.slice(11, 16)}–${entry.end.slice(11, 16)}`;
 }

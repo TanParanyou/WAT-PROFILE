@@ -10,6 +10,8 @@ import { MonthView } from "./views/MonthView";
 import { MonthAgenda } from "./views/MonthAgenda";
 import { DayStrip } from "./views/DayStrip";
 import { TimeGrid } from "./views/TimeGrid";
+import { TimelineView } from "./views/TimelineView";
+import { DayGridView } from "./views/DayGridView";
 import type { CalendarController } from "./useCalendar";
 import { useCalendarLayout } from "./useCalendarLayout";
 import type { CalendarPreset } from "./presets/types";
@@ -168,7 +170,38 @@ export function Calendar<TEvent extends CalendarEventLike>({
           minimumDayWidth={controller.config.timeGrid.minimumDayWidth}
         />
       )
-      : null;
+      : layout === "timeline"
+        ? (
+          <TimelineView
+            controller={controller}
+            entries={events}
+            resources={resources ?? []}
+            labels={labels}
+            variant={variant}
+            onEntryActivate={onEventActivate}
+            renderEvent={renderEvent}
+            getEventClassName={getEventClassName}
+            formatEventTime={formatEventTime}
+            minMinutes={controller.config.timeGrid.minMinutes}
+            maxMinutes={controller.config.timeGrid.maxMinutes}
+            stickyHeader={controller.config.timeGrid.stickyHeader}
+          />
+        )
+        : layout === "resourceDayGrid"
+          ? (
+            <DayGridView
+              controller={controller}
+              entries={events}
+              resources={resources ?? []}
+              labels={labels}
+              variant={variant}
+              onEntryActivate={onEventActivate}
+              renderEvent={renderEvent}
+              getEventClassName={getEventClassName}
+              formatEventTime={formatEventTime}
+            />
+          )
+          : null;
 
   return (
     <CalendarRoot
