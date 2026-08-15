@@ -194,4 +194,44 @@ type ListItem struct {
 	CreatedAt          time.Time     `json:"created_at"`
 }
 
+type AdminListFilter struct {
+	Page              int
+	Limit             int
+	Search            string
+	Statuses          []string
+	EventIDs          []int
+	RegistrationTypes []string
+}
+
+type AdminPage struct {
+	Items []ListItem
+	Total int64
+	Page  int
+	Limit int
+}
+
+type AdminDetail struct {
+	Detail
+	UserID               *uuid.UUID `json:"user_id,omitempty"`
+	MemberID             *int       `json:"member_id,omitempty"`
+	PrivacyNoticeVersion string     `json:"privacy_notice_version,omitempty"`
+	PrivacyConsentAt     *time.Time `json:"privacy_consent_at,omitempty"`
+	CancellationReason   string     `json:"cancellation_reason,omitempty"`
+	CancellationOrigin   string     `json:"cancellation_origin,omitempty"`
+}
+
+type AdminUpdateInput struct {
+	UpdateInput
+	CancellationReason string
+}
+
+type StatusInput struct {
+	Status string `json:"status"`
+	Reason string `json:"reason"`
+}
+
+type AttendanceInput struct {
+	Attended bool `json:"attended"`
+}
+
 var ErrNotFound = errors.New("registration not found")

@@ -3484,6 +3484,164 @@ paths:
         '200':
           description: Status updated
 
+  /admin/event-registrations:
+    get:
+      tags: [Admin - Registrations]
+      summary: List typed group registrations
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - name: status
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+        - name: event_id
+          in: query
+          schema:
+            type: array
+            items:
+              type: integer
+        - name: registration_type
+          in: query
+          schema:
+            type: array
+            items:
+              type: string
+              enum: [guest, account, member]
+      responses:
+        '200':
+          description: Paginated group registrations
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/EventRegistrationListItem'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/event-registrations/{id}:
+    get:
+      tags: [Admin - Registrations]
+      summary: Get typed group registration detail
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Group registration detail
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/AdminEventRegistrationDetail'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+    patch:
+      tags: [Admin - Registrations]
+      summary: Edit a group registration as Admin
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminEventRegistrationUpdateInput'
+      responses:
+        '200':
+          description: Updated group registration
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /admin/event-registrations/{id}/status:
+    put:
+      tags: [Admin - Registrations]
+      summary: Set a group registration status
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminEventRegistrationStatusInput'
+      responses:
+        '200':
+          description: Status updated
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/ValidationError'
+
+  /admin/event-registrations/{id}/participants/{participantId}/attendance:
+    patch:
+      tags: [Admin - Registrations]
+      summary: Check in or undo check-in for one participant
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+        - name: participantId
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/AdminEventRegistrationAttendanceInput'
+      responses:
+        '200':
+          description: Attendance updated
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
+  /admin/event-registrations/{id}/manage-link:
+    post:
+      tags: [Admin - Registrations]
+      summary: Rotate and email a guest management link
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '202':
+          description: Management link delivery queued; raw token is never returned
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
   # ==================== ADMIN - Contacts ====================
   /admin/contacts:
     get:
@@ -4825,6 +4983,57 @@ components:
     EventRegistrationListItem:
       allOf:
         - $ref: '#/components/schemas/EventRegistrationDetail'
+
+    AdminEventRegistrationDetail:
+      allOf:
+        - $ref: '#/components/schemas/EventRegistrationDetail'
+        - type: object
+          properties:
+            user_id:
+              type: string
+              format: uuid
+              nullable: true
+            member_id:
+              type: integer
+              nullable: true
+            privacy_notice_version:
+              type: string
+            privacy_consent_at:
+              type: string
+              format: date-time
+              nullable: true
+            cancellation_reason:
+              type: string
+            cancellation_origin:
+              type: string
+              enum: [registrant, admin]
+
+    AdminEventRegistrationUpdateInput:
+      allOf:
+        - $ref: '#/components/schemas/EventRegistrationUpdateInput'
+        - type: object
+          properties:
+            cancellation_reason:
+              type: string
+              maxLength: 2000
+
+    AdminEventRegistrationStatusInput:
+      type: object
+      required: [status]
+      properties:
+        status:
+          type: string
+          enum: [pending, confirmed, attended, cancelled]
+        reason:
+          type: string
+          maxLength: 2000
+
+    AdminEventRegistrationAttendanceInput:
+      type: object
+      required: [attended]
+      properties:
+        attended:
+          type: boolean
 
     RegistrationAvailability:
       type: object

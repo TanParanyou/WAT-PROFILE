@@ -18,6 +18,7 @@ import (
 
 type RegistrationHandler struct {
 	registrationService *services.RegistrationService
+	auditService        *services.AuditService
 }
 
 const registrationRequestMaxBytes = 64 * 1024
@@ -25,6 +26,7 @@ const registrationRequestMaxBytes = 64 * 1024
 func NewRegistrationHandler(db *gorm.DB) *RegistrationHandler {
 	return &RegistrationHandler{
 		registrationService: services.NewRegistrationService(db),
+		auditService:        services.NewAuditService(db),
 	}
 }
 
@@ -240,6 +242,10 @@ func (h *RegistrationHandler) GetMyRegistrations(c *fiber.Ctx) error {
 
 // GetRegistrations - Admin: List all registrations with pagination and filters
 func (h *RegistrationHandler) GetRegistrations(c *fiber.Ctx) error {
+	return h.GetAdminRegistrationList(c)
+}
+
+func (h *RegistrationHandler) GetAdminRegistrationList(c *fiber.Ctx) error {
 	common, err := listquery.Parse(c, listquery.Config{
 		DefaultSort:  "created_at",
 		DefaultOrder: "desc",
@@ -272,54 +278,126 @@ func (h *RegistrationHandler) GetRegistrations(c *fiber.Ctx) error {
 		}
 	}
 
-	options := services.RegistrationListOptions{
-		Common:   common,
-		Statuses: statuses,
-		EventIDs: eventIDs,
-	}
-
-	registrations, total, err := h.registrationService.ListOptions(options)
+	page, err := h.registrationService.AdminList(c.UserContext(), registrations.AdminListFilter{
+		Page: common.Page, Limit: common.Limit, Search: common.Search,
+		Statuses: statuses, EventIDs: eventIDs, RegistrationTypes: listquery.ExtractMulti(c, "registration_type"),
+	})
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch registrations")
 	}
-
-	return utils.PaginatedResponse(c, registrations, common.Page, common.Limit, int(total))
+	return utils.PaginatedResponse(c, page.Items, page.Page, page.Limit, int(page.Total))
 }
 
-// UpdateRegistrationStatus - Admin: Update registration status
-func (h *RegistrationHandler) UpdateRegistrationStatus(c *fiber.Ctx) error {
+func (h *RegistrationHandler) GetAdminRegistration(c *fiber.Ctx) error {
 	id, err := utils.ParseID(c, "id")
 	if err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
-
-	registration, err := h.registrationService.GetByID(id)
+	detail, err := h.registrationService.AdminGet(c.UserContext(), id)
 	if err != nil {
-		return utils.ErrorResponse(c, fiber.StatusNotFound, "Registration not found")
+		return registrationServiceErrorResponse(c, err)
 	}
+	return utils.SuccessResponse(c, detail)
+}
 
-	var body struct {
-		Status string `json:"status"`
-		Reason string `json:"reason"`
+func (h *RegistrationHandler) UpdateAdminRegistration(c *fiber.Ctx) error {
+	actorID, err := middleware.GetCurrentUserID(c)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusUnauthorized, "Admin user is not authenticated")
 	}
-	if err := c.BodyParser(&body); err != nil {
-		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
+	if len(c.Body()) > registrationRequestMaxBytes {
+		return utils.CodedErrorResponse(c, fiber.StatusRequestEntityTooLarge, string(registrations.CodeValidation), "Registration request is too large")
+	}
+	var request struct {
+		Locale             string                           `json:"locale"`
+		Contact            registrations.ContactInput       `json:"contact"`
+		Participants       []registrations.ParticipantInput `json:"participants"`
+		CancellationReason string                           `json:"cancellation_reason"`
+	}
+	if err := c.BodyParser(&request); err != nil {
+		return utils.CodedErrorResponse(c, fiber.StatusUnprocessableEntity, string(registrations.CodeValidation), "Registration request is invalid")
+	}
+	input, domainErr := registrations.NormalizeAndValidateUpdate(registrations.UpdateRequest{Locale: request.Locale, Contact: request.Contact, Participants: request.Participants})
+	if domainErr != nil {
+		return utils.CodedFieldErrorResponse(c, fiber.StatusUnprocessableEntity, string(domainErr.Code), domainErr.Message, domainErr.Fields)
+	}
+	detail, err := h.registrationService.AdminUpdate(c.UserContext(), actorID, id, registrations.AdminUpdateInput{UpdateInput: input, CancellationReason: request.CancellationReason})
+	if err != nil {
+		return registrationServiceErrorResponse(c, err)
+	}
+	_ = h.auditService.LogAction(c, "update", "event_registration", strconv.Itoa(id), map[string]interface{}{"participant_count": detail.ParticipantCount, "registration_status": detail.RegistrationStatus})
+	return utils.SuccessResponse(c, detail)
+}
 
-	validStatuses := map[string]bool{
-		"pending":   true,
-		"confirmed": true,
-		"attended":  true,
-		"cancelled": true,
+func (h *RegistrationHandler) SetAdminRegistrationStatus(c *fiber.Ctx) error {
+	actorID, err := middleware.GetCurrentUserID(c)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusUnauthorized, "Admin user is not authenticated")
 	}
-	if !validStatuses[body.Status] {
-		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid registration status value")
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
+	var input registrations.StatusInput
+	if err := c.BodyParser(&input); err != nil {
+		return utils.CodedErrorResponse(c, fiber.StatusUnprocessableEntity, string(registrations.CodeValidation), "Registration status request is invalid")
+	}
+	detail, err := h.registrationService.AdminSetStatus(c.UserContext(), actorID, id, input)
+	if err != nil {
+		return registrationServiceErrorResponse(c, err)
+	}
+	_ = h.auditService.LogAction(c, "update_status", "event_registration", strconv.Itoa(id), map[string]interface{}{"registration_status": detail.RegistrationStatus})
+	return utils.SuccessResponse(c, detail)
+}
 
-	if err := h.registrationService.UpdateStatus(registration, body.Status, body.Reason); err != nil {
-		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to update registration")
+func (h *RegistrationHandler) SetAdminParticipantAttendance(c *fiber.Ctx) error {
+	actorID, err := middleware.GetCurrentUserID(c)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusUnauthorized, "Admin user is not authenticated")
 	}
-	return utils.SuccessResponse(c, registration)
+	registrationID, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+	participantID, err := utils.ParseID(c, "participantId")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+	var input registrations.AttendanceInput
+	if err := c.BodyParser(&input); err != nil {
+		return utils.CodedErrorResponse(c, fiber.StatusUnprocessableEntity, string(registrations.CodeValidation), "Attendance request is invalid")
+	}
+	detail, err := h.registrationService.AdminSetAttendance(c.UserContext(), actorID, registrationID, participantID, input)
+	if err != nil {
+		return registrationServiceErrorResponse(c, err)
+	}
+	_ = h.auditService.LogAction(c, "participant_attendance", "event_registration", strconv.Itoa(registrationID), map[string]interface{}{"participant_id": participantID, "attended": input.Attended})
+	return utils.SuccessResponse(c, detail)
+}
+
+func (h *RegistrationHandler) RotateAdminRegistrationManageLink(c *fiber.Ctx) error {
+	actorID, err := middleware.GetCurrentUserID(c)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusUnauthorized, "Admin user is not authenticated")
+	}
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+	if err := h.registrationService.AdminRotateManageLink(c.UserContext(), actorID, id); err != nil {
+		return registrationServiceErrorResponse(c, err)
+	}
+	_ = h.auditService.LogAction(c, "rotate_management_link", "event_registration", strconv.Itoa(id), map[string]interface{}{"delivery": "queued"})
+	return utils.MessageResponseWithStatus(c, fiber.StatusAccepted, "A new management link has been sent")
+}
+
+// UpdateRegistrationStatus - Admin: Update registration status
+func (h *RegistrationHandler) UpdateRegistrationStatus(c *fiber.Ctx) error {
+	return h.SetAdminRegistrationStatus(c)
 }
 
 // BulkDeleteRegistrations - Admin: Delete multiple event registrations

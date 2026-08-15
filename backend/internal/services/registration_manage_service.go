@@ -84,6 +84,10 @@ func (s *RegistrationService) CancelByUser(ctx context.Context, userID uuid.UUID
 }
 
 func (s *RegistrationService) updateRegistration(ctx context.Context, input registrations.UpdateInput, loader func(*gorm.DB) (*models.EventRegistration, error)) (*registrations.Detail, error) {
+	return s.updateRegistrationWithOptions(ctx, input, loader, false)
+}
+
+func (s *RegistrationService) updateRegistrationWithOptions(ctx context.Context, input registrations.UpdateInput, loader func(*gorm.DB) (*models.EventRegistration, error), allowAfterDeadline bool) (*registrations.Detail, error) {
 	var detail *registrations.Detail
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		registration, err := loader(tx)
@@ -100,8 +104,10 @@ func (s *RegistrationService) updateRegistration(ctx context.Context, input regi
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&event, registration.EventID).Error; err != nil {
 			return err
 		}
-		if cutoff := registrationEditCutoff(&event); cutoff != nil && !s.now().Before(*cutoff) {
-			return registrations.NewDomainError(registrations.CodeNotEditable, "The registration deadline has passed", nil)
+		if !allowAfterDeadline {
+			if cutoff := registrationEditCutoff(&event); cutoff != nil && !s.now().Before(*cutoff) {
+				return registrations.NewDomainError(registrations.CodeNotEditable, "The registration deadline has passed", nil)
+			}
 		}
 		var currentParticipants []models.EventRegistrationParticipant
 		if err := tx.Where("registration_id = ?", registration.ID).Find(&currentParticipants).Error; err != nil {
