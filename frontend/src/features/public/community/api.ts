@@ -12,6 +12,9 @@ import {
   communityQuestionMutationSchema,
   communityQuestionDetailSchema,
   communityQuestionListSchema,
+  communityReportSchema,
+  communityNotificationPageSchema,
+  communityNotificationPreferencesSchema,
   communityViewerStateSchema,
 } from "./schema";
 import type {
@@ -26,6 +29,10 @@ import type {
   CommunityQuestionDetail,
   CommunityQuestionList,
   CommunityQuestionListOptions,
+  CommunityReport,
+  CommunityReportReason,
+  CommunityNotificationPage,
+  CommunityNotificationPreferences,
   CommunityViewerState,
 } from "./types";
 
@@ -155,7 +162,35 @@ export async function acceptCommunityAnswer(answerID: string, expectedVersion: n
   return parseCommunityEnvelope(response.data, communityAcceptanceSchema);
 }
 
-export async function toggleCommunityHelpful(answerID: string): Promise<CommunityHelpfulResult> {
-  const response = await accountApi.post<unknown>(`/accounts/community/answers/${encodeURIComponent(answerID)}/helpful`);
+export async function setCommunityHelpful(answerID: string, helpful: boolean): Promise<CommunityHelpfulResult> {
+  const method = helpful ? "put" : "delete";
+  const response = await accountApi.request<unknown>({ method, url: `/accounts/community/answers/${encodeURIComponent(answerID)}/helpful` });
   return parseCommunityEnvelope(response.data, communityHelpfulSchema);
+}
+
+export async function createCommunityReport(input: { question_id?: string; answer_id?: string; comment_id?: string; reason: CommunityReportReason; details?: string }): Promise<CommunityReport> {
+  const response = await accountApi.post<unknown>("/accounts/community/reports", input);
+  return parseCommunityEnvelope(response.data, communityReportSchema);
+}
+
+export async function fetchCommunityNotifications(options: { unread_only?: boolean; limit?: number; cursor?: string } = {}): Promise<CommunityNotificationPage> {
+  const response = await accountApi.get<unknown>("/accounts/community/notifications", { params: options });
+  return parseCommunityEnvelope(response.data, communityNotificationPageSchema);
+}
+
+export async function markCommunityNotificationRead(id: string): Promise<void> {
+  await accountApi.post(`/accounts/community/notifications/${encodeURIComponent(id)}/read`);
+}
+
+export async function markAllCommunityNotificationsRead(): Promise<void> {
+  await accountApi.post("/accounts/community/notifications/read-all");
+}
+
+export async function fetchCommunityNotificationPreferences(): Promise<CommunityNotificationPreferences> {
+  const response = await accountApi.get<unknown>("/accounts/community/notifications/preferences");
+  return parseCommunityEnvelope(response.data, communityNotificationPreferencesSchema);
+}
+
+export async function updateCommunityNotificationPreferences(input: CommunityNotificationPreferences): Promise<void> {
+  await accountApi.put("/accounts/community/notifications/preferences", input);
 }

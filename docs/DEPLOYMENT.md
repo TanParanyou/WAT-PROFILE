@@ -193,10 +193,10 @@ than in crontab; for example:
 ```
 
 Operations outbox: run `go run ./cmd/operations-worker` from `backend/` every
-minute. It claims email and media-retention jobs with row locks, retries failed
-jobs using exponential backoff, and records the final error in PostgreSQL. The
-daily media purge job is deduplicated by date, so the worker may safely be run
-more than once:
+minute. It claims email, Community notification, retention, reconciliation, and
+media-retention jobs with row locks, retries failed jobs using exponential
+backoff, and records the final error in PostgreSQL. Daily Community maintenance
+jobs are deduplicated by date, so the worker may safely be run more than once.
 
 Production must set `AUTH_EMAIL_DELIVERY_MODE=resend`, `RESEND_API_KEY`, and
 `ACCOUNT_EMAIL_FROM`; the worker refuses to use the development capture sender

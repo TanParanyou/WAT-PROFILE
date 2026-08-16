@@ -28,6 +28,7 @@ import {
   Phone,
   FileText,
   Settings,
+  MessageCircleQuestion,
 } from "lucide-react";
 import { usePermission } from "@/hooks/usePermission";
 import { cn } from "@/utils/cn";
@@ -65,6 +66,7 @@ const sidebarGroups: SidebarGroup[] = [
   {
     titleKey: "operationsGroup",
     items: [
+      { labelKey: "community", href: "/admin/community", icon: MessageCircleQuestion, resource: "community" },
       { labelKey: "events", href: "/admin/events", icon: CalendarDays, resource: "events" },
       { labelKey: "calendar", href: "/admin/calendar", icon: Calendar, resource: "events" },
       { labelKey: "registrations", href: "/admin/registrations", icon: ClipboardList, resource: "events" },

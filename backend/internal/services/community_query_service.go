@@ -74,8 +74,8 @@ func (s *CommunityQueryService) ListQuestions(ctx context.Context, input communi
 			c.description AS category_description, q.locale, q.title, q.slug,
 			q.lifecycle_status, q.published_answer_count, q.official_answer_count,
 			q.last_activity_at, q.created_at, q.author_user_id AS author_id,
-			COALESCE(ap.display_name, u.name) AS author_display_name,
-			COALESCE(ap.avatar_url, u.avatar_url, '') AS author_avatar_url`).
+			CASE WHEN u.account_status = 'closed' OR u.is_active = FALSE THEN 'Former member' ELSE COALESCE(ap.display_name, u.name) END AS author_display_name,
+			CASE WHEN u.account_status = 'closed' OR u.is_active = FALSE THEN '' ELSE COALESCE(ap.avatar_url, u.avatar_url, '') END AS author_avatar_url`).
 		Joins("JOIN community_categories AS c ON c.id = q.category_id AND c.is_active = TRUE").
 		Joins("LEFT JOIN users AS u ON u.id = q.author_user_id").
 		Joins("LEFT JOIN account_profiles AS ap ON ap.user_id = q.author_user_id").
@@ -207,7 +207,7 @@ func (s *CommunityQueryService) loadAuthors(ctx context.Context, ids []uuid.UUID
 	}
 	var rows []communityAuthorRow
 	err := s.db.WithContext(ctx).Table("users AS u").
-		Select("u.id, COALESCE(ap.display_name, u.name) AS display_name, COALESCE(ap.avatar_url, u.avatar_url, '') AS avatar_url").
+		Select("u.id, CASE WHEN u.account_status = 'closed' OR u.is_active = FALSE THEN 'Former member' ELSE COALESCE(ap.display_name, u.name) END AS display_name, CASE WHEN u.account_status = 'closed' OR u.is_active = FALSE THEN '' ELSE COALESCE(ap.avatar_url, u.avatar_url, '') END AS avatar_url").
 		Joins("LEFT JOIN account_profiles AS ap ON ap.user_id = u.id").
 		Where("u.id IN ?", requested).Scan(&rows).Error
 	if err != nil {

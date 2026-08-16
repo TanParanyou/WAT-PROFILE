@@ -48,7 +48,7 @@ tags:
       revoke, closure) are recorded as allow-listed security events with a coarse IP
       prefix and trace ID; event persistence never fails the user operation.
   - name: Community
-    description: Public Community Q&A reads (feature-gated by PUBLIC_COMMUNITY_READ_ENABLED)
+    description: Community Q&A reads, member contributions, reports, and admin moderation
   - name: Admin - Users
     description: Users management (Admin only)
   - name: Admin - Account Operations
@@ -285,7 +285,32 @@ paths:
         '409': { $ref: '#/components/responses/Conflict' }
 
   /accounts/community/answers/{id}/helpful:
+    put:
+      tags: [Community]
+      summary: Mark a published answer as helpful
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Helpful vote state, content: { application/json: { schema: { $ref: '#/components/schemas/CommunityHelpfulResponse' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { description: Question is locked or answer is not published, content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } } }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+    delete:
+      tags: [Community]
+      summary: Remove the current member's helpful vote
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Helpful vote state, content: { application/json: { schema: { $ref: '#/components/schemas/CommunityHelpfulResponse' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '422': { description: Question is locked or answer is not published, content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } } }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
     post:
+      deprecated: true
       tags: [Community]
       summary: Toggle helpful vote on a published answer
       security: [{ bearerAuth: [] }]
@@ -297,6 +322,288 @@ paths:
         '404': { $ref: '#/components/responses/NotFound' }
         '409': { $ref: '#/components/responses/Conflict' }
         '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /accounts/community/reports:
+    post:
+      tags: [Community]
+      summary: Report published Community content
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CommunityCreateReportRequest' }
+      responses:
+        '201':
+          description: Report created
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CommunityReportResponse' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /accounts/community/notifications:
+    get:
+      tags: [Community]
+      summary: List the authenticated member's Community notifications
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: unread_only, in: query, schema: { type: boolean, default: false } }
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 50, default: 20 } }
+        - { name: cursor, in: query, schema: { type: string } }
+      responses:
+        '200': { description: Notification page, content: { application/json: { schema: { $ref: '#/components/schemas/CommunityNotificationPageResponse' } } } }
+        '400': { $ref: '#/components/responses/ValidationError' }
+
+  /accounts/community/notifications/{id}/read:
+    post:
+      tags: [Community]
+      summary: Mark one Community notification as read
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Notification marked read, content: { application/json: { schema: { $ref: '#/components/schemas/SuccessResponse' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /accounts/community/notifications/read-all:
+    post:
+      tags: [Community]
+      summary: Mark all Community notifications as read
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Notifications marked read, content: { application/json: { schema: { $ref: '#/components/schemas/SuccessResponse' } } } }
+
+  /accounts/community/notifications/preferences:
+    get:
+      tags: [Community]
+      summary: Get Community email notification preferences
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Preferences, content: { application/json: { schema: { $ref: '#/components/schemas/CommunityNotificationPreferencesResponse' } } } }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+    put:
+      tags: [Community]
+      summary: Update Community email notification preferences
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email_preferences]
+              properties:
+                email_preferences:
+                  type: object
+                  additionalProperties: { type: boolean }
+      responses:
+        '200': { description: Preferences updated, content: { application/json: { schema: { $ref: '#/components/schemas/SuccessResponse' } } } }
+        '400': { $ref: '#/components/responses/ValidationError' }
+
+  /admin/community/queue:
+    get:
+      tags: [Community]
+      summary: List pending Community moderation items and open reports
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: limit, in: query, schema: { type: integer, minimum: 1, maximum: 200, default: 50 } }
+      responses:
+        '200':
+          description: Moderation queue
+          content:
+            application/json:
+              schema: { $ref: '#/components/schemas/CommunityModerationQueueResponse' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+
+  /admin/community/categories:
+    get:
+      tags: [Community]
+      summary: List all Community categories for Admin
+      security: [{ bearerAuth: [] }]
+      responses:
+        '200': { description: Categories, content: { application/json: { schema: { $ref: '#/components/schemas/CommunityAdminCategoryListResponse' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+    post:
+      tags: [Community]
+      summary: Create a Community category
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CommunityCategoryInput' }
+      responses:
+        '201': { description: Category created, content: { application/json: { schema: { $ref: '#/components/schemas/CommunityAdminCategoryResponse' } } } }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /admin/community/categories/reorder:
+    put:
+      tags: [Community]
+      summary: Reorder Community categories
+      security: [{ bearerAuth: [] }]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [ids]
+              properties:
+                ids:
+                  type: array
+                  minItems: 1
+                  maxItems: 200
+                  items: { type: string, format: uuid }
+      responses:
+        '200': { description: Category order updated, content: { application/json: { schema: { $ref: '#/components/schemas/SuccessResponse' } } } }
+        '400': { $ref: '#/components/responses/ValidationError' }
+
+  /admin/community/categories/{id}:
+    put:
+      tags: [Community]
+      summary: Update a Community category
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CommunityCategoryInput' }
+      responses:
+        '200': { description: Category updated, content: { application/json: { schema: { $ref: '#/components/schemas/CommunityAdminCategoryResponse' } } } }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+    delete:
+      tags: [Community]
+      summary: Delete an unused Community category
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CommunityReportDecisionRequest' }
+      responses:
+        '204': { description: Category deleted }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /admin/community/revisions/{id}/decision:
+    post:
+      tags: [Community]
+      summary: Approve or reject a pending Community revision
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CommunityRevisionDecisionRequest' }
+      responses:
+        '200': { description: Revision decision saved, content: { application/json: { schema: { $ref: '#/components/schemas/SuccessResponse' } } } }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /admin/community/answers/{id}/official:
+    post:
+      tags: [Community]
+      summary: Mark a published answer as official
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CommunityModerationRequest' }
+      responses:
+        '200': { description: Official state updated, content: { application/json: { schema: { $ref: '#/components/schemas/SuccessResponse' } } } }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /admin/community/members/{id}/restriction:
+    post:
+      tags: [Community]
+      summary: Restrict, unrestrict, or ban a Community member
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CommunityModerationRequest' }
+      responses:
+        '200': { description: Member restriction updated, content: { application/json: { schema: { $ref: '#/components/schemas/SuccessResponse' } } } }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /admin/community/moderate/{target}/{id}:
+    post:
+      tags: [Community]
+      summary: Apply a moderation action
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: target, in: path, required: true, schema: { type: string, enum: [question, answer, comment, member] } }
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CommunityModerationRequest' }
+      responses:
+        '200': { description: Moderation action applied, content: { application/json: { schema: { $ref: '#/components/schemas/SuccessResponse' } } } }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /admin/community/reports/{id}/resolve:
+    post:
+      tags: [Community]
+      summary: Resolve a Community report
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CommunityReportDecisionRequest' }
+      responses:
+        '200': { description: Report resolved, content: { application/json: { schema: { $ref: '#/components/schemas/SuccessResponse' } } } }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /admin/community/reports/{id}/dismiss:
+    post:
+      tags: [Community]
+      summary: Dismiss a Community report
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CommunityReportDecisionRequest' }
+      responses:
+        '200': { description: Report dismissed, content: { application/json: { schema: { $ref: '#/components/schemas/SuccessResponse' } } } }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
 
   /public/community/categories:
     get:
@@ -4430,6 +4737,39 @@ components:
         - $ref: '#/components/schemas/SuccessResponse'
       description: Success envelope containing CommunityCategory[] in data
 
+    CommunityAdminCategory:
+      allOf:
+        - $ref: '#/components/schemas/CommunityCategory'
+        - type: object
+          required: [is_active]
+          properties:
+            is_active: { type: boolean }
+
+    CommunityAdminCategoryListResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+      description: Success envelope containing Admin Community categories
+
+    CommunityCategoryInput:
+      type: object
+      required: [slug, name, sort_order, is_active]
+      properties:
+        slug: { type: string, pattern: '^[a-z0-9]+(?:-[a-z0-9]+)*$', minLength: 2, maxLength: 80 }
+        name: { $ref: '#/components/schemas/MultiLangText' }
+        description: { $ref: '#/components/schemas/MultiLangText' }
+        sort_order: { type: integer, minimum: 0, maximum: 100000 }
+        is_active: { type: boolean }
+
+    CommunityCategoryResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+      description: Success envelope containing one Community category
+
+    CommunityAdminCategoryResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+      description: Success envelope containing one Admin Community category
+
     CommunityQuestionListResponse:
       allOf:
         - $ref: '#/components/schemas/SuccessResponse'
@@ -4531,6 +4871,91 @@ components:
       allOf:
         - $ref: '#/components/schemas/SuccessResponse'
       description: Success envelope containing helpful-vote state
+
+    CommunityCreateReportRequest:
+      type: object
+      required: [reason]
+      properties:
+        question_id: { type: string, format: uuid, nullable: true }
+        answer_id: { type: string, format: uuid, nullable: true }
+        comment_id: { type: string, format: uuid, nullable: true }
+        reason: { type: string, enum: [spam, harassment, misinformation, privacy, inappropriate, other] }
+        details: { type: string, maxLength: 2000 }
+
+    CommunityReportResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+      description: Success envelope containing a report
+
+    CommunityModerationRequest:
+      type: object
+      required: [action, reason]
+      properties:
+        action: { type: string }
+        reason: { type: string, minLength: 2, maxLength: 2000 }
+
+    CommunityReportDecisionRequest:
+      type: object
+      required: [reason]
+      properties:
+        reason: { type: string, minLength: 2, maxLength: 2000 }
+
+    CommunityModerationQueueResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+      description: Success envelope containing pending items and reports
+
+    CommunityNotificationPageResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/CommunityNotificationPage' }
+      description: Success envelope containing notifications, cursor, and unread count
+
+    CommunityNotificationPreferencesResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+        - type: object
+          properties:
+            data: { $ref: '#/components/schemas/CommunityNotificationPreferences' }
+      description: Success envelope containing the authenticated member's email preferences
+
+    CommunityNotificationPage:
+      type: object
+      required: [items, unread_count]
+      properties:
+        items:
+          type: array
+          items: { $ref: '#/components/schemas/CommunityNotification' }
+        next_cursor: { type: string }
+        unread_count: { type: integer, minimum: 0 }
+
+    CommunityNotification:
+      type: object
+      required: [id, event_type, target_type, created_at]
+      properties:
+        id: { type: string, format: uuid }
+        event_type: { type: string, enum: [community.answer.created, community.comment.created, community.accepted, community.helpful, community.official, community.approval, community.revision, community.moderation] }
+        target_type: { type: string }
+        target_id: { type: string, format: uuid, nullable: true }
+        read_at: { type: string, format: date-time, nullable: true }
+        created_at: { type: string, format: date-time }
+
+    CommunityNotificationPreferences:
+      type: object
+      required: [email_preferences]
+      properties:
+        email_preferences:
+          type: object
+          additionalProperties: { type: boolean }
+
+    CommunityRevisionDecisionRequest:
+      type: object
+      required: [approve, reason]
+      properties:
+        approve: { type: boolean }
+        reason: { type: string, minLength: 2, maxLength: 2000 }
 
     # ===== Common =====
     MultiLangText:

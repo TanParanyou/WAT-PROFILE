@@ -15,12 +15,20 @@ import (
 )
 
 type CommunityAccountHandler struct {
-	questions    *services.CommunityQuestionService
-	interactions *services.CommunityInteractionService
+	questions     *services.CommunityQuestionService
+	interactions  *services.CommunityInteractionService
+	moderation    *services.CommunityModerationService
+	notifications *services.CommunityNotificationService
 }
 
 func NewCommunityAccountHandler(db *gorm.DB, cfg config.CommunityConfig) *CommunityAccountHandler {
-	return &CommunityAccountHandler{questions: services.NewCommunityQuestionService(db, cfg, nil), interactions: services.NewCommunityInteractionService(db, cfg, nil)}
+	notifications := services.NewCommunityNotificationService(db, cfg, services.NewOperationOutboxService(db))
+	return &CommunityAccountHandler{
+		questions:     services.NewCommunityQuestionService(db, cfg, notifications),
+		interactions:  services.NewCommunityInteractionService(db, cfg, notifications),
+		moderation:    services.NewCommunityModerationService(db, cfg, notifications),
+		notifications: notifications,
+	}
 }
 
 func (h *CommunityAccountHandler) CreateQuestion(c *fiber.Ctx) error {
@@ -235,6 +243,84 @@ func (h *CommunityAccountHandler) ToggleHelpful(c *fiber.Ctx) error {
 	return utils.SuccessResponse(c, result)
 }
 
+func (h *CommunityAccountHandler) SetHelpful(c *fiber.Ctx) error {
+	answerID, err := parseCommunityID(c.Params("id"))
+	if err != nil {
+		return communityAccountError(c, err)
+	}
+	result, err := h.interactions.SetHelpful(c.UserContext(), mustLocalsUserID(c), answerID, c.IP(), c.Method() == fiber.MethodPut)
+	if err != nil {
+		return communityAccountError(c, err)
+	}
+	return utils.SuccessResponse(c, result)
+}
+
+func (h *CommunityAccountHandler) CreateReport(c *fiber.Ctx) error {
+	var input community.CreateReportInput
+	if err := c.BodyParser(&input); err != nil {
+		return communityAccountError(c, community.NewDomainError(community.CodeValidation, "Report payload is invalid"))
+	}
+	report, err := h.moderation.CreateReport(c.UserContext(), mustLocalsUserID(c), c.IP(), input)
+	if err != nil {
+		return communityAccountError(c, err)
+	}
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "data": report})
+}
+
+func (h *CommunityAccountHandler) ListNotifications(c *fiber.Ctx) error {
+	limit := 20
+	if raw := strings.TrimSpace(c.Query("limit")); raw != "" {
+		parsed, err := strconv.Atoi(raw)
+		if err != nil || parsed < 1 || parsed > 50 {
+			return communityAccountError(c, community.NewDomainError(community.CodeValidation, "Limit must be between 1 and 50").WithField("limit"))
+		}
+		limit = parsed
+	}
+	unreadOnly := strings.EqualFold(strings.TrimSpace(c.Query("unread_only")), "true")
+	result, err := h.notifications.List(c.UserContext(), mustLocalsUserID(c), community.NotificationListInput{UnreadOnly: unreadOnly, Limit: limit, Cursor: strings.TrimSpace(c.Query("cursor"))})
+	if err != nil {
+		return communityAccountError(c, err)
+	}
+	return utils.SuccessResponse(c, result)
+}
+
+func (h *CommunityAccountHandler) MarkNotificationRead(c *fiber.Ctx) error {
+	id, err := parseCommunityID(c.Params("id"))
+	if err != nil {
+		return communityAccountError(c, err)
+	}
+	if err := h.notifications.MarkRead(c.UserContext(), mustLocalsUserID(c), id); err != nil {
+		return communityAccountError(c, err)
+	}
+	return c.JSON(fiber.Map{"success": true})
+}
+
+func (h *CommunityAccountHandler) MarkAllNotificationsRead(c *fiber.Ctx) error {
+	if err := h.notifications.MarkAllRead(c.UserContext(), mustLocalsUserID(c)); err != nil {
+		return communityAccountError(c, err)
+	}
+	return c.JSON(fiber.Map{"success": true})
+}
+
+func (h *CommunityAccountHandler) UpdateNotificationPreferences(c *fiber.Ctx) error {
+	var input community.NotificationPreferencesInput
+	if err := c.BodyParser(&input); err != nil {
+		return communityAccountError(c, community.NewDomainError(community.CodeValidation, "Notification preferences payload is invalid"))
+	}
+	if err := h.notifications.UpdatePreferences(c.UserContext(), mustLocalsUserID(c), input); err != nil {
+		return communityAccountError(c, err)
+	}
+	return c.JSON(fiber.Map{"success": true})
+}
+
+func (h *CommunityAccountHandler) GetNotificationPreferences(c *fiber.Ctx) error {
+	preferences, err := h.notifications.GetPreferences(c.UserContext(), mustLocalsUserID(c))
+	if err != nil {
+		return communityAccountError(c, err)
+	}
+	return utils.SuccessResponse(c, preferences)
+}
+
 func idempotencyKey(c *fiber.Ctx) (uuid.UUID, error) {
 	raw := strings.TrimSpace(c.Get("Idempotency-Key"))
 	if raw == "" {
@@ -269,6 +355,8 @@ func communityAccountError(c *fiber.Ctx, err error) error {
 	case community.CodeContentPending:
 		status = fiber.StatusUnprocessableEntity
 	case community.CodeEditConflict, community.CodeIdempotencyConflict, community.CodeConflict:
+		status = fiber.StatusConflict
+	case community.CodeAlreadyReported:
 		status = fiber.StatusConflict
 	case community.CodeRateLimited:
 		status = fiber.StatusTooManyRequests

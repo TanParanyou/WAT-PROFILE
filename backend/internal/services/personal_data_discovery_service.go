@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"strings"
 
+	"github.com/google/uuid"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"gorm.io/gorm"
 )
@@ -90,6 +91,9 @@ func (s *PersonalDataDiscoveryService) Discover(_ context.Context, search Person
 		result = append(result, PersonalDataCandidate{"member", fmt.Sprint(item.ID), "member_code", name, ""})
 		if item.UserID != nil {
 			result = append(result, PersonalDataCandidate{"user", item.UserID.String(), "member", name, ""})
+			if email == "" {
+				s.discoverCommunity(*item.UserID, &result)
+			}
 		}
 	}
 	var users []models.User
@@ -99,9 +103,43 @@ func (s *PersonalDataDiscoveryService) Discover(_ context.Context, search Person
 		}
 		for _, item := range users {
 			result = append(result, PersonalDataCandidate{"user", item.ID.String(), "email", item.Name, maskEmail(item.Email)})
+			s.discoverCommunity(item.ID, &result)
 		}
 	}
 	return result, nil
+}
+
+func (s *PersonalDataDiscoveryService) discoverCommunity(userID uuid.UUID, result *[]PersonalDataCandidate) {
+	var questions []models.CommunityQuestion
+	if s.db.Where("author_user_id = ?", userID).Find(&questions).Error == nil {
+		for _, item := range questions {
+			*result = append(*result, PersonalDataCandidate{"community_question", item.ID.String(), "account", item.Title, ""})
+		}
+	}
+	var answers []models.CommunityAnswer
+	if s.db.Where("author_user_id = ?", userID).Find(&answers).Error == nil {
+		for _, item := range answers {
+			*result = append(*result, PersonalDataCandidate{"community_answer", item.ID.String(), "account", "Community answer", ""})
+		}
+	}
+	var comments []models.CommunityComment
+	if s.db.Where("author_user_id = ?", userID).Find(&comments).Error == nil {
+		for _, item := range comments {
+			*result = append(*result, PersonalDataCandidate{"community_comment", item.ID.String(), "account", "Community comment", ""})
+		}
+	}
+	var votes []models.CommunityAnswerVote
+	if s.db.Where("user_id = ?", userID).Find(&votes).Error == nil {
+		for _, item := range votes {
+			*result = append(*result, PersonalDataCandidate{"community_vote", item.AnswerID.String(), "account", "Community helpful vote", ""})
+		}
+	}
+	var notifications []models.CommunityNotification
+	if s.db.Where("recipient_user_id = ?", userID).Find(&notifications).Error == nil {
+		for _, item := range notifications {
+			*result = append(*result, PersonalDataCandidate{"community_notification", item.ID.String(), "account", "Community notification", ""})
+		}
+	}
 }
 
 func maskEmail(value string) string {

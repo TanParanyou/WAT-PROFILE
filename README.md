@@ -53,6 +53,7 @@ Database migrations and seed data are separate operations. Read
 - Database changes: [`docs/DATABASE.md`](docs/DATABASE.md)
 - Build and release state: [`docs/DEPLOYMENT.md`](docs/DEPLOYMENT.md)
 - Public account auth testing and acceptance: [`docs/AUTH_TESTING.md`](docs/AUTH_TESTING.md)
+- Community Q&A production testing and rollout: [`docs/COMMUNITY_TESTING.md`](docs/COMMUNITY_TESTING.md)
 
 Frontend and backend rules live in their respective `AGENTS.md` files. Historical
 implementation plans are intentionally not part of the production documentation.

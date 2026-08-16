@@ -57,7 +57,7 @@ export interface UpdateProfileRequest {
 
 
 // Permission action types
-export type PermissionAction = "read" | "create" | "update" | "delete";
+export type PermissionAction = "read" | "create" | "update" | "delete" | "moderate" | "answer_officially" | "manage_categories" | "restrict_members";
 
 // Permission resources ตาม backend
 export type PermissionResource =
@@ -76,4 +76,5 @@ export type PermissionResource =
   | "dashboard"
   | "privacy_requests"
   | "account_operations"
-  | "calendar_resources";
+  | "calendar_resources"
+  | "community";

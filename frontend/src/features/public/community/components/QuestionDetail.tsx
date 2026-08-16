@@ -16,10 +16,11 @@ import {
   useCommunityViewerQuery,
   useCreateCommunityAnswer,
   useCreateCommunityComment,
-  useToggleCommunityHelpful,
 } from "../queries";
 import type { CommunityAnswer, CommunityComment, CommunityLocale } from "../types";
 import { CommunityRichTextEditor } from "./CommunityRichTextEditor";
+import { HelpfulButton } from "./HelpfulButton";
+import { ReportDialog } from "./ReportDialog";
 
 function supportedLocale(value: string): CommunityLocale {
   return value === "en" || value === "de" ? value : "th";
@@ -32,8 +33,6 @@ export function QuestionDetailContent({ id }: { id: string }) {
   const query = useCommunityQuestionQuery(id);
   const viewerQuery = useCommunityViewerQuery(id, session.status === "authenticated");
   const acceptMutation = useAcceptCommunityAnswer();
-  const helpfulMutation = useToggleCommunityHelpful();
-  const [helpfulCounts, setHelpfulCounts] = useState<Record<string, { count: number; voted: boolean }>>({});
   const [actionError, setActionError] = useState("");
 
   if (query.isLoading) return <PageContainer width="reading"><div className="h-80 animate-pulse bg-site-surface" aria-label={t("loading")} /></PageContainer>;
@@ -50,17 +49,6 @@ export function QuestionDetailContent({ id }: { id: string }) {
       setActionError(toCommunityApiError(error).message);
     }
   };
-  const helpful = async (answer: CommunityAnswer) => {
-    if (session.status !== "authenticated") return;
-    setActionError("");
-    try {
-      const result = await helpfulMutation.mutateAsync(answer.id);
-      setHelpfulCounts((current) => ({ ...current, [answer.id]: { count: result.helpful_count, voted: result.has_voted } }));
-    } catch (error: unknown) {
-      setActionError(toCommunityApiError(error).message);
-    }
-  };
-
   return (
     <div className="min-h-screen bg-site-canvas">
       <PageContainer width="reading">
@@ -70,19 +58,19 @@ export function QuestionDetailContent({ id }: { id: string }) {
           <h1 className="mt-4 font-heading text-[clamp(2rem,5vw,4rem)] font-medium leading-tight text-site-foreground">{detail.question.title}</h1>
           <p className="mt-4 text-sm text-site-muted">{t("latestActivity", { date })}{detail.question.author ? ` · ${detail.question.author.display_name}` : ""}</p>
         </div>
-        <article className="border-b border-site-border py-8" aria-label={detail.question.title}><RichTextContent value={detail.body} locale={locale} defaultLocale={detail.question.locale} className="leading-8 text-site-foreground" /></article>
+        <article className="border-b border-site-border py-8" aria-label={detail.question.title}><RichTextContent value={detail.body} locale={locale} defaultLocale={detail.question.locale} className="leading-8 text-site-foreground" /><ReportDialog target={{ question_id: id }} enabled={session.status === "authenticated"} /></article>
         {actionError ? <div className="mt-6 border border-site-danger/50 bg-site-danger/5 px-4 py-3 text-sm text-site-danger" role="alert">{actionError}</div> : null}
         <section className="mt-10" aria-labelledby="answers-heading">
           <h2 id="answers-heading" className="font-heading text-3xl font-medium text-site-foreground">{t("answers", { count: detail.answers.length })}</h2>
           <div className="mt-5 border-t border-site-border">
-            {detail.answers.map((answer) => <AnswerCard key={answer.id} answer={answer} comments={detail.comments.filter((comment) => comment.answer_id === answer.id)} accepted={answer.id === detail.accepted_answer_id} locale={locale} canContribute={canContribute} canAccept={viewerQuery.data?.can_accept === true} isAccepting={acceptMutation.isPending} isHelpfulPending={helpfulMutation.isPending} helpfulState={helpfulCounts[answer.id]} onAccept={() => accept(answer.id)} onHelpful={() => helpful(answer)} />)}
+            {detail.answers.map((answer) => <AnswerCard key={answer.id} answer={answer} comments={detail.comments.filter((comment) => comment.answer_id === answer.id)} accepted={answer.id === detail.accepted_answer_id} locale={locale} canContribute={canContribute} canAccept={viewerQuery.data?.can_accept === true} isAccepting={acceptMutation.isPending} onAccept={() => accept(answer.id)} onHelpfulError={setActionError} />)}
           </div>
           {canContribute ? <AnswerComposer questionID={id} /> : null}
           {session.status !== "authenticated" ? <p className="mt-6 text-sm text-site-muted"><Link href="/account/login" className="font-semibold underline underline-offset-4">{t("signInToAnswer")}</Link></p> : null}
         </section>
         <section className="mt-10" aria-labelledby="comments-heading">
           <h2 id="comments-heading" className="font-heading text-2xl font-medium text-site-foreground">{t("comments")}</h2>
-          {detail.comments.filter((comment) => !comment.answer_id).length > 0 ? <div className="mt-4 space-y-4">{detail.comments.filter((comment) => !comment.answer_id).map((comment) => <CommentRow key={comment.id} comment={comment} locale={locale} />)}</div> : <p className="mt-4 text-sm text-site-muted">{t("noComments")}</p>}
+          {detail.comments.filter((comment) => !comment.answer_id).length > 0 ? <div className="mt-4 space-y-4">{detail.comments.filter((comment) => !comment.answer_id).map((comment) => <CommentRow key={comment.id} comment={comment} locale={locale} enabled={canContribute} />)}</div> : <p className="mt-4 text-sm text-site-muted">{t("noComments")}</p>}
           {canContribute ? <CommentComposer questionID={id} /> : null}
         </section>
       </PageContainer>
@@ -90,15 +78,14 @@ export function QuestionDetailContent({ id }: { id: string }) {
   );
 }
 
-function AnswerCard({ answer, comments, accepted, locale, canContribute, canAccept, isAccepting, isHelpfulPending, helpfulState, onAccept, onHelpful }: { answer: CommunityAnswer; comments: CommunityComment[]; accepted: boolean; locale: CommunityLocale; canContribute: boolean; canAccept: boolean; isAccepting: boolean; isHelpfulPending: boolean; helpfulState?: { count: number; voted: boolean }; onAccept: () => void; onHelpful: () => void }) {
+function AnswerCard({ answer, comments, accepted, locale, canContribute, canAccept, isAccepting, onAccept, onHelpfulError }: { answer: CommunityAnswer; comments: CommunityComment[]; accepted: boolean; locale: CommunityLocale; canContribute: boolean; canAccept: boolean; isAccepting: boolean; onAccept: () => void; onHelpfulError: (message: string) => void }) {
   const t = useTranslations("Community");
-  const count = helpfulState?.count ?? answer.helpful_count;
-  return <article className="border-b border-site-border py-7"><div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.12em] text-site-muted">{answer.is_official ? <span className="text-site-accent">{t("official")}</span> : null}{accepted ? <span>{t("accepted")}</span> : null}<span>{answer.author?.display_name ?? t("anonymousAuthor")}</span></div><RichTextContent value={answer.body} locale={locale} defaultLocale={locale} className="mt-4 leading-8 text-site-foreground" /><div className="mt-5 flex flex-wrap items-center gap-4 text-sm text-site-body"><button type="button" disabled={!canContribute || isHelpfulPending} onClick={onHelpful} className="min-h-10 border border-site-border px-3 py-2 font-semibold hover:bg-site-surface disabled:cursor-not-allowed disabled:opacity-50">{t("helpful")} · {count}</button>{canAccept && !accepted ? <button type="button" disabled={isAccepting} onClick={onAccept} className="min-h-10 border border-site-border px-3 py-2 font-semibold hover:bg-site-surface disabled:opacity-50">{isAccepting ? t("saving") : t("acceptAnswer")}</button> : null}</div>{comments.length > 0 ? <div className="mt-6 space-y-4 border-l-2 border-site-border pl-4">{comments.map((comment) => <CommentRow key={comment.id} comment={comment} locale={locale} />)}</div> : null}{canContribute ? <CommentComposer questionID={answer.question_id} answerID={answer.id} /> : null}</article>;
+  return <article className="border-b border-site-border py-7"><div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.12em] text-site-muted">{answer.is_official ? <span className="text-site-accent">{t("official")}</span> : null}{accepted ? <span>{t("accepted")}</span> : null}<span>{answer.author?.display_name ?? t("anonymousAuthor")}</span></div><RichTextContent value={answer.body} locale={locale} defaultLocale={locale} className="mt-4 leading-8 text-site-foreground" /><div className="mt-5 flex flex-wrap items-center gap-4 text-sm text-site-body"><HelpfulButton answerID={answer.id} initialCount={answer.helpful_count} enabled={canContribute} onError={onHelpfulError} />{canAccept && !accepted ? <button type="button" disabled={isAccepting} onClick={onAccept} className="min-h-10 border border-site-border px-3 py-2 font-semibold hover:bg-site-surface disabled:opacity-50">{isAccepting ? t("saving") : t("acceptAnswer")}</button> : null}</div><ReportDialog target={{ answer_id: answer.id }} enabled={canContribute} />{comments.length > 0 ? <div className="mt-6 space-y-4 border-l-2 border-site-border pl-4">{comments.map((comment) => <CommentRow key={comment.id} comment={comment} locale={locale} enabled={canContribute} />)}</div> : null}{canContribute ? <CommentComposer questionID={answer.question_id} answerID={answer.id} /> : null}</article>;
 }
 
-function CommentRow({ comment, locale }: { comment: CommunityComment; locale: CommunityLocale }) {
+function CommentRow({ comment, locale, enabled }: { comment: CommunityComment; locale: CommunityLocale; enabled: boolean }) {
   const t = useTranslations("Community");
-  return <div><p className="text-xs font-semibold text-site-muted">{comment.author?.display_name ?? t("anonymousAuthor")}</p><RichTextContent value={comment.body} locale={locale} defaultLocale={locale} className="mt-1 text-sm leading-7 text-site-body" /></div>;
+  return <div><p className="text-xs font-semibold text-site-muted">{comment.author?.display_name ?? t("anonymousAuthor")}</p><RichTextContent value={comment.body} locale={locale} defaultLocale={locale} className="mt-1 text-sm leading-7 text-site-body" /><ReportDialog target={{ comment_id: comment.id }} enabled={enabled} /></div>;
 }
 
 function AnswerComposer({ questionID }: { questionID: string }) {

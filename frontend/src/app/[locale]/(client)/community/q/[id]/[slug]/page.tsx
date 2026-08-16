@@ -1,10 +1,11 @@
-import { notFound } from "next/navigation";
+import { notFound, redirect } from "next/navigation";
 import { NextIntlClientProvider } from "next-intl";
 import { getMessages, getTranslations } from "next-intl/server";
 import { dehydrate, HydrationBoundary, QueryClient } from "@tanstack/react-query";
 import { QuestionDetailContent } from "@/features/public/community/components/QuestionDetail";
 import { fetchCommunityQuestionServer } from "@/features/public/community/server-api";
 import { communityKeys } from "@/features/public/community/queries";
+import { siteConfig } from "@/config/site.config";
 
 const COMMUNITY_ENABLED = process.env.NEXT_PUBLIC_COMMUNITY_ENABLED === "true";
 
@@ -12,14 +13,17 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale, id } = await params;
   const t = await getTranslations({ locale, namespace: "Community" });
   const detail = await fetchCommunityQuestionServer(id).catch(() => null);
-  return { title: detail?.question.title ?? t("questionNotFound"), description: detail ? detail.question.title : t("subtitle") };
+  if (!detail) return { title: t("questionNotFound"), description: t("subtitle"), robots: { index: false, follow: false } };
+  const canonical = `${siteConfig.domain}/${detail.question.locale}/community/q/${detail.question.id}/${detail.question.slug}`;
+  return { title: detail.question.title, description: detail.question.title, alternates: { canonical }, robots: locale === detail.question.locale ? undefined : { index: false, follow: true } };
 }
 
 export default async function CommunityQuestionPage({ params }: { params: Promise<{ locale: string; id: string; slug: string }> }) {
   if (!COMMUNITY_ENABLED) notFound();
-  const { locale, id } = await params;
+  const { locale, id, slug } = await params;
   const detail = await fetchCommunityQuestionServer(id).catch(() => null);
   if (!detail) notFound();
+  if (locale !== detail.question.locale || slug !== detail.question.slug) redirect(`/${detail.question.locale}/community/q/${detail.question.id}/${detail.question.slug}`);
   const messages = await getMessages({ locale });
   const queryClient = new QueryClient();
   queryClient.setQueryData(communityKeys.question(id), detail);

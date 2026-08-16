@@ -34,6 +34,8 @@ func (s *PersonalDataActionService) AnonymiseSelected(_ context.Context, request
 	if request.Status != "verified" && request.Status != "processing" {
 		return 0, fmt.Errorf("request must be verified before erasure")
 	}
+	var subjectUserID uuid.UUID
+	subjectLoaded := false
 	count := 0
 	err := s.db.Transaction(func(tx *gorm.DB) error {
 		for _, item := range request.Items {
@@ -70,6 +72,86 @@ func (s *PersonalDataActionService) AnonymiseSelected(_ context.Context, request
 				if err := tx.Model(&models.User{}).Where("id = ?", uid).Updates(map[string]interface{}{"email": "redacted-" + uid.String() + "@privacy.invalid", "name": "Redacted user", "avatar_url": ""}).Error; err != nil {
 					return err
 				}
+			case "community_question":
+				if !subjectLoaded {
+					var err error
+					subjectUserID, err = s.subjectUserID(request)
+					if err != nil {
+						return err
+					}
+					subjectLoaded = true
+				}
+				updated := tx.Model(&models.CommunityQuestion{}).Where("id = ? AND author_user_id = ?", id, subjectUserID).Update("author_user_id", nil)
+				if updated.Error != nil {
+					return updated.Error
+				}
+				if subjectUserID == uuid.Nil || updated.RowsAffected == 0 {
+					return fmt.Errorf("community record is not owned by request subject")
+				}
+			case "community_answer":
+				if !subjectLoaded {
+					var err error
+					subjectUserID, err = s.subjectUserID(request)
+					if err != nil {
+						return err
+					}
+					subjectLoaded = true
+				}
+				updated := tx.Model(&models.CommunityAnswer{}).Where("id = ? AND author_user_id = ?", id, subjectUserID).Update("author_user_id", nil)
+				if updated.Error != nil {
+					return updated.Error
+				}
+				if subjectUserID == uuid.Nil || updated.RowsAffected == 0 {
+					return fmt.Errorf("community record is not owned by request subject")
+				}
+			case "community_comment":
+				if !subjectLoaded {
+					var err error
+					subjectUserID, err = s.subjectUserID(request)
+					if err != nil {
+						return err
+					}
+					subjectLoaded = true
+				}
+				updated := tx.Model(&models.CommunityComment{}).Where("id = ? AND author_user_id = ?", id, subjectUserID).Update("author_user_id", nil)
+				if updated.Error != nil {
+					return updated.Error
+				}
+				if subjectUserID == uuid.Nil || updated.RowsAffected == 0 {
+					return fmt.Errorf("community record is not owned by request subject")
+				}
+			case "community_vote":
+				if !subjectLoaded {
+					var err error
+					subjectUserID, err = s.subjectUserID(request)
+					if err != nil {
+						return err
+					}
+					subjectLoaded = true
+				}
+				deleted := tx.Where("answer_id = ? AND user_id = ?", id, subjectUserID).Delete(&models.CommunityAnswerVote{})
+				if deleted.Error != nil {
+					return deleted.Error
+				}
+				if subjectUserID == uuid.Nil || deleted.RowsAffected == 0 {
+					return fmt.Errorf("community record is not owned by request subject")
+				}
+			case "community_notification":
+				if !subjectLoaded {
+					var err error
+					subjectUserID, err = s.subjectUserID(request)
+					if err != nil {
+						return err
+					}
+					subjectLoaded = true
+				}
+				deleted := tx.Where("id = ? AND recipient_user_id = ?", id, subjectUserID).Delete(&models.CommunityNotification{})
+				if deleted.Error != nil {
+					return deleted.Error
+				}
+				if subjectUserID == uuid.Nil || deleted.RowsAffected == 0 {
+					return fmt.Errorf("community record is not owned by request subject")
+				}
 			default:
 				return fmt.Errorf("unsupported privacy domain %q", item.Domain)
 			}
@@ -82,4 +164,24 @@ func (s *PersonalDataActionService) AnonymiseSelected(_ context.Context, request
 		return tx.Model(&request).Updates(map[string]interface{}{"status": "completed", "completed_by_id": actor, "completed_at": now}).Error
 	})
 	return count, err
+}
+
+func (s *PersonalDataActionService) subjectUserID(request models.PersonalDataRequest) (uuid.UUID, error) {
+	if strings.TrimSpace(request.SubjectEmail) != "" {
+		var user models.User
+		if err := s.db.Where("LOWER(email) = ?", strings.ToLower(strings.TrimSpace(request.SubjectEmail))).First(&user).Error; err != nil {
+			return uuid.Nil, err
+		}
+		return user.ID, nil
+	}
+	if strings.TrimSpace(request.SubjectMemberCode) != "" {
+		var member models.Member
+		if err := s.db.Where("member_code = ?", strings.TrimSpace(request.SubjectMemberCode)).First(&member).Error; err != nil {
+			return uuid.Nil, err
+		}
+		if member.UserID != nil {
+			return *member.UserID, nil
+		}
+	}
+	return uuid.Nil, nil
 }

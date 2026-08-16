@@ -168,6 +168,14 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 		communityAccount.Patch("/comments/:id", communityAccountHandler.UpdateComment)
 		communityAccount.Post("/answers/:id/accept", communityAccountHandler.AcceptAnswer)
 		communityAccount.Post("/answers/:id/helpful", communityAccountHandler.ToggleHelpful)
+		communityAccount.Put("/answers/:id/helpful", communityAccountHandler.SetHelpful)
+		communityAccount.Delete("/answers/:id/helpful", communityAccountHandler.SetHelpful)
+		communityAccount.Post("/reports", communityAccountHandler.CreateReport)
+		communityAccount.Get("/notifications", communityAccountHandler.ListNotifications)
+		communityAccount.Post("/notifications/:id/read", communityAccountHandler.MarkNotificationRead)
+		communityAccount.Post("/notifications/read-all", communityAccountHandler.MarkAllNotificationsRead)
+		communityAccount.Get("/notifications/preferences", communityAccountHandler.GetNotificationPreferences)
+		communityAccount.Put("/notifications/preferences", communityAccountHandler.UpdateNotificationPreferences)
 		communityAccount.Get("/activity", communityAccountHandler.ListMyActivity)
 		communityAccount.Get("/questions/:id/viewer", communityAccountHandler.GetViewerState)
 	}
@@ -231,6 +239,20 @@ func adminRouteDefinitions() []AdminRouteDefinition {
 	return []AdminRouteDefinition{
 		// Dashboard
 		{Method: fiber.MethodGet, Path: "/dashboard/stats", Resource: "dashboard", Action: "read", HandlerKey: "dashboard.stats"},
+
+		// Community Moderation
+		{Method: fiber.MethodGet, Path: "/community/queue", Resource: "community", Action: "read", HandlerKey: "community.queue"},
+		{Method: fiber.MethodGet, Path: "/community/categories", Resource: "community", Action: "read", HandlerKey: "community.categories.list"},
+		{Method: fiber.MethodPut, Path: "/community/categories/reorder", Resource: "community", Action: "manage_categories", HandlerKey: "community.categories.reorder"},
+		{Method: fiber.MethodPost, Path: "/community/categories", Resource: "community", Action: "manage_categories", HandlerKey: "community.categories.create"},
+		{Method: fiber.MethodPut, Path: "/community/categories/:id", Resource: "community", Action: "manage_categories", HandlerKey: "community.categories.update"},
+		{Method: fiber.MethodDelete, Path: "/community/categories/:id", Resource: "community", Action: "manage_categories", HandlerKey: "community.categories.delete"},
+		{Method: fiber.MethodPost, Path: "/community/revisions/:id/decision", Resource: "community", Action: "moderate", HandlerKey: "community.revisions.decide"},
+		{Method: fiber.MethodPost, Path: "/community/moderate/:target/:id", Resource: "community", Action: "moderate", HandlerKey: "community.moderate"},
+		{Method: fiber.MethodPost, Path: "/community/answers/:id/official", Resource: "community", Action: "answer_officially", HandlerKey: "community.answerOfficial"},
+		{Method: fiber.MethodPost, Path: "/community/members/:id/restriction", Resource: "community", Action: "restrict_members", HandlerKey: "community.memberRestriction"},
+		{Method: fiber.MethodPost, Path: "/community/reports/:id/resolve", Resource: "community", Action: "moderate", HandlerKey: "community.resolveReport"},
+		{Method: fiber.MethodPost, Path: "/community/reports/:id/dismiss", Resource: "community", Action: "moderate", HandlerKey: "community.dismissReport"},
 
 		// Admin Self-Profile
 		{Method: fiber.MethodPut, Path: "/me", Resource: "profile", Action: "update", HandlerKey: "profile.update"},
@@ -436,6 +458,7 @@ func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service) map[string]fiber.Handle
 	richTextMigrationHandler := handlers.NewRichTextMigrationHandler(db)
 	publicContentHandler := handlers.NewPublicContentHandler(db)
 	eventAlertHandler := handlers.NewEventAlertHandler(db)
+	communityAdminHandler := handlers.NewCommunityAdminHandler(db)
 
 	return map[string]fiber.Handler{
 		"calendar.admin":                calendarHandler.GetAdmin,
@@ -445,6 +468,18 @@ func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service) map[string]fiber.Handle
 		"calendarResources.update":      calendarResourceHandler.UpdateCalendarResource,
 		"calendarResources.delete":      calendarResourceHandler.DeleteCalendarResource,
 		"dashboard.stats":               dashboardHandler.GetDashboardStats,
+		"community.queue":               communityAdminHandler.ListQueue,
+		"community.categories.list":     communityAdminHandler.ListCategories,
+		"community.categories.create":   communityAdminHandler.SaveCategory,
+		"community.categories.update":   communityAdminHandler.SaveCategory,
+		"community.categories.delete":   communityAdminHandler.DeleteCategory,
+		"community.categories.reorder":  communityAdminHandler.ReorderCategories,
+		"community.revisions.decide":    communityAdminHandler.DecideRevision,
+		"community.moderate":            communityAdminHandler.Moderate,
+		"community.answerOfficial":      communityAdminHandler.OfficialAnswer,
+		"community.memberRestriction":   communityAdminHandler.MemberRestriction,
+		"community.resolveReport":       communityAdminHandler.ResolveReport,
+		"community.dismissReport":       communityAdminHandler.DismissReport,
 		"audit.filterOptions":           auditHandler.GetFilterOptions,
 		"audit.list":                    auditHandler.GetAuditLogs,
 		"events.list":                   eventHandler.GetAdminEvents,

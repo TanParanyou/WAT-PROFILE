@@ -4,6 +4,9 @@ import React from "react";
 import { Checkbox } from "@/components/ui/Checkbox";
 import { useTranslations } from "next-intl";
 
+const CRUD_ACTIONS = ["read", "create", "update", "delete"] as const;
+const COMMUNITY_ACTIONS = ["read", "moderate", "answer_officially", "manage_categories", "restrict_members"] as const;
+
 const RESOURCES = [
   "events",
   "monks",
@@ -20,14 +23,14 @@ const RESOURCES = [
   "privacy_requests",
   "account_operations",
   "calendar_resources",
-];
+] as const;
 
-const ACTIONS = [
-  "read",
-  "create",
-  "update",
-  "delete",
-];
+const RESOURCE_DEFINITIONS = [
+  ...RESOURCES.map((key) => ({ key, actions: CRUD_ACTIONS })),
+  { key: "community", actions: COMMUNITY_ACTIONS },
+] as const;
+type PermissionAction = (typeof CRUD_ACTIONS)[number] | (typeof COMMUNITY_ACTIONS)[number];
+const ALL_ACTIONS = Array.from(new Set([...CRUD_ACTIONS, ...COMMUNITY_ACTIONS])) as PermissionAction[];
 
 interface PermissionEditorProps {
   value: Record<string, unknown>; // usually Record<string, string | string[]>
@@ -36,7 +39,8 @@ interface PermissionEditorProps {
 
 export function PermissionEditor({ value, onChange }: PermissionEditorProps) {
   const t = useTranslations("Admin.permissions");
-  const handleCheck = (resource: string, action: string, checked: boolean) => {
+  const handleCheck = (resource: string, action: PermissionAction | "all", checked: boolean) => {
+    const actions = RESOURCE_DEFINITIONS.find((definition) => definition.key === resource)?.actions ?? CRUD_ACTIONS;
     const currentResValue = value[resource];
     let newResValue: string | string[] = [];
 
@@ -53,7 +57,7 @@ export function PermissionEditor({ value, onChange }: PermissionEditorProps) {
           newResValue = "all"; // remains all
         } else {
           // It was all, but user unchecked one. We downgrade 'all' to specific array minus the unchecked.
-          newResValue = ACTIONS.filter((key) => key !== action);
+        newResValue = actions.filter((key) => key !== action);
         }
       } else {
         let currentArr: string[] = [];
@@ -66,7 +70,7 @@ export function PermissionEditor({ value, onChange }: PermissionEditorProps) {
         if (checked) {
           newResValue = [...currentArr, action];
           // If all selected individually, we can convert to 'all'
-          if (newResValue.length === ACTIONS.length) {
+          if (newResValue.length === actions.length) {
             newResValue = "all";
           }
         } else {
@@ -85,7 +89,7 @@ export function PermissionEditor({ value, onChange }: PermissionEditorProps) {
     onChange(newValue);
   };
 
-  const isChecked = (resource: string, action: string) => {
+  const isChecked = (resource: string, action: PermissionAction | "all") => {
     const resVal = value[resource];
     if (!resVal) return false;
     if (resVal === "all") return true;
@@ -109,7 +113,7 @@ export function PermissionEditor({ value, onChange }: PermissionEditorProps) {
             <th className="px-4 py-3 font-medium text-admin-body">
               {t("system")}
             </th>
-            {ACTIONS.map((action) => (
+            {ALL_ACTIONS.map((action) => (
               <th
                 key={action}
                 className="px-4 py-3 font-medium text-admin-body text-center"
@@ -123,21 +127,15 @@ export function PermissionEditor({ value, onChange }: PermissionEditorProps) {
           </tr>
         </thead>
         <tbody className="divide-y divide-admin-border">
-          {RESOURCES.map((resource) => (
+          {RESOURCE_DEFINITIONS.map(({ key: resource, actions }) => (
             <tr key={resource} className="hover:bg-admin-selected/50">
               <td className="px-4 py-3 font-medium text-admin-foreground">
                 {t(`resources.${resource}`)}
               </td>
 
-              {ACTIONS.map((action) => (
+              {ALL_ACTIONS.map((action) => (
                 <td key={action} className="px-4 py-3 text-center">
-                  <Checkbox
-                    id={`perm-${resource}-${action}`}
-                    checked={isChecked(resource, action)}
-                    onChange={(e) =>
-                      handleCheck(resource, action, e.target.checked)
-                    }
-                  />
+                  {actions.some((allowed) => allowed === action) ? <Checkbox id={`perm-${resource}-${action}`} checked={isChecked(resource, action)} onChange={(e) => handleCheck(resource, action, e.target.checked)} /> : <span className="text-admin-muted">—</span>}
                 </td>
               ))}
 

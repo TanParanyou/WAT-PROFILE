@@ -54,6 +54,73 @@ type CreateReportInput struct {
 	Details    string     `json:"details,omitempty"`
 }
 
+type ModerationInput struct {
+	Action string `json:"action"`
+	Reason string `json:"reason"`
+}
+
+type CategoryInput struct {
+	ID          *uuid.UUID           `json:"id,omitempty"`
+	Slug        string               `json:"slug"`
+	Name        models.MultiLangText `json:"name"`
+	Description models.MultiLangText `json:"description,omitempty"`
+	SortOrder   int                  `json:"sort_order"`
+	IsActive    bool                 `json:"is_active"`
+}
+
+type CategoryReorderInput struct {
+	IDs []uuid.UUID `json:"ids"`
+}
+
+type RevisionDecisionInput struct {
+	Approve bool   `json:"approve"`
+	Reason  string `json:"reason"`
+}
+
+type RevisionDTO struct {
+	ID           uuid.UUID                            `json:"id"`
+	TargetType   string                               `json:"target_type"`
+	TargetID     uuid.UUID                            `json:"target_id"`
+	TitleBefore  *string                              `json:"title_before,omitempty"`
+	TitleAfter   *string                              `json:"title_after,omitempty"`
+	BodyBefore   models.RichTextDocument              `json:"body_before"`
+	BodyAfter    models.RichTextDocument              `json:"body_after"`
+	ReviewStatus models.CommunityRevisionReviewStatus `json:"review_status"`
+	EditorUserID *uuid.UUID                           `json:"editor_user_id,omitempty"`
+	CreatedAt    time.Time                            `json:"created_at"`
+}
+
+type ReportDecisionInput struct {
+	Reason string `json:"reason"`
+}
+
+type ReportDTO struct {
+	ID         uuid.UUID                   `json:"id"`
+	TargetType string                      `json:"target_type"`
+	TargetID   uuid.UUID                   `json:"target_id"`
+	Reason     string                      `json:"reason"`
+	Details    string                      `json:"details,omitempty"`
+	State      models.CommunityReportState `json:"state"`
+	CreatedAt  time.Time                   `json:"created_at"`
+}
+
+type ModerationQueueItemDTO struct {
+	TargetType        string                            `json:"target_type"`
+	TargetID          uuid.UUID                         `json:"target_id"`
+	RevisionID        *uuid.UUID                        `json:"revision_id,omitempty"`
+	QuestionID        *uuid.UUID                        `json:"question_id,omitempty"`
+	Title             string                            `json:"title,omitempty"`
+	Body              models.RichTextDocument           `json:"body,omitempty"`
+	PublicationStatus models.CommunityPublicationStatus `json:"publication_status"`
+	CreatedAt         time.Time                         `json:"created_at"`
+}
+
+type ModerationQueueDTO struct {
+	Items     []ModerationQueueItemDTO `json:"items"`
+	Reports   []ReportDTO              `json:"reports"`
+	Revisions []RevisionDTO            `json:"revisions"`
+}
+
 type QuestionCursor struct {
 	LastActivityAt time.Time `json:"last_activity_at"`
 	ID             uuid.UUID `json:"id"`
@@ -86,6 +153,11 @@ type CategoryDTO struct {
 	Name        models.MultiLangText `json:"name"`
 	Description models.MultiLangText `json:"description,omitempty"`
 	SortOrder   int                  `json:"sort_order"`
+}
+
+type AdminCategoryDTO struct {
+	CategoryDTO
+	IsActive bool `json:"is_active"`
 }
 
 type QuestionListItemDTO struct {
@@ -188,6 +260,10 @@ type NotificationListInput struct {
 }
 
 type NotificationPreferencesInput struct {
+	EmailPreferences map[string]bool `json:"email_preferences"`
+}
+
+type NotificationPreferencesDTO struct {
 	EmailPreferences map[string]bool `json:"email_preferences"`
 }
 

@@ -23,13 +23,23 @@ type PrivateObjectReader interface {
 // handler is idempotent: a successful job can be safely claimed again after a
 // worker crash without creating a second donation or receipt record.
 type OperationDispatcher struct {
-	donations     *DonationService
-	emails        *DonationEmailService
-	store         PrivateObjectReader
-	media         *MediaRetentionService
-	contacts      *ContactService
-	notifications *ContactNotificationService
-	registrations *RegistrationEmailService
+	donations          *DonationService
+	emails             *DonationEmailService
+	store              PrivateObjectReader
+	media              *MediaRetentionService
+	contacts           *ContactService
+	notifications      *ContactNotificationService
+	registrations      *RegistrationEmailService
+	communityEmail     *CommunityEmailService
+	communityRetention *CommunityRetentionService
+}
+
+func (d *OperationDispatcher) SetCommunityEmailService(service *CommunityEmailService) {
+	d.communityEmail = service
+}
+
+func (d *OperationDispatcher) SetCommunityRetentionService(service *CommunityRetentionService) {
+	d.communityRetention = service
 }
 
 func NewOperationDispatcher(donations *DonationService, emails *DonationEmailService, store PrivateObjectReader, media *MediaRetentionService, contacts *ContactService, notifications *ContactNotificationService, registrations ...*RegistrationEmailService) *OperationDispatcher {
@@ -59,6 +69,22 @@ func (d *OperationDispatcher) Dispatch(ctx context.Context, job models.Operation
 			return fmt.Errorf("registration email service is not configured")
 		}
 		return d.registrations.Send(ctx, job)
+	case "community.notification.email":
+		if d.communityEmail == nil {
+			return fmt.Errorf("community email service is not configured")
+		}
+		return d.communityEmail.Send(ctx, job)
+	case "community.retention_due":
+		if d.communityRetention == nil {
+			return fmt.Errorf("community retention service is not configured")
+		}
+		_, err := d.communityRetention.RunDue(ctx, 500)
+		return err
+	case "community.reconcile_counts":
+		if d.communityRetention == nil {
+			return fmt.Errorf("community retention service is not configured")
+		}
+		return d.communityRetention.ReconcileCounts(ctx, 500)
 	default:
 		return fmt.Errorf("unsupported outbox job kind %q", job.Kind)
 	}

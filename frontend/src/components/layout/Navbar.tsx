@@ -1,6 +1,6 @@
 "use client";
 
-import { Menu, UserRound, X } from "lucide-react";
+import { Bell, Menu, UserRound, X } from "lucide-react";
 import Image from "next/image";
 import { useState } from "react";
 import { useLocale, useTranslations } from "next-intl";
@@ -13,6 +13,7 @@ import { STATIC_ASSETS } from "@/constants/assets";
 import { PublicThemeSwitcher } from "@/components/public/theme/PublicThemeSwitcher";
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { AccountAvatar } from "@/features/public/account/components/AccountAvatar";
+import { useCommunityNotificationsQuery } from "@/features/public/community/queries";
 
 const languageOptions = [
   { code: "th", label: "ไทย" },
@@ -31,6 +32,7 @@ export default function Navbar() {
   const tSite = useTranslations("Site");
   const settings = usePublicSiteSettings();
   const accountSession = useAccountSession();
+  const notifications = useCommunityNotificationsQuery(COMMUNITY_FEATURE_ENABLED && accountSession.status === "authenticated");
 
   const accountHref =
     accountSession.status === "authenticated" ? "/account" : "/account/login";
@@ -86,17 +88,16 @@ export default function Navbar() {
 
         <div className="hidden items-center gap-3 lg:flex">
           {ACCOUNT_FEATURE_ENABLED ? (
-            <Link
-              href={accountHref}
-              className="inline-flex min-h-11 items-center gap-2 border border-site-border bg-site-canvas px-3 text-sm font-semibold text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus"
-            >
+            <div className="flex items-center gap-2">
+            {COMMUNITY_FEATURE_ENABLED && accountSession.status === "authenticated" ? <Link href="/community/notifications" aria-label={t("communityNotifications")} className="relative inline-flex size-11 items-center justify-center border border-site-border text-site-foreground hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus"><Bell className="size-5" aria-hidden="true" />{notifications.data?.unread_count ? <span className="absolute right-1 top-1 min-w-4 rounded-full bg-site-action px-1 text-center text-[10px] leading-4 text-site-on-action">{notifications.data.unread_count > 99 ? "99+" : notifications.data.unread_count}</span> : null}</Link> : null}
+            <Link href={accountHref} className="inline-flex min-h-11 items-center gap-2 border border-site-border bg-site-canvas px-3 text-sm font-semibold text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus">
               {accountSession.status === "authenticated" && accountSession.account ? (
                 <AccountAvatar account={accountSession.account} size="sm" />
               ) : (
                 <UserRound className="size-5" aria-hidden="true" />
               )}
               <span>{accountLabel}</span>
-            </Link>
+            </Link></div>
           ) : null}
           <PublicThemeSwitcher />
           <LanguageSwitcher />
@@ -104,17 +105,13 @@ export default function Navbar() {
 
         <div className="flex items-center gap-2 lg:hidden">
           {ACCOUNT_FEATURE_ENABLED ? (
-            <Link
-              href={accountHref}
-              className="inline-flex size-11 items-center justify-center border border-site-border bg-site-canvas transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus"
-              aria-label={accountLabel}
-            >
+            <div className="flex items-center gap-2">{COMMUNITY_FEATURE_ENABLED && accountSession.status === "authenticated" ? <Link href="/community/notifications" aria-label={t("communityNotifications")} className="relative inline-flex size-11 items-center justify-center border border-site-border bg-site-canvas"><Bell className="size-5" aria-hidden="true" />{notifications.data?.unread_count ? <span className="absolute right-1 top-1 min-w-4 rounded-full bg-site-action px-1 text-center text-[10px] leading-4 text-site-on-action">{notifications.data.unread_count > 99 ? "99+" : notifications.data.unread_count}</span> : null}</Link> : null}<Link href={accountHref} className="inline-flex size-11 items-center justify-center border border-site-border bg-site-canvas transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus" aria-label={accountLabel}>
               {accountSession.status === "authenticated" && accountSession.account ? (
                 <AccountAvatar account={accountSession.account} size="sm" />
               ) : (
                 <UserRound className="size-5" aria-hidden="true" />
               )}
-            </Link>
+            </Link></div>
           ) : null}
           <button
             type="button"

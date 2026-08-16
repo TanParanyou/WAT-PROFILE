@@ -13,7 +13,13 @@ import {
   fetchOwnedCommunityQuestion,
   fetchCommunityQuestions,
   updateCommunityQuestion,
-  toggleCommunityHelpful,
+  setCommunityHelpful,
+  createCommunityReport,
+  fetchCommunityNotifications,
+  markCommunityNotificationRead,
+  markAllCommunityNotificationsRead,
+  fetchCommunityNotificationPreferences,
+  updateCommunityNotificationPreferences,
 } from "./api";
 import type { CommunityQuestionDetail, CommunityQuestionListOptions, CommunityQuestionMutation } from "./types";
 
@@ -29,6 +35,8 @@ export const communityKeys = {
   ownedQuestion: (id: string) => [...communityKeys.all, "owned-question", id] as const,
   viewer: (id: string) => [...communityKeys.all, "viewer", id] as const,
   activity: () => [...communityKeys.all, "activity"] as const,
+  notifications: (unreadOnly = false) => [...communityKeys.all, "notifications", unreadOnly] as const,
+  notificationPreferences: () => [...communityKeys.all, "notification-preferences"] as const,
 };
 
 export function useCommunityCategoriesQuery() {
@@ -130,12 +138,39 @@ export function useAcceptCommunityAnswer() {
   });
 }
 
-export function useToggleCommunityHelpful() {
+export function useSetCommunityHelpful() {
   const queryClient = useQueryClient();
   return useMutation({
-    mutationFn: (answerID: string) => toggleCommunityHelpful(answerID),
+    mutationFn: ({ answerID, helpful }: { answerID: string; helpful: boolean }) => setCommunityHelpful(answerID, helpful),
     onSuccess: () => queryClient.invalidateQueries({ queryKey: [...communityKeys.all, "question"] }),
   });
+}
+
+export function useCreateCommunityReport() {
+  return useMutation({ mutationFn: createCommunityReport });
+}
+
+export function useCommunityNotificationsQuery(enabled = true, unreadOnly = false) {
+  return useQuery({ queryKey: communityKeys.notifications(unreadOnly), queryFn: () => fetchCommunityNotifications({ unread_only: unreadOnly }), enabled, staleTime: 30_000, refetchInterval: enabled ? 60_000 : false, refetchIntervalInBackground: false, refetchOnWindowFocus: true });
+}
+
+export function useMarkCommunityNotificationRead() {
+  const queryClient = useQueryClient();
+  return useMutation({ mutationFn: markCommunityNotificationRead, onSuccess: () => queryClient.invalidateQueries({ queryKey: [...communityKeys.all, "notifications"] }) });
+}
+
+export function useMarkAllCommunityNotificationsRead() {
+  const queryClient = useQueryClient();
+  return useMutation({ mutationFn: markAllCommunityNotificationsRead, onSuccess: () => queryClient.invalidateQueries({ queryKey: [...communityKeys.all, "notifications"] }) });
+}
+
+export function useCommunityNotificationPreferencesQuery(enabled = true) {
+  return useQuery({ queryKey: communityKeys.notificationPreferences(), queryFn: fetchCommunityNotificationPreferences, enabled, staleTime: 300_000 });
+}
+
+export function useUpdateCommunityNotificationPreferences() {
+  const queryClient = useQueryClient();
+  return useMutation({ mutationFn: updateCommunityNotificationPreferences, onSuccess: () => queryClient.invalidateQueries({ queryKey: communityKeys.notificationPreferences() }) });
 }
 
 export function useCommunityQuestionsQuery(options: CommunityQuestionListOptions = {}) {

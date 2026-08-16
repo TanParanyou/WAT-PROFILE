@@ -90,6 +90,11 @@ func (s *CommunityInteractionService) CreateAnswer(ctx context.Context, actor uu
 		if err := recordInteractionRevision(tx, nil, &answer.ID, nil, &actor, nil, nil, nil, input.Body, models.CommunityRevisionNotRequired); err != nil {
 			return err
 		}
+		if s.events != nil && question.AuthorUserID != nil {
+			if err := s.events.RecordTx(ctx, tx, community.Event{Type: "community.answer.created", DedupeKey: "answer:" + answer.ID.String(), RecipientID: *question.AuthorUserID, ActorUserID: &actor, TargetType: "question", TargetID: &question.ID, EmailRequired: true}); err != nil {
+				return err
+			}
+		}
 		return nil
 	})
 	if err != nil {
@@ -212,7 +217,15 @@ func (s *CommunityInteractionService) CreateComment(ctx context.Context, actor u
 		if err := tx.Create(&comment).Error; err != nil {
 			return err
 		}
-		return recordInteractionRevision(tx, nil, nil, &comment.ID, &actor, nil, nil, nil, input.Body, models.CommunityRevisionNotRequired)
+		if err := recordInteractionRevision(tx, nil, nil, &comment.ID, &actor, nil, nil, nil, input.Body, models.CommunityRevisionNotRequired); err != nil {
+			return err
+		}
+		if s.events != nil && question.AuthorUserID != nil {
+			if err := s.events.RecordTx(ctx, tx, community.Event{Type: "community.comment.created", DedupeKey: "comment:" + comment.ID.String(), RecipientID: *question.AuthorUserID, ActorUserID: &actor, TargetType: "question", TargetID: &question.ID, EmailRequired: true}); err != nil {
+				return err
+			}
+		}
+		return nil
 	})
 	if err != nil {
 		return community.CommentMutationDTO{}, err
@@ -292,6 +305,11 @@ func (s *CommunityInteractionService) AcceptAnswer(ctx context.Context, actor, a
 		if err := tx.Save(&question).Error; err != nil {
 			return err
 		}
+		if s.events != nil && answer.AuthorUserID != nil {
+			if err := s.events.RecordTx(ctx, tx, community.Event{Type: "community.accepted", DedupeKey: "accepted:" + answer.ID.String(), RecipientID: *answer.AuthorUserID, ActorUserID: &actor, TargetType: "question", TargetID: &question.ID, EmailRequired: true}); err != nil {
+				return err
+			}
+		}
 		result = community.AcceptanceResultDTO{QuestionID: question.ID, AcceptedAnswerID: answer.ID, Version: question.Version}
 		return nil
 	})
@@ -299,6 +317,14 @@ func (s *CommunityInteractionService) AcceptAnswer(ctx context.Context, actor, a
 }
 
 func (s *CommunityInteractionService) ToggleHelpful(ctx context.Context, actor, answerID uuid.UUID, clientIP string) (community.HelpfulResultDTO, error) {
+	return s.setHelpful(ctx, actor, answerID, clientIP, nil)
+}
+
+func (s *CommunityInteractionService) SetHelpful(ctx context.Context, actor, answerID uuid.UUID, clientIP string, helpful bool) (community.HelpfulResultDTO, error) {
+	return s.setHelpful(ctx, actor, answerID, clientIP, &helpful)
+}
+
+func (s *CommunityInteractionService) setHelpful(ctx context.Context, actor, answerID uuid.UUID, clientIP string, requested *bool) (community.HelpfulResultDTO, error) {
 	var result community.HelpfulResultDTO
 	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
 		var answer models.CommunityAnswer
@@ -316,9 +342,22 @@ func (s *CommunityInteractionService) ToggleHelpful(ctx context.Context, actor, 
 			return err
 		}
 		vote := models.CommunityAnswerVote{AnswerID: answer.ID, UserID: actor, CreatedAt: s.now().UTC()}
-		created := tx.Clauses(clause.OnConflict{DoNothing: true}).Create(&vote).RowsAffected == 1
-		if !created {
-			if err := tx.Where("answer_id = ? AND user_id = ?", answer.ID, actor).Delete(&models.CommunityAnswerVote{}).Error; err != nil {
+		var existing models.CommunityAnswerVote
+		existsErr := tx.First(&existing, "answer_id = ? AND user_id = ?", answer.ID, actor).Error
+		if existsErr != nil && !errors.Is(existsErr, gorm.ErrRecordNotFound) {
+			return existsErr
+		}
+		hasVoted := !errors.Is(existsErr, gorm.ErrRecordNotFound)
+		desired := !hasVoted
+		if requested != nil {
+			desired = *requested
+		}
+		if desired && !hasVoted {
+			if err := tx.Create(&vote).Error; err != nil {
+				return err
+			}
+		} else if !desired && hasVoted {
+			if err := tx.Delete(&existing).Error; err != nil {
 				return err
 			}
 		}
@@ -331,10 +370,65 @@ func (s *CommunityInteractionService) ToggleHelpful(ctx context.Context, actor, 
 		if err := tx.Save(&answer).Error; err != nil {
 			return err
 		}
-		result = community.HelpfulResultDTO{AnswerID: answer.ID, HasVoted: created, HelpfulCount: answer.HelpfulCount}
+		if desired && s.events != nil && answer.AuthorUserID != nil {
+			if err := s.events.RecordTx(ctx, tx, community.Event{Type: "community.helpful", DedupeKey: "helpful:" + answer.ID.String() + ":" + actor.String(), RecipientID: *answer.AuthorUserID, ActorUserID: &actor, TargetType: "answer", TargetID: &answer.ID, EmailRequired: true}); err != nil {
+				return err
+			}
+		}
+		result = community.HelpfulResultDTO{AnswerID: answer.ID, HasVoted: desired, HelpfulCount: answer.HelpfulCount}
 		return nil
 	})
 	return result, err
+}
+
+// ReconcileCounters repairs cached answer helpful counts and question answer
+// counters from their source-of-truth rows. It is intentionally bounded so a
+// scheduled job can run incrementally without holding a long transaction.
+func (s *CommunityInteractionService) ReconcileCounters(ctx context.Context, limit int) (int, error) {
+	if limit <= 0 {
+		limit = 500
+	}
+	if limit > 5000 {
+		return 0, community.NewDomainError(community.CodeValidation, "Limit must be between 1 and 5000")
+	}
+	updated := 0
+	var answers []models.CommunityAnswer
+	if err := s.db.WithContext(ctx).Limit(limit).Find(&answers).Error; err != nil {
+		return 0, err
+	}
+	for _, answer := range answers {
+		var count int64
+		if err := s.db.WithContext(ctx).Model(&models.CommunityAnswerVote{}).Where("answer_id = ?", answer.ID).Count(&count).Error; err != nil {
+			return updated, err
+		}
+		if answer.HelpfulCount != int(count) {
+			if err := s.db.WithContext(ctx).Model(&models.CommunityAnswer{}).Where("id = ?", answer.ID).Update("helpful_count", count).Error; err != nil {
+				return updated, err
+			}
+			updated++
+		}
+	}
+	var questions []models.CommunityQuestion
+	if err := s.db.WithContext(ctx).Limit(limit).Find(&questions).Error; err != nil {
+		return updated, err
+	}
+	for _, question := range questions {
+		var publishedCount int64
+		if err := s.db.WithContext(ctx).Model(&models.CommunityAnswer{}).Where("question_id = ? AND publication_status = ?", question.ID, models.CommunityPublicationPublished).Count(&publishedCount).Error; err != nil {
+			return updated, err
+		}
+		var officialCount int64
+		if err := s.db.WithContext(ctx).Model(&models.CommunityAnswer{}).Where("question_id = ? AND publication_status = ? AND is_official = TRUE", question.ID, models.CommunityPublicationPublished).Count(&officialCount).Error; err != nil {
+			return updated, err
+		}
+		if question.PublishedAnswerCount != int(publishedCount) || question.OfficialAnswerCount != int(officialCount) {
+			if err := s.db.WithContext(ctx).Model(&models.CommunityQuestion{}).Where("id = ?", question.ID).Updates(map[string]interface{}{"published_answer_count": publishedCount, "official_answer_count": officialCount}).Error; err != nil {
+				return updated, err
+			}
+			updated++
+		}
+	}
+	return updated, nil
 }
 
 func (s *CommunityInteractionService) requireVerifiedActor(ctx context.Context, tx *gorm.DB, actor uuid.UUID) error {

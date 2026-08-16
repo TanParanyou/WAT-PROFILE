@@ -128,6 +128,39 @@ export interface CommunityHelpfulResult {
   helpful_count: number;
 }
 
+export type CommunityReportReason = "spam" | "harassment" | "misinformation" | "privacy" | "inappropriate" | "other";
+
+export interface CommunityReport {
+  id: string;
+  target_type: "question" | "answer" | "comment";
+  target_id: string;
+  reason: CommunityReportReason;
+  details?: string;
+  state: "open" | "reviewing" | "resolved" | "dismissed";
+  created_at: string;
+}
+
+export interface CommunityNotification {
+  id: string;
+  event_type: "community.answer.created" | "community.comment.created" | "community.accepted" | "community.helpful" | "community.official" | "community.approval" | "community.revision" | "community.moderation";
+  target_type: string;
+  target_id?: string;
+  read_at?: string;
+  created_at: string;
+}
+
+export interface CommunityNotificationPage {
+  items: CommunityNotification[];
+  next_cursor?: string;
+  unread_count: number;
+}
+
+export type CommunityNotificationPreferenceKey = "answer_created" | "comment_created" | "accepted_answer" | "helpful_vote" | "official_answer" | "first_contribution" | "revision_decision" | "moderation_decision";
+
+export interface CommunityNotificationPreferences {
+  email_preferences: Record<CommunityNotificationPreferenceKey, boolean>;
+}
+
 export interface CommunityQuestionListOptions {
   category_id?: string;
   locale?: CommunityLocale | "all";

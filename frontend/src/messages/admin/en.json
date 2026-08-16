@@ -68,11 +68,12 @@
       "registrations": "Registrations",
       "audit_logs": "Audit Logs",
       "privacyRequests": "Privacy Requests"
+      ,"community": "Community Q&A"
     },
     "permissions": {
       "system": "Resource",
       "all": "All",
-      "actions": { "read": "Read", "create": "Create", "update": "Update", "delete": "Delete" },
+      "actions": { "read": "Read", "create": "Create", "update": "Update", "delete": "Delete", "moderate": "Moderate", "answer_officially": "Mark official", "manage_categories": "Manage categories", "restrict_members": "Restrict members" },
       "resources": {
         "events": "Events",
         "monks": "Monks",
@@ -88,7 +89,8 @@
         "audit_logs": "Audit logs",
         "privacy_requests": "Privacy requests",
         "account_operations": "Public accounts",
-        "calendar_resources": "Calendar resources"
+        "calendar_resources": "Calendar resources",
+        "community": "Community Q&A"
       }
     },
     "header": {
@@ -134,6 +136,53 @@
       "forbiddenTitle": "Access Denied",
       "forbiddenDesc": "You do not have permission to access this section. Please contact your system administrator if you need access.",
       "backToDashboard": "Back to Dashboard"
+    },
+    "community": {
+      "title": "Community Q&A",
+      "description": "Review member contributions, reports, categories, and restrictions.",
+      "queue": "Moderation queue",
+      "moderation": "Moderation",
+      "categories": "Categories",
+      "members": "Members",
+      "loading": "Loading Community moderation…",
+      "loadError": "Community moderation could not be loaded.",
+      "empty": "Nothing is waiting for review.",
+      "items": "Pending content",
+      "reports": "Reports",
+      "revisions": "Revisions",
+      "approve": "Approve",
+      "reject": "Reject",
+      "hide": "Hide",
+      "restore": "Restore",
+      "lock": "Lock",
+      "unlock": "Unlock",
+      "archive": "Archive",
+      "unarchive": "Unarchive",
+      "official": "Mark official",
+      "restrict": "Restrict",
+      "unrestrict": "Remove restriction",
+      "ban": "Ban",
+      "reason": "Reason",
+      "reasonPlaceholder": "Explain this decision for the audit trail…",
+      "save": "Save decision",
+      "reportResolve": "Resolve report",
+      "reportDismiss": "Dismiss report",
+      "categorySlug": "Slug",
+      "categoryTh": "Thai name",
+      "categoryEn": "English name",
+      "categoryDe": "German name",
+      "categoryActive": "Active",
+      "inactive": "Inactive",
+      "categorySave": "Save category",
+      "categoryDelete": "Delete category",
+      "categoryDeleteReason": "Why is this category being removed?",
+      "categoryReorder": "Save order",
+      "noItems": "No pending content.",
+      "noReports": "No open reports.",
+      "noRevisions": "No pending revisions.",
+      "decisionSaved": "Decision saved.",
+      "approveRevision": "Approve revision",
+      "rejectRevision": "Reject revision"
     },
     "dashboard": {
       "welcome": "Hello",

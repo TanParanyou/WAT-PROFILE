@@ -58,6 +58,22 @@ func main() {
 		log.Fatal(err)
 	}
 	dispatcher := services.NewOperationDispatcher(donations, services.NewDonationEmailService(sender), r2, retention, contacts, notifications, registrationEmails)
+	accountCfg, accountCfgErr := config.LoadAccountAuthConfig()
+	if accountCfgErr != nil {
+		log.Fatal(accountCfgErr)
+	}
+	communityCfg, communityCfgErr := config.LoadCommunityConfig(accountCfg)
+	if communityCfgErr != nil {
+		log.Fatal(communityCfgErr)
+	}
+	dispatcher.SetCommunityRetentionService(services.NewCommunityRetentionService(config.DB, communityCfg))
+	if frontendURL := strings.TrimSpace(os.Getenv("PUBLIC_ACCOUNT_FRONTEND_URL")); frontendURL != "" {
+		communityEmail, emailErr := services.NewCommunityEmailService(config.DB, sender, frontendURL)
+		if emailErr != nil {
+			log.Fatal(emailErr)
+		}
+		dispatcher.SetCommunityEmailService(communityEmail)
+	}
 
 	// A daily deterministic job makes media retention durable and safe to run
 	// from cron more than once. The worker also processes donation email jobs.
@@ -68,6 +84,15 @@ func main() {
 		AggregateID:   "-",
 	}); err != nil {
 		log.Fatal(err)
+	}
+	day := time.Now().UTC().Format("2006-01-02")
+	for _, job := range []services.OutboxJobInput{
+		{JobKey: "community:retention:" + day, Kind: "community.retention_due", AggregateType: "community", AggregateID: "-"},
+		{JobKey: "community:reconcile:" + day, Kind: "community.reconcile_counts", AggregateType: "community", AggregateID: "-"},
+	} {
+		if _, err := outbox.Enqueue(job); err != nil {
+			log.Fatal(err)
+		}
 	}
 
 	host, _ := os.Hostname()

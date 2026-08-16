@@ -129,6 +129,22 @@ export const communityHelpfulSchema = z.object({
   helpful_count: z.number().int().nonnegative(),
 }).strict();
 
+export const communityReportSchema = z.object({
+  id: z.string().uuid(),
+  target_type: z.enum(["question", "answer", "comment"]),
+  target_id: z.string().uuid(),
+  reason: z.enum(["spam", "harassment", "misinformation", "privacy", "inappropriate", "other"]),
+  details: z.string().optional(),
+  state: z.enum(["open", "reviewing", "resolved", "dismissed"]),
+  created_at: z.string(),
+}).strict();
+
+export const communityNotificationSchema = z.object({
+  id: z.string().uuid(), event_type: z.enum(["community.answer.created", "community.comment.created", "community.accepted", "community.helpful", "community.official", "community.approval", "community.revision", "community.moderation"]), target_type: z.string(), target_id: z.string().uuid().optional(), read_at: z.string().optional(), created_at: z.string(),
+}).strict();
+export const communityNotificationPageSchema = z.object({ items: z.array(communityNotificationSchema), next_cursor: z.string().optional(), unread_count: z.number().int().nonnegative() }).strict();
+export const communityNotificationPreferencesSchema = z.object({ email_preferences: z.record(z.string(), z.boolean()) }).strict();
+
 export const communitySuccessEnvelopeSchema = <T extends z.ZodType>(data: T) =>
   z.object({ success: z.literal(true), data }).strict();
 
