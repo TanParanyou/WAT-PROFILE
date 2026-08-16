@@ -214,6 +214,7 @@
         "onlineJoinUrlPlaceholder": "https://youtube.com/live/... oder Zoom",
         "registrationSettings": "Anmeldeeinstellungen",
         "registrationDeadline": "Anmeldeschluss",
+        "registrationDeadlineAfterStart": "Der Anmeldeschluss darf nicht nach dem Beginn der Veranstaltung liegen.",
         "maxParticipants": "Max. Teilnehmerzahl (Plätze)",
         "dressCode": "Kleiderordnung",
         "whatToBring": "Mitzubringende Gegenstände / Gaben",

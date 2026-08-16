@@ -214,6 +214,7 @@
         "onlineJoinUrlPlaceholder": "https://youtube.com/live/... or Zoom",
         "registrationSettings": "Registration Settings",
         "registrationDeadline": "Registration Deadline",
+        "registrationDeadlineAfterStart": "Registration deadline must be on or before the event start.",
         "maxParticipants": "Max Participants (Seats)",
         "dressCode": "Dress Code Advice",
         "whatToBring": "What to Bring / Offerings",

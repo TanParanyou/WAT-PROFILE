@@ -165,6 +165,9 @@ func (h *EventHandler) CreateEvent(c *fiber.Ctx) error {
 	if err := richtext.ValidateLocalized(event.Description); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
+	if err := services.ValidateEventRegistrationDeadline(&event); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
 	event.ResourceAssignments = nil
 	if err := h.eventService.CreateWithResourceIDs(&event, input.ResourceIDs); err != nil {
 		if errors.Is(err, services.ErrInvalidResourceAssignments) || errors.Is(err, services.ErrInvalidEventResourceIDs) {
@@ -197,6 +200,9 @@ func (h *EventHandler) UpdateEvent(c *fiber.Ctx) error {
 	updated.ID = event.ID
 	updated.ResourceAssignments = event.ResourceAssignments
 	if err := richtext.ValidateLocalized(updated.Description); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+	if err := services.ValidateEventRegistrationDeadline(&updated); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
 	var updateErr error

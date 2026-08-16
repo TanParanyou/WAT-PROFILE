@@ -38,38 +38,52 @@ export const baseEventSchema = z.object({
   resource_ids: z.array(z.number().int().positive()).default([]),
 });
 
-export const eventSchema = baseEventSchema.superRefine((data, ctx) => {
-  if (data.start_date && data.end_date) {
-    if (new Date(data.end_date) < new Date(data.start_date)) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "End date must be on or after start date",
-        path: ["end_date"],
-      });
-    }
-  }
+export const createEventSchema = (translate?: (key: string) => string) => {
+  const message = (key: string, fallback: string) => (translate ? translate(key) : fallback);
 
-  if (data.start_time && data.end_time) {
-    if (data.end_time <= data.start_time) {
-      ctx.addIssue({
-        code: z.ZodIssueCode.custom,
-        message: "End time must be after start time",
-        path: ["end_time"],
-      });
+  return baseEventSchema.superRefine((data, ctx) => {
+    if (data.start_date && data.end_date) {
+      if (new Date(data.end_date) < new Date(data.start_date)) {
+        ctx.addIssue({
+          code: z.ZodIssueCode.custom,
+          message: "End date must be on or after start date",
+          path: ["end_date"],
+        });
+      }
     }
-  }
 
-  if (data.schedule) {
-    data.schedule.forEach((item, index) => {
-      if (item.start_time && item.end_time && item.end_time < item.start_time) {
+    if (data.start_time && data.end_time) {
+      if (data.end_time <= data.start_time) {
         ctx.addIssue({
           code: z.ZodIssueCode.custom,
           message: "End time must be after start time",
-          path: ["schedule", index, "end_time"],
+          path: ["end_time"],
         });
       }
-    });
-  }
-});
+    }
+
+    if (data.registration_deadline && data.start_date && data.registration_deadline >= data.start_date) {
+      ctx.addIssue({
+        code: z.ZodIssueCode.custom,
+        message: message("registrationDeadlineAfterStart", "Registration deadline must be on or before the event start."),
+        path: ["registration_deadline"],
+      });
+    }
+
+    if (data.schedule) {
+      data.schedule.forEach((item, index) => {
+        if (item.start_time && item.end_time && item.end_time < item.start_time) {
+          ctx.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: "End time must be after start time",
+            path: ["schedule", index, "end_time"],
+          });
+        }
+      });
+    }
+  });
+};
+
+export const eventSchema = createEventSchema();
 
 export type EventFormData = z.infer<typeof eventSchema>;

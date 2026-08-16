@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import { useRouter } from "@/navigation";
 import { MultiLangInput } from "@/components/admin/MultiLangInput";
 import { MultiLangRichText } from "@/components/admin/rich-text/MultiLangRichText";
@@ -19,7 +19,7 @@ import type { MultiLangText } from "@/types/api";
 import { useLocale, useTranslations } from "next-intl";
 import { useForm, Controller, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { eventSchema, type EventFormData } from "@/schemas/event.schema";
+import { createEventSchema, type EventFormData } from "@/schemas/event.schema";
 import { FileText, MapPin, ArrowLeft, ZoomIn, X as CloseIcon } from "lucide-react";
 import { FormActionBar } from "@/components/admin/FormActionBar";
 import { EventScheduleEditor } from "@/components/admin/events/EventScheduleEditor";
@@ -68,8 +68,10 @@ export function EventEditor({ id }: EventEditorProps) {
   const { getEventTypeOptions } = useAppOptions();
   const eventTypeOptions = getEventTypeOptions();
 
+  const schema = useMemo(() => createEventSchema((key: string) => t(`events.form.${key}` as Parameters<typeof t>[0])), [t]);
+
   const methods = useForm({
-    resolver: zodResolver(eventSchema),
+    resolver: zodResolver(schema),
     defaultValues: {
       title: { ...emptyLang },
       description: { ...emptyLang },

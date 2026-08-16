@@ -1,6 +1,6 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
-import { eventSchema } from './event.schema';
+import { createEventSchema, eventSchema } from './event.schema';
 
 test('eventSchema: validates correctly with valid dates and times', () => {
   const validData = {
@@ -13,6 +13,10 @@ test('eventSchema: validates correctly with valid dates and times', () => {
     event_type: 'religious',
     is_active: true,
     registration_enabled: false,
+    location: {},
+    dress_code: {},
+    what_to_bring: {},
+    transport_info: {},
     schedule: [
       {
         start_time: '09:00',
@@ -34,7 +38,11 @@ test('eventSchema: fails when end_date is before start_date', () => {
     end_date: '2026-10-01', // Error: end_date is before start_date
     event_type: 'religious',
     is_active: true,
-    registration_enabled: false
+    registration_enabled: false,
+    location: {},
+    dress_code: {},
+    what_to_bring: {},
+    transport_info: {},
   };
 
   const result = eventSchema.safeParse(invalidData);
@@ -55,6 +63,10 @@ test('eventSchema: fails when schedule end_time is before start_time', () => {
     event_type: 'religious',
     is_active: true,
     registration_enabled: false,
+    location: {},
+    dress_code: {},
+    what_to_bring: {},
+    transport_info: {},
     schedule: [
       {
         start_time: '10:00',
@@ -81,10 +93,97 @@ test('eventSchema: allows optional location with empty string values', () => {
     end_date: '2026-10-02',
     event_type: 'religious',
     location: { th: '', en: '', de: '' },
+    dress_code: {},
+    what_to_bring: {},
+    transport_info: {},
     is_active: true,
     registration_enabled: false
   };
 
   const result = eventSchema.safeParse(dataWithEmptyLocation);
   assert.equal(result.success, true);
+});
+
+test('eventSchema: allows a registration deadline before the event start', () => {
+  const result = eventSchema.safeParse({
+    title: { th: 'งานสวดมนต์', en: 'Praying Event', de: 'Beten Event' },
+    slug: 'praying-event',
+    start_date: '2026-10-01',
+    end_date: '2026-10-02',
+    start_time: '09:00',
+    event_type: 'religious',
+    is_active: true,
+    registration_enabled: true,
+    registration_deadline: '2026-09-30',
+    location: {},
+    dress_code: {},
+    what_to_bring: {},
+    transport_info: {},
+  });
+
+  assert.equal(result.success, true);
+});
+
+test('eventSchema: rejects a registration deadline on the event start date', () => {
+  const result = eventSchema.safeParse({
+    title: { th: 'งานสวดมนต์', en: 'Praying Event', de: 'Beten Event' },
+    slug: 'praying-event',
+    start_date: '2026-10-01',
+    end_date: '2026-10-02',
+    start_time: '09:00',
+    event_type: 'religious',
+    is_active: true,
+    registration_enabled: true,
+    registration_deadline: '2026-10-01',
+    location: {},
+    dress_code: {},
+    what_to_bring: {},
+    transport_info: {},
+  });
+
+  assert.equal(result.success, false);
+  if (!result.success) {
+    assert.equal(result.error.issues.find((issue) => issue.path.includes('registration_deadline'))?.message, 'Registration deadline must be on or before the event start.');
+  }
+});
+
+test('eventSchema: allows an event without a registration deadline', () => {
+  const result = eventSchema.safeParse({
+    title: { th: 'งานสวดมนต์', en: 'Praying Event', de: 'Beten Event' },
+    slug: 'praying-event',
+    start_date: '2026-10-01',
+    end_date: '2026-10-02',
+    event_type: 'religious',
+    is_active: true,
+    registration_enabled: true,
+    location: {},
+    dress_code: {},
+    what_to_bring: {},
+    transport_info: {},
+  });
+
+  assert.equal(result.success, true);
+});
+
+test('createEventSchema: uses the localized registration deadline message', () => {
+  const schema = createEventSchema((key) => key === 'registrationDeadlineAfterStart' ? 'localized deadline error' : key);
+  const result = schema.safeParse({
+    title: { th: 'งานสวดมนต์', en: 'Praying Event', de: 'Beten Event' },
+    slug: 'praying-event',
+    start_date: '2026-10-01',
+    end_date: '2026-10-02',
+    event_type: 'religious',
+    is_active: true,
+    registration_enabled: true,
+    registration_deadline: '2026-10-01',
+    location: {},
+    dress_code: {},
+    what_to_bring: {},
+    transport_info: {},
+  });
+
+  assert.equal(result.success, false);
+  if (!result.success) {
+    assert.equal(result.error.issues.find((issue) => issue.path.includes('registration_deadline'))?.message, 'localized deadline error');
+  }
 });

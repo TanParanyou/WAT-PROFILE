@@ -214,6 +214,7 @@
         "onlineJoinUrlPlaceholder": "https://youtube.com/live/... หรือ Zoom",
         "registrationSettings": "การลงทะเบียนเข้าร่วมงาน",
         "registrationDeadline": "วันปิดรับลงทะเบียน",
+        "registrationDeadlineAfterStart": "วันปิดรับลงทะเบียนต้องไม่เกินวันเริ่มกิจกรรม",
         "maxParticipants": "จำนวนผู้เข้าร่วมสูงสุด (ท่าน)",
         "dressCode": "ข้อแนะนำการแต่งกาย (Dress Code)",
         "whatToBring": "สิ่งของที่ต้องเตรียมมาร่วมบุญ",
