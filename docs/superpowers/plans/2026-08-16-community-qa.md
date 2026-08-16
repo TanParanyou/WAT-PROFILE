@@ -64,8 +64,8 @@
 - `backend/internal/routes/routes.go`: route registration and Admin handler registry.
 - `backend/internal/config/community.go`: feature flags, rate limits, and retention config.
 - `backend/cmd/operations-worker/main.go`: Community email, retention, and reconciliation dispatch wiring.
-- `backend/migrations/000045_create_community_qa.{up,down}.sql`: schema, constraints, indexes, and `pg_trgm`.
-- `backend/migrations/000046_seed_community_qa.{up,down}.sql`: localized categories and Admin permission.
+- `backend/migrations/000046_create_community_qa.{up,down}.sql`: schema, constraints, indexes, and `pg_trgm`.
+- `backend/migrations/000047_seed_community_qa.{up,down}.sql`: localized categories and Admin permission.
 
 ### Frontend public feature
 
@@ -93,10 +93,10 @@
 ### Task 1: Create Community schema, constraints, and GORM models
 
 **Files:**
-- Create: `backend/migrations/000045_create_community_qa.up.sql`
-- Create: `backend/migrations/000045_create_community_qa.down.sql`
-- Create: `backend/migrations/000046_seed_community_qa.up.sql`
-- Create: `backend/migrations/000046_seed_community_qa.down.sql`
+- Create: `backend/migrations/000046_create_community_qa.up.sql`
+- Create: `backend/migrations/000046_create_community_qa.down.sql`
+- Create: `backend/migrations/000047_seed_community_qa.up.sql`
+- Create: `backend/migrations/000047_seed_community_qa.down.sql`
 - Create: `backend/internal/models/rich_text_document.go`
 - Create: `backend/internal/models/community_content.go`
 - Create: `backend/internal/models/community_moderation.go`
@@ -212,7 +212,7 @@ because another feature may use the extension.
 
 - [ ] **Step 5: Seed localized categories and Admin permission**
 
-`000046` inserts deterministic UUIDs and complete `th/en/de` JSON for the four
+`000047` inserts deterministic UUIDs and complete `th/en/de` JSON for the four
 categories. It updates only active Admin roles named `admin`:
 
 ```sql
@@ -254,7 +254,7 @@ disposable target and confirm version returns to 44.
 - [ ] **Step 8: Commit schema foundation**
 
 ```bash
-git add backend/migrations/000045_create_community_qa.* backend/migrations/000046_seed_community_qa.* backend/internal/models backend/internal/config/config.go docs/DATABASE.md
+git add backend/migrations/000046_create_community_qa.* backend/migrations/000047_seed_community_qa.* backend/internal/models backend/internal/config/config.go docs/DATABASE.md
 git commit -m "feat(community): add production schema"
 ```
 
@@ -1481,7 +1481,7 @@ git commit -m "test(community): complete production gates"
 
 ## Final rollout checklist
 
-- [ ] Apply `000045` and `000046` with all Community flags false.
+- [ ] Apply `000046` and `000047` with all Community flags false.
 - [ ] Deploy API and operations worker; verify health, worker claims, and no Community email dispatch.
 - [ ] Grant least-privilege Community permissions and verify denied-route audit.
 - [ ] Verify four categories in `th`, `en`, and `de`.
