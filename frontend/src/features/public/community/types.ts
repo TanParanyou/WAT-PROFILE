@@ -70,6 +70,42 @@ export interface CommunityQuestionDetail {
   last_activity_at: string;
 }
 
+export interface CommunityQuestionMutation {
+  question: CommunityQuestionListItem;
+  body: RichTextDocument;
+  publication_status: "pending_review" | "published" | "hidden" | "deleted";
+  lifecycle_status: CommunityLifecycle;
+  version: number;
+  review_required: boolean;
+}
+
+export interface CommunityMemberQuestion {
+  id: string;
+  category: CommunityCategory;
+  locale: CommunityLocale;
+  title: string;
+  slug: string;
+  publication_status: "pending_review" | "published" | "hidden" | "deleted";
+  lifecycle_status: CommunityLifecycle;
+  version: number;
+  created_at: string;
+  updated_at: string;
+  published_at?: string;
+}
+
+export interface CommunityMemberActivity {
+  questions: CommunityMemberQuestion[];
+}
+
+export interface CommunityViewerState {
+  is_authenticated: boolean;
+  can_edit: boolean;
+  can_delete: boolean;
+  can_accept: boolean;
+  has_voted: boolean;
+  is_pending_owner: boolean;
+}
+
 export interface CommunityQuestionListOptions {
   category_id?: string;
   locale?: CommunityLocale | "all";

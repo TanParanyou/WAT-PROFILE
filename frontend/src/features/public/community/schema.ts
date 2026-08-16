@@ -12,7 +12,7 @@ const authorSchema = z.object({
   display_name: z.string(),
   avatar_url: z.string().optional(),
 }).strict();
-const categorySchema = z.object({
+export const categorySchema = z.object({
   id: z.string().uuid(),
   slug: z.string(),
   name: localizedTextSchema,
@@ -20,7 +20,7 @@ const categorySchema = z.object({
   sort_order: z.number().int(),
 }).strict();
 
-const questionListItemSchema = z.object({
+export const questionListItemSchema = z.object({
   id: z.string().uuid(),
   category: categorySchema,
   locale: z.enum(["th", "en", "de"]),
@@ -34,7 +34,7 @@ const questionListItemSchema = z.object({
   author: authorSchema.optional(),
 }).strict();
 
-const answerSchema = z.object({
+export const answerSchema = z.object({
   id: z.string().uuid(),
   question_id: z.string().uuid(),
   body: richTextDocumentSchema,
@@ -47,7 +47,7 @@ const answerSchema = z.object({
   version: z.number().int().positive(),
 }).strict();
 
-const commentSchema = z.object({
+export const commentSchema = z.object({
   id: z.string().uuid(),
   question_id: z.string().uuid(),
   answer_id: z.string().uuid().optional(),
@@ -71,6 +71,40 @@ export const communityQuestionDetailSchema = z.object({
   accepted_answer_id: z.string().uuid().optional(),
   version: z.number().int().positive(),
   last_activity_at: z.string(),
+}).strict();
+
+export const communityQuestionMutationSchema = z.object({
+  question: questionListItemSchema,
+  body: richTextDocumentSchema,
+  publication_status: z.enum(["pending_review", "published", "hidden", "deleted"]),
+  lifecycle_status: z.enum(["open", "answered", "resolved", "locked", "archived"]),
+  version: z.number().int().positive(),
+  review_required: z.boolean(),
+}).strict();
+
+export const communityMemberActivitySchema = z.object({
+  questions: z.array(z.object({
+    id: z.string().uuid(),
+    category: categorySchema,
+    locale: z.enum(["th", "en", "de"]),
+    title: z.string(),
+    slug: z.string(),
+    publication_status: z.enum(["pending_review", "published", "hidden", "deleted"]),
+    lifecycle_status: z.enum(["open", "answered", "resolved", "locked", "archived"]),
+    version: z.number().int().positive(),
+    created_at: z.string(),
+    updated_at: z.string(),
+    published_at: z.string().optional(),
+  }).strict()),
+}).strict();
+
+export const communityViewerStateSchema = z.object({
+  is_authenticated: z.boolean(),
+  can_edit: z.boolean(),
+  can_delete: z.boolean(),
+  can_accept: z.boolean(),
+  has_voted: z.boolean(),
+  is_pending_owner: z.boolean(),
 }).strict();
 
 export const communitySuccessEnvelopeSchema = <T extends z.ZodType>(data: T) =>

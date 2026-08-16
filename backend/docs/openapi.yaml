@@ -115,6 +115,15 @@ paths:
         '429': { $ref: '#/components/responses/TooManyRequests' }
 
   /accounts/community/questions/{id}:
+    get:
+      tags: [Community]
+      summary: Read one owned Community question for editing
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Owned question detail, content: { application/json: { schema: { $ref: '#/components/schemas/CommunityQuestionMutationResponse' } } } }
+        '404': { $ref: '#/components/responses/NotFound' }
     patch:
       tags: [Community]
       summary: Edit an owned Community question

@@ -233,6 +233,17 @@ func (s *CommunityQuestionService) ListMyActivity(ctx context.Context, actor uui
 	return result, nil
 }
 
+func (s *CommunityQuestionService) GetOwnedQuestion(ctx context.Context, actor, questionID uuid.UUID) (community.QuestionMutationDTO, error) {
+	var question models.CommunityQuestion
+	if err := s.db.WithContext(ctx).Where("id = ? AND author_user_id = ?", questionID, actor).First(&question).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return community.QuestionMutationDTO{}, community.NewDomainError(community.CodeContentNotFound, "Question not found")
+		}
+		return community.QuestionMutationDTO{}, err
+	}
+	return s.mutationDTO(ctx, question, false)
+}
+
 func (s *CommunityQuestionService) ViewerState(ctx context.Context, actor, questionID uuid.UUID) (community.ViewerStateDTO, error) {
 	var question models.CommunityQuestion
 	if err := s.db.WithContext(ctx).First(&question, "id = ?", questionID).Error; err != nil {

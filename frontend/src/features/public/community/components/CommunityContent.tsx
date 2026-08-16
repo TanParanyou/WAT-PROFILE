@@ -2,7 +2,7 @@
 
 import { FormEvent } from "react";
 import { useLocale, useTranslations } from "next-intl";
-import { usePathname, useRouter } from "@/navigation";
+import { Link, usePathname, useRouter } from "@/navigation";
 import { useSearchParams } from "next/navigation";
 import PageContainer from "@/components/layout/PageContainer";
 import PageHeader from "@/components/layout/PageHeader";
@@ -11,6 +11,7 @@ import { QueryErrorState } from "@/components/public/states/QueryErrorState";
 import { QuestionList } from "./QuestionList";
 import { useCommunityCategoriesQuery, useCommunityQuestionsQuery } from "../queries";
 import type { CommunityLocale, CommunityQuestionListOptions } from "../types";
+import { useAccountSession } from "@/features/public/account/AccountSessionProvider";
 
 function supportedLocale(value: string): CommunityLocale {
   return value === "en" || value === "de" ? value : "th";
@@ -22,6 +23,7 @@ export function CommunityContent({ categoryID }: { categoryID?: string }) {
   const searchParams = useSearchParams();
   const pathname = usePathname();
   const router = useRouter();
+  const session = useAccountSession();
   const categoriesQuery = useCommunityCategoriesQuery();
   const options: CommunityQuestionListOptions = {
     category_id: categoryID ?? searchParams.get("category_id") ?? undefined,
@@ -48,6 +50,13 @@ export function CommunityContent({ categoryID }: { categoryID?: string }) {
     <div className="min-h-screen bg-site-canvas">
       <PageHeader variant="reading" align="left" title={t("title")} subtitle={t("subtitle")} />
       <PageContainer width="content">
+        <div className="mb-8 flex flex-wrap items-center justify-between gap-4 border-b border-site-border pb-6">
+          <p className="max-w-xl text-sm leading-7 text-site-body">{t("memberPrompt")}</p>
+          <div className="flex flex-wrap gap-3">
+            <Link href="/community/ask" className="inline-flex min-h-11 items-center border border-site-border bg-site-action px-4 text-sm font-semibold text-site-on-action hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus">{t("askQuestion")}</Link>
+            {session.status === "authenticated" ? <Link href="/community/activity" className="inline-flex min-h-11 items-center border border-site-border px-4 text-sm font-semibold text-site-foreground hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus">{t("myActivity")}</Link> : null}
+          </div>
+        </div>
         <section aria-labelledby="community-filter-heading">
           <h2 id="community-filter-heading" className="sr-only">{t("title")}</h2>
           <div className="grid gap-3 border-y border-site-border py-5 md:grid-cols-[minmax(0,1fr)_auto_auto]">

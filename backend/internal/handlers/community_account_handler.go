@@ -67,6 +67,18 @@ func (h *CommunityAccountHandler) UpdateQuestion(c *fiber.Ctx) error {
 	return c.Status(status).JSON(fiber.Map{"success": true, "data": result})
 }
 
+func (h *CommunityAccountHandler) GetOwnedQuestion(c *fiber.Ctx) error {
+	questionID, err := parseCommunityID(c.Params("id"))
+	if err != nil {
+		return communityAccountError(c, err)
+	}
+	result, err := h.questions.GetOwnedQuestion(c.UserContext(), mustLocalsUserID(c), questionID)
+	if err != nil {
+		return communityAccountError(c, err)
+	}
+	return utils.SuccessResponse(c, result)
+}
+
 func (h *CommunityAccountHandler) DeleteQuestion(c *fiber.Ctx) error {
 	questionID, err := parseCommunityID(c.Params("id"))
 	if err != nil {

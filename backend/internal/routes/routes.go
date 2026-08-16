@@ -159,6 +159,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 		communityAccountHandler := handlers.NewCommunityAccountHandler(db, communityCfg)
 		communityAccount := api.Group("/accounts/community", middleware.AccountOriginGuard(accountCfg.AllowedOrigins), middleware.PublicAccountRequired(db, []byte(os.Getenv("JWT_SECRET"))))
 		communityAccount.Post("/questions", communityAccountHandler.CreateQuestion)
+		communityAccount.Get("/questions/:id", communityAccountHandler.GetOwnedQuestion)
 		communityAccount.Patch("/questions/:id", communityAccountHandler.UpdateQuestion)
 		communityAccount.Delete("/questions/:id", communityAccountHandler.DeleteQuestion)
 		communityAccount.Get("/activity", communityAccountHandler.ListMyActivity)
