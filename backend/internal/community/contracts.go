@@ -55,6 +55,15 @@ type QuestionCursor struct {
 	ID             uuid.UUID `json:"id"`
 }
 
+type QuestionListInput struct {
+	CategoryID *uuid.UUID
+	Locale     string
+	Lifecycle  string
+	Search     string
+	Cursor     string
+	Limit      int
+}
+
 type AnswerCursor struct {
 	HelpfulCount int       `json:"helpful_count"`
 	PublishedAt  time.Time `json:"published_at"`
@@ -135,8 +144,8 @@ type QuestionDetailDTO struct {
 	Answers          []AnswerDTO             `json:"answers"`
 	Comments         []CommentDTO            `json:"comments"`
 	AcceptedAnswerID *uuid.UUID              `json:"accepted_answer_id,omitempty"`
-	Viewer           ViewerStateDTO          `json:"viewer"`
 	Version          int                     `json:"version"`
+	LastActivityAt   time.Time               `json:"last_activity_at"`
 }
 
 type NotificationListInput struct {

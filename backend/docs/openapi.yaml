@@ -47,6 +47,8 @@ tags:
       verification, login success/failure, refresh reuse, recovery, Google link, session
       revoke, closure) are recorded as allow-listed security events with a coarse IP
       prefix and trace ID; event persistence never fails the user operation.
+  - name: Community
+    description: Public Community Q&A reads (feature-gated by PUBLIC_COMMUNITY_READ_ENABLED)
   - name: Admin - Users
     description: Users management (Admin only)
   - name: Admin - Account Operations
@@ -80,6 +82,84 @@ tags:
 
 paths:
   # ==================== PUBLIC ====================
+  /public/community/categories:
+    get:
+      tags: [Community]
+      summary: List active Community categories
+      responses:
+        '200':
+          description: Active localized categories
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommunityCategoryListResponse'
+        '404':
+          description: Community reads are disabled
+
+  /public/community/questions:
+    get:
+      tags: [Community]
+      summary: List published Community questions
+      parameters:
+        - name: cursor
+          in: query
+          schema: { type: string }
+        - name: limit
+          in: query
+          schema: { type: integer, minimum: 1, maximum: 50, default: 20 }
+        - name: search
+          in: query
+          schema: { type: string, maxLength: 200 }
+        - name: category_id
+          in: query
+          schema: { type: string, format: uuid }
+        - name: locale
+          in: query
+          schema: { type: string, enum: [th, en, de, all] }
+        - name: lifecycle
+          in: query
+          schema: { type: string, enum: [open, answered, resolved, locked, archived] }
+      responses:
+        '200':
+          description: Cursor-paginated published questions
+          headers:
+            ETag:
+              schema: { type: string }
+            Cache-Control:
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommunityQuestionListResponse'
+        '304':
+          description: Response has not changed
+        '400':
+          description: Invalid filter or cursor
+
+  /public/community/questions/{id}:
+    get:
+      tags: [Community]
+      summary: Read one published Community question
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: string, format: uuid }
+      responses:
+        '200':
+          description: Published question detail
+          headers:
+            ETag:
+              schema: { type: string }
+            Cache-Control:
+              schema: { type: string }
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CommunityQuestionDetailResponse'
+        '404':
+          description: Question not found or Community reads are disabled
+
   /public/events:
     get:
       tags: [Events]
@@ -4116,6 +4196,34 @@ components:
             $ref: '#/components/schemas/ErrorResponse'
 
   schemas:
+    CommunityCategory:
+      type: object
+      required: [id, slug, name, sort_order]
+      properties:
+        id: { type: string, format: uuid }
+        slug: { type: string }
+        name: { $ref: '#/components/schemas/MultiLangText' }
+        description:
+          allOf:
+            - $ref: '#/components/schemas/MultiLangText'
+          nullable: true
+        sort_order: { type: integer }
+
+    CommunityCategoryListResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+      description: Success envelope containing CommunityCategory[] in data
+
+    CommunityQuestionListResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+      description: Success envelope containing cursor-paginated Community questions in data
+
+    CommunityQuestionDetailResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+      description: Success envelope containing a Community question detail in data
+
     # ===== Common =====
     MultiLangText:
       type: object

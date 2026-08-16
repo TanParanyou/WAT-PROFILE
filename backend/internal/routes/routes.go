@@ -74,6 +74,12 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 
 	// ============ PUBLIC ROUTES (No Auth Required) ============
 	public := api.Group("/public")
+	if communityCfg.ReadEnabled {
+		communityPublicHandler := handlers.NewCommunityPublicHandler(db, communityCfg)
+		public.Get("/community/categories", communityPublicHandler.GetCategories)
+		public.Get("/community/questions", communityPublicHandler.ListQuestions)
+		public.Get("/community/questions/:id", communityPublicHandler.GetQuestion)
+	}
 
 	// Public Content Pages
 	public.Get("/about", publicContentHandler.GetPublicAbout)
