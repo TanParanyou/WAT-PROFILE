@@ -40,11 +40,12 @@ export default function RegistrationsPage() {
   const t = useTranslations("Admin");
   const localeValue = useLocale();
   const locale = localeValue === "en" || localeValue === "de" ? localeValue : "th";
+  const localeTag = locale === "th" ? "th-TH" : locale === "de" ? "de-DE" : "en-US";
 
   const statusOptions = [
     { value: "pending", label: t("registrations.pending") },
     { value: "confirmed", label: t("registrations.approved") },
-    { value: "attended", label: "Attended" },
+    { value: "attended", label: t("registrations.attended") },
     { value: "cancelled", label: t("registrations.cancelled") },
   ];
 
@@ -102,35 +103,35 @@ export default function RegistrationsPage() {
     {
       key: "status",
       kind: "multi",
-      label: "สถานะ",
+      label: t("registrations.filterStatus"),
       options: [
-        { value: "pending", label: "Pending" },
-        { value: "confirmed", label: "Confirmed" },
-        { value: "attended", label: "Attended" },
-        { value: "cancelled", label: "Cancelled" },
+        { value: "pending", label: t("registrations.pending") },
+        { value: "confirmed", label: t("registrations.approved") },
+        { value: "attended", label: t("registrations.attended") },
+        { value: "cancelled", label: t("registrations.cancelled") },
       ],
     },
     {
       key: "event",
       kind: "multi",
-      label: "กิจกรรม",
-      options: (eventsData || []).map((e) => ({ value: String(e.id), label: e.title?.th || String(e.id) })),
+      label: t("registrations.filterEvent"),
+      options: (eventsData || []).map((e) => ({ value: String(e.id), label: e.title?.[locale] || String(e.id) })),
     },
   ];
 
   const activeChips: AdminActiveFilterChip[] = [];
   for (const s of listState.params.filters.status || []) {
-    activeChips.push({ key: "status", value: s, label: `สถานะ: ${s}` });
+    activeChips.push({ key: "status", value: s, label: t("registrations.activeStatus", { status: t(`registrations.${s === "confirmed" ? "approved" : s}`) }) });
   }
   for (const eId of listState.params.filters.event || []) {
-    const eTitle = eventsData?.find((e) => String(e.id) === eId)?.title?.th || eId;
-    activeChips.push({ key: "event", value: eId, label: `กิจกรรม: ${eTitle}` });
+    const eTitle = eventsData?.find((e) => String(e.id) === eId)?.title?.[locale] || eId;
+    activeChips.push({ key: "event", value: eId, label: t("registrations.activeEvent", { event: eTitle }) });
   }
   if (listState.params.filters.from) {
-    activeChips.push({ key: "from", value: listState.params.filters.from, label: `ตั้งแต่วันที่: ${listState.params.filters.from}` });
+    activeChips.push({ key: "from", value: listState.params.filters.from, label: t("registrations.activeFrom", { date: listState.params.filters.from }) });
   }
   if (listState.params.filters.to) {
-    activeChips.push({ key: "to", value: listState.params.filters.to, label: `ถึงวันที่: ${listState.params.filters.to}` });
+    activeChips.push({ key: "to", value: listState.params.filters.to, label: t("registrations.activeTo", { date: listState.params.filters.to }) });
   }
 
   const handleDelete = async (id: number) => {
@@ -176,16 +177,16 @@ export default function RegistrationsPage() {
     exportToCsv(
       listQuery.rows,
       [
-        { header: "ID", accessor: (item) => String(item.id || "") },
-        { header: "Name", accessor: (item) => String(item.name || "") },
-        { header: "Email", accessor: (item) => String(item.email || "") },
-        { header: "Phone", accessor: (item) => String(item.phone || "") },
-        { header: "Event", accessor: (item) => String(item.event_title || "") },
-        { header: "Status", accessor: (item) => String(item.status || "") },
+        { header: t("registrations.csvId"), accessor: (item) => String(item.id || "") },
+        { header: t("columns.name"), accessor: (item) => String(item.name || "") },
+        { header: t("columns.email"), accessor: (item) => String(item.email || "") },
+        { header: t("columns.phone"), accessor: (item) => String(item.phone || "") },
+        { header: t("columns.event"), accessor: (item) => String(item.event_title || "") },
+        { header: t("columns.status"), accessor: (item) => t(`registrations.${item.status === "confirmed" ? "approved" : item.status}`) },
         {
-          header: "Date",
+          header: t("columns.date"),
           accessor: (item) =>
-            item.created_at ? new Date(String(item.created_at)).toLocaleDateString("th-TH") : "",
+            item.created_at ? new Date(String(item.created_at)).toLocaleDateString(localeTag) : "",
         },
       ],
       "registrations_export"
@@ -233,7 +234,7 @@ export default function RegistrationsPage() {
       header: t("columns.status"),
       accessorKey: "status",
       sortable: true,
-      cell: (v) => <StatusBadge label={String(v || "pending")} />,
+      cell: (v) => <StatusBadge label={t(`registrations.${String(v) === "confirmed" ? "approved" : String(v || "pending")}`)} />,
     },
     {
       header: t("columns.date"),
@@ -241,7 +242,7 @@ export default function RegistrationsPage() {
       sortable: true,
       cell: (v) =>
         v
-          ? new Date(String(v)).toLocaleDateString("th-TH", {
+          ? new Date(String(v)).toLocaleDateString(localeTag, {
               year: "numeric",
               month: "short",
               day: "numeric",
@@ -304,13 +305,13 @@ export default function RegistrationsPage() {
           primaryFilters={
             <>
               <AdminMultiSelectFilter
-                label="สถานะ"
+                label={t("registrations.filterStatus")}
                 options={filterDefinitions[0].options || []}
                 values={listState.params.filters.status || []}
                 onChange={(val) => listState.actions.setFilter("status", val)}
               />
               <AdminMultiSelectFilter
-                label="กิจกรรม"
+                label={t("registrations.filterEvent")}
                 options={filterDefinitions[1].options || []}
                 values={listState.params.filters.event || []}
                 onChange={(val) => listState.actions.setFilter("event", val)}
@@ -334,7 +335,7 @@ export default function RegistrationsPage() {
           }
         >
           <AdminDateRangeFilter
-            label="ช่วงวันที่ลงทะเบียน"
+            label={t("registrations.filterDateRange")}
             from={listState.params.filters.from}
             to={listState.params.filters.to}
             onChange={({ from, to }) => {
