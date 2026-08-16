@@ -45,6 +45,7 @@ import { useDateFormat } from "@/hooks/useDateFormat";
 import { useQuery } from "@tanstack/react-query";
 import { calendarResourceAdminService } from "@/services/adminService";
 import type { CalendarResourceEntity } from "@/types/entities";
+import { usePermission } from "@/hooks/usePermission";
 
 interface EventEditorProps {
   id?: string;
@@ -59,6 +60,7 @@ export function EventEditor({ id }: EventEditorProps) {
   const { formatDateRange, formatTimeRange } = useDateFormat();
   const { toast } = useToast();
   const { handleApiError } = useApiError();
+  const { can } = usePermission();
   const [isLoading, setIsLoading] = useState(false);
   const [isFetching, setIsFetching] = useState(isEditMode);
   const [lightboxIndex, setLightboxIndex] = useState<number | null>(null);
@@ -114,6 +116,7 @@ export function EventEditor({ id }: EventEditorProps) {
     queryKey: ["admin", "calendar-resources", "active"],
     queryFn: () => calendarResourceAdminService.getAll({ status: "active" }),
     staleTime: 60_000,
+    enabled: can("calendar_resources", "read"),
   });
   const calendarResources: CalendarResourceEntity[] = resourcesQuery.data?.data ?? [];
 
@@ -535,7 +538,7 @@ export function EventEditor({ id }: EventEditorProps) {
                     />
                   </div>
 
-                  <div className="space-y-3 border-t border-admin-border pt-4">
+                  {calendarResources.length > 0 ? <div className="space-y-3 border-t border-admin-border pt-4">
                     <div>
                       <h3 className="text-sm font-medium text-admin-body">{t("events.form.resources")}</h3>
                       <p className="text-xs text-admin-muted">{t("events.form.resourcesDescription")}</p>
@@ -567,7 +570,7 @@ export function EventEditor({ id }: EventEditorProps) {
                         ) : <p className="text-sm text-admin-muted">{t("events.form.resourcesEmpty")}</p>;
                       }}
                     />
-                  </div>
+                  </div> : null}
                 </div>
               </div>
 

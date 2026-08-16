@@ -204,3 +204,43 @@ test("Calendar facade renders configured resource layouts with generic events", 
     screen.cleanup();
   }
 });
+
+test("Calendar facade renders inline resource IDs without a registry", () => {
+  const resourcePreset: CalendarPreset = {
+    ...discoveryPreset,
+    layouts: {
+      desktop: { month: "monthGrid", week: "timeline", day: "resourceDayGrid" },
+      mobile: { month: "monthAgenda", week: "timeline", day: "resourceDayGrid" },
+      mobileBreakpoint: 640,
+    },
+  };
+  const controller = createCalendarState({
+    weekStartsOn: 0,
+    initialView: "week",
+    initialDate: new Date(2026, 7, 12),
+    preset: resourcePreset,
+  });
+  const inlineEvent = {
+    id: "inline-entry",
+    title: "Inline entry",
+    start: "2026-08-12T09:00:00+02:00",
+    end: "2026-08-12T10:00:00+02:00",
+    allDay: false,
+    resourceIds: ["inline-room"],
+  };
+  const screen = render(createElement(Calendar, {
+    preset: resourcePreset,
+    controller,
+    events: [inlineEvent],
+    labels,
+    variant: "public",
+    onEventActivate: () => undefined,
+  }));
+
+  try {
+    assert.match(screen.container.textContent ?? "", /inline-room/);
+    assert.equal(screen.container.querySelector('[data-calendar-view="week"]')?.getAttribute("data-calendar-mode"), "timeline");
+  } finally {
+    screen.cleanup();
+  }
+});

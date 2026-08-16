@@ -23,6 +23,7 @@ export interface CalendarProps<TEvent extends CalendarEventLike> {
   events: readonly TEvent[];
   labels: CalendarLabels;
   variant: CalendarVariant;
+  /** Optional inline lane definitions; the host owns their lifecycle. */
   resources?: readonly CalendarResource[];
   onEventActivate: (event: TEvent) => void;
   renderEvent?: (event: TEvent, density: "summary" | "row" | "timeGrid") => ReactNode;

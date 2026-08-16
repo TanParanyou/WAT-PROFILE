@@ -23,6 +23,29 @@ const controller = useCalendar({
 
 `events` must satisfy `CalendarEventLike`: stable `id`, display `title`, ISO `start`/`end`, and `allDay`. The component passes the original event object to `onEventActivate`; it never reconstructs dates, status, permissions, or URLs.
 
+## Inline resources
+
+Resource definitions are optional and can be supplied by the host or its API;
+the Calendar does not create or persist them. Events use plural `resourceIds`
+and may reference any inline resource ID:
+
+```tsx
+<Calendar
+  preset={planningPreset}
+  controller={controller}
+  events={[{ ...event, resourceIds: ["main-hall"] }]}
+  resources={[{ id: "main-hall", title: "Main hall", group: "location" }]}
+  labels={labels}
+  variant="public"
+  onEventActivate={openEvent}
+/>
+```
+
+If `resources` is omitted, resource layouts still render assigned events and
+use the stable resource ID as the lane label. A host that needs persistence,
+permissions, visibility, capacity, or shared filtering can provide resources
+from its own registry without changing the Calendar contract.
+
 ## Configuration
 
 `resolveCalendarConfig` supplies production-safe defaults:

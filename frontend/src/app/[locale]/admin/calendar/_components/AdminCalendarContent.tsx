@@ -18,6 +18,7 @@ import {
 } from "@/features/calendar/adapters/wat-calendar";
 import { CalendarEntryDrawer } from "./CalendarEntryDrawer";
 import { CalendarResourceFilter } from "./CalendarResourceFilter";
+import { DEFAULT_RESOURCE_ID } from "@/features/calendar/core/types";
 
 export default function AdminCalendarContent() {
   const localeValue = useLocale();
@@ -89,13 +90,15 @@ export default function AdminCalendarContent() {
       <CalendarQueryBoundary query={query} labels={labels}>
         {(data) => (
           <div className="space-y-4">
-            <CalendarResourceFilter
-              resources={data.resources}
-              value={resourceIds}
-              onChange={setResourceIds}
-              label={t("resourceFilter.label")}
-              clearLabel={t("resourceFilter.clear")}
-            />
+            {data.resources.some((resource) => resource.id !== DEFAULT_RESOURCE_ID) ? (
+              <CalendarResourceFilter
+                resources={data.resources.filter((resource) => resource.id !== DEFAULT_RESOURCE_ID)}
+                value={resourceIds}
+                onChange={setResourceIds}
+                label={t("resourceFilter.label")}
+                clearLabel={t("resourceFilter.clear")}
+              />
+            ) : null}
             <Calendar
               preset={planningPreset}
               controller={controller}

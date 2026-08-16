@@ -59,19 +59,29 @@ implementation plans are intentionally not part of the production documentation.
 
 ## Calendar resources
 
-Calendar resources are managed in the Admin Panel at `/admin/calendar/resources`
-and through the protected `/api/v1/admin/calendar-resources` CRUD endpoints. The
-permission resource is `calendar_resources`; grant `read`, `create`, `update`,
-and `delete` independently through the role editor. A resource must have a
-localized Thai, English, and German title. Deletion is rejected while events are
-assigned to it.
+The reusable Calendar uses inline resources by default. A host can pass resource
+definitions and event IDs directly; no resource-creation screen is required:
 
-Events accept `resource_ids: number[]` in their existing Admin create/update
-payload. The backend validates active resources and replaces assignments inside
-the event transaction. Calendar feeds return localized active resources, expose
-`resourceIds` on entries, and keep `resourceId` as the first-ID compatibility
-alias. Public feeds include only resources with `is_public = true`; Admin feeds
-may include private active resources.
+```ts
+const resources = [{ id: "main-hall", title: "Main hall", group: "location" }];
+const events = [{ ...event, resourceIds: ["main-hall"] }];
+```
+
+WAT also supports an optional managed registry at `/admin/calendar/resources`
+and through the protected `/api/v1/admin/calendar-resources` CRUD endpoints.
+The registry is only needed when resources require shared metadata, permissions,
+public/private visibility, capacity, or filtering. Its permission resource is
+`calendar_resources`; grant `read`, `create`, `update`, and `delete` independently
+through the role editor. The default Admin sidebar does not require this route.
+
+When the managed mode is used, events accept `resource_ids: number[]` in their
+existing Admin create/update payload. The backend validates active resources and
+replaces assignments inside the event transaction.
+
+Calendar feeds return localized active resources, expose `resourceIds` on entries,
+and keep `resourceId` as the first-ID compatibility alias. Public feeds include
+only resources with `is_public = true`; Admin feeds may include private active
+resources.
 
 The reusable Calendar keeps semantic views (`month`, `week`, `day`) separate from
 presentation layouts. Hosts can configure layouts without coupling the core to
