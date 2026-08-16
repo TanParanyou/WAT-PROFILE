@@ -469,6 +469,8 @@
         "schedule": "Schedule",
         "joinOnline": "Join Online",
         "upcomingEvents": "Upcoming Events",
+        "allEvents": "All Events",
+        "pastEvents": "Past Events",
         "time": "Time",
         "activity": "Activity",
         "day": "Day",
@@ -863,7 +865,15 @@
         "editorLink": "Link",
         "editorApply": "Apply",
         "editorRemove": "Remove",
-        "linkInvalid": "Use an HTTPS URL or a same-site path."
+        "linkInvalid": "Use an HTTPS URL or a same-site path.",
+        "answerQuestion": "Answer this question",
+        "answerPlaceholder": "Share a clear, respectful answer…",
+        "submitAnswer": "Submit answer",
+        "commentPlaceholder": "Add a short clarification…",
+        "submitComment": "Add comment",
+        "signInToAnswer": "Sign in with a verified account to answer or comment.",
+        "noComments": "No comments yet.",
+        "acceptAnswer": "Accept answer"
     },
     "ErrorPage": {
         "title": "An error occurred",

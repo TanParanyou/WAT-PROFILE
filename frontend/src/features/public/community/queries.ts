@@ -3,6 +3,9 @@ import { shouldRetryPublicQuery } from "../shared/query-error";
 import {
   fetchCommunityCategories,
   fetchCommunityQuestion,
+  acceptCommunityAnswer,
+  createCommunityAnswer,
+  createCommunityComment,
   createCommunityQuestion,
   deleteCommunityQuestion,
   fetchCommunityActivity,
@@ -10,6 +13,7 @@ import {
   fetchOwnedCommunityQuestion,
   fetchCommunityQuestions,
   updateCommunityQuestion,
+  toggleCommunityHelpful,
 } from "./api";
 import type { CommunityQuestionDetail, CommunityQuestionListOptions, CommunityQuestionMutation } from "./types";
 
@@ -96,6 +100,41 @@ export function useDeleteCommunityQuestion() {
       queryClient.invalidateQueries({ queryKey: communityKeys.activity() });
       queryClient.invalidateQueries({ queryKey: [...communityKeys.all, "questions"] });
     },
+  });
+}
+
+export function useCreateCommunityAnswer() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ questionID, input, idempotencyKey }: { questionID: string; input: Parameters<typeof createCommunityAnswer>[1]; idempotencyKey: string }) => createCommunityAnswer(questionID, input, idempotencyKey),
+    onSuccess: (_result, variables) => queryClient.invalidateQueries({ queryKey: communityKeys.question(variables.questionID) }),
+  });
+}
+
+export function useCreateCommunityComment() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ questionID, input, idempotencyKey }: { questionID: string; input: Parameters<typeof createCommunityComment>[1]; idempotencyKey: string }) => createCommunityComment(questionID, input, idempotencyKey),
+    onSuccess: (_result, variables) => queryClient.invalidateQueries({ queryKey: communityKeys.question(variables.questionID) }),
+  });
+}
+
+export function useAcceptCommunityAnswer() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: ({ answerID, expectedVersion }: { answerID: string; expectedVersion: number }) => acceptCommunityAnswer(answerID, expectedVersion),
+    onSuccess: (result) => {
+      queryClient.invalidateQueries({ queryKey: communityKeys.question(result.question_id) });
+      queryClient.invalidateQueries({ queryKey: communityKeys.viewer(result.question_id) });
+    },
+  });
+}
+
+export function useToggleCommunityHelpful() {
+  const queryClient = useQueryClient();
+  return useMutation({
+    mutationFn: (answerID: string) => toggleCommunityHelpful(answerID),
+    onSuccess: () => queryClient.invalidateQueries({ queryKey: [...communityKeys.all, "question"] }),
   });
 }
 

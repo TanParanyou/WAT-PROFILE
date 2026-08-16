@@ -162,6 +162,12 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 		communityAccount.Get("/questions/:id", communityAccountHandler.GetOwnedQuestion)
 		communityAccount.Patch("/questions/:id", communityAccountHandler.UpdateQuestion)
 		communityAccount.Delete("/questions/:id", communityAccountHandler.DeleteQuestion)
+		communityAccount.Post("/questions/:id/answers", communityAccountHandler.CreateAnswer)
+		communityAccount.Post("/questions/:id/comments", communityAccountHandler.CreateComment)
+		communityAccount.Patch("/answers/:id", communityAccountHandler.UpdateAnswer)
+		communityAccount.Patch("/comments/:id", communityAccountHandler.UpdateComment)
+		communityAccount.Post("/answers/:id/accept", communityAccountHandler.AcceptAnswer)
+		communityAccount.Post("/answers/:id/helpful", communityAccountHandler.ToggleHelpful)
 		communityAccount.Get("/activity", communityAccountHandler.ListMyActivity)
 		communityAccount.Get("/questions/:id/viewer", communityAccountHandler.GetViewerState)
 	}

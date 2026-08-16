@@ -42,6 +42,10 @@ type UpdateCommentInput struct {
 	ExpectedVersion int                     `json:"expected_version"`
 }
 
+type AcceptAnswerInput struct {
+	ExpectedVersion int `json:"expected_version"`
+}
+
 type CreateReportInput struct {
 	QuestionID *uuid.UUID `json:"question_id,omitempty"`
 	AnswerID   *uuid.UUID `json:"answer_id,omitempty"`
@@ -220,9 +224,17 @@ type HelpfulResultDTO struct {
 }
 
 type AnswerMutationDTO struct {
-	Answer AnswerDTO `json:"answer"`
+	Answer         AnswerDTO `json:"answer"`
+	ReviewRequired bool      `json:"review_required"`
 }
 
 type CommentMutationDTO struct {
-	Comment CommentDTO `json:"comment"`
+	Comment        CommentDTO `json:"comment"`
+	ReviewRequired bool       `json:"review_required"`
+}
+
+type AcceptanceResultDTO struct {
+	QuestionID       uuid.UUID `json:"question_id"`
+	AcceptedAnswerID uuid.UUID `json:"accepted_answer_id"`
+	Version          int       `json:"version"`
 }

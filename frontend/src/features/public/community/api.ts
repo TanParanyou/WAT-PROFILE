@@ -4,6 +4,10 @@ import { accountApi } from "@/features/public/account/api";
 import type { ApiSuccess } from "@/features/public/shared/api-types";
 import {
   communityCategoryListSchema,
+  communityAcceptanceSchema,
+  communityAnswerMutationSchema,
+  communityCommentMutationSchema,
+  communityHelpfulSchema,
   communityMemberActivitySchema,
   communityQuestionMutationSchema,
   communityQuestionDetailSchema,
@@ -12,6 +16,10 @@ import {
 } from "./schema";
 import type {
   CommunityCategory,
+  CommunityAcceptanceResult,
+  CommunityAnswerMutation,
+  CommunityCommentMutation,
+  CommunityHelpfulResult,
   CommunityLocale,
   CommunityMemberActivity,
   CommunityQuestionMutation,
@@ -120,4 +128,34 @@ export async function fetchCommunityActivity(): Promise<CommunityMemberActivity>
 export async function fetchCommunityViewerState(id: string): Promise<CommunityViewerState> {
   const response = await accountApi.get<unknown>(`/accounts/community/questions/${encodeURIComponent(id)}/viewer`);
   return parseCommunityEnvelope(response.data, communityViewerStateSchema);
+}
+
+export async function createCommunityAnswer(questionID: string, input: { body: CommunityAnswerMutation["answer"]["body"] }, idempotencyKey: string): Promise<CommunityAnswerMutation> {
+  const response = await accountApi.post<unknown>(`/accounts/community/questions/${encodeURIComponent(questionID)}/answers`, input, { headers: { "Idempotency-Key": idempotencyKey } });
+  return parseCommunityEnvelope(response.data, communityAnswerMutationSchema);
+}
+
+export async function updateCommunityAnswer(answerID: string, input: { body: CommunityAnswerMutation["answer"]["body"]; expected_version: number }): Promise<CommunityAnswerMutation> {
+  const response = await accountApi.patch<unknown>(`/accounts/community/answers/${encodeURIComponent(answerID)}`, input);
+  return parseCommunityEnvelope(response.data, communityAnswerMutationSchema);
+}
+
+export async function createCommunityComment(questionID: string, input: { answer_id?: string; body: CommunityCommentMutation["comment"]["body"] }, idempotencyKey: string): Promise<CommunityCommentMutation> {
+  const response = await accountApi.post<unknown>(`/accounts/community/questions/${encodeURIComponent(questionID)}/comments`, input, { headers: { "Idempotency-Key": idempotencyKey } });
+  return parseCommunityEnvelope(response.data, communityCommentMutationSchema);
+}
+
+export async function updateCommunityComment(commentID: string, input: { body: CommunityCommentMutation["comment"]["body"]; expected_version: number }): Promise<CommunityCommentMutation> {
+  const response = await accountApi.patch<unknown>(`/accounts/community/comments/${encodeURIComponent(commentID)}`, input);
+  return parseCommunityEnvelope(response.data, communityCommentMutationSchema);
+}
+
+export async function acceptCommunityAnswer(answerID: string, expectedVersion: number): Promise<CommunityAcceptanceResult> {
+  const response = await accountApi.post<unknown>(`/accounts/community/answers/${encodeURIComponent(answerID)}/accept`, { expected_version: expectedVersion });
+  return parseCommunityEnvelope(response.data, communityAcceptanceSchema);
+}
+
+export async function toggleCommunityHelpful(answerID: string): Promise<CommunityHelpfulResult> {
+  const response = await accountApi.post<unknown>(`/accounts/community/answers/${encodeURIComponent(answerID)}/helpful`);
+  return parseCommunityEnvelope(response.data, communityHelpfulSchema);
 }

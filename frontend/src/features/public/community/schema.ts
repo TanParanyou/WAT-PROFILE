@@ -107,6 +107,28 @@ export const communityViewerStateSchema = z.object({
   is_pending_owner: z.boolean(),
 }).strict();
 
+export const communityAnswerMutationSchema = z.object({
+  answer: answerSchema,
+  review_required: z.boolean(),
+}).strict();
+
+export const communityCommentMutationSchema = z.object({
+  comment: commentSchema,
+  review_required: z.boolean(),
+}).strict();
+
+export const communityAcceptanceSchema = z.object({
+  question_id: z.string().uuid(),
+  accepted_answer_id: z.string().uuid(),
+  version: z.number().int().positive(),
+}).strict();
+
+export const communityHelpfulSchema = z.object({
+  answer_id: z.string().uuid(),
+  has_voted: z.boolean(),
+  helpful_count: z.number().int().nonnegative(),
+}).strict();
+
 export const communitySuccessEnvelopeSchema = <T extends z.ZodType>(data: T) =>
   z.object({ success: z.literal(true), data }).strict();
 

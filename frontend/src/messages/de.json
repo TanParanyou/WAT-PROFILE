@@ -469,6 +469,8 @@
         "schedule": "Zeitplan",
         "joinOnline": "Online teilnehmen",
         "upcomingEvents": "Kommende Veranstaltungen",
+        "allEvents": "Alle Veranstaltungen",
+        "pastEvents": "Vergangene Veranstaltungen",
         "time": "Zeit",
         "activity": "Aktivität",
         "day": "Tag",
@@ -863,7 +865,15 @@
         "editorLink": "Link",
         "editorApply": "Anwenden",
         "editorRemove": "Entfernen",
-        "linkInvalid": "Verwenden Sie eine HTTPS-URL oder einen Pfad innerhalb der Website."
+        "linkInvalid": "Verwenden Sie eine HTTPS-URL oder einen Pfad innerhalb der Website.",
+        "answerQuestion": "Diese Frage beantworten",
+        "answerPlaceholder": "Teilen Sie eine klare und respektvolle Antwort…",
+        "submitAnswer": "Antwort senden",
+        "commentPlaceholder": "Kurze Klarstellung hinzufügen…",
+        "submitComment": "Kommentar hinzufügen",
+        "signInToAnswer": "Melden Sie sich mit einem bestätigten Konto an, um zu antworten oder zu kommentieren.",
+        "noComments": "Noch keine Kommentare.",
+        "acceptAnswer": "Antwort akzeptieren"
     },
     "ErrorPage": {
         "title": "Ein Fehler ist aufgetreten",

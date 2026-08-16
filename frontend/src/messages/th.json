@@ -468,6 +468,8 @@
         "schedule": "กำหนดการ",
         "joinOnline": "เข้าร่วมออนไลน์",
         "upcomingEvents": "กิจกรรมที่กำลังจะมาถึง",
+        "allEvents": "กิจกรรมทั้งหมด",
+        "pastEvents": "กิจกรรมที่ผ่านมา",
         "time": "เวลา",
         "activity": "กิจกรรม",
         "day": "วัน",
@@ -862,7 +864,15 @@
         "editorLink": "ลิงก์",
         "editorApply": "ใช้ลิงก์",
         "editorRemove": "นำออก",
-        "linkInvalid": "ใช้ลิงก์ HTTPS หรือเส้นทางภายในเว็บไซต์เท่านั้น"
+        "linkInvalid": "ใช้ลิงก์ HTTPS หรือเส้นทางภายในเว็บไซต์เท่านั้น",
+        "answerQuestion": "ตอบคำถามนี้",
+        "answerPlaceholder": "แบ่งปันคำตอบที่ชัดเจนและสุภาพ…",
+        "submitAnswer": "ส่งคำตอบ",
+        "commentPlaceholder": "เพิ่มความคิดเห็นสั้น ๆ เพื่อความชัดเจน…",
+        "submitComment": "เพิ่มความคิดเห็น",
+        "signInToAnswer": "เข้าสู่ระบบด้วยบัญชีที่ยืนยันอีเมลแล้วเพื่อช่วยตอบหรือแสดงความคิดเห็น",
+        "noComments": "ยังไม่มีความคิดเห็น",
+        "acceptAnswer": "ยอมรับคำตอบ"
     },
     "ErrorPage": {
         "title": "เกิดข้อผิดพลาด",

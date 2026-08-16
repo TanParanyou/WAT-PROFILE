@@ -258,6 +258,7 @@ func (s *CommunityQuestionService) ViewerState(ctx context.Context, actor, quest
 	}
 	state.CanEdit = question.PublicationStatus != models.CommunityPublicationDeleted && question.PublicationStatus != models.CommunityPublicationHidden && question.LifecycleStatus != models.CommunityLifecycleLocked && question.LifecycleStatus != models.CommunityLifecycleArchived
 	state.CanDelete = state.CanEdit && question.PublishedAnswerCount == 0
+	state.CanAccept = state.CanEdit && question.PublicationStatus == models.CommunityPublicationPublished && question.PublishedAnswerCount > 0
 	state.IsPendingOwner = question.PublicationStatus == models.CommunityPublicationPendingReview
 	return state, nil
 }

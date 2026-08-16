@@ -183,6 +183,121 @@ paths:
               schema: { $ref: '#/components/schemas/CommunityViewerStateResponse' }
         '404': { $ref: '#/components/responses/NotFound' }
 
+  /accounts/community/questions/{id}/answers:
+    post:
+      tags: [Community]
+      summary: Add a verified-member answer
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+        - { name: Idempotency-Key, in: header, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CommunityCreateAnswerRequest' }
+      responses:
+        '201': { description: Published answer, content: { application/json: { schema: { $ref: '#/components/schemas/CommunityAnswerMutationResponse' } } } }
+        '202': { description: Answer pending moderation, content: { application/json: { schema: { $ref: '#/components/schemas/CommunityAnswerMutationResponse' } } } }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { description: Question is not accepting contributions, content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } } }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /accounts/community/questions/{id}/comments:
+    post:
+      tags: [Community]
+      summary: Add a one-level clarification comment
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+        - { name: Idempotency-Key, in: header, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CommunityCreateCommentRequest' }
+      responses:
+        '201': { description: Published comment, content: { application/json: { schema: { $ref: '#/components/schemas/CommunityCommentMutationResponse' } } } }
+        '202': { description: Comment pending moderation, content: { application/json: { schema: { $ref: '#/components/schemas/CommunityCommentMutationResponse' } } } }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '422': { description: Question is not accepting contributions, content: { application/json: { schema: { $ref: '#/components/schemas/ErrorResponse' } } } }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /accounts/community/answers/{id}:
+    patch:
+      tags: [Community]
+      summary: Edit an owned answer
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CommunityUpdateAnswerRequest' }
+      responses:
+        '200': { description: Answer updated, content: { application/json: { schema: { $ref: '#/components/schemas/CommunityAnswerMutationResponse' } } } }
+        '202': { description: Answer edit pending moderation, content: { application/json: { schema: { $ref: '#/components/schemas/CommunityAnswerMutationResponse' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /accounts/community/comments/{id}:
+    patch:
+      tags: [Community]
+      summary: Edit an owned comment
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/CommunityUpdateCommentRequest' }
+      responses:
+        '200': { description: Comment updated, content: { application/json: { schema: { $ref: '#/components/schemas/CommunityCommentMutationResponse' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /accounts/community/answers/{id}/accept:
+    post:
+      tags: [Community]
+      summary: Accept an answer to an owned question
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [expected_version]
+              properties:
+                expected_version: { type: integer, minimum: 1 }
+      responses:
+        '200': { description: Accepted answer, content: { application/json: { schema: { $ref: '#/components/schemas/CommunityAcceptanceResponse' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+
+  /accounts/community/answers/{id}/helpful:
+    post:
+      tags: [Community]
+      summary: Toggle helpful vote on a published answer
+      security: [{ bearerAuth: [] }]
+      parameters:
+        - { name: id, in: path, required: true, schema: { type: string, format: uuid } }
+      responses:
+        '200': { description: Helpful vote state, content: { application/json: { schema: { $ref: '#/components/schemas/CommunityHelpfulResponse' } } } }
+        '403': { $ref: '#/components/responses/Forbidden' }
+        '404': { $ref: '#/components/responses/NotFound' }
+        '409': { $ref: '#/components/responses/Conflict' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
   /public/community/categories:
     get:
       tags: [Community]
@@ -4367,6 +4482,55 @@ components:
       allOf:
         - $ref: '#/components/schemas/SuccessResponse'
       description: Success envelope containing viewer-only action flags
+
+    CommunityCreateAnswerRequest:
+      type: object
+      required: [body]
+      properties:
+        body: { $ref: '#/components/schemas/CommunityRichTextDocument' }
+        client_request_id: { type: string, format: uuid }
+
+    CommunityCreateCommentRequest:
+      type: object
+      required: [body]
+      properties:
+        answer_id: { type: string, format: uuid, nullable: true }
+        body: { $ref: '#/components/schemas/CommunityRichTextDocument' }
+        client_request_id: { type: string, format: uuid }
+
+    CommunityUpdateAnswerRequest:
+      type: object
+      required: [body, expected_version]
+      properties:
+        body: { $ref: '#/components/schemas/CommunityRichTextDocument' }
+        expected_version: { type: integer, minimum: 1 }
+
+    CommunityUpdateCommentRequest:
+      type: object
+      required: [body, expected_version]
+      properties:
+        body: { $ref: '#/components/schemas/CommunityRichTextDocument' }
+        expected_version: { type: integer, minimum: 1 }
+
+    CommunityAnswerMutationResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+      description: Success envelope containing an answer mutation
+
+    CommunityCommentMutationResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+      description: Success envelope containing a comment mutation
+
+    CommunityAcceptanceResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+      description: Success envelope containing accepted-answer state
+
+    CommunityHelpfulResponse:
+      allOf:
+        - $ref: '#/components/schemas/SuccessResponse'
+      description: Success envelope containing helpful-vote state
 
     # ===== Common =====
     MultiLangText:

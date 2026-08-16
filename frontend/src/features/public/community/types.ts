@@ -106,6 +106,28 @@ export interface CommunityViewerState {
   is_pending_owner: boolean;
 }
 
+export interface CommunityAnswerMutation {
+  answer: CommunityAnswer;
+  review_required: boolean;
+}
+
+export interface CommunityCommentMutation {
+  comment: CommunityComment;
+  review_required: boolean;
+}
+
+export interface CommunityAcceptanceResult {
+  question_id: string;
+  accepted_answer_id: string;
+  version: number;
+}
+
+export interface CommunityHelpfulResult {
+  answer_id: string;
+  has_voted: boolean;
+  helpful_count: number;
+}
+
 export interface CommunityQuestionListOptions {
   category_id?: string;
   locale?: CommunityLocale | "all";
