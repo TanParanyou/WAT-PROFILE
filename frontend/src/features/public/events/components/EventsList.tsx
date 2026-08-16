@@ -56,10 +56,14 @@ export function EventsList({ events }: EventsListProps) {
                   </span>
                 )}
                 {event.registrationEnabled && (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-emerald-50 text-emerald-700 dark:bg-emerald-950/40 dark:text-emerald-300 px-2 py-0.5 border border-emerald-200 dark:border-emerald-800">
+                  <Link
+                    href={`/events/${event.slug}/register`}
+                    className="inline-flex min-h-9 items-center gap-1 border border-emerald-200 bg-emerald-50 px-2.5 py-1 text-[11px] font-medium text-emerald-700 transition-colors hover:bg-emerald-100 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus dark:border-emerald-800 dark:bg-emerald-950/40 dark:text-emerald-300 dark:hover:bg-emerald-950/70"
+                    aria-label={t("registrationOpen")}
+                  >
                     <UserCheck size={11} />
-                    {t("registrationOpen") || "เปิดลงทะเบียน"}
-                  </span>
+                    {t("registrationOpen")}
+                  </Link>
                 )}
                 {event.donationEnabled && (
                   <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-amber-50 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 px-2 py-0.5 border border-amber-200 dark:border-amber-800">
