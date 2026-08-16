@@ -692,6 +692,7 @@
         "registrationTitle": "Event Registration",
         "registrationDesc": "Register to help us prepare food offerings and seating.",
         "registrationDeadline": "Registration Deadline:",
+        "registrationUnavailable": { "disabled": "Registration is disabled.", "closed": "Registration is closed.", "full": "This event is full.", "available": "Registration is open." },
         "seatsLeft": "{count} seats remaining",
         "registeredCount": "{current}/{max} registered",
         "registerButton": "Register for Event",

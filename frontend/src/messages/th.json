@@ -691,6 +691,7 @@
         "registrationTitle": "ลงทะเบียนเข้าร่วมงาน",
         "registrationDesc": "เพื่อความสะดวกในการจัดเตรียมสำรับและที่นั่งปฏิบัติธรรม",
         "registrationDeadline": "ปิดรับลงทะเบียน:",
+        "registrationUnavailable": { "disabled": "ปิดการลงทะเบียน", "closed": "ปิดรับลงทะเบียนแล้ว", "full": "ที่นั่งเต็มแล้ว", "available": "เปิดรับลงทะเบียน" },
         "seatsLeft": "เหลือ {count} ที่นั่ง",
         "registeredCount": "ลงทะเบียนแล้ว {current}/{max} ท่าน",
         "registerButton": "ลงทะเบียนเข้าร่วมงาน",

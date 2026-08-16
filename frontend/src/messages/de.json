@@ -692,6 +692,7 @@
         "registrationTitle": "Veranstaltungsanmeldung",
         "registrationDesc": "Melden Sie sich an, um uns bei der Vorbereitung von Mahlzeiten und Sitzplätzen zu unterstützen.",
         "registrationDeadline": "Anmeldeschluss:",
+        "registrationUnavailable": { "disabled": "Anmeldung deaktiviert.", "closed": "Anmeldung geschlossen.", "full": "Ausgebucht.", "available": "Anmeldung geöffnet." },
         "seatsLeft": "Noch {count} Plätze frei",
         "registeredCount": "{current}/{max} angemeldet",
         "registerButton": "Zur Veranstaltung anmelden",
