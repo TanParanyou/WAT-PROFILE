@@ -21,7 +21,7 @@ type EventRegistration struct {
 	PrivacyConsentAt     *time.Time                     `json:"privacy_consent_at,omitempty"`
 	ManageTokenHash      string                         `gorm:"size:64;uniqueIndex" json:"-"`
 	ManageTokenExpiresAt *time.Time                     `json:"-"`
-	CancellationOrigin   string                         `gorm:"size:20" json:"cancellation_origin,omitempty"`
+	CancellationOrigin   *string                        `gorm:"size:20" json:"cancellation_origin,omitempty"`
 	FirstName            string                         `gorm:"size:100;not null" json:"first_name"`
 	LastName             string                         `gorm:"size:100;not null" json:"last_name"`
 	Email                string                         `gorm:"size:255;not null" json:"email"`

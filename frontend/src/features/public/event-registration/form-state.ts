@@ -1,5 +1,6 @@
 import type { RegistrationFormValues } from "./schema";
 import type { RegistrationLocale } from "./types";
+import type { Account } from "../account/types";
 
 export const EVENT_REGISTRATION_PRIVACY_NOTICE_VERSION =
   process.env.NEXT_PUBLIC_EVENT_REGISTRATION_PRIVACY_NOTICE_VERSION ?? "2026-08";
@@ -11,6 +12,20 @@ export function createRegistrationDefaults(locale: RegistrationLocale): Registra
     participants: [{ first_name: "", last_name: "", dietary_restrictions: "", special_needs: "", additional_notes: "" }],
     privacy_notice_version: EVENT_REGISTRATION_PRIVACY_NOTICE_VERSION,
     privacy_consent: false,
+  };
+}
+
+export function applyRegistrationAccountDefaults(
+  values: RegistrationFormValues,
+  account: Pick<Account, "display_name" | "email">,
+): RegistrationFormValues {
+  return {
+    ...values,
+    contact: {
+      ...values.contact,
+      first_name: values.contact.first_name || account.display_name.trim(),
+      email: values.contact.email || account.email.trim().toLowerCase(),
+    },
   };
 }
 

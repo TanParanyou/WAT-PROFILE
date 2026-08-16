@@ -4328,6 +4328,20 @@ paths:
           $ref: '#/components/responses/Conflict'
         '422':
           $ref: '#/components/responses/ValidationError'
+    delete:
+      tags: [Admin - Registrations]
+      summary: Delete an event registration
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Event registration deleted successfully
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '404':
+          $ref: '#/components/responses/NotFound'
 
   /admin/event-registrations/{id}/status:
     put:

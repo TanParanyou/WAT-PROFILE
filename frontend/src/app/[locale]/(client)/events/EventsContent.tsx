@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import PageHeader from "@/components/layout/PageHeader";
 import PageContainer from "@/components/layout/PageContainer";
@@ -13,13 +14,43 @@ import { usePublicEventsQuery, usePublicSchedulesQuery } from "@/features/public
 import { EventsListSkeleton } from "@/features/public/events/components/EventsListSkeleton";
 import { PublicCalendarSection } from "@/features/calendar/integrations/wat/PublicCalendarSection";
 
+type EventFilter = "upcoming" | "all" | "past";
+
 export default function EventsContent() {
   const tPage = useTranslations("EventsPage");
   const tState = useTranslations("PublicState");
-  const eventsQuery = usePublicEventsQuery();
+  const [filter, setFilter] = useState<EventFilter>("upcoming");
+
+  const queryOptions = useMemo(() => {
+    const today = new Date().toISOString().split("T")[0];
+    if (filter === "all") {
+      return { from: "2000-01-01", to: "2099-12-31" };
+    }
+    if (filter === "past") {
+      return { from: "2000-01-01", to: today };
+    }
+    return {};
+  }, [filter]);
+
+  const eventsQuery = usePublicEventsQuery(queryOptions);
   const schedulesQuery = usePublicSchedulesQuery();
-  const events = eventsQuery.data?.map(toEventListItem) ?? [];
+
+  const events = useMemo(() => {
+    const rawEvents = eventsQuery.data?.map(toEventListItem) ?? [];
+    if (filter === "past") {
+      return [...rawEvents].sort((a, b) => b.startDate.localeCompare(a.startDate));
+    }
+    return rawEvents;
+  }, [eventsQuery.data, filter]);
+
   const schedules = schedulesQuery.data ?? [];
+
+  const sectionTitle =
+    filter === "upcoming"
+      ? tPage("upcomingEvents")
+      : filter === "past"
+        ? tPage("pastEvents")
+        : tPage("allEvents");
 
   return (
     <div className="min-h-screen bg-background">
@@ -42,7 +73,54 @@ export default function EventsContent() {
           </div>
         </section>
         <section className="mt-16 sm:mt-20" aria-labelledby="events-heading">
-          <PublicSectionHeading id="events-heading" title={tPage("upcomingEvents")} description={tPage("subtitle")} />
+          <div className="flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+            <PublicSectionHeading id="events-heading" title={sectionTitle} description={tPage("subtitle")} />
+            
+            <div
+              className="-mx-4 overflow-x-auto px-4 pb-2 sm:mx-0 sm:px-0"
+              role="group"
+              aria-label={tPage("viewLabel")}
+            >
+              <div className="flex min-w-max gap-2">
+                <button
+                  type="button"
+                  onClick={() => setFilter("upcoming")}
+                  aria-pressed={filter === "upcoming"}
+                  className={`min-h-11 border px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus ${
+                    filter === "upcoming"
+                      ? "border-site-border bg-site-action text-site-on-action"
+                      : "border-site-border bg-site-canvas text-site-foreground hover:bg-site-surface"
+                  }`}
+                >
+                  {tPage("upcomingEvents")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFilter("all")}
+                  aria-pressed={filter === "all"}
+                  className={`min-h-11 border px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus ${
+                    filter === "all"
+                      ? "border-site-border bg-site-action text-site-on-action"
+                      : "border-site-border bg-site-canvas text-site-foreground hover:bg-site-surface"
+                  }`}
+                >
+                  {tPage("allEvents")}
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setFilter("past")}
+                  aria-pressed={filter === "past"}
+                  className={`min-h-11 border px-4 py-2 text-sm font-semibold transition-colors focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus ${
+                    filter === "past"
+                      ? "border-site-border bg-site-action text-site-on-action"
+                      : "border-site-border bg-site-canvas text-site-foreground hover:bg-site-surface"
+                  }`}
+                >
+                  {tPage("pastEvents")}
+                </button>
+              </div>
+            </div>
+          </div>
           <div className="mt-8">
             {eventsQuery.isLoading ? <EventsListSkeleton /> : eventsQuery.isError ? <QueryErrorState title={tState("errorTitle")} description={tState("errorDescription")} retryLabel={tState("retry")} onRetry={() => eventsQuery.refetch()} isRetrying={eventsQuery.isFetching} /> : events.length === 0 ? <EmptyState title={tState("emptyEvents")} description={tState("emptyContent")} /> : <EventsList events={events} />}
           </div>

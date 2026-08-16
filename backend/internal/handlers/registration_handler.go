@@ -12,6 +12,7 @@ import (
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/registrations"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
+	"github.com/watloungporsai/wat-profile-backend/pkg/logger"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
 	"gorm.io/gorm"
 )
@@ -202,6 +203,7 @@ func publicAccountUserID(c *fiber.Ctx) (uuid.UUID, bool) {
 func registrationServiceErrorResponse(c *fiber.Ctx, err error) error {
 	var domainErr *registrations.DomainError
 	if !errors.As(err, &domainErr) {
+		logger.Log.Error().Err(err).Msg("Registration service internal error")
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Registration service unavailable")
 	}
 	statusCode := fiber.StatusConflict
@@ -416,4 +418,19 @@ func (h *RegistrationHandler) BulkDeleteRegistrations(c *fiber.Ctx) error {
 	}
 
 	return utils.MessageResponse(c, "Event registrations deleted successfully")
+}
+
+// DeleteRegistration - Admin: Delete a single event registration
+func (h *RegistrationHandler) DeleteRegistration(c *fiber.Ctx) error {
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+
+	if err := h.registrationService.BulkDelete([]int{id}); err != nil {
+		logger.Log.Error().Err(err).Int("id", id).Msg("Failed to delete event registration")
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete event registration")
+	}
+
+	return utils.MessageResponse(c, "Event registration deleted successfully")
 }

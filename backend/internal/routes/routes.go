@@ -345,12 +345,15 @@ func adminRouteDefinitions() []AdminRouteDefinition {
 		{Method: fiber.MethodGet, Path: "/registrations", Resource: "events", Action: "read", HandlerKey: "registrations.list"},
 		{Method: fiber.MethodPut, Path: "/registrations/:id/status", Resource: "events", Action: "update", HandlerKey: "registrations.updateStatus"},
 		{Method: fiber.MethodDelete, Path: "/registrations/bulk", Resource: "events", Action: "delete", HandlerKey: "registrations.bulkDelete"},
+		{Method: fiber.MethodDelete, Path: "/registrations/:id", Resource: "events", Action: "delete", HandlerKey: "registrations.delete"},
 		{Method: fiber.MethodGet, Path: "/event-registrations", Resource: "events", Action: "read", HandlerKey: "registrations.adminList"},
 		{Method: fiber.MethodGet, Path: "/event-registrations/:id", Resource: "events", Action: "read", HandlerKey: "registrations.adminGet"},
 		{Method: fiber.MethodPatch, Path: "/event-registrations/:id", Resource: "events", Action: "update", HandlerKey: "registrations.adminUpdate"},
 		{Method: fiber.MethodPut, Path: "/event-registrations/:id/status", Resource: "events", Action: "update", HandlerKey: "registrations.adminStatus"},
 		{Method: fiber.MethodPatch, Path: "/event-registrations/:id/participants/:participantId/attendance", Resource: "events", Action: "update", HandlerKey: "registrations.adminAttendance"},
 		{Method: fiber.MethodPost, Path: "/event-registrations/:id/manage-link", Resource: "events", Action: "update", HandlerKey: "registrations.adminRotateLink"},
+		{Method: fiber.MethodDelete, Path: "/event-registrations/bulk", Resource: "events", Action: "delete", HandlerKey: "registrations.bulkDelete"},
+		{Method: fiber.MethodDelete, Path: "/event-registrations/:id", Resource: "events", Action: "delete", HandlerKey: "registrations.delete"},
 
 		// Contact Management
 		{Method: fiber.MethodGet, Path: "/contacts", Resource: "contacts", Action: "read", HandlerKey: "contacts.list"},
@@ -545,6 +548,7 @@ func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service) map[string]fiber.Handle
 		"registrations.list":            registrationHandler.GetRegistrations,
 		"registrations.updateStatus":    registrationHandler.UpdateRegistrationStatus,
 		"registrations.bulkDelete":      registrationHandler.BulkDeleteRegistrations,
+		"registrations.delete":          registrationHandler.DeleteRegistration,
 		"registrations.adminList":       registrationHandler.GetAdminRegistrationList,
 		"registrations.adminGet":        registrationHandler.GetAdminRegistration,
 		"registrations.adminUpdate":     registrationHandler.UpdateAdminRegistration,

@@ -222,7 +222,7 @@ type AdminDetail struct {
 	PrivacyNoticeVersion string     `json:"privacy_notice_version,omitempty"`
 	PrivacyConsentAt     *time.Time `json:"privacy_consent_at,omitempty"`
 	CancellationReason   string     `json:"cancellation_reason,omitempty"`
-	CancellationOrigin   string     `json:"cancellation_origin,omitempty"`
+	CancellationOrigin   *string    `json:"cancellation_origin,omitempty"`
 }
 
 type AdminUpdateInput struct {

@@ -12,14 +12,18 @@ export interface AdminRegistrationTableRow {
 }
 
 export function toAdminRegistrationTableRow(item: EventRegistrationListItem, locale: "th" | "en" | "de" = "th"): AdminRegistrationTableRow {
+  const firstName = item.contact?.first_name || "";
+  const lastName = item.contact?.last_name || "";
+  const name = `${firstName} ${lastName}`.trim() || "-";
+  const eventTitle = item.event?.title?.[locale] || item.event?.title?.th || item.event?.title?.en || item.event?.title?.de || "-";
   return {
     id: item.id,
-    name: `${item.contact.first_name} ${item.contact.last_name}`.trim(),
-    email: item.contact.email,
-    phone: item.contact.phone,
-    event_title: item.event.title[locale],
-    status: item.registration_status,
-    created_at: item.created_at,
-    participant_count: item.participant_count,
+    name,
+    email: item.contact?.email || "-",
+    phone: item.contact?.phone || "-",
+    event_title: eventTitle,
+    status: item.registration_status || "pending",
+    created_at: item.created_at || "",
+    participant_count: item.participant_count || 0,
   };
 }

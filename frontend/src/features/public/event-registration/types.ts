@@ -148,6 +148,10 @@ export interface RegistrationApiError extends Error {
 export interface RegistrationFormMessages {
   required: string;
   emailInvalid: string;
+  nameTooLong: string;
+  emailTooLong: string;
+  phoneTooLong: string;
+  freeTextTooLong: string;
   maxParticipants: string;
   privacyRequired: string;
 }

@@ -28,6 +28,7 @@ export function groupSchedules(schedules: readonly PublicScheduleDto[]): Schedul
   };
 }
 
-export function getLocalizedText(value: LocalizedTextDto, locale: string): string {
-  return value[locale as keyof LocalizedTextDto] || value.th || value.en || value.de;
+export function getLocalizedText(value: LocalizedTextDto | undefined | null, locale: string): string {
+  if (!value) return "";
+  return value[locale as keyof LocalizedTextDto] || value.th || value.en || value.de || "";
 }

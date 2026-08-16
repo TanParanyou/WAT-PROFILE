@@ -7,31 +7,30 @@ import type {
 } from "./types";
 import { MAX_REGISTRATION_PARTICIPANTS } from "./types";
 
-const participantShape = {
-  id: z.number().int().positive().optional(),
-  first_name: z.string(),
-  last_name: z.string(),
-  dietary_restrictions: z.string(),
-  special_needs: z.string(),
-  additional_notes: z.string(),
-};
-
 export function createRegistrationFormSchema(messages: RegistrationFormMessages) {
-  const requiredText = z.string().trim().min(1, messages.required);
-  const participant = z.object(participantShape).strict();
+  const requiredName = z.string().trim().min(1, messages.required).max(100, messages.nameTooLong);
+  const optionalFreeText = z.string().trim().max(2000, messages.freeTextTooLong);
+  const participant = z.object({
+    id: z.number().int().positive().optional(),
+    first_name: requiredName,
+    last_name: requiredName,
+    dietary_restrictions: optionalFreeText,
+    special_needs: optionalFreeText,
+    additional_notes: optionalFreeText,
+  }).strict();
   return z
     .object({
       locale: z.enum(["th", "en", "de"]),
       contact: z
         .object({
-          first_name: requiredText,
-          last_name: requiredText,
-          email: z.string().trim().toLowerCase().email(messages.emailInvalid),
-          phone: z.string().trim(),
+          first_name: requiredName,
+          last_name: requiredName,
+          email: z.string().trim().toLowerCase().max(255, messages.emailTooLong).email(messages.emailInvalid),
+          phone: z.string().trim().max(20, messages.phoneTooLong),
         })
         .strict(),
       participants: z.array(participant).min(1, messages.required).max(MAX_REGISTRATION_PARTICIPANTS, messages.maxParticipants),
-      privacy_notice_version: requiredText,
+      privacy_notice_version: z.string().trim().min(1, messages.required).max(50, messages.freeTextTooLong),
       privacy_consent: z.boolean().refine((value) => value, messages.privacyRequired),
     })
     .strict();

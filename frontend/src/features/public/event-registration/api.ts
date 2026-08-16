@@ -1,6 +1,6 @@
 import { publicApi } from "@/services/publicService";
 import adminApi from "@/services/adminApi";
-import { accountApi, getMemoryAccessToken } from "../account/api";
+import { accountApi, getMemoryAccessToken, restoreSession } from "../account/api";
 import { unwrapApiData, type ApiSuccess } from "../shared/api-types";
 import { parseRegistrationDetail, toRegistrationApiError } from "./schema";
 import type {
@@ -22,11 +22,25 @@ function publicAuthConfig() {
 }
 
 export async function createEventRegistration(eventId: number, input: RegistrationCreateInput): Promise<EventRegistrationDetail> {
+  const hadAccountToken = Boolean(getMemoryAccessToken());
   try {
     const response = await publicApi.post<ApiSuccess<EventRegistrationDetail>>(`/events/${eventId}/register`, input, publicAuthConfig());
     return parseRegistrationDetail(unwrapApiData(response.data));
   } catch (error: unknown) {
-    throw toRegistrationApiError(error);
+    const apiError = toRegistrationApiError(error);
+    if (!hadAccountToken || apiError.status !== 401) throw apiError;
+
+    // Public registration accepts guests, but an expired optional account
+    // token must be refreshed before retrying so the registration remains
+    // linked to the signed-in account. The first request is rejected by the
+    // auth middleware before registration side effects can occur.
+    await restoreSession();
+    try {
+      const response = await publicApi.post<ApiSuccess<EventRegistrationDetail>>(`/events/${eventId}/register`, input, publicAuthConfig());
+      return parseRegistrationDetail(unwrapApiData(response.data));
+    } catch (retryError: unknown) {
+      throw toRegistrationApiError(retryError);
+    }
   }
 }
 

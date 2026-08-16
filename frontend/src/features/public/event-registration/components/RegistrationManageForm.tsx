@@ -16,7 +16,7 @@ export function RegistrationManageForm({ token, registration, availability }: { 
   const localeValue = useLocale();
   const locale: RegistrationLocale = localeValue === "en" || localeValue === "de" ? localeValue : "th";
   const t = useTranslations("EventRegistration");
-  const schema = useMemo(() => createRegistrationFormSchema({ required: t("required"), emailInvalid: t("emailInvalid"), maxParticipants: t("maxParticipants"), privacyRequired: t("privacyRequired") }), [t]);
+  const schema = useMemo(() => createRegistrationFormSchema({ required: t("required"), emailInvalid: t("emailInvalid"), nameTooLong: t("nameTooLong"), emailTooLong: t("emailTooLong"), phoneTooLong: t("phoneTooLong"), freeTextTooLong: t("freeTextTooLong"), maxParticipants: t("maxParticipants"), privacyRequired: t("privacyRequired") }), [t]);
   const defaults: RegistrationFormValues = useMemo(() => ({ locale, contact: registration.contact, participants: registration.participants.filter((participant) => participant.attendance_status !== "cancelled").map(({ id, first_name, last_name, dietary_restrictions, special_needs, additional_notes }) => ({ id, first_name, last_name, dietary_restrictions, special_needs, additional_notes })), privacy_notice_version: EVENT_REGISTRATION_PRIVACY_NOTICE_VERSION, privacy_consent: true }), [locale, registration]);
   const { register, control, reset, handleSubmit, setError, formState: { errors } } = useForm<RegistrationFormValues>({ resolver: zodResolver(schema), defaultValues: defaults, mode: "onBlur" });
   const update = useUpdateGuestRegistration();
