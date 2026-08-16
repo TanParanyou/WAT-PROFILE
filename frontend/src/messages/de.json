@@ -17,7 +17,8 @@
         "themeLight": "Hell",
         "themeDark": "Dunkel",
         "accountLogin": "Anmelden",
-        "accountProfile": "Mein Konto"
+        "accountProfile": "Mein Konto",
+        "community": "Community-Fragen"
     },
     "Footer": {
         "aboutUs": "Über Uns",
@@ -785,6 +786,38 @@
         "accountRegistrationsLogin": "Melden Sie sich an, um Ihre Anmeldungen zu sehen.",
         "accountRegistrationsEmpty": "Sie haben noch keine Veranstaltungsanmeldungen.",
         "signIn": "Anmelden"
+    },
+    "Community": {
+        "title": "Community-Fragen und Antworten",
+        "subtitle": "Fragen und Antworten zu Dharma, Tempel und Gemeinschaft teilen.",
+        "searchPlaceholder": "Fragen suchen",
+        "search": "Suchen",
+        "allCategories": "Alle Kategorien",
+        "allLanguages": "Alle Sprachen",
+        "allLifecycles": "Alle Status",
+        "language": "Sprache",
+        "category": "Kategorie",
+        "answers": "{count} Antworten",
+        "latestActivity": "Aktualisiert {date}",
+        "open": "Offen",
+        "answered": "Beantwortet",
+        "resolved": "Geklärt",
+        "locked": "Gesperrt",
+        "archived": "Archiviert",
+        "loading": "Fragen werden geladen…",
+        "loadErrorTitle": "Community konnte nicht geladen werden",
+        "loadErrorDescription": "Bitte versuchen Sie es gleich noch einmal.",
+        "retry": "Erneut versuchen",
+        "emptyTitle": "Noch keine Fragen",
+        "emptyDescription": "Versuchen Sie einen anderen Filter oder schauen Sie später wieder vorbei.",
+        "questionNotFound": "Frage nicht gefunden",
+        "backToCommunity": "Zurück zu den Community-Fragen",
+        "official": "Antwort des Tempels",
+        "accepted": "Vom Fragesteller akzeptiert",
+        "helpful": "Hilfreich",
+        "comments": "Kommentare",
+        "anonymousAuthor": "Ehemaliges Mitglied",
+        "sourceLanguage": "Originalsprache: {language}"
     },
     "ErrorPage": {
         "title": "Ein Fehler ist aufgetreten",

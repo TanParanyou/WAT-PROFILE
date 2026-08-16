@@ -21,6 +21,7 @@ const languageOptions = [
 ] as const;
 
 const ACCOUNT_FEATURE_ENABLED = process.env.NEXT_PUBLIC_PUBLIC_ACCOUNT_AUTH_ENABLED === "true";
+const COMMUNITY_FEATURE_ENABLED = process.env.NEXT_PUBLIC_COMMUNITY_ENABLED === "true";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -41,6 +42,7 @@ export default function Navbar() {
     { name: t("events"), href: "/events" },
     { name: t("gallery"), href: "/gallery" },
     { name: t("contact"), href: "/contact" },
+    ...(COMMUNITY_FEATURE_ENABLED ? [{ name: t("community"), href: "/community" }] : []),
   ];
 
   const accountLabel =

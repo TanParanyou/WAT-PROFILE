@@ -17,7 +17,8 @@
         "themeLight": "Light",
         "themeDark": "Dark",
         "accountLogin": "Sign in",
-        "accountProfile": "My account"
+        "accountProfile": "My account",
+        "community": "Community Q&A"
     },
     "Footer": {
         "aboutUs": "About Us",
@@ -785,6 +786,38 @@
         "accountRegistrationsLogin": "Sign in to see registrations connected to your account.",
         "accountRegistrationsEmpty": "You have no event registrations yet.",
         "signIn": "Sign in"
+    },
+    "Community": {
+        "title": "Community Q&A",
+        "subtitle": "Share questions and answers about Dharma, the temple, and community activities.",
+        "searchPlaceholder": "Search questions",
+        "search": "Search",
+        "allCategories": "All categories",
+        "allLanguages": "All languages",
+        "allLifecycles": "All statuses",
+        "language": "Language",
+        "category": "Category",
+        "answers": "{count} answers",
+        "latestActivity": "Updated {date}",
+        "open": "Open",
+        "answered": "Answered",
+        "resolved": "Resolved",
+        "locked": "Locked",
+        "archived": "Archived",
+        "loading": "Loading questions…",
+        "loadErrorTitle": "Community could not be loaded",
+        "loadErrorDescription": "Please try again in a moment.",
+        "retry": "Try again",
+        "emptyTitle": "No questions yet",
+        "emptyDescription": "Try another filter or check back later.",
+        "questionNotFound": "Question not found",
+        "backToCommunity": "Back to Community Q&A",
+        "official": "Temple answer",
+        "accepted": "Accepted by the asker",
+        "helpful": "Helpful",
+        "comments": "Comments",
+        "anonymousAuthor": "Former member",
+        "sourceLanguage": "Original language: {language}"
     },
     "ErrorPage": {
         "title": "An error occurred",

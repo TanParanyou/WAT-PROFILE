@@ -16,7 +16,8 @@
         "themeLight": "สว่าง",
         "themeDark": "มืด",
         "accountLogin": "เข้าสู่ระบบ",
-        "accountProfile": "บัญชีของฉัน"
+        "accountProfile": "บัญชีของฉัน",
+        "community": "ชุมชนถาม-ตอบ"
     },
     "Footer": {
         "aboutUs": "เกี่ยวกับวัด",
@@ -784,6 +785,38 @@
         "accountRegistrationsLogin": "เข้าสู่ระบบเพื่อดูการลงทะเบียนของคุณ",
         "accountRegistrationsEmpty": "ยังไม่มีการลงทะเบียนกิจกรรม",
         "signIn": "เข้าสู่ระบบ"
+    },
+    "Community": {
+        "title": "ชุมชนถาม-ตอบ",
+        "subtitle": "แบ่งปันคำถามและคำตอบเกี่ยวกับธรรมะ วัด และกิจกรรมของชุมชน",
+        "searchPlaceholder": "ค้นหาคำถาม",
+        "search": "ค้นหา",
+        "allCategories": "ทุกหมวดหมู่",
+        "allLanguages": "ทุกภาษา",
+        "allLifecycles": "ทุกสถานะ",
+        "language": "ภาษา",
+        "category": "หมวดหมู่",
+        "answers": "คำตอบ {count}",
+        "latestActivity": "อัปเดตล่าสุด {date}",
+        "open": "เปิดคำถาม",
+        "answered": "มีคำตอบแล้ว",
+        "resolved": "มีคำตอบที่ได้รับการยืนยัน",
+        "locked": "ล็อกแล้ว",
+        "archived": "เก็บถาวร",
+        "loading": "กำลังโหลดคำถาม…",
+        "loadErrorTitle": "ไม่สามารถโหลดชุมชนได้",
+        "loadErrorDescription": "กรุณาลองใหม่อีกครั้งในอีกสักครู่",
+        "retry": "ลองใหม่",
+        "emptyTitle": "ยังไม่มีคำถาม",
+        "emptyDescription": "ลองเปลี่ยนตัวกรองหรือกลับมาใหม่ภายหลัง",
+        "questionNotFound": "ไม่พบคำถามนี้",
+        "backToCommunity": "กลับไปชุมชนถาม-ตอบ",
+        "official": "คำตอบจากวัด",
+        "accepted": "ผู้ถามยอมรับคำตอบ",
+        "helpful": "เป็นประโยชน์",
+        "comments": "ความคิดเห็น",
+        "anonymousAuthor": "อดีตสมาชิก",
+        "sourceLanguage": "คำถามต้นฉบับภาษา {language}"
     },
     "ErrorPage": {
         "title": "เกิดข้อผิดพลาด",
