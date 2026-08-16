@@ -298,36 +298,23 @@ export function EventDetailContent({ slug, initialEvent }: EventDetailContentPro
 
           {/* Main Cover / Poster preview with zoom option */}
           {event.image_url && (
-            <div className="border border-site-border bg-site-surface p-4">
-              <div
-                onClick={() => setLightboxIndex(0)}
-                className="group relative aspect-video sm:aspect-[21/9] w-full cursor-pointer overflow-hidden border border-site-border bg-site-canvas"
-              >
-                <PublicImage
-                  src={event.image_url}
-                  alt={titleText}
-                  fill
-                  fallbackSrc={publicEventFallbackImage}
-                  className="object-cover transition-transform duration-300 group-hover:scale-105"
-                  sizes="(max-width: 1024px) 100vw, 66vw"
-                />
-                <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
-                  <span className="inline-flex items-center gap-1.5 border border-white bg-black/70 px-4 py-2 text-xs font-semibold text-white">
-                    <Search size={14} aria-hidden="true" />
-                    {t("zoomPoster")}
-                  </span>
-                </div>
-              </div>
-              <div className="mt-3 flex items-center justify-between text-xs text-site-muted">
-                <span>{t("posterModalTitle")}</span>
-                <button
-                  type="button"
-                  onClick={() => setLightboxIndex(0)}
-                  className="inline-flex items-center gap-1 font-semibold text-site-accent hover:underline"
-                >
-                  <Search size={13} aria-hidden="true" />
+            <div
+              onClick={() => setLightboxIndex(0)}
+              className="group relative aspect-video sm:aspect-[21/9] w-full cursor-pointer overflow-hidden bg-site-canvas"
+            >
+              <PublicImage
+                src={event.image_url}
+                alt={titleText}
+                fill
+                fallbackSrc={publicEventFallbackImage}
+                className="object-cover transition-transform duration-300 group-hover:scale-105"
+                sizes="(max-width: 1024px) 100vw, 66vw"
+              />
+              <div className="absolute inset-0 flex items-center justify-center bg-black/40 opacity-0 transition-opacity group-hover:opacity-100">
+                <span className="inline-flex items-center gap-1.5 border border-white bg-black/70 px-4 py-2 text-xs font-semibold text-white">
+                  <Search size={14} aria-hidden="true" />
                   {t("zoomPoster")}
-                </button>
+                </span>
               </div>
             </div>
           )}
