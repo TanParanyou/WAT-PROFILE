@@ -188,6 +188,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 	adminAuthHandler := handlers.NewAdminAuthHandler(db)
 	adminAuth := api.Group("/auth/admin", middleware.AdminOriginGuard(adminAllowedOrigins()))
 	adminAuth.Post("/login", adminAuthHandler.Login)
+	adminAuth.Post("/mfa-verify", adminAuthHandler.MFAVerify)
 	adminAuth.Post("/refresh", adminAuthHandler.Refresh)
 	adminAuth.Post("/logout", adminAuthHandler.Logout)
 
@@ -205,7 +206,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 
 	// ============ ADMIN ROUTES (Admin Auth + Per-Resource Permissions) ============
 	admin := api.Group("/admin", middleware.AdminAuthRequired(db), middleware.AdminSecurityHeaders())
-	registerAdminRoutes(admin, adminRouteDefinitions(), adminHandlerMap(db, r2))
+	registerAdminRoutes(admin, adminRouteDefinitions(), adminHandlerMap(db, r2, accountCfg))
 }
 
 // AdminRouteDefinition declares one Admin endpoint together with its required
@@ -255,8 +256,17 @@ func adminRouteDefinitions() []AdminRouteDefinition {
 		{Method: fiber.MethodPost, Path: "/community/reports/:id/resolve", Resource: "community", Action: "moderate", HandlerKey: "community.resolveReport"},
 		{Method: fiber.MethodPost, Path: "/community/reports/:id/dismiss", Resource: "community", Action: "moderate", HandlerKey: "community.dismissReport"},
 
-		// Admin Self-Profile
+		// Admin Self-Profile & Security
 		{Method: fiber.MethodPut, Path: "/me", Resource: "profile", Action: "update", HandlerKey: "profile.update"},
+		{Method: fiber.MethodPost, Path: "/2fa/setup", Resource: "profile", Action: "update", HandlerKey: "security.2fa.setup"},
+		{Method: fiber.MethodPost, Path: "/2fa/verify-setup", Resource: "profile", Action: "update", HandlerKey: "security.2fa.verifySetup"},
+		{Method: fiber.MethodPost, Path: "/2fa/disable", Resource: "profile", Action: "update", HandlerKey: "security.2fa.disable"},
+		{Method: fiber.MethodPost, Path: "/2fa/regenerate-backup-codes", Resource: "profile", Action: "update", HandlerKey: "security.2fa.regenerateBackupCodes"},
+		{Method: fiber.MethodGet, Path: "/sessions", Resource: "profile", Action: "read", HandlerKey: "sessions.list"},
+		{Method: fiber.MethodDelete, Path: "/sessions/other", Resource: "profile", Action: "update", HandlerKey: "sessions.revokeOther"},
+		{Method: fiber.MethodDelete, Path: "/sessions/:id", Resource: "profile", Action: "update", HandlerKey: "sessions.revoke"},
+		{Method: fiber.MethodGet, Path: "/security/preferences", Resource: "profile", Action: "read", HandlerKey: "security.preferences.get"},
+		{Method: fiber.MethodPut, Path: "/security/preferences", Resource: "profile", Action: "update", HandlerKey: "security.preferences.update"},
 
 		// Audit Logs
 		{Method: fiber.MethodGet, Path: "/audit-logs/filter-options", Resource: "audit_logs", Action: "read", HandlerKey: "audit.filterOptions"},
@@ -440,7 +450,7 @@ func adminRouteDefinitions() []AdminRouteDefinition {
 
 // adminHandlerMap resolves every Admin route handler key to the handler
 // function that backs it.
-func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service) map[string]fiber.Handler {
+func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service, accountCfg config.AccountAuthConfig) map[string]fiber.Handler {
 	eventHandler := handlers.NewEventHandler(db)
 	calendarHandler := handlers.NewCalendarHandler(db)
 	calendarResourceHandler := handlers.NewCalendarResourceHandler(db)
@@ -469,6 +479,10 @@ func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service) map[string]fiber.Handle
 	publicContentHandler := handlers.NewPublicContentHandler(db)
 	eventAlertHandler := handlers.NewEventAlertHandler(db)
 	communityAdminHandler := handlers.NewCommunityAdminHandler(db)
+
+	emailSender, _ := services.NewAccountEmailSender(accountCfg)
+	securityHandler := handlers.NewAdminSecurityHandler(db, emailSender)
+	sessionHandler := handlers.NewAdminSessionHandler(db)
 
 	return map[string]fiber.Handler{
 		"calendar.admin":                calendarHandler.GetAdmin,
@@ -618,12 +632,21 @@ func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service) map[string]fiber.Handle
 		"accountOps.disable":            accountOperationsHandler.Disable,
 		"accountOps.enable":             accountOperationsHandler.Enable,
 		"accountOps.logoutAll":          accountOperationsHandler.LogoutAll,
-		"profile.update":                userHandler.UpdateAdminProfile,
-		"roles.list":                    roleHandler.GetRoles,
-		"roles.get":                     roleHandler.GetRole,
-		"roles.create":                  roleHandler.CreateRole,
-		"roles.update":                  roleHandler.UpdateRole,
-		"roles.bulkDelete":              roleHandler.BulkDeleteRoles,
-		"roles.delete":                  roleHandler.DeleteRole,
+		"profile.update":                    userHandler.UpdateAdminProfile,
+		"security.2fa.setup":                securityHandler.Setup2FA,
+		"security.2fa.verifySetup":          securityHandler.Verify2FASetup,
+		"security.2fa.disable":              securityHandler.Disable2FA,
+		"security.2fa.regenerateBackupCodes": securityHandler.RegenerateBackupCodes,
+		"sessions.list":                     sessionHandler.GetSessions,
+		"sessions.revokeOther":              sessionHandler.RevokeOtherSessions,
+		"sessions.revoke":                   sessionHandler.RevokeSession,
+		"security.preferences.get":          securityHandler.GetSecurityPreferences,
+		"security.preferences.update":       securityHandler.UpdateSecurityPreferences,
+		"roles.list":                        roleHandler.GetRoles,
+		"roles.get":                         roleHandler.GetRole,
+		"roles.create":                      roleHandler.CreateRole,
+		"roles.update":                      roleHandler.UpdateRole,
+		"roles.bulkDelete":                  roleHandler.BulkDeleteRoles,
+		"roles.delete":                      roleHandler.DeleteRole,
 	}
 }

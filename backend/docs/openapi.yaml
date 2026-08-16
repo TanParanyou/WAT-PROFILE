@@ -1334,6 +1334,58 @@ paths:
                         type: string
                         example: ADMIN_SESSION_INVALID
 
+  /auth/admin/mfa-verify:
+    post:
+      tags: [Admin Auth]
+      summary: Verify Admin 2FA challenge code
+      description: >-
+        Validates a 6-digit TOTP code or an unused 8-character backup recovery
+        code using the temporary `mfa_token` issued from `/auth/admin/login`.
+        On success sets the `wat_admin_refresh` HttpOnly cookie and returns an
+        Admin access token.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [mfa_token, code]
+              properties:
+                mfa_token:
+                  type: string
+                code:
+                  type: string
+                  example: "123456"
+      responses:
+        '200':
+          description: MFA verification successful
+          headers:
+            Set-Cookie:
+              description: HttpOnly `wat_admin_refresh` session cookie
+              schema:
+                type: string
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/AdminAuthResponse'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          description: Invalid MFA code or expired session
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/ErrorResponse'
+                  - properties:
+                      code:
+                        type: string
+                        example: ADMIN_MFA_INVALID_CODE
+
   /auth/admin/logout:
     post:
       tags: [Admin Auth]
@@ -2408,6 +2460,242 @@ paths:
           $ref: '#/components/responses/Unauthorized'
         '403':
           $ref: '#/components/responses/Forbidden'
+
+  /admin/2fa/setup:
+    post:
+      tags: [Admin - Self Service]
+      summary: Initiate 2FA setup
+      description: Generates a new TOTP secret and otpauth URI for QR code setup.
+      security:
+        - AdminBearerAuth: []
+      responses:
+        '200':
+          description: 2FA setup data
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        type: object
+                        properties:
+                          secret:
+                            type: string
+                          otpauth_uri:
+                            type: string
+
+  /admin/2fa/verify-setup:
+    post:
+      tags: [Admin - Self Service]
+      summary: Verify and enable 2FA
+      description: Validates the first OTP and returns backup recovery codes.
+      security:
+        - AdminBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [secret, code]
+              properties:
+                secret:
+                  type: string
+                code:
+                  type: string
+      responses:
+        '200':
+          description: 2FA enabled with backup recovery codes
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        type: object
+                        properties:
+                          message:
+                            type: string
+                          backup_codes:
+                            type: array
+                            items:
+                              type: string
+
+  /admin/2fa/disable:
+    post:
+      tags: [Admin - Self Service]
+      summary: Disable 2FA
+      description: Requires current password and a valid OTP or backup code to disable 2FA.
+      security:
+        - AdminBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password, code]
+              properties:
+                password:
+                  type: string
+                code:
+                  type: string
+      responses:
+        '200':
+          $ref: '#/components/schemas/MessageResponse'
+
+  /admin/2fa/regenerate-backup-codes:
+    post:
+      tags: [Admin - Self Service]
+      summary: Regenerate 2FA backup codes
+      description: Issues a fresh set of 10 backup codes after validating current password.
+      security:
+        - AdminBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [password]
+              properties:
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Fresh backup codes generated
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        type: object
+                        properties:
+                          backup_codes:
+                            type: array
+                            items:
+                              type: string
+
+  /admin/sessions:
+    get:
+      tags: [Admin - Self Service]
+      summary: List active admin sessions
+      description: Returns all active sessions for the current admin user.
+      security:
+        - AdminBearerAuth: []
+      responses:
+        '200':
+          description: List of active sessions
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          type: object
+                          properties:
+                            id:
+                              type: string
+                              format: uuid
+                            ip_address:
+                              type: string
+                            user_agent:
+                              type: string
+                            last_used_at:
+                              type: string
+                              format: date-time
+                            is_current:
+                              type: boolean
+
+  /admin/sessions/other:
+    delete:
+      tags: [Admin - Self Service]
+      summary: Revoke all other admin sessions
+      description: Revokes every active session belonging to this admin except the current one.
+      security:
+        - AdminBearerAuth: []
+      responses:
+        '200':
+          $ref: '#/components/schemas/MessageResponse'
+
+  /admin/sessions/{id}:
+    delete:
+      tags: [Admin - Self Service]
+      summary: Revoke a specific session
+      description: Revokes the specified session ID if owned by this admin.
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          $ref: '#/components/schemas/MessageResponse'
+
+  /admin/security/preferences:
+    get:
+      tags: [Admin - Self Service]
+      summary: Get security notification preferences
+      security:
+        - AdminBearerAuth: []
+      responses:
+        '200':
+          description: Current notification preferences
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        type: object
+                        properties:
+                          email_on_new_device:
+                            type: boolean
+                          email_on_failed_login:
+                            type: boolean
+                          email_on_security_change:
+                            type: boolean
+    put:
+      tags: [Admin - Self Service]
+      summary: Update security notification preferences
+      security:
+        - AdminBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email_on_new_device:
+                  type: boolean
+                email_on_failed_login:
+                  type: boolean
+                email_on_security_change:
+                  type: boolean
+      responses:
+        '200':
+          description: Updated preferences
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        type: object
 
   /admin/users:
     get:

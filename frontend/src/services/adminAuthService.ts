@@ -3,6 +3,7 @@ import { setAdminAccessToken } from "./adminAuthStore";
 import type {
   AdminAuthResponse,
   LoginRequest,
+  MFALoginRequest,
   UpdateProfileRequest,
   User,
 } from "@/types/auth";
@@ -18,7 +19,24 @@ const adminAuthService = {
     if (!result) {
       throw new Error("Admin login response missing data");
     }
-    setAdminAccessToken(result.access_token);
+    if (result.access_token) {
+      setAdminAccessToken(result.access_token);
+    }
+    return result;
+  },
+
+  async mfaVerify(data: MFALoginRequest): Promise<AdminAuthResponse> {
+    const res = await adminApi.post<ApiResponse<AdminAuthResponse>>(
+      "/auth/admin/mfa-verify",
+      data,
+    );
+    const result = res.data.data;
+    if (!result) {
+      throw new Error("Admin MFA verification response missing data");
+    }
+    if (result.access_token) {
+      setAdminAccessToken(result.access_token);
+    }
     return result;
   },
 
@@ -30,7 +48,9 @@ const adminAuthService = {
     if (!result) {
       throw new Error("Admin session refresh response missing data");
     }
-    setAdminAccessToken(result.access_token);
+    if (result.access_token) {
+      setAdminAccessToken(result.access_token);
+    }
     return result;
   },
 

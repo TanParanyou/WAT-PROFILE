@@ -3,6 +3,7 @@
 import React, { useState, useEffect } from 'react';
 import { AdminSidebar } from './AdminSidebar';
 import { AdminHeader } from './AdminHeader';
+import { InactivityTimeoutDialog } from './InactivityTimeoutDialog';
 import { cn } from '@/utils/cn';
 
 interface AdminLayoutProps {
@@ -45,6 +46,9 @@ export function AdminLayout({ children }: AdminLayoutProps) {
                 <AdminHeader onMenuClick={() => setMobileOpen(true)} />
                 <main className="p-4 sm:p-6">{children}</main>
             </div>
+
+            {/* Inactivity Warning Dialog */}
+            <InactivityTimeoutDialog />
         </div>
     );
 }

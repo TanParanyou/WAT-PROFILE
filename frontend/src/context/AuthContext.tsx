@@ -9,14 +9,21 @@ import React, {
 } from "react";
 import adminAuthService from "@/services/adminAuthService";
 import { setAdminAuthLostHandler } from "@/services/adminAuthStore";
-import type { User, LoginRequest, UpdateProfileRequest } from "@/types/auth";
+import type {
+  User,
+  LoginRequest,
+  MFALoginRequest,
+  AdminAuthResponse,
+  UpdateProfileRequest,
+} from "@/types/auth";
 
 interface AuthContextType {
   user: User | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   sessionExpired: boolean;
-  login: (data: LoginRequest) => Promise<void>;
+  login: (data: LoginRequest) => Promise<AdminAuthResponse>;
+  mfaVerify: (data: MFALoginRequest) => Promise<void>;
   logout: () => Promise<void>;
   refreshUser: () => Promise<void>;
   updateProfile: (data: UpdateProfileRequest) => Promise<User>;
@@ -34,7 +41,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       const result = await adminAuthService.refresh();
       setSessionExpired(false);
-      setUser(result.user);
+      if (result.user) {
+        setUser(result.user);
+      }
     } catch {
       setUser(null);
     }
@@ -60,10 +69,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return () => setAdminAuthLostHandler(null);
   }, []);
 
-  const login = async (data: LoginRequest) => {
+  const login = async (data: LoginRequest): Promise<AdminAuthResponse> => {
     const result = await adminAuthService.login(data);
+    if (!result.mfa_required && result.user) {
+      setSessionExpired(false);
+      setUser(result.user);
+    }
+    return result;
+  };
+
+  const mfaVerify = async (data: MFALoginRequest) => {
+    const result = await adminAuthService.mfaVerify(data);
     setSessionExpired(false);
-    setUser(result.user);
+    if (result.user) {
+      setUser(result.user);
+    }
   };
 
   const logout = async () => {
@@ -86,6 +106,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         isAuthenticated: !!user,
         sessionExpired,
         login,
+        mfaVerify,
         logout,
         refreshUser,
         updateProfile,

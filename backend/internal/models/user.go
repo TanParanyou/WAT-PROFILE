@@ -1,6 +1,9 @@
 package models
 
 import (
+	"database/sql/driver"
+	"encoding/json"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
@@ -21,11 +24,62 @@ type User struct {
 	AccountStatus AccountStatus `gorm:"size:32;not null;default:active" json:"account_status"`
 	ClosedAt      *time.Time    `json:"closed_at,omitempty"`
 	PurgeAfter    *time.Time    `gorm:"index" json:"purge_after,omitempty"`
-	FailedLoginAttempts int        `gorm:"default:0;not null" json:"-"`
-	LockedUntil         *time.Time `json:"-"`
-	LastLoginAt         *time.Time `json:"last_login_at"`
-	CreatedAt           time.Time  `json:"created_at"`
-	UpdatedAt           time.Time  `json:"updated_at"`
+	TOTPSecret          *string             `gorm:"type:text" json:"-"`
+	TOTPEnabled         bool                `gorm:"default:false;not null" json:"totp_enabled"`
+	TOTPVerifiedAt      *time.Time          `json:"totp_verified_at,omitempty"`
+	SecurityPreferences SecurityPreferences `gorm:"type:jsonb" json:"security_preferences"`
+	FailedLoginAttempts int                 `gorm:"default:0;not null" json:"-"`
+	LockedUntil         *time.Time          `json:"-"`
+	LastLoginAt         *time.Time          `json:"last_login_at"`
+	CreatedAt           time.Time           `json:"created_at"`
+	UpdatedAt           time.Time           `json:"updated_at"`
+}
+
+// SecurityPreferences defines per-user security notification preferences
+type SecurityPreferences struct {
+	EmailOnNewDevice      bool `json:"email_on_new_device"`
+	EmailOnFailedLogin    bool `json:"email_on_failed_login"`
+	EmailOnSecurityChange bool `json:"email_on_security_change"`
+}
+
+// DefaultSecurityPreferences returns default security notification preferences
+func DefaultSecurityPreferences() SecurityPreferences {
+	return SecurityPreferences{
+		EmailOnNewDevice:      true,
+		EmailOnFailedLogin:    true,
+		EmailOnSecurityChange: true,
+	}
+}
+
+// Value implements the driver.Valuer interface
+func (sp SecurityPreferences) Value() (driver.Value, error) {
+	bytes, err := json.Marshal(sp)
+	if err != nil {
+		return nil, err
+	}
+	return string(bytes), nil
+}
+
+// Scan implements the sql.Scanner interface
+func (sp *SecurityPreferences) Scan(value interface{}) error {
+	if value == nil {
+		*sp = DefaultSecurityPreferences()
+		return nil
+	}
+	var bytes []byte
+	switch v := value.(type) {
+	case []byte:
+		bytes = v
+	case string:
+		bytes = []byte(v)
+	default:
+		return fmt.Errorf("unsupported type for SecurityPreferences: %T", value)
+	}
+	if len(bytes) == 0 {
+		*sp = DefaultSecurityPreferences()
+		return nil
+	}
+	return json.Unmarshal(bytes, sp)
 }
 
 // IsLockedOut checks if the user is currently locked out due to failed login attempts

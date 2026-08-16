@@ -13,9 +13,13 @@ export interface Role {
   updated_at: string;
 }
 
+import type { SecurityPreferences } from "./security";
+
 export interface AdminAuthResponse {
-  access_token: string;
-  user: User;
+  access_token?: string;
+  user?: User;
+  mfa_required?: boolean;
+  mfa_token?: string;
 }
 
 export interface User {
@@ -27,6 +31,9 @@ export interface User {
   role?: Role;
   email_verified: boolean;
   is_active: boolean;
+  totp_enabled?: boolean;
+  totp_verified_at?: string | null;
+  security_preferences?: SecurityPreferences;
   last_login_at: string | null;
   created_at: string;
   updated_at: string;
@@ -35,6 +42,11 @@ export interface User {
 export interface LoginRequest {
   email: string;
   password: string;
+}
+
+export interface MFALoginRequest {
+  mfa_token: string;
+  code: string;
 }
 
 export interface LoginResponse {

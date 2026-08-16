@@ -7,6 +7,7 @@ import (
 	"testing"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/watloungporsai/wat-profile-backend/internal/config"
 	"gorm.io/gorm"
 )
 
@@ -48,7 +49,7 @@ func TestAdminRoutesDefinitionsAreValid(t *testing.T) {
 // TestAdminRoutesAllHandlerKeysResolve ensures every definition references a
 // handler that actually exists in the admin handler registry.
 func TestAdminRoutesAllHandlerKeysResolve(t *testing.T) {
-	handlers := adminHandlerMap(&gorm.DB{}, nil)
+	handlers := adminHandlerMap(&gorm.DB{}, nil, config.AccountAuthConfig{})
 	defs := adminRouteDefinitions()
 
 	for _, d := range defs {
@@ -63,7 +64,7 @@ func TestAdminRoutesAllHandlerKeysResolve(t *testing.T) {
 // reaches a registered route without an authenticated user must be rejected by
 // the permission middleware, proving the stack is not unprotected.
 func TestAdminRoutesRegisterAppliesPermissionMiddleware(t *testing.T) {
-	handlers := adminHandlerMap(&gorm.DB{}, nil)
+	handlers := adminHandlerMap(&gorm.DB{}, nil, config.AccountAuthConfig{})
 	app := fiber.New()
 	group := app.Group("/admin")
 	registerAdminRoutes(group, adminRouteDefinitions(), handlers)

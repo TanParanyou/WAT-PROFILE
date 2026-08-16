@@ -68,7 +68,7 @@ export default function RegistrationsPage() {
     queryKey: ["admin", "registrations"],
     params: listState.params,
     fetcher: async (params) => {
-      const statuses = params.filters.status.filter((value): value is "pending" | "confirmed" | "cancelled" | "attended" => ["pending", "confirmed", "cancelled", "attended"].includes(value));
+      const statuses = (params.filters.status ?? []).filter((value): value is "pending" | "confirmed" | "cancelled" | "attended" => ["pending", "confirmed", "cancelled", "attended"].includes(value));
       const result = await fetchAdminEventRegistrations({
         page: params.page,
         limit: params.limit,

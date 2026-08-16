@@ -15,8 +15,9 @@ import (
 )
 
 const (
-	adminTokenIssuer   = "wat-profile"
-	adminTokenAudience = "admin"
+	adminTokenIssuer      = "wat-profile"
+	adminTokenAudience    = "admin"
+	adminMFATokenAudience = "admin-mfa"
 )
 
 // AdminClaims represents the claims of an Admin access token.
@@ -80,6 +81,47 @@ func VerifyAdminAccessToken(raw string) (*AdminClaims, error) {
 	}
 
 	return claims, nil
+}
+
+// GenerateAdminMFAToken generates a short-lived token (5m) requiring 2FA challenge completion
+func GenerateAdminMFAToken(userID uuid.UUID) (string, error) {
+	now := time.Now()
+	claims := AdminClaims{
+		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:    adminTokenIssuer,
+			Subject:   userID.String(),
+			Audience:  jwt.ClaimStrings{adminMFATokenAudience},
+			ExpiresAt: jwt.NewNumericDate(now.Add(5 * time.Minute)),
+			IssuedAt:  jwt.NewNumericDate(now),
+			ID:        uuid.New().String(),
+		},
+	}
+	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
+	return token.SignedString([]byte(getJWTSecret()))
+}
+
+// VerifyAdminMFAToken verifies an Admin MFA temporary token and returns the userID
+func VerifyAdminMFAToken(raw string) (uuid.UUID, error) {
+	token, err := jwt.ParseWithClaims(raw, &AdminClaims{}, func(token *jwt.Token) (interface{}, error) {
+		if token.Method != jwt.SigningMethodHS256 {
+			return nil, errors.New("unexpected signing method")
+		}
+		return []byte(getJWTSecret()), nil
+	}, jwt.WithValidMethods([]string{jwt.SigningMethodHS256.Alg()}))
+	if err != nil {
+		return uuid.Nil, err
+	}
+
+	claims, ok := token.Claims.(*AdminClaims)
+	if !ok || !token.Valid {
+		return uuid.Nil, errors.New("invalid mfa token")
+	}
+
+	if claims.Issuer != adminTokenIssuer || !hasAudience(claims.Audience, adminMFATokenAudience) {
+		return uuid.Nil, errors.New("invalid mfa token audience")
+	}
+
+	return uuid.Parse(claims.Subject)
 }
 
 // NewAdminRefreshCredential creates an opaque refresh credential of the form

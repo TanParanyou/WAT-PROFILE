@@ -20,14 +20,15 @@ const (
 	adminCookiePath    = "/api/v1/auth/admin"
 )
 
-// AdminAuthResponse is the body returned by Admin login and refresh. It never
-// contains the refresh credential, which travels only in the HttpOnly cookie.
+// AdminAuthResponse is the body returned by Admin login, refresh, and mfa verification.
 type AdminAuthResponse struct {
-	AccessToken string      `json:"access_token"`
-	User        models.User `json:"user"`
+	AccessToken string       `json:"access_token,omitempty"`
+	User        *models.User `json:"user,omitempty"`
+	MFARequired bool         `json:"mfa_required,omitempty"`
+	MFAToken    string       `json:"mfa_token,omitempty"`
 }
 
-// AdminAuthHandler exposes Admin login, refresh, and logout.
+// AdminAuthHandler exposes Admin login, refresh, logout, and mfa verification.
 type AdminAuthHandler struct {
 	adminService *services.AdminAuthService
 	auditService *services.AuditService
@@ -87,7 +88,8 @@ func (h *AdminAuthHandler) clearAdminRefreshCookie(c *fiber.Ctx) {
 }
 
 // Login authenticates an eligible Admin. Success returns a short-lived access
-// token in the body and stores the refresh credential in an HttpOnly cookie.
+// token in the body and stores the refresh credential in an HttpOnly cookie, or
+// requires MFA challenge if 2FA is enabled.
 func (h *AdminAuthHandler) Login(c *fiber.Ctx) error {
 	var req struct {
 		Email    string `json:"email"`
@@ -118,11 +120,49 @@ func (h *AdminAuthHandler) Login(c *fiber.Ctx) error {
 		return utils.CodedErrorResponse(c, fiber.StatusUnauthorized, "ADMIN_INVALID_CREDENTIALS", "Invalid email or password")
 	}
 
+	if result.MFARequired {
+		_ = h.auditService.LogSecurityEvent(c, "admin.login.mfa_challenge", "mfa_challenge", "admin_auth", "")
+		return utils.SuccessResponse(c, AdminAuthResponse{
+			MFARequired: true,
+			MFAToken:    result.MFAToken,
+		})
+	}
+
 	_ = h.auditService.LogSecurityEvent(c, "admin.login.success", "login_success", "admin_auth", result.SessionID.String())
 	h.setAdminRefreshCookie(c, result.RefreshCredential)
 	return utils.SuccessResponse(c, AdminAuthResponse{
 		AccessToken: result.AccessToken,
-		User:        *result.User,
+		User:        result.User,
+	})
+}
+
+// MFAVerify handles 2FA TOTP code or backup code verification
+func (h *AdminAuthHandler) MFAVerify(c *fiber.Ctx) error {
+	var req struct {
+		MFAToken string `json:"mfa_token"`
+		Code     string `json:"code"`
+	}
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+	if req.MFAToken == "" || req.Code == "" {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "MFA token and verification code are required")
+	}
+
+	result, err := h.adminService.VerifyAdminMFA(req.MFAToken, req.Code, c.IP(), c.Get("User-Agent"))
+	if err != nil {
+		_ = h.auditService.LogSecurityEvent(c, "admin.mfa.failure", "mfa_failure", "admin_auth", "")
+		if errors.Is(err, services.ErrInvalidTOTPCode) {
+			return utils.CodedErrorResponse(c, fiber.StatusUnauthorized, "ADMIN_MFA_INVALID_CODE", "Invalid or expired verification code")
+		}
+		return utils.CodedErrorResponse(c, fiber.StatusUnauthorized, "ADMIN_MFA_SESSION_INVALID", "MFA verification session is invalid or expired")
+	}
+
+	_ = h.auditService.LogSecurityEvent(c, "admin.mfa.success", "mfa_success", "admin_auth", result.SessionID.String())
+	h.setAdminRefreshCookie(c, result.RefreshCredential)
+	return utils.SuccessResponse(c, AdminAuthResponse{
+		AccessToken: result.AccessToken,
+		User:        result.User,
 	})
 }
 
@@ -148,7 +188,7 @@ func (h *AdminAuthHandler) Refresh(c *fiber.Ctx) error {
 	h.setAdminRefreshCookie(c, result.RefreshCredential)
 	return utils.SuccessResponse(c, AdminAuthResponse{
 		AccessToken: result.AccessToken,
-		User:        *result.User,
+		User:        result.User,
 	})
 }
 

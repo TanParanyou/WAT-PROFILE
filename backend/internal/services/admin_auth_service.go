@@ -63,6 +63,8 @@ type AdminAuthResult struct {
 	RefreshCredential string
 	SessionID         uuid.UUID
 	User              *models.User
+	MFARequired       bool
+	MFAToken          string
 }
 
 // AdminAuthService owns Admin eligibility checks, session creation, refresh
@@ -164,6 +166,90 @@ func (s *AdminAuthService) LoginAdmin(email, password, ip, userAgent string) (*A
 		_ = s.db.Model(&user).Updates(userUpdates).Error
 	}
 
+	// If 2FA is enabled, issue a short-lived MFA challenge token instead of full session
+	if user.TOTPEnabled && user.TOTPSecret != nil && *user.TOTPSecret != "" {
+		mfaToken, err := utils.GenerateAdminMFAToken(user.ID)
+		if err != nil {
+			return nil, err
+		}
+		return &AdminAuthResult{
+			MFARequired: true,
+			MFAToken:    mfaToken,
+			User:        &user,
+		}, nil
+	}
+
+	sessionID := uuid.New()
+	raw, hash, err := utils.NewAdminRefreshCredential(sessionID)
+	if err != nil {
+		return nil, err
+	}
+
+	session := models.AdminSession{
+		ID:                sessionID,
+		UserID:            user.ID,
+		CurrentSecretHash: hash,
+		ExpiresAt:         now.Add(s.expiry),
+		LastUsedAt:        now,
+		IPAddress:         ip,
+		UserAgent:         truncateString(userAgent, maxUserAgentLength),
+	}
+
+	if err := s.db.Transaction(func(tx *gorm.DB) error {
+		return tx.Create(&session).Error
+	}); err != nil {
+		return nil, err
+	}
+
+	accessToken, err := utils.GenerateAdminAccessToken(user.ID)
+	if err != nil {
+		return nil, err
+	}
+
+	return &AdminAuthResult{
+		AccessToken:       accessToken,
+		RefreshCredential: raw,
+		SessionID:         session.ID,
+		User:              &user,
+	}, nil
+}
+
+// VerifyAdminMFA validates the TOTP/backup code with the temporary MFA token and issues an Admin session
+func (s *AdminAuthService) VerifyAdminMFA(mfaToken, code, ip, userAgent string) (*AdminAuthResult, error) {
+	userID, err := utils.VerifyAdminMFAToken(mfaToken)
+	if err != nil {
+		return nil, ErrAdminSessionInvalid
+	}
+
+	var user models.User
+	if err := s.db.Preload("Role").First(&user, userID).Error; err != nil {
+		return nil, ErrAdminSessionInvalid
+	}
+
+	if !s.eligible(&user) || user.IsLockedOut() {
+		return nil, ErrAdminCredentials
+	}
+
+	if !user.TOTPEnabled || user.TOTPSecret == nil || *user.TOTPSecret == "" {
+		return nil, ErrAdminCredentials
+	}
+
+	totpService := NewTOTPService(s.db)
+	validCode := totpService.ValidateCode(*user.TOTPSecret, code)
+
+	if !validCode {
+		// Check backup code
+		used, err := totpService.ValidateAndConsumeBackupCode(user.ID, code)
+		if err == nil && used {
+			validCode = true
+		}
+	}
+
+	if !validCode {
+		return nil, ErrInvalidTOTPCode
+	}
+
+	now := s.timeNow()
 	sessionID := uuid.New()
 	raw, hash, err := utils.NewAdminRefreshCredential(sessionID)
 	if err != nil {

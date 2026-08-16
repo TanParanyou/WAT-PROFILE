@@ -64,14 +64,21 @@ func (s *AuditService) LogAction(c *fiber.Ctx, action string, entityType string,
 // be stored for security-relevant Admin authentication events. Free-form or
 // secret-bearing data must never be written through this path.
 var allowedSecurityAuditCategories = map[string]bool{
-	"credentials_or_eligibility": true,
-	"login_success":              true,
-	"logout":                     true,
-	"session_revoked":            true,
-	"session_reuse":              true,
-	"sessions_revoked":           true,
-	"account_locked":             true,
-	"permission_denied":          true,
+	"credentials_or_eligibility":   true,
+	"login_success":                true,
+	"logout":                       true,
+	"session_revoked":              true,
+	"session_reuse":                true,
+	"sessions_revoked":             true,
+	"account_locked":               true,
+	"permission_denied":            true,
+	"mfa_challenge":                true,
+	"mfa_success":                  true,
+	"mfa_failure":                  true,
+	"2fa_enabled":                  true,
+	"2fa_disabled":                 true,
+	"backup_codes_regenerated":     true,
+	"security_preferences_updated": true,
 }
 
 const maxSecurityAuditUserAgentLength = 512
