@@ -58,6 +58,10 @@ func main() {
 	if err != nil {
 		log.Fatal().Err(err).Msg("Failed to load public account auth configuration")
 	}
+	communityCfg, err := config.LoadCommunityConfig(accountCfg)
+	if err != nil {
+		log.Fatal().Err(err).Msg("Failed to load Community configuration")
+	}
 
 	// เชื่อมต่อ database
 	if err := config.InitDatabase(); err != nil {
@@ -236,7 +240,7 @@ func main() {
 	}
 
 	// ตั้งค่า routes
-	routes.SetupRoutes(app, config.DB, r2Service, accountCfg)
+	routes.SetupRoutes(app, config.DB, r2Service, accountCfg, communityCfg)
 
 	// Graceful shutdown
 	port := getEnv("PORT", "8080")

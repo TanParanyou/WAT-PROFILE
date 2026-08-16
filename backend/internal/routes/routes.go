@@ -46,7 +46,8 @@ func adminAllowedOrigins() []string {
 // SetupRoutes registers all API routes. accountCfg controls whether the public
 // account API is mounted; when disabled, account routes 404 and the legacy
 // anonymous /auth/register stays enabled.
-func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg config.AccountAuthConfig) {
+func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg config.AccountAuthConfig, communityCfg config.CommunityConfig) {
+	_ = communityCfg
 	// API v1
 	api := app.Group("/api/v1")
 

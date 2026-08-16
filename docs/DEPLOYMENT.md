@@ -38,6 +38,8 @@ Frontend:
   least one HTTPS origin; do not use wildcards, paths, or credentials.
 - `NEXT_PUBLIC_PUBLIC_ACCOUNT_AUTH_ENABLED` — `true` renders the public account UI
   and the account entry in the navigation (build-time flag)
+- `NEXT_PUBLIC_COMMUNITY_ENABLED` — `true` renders the Community Q&A navigation and
+  routes (build-time flag); keep it false until the backend read flag is enabled.
 
 Backend:
 
@@ -78,6 +80,19 @@ Public account auth (backend):
 - `ADMIN_COOKIE_SECURE` — `true` in production (public refresh cookie is `Secure`
   when the environment is production)
 
+Community Q&A (backend):
+
+- `PUBLIC_COMMUNITY_READ_ENABLED` — mounts cacheable public Community reads
+- `PUBLIC_COMMUNITY_WRITE_ENABLED` — enables verified public-account mutations; it
+  requires both Community read and `PUBLIC_ACCOUNT_AUTH_ENABLED`
+- `COMMUNITY_EMAIL_ENABLED` — enables Community email jobs through the existing
+  operations worker; it requires Community write and Resend delivery
+- `COMMUNITY_QUESTION_LIMIT`, `COMMUNITY_QUESTION_DAILY_LIMIT`,
+  `COMMUNITY_ANSWER_LIMIT`, `COMMUNITY_COMMENT_LIMIT`, `COMMUNITY_VOTE_LIMIT`,
+  `COMMUNITY_REPORT_LIMIT`, `COMMUNITY_SEARCH_LIMIT` — optional positive count
+  overrides; default windows are one hour (questions also 24 hours) and one minute
+  for search
+
 Never place real values in this file or committed env examples.
 
 ## Production invariants
@@ -102,6 +117,9 @@ Never place real values in this file or committed env examples.
 
 - Both feature flags are disabled by default. Enable the backend flag first, then the
   frontend flag, then run the browser acceptance in `docs/AUTH_TESTING.md`.
+- Community rollout order is backend schema, backend read, frontend read, moderation
+  UI, member write, then email. Keep all Community flags false until its acceptance
+  and privacy gates pass.
 - Migration `000025_add_public_account_auth` is a prerequisite and is applied by the
   normal release migration step. It **aborts** if case-insensitive duplicate emails
   exist, so resolve duplicates before releasing.
