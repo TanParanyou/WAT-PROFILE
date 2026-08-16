@@ -140,7 +140,9 @@ type CommentDTO struct {
 type QuestionDetailDTO struct {
 	Question         QuestionListItemDTO     `json:"question"`
 	Body             models.RichTextDocument `json:"body"`
-	BodyText         string                  `json:"body_text,omitempty"`
+	// BodyText is an internal search projection and must never be exposed by the
+	// public detail response.
+	BodyText         string                  `json:"-"`
 	Answers          []AnswerDTO             `json:"answers"`
 	Comments         []CommentDTO            `json:"comments"`
 	AcceptedAnswerID *uuid.UUID              `json:"accepted_answer_id,omitempty"`
