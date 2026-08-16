@@ -103,6 +103,18 @@ func MigrateModels() error {
 		&models.EventRegistration{},
 		&models.EventRegistrationParticipant{},
 		&models.ContactInquiry{},
+		&models.CommunityCategory{},
+		&models.CommunityMemberState{},
+		&models.CommunityQuestion{},
+		&models.CommunityAnswer{},
+		&models.CommunityComment{},
+		&models.CommunityAnswerVote{},
+		&models.CommunityPostRevision{},
+		&models.CommunityReport{},
+		&models.CommunityModerationAction{},
+		&models.CommunityNotification{},
+		&models.CommunityNotificationPreference{},
+		&models.CommunityRateLimitBucket{},
 	)
 
 	if err != nil {

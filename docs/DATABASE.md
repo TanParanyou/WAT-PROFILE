@@ -61,6 +61,12 @@ Do not use `make be-migrate`: the current target omits the required CLI subcomma
 - Do not use AutoMigrate and SQL migrations as competing production authorities.
 - Local AutoMigrate may help development, but it does not replace migration files.
 
+Community Q&A uses migrations `000046_create_community_qa` and
+`000047_seed_community_qa`. The schema migration enables `pg_trgm`, creates only
+Community-owned tables, and is reversible on a disposable database. The seed
+migration inserts the four localized categories and the Admin `community` permission;
+its down migration deactivates seeded categories so referenced content is preserved.
+
 ## Data contracts
 
 - Localized text is JSONB through `models.MultiLangText`.
@@ -69,6 +75,8 @@ Do not use `make be-migrate`: the current target omits the required CLI subcomma
 - Website CMS publishing copies draft state to published snapshot fields.
 - Ordered entities require deterministic `display_order`/`sort_order` handling.
 - Role permissions are a JSONB resource-to-action map; admin routes enforce them.
+- Community rich text is a single validated Tiptap JSONB document; the backend owns
+  node/mark validation and extracted plain text.
 
 ## Seed operations
 
