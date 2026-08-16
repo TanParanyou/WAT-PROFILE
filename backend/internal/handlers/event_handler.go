@@ -258,3 +258,126 @@ func (h *EventHandler) BulkDeleteEvents(c *fiber.Ctx) error {
 
 	return utils.MessageResponse(c, "Events deleted successfully")
 }
+
+// GetCategories - Public: List active event categories
+func (h *EventHandler) GetCategories(c *fiber.Ctx) error {
+	categories, err := h.eventService.ListCategories()
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch event categories")
+	}
+	return utils.SuccessResponse(c, categories)
+}
+
+// GetAdminCategories - Admin: List event categories with pagination and filters
+func (h *EventHandler) GetAdminCategories(c *fiber.Ctx) error {
+	common, err := listquery.Parse(c, listquery.Config{
+		DefaultSort:  "display_order",
+		DefaultOrder: "asc",
+		AllowedSort: map[string]string{
+			"id":            "id",
+			"name":          "name",
+			"display_order": "display_order",
+			"is_active":     "is_active",
+			"created_at":    "created_at",
+		},
+	})
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+
+	statuses := listquery.ExtractMulti(c, "status")
+	options := services.EventCategoryListOptions{
+		Common:   common,
+		Statuses: statuses,
+	}
+
+	categories, total, err := h.eventService.ListCategoriesAdmin(options)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch event categories")
+	}
+
+	return utils.PaginatedResponse(c, categories, common.Page, common.Limit, int(total))
+}
+
+// GetCategoryByID - Admin: Get event category by ID
+func (h *EventHandler) GetCategoryByID(c *fiber.Ctx) error {
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+	category, err := h.eventService.GetCategoryByID(id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return utils.ErrorResponse(c, fiber.StatusNotFound, "Event category not found")
+		}
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch event category")
+	}
+	return utils.SuccessResponse(c, category)
+}
+
+// CreateCategory - Admin: Create event category
+func (h *EventHandler) CreateCategory(c *fiber.Ctx) error {
+	var category models.EventCategory
+	if err := c.BodyParser(&category); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+	if err := h.eventService.CreateCategory(&category); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to create event category")
+	}
+	_ = h.auditService.LogAction(c, "create", "event_categories", fmt.Sprint(category.ID), map[string]interface{}{"name": category.Name})
+	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "data": category})
+}
+
+// UpdateCategory - Admin: Update event category
+func (h *EventHandler) UpdateCategory(c *fiber.Ctx) error {
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+	category, err := h.eventService.GetCategoryByID(id)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return utils.ErrorResponse(c, fiber.StatusNotFound, "Event category not found")
+		}
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch event category")
+	}
+	if err := c.BodyParser(category); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+	category.ID = id
+	if err := h.eventService.UpdateCategory(category); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to update event category")
+	}
+	_ = h.auditService.LogAction(c, "update", "event_categories", fmt.Sprint(category.ID), map[string]interface{}{"name": category.Name})
+	return utils.SuccessResponse(c, category)
+}
+
+// DeleteCategory - Admin: Delete event category
+func (h *EventHandler) DeleteCategory(c *fiber.Ctx) error {
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+	if err := h.eventService.DeleteCategory(id); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete event category")
+	}
+	_ = h.auditService.LogAction(c, "delete", "event_categories", fmt.Sprint(id), nil)
+	return utils.MessageResponse(c, "Event category deleted successfully")
+}
+
+// BulkDeleteCategories - Admin: Bulk delete event categories
+func (h *EventHandler) BulkDeleteCategories(c *fiber.Ctx) error {
+	var req models.BulkDeleteRequest
+	if err := c.BodyParser(&req); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+	if len(req.IDs) == 0 {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "No IDs provided for deletion")
+	}
+	if err := h.eventService.BulkDeleteCategories(req.IDs); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete event categories")
+	}
+	_ = h.auditService.LogAction(c, "bulk_delete", "event_categories", "", map[string]interface{}{"count": len(req.IDs)})
+	return utils.MessageResponse(c, "Event categories deleted successfully")
+}
+

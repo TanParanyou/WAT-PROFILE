@@ -25,6 +25,17 @@ export interface User {
   updated_at: string;
 }
 
+// Event Category
+export interface EventCategory {
+  id: number;
+  name: MultiLangText;
+  description?: MultiLangText;
+  is_active: boolean;
+  display_order: number;
+  created_at: string;
+  updated_at?: string;
+}
+
 // Event
 export interface Event {
   id: number;
@@ -38,7 +49,9 @@ export interface Event {
   location: MultiLangText;
   image_url: string;
   map_url: string;
-  event_type: string;
+  category_id?: number | null;
+  category?: EventCategory;
+  event_type?: string;
   is_recurring: boolean;
   recurring_pattern: string;
   max_participants: number | null;

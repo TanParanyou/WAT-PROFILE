@@ -717,6 +717,24 @@ paths:
               schema:
                 $ref: '#/components/schemas/SuccessResponse'
 
+  /public/event-categories:
+    get:
+      tags: [Events]
+      summary: List active event categories
+      responses:
+        '200':
+          description: Event categories list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/EventCategory'
+
   /public/events/{slug}:
     get:
       tags: [Events]
@@ -3007,6 +3025,83 @@ paths:
       responses:
         '200':
           description: Event deleted
+
+  /admin/event-categories:
+    get:
+      tags: [Admin - Events]
+      summary: List event categories (admin)
+      description: Query parameters support repeated values for multi-select.
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/OrderParam'
+        - name: status
+          in: query
+          description: Status filter (repeated string for multi-select)
+          required: false
+          schema:
+            type: array
+            items:
+              type: string
+      responses:
+        '200':
+          description: Paginated event categories list
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/PaginatedResponse'
+                  - properties:
+                      data:
+                        type: array
+                        items:
+                          $ref: '#/components/schemas/EventCategory'
+    post:
+      tags: [Admin - Events]
+      summary: Create event category
+      security:
+        - AdminBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventCategory'
+      responses:
+        '201':
+          description: Category created
+
+  /admin/event-categories/{id}:
+    put:
+      tags: [Admin - Events]
+      summary: Update event category
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/EventCategory'
+      responses:
+        '200':
+          description: Category updated
+    delete:
+      tags: [Admin - Events]
+      summary: Delete event category
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Category deleted
 
   # ==================== ADMIN - Monks ====================
   /admin/monks:
@@ -5609,6 +5704,26 @@ components:
           $ref: '#/components/schemas/Media'
 
     # ===== Event =====
+    EventCategory:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          $ref: '#/components/schemas/MultiLangText'
+        description:
+          $ref: '#/components/schemas/MultiLangText'
+        is_active:
+          type: boolean
+        display_order:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+        updated_at:
+          type: string
+          format: date-time
+
     Event:
       type: object
       properties:
@@ -5637,6 +5752,11 @@ components:
           type: string
         map_url:
           type: string
+        category_id:
+          type: integer
+          nullable: true
+        category:
+          $ref: '#/components/schemas/EventCategory'
         event_type:
           type: string
           enum: [meditation_course, ceremony, festival]

@@ -15,7 +15,6 @@ CREATE TABLE community_categories (
   updated_at timestamptz NOT NULL DEFAULT now(),
   CONSTRAINT community_categories_name_locale_check CHECK (
     jsonb_typeof(name) = 'object'
-    AND jsonb_object_length(name) = 3
     AND name ?& ARRAY['th', 'en', 'de']
   )
 );

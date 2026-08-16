@@ -4,6 +4,17 @@ import (
 	"time"
 )
 
+// EventCategory represents an event master category
+type EventCategory struct {
+	ID           int           `gorm:"primaryKey;autoIncrement" json:"id"`
+	Name         MultiLangText `gorm:"type:jsonb;not null" json:"name"`
+	Description  MultiLangText `gorm:"type:jsonb" json:"description"`
+	IsActive     bool          `gorm:"default:true;index" json:"is_active"`
+	DisplayOrder int           `gorm:"default:0;index" json:"display_order"`
+	CreatedAt    time.Time     `json:"created_at"`
+	UpdatedAt    time.Time     `json:"updated_at"`
+}
+
 // Event represents a temple event/activity
 type Event struct {
 	ID                   int               `gorm:"primaryKey;autoIncrement" json:"id"`
@@ -17,7 +28,9 @@ type Event struct {
 	Location             MultiLangText     `gorm:"type:jsonb" json:"location"`
 	ImageURL             string            `gorm:"size:255" json:"image_url"`
 	MapURL               string            `gorm:"type:text" json:"map_url"`
-	EventType            string            `gorm:"size:50;index" json:"event_type"` // 'meditation_course', 'ceremony', 'festival'
+	CategoryID           *int              `gorm:"index" json:"category_id"`
+	Category             *EventCategory    `gorm:"foreignKey:CategoryID;constraint:OnDelete:SET NULL" json:"category,omitempty"`
+	EventType            string            `gorm:"size:50;index" json:"event_type"` // Legacy fallback: 'meditation_course', 'ceremony', 'festival'
 	IsRecurring          bool              `gorm:"default:false" json:"is_recurring"`
 	RecurringPattern     string            `gorm:"size:50" json:"recurring_pattern"` // 'monthly', 'yearly'
 	MaxParticipants      *int              `json:"max_participants"`                 // NULL = unlimited

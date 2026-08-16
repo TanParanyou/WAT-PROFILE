@@ -36,15 +36,19 @@ export function EventsList({ events }: EventsListProps) {
                 className="object-cover transition-transform duration-300 ease-out group-hover:scale-[1.03] motion-reduce:transition-none motion-reduce:group-hover:scale-100"
                 sizes="(max-width: 768px) 100vw, 40vw"
               />
-              {event.eventType && (
-                <div className="absolute top-3 left-3 z-10">
-                  <span className="bg-black/75 text-white text-[11px] font-semibold px-2.5 py-1 uppercase tracking-wider border border-white/20 backdrop-blur-sm">
-                    {t.has(`types.${event.eventType}`)
-                      ? t(`types.${event.eventType}`)
-                      : event.eventType}
-                  </span>
-                </div>
-              )}
+              {(() => {
+                const categoryLabel = event.category?.name
+                  ? getLocalizedText(event.category.name, locale)
+                  : (event.eventType ? (t.has(`types.${event.eventType}`) ? t(`types.${event.eventType}`) : event.eventType) : null);
+                if (!categoryLabel) return null;
+                return (
+                  <div className="absolute top-3 left-3 z-10">
+                    <span className="bg-black/75 text-white text-[11px] font-semibold px-2.5 py-1 uppercase tracking-wider border border-white/20 backdrop-blur-sm">
+                      {categoryLabel}
+                    </span>
+                  </div>
+                );
+              })()}
             </div>
             <div className="flex flex-col p-6 md:p-8">
               {/* Badges / Tags */}

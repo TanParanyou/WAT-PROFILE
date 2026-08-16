@@ -12,6 +12,7 @@ import { useConfirm } from "@/hooks/useConfirm";
 import { eventAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import type { Event } from "@/types/entities";
+import type { MultiLangText } from "@/types/api";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { BulkActionToolbar } from "@/components/admin/BulkActionToolbar";
 import { Drawer } from "@/components/ui/Drawer";
@@ -169,11 +170,9 @@ export default function EventsListPage() {
     const location = (eventItem.location?.[locale as "th" | "en" | "de"] || eventItem.location?.th || "") as string;
 
     const timeStr = formatTimeRange(eventItem.start_time, eventItem.end_time);
-    const categoryTranslated = eventItem.event_type
-      ? t.has(`events.types.${eventItem.event_type}`)
-        ? t(`events.types.${eventItem.event_type}`)
-        : eventItem.event_type
-      : undefined;
+    const categoryTranslated = eventItem.category?.name
+      ? ((eventItem.category.name as MultiLangText)?.[locale as "th" | "en" | "de"] || (eventItem.category.name as MultiLangText)?.th || (eventItem.category.name as MultiLangText)?.en || (eventItem.category.name as MultiLangText)?.de)
+      : (eventItem.event_type ? (t.has(`events.types.${eventItem.event_type}`) ? t(`events.types.${eventItem.event_type}`) : eventItem.event_type) : undefined);
 
     const eventMeta = {
       date: formatDateRange(eventItem.start_date, eventItem.end_date),
@@ -279,16 +278,13 @@ export default function EventsListPage() {
     {
       header: t("columns.category") || "ประเภท",
       accessorKey: "event_type",
-      cell: (v) => {
-        const val = v as string;
-        const label = val
-          ? t.has(`events.types.${val}`)
-            ? t(`events.types.${val}`)
-            : val
-          : "-";
+      cell: (_, row) => {
+        const catName = row.category?.name
+          ? ((row.category.name as MultiLangText)?.[locale as "th" | "en" | "de"] || (row.category.name as MultiLangText)?.th || (row.category.name as MultiLangText)?.en || (row.category.name as MultiLangText)?.de)
+          : (row.event_type ? (t.has(`events.types.${row.event_type}`) ? t(`events.types.${row.event_type}`) : row.event_type) : "-");
         return (
           <span className="inline-block px-2 py-0.5 text-xs font-medium border border-admin-border bg-admin-surface-muted text-admin-foreground">
-            {label}
+            {catName}
           </span>
         );
       },
@@ -359,6 +355,7 @@ export default function EventsListPage() {
         breadcrumbs={[{ label: t("events.title") }]}
         actions={
           <div className="flex flex-wrap items-center gap-3">
+            <Link href="/admin/events/categories" className="inline-flex min-h-11 items-center border border-admin-border px-4 text-sm hover:bg-admin-surface-muted focus-visible:outline-2 focus-visible:outline-admin-focus">{t("events.categories")}</Link>
             <Link href="/admin/calendar" className="inline-flex min-h-11 items-center border border-admin-border px-4 text-sm hover:bg-admin-surface-muted focus-visible:outline-2 focus-visible:outline-admin-focus">{t("events.calendarView")}</Link>
             <PermissionButton
               resource="events"

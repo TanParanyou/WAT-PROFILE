@@ -142,10 +142,15 @@ export function EventDetailContent({ slug, initialEvent }: EventDetailContentPro
   const whatToBring = event.what_to_bring ? getLocalizedText(event.what_to_bring, locale) : "";
   const transportInfo = event.transport_info ? getLocalizedText(event.transport_info, locale) : "";
 
+  const categoryName = event.category?.name
+    ? getLocalizedText(event.category.name, locale)
+    : (event.event_type ? (t.has(`types.${event.event_type}`) ? t(`types.${event.event_type}`) : event.event_type) : undefined);
+
   return (
-    <div className="space-y-8 pb-12 pt-2">
+    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+      {/* Schema.org Structured Data */}
       <Script
-        id={`event-json-ld-${event.slug}`}
+        id={`event-ld-${event.id}`}
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
@@ -155,11 +160,9 @@ export function EventDetailContent({ slug, initialEvent }: EventDetailContentPro
         <div className="flex flex-wrap items-center justify-between gap-3">
           {/* Status Badges Row */}
           <div className="flex flex-wrap items-center gap-2">
-            {event.event_type && (
+            {categoryName && (
               <span className="inline-flex items-center gap-1.5 border border-site-border bg-site-surface px-2.5 py-1 text-xs font-semibold text-site-foreground uppercase tracking-wide">
-                {t.has(`types.${event.event_type}`)
-                  ? t(`types.${event.event_type}`)
-                  : event.event_type}
+                {categoryName}
               </span>
             )}
             {isToday && (
@@ -592,11 +595,7 @@ export function EventDetailContent({ slug, initialEvent }: EventDetailContentPro
         const eventDesc = event.description
           ? getLocalizedPlainText(event.description, locale)
           : undefined;
-        const eventCategory = event.event_type
-          ? t.has(`types.${event.event_type}`)
-            ? t(`types.${event.event_type}`)
-            : event.event_type
-          : undefined;
+        const eventCategory = categoryName;
 
         const eventMeta = {
           date: formatDateRange(event.start_date, event.end_date, locale),

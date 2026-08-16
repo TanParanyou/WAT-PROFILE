@@ -5,6 +5,7 @@ import "testing"
 func TestAdminListSortContractsAcceptCommonFrontendKeys(t *testing.T) {
 	cases := map[string]map[string]string{
 		"events":              eventSortColumns,
+		"event_categories":    eventCategorySortColumns,
 		"gallery":             gallerySortColumns,
 		"gallery_categories":  galleryCategorySortColumns,
 		"members":             memberSortColumns,
@@ -22,6 +23,7 @@ func TestAdminListSortContractsAcceptCommonFrontendKeys(t *testing.T) {
 	}
 	wants := map[string][]string{
 		"events":              {"id", "title", "event_type", "start_date", "end_date", "created_at"},
+		"event_categories":    {"id", "name", "display_order", "is_active", "created_at"},
 		"gallery":             {"id", "caption", "display_order", "created_at"},
 		"gallery_categories":  {"id", "name", "slug", "display_order", "created_at"},
 		"members":             {"id", "member_code", "first_name_th", "membership_type", "membership_status", "membership_date", "created_at"},

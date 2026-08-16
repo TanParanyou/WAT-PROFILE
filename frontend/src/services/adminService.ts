@@ -4,6 +4,7 @@ import type { AdminListParams } from "@/features/admin-list/types";
 import { serializeAdminListParams } from "@/features/admin-list/url";
 import type {
   Event,
+  EventCategory,
   Monk,
   Gallery,
   GalleryCategory,
@@ -73,6 +74,7 @@ export function createAdminService<T>(resource: string) {
 }
 
 export const eventAdminService = createAdminService<Event>("events");
+export const eventCategoryAdminService = createAdminService<EventCategory>("event-categories");
 export const calendarResourceAdminService = createAdminService<CalendarResourceEntity>("calendar-resources");
 export const monkAdminService = createAdminService<Monk>("monks");
 export const galleryAdminService = {

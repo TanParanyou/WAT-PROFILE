@@ -40,6 +40,19 @@ var eventSortColumns = map[string]string{
 	"display_order": "events.display_order",
 }
 
+var eventCategorySortColumns = map[string]string{
+	"id":            "event_categories.id",
+	"name":          "event_categories.name->>'th'",
+	"display_order": "event_categories.display_order",
+	"is_active":     "event_categories.is_active",
+	"created_at":    "event_categories.created_at",
+}
+
+type EventCategoryListOptions struct {
+	Common   listquery.Common
+	Statuses []string
+}
+
 var ErrInvalidEventResourceIDs = errors.New("invalid event resource IDs")
 
 // ListAdmin returns a paginated list of all events for admin management
@@ -99,7 +112,8 @@ func (s *EventService) ListAdmin(options EventListOptions) ([]models.Event, int6
 	preloadSchedules := func(db *gorm.DB) *gorm.DB {
 		return db.Order("display_order ASC")
 	}
-	err := query.Preload("Schedules", preloadSchedules).
+	err := query.Preload("Category").
+		Preload("Schedules", preloadSchedules).
 		Preload("ResourceAssignments.Resource").
 		Order(sortCol + " " + orderDir + ", events.id " + orderDir).
 		Offset(offset).
@@ -117,6 +131,7 @@ func (s *EventService) ListActive(limit int, from, to *time.Time) ([]models.Even
 	}
 	query := s.db.Where("is_active = ?", true).
 		Order("start_date ASC").
+		Preload("Category").
 		Preload("Schedules", preloadSchedules).
 		Preload("ResourceAssignments.Resource")
 	if from == nil {
@@ -142,6 +157,7 @@ func (s *EventService) GetBySlug(slug string) (*models.Event, error) {
 		return db.Order("display_order ASC")
 	}
 	query := s.db.Where("is_active = ?", true).
+		Preload("Category").
 		Preload("Schedules", preloadSchedules).
 		Preload("ResourceAssignments.Resource")
 	if id, err := strconv.Atoi(slug); err == nil {
@@ -176,7 +192,7 @@ func (s *EventService) CreateWithResourceIDs(event *models.Event, resourceIDs []
 // GetByID returns an event by ID
 func (s *EventService) GetByID(id int) (*models.Event, error) {
 	var event models.Event
-	err := s.db.Preload("Schedules").Preload("ResourceAssignments.Resource").First(&event, id).Error
+	err := s.db.Preload("Category").Preload("Schedules").Preload("ResourceAssignments.Resource").First(&event, id).Error
 	if err != nil {
 		return nil, err
 	}
@@ -241,3 +257,94 @@ func (s *EventService) Delete(id int) error {
 func (s *EventService) BulkDelete(ids []int) error {
 	return s.db.Where("id IN ?", ids).Delete(&models.Event{}).Error
 }
+
+// ListCategories returns all active event categories for public / dropdown use
+func (s *EventService) ListCategories() ([]models.EventCategory, error) {
+	var categories []models.EventCategory
+	err := s.db.Where("is_active = ?", true).
+		Order("display_order ASC, id ASC").
+		Find(&categories).Error
+	return categories, err
+}
+
+// ListCategoriesAdmin returns paginated event categories for admin management
+func (s *EventService) ListCategoriesAdmin(options EventCategoryListOptions) ([]models.EventCategory, int64, error) {
+	var categories []models.EventCategory
+	var total int64
+
+	query := s.db.Model(&models.EventCategory{})
+
+	if options.Common.Search != "" {
+		searchTerm := "%" + options.Common.Search + "%"
+		query = query.Where(
+			"event_categories.name->>'th' ILIKE ? OR event_categories.name->>'en' ILIKE ? OR event_categories.name->>'de' ILIKE ? OR event_categories.description->>'th' ILIKE ? OR event_categories.description->>'en' ILIKE ? OR event_categories.description->>'de' ILIKE ?",
+			searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm,
+		)
+	}
+
+	if len(options.Statuses) > 0 {
+		var activeFilter []bool
+		for _, st := range options.Statuses {
+			if st == "active" {
+				activeFilter = append(activeFilter, true)
+			} else if st == "inactive" {
+				activeFilter = append(activeFilter, false)
+			}
+		}
+		if len(activeFilter) > 0 {
+			query = query.Where("event_categories.is_active IN ?", activeFilter)
+		}
+	}
+
+	if err := query.Session(&gorm.Session{}).Count(&total).Error; err != nil {
+		return nil, 0, err
+	}
+
+	sortCol, ok := eventCategorySortColumns[options.Common.Sort]
+	if !ok {
+		sortCol = "event_categories.display_order"
+	}
+	orderDir := "ASC"
+	if options.Common.Order == "desc" {
+		orderDir = "DESC"
+	}
+
+	offset := (options.Common.Page - 1) * options.Common.Limit
+	err := query.Order(sortCol + " " + orderDir + ", event_categories.id " + orderDir).
+		Offset(offset).
+		Limit(options.Common.Limit).
+		Find(&categories).Error
+
+	return categories, total, err
+}
+
+// GetCategoryByID returns an event category by ID
+func (s *EventService) GetCategoryByID(id int) (*models.EventCategory, error) {
+	var category models.EventCategory
+	err := s.db.First(&category, id).Error
+	if err != nil {
+		return nil, err
+	}
+	return &category, nil
+}
+
+// CreateCategory creates a new event category
+func (s *EventService) CreateCategory(category *models.EventCategory) error {
+	return s.db.Create(category).Error
+}
+
+// UpdateCategory saves changes to an event category
+func (s *EventService) UpdateCategory(category *models.EventCategory) error {
+	return s.db.Save(category).Error
+}
+
+// DeleteCategory removes an event category by ID
+func (s *EventService) DeleteCategory(id int) error {
+	return s.db.Delete(&models.EventCategory{}, id).Error
+}
+
+// BulkDeleteCategories removes multiple event categories by their IDs
+func (s *EventService) BulkDeleteCategories(ids []int) error {
+	return s.db.Where("id IN ?", ids).Delete(&models.EventCategory{}).Error
+}
+

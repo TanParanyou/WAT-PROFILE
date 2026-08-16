@@ -21,6 +21,7 @@ export interface PublicEventDto {
   location: LocalizedTextDto;
   image_url: string | null;
   map_url: string | null;
+  category?: { id: number; name: LocalizedTextDto; description?: LocalizedTextDto } | null;
   event_type?: string;
   registration_enabled?: boolean;
   registration_deadline?: string | null;
@@ -66,6 +67,7 @@ export interface EventListItem {
   endTime?: string | null;
   imageUrl: string | null;
   location: LocalizedTextDto;
+  category?: { id: number; name: LocalizedTextDto; description?: LocalizedTextDto } | null;
   eventType?: string;
   registrationEnabled?: boolean;
   donationEnabled?: boolean;

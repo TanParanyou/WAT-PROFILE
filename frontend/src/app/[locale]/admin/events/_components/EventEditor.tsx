@@ -9,13 +9,13 @@ import { Input } from "@/components/ui/Input";
 import { TimePicker } from "@/components/ui/TimePicker";
 import { Select } from "@/components/ui/Select";
 import { Switch } from "@/components/ui/Switch";
-import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/Loading";
-import { eventAdminService } from "@/services/adminService";
+import { eventAdminService, eventCategoryAdminService } from "@/services/adminService";
 import api from "@/services/adminApi";
 import { useToast } from "@/hooks/useToast";
 import { useApiError } from "@/hooks/useApiError";
 import type { MultiLangText } from "@/types/api";
+import type { EventCategory } from "@/types/entities";
 import { useLocale, useTranslations } from "next-intl";
 import { useForm, Controller, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -122,6 +122,28 @@ export function EventEditor({ id }: EventEditorProps) {
   });
   const calendarResources: CalendarResourceEntity[] = resourcesQuery.data?.data ?? [];
 
+  const categoriesQuery = useQuery({
+    queryKey: ["admin", "event-categories", "active"],
+    queryFn: () => eventCategoryAdminService.getAll({ status: "active" }),
+    staleTime: 60_000,
+  });
+  const categories: EventCategory[] = (categoriesQuery.data?.data ?? []).filter((c) => c.is_active);
+
+  const categoryOptions = useMemo(() => {
+    if (categories.length > 0) {
+      return categories.map((cat) => ({
+        value: String(cat.id),
+        label: cat.name[resourceLocale] || cat.name.th || cat.name.en || `Category #${cat.id}`,
+      }));
+    }
+    return eventTypeOptions;
+  }, [categories, resourceLocale, eventTypeOptions]);
+
+  const selectedCategory = categories.find((c) => String(c.id) === watch("event_type"));
+  const categoryPreviewName = selectedCategory
+    ? selectedCategory.name[resourceLocale] || selectedCategory.name.th || selectedCategory.name.en
+    : (watch("event_type") ? (t.has(`events.types.${watch("event_type")}`) ? t(`events.types.${watch("event_type")}`) : watch("event_type")) : "");
+
   // Fetch initial data if editing
   useEffect(() => {
     if (!id) return;
@@ -147,7 +169,8 @@ export function EventEditor({ id }: EventEditorProps) {
           end_time: event.end_time
             ? formatInTimeZone(event.end_time, TIMEZONE, "HH:mm")
             : "",
-          event_type: event.event_type,
+          category_id: event.category_id ?? null,
+          event_type: event.category_id ? String(event.category_id) : (event.event_type || ""),
           image_url: event.image_url || "",
           gallery_urls: event.gallery_urls || [],
           map_url: event.map_url || "",
@@ -264,9 +287,20 @@ export function EventEditor({ id }: EventEditorProps) {
             : undefined,
       }));
 
+      const parsedCatId = Number(data.event_type);
+      let categoryId: number | null = null;
+      const eventTypeStr = data.event_type || "";
+      if (!isNaN(parsedCatId) && parsedCatId > 0) {
+        categoryId = parsedCatId;
+      } else if (typeof data.category_id === "number") {
+        categoryId = data.category_id;
+      }
+
       // Prepare payload WITHOUT the image if it's a File
       const payload: Record<string, unknown> = {
         ...data,
+        category_id: categoryId,
+        event_type: eventTypeStr,
         start_date: startDateISO,
         end_date: endDateISO,
         start_time: startTimeISO,
@@ -358,7 +392,7 @@ export function EventEditor({ id }: EventEditorProps) {
                 endDate={watch("end_date")}
                 startTime={watch("start_time")}
                 endTime={watch("end_time")}
-                eventType={watch("event_type")}
+                eventType={categoryPreviewName}
                 imageUrl={watch("image_url")}
                 registrationEnabled={watch("registration_enabled")}
                 schedule={watch("schedule")}
@@ -632,7 +666,7 @@ export function EventEditor({ id }: EventEditorProps) {
                         <Select
                           id="event_type"
                           label={t("events.form.type")}
-                          options={eventTypeOptions}
+                          options={categoryOptions}
                           value={field.value}
                           onChange={(e) => field.onChange(e.target.value)}
                           error={errors.event_type?.message}
@@ -914,7 +948,7 @@ export function EventEditor({ id }: EventEditorProps) {
                 endDate={watch("end_date")}
                 startTime={watch("start_time")}
                 endTime={watch("end_time")}
-                eventType={watch("event_type")}
+                eventType={categoryPreviewName}
                 imageUrl={watch("image_url")}
                 registrationEnabled={watch("registration_enabled")}
                 schedule={watch("schedule")}
@@ -974,18 +1008,11 @@ export function EventEditor({ id }: EventEditorProps) {
                 whatToBringVal?.de ||
                 "";
 
-          const eventTypeVal = watch("event_type");
-          const categoryTranslated = eventTypeVal
-            ? t.has(`events.types.${eventTypeVal}`)
-              ? t(`events.types.${eventTypeVal}`)
-              : eventTypeVal
-            : undefined;
-
           const eventMeta = {
             date: watch("start_date") ? formatDateRange(watch("start_date"), watch("end_date")) : undefined,
             time: formatTimeRange(watch("start_time"), watch("end_time")) || undefined,
             location: location || undefined,
-            category: categoryTranslated,
+            category: categoryPreviewName || undefined,
             dressCode: dressCode || undefined,
             whatToBring: whatToBring || undefined,
           };

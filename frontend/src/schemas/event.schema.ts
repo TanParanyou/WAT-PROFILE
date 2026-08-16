@@ -1,6 +1,15 @@
 import { z } from "zod";
 import { multiLangSchema, multiLangOptionalSchema, slugSchema } from "./common";
 
+export const eventCategorySchema = z.object({
+  name: multiLangSchema("Name"),
+  description: multiLangOptionalSchema(),
+  display_order: z.number(),
+  is_active: z.boolean(),
+});
+
+export type EventCategoryFormData = z.infer<typeof eventCategorySchema>;
+
 export const baseEventSchema = z.object({
   title: multiLangSchema("Title"),
   description: z.record(z.string(), z.unknown()).optional(),
@@ -9,7 +18,8 @@ export const baseEventSchema = z.object({
   end_date: z.string().min(1, "End date is required"),
   start_time: z.string().nullable().optional(),
   end_time: z.string().nullable().optional(),
-  event_type: z.string().min(1, "Event type is required"),
+  category_id: z.number().nullable().optional(),
+  event_type: z.string().optional(),
   location: multiLangOptionalSchema(),
   image_url: z.union([z.string(), z.instanceof(File)]).optional(),
   map_url: z.string().optional(),

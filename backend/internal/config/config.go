@@ -88,6 +88,7 @@ func MigrateModels() error {
 
 		// Temple-specific models
 		&models.Member{},
+		&models.EventCategory{},
 		&models.Event{},
 		&models.EventSchedule{},
 		&models.Monk{},

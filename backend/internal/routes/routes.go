@@ -89,6 +89,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 	// Events
 	public.Get("/events", eventHandler.GetEvents)
 	public.Get("/events/:slug", eventHandler.GetEvent)
+	public.Get("/event-categories", eventHandler.GetCategories)
 	public.Get("/calendar", calendarHandler.GetPublic)
 
 	// Monks
@@ -274,6 +275,12 @@ func adminRouteDefinitions() []AdminRouteDefinition {
 		{Method: fiber.MethodPut, Path: "/events/:id", Resource: "events", Action: "update", HandlerKey: "events.update"},
 		{Method: fiber.MethodDelete, Path: "/events/bulk", Resource: "events", Action: "delete", HandlerKey: "events.bulkDelete"},
 		{Method: fiber.MethodDelete, Path: "/events/:id", Resource: "events", Action: "delete", HandlerKey: "events.delete"},
+		{Method: fiber.MethodGet, Path: "/event-categories", Resource: "events", Action: "read", HandlerKey: "eventCategories.list"},
+		{Method: fiber.MethodGet, Path: "/event-categories/:id", Resource: "events", Action: "read", HandlerKey: "eventCategories.get"},
+		{Method: fiber.MethodPost, Path: "/event-categories", Resource: "events", Action: "create", HandlerKey: "eventCategories.create"},
+		{Method: fiber.MethodPut, Path: "/event-categories/:id", Resource: "events", Action: "update", HandlerKey: "eventCategories.update"},
+		{Method: fiber.MethodDelete, Path: "/event-categories/bulk", Resource: "events", Action: "delete", HandlerKey: "eventCategories.bulkDelete"},
+		{Method: fiber.MethodDelete, Path: "/event-categories/:id", Resource: "events", Action: "delete", HandlerKey: "eventCategories.delete"},
 
 		// Monks Management
 		{Method: fiber.MethodGet, Path: "/monks", Resource: "monks", Action: "read", HandlerKey: "monks.list"},
@@ -491,6 +498,12 @@ func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service) map[string]fiber.Handle
 		"events.update":                 eventHandler.UpdateEvent,
 		"events.bulkDelete":             eventHandler.BulkDeleteEvents,
 		"events.delete":                 eventHandler.DeleteEvent,
+		"eventCategories.list":          eventHandler.GetAdminCategories,
+		"eventCategories.get":           eventHandler.GetCategoryByID,
+		"eventCategories.create":        eventHandler.CreateCategory,
+		"eventCategories.update":        eventHandler.UpdateCategory,
+		"eventCategories.bulkDelete":    eventHandler.BulkDeleteCategories,
+		"eventCategories.delete":        eventHandler.DeleteCategory,
 		"monks.list":                    monkHandler.GetAdminMonks,
 		"monks.get":                     monkHandler.GetMonkByID,
 		"monks.create":                  monkHandler.CreateMonk,
