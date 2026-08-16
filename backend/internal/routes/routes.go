@@ -47,7 +47,6 @@ func adminAllowedOrigins() []string {
 // account API is mounted; when disabled, account routes 404 and the legacy
 // anonymous /auth/register stays enabled.
 func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg config.AccountAuthConfig, communityCfg config.CommunityConfig) {
-	_ = communityCfg
 	// API v1
 	api := app.Group("/api/v1")
 
@@ -154,6 +153,16 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 		accountRegistrations.Get("/registrations", registrationHandler.GetAccountRegistrations)
 		accountRegistrations.Patch("/registrations/:id", registrationHandler.UpdateAccountRegistration)
 		accountRegistrations.Post("/registrations/:id/cancel", registrationHandler.CancelAccountRegistration)
+	}
+
+	if communityCfg.WriteEnabled {
+		communityAccountHandler := handlers.NewCommunityAccountHandler(db, communityCfg)
+		communityAccount := api.Group("/accounts/community", middleware.AccountOriginGuard(accountCfg.AllowedOrigins), middleware.PublicAccountRequired(db, []byte(os.Getenv("JWT_SECRET"))))
+		communityAccount.Post("/questions", communityAccountHandler.CreateQuestion)
+		communityAccount.Patch("/questions/:id", communityAccountHandler.UpdateQuestion)
+		communityAccount.Delete("/questions/:id", communityAccountHandler.DeleteQuestion)
+		communityAccount.Get("/activity", communityAccountHandler.ListMyActivity)
+		communityAccount.Get("/questions/:id/viewer", communityAccountHandler.GetViewerState)
 	}
 
 	// ============ ADMIN AUTH ROUTES (Origin-Guarded, Cookie-Based) ============

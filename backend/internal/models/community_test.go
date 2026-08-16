@@ -1,6 +1,7 @@
 package models
 
 import (
+	"encoding/json"
 	"testing"
 )
 
@@ -22,6 +23,21 @@ func TestRichTextDocumentRoundTrip(t *testing.T) {
 	}
 	var got RichTextDocument
 	if err := got.Scan(value); err != nil {
+		t.Fatal(err)
+	}
+	if string(got) != string(want) {
+		t.Fatalf("got %s", got)
+	}
+}
+
+func TestRichTextDocumentJSONRoundTrip(t *testing.T) {
+	want := RichTextDocument(`{"type":"doc","content":[{"type":"paragraph"}]}`)
+	payload, err := json.Marshal(want)
+	if err != nil {
+		t.Fatal(err)
+	}
+	var got RichTextDocument
+	if err := json.Unmarshal(payload, &got); err != nil {
 		t.Fatal(err)
 	}
 	if string(got) != string(want) {

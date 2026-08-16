@@ -138,16 +138,43 @@ type CommentDTO struct {
 }
 
 type QuestionDetailDTO struct {
-	Question         QuestionListItemDTO     `json:"question"`
-	Body             models.RichTextDocument `json:"body"`
+	Question QuestionListItemDTO     `json:"question"`
+	Body     models.RichTextDocument `json:"body"`
 	// BodyText is an internal search projection and must never be exposed by the
 	// public detail response.
-	BodyText         string                  `json:"-"`
-	Answers          []AnswerDTO             `json:"answers"`
-	Comments         []CommentDTO            `json:"comments"`
-	AcceptedAnswerID *uuid.UUID              `json:"accepted_answer_id,omitempty"`
-	Version          int                     `json:"version"`
-	LastActivityAt   time.Time               `json:"last_activity_at"`
+	BodyText         string       `json:"-"`
+	Answers          []AnswerDTO  `json:"answers"`
+	Comments         []CommentDTO `json:"comments"`
+	AcceptedAnswerID *uuid.UUID   `json:"accepted_answer_id,omitempty"`
+	Version          int          `json:"version"`
+	LastActivityAt   time.Time    `json:"last_activity_at"`
+}
+
+type QuestionMutationDTO struct {
+	Question          QuestionListItemDTO               `json:"question"`
+	Body              models.RichTextDocument           `json:"body"`
+	PublicationStatus models.CommunityPublicationStatus `json:"publication_status"`
+	LifecycleStatus   models.CommunityLifecycleStatus   `json:"lifecycle_status"`
+	Version           int                               `json:"version"`
+	ReviewRequired    bool                              `json:"review_required"`
+}
+
+type MemberQuestionDTO struct {
+	ID                uuid.UUID                         `json:"id"`
+	Category          CategoryDTO                       `json:"category"`
+	Locale            string                            `json:"locale"`
+	Title             string                            `json:"title"`
+	Slug              string                            `json:"slug"`
+	PublicationStatus models.CommunityPublicationStatus `json:"publication_status"`
+	LifecycleStatus   models.CommunityLifecycleStatus   `json:"lifecycle_status"`
+	Version           int                               `json:"version"`
+	CreatedAt         time.Time                         `json:"created_at"`
+	UpdatedAt         time.Time                         `json:"updated_at"`
+	PublishedAt       *time.Time                        `json:"published_at,omitempty"`
+}
+
+type MemberActivityDTO struct {
+	Questions []MemberQuestionDTO `json:"questions"`
 }
 
 type NotificationListInput struct {
