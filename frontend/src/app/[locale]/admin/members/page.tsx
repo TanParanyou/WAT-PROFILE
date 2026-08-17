@@ -59,7 +59,7 @@ export default function MembersPage() {
     {
       key: "status",
       kind: "multi",
-      label: "สถานะสมาชิก",
+      label: t("common.filter.memberStatus"),
       options: [
         { value: "active", label: "Active" },
         { value: "pending", label: "Pending" },
@@ -69,7 +69,7 @@ export default function MembersPage() {
     {
       key: "type",
       kind: "multi",
-      label: "ประเภทสมาชิก",
+      label: t("common.filter.memberType"),
       options: [
         { value: "monk", label: "Monk" },
         { value: "layperson", label: "Layperson" },
@@ -81,16 +81,32 @@ export default function MembersPage() {
 
   const activeChips: AdminActiveFilterChip[] = [];
   for (const s of listState.params.filters.status || []) {
-    activeChips.push({ key: "status", value: s, label: `สถานะ: ${s}` });
+    activeChips.push({
+      key: "status",
+      value: s,
+      label: t("common.filter.statusWithVal", { value: s }),
+    });
   }
   for (const tp of listState.params.filters.type || []) {
-    activeChips.push({ key: "type", value: tp, label: `ประเภท: ${tp}` });
+    activeChips.push({
+      key: "type",
+      value: tp,
+      label: t("common.filter.typeWithVal", { value: tp }),
+    });
   }
   if (listState.params.filters.from) {
-    activeChips.push({ key: "from", value: listState.params.filters.from, label: `ตั้งแต่วันที่: ${listState.params.filters.from}` });
+    activeChips.push({
+      key: "from",
+      value: listState.params.filters.from,
+      label: t("common.filter.fromDate", { date: listState.params.filters.from }),
+    });
   }
   if (listState.params.filters.to) {
-    activeChips.push({ key: "to", value: listState.params.filters.to, label: `ถึงวันที่: ${listState.params.filters.to}` });
+    activeChips.push({
+      key: "to",
+      value: listState.params.filters.to,
+      label: t("common.filter.toDate", { date: listState.params.filters.to }),
+    });
   }
 
   const handleDelete = async (id: number) => {
@@ -238,13 +254,13 @@ export default function MembersPage() {
           primaryFilters={
             <>
               <AdminMultiSelectFilter
-                label="สถานะสมาชิก"
+                label={t("common.filter.memberStatus")}
                 options={filterDefinitions[0].options || []}
                 values={listState.params.filters.status || []}
                 onChange={(val) => listState.actions.setFilter("status", val)}
               />
               <AdminMultiSelectFilter
-                label="ประเภทสมาชิก"
+                label={t("common.filter.memberType")}
                 options={filterDefinitions[1].options || []}
                 values={listState.params.filters.type || []}
                 onChange={(val) => listState.actions.setFilter("type", val)}
@@ -268,7 +284,7 @@ export default function MembersPage() {
           }
         >
           <AdminDateRangeFilter
-            label="ช่วงวันที่สมัคร"
+            label={t("common.filter.applyDate")}
             from={listState.params.filters.from}
             to={listState.params.filters.to}
             onChange={({ from, to }) => {

@@ -139,7 +139,32 @@
       "copy": "Copy",
       "copied": "Copied!",
       "back": "Back",
-      "copiedToClipboard": "Copied to clipboard"
+      "copiedToClipboard": "Copied to clipboard",
+      "filter": {
+        "status": "Status",
+        "statusActive": "Active",
+        "statusInactive": "Inactive",
+        "statusWithVal": "Status: {value}",
+        "role": "Role",
+        "roleWithVal": "Role: {value}",
+        "type": "Type",
+        "typeWithVal": "Type: {value}",
+        "memberStatus": "Member Status",
+        "memberType": "Member Type",
+        "dateRange": "Date range",
+        "applyDate": "Registered Date range",
+        "eventDate": "Event Date range",
+        "uploadDate": "Upload Date range",
+        "fromDate": "From: {date}",
+        "toDate": "To: {date}",
+        "category": "Category",
+        "categoryWithVal": "Category: {value}"
+      },
+      "errorScreen": {
+        "title": "An error occurred",
+        "defaultMessage": "An unexpected error occurred. Please try again.",
+        "retry": "Try again"
+      }
     },
     "community": {
       "title": "Community Q&A",
@@ -1205,11 +1230,19 @@
     "roles": {
       "title": "Roles",
       "create": "Create Role",
-      "edit": "Edit Role"
+      "edit": "Edit Role",
+      "form": {
+        "name": "Role Name",
+        "description": "Description",
+        "permissions": "Permissions",
+        "active": "Active Role"
+      },
+      "cannotDeleteAdmin": "Cannot delete 'admin' role"
     },
     "columns": {
       "image": "Image",
-      "name": "Name",
+      "name": "Full Name",
+      "roleName": "Role Name",
       "nameTh": "Name (TH)",
       "status": "Status",
       "actions": "Actions",
@@ -1226,7 +1259,8 @@
       "role": "Role",
       "event": "Event",
       "phone": "Phone",
-      "caption": "Caption (TH)"
+      "caption": "Caption (TH)",
+      "lastLogin": "Last Login"
     },
     "form": {
       "active": "Active",
@@ -1380,11 +1414,15 @@
     },
     "media": {
       "filters": {
-        "mimeType": "File type",
+        "mimeType": "File Type",
         "category": "Category",
-        "altMissing": "Missing alt text language",
+        "altMissing": "Missing Alt Text",
         "locales": {"th": "Thai", "en": "English", "de": "German"}
-      }
+      },
+      "uploadSuccess": "Image uploaded successfully",
+      "uploadError": "Failed to upload image",
+      "backToLibrary": "Back to Media",
+      "trash": "Trash"
     },
     "mediaSafety": {
       "trash": "Media trash",

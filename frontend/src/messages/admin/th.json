@@ -139,7 +139,32 @@
       "copy": "คัดลอก",
       "copied": "คัดลอกแล้ว!",
       "back": "ย้อนกลับ",
-      "copiedToClipboard": "คัดลอกลงคลิปบอร์ดแล้ว"
+      "copiedToClipboard": "คัดลอกลงคลิปบอร์ดแล้ว",
+      "filter": {
+        "status": "สถานะ",
+        "statusActive": "Active",
+        "statusInactive": "Inactive",
+        "statusWithVal": "สถานะ: {value}",
+        "role": "บทบาท",
+        "roleWithVal": "บทบาท: {value}",
+        "type": "ประเภท",
+        "typeWithVal": "ประเภท: {value}",
+        "memberStatus": "สถานะสมาชิก",
+        "memberType": "ประเภทสมาชิก",
+        "dateRange": "ช่วงวันที่",
+        "applyDate": "ช่วงวันที่สมัคร",
+        "eventDate": "ช่วงวันที่กิจกรรม",
+        "uploadDate": "ช่วงวันที่อัปโหลด",
+        "fromDate": "ตั้งแต่วันที่: {date}",
+        "toDate": "ถึงวันที่: {date}",
+        "category": "หมวดหมู่",
+        "categoryWithVal": "หมวดหมู่: {value}"
+      },
+      "errorScreen": {
+        "title": "เกิดข้อผิดพลาด",
+        "defaultMessage": "เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่อีกครั้ง",
+        "retry": "ลองใหม่"
+      }
     },
     "community": {
       "title": "ชุมชนถาม-ตอบ",
@@ -1205,11 +1230,19 @@
     "roles": {
       "title": "บทบาท",
       "create": "สร้างบทบาท",
-      "edit": "แก้ไขบทบาท"
+      "edit": "แก้ไขบทบาท",
+      "form": {
+        "name": "ชื่อบทบาท",
+        "description": "รายละเอียด",
+        "permissions": "สิทธิ์การเข้าถึง (Permissions)",
+        "active": "เปิดใช้งานบทบาท"
+      },
+      "cannotDeleteAdmin": "ไม่สามารถลบบทบาท 'admin' ได้"
     },
     "columns": {
       "image": "รูป",
-      "name": "ชื่อ",
+      "name": "ชื่อ-นามสกุล",
+      "roleName": "ชื่อบทบาท",
       "nameTh": "ชื่อ (TH)",
       "status": "สถานะ",
       "actions": "จัดการ",
@@ -1217,7 +1250,7 @@
       "type": "ประเภท",
       "date": "วันที่",
       "order": "ลำดับ",
-      "description": "คำอธิบาย",
+      "description": "รายละเอียด",
       "category": "หมวดหมู่",
       "amount": "จำนวนเงิน",
       "email": "อีเมล",
@@ -1226,7 +1259,8 @@
       "role": "บทบาท",
       "event": "กิจกรรม",
       "phone": "โทรศัพท์",
-      "caption": "คำอธิบาย (TH)"
+      "caption": "คำอธิบาย (TH)",
+      "lastLogin": "เข้าสู่ระบบล่าสุด"
     },
     "form": {
       "active": "เปิดใช้งาน",
@@ -1384,7 +1418,11 @@
         "category": "หมวดหมู่",
         "altMissing": "ขาด Alt Text ภาษา",
         "locales": {"th": "ไทย", "en": "อังกฤษ", "de": "เยอรมัน"}
-      }
+      },
+      "uploadSuccess": "อัปโหลดรูปภาพเรียบร้อยแล้ว",
+      "uploadError": "อัปโหลดรูปภาพไม่สำเร็จ",
+      "backToLibrary": "กลับคลังสื่อ",
+      "trash": "ถังขยะสื่อ"
     },
     "mediaSafety": {
       "trash": "ถังขยะสื่อ",

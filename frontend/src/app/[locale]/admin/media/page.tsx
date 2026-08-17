@@ -107,10 +107,18 @@ export default function MediaLibraryPage() {
     activeChips.push({ key: "alt_missing", value: locale, label: `${t("filters.altMissing")}: ${localeLabels[locale] || locale}` });
   }
   if (listState.params.filters.from) {
-    activeChips.push({ key: "from", value: listState.params.filters.from, label: `ตั้งแต่วันที่: ${listState.params.filters.from}` });
+    activeChips.push({
+      key: "from",
+      value: listState.params.filters.from,
+      label: t("common.filter.fromDate", { date: listState.params.filters.from }),
+    });
   }
   if (listState.params.filters.to) {
-    activeChips.push({ key: "to", value: listState.params.filters.to, label: `ถึงวันที่: ${listState.params.filters.to}` });
+    activeChips.push({
+      key: "to",
+      value: listState.params.filters.to,
+      label: t("common.filter.toDate", { date: listState.params.filters.to }),
+    });
   }
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -121,10 +129,10 @@ export default function MediaLibraryPage() {
     try {
       const media = await mediaService.upload(file);
       setSelectedMedia(media);
-      toast.success("อัปโหลดรูปภาพเรียบร้อยแล้ว");
+      toast.success(t("media.uploadSuccess"));
       await queryClient.invalidateQueries({ queryKey: ["admin", "media"] });
     } catch {
-      toast.error("อัปโหลดรูปภาพไม่สำเร็จ");
+      toast.error(t("media.uploadError"));
     } finally {
       setIsUploading(false);
     }
@@ -154,19 +162,22 @@ export default function MediaLibraryPage() {
   };
 
   return (
-    <div className="flex h-[calc(100vh-4rem)]">
-      <div className="flex-1 space-y-4 overflow-y-auto p-4 font-sans text-sm">
-        <div className="flex items-center justify-between">
+    <div className="flex h-[calc(100vh-6rem)]">
+      {/* Main Content Area */}
+      <div className="flex-1 flex flex-col min-w-0 pr-0">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-4">
           <div>
-            <h1 className="text-xl font-semibold text-admin-foreground">
-              Media Library
+            <h1 className="text-xl font-semibold text-admin-foreground tracking-tight">
+              {showTrash ? t("mediaSafety.trash") : t("sidebar.media")}
             </h1>
-            <p className="text-sm text-admin-muted">
-              Manage public content media files
+            <p className="text-xs text-admin-muted mt-0.5">
+              {showTrash
+                ? t("mediaLibrary.trashSub") || "Items in trash can be restored or permanently purged."
+                : t("mediaLibrary.sub") || "Manage image assets, crop metadata, and inspect system references."}
             </p>
           </div>
 
-          <div className="flex flex-col md:flex-row gap-2">
+          <div className="flex items-center gap-2">
             <Button
               variant="secondary"
               onClick={() => {
@@ -175,7 +186,7 @@ export default function MediaLibraryPage() {
               }}
               className="mr-2 text-xs uppercase tracking-wider"
             >
-              {showTrash ? "กลับคลังสื่อ" : "ถังขยะสื่อ"}
+              {showTrash ? t("media.backToLibrary") : t("media.trash")}
             </Button>
             <input
               type="file"
@@ -249,7 +260,7 @@ export default function MediaLibraryPage() {
           }
         >
           <AdminDateRangeFilter
-            label="ช่วงวันที่อัปโหลด"
+            label={t("common.filter.uploadDate")}
             from={listState.params.filters.from}
             to={listState.params.filters.to}
             onChange={({ from, to }) => {

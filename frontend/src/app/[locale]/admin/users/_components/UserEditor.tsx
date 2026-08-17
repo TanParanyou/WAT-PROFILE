@@ -64,7 +64,7 @@ export function UserEditor({ id }: UserEditorProps) {
           value: String(r.id),
           label: r.name,
         }));
-        setRoles([{ value: "", label: "Select a role..." }, ...options]);
+        setRoles([{ value: "", label: t("users.form.selectRole") }, ...options]);
 
         if (id) {
           const user = await userAdminService.getById(id);
@@ -83,7 +83,7 @@ export function UserEditor({ id }: UserEditorProps) {
       }
     };
     loadData();
-  }, [id, reset, handleApiError]);
+  }, [id, reset, handleApiError, t]);
 
   const onSubmit = async (data: UpdateUserFormData) => {
     setIsLoading(true);
@@ -132,7 +132,7 @@ export function UserEditor({ id }: UserEditorProps) {
                   className="hover:text-admin-foreground flex items-center gap-1 focus-visible:outline-2 focus-visible:outline-admin-focus rounded"
                 >
                   <ArrowLeft size={14} />
-                  ย้อนกลับ
+                  {t("common.back")}
                 </button>
               </div>
               <h1 className="text-xl font-semibold text-admin-foreground">
@@ -145,8 +145,8 @@ export function UserEditor({ id }: UserEditorProps) {
           <div className="bg-admin-surface rounded-none border border-admin-border p-6 space-y-4 max-w-2xl">
             <Input
               id="name"
-              label="ชื่อ-นามสกุล *"
-              placeholder="กรอกชื่อและนามสกุล"
+              label={`${t("users.form.name")} *`}
+              placeholder={t("users.form.namePlaceholder")}
               {...register("name")}
               error={errors.name?.message}
             />
@@ -154,9 +154,9 @@ export function UserEditor({ id }: UserEditorProps) {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <Input
                 id="email"
-                label="อีเมล *"
+                label={`${t("users.form.email")} *`}
                 type="email"
-                placeholder="example@email.com"
+                placeholder={t("users.form.emailPlaceholder")}
                 {...register("email")}
                 error={errors.email?.message}
               />
@@ -166,7 +166,7 @@ export function UserEditor({ id }: UserEditorProps) {
                 render={({ field }) => (
                   <Select
                     id="role_id"
-                    label="บทบาท (Role)"
+                    label={t("users.form.role")}
                     options={roles}
                     value={field.value || ""}
                     onChange={(e) => field.onChange(e.target.value)}
@@ -180,12 +180,12 @@ export function UserEditor({ id }: UserEditorProps) {
               id="password"
               label={
                 isEditMode
-                  ? "รหัสผ่านใหม่ (เว้นว่างหากไม่ต้องการเปลี่ยน)"
-                  : "รหัสผ่าน *"
+                  ? t("users.form.newPasswordOptional")
+                  : `${t("users.form.password")} *`
               }
               type="password"
               placeholder={
-                isEditMode ? "••••••••" : "กรอกรหัสผ่านอย่างน้อย 8 ตัวอักษร"
+                isEditMode ? "••••••••" : t("users.form.passwordPlaceholder")
               }
               {...register("password")}
               error={errors.password?.message}
@@ -197,7 +197,7 @@ export function UserEditor({ id }: UserEditorProps) {
               render={({ field }) => (
                 <Switch
                   id="user-is-active"
-                  label="เปิดใช้งานผู้ใช้งาน"
+                  label={t("users.form.active")}
                   checked={field.value}
                   onChange={(e) => field.onChange(e.target.checked)}
                 />

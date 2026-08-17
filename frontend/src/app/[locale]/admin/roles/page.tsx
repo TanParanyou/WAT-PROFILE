@@ -63,17 +63,23 @@ export default function RolesPage() {
     {
       key: "status",
       kind: "multi",
-      label: "สถานะ",
+      label: t("common.filter.status"),
       options: [
-        { value: "active", label: "Active" },
-        { value: "inactive", label: "Inactive" },
+        { value: "active", label: t("common.filter.statusActive") },
+        { value: "inactive", label: t("common.filter.statusInactive") },
       ],
     },
   ];
 
   const activeChips: AdminActiveFilterChip[] = [];
   for (const s of listState.params.filters.status || []) {
-    activeChips.push({ key: "status", value: s, label: `สถานะ: ${s}` });
+    activeChips.push({
+      key: "status",
+      value: s,
+      label: t("common.filter.statusWithVal", {
+        value: s === "active" ? t("common.filter.statusActive") : s === "inactive" ? t("common.filter.statusInactive") : s,
+      }),
+    });
   }
 
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -121,7 +127,7 @@ export default function RolesPage() {
 
   const handleDelete = async (id: string, name: string) => {
     if (name === "admin") {
-      toast.error("Cannot delete 'admin' role");
+      toast.error(t("roles.cannotDeleteAdmin"));
       return;
     }
 
@@ -196,15 +202,20 @@ export default function RolesPage() {
   };
 
   const columns: Column<Role>[] = [
-    { header: "ชื่อบทบาท", accessorKey: "name", sortable: true },
-    { header: "รายละเอียด", accessorKey: "description" },
+    { header: t("columns.roleName"), accessorKey: "name", sortable: true },
+    { header: t("columns.description"), accessorKey: "description" },
     {
-      header: "สถานะ",
+      header: t("columns.status"),
       accessorKey: "is_active",
-      cell: (v) => <StatusBadge label={v ? "Active" : "Inactive"} />,
+      cell: (v) => (
+        <StatusBadge
+          label={v ? t("common.filter.statusActive") : t("common.filter.statusInactive")}
+          variant={v ? "success" : "default"}
+        />
+      ),
     },
     {
-      header: "จัดการ",
+      header: t("columns.actions"),
       cell: (_, row) => (
         <div className="flex gap-1.5">
           <PermissionGuard resource="users" action="update">
@@ -265,7 +276,7 @@ export default function RolesPage() {
           }
           primaryFilters={
             <AdminMultiSelectFilter
-              label="สถานะ"
+              label={t("common.filter.status")}
               options={filterDefinitions[0].options || []}
               values={listState.params.filters.status || []}
               onChange={(val) => listState.actions.setFilter("status", val)}
@@ -336,7 +347,7 @@ export default function RolesPage() {
         <div className="space-y-4 pt-2">
           <Input
             id="role-name"
-            label="ชื่อบทบาท *"
+            label={`${t("roles.form.name")} *`}
             {...register("name")}
             error={errors.name?.message}
             disabled={editingRole?.name === "admin"}
@@ -344,14 +355,14 @@ export default function RolesPage() {
 
           <Input
             id="role-description"
-            label="รายละเอียด"
+            label={t("roles.form.description")}
             {...register("description")}
             error={errors.description?.message}
           />
 
           <div>
             <label className="block text-sm font-medium text-admin-body mb-2">
-              สิทธิ์การเข้าถึง (Permissions)
+              {t("roles.form.permissions")}
             </label>
             <Controller
               control={control}
@@ -378,7 +389,7 @@ export default function RolesPage() {
                 render={({ field }) => (
                   <Switch
                     id="role-is-active"
-                    label="เปิดใช้งานบทบาท"
+                    label={t("roles.form.active")}
                     checked={field.value}
                     onChange={(e) => field.onChange(e.target.checked)}
                   />

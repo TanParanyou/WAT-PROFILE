@@ -139,7 +139,32 @@
       "copy": "Kopieren",
       "copied": "Kopiert!",
       "back": "Zurück",
-      "copiedToClipboard": "In die Zwischenablage kopiert"
+      "copiedToClipboard": "In die Zwischenablage kopiert",
+      "filter": {
+        "status": "Status",
+        "statusActive": "Aktiv",
+        "statusInactive": "Inaktiv",
+        "statusWithVal": "Status: {value}",
+        "role": "Rolle",
+        "roleWithVal": "Rolle: {value}",
+        "type": "Typ",
+        "typeWithVal": "Typ: {value}",
+        "memberStatus": "Mitgliederstatus",
+        "memberType": "Mitgliedertyp",
+        "dateRange": "Datumsbereich",
+        "applyDate": "Anmeldedatum",
+        "eventDate": "Veranstaltungsdatum",
+        "uploadDate": "Upload-Datum",
+        "fromDate": "Von: {date}",
+        "toDate": "Bis: {date}",
+        "category": "Kategorie",
+        "categoryWithVal": "Kategorie: {value}"
+      },
+      "errorScreen": {
+        "title": "Ein Fehler ist aufgetreten",
+        "defaultMessage": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
+        "retry": "Erneut versuchen"
+      }
     },
     "community": {
       "title": "Community-Fragen und Antworten",
@@ -1203,13 +1228,21 @@
       "ready": "Bild bereit"
     },
     "roles": {
-      "title": "Rollen",
+      "title": "Benutzerrollen",
       "create": "Rolle erstellen",
-      "edit": "Rolle bearbeiten"
+      "edit": "Rolle bearbeiten",
+      "form": {
+        "name": "Rollenname",
+        "description": "Beschreibung",
+        "permissions": "Berechtigungen",
+        "active": "Rolle aktivieren"
+      },
+      "cannotDeleteAdmin": "Die Rolle 'admin' kann nicht gelöscht werden"
     },
     "columns": {
       "image": "Bild",
-      "name": "Name",
+      "name": "Vollständiger Name",
+      "roleName": "Rollenname",
       "nameTh": "Name (TH)",
       "status": "Status",
       "actions": "Aktionen",
@@ -1226,7 +1259,8 @@
       "role": "Rolle",
       "event": "Veranstaltung",
       "phone": "Telefon",
-      "caption": "Beschreibung (TH)"
+      "caption": "Beschreibung (TH)",
+      "lastLogin": "Letzte Anmeldung"
     },
     "form": {
       "active": "Aktiv",
@@ -1382,9 +1416,13 @@
       "filters": {
         "mimeType": "Dateityp",
         "category": "Kategorie",
-        "altMissing": "Fehlender Alt-Text für Sprache",
+        "altMissing": "Fehlender Alt-Text",
         "locales": {"th": "Thai", "en": "Englisch", "de": "Deutsch"}
-      }
+      },
+      "uploadSuccess": "Bild erfolgreich hochgeladen",
+      "uploadError": "Bild konnte nicht hochgeladen werden",
+      "backToLibrary": "Zurück zur Medienbibliothek",
+      "trash": "Papierkorb"
     },
     "mediaSafety": {
       "trash": "Medien-Papierkorb",

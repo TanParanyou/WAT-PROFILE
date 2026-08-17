@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useCallback } from "react";
 import { useTranslations } from "next-intl";
 import {
   Laptop,
@@ -12,7 +12,6 @@ import {
   RefreshCw,
   X,
 } from "lucide-react";
-import { useRouter } from "@/navigation";
 import { Button } from "@/components/ui/Button";
 import { useToast } from "@/hooks/useToast";
 import { useAuth } from "@/hooks/useAuth";
@@ -46,7 +45,6 @@ export function ActiveSessionsCard() {
   const t = useTranslations("Admin");
   const { toast } = useToast();
   const { logout } = useAuth();
-  const router = useRouter();
 
   const [sessions, setSessions] = useState<AdminSessionItem[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -62,7 +60,6 @@ export function ActiveSessionsCard() {
   // Auto Logout Countdown Modal
   const [isCountingDown, setIsCountingDown] = useState(false);
   const [countdownSeconds, setCountdownSeconds] = useState(5);
-  const countdownTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const fetchSessions = useCallback(async () => {
     setIsLoading(true);
@@ -80,47 +77,38 @@ export function ActiveSessionsCard() {
     fetchSessions();
   }, [fetchSessions]);
 
-  const performLogout = useCallback(async () => {
-    if (countdownTimerRef.current) {
-      clearInterval(countdownTimerRef.current);
-      countdownTimerRef.current = null;
-    }
+  const handleFinalLogout = useCallback(async () => {
     try {
       await logout();
     } finally {
-      router.push("/admin/login");
+      window.location.href = "/admin/login";
     }
-  }, [logout, router]);
+  }, [logout]);
 
-  // Handle countdown interval
+  // Robust Countdown Timer Interval
   useEffect(() => {
-    if (isCountingDown) {
-      setCountdownSeconds(5);
-      countdownTimerRef.current = setInterval(() => {
-        setCountdownSeconds((prev) => {
-          if (prev <= 1) {
-            clearInterval(countdownTimerRef.current as NodeJS.Timeout);
-            countdownTimerRef.current = null;
-            performLogout();
-            return 0;
-          }
-          return prev - 1;
-        });
-      }, 1000);
-    } else {
-      if (countdownTimerRef.current) {
-        clearInterval(countdownTimerRef.current);
-        countdownTimerRef.current = null;
-      }
-    }
+    if (!isCountingDown) return;
 
-    return () => {
-      if (countdownTimerRef.current) {
-        clearInterval(countdownTimerRef.current);
-        countdownTimerRef.current = null;
-      }
-    };
-  }, [isCountingDown, performLogout]);
+    setCountdownSeconds(5);
+    const interval = setInterval(() => {
+      setCountdownSeconds((prev) => {
+        if (prev <= 1) {
+          clearInterval(interval);
+          return 0;
+        }
+        return prev - 1;
+      });
+    }, 1000);
+
+    return () => clearInterval(interval);
+  }, [isCountingDown]);
+
+  // Auto trigger logout when countdown reaches 0
+  useEffect(() => {
+    if (isCountingDown && countdownSeconds === 0) {
+      handleFinalLogout();
+    }
+  }, [isCountingDown, countdownSeconds, handleFinalLogout]);
 
   const handleOpenRevokeModal = (session: AdminSessionItem) => {
     setSessionToRevoke(session);
@@ -133,7 +121,7 @@ export function ActiveSessionsCard() {
     try {
       await adminSecurityService.revokeSession(sessionToRevoke.id);
       setSessionToRevoke(null);
-      // Immediately launch the countdown modal and trigger logout sequence
+      // Launch countdown modal which leads to automatic logout
       setIsCountingDown(true);
     } catch (err: unknown) {
       const errorMsg =
@@ -402,7 +390,7 @@ export function ActiveSessionsCard() {
           aria-modal="true"
           className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-admin-overlay/80 backdrop-blur-md animate-fade-in"
         >
-          <div className="w-full max-w-sm bg-admin-surface border border-admin-border p-6 shadow-2xl text-center space-y-5">
+          <div className="w-full max-w-sm bg-admin-surface border border-admin-border p-6 shadow-2xl text-center space-y-5 animate-scale-up">
             <div className="flex justify-center">
               <div className="w-16 h-16 rounded-full bg-admin-danger/10 border-2 border-admin-danger flex items-center justify-center text-admin-danger animate-pulse">
                 <span className="text-2xl font-bold font-mono">
@@ -429,7 +417,7 @@ export function ActiveSessionsCard() {
                 variant="danger"
                 size="md"
                 className="w-full"
-                onClick={performLogout}
+                onClick={handleFinalLogout}
                 icon={<LogOut size={16} />}
               >
                 {t("security.logoutNow")}

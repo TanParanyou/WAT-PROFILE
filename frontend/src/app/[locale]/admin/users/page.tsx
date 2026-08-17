@@ -73,27 +73,37 @@ export default function UsersListPage() {
     {
       key: "status",
       kind: "multi",
-      label: "สถานะ",
+      label: t("common.filter.status"),
       options: [
-        { value: "active", label: "Active" },
-        { value: "inactive", label: "Inactive" },
+        { value: "active", label: t("common.filter.statusActive") },
+        { value: "inactive", label: t("common.filter.statusInactive") },
       ],
     },
     {
       key: "role",
       kind: "multi",
-      label: "บทบาท",
+      label: t("common.filter.role"),
       options: (rolesData || []).map((r) => ({ value: String(r.id), label: r.name })),
     },
   ];
 
   const activeChips: AdminActiveFilterChip[] = [];
   for (const s of listState.params.filters.status || []) {
-    activeChips.push({ key: "status", value: s, label: `สถานะ: ${s}` });
+    activeChips.push({
+      key: "status",
+      value: s,
+      label: t("common.filter.statusWithVal", {
+        value: s === "active" ? t("common.filter.statusActive") : s === "inactive" ? t("common.filter.statusInactive") : s,
+      }),
+    });
   }
   for (const rId of listState.params.filters.role || []) {
     const rName = rolesData?.find((r) => String(r.id) === rId)?.name || rId;
-    activeChips.push({ key: "role", value: rId, label: `บทบาท: ${rName}` });
+    activeChips.push({
+      key: "role",
+      value: rId,
+      label: t("common.filter.roleWithVal", { value: rName }),
+    });
   }
 
   const handleDelete = async (id: string) => {
@@ -142,7 +152,7 @@ export default function UsersListPage() {
         { header: "ID", accessor: (item) => item.id },
         { header: "Name", accessor: (item) => item.name || "" },
         { header: "Email", accessor: (item) => item.email || "" },
-        { header: "Role", accessor: (item) => item.role?.name || "" },
+        { header: "Role", accessor: (item) => (item.role as User["role"])?.name || "" },
         { header: "Status", accessor: (item) => (item.is_active ? "Active" : "Inactive") },
         {
           header: "Last Login",
@@ -155,26 +165,31 @@ export default function UsersListPage() {
   };
 
   const columns: Column<User>[] = [
-    { header: "ชื่อ-นามสกุล", accessorKey: "name", sortable: true },
-    { header: "อีเมล", accessorKey: "email", sortable: true },
+    { header: t("columns.name"), accessorKey: "name", sortable: true },
+    { header: t("columns.email"), accessorKey: "email", sortable: true },
     {
-      header: "บทบาท",
+      header: t("columns.role"),
       accessorKey: "role",
       cell: (v) => (v as User["role"])?.name || "-",
     },
     {
-      header: "สถานะ",
+      header: t("columns.status"),
       accessorKey: "is_active",
-      cell: (v) => <StatusBadge label={v ? "Active" : "Inactive"} />,
+      cell: (v) => (
+        <StatusBadge
+          label={v ? t("common.filter.statusActive") : t("common.filter.statusInactive")}
+          variant={v ? "success" : "default"}
+        />
+      ),
     },
     {
-      header: "เข้าสู่ระบบล่าสุด",
+      header: t("columns.lastLogin"),
       accessorKey: "last_login_at",
       cell: (v) =>
         v ? new Date(v as string).toLocaleDateString("th-TH") : "-",
     },
     {
-      header: "จัดการ",
+      header: t("columns.actions"),
       cell: (_, row) => (
         <div className="flex gap-1.5">
           <PermissionGuard resource="users" action="update">
@@ -231,13 +246,13 @@ export default function UsersListPage() {
           primaryFilters={
             <>
               <AdminMultiSelectFilter
-                label="สถานะ"
+                label={t("common.filter.status")}
                 options={filterDefinitions[0].options || []}
                 values={listState.params.filters.status || []}
                 onChange={(val) => listState.actions.setFilter("status", val)}
               />
               <AdminMultiSelectFilter
-                label="บทบาท"
+                label={t("common.filter.role")}
                 options={filterDefinitions[1].options || []}
                 values={listState.params.filters.role || []}
                 onChange={(val) => listState.actions.setFilter("role", val)}

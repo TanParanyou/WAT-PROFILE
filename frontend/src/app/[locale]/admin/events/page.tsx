@@ -78,7 +78,7 @@ export default function EventsListPage() {
     {
       key: "type",
       kind: "multi",
-      label: "ประเภทกิจกรรม",
+      label: t("events.form.type") || t("columns.category"),
       options: [
         { value: "ceremony", label: "Ceremony" },
         { value: "merit", label: "Merit" },
@@ -100,10 +100,18 @@ export default function EventsListPage() {
     activeChips.push({ key: "type", value: tp, label: `${t("events.form.type")}: ${tp}` });
   }
   if (listState.params.filters.from) {
-    activeChips.push({ key: "from", value: listState.params.filters.from, label: `ตั้งแต่วันที่: ${listState.params.filters.from}` });
+    activeChips.push({
+      key: "from",
+      value: listState.params.filters.from,
+      label: t("common.filter.fromDate", { date: listState.params.filters.from }),
+    });
   }
   if (listState.params.filters.to) {
-    activeChips.push({ key: "to", value: listState.params.filters.to, label: `ถึงวันที่: ${listState.params.filters.to}` });
+    activeChips.push({
+      key: "to",
+      value: listState.params.filters.to,
+      label: t("common.filter.toDate", { date: listState.params.filters.to }),
+    });
   }
 
   const handleDelete = async (id: number) => {
@@ -412,7 +420,7 @@ export default function EventsListPage() {
         }
       >
         <AdminDateRangeFilter
-          label="ช่วงวันที่กิจกรรม"
+          label={t("common.filter.eventDate")}
           from={listState.params.filters.from}
           to={listState.params.filters.to}
           onChange={({ from, to }) => {

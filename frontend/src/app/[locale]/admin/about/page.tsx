@@ -3,15 +3,18 @@
 import React from "react";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { AboutContentForm } from "@/components/admin/public-content/AboutContentForm";
+import { useTranslations } from "next-intl";
 
 export default function AboutAdminPage() {
+  const t = useTranslations("Admin");
+
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="เกี่ยวกับวัด"
+        title={t("sidebar.about")}
         breadcrumbs={[
-          { label: "ข้อมูลเว็บไซต์" },
-          { label: "เกี่ยวกับวัด" },
+          { label: t("sidebar.websiteGroup") },
+          { label: t("sidebar.about") },
         ]}
       />
       <AboutContentForm />
