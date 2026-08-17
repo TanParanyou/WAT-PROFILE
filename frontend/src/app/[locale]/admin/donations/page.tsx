@@ -14,7 +14,7 @@ import type { Donation } from "@/types/entities";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { Icons } from "@/components/ui/Icons";
 import { Button } from "@/components/ui/Button";
-import { Eye, FileImage, CheckCircle2, Send, XCircle } from "lucide-react";
+import { Eye, FileImage, FileText, CheckCircle2, Send, XCircle } from "lucide-react";
 import { useAdminListState } from "@/features/admin-list/useAdminListState";
 import { useAdminListQuery } from "@/features/admin-list/useAdminListQuery";
 import type { AdminFilterRecord, AdminFilterDefinition } from "@/features/admin-list/types";
@@ -54,6 +54,7 @@ export default function DonationsPage() {
   const [selectedDonationForView, setSelectedDonationForView] = useState<Donation | null>(null);
   const [cancelID, setCancelID] = useState<number | null>(null);
   const [isProofPreviewOpen, setIsProofPreviewOpen] = useState(false);
+  const [previewType, setPreviewType] = useState<"proof" | "receipt">("proof");
   const [proofPreview, setProofPreview] = useState<DonationProofPreviewState | null>(null);
   const [proofPreviewError, setProofPreviewError] = useState<string | null>(null);
   const [proofPreviewLoadingId, setProofPreviewLoadingId] = useState<number | null>(null);
@@ -167,6 +168,7 @@ export default function DonationsPage() {
     setProofPreview(null);
     setProofPreviewError(null);
     setProofPreviewLoadingId(id);
+    setPreviewType("proof");
     setIsProofPreviewOpen(true);
     try {
       const blob = await donationAdminService.getProof(id);
@@ -185,6 +187,32 @@ export default function DonationsPage() {
       setProofPreview({ url, kind, fileName: `donation-${id}-proof.${extension}` });
     } catch {
       if (proofRequestRef.current === requestId) setProofPreviewError(t("donations.proofPreviewError"));
+    } finally {
+      if (proofRequestRef.current === requestId) setProofPreviewLoadingId(null);
+    }
+  };
+
+  const handleReceiptPreview = async (donation: Donation) => {
+    const requestId = proofRequestRef.current + 1;
+    proofRequestRef.current = requestId;
+    revokeProofPreviewUrl();
+    setProofPreview(null);
+    setProofPreviewError(null);
+    setProofPreviewLoadingId(donation.id);
+    setPreviewType("receipt");
+    setIsProofPreviewOpen(true);
+    try {
+      const blob = await donationAdminService.getReceipt(donation.id);
+      if (proofRequestRef.current !== requestId) return;
+      const url = URL.createObjectURL(blob);
+      proofPreviewUrlRef.current = url;
+      setProofPreview({
+        url,
+        kind: "pdf",
+        fileName: `receipt-${donation.receipt_number || donation.id}.pdf`,
+      });
+    } catch {
+      if (proofRequestRef.current === requestId) setProofPreviewError(t("donations.receiptPreviewError"));
     } finally {
       if (proofRequestRef.current === requestId) setProofPreviewLoadingId(null);
     }
@@ -306,6 +334,21 @@ export default function DonationsPage() {
                 aria-label={t("donations.viewProof")}
               >
                 <FileImage size={16} />
+              </button>
+            </PermissionGuard>
+          )}
+          {row.status === "confirmed" && (
+            <PermissionGuard resource="donations" action="read">
+              <button
+                type="button"
+                onClick={() => void handleReceiptPreview(row)}
+                disabled={proofPreviewLoadingId === row.id}
+                aria-busy={proofPreviewLoadingId === row.id}
+                className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors disabled:cursor-wait disabled:opacity-50"
+                title={t("donations.viewReceipt")}
+                aria-label={t("donations.viewReceipt")}
+              >
+                <FileText size={16} />
               </button>
             </PermissionGuard>
           )}
@@ -469,12 +512,12 @@ export default function DonationsPage() {
         kind={proofPreview?.kind ?? null}
         error={proofPreviewError}
         labels={{
-          title: t("donations.proofPreview"),
-          close: t("donations.proofPreviewClose"),
+          title: previewType === "receipt" ? t("donations.receiptPreview") : t("donations.proofPreview"),
+          close: previewType === "receipt" ? t("donations.receiptPreviewClose") : t("donations.proofPreviewClose"),
           open: t("donations.proofOpen"),
           download: t("donations.proofDownload"),
-          loading: t("donations.proofLoading"),
-          error: t("donations.proofPreviewError"),
+          loading: previewType === "receipt" ? t("donations.receiptLoading") : t("donations.proofLoading"),
+          error: previewType === "receipt" ? t("donations.receiptPreviewError") : t("donations.proofPreviewError"),
           imageAlt: t("donations.proofImageAlt"),
           pdf: t("donations.proofPdf"),
           zoom: t("donations.proofZoom"),
@@ -501,6 +544,7 @@ export default function DonationsPage() {
           setSelectedDonationForView(null);
         }}
         onViewProof={handleProof}
+        onViewReceipt={(donation) => void handleReceiptPreview(donation)}
       />
     </div>
   );

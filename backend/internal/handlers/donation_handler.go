@@ -310,6 +310,57 @@ func (h *DonationHandler) GetDonationProof(c *fiber.Ctx) error {
 	return c.Send(data)
 }
 
+func (h *DonationHandler) GetDonationReceipt(c *fiber.Ctx) error {
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
+	}
+	donation, err := h.donationService.GetByID(id)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusNotFound, "Donation not found")
+	}
+	if donation.Status != "confirmed" {
+		return utils.ErrorResponse(c, fiber.StatusConflict, "Donation must be confirmed before receipt access")
+	}
+	if strings.TrimSpace(donation.ReceiptNumber) == "" {
+		return utils.ErrorResponse(c, fiber.StatusConflict, "Donation has no receipt number")
+	}
+
+	var data []byte
+	if donation.ReceiptObjectKey != "" && h.store != nil {
+		body, err := h.store.OpenPrivate(c.UserContext(), donation.ReceiptObjectKey)
+		if err == nil {
+			defer body.Close()
+			readData, readErr := io.ReadAll(io.LimitReader(body, 20*1024*1024+1))
+			if readErr == nil && len(readData) <= 20*1024*1024 {
+				data = readData
+			}
+		}
+	}
+
+	if len(data) == 0 {
+		pdf, _, renderErr := h.documents.RenderReceipt(donation)
+		if renderErr != nil {
+			return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Unable to render receipt")
+		}
+		data = pdf
+	}
+
+	if err := h.logDonationAction(c, "donation.receipt_access", id, map[string]interface{}{"receipt_number": donation.ReceiptNumber}); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Unable to record donation audit")
+	}
+
+	dispositionType := "inline"
+	if c.Query("download") == "true" || c.Query("download") == "1" {
+		dispositionType = "attachment"
+	}
+
+	filename := "receipt-" + donation.ReceiptNumber + ".pdf"
+	c.Set(fiber.HeaderContentType, "application/pdf")
+	c.Set(fiber.HeaderContentDisposition, fmt.Sprintf(`%s; filename="%s"`, dispositionType, filename))
+	return c.Send(data)
+}
+
 func (h *DonationHandler) SendDonationReceipt(c *fiber.Ctx) error {
 	id, err := utils.ParseID(c, "id")
 	if err != nil {

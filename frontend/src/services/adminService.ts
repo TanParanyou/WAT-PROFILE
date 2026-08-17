@@ -108,6 +108,13 @@ export const donationAdminService = {
     const res = await api.get(`/admin/donations/${id}/proof`, { responseType: "blob" });
     return res.data as Blob;
   },
+  async getReceipt(id: number, download?: boolean): Promise<Blob> {
+    const res = await api.get(`/admin/donations/${id}/receipt`, {
+      params: download ? { download: "true" } : undefined,
+      responseType: "blob",
+    });
+    return res.data as Blob;
+  },
   async confirm(id: number): Promise<Donation> {
     const res = await api.post<ApiResponse<Donation>>(`/admin/donations/${id}/confirm`);
     return res.data.data!;

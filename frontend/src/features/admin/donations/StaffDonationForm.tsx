@@ -34,6 +34,7 @@ import {
   MapPin,
   FileCheck,
   FileImage,
+  FileText,
 } from "lucide-react";
 import { cn } from "@/utils/cn";
 
@@ -46,6 +47,7 @@ export interface StaffDonationFormProps {
   onCancel: () => void;
   onClose?: () => void;
   onViewProof?: (id: number) => void;
+  onViewReceipt?: (donation: Donation) => void;
 }
 
 const QUICK_AMOUNTS = [10, 20, 50, 100, 200, 500];
@@ -59,6 +61,7 @@ export function StaffDonationForm({
   onCancel,
   onClose,
   onViewProof,
+  onViewReceipt,
 }: StaffDonationFormProps) {
   const t = useTranslations("Admin");
   const locale = useLocale() as "th" | "en" | "de";
@@ -343,6 +346,20 @@ export function StaffDonationForm({
                       >
                         <FileImage size={16} />
                         {t("donations.viewProof")}
+                      </Button>
+                    </div>
+                  )}
+
+                  {viewDonation.status === "confirmed" && onViewReceipt && (
+                    <div className="pt-2">
+                      <Button
+                        type="button"
+                        variant="outline"
+                        onClick={() => onViewReceipt(viewDonation)}
+                        className="w-full flex items-center justify-center gap-2 text-sm"
+                      >
+                        <FileText size={16} />
+                        {t("donations.viewReceipt")}
                       </Button>
                     </div>
                   )}

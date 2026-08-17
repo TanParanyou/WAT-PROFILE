@@ -68,7 +68,7 @@ export function DonationProofPreviewDrawer({
       onClose={closeModal}
       title={labels.title}
       description={fileName ?? undefined}
-      size="lg"
+      size="xl"
       closeOnOverlayClick={!isLoading}
       closeLabel={labels.close}
       footer={hasPreview && fileUrl && fileName ? (
@@ -100,18 +100,21 @@ export function DonationProofPreviewDrawer({
       ) : error ? (
         <p role="alert" className="border border-admin-danger bg-admin-danger-surface p-4 text-sm text-admin-danger">{error ?? labels.error}</p>
       ) : hasPreview && fileUrl && fileName && kind ? (
-        <>
+        <div className="p-4 h-full flex flex-col">
           {kind === "image" ? (
-            <div className="flex min-h-56 items-center justify-center overflow-visible border border-admin-border bg-admin-surface-muted p-3 sm:min-h-96 sm:p-5">
+            <div className="flex min-h-96 items-center justify-center overflow-auto border border-admin-border bg-admin-surface-muted p-4 sm:min-h-[500px]">
               <Image src={fileUrl} alt={labels.imageAlt} width={1600} height={1200} unoptimized style={{ transform: `scale(${imageScale})` }} className="h-auto w-auto max-w-full origin-center object-contain transition-transform motion-reduce:transition-none" />
             </div>
           ) : (
-            <div className="flex min-h-56 flex-col items-center justify-center gap-3 border border-admin-border bg-admin-surface-muted p-6 text-center sm:min-h-96">
-              <FileText className="h-14 w-14 text-admin-action" aria-hidden="true" />
-              <p className="text-sm font-medium text-admin-body">{labels.pdf}</p>
+            <div className="flex flex-col w-full h-[calc(100vh-140px)] min-h-[640px] border border-admin-border rounded bg-white shadow-inner overflow-hidden">
+              <iframe
+                src={fileUrl}
+                title={labels.pdf}
+                className="w-full h-full border-0"
+              />
             </div>
           )}
-        </>
+        </div>
       ) : null}
     </Drawer>
   );
