@@ -117,12 +117,18 @@ export function ActiveSessionsCard() {
   const handleConfirmRevokeSingle = async () => {
     if (!sessionToRevoke) return;
 
+    const isCurrent = sessionToRevoke.is_current;
     setIsRevokingSingle(true);
     try {
       await adminSecurityService.revokeSession(sessionToRevoke.id);
       setSessionToRevoke(null);
-      // Launch countdown modal which leads to automatic logout
-      setIsCountingDown(true);
+      if (isCurrent) {
+        // Launch countdown modal which leads to automatic logout
+        setIsCountingDown(true);
+      } else {
+        toast.success(t("security.revokeSessionSuccess"));
+        await fetchSessions();
+      }
     } catch (err: unknown) {
       const errorMsg =
         err && typeof err === "object" && "response" in err

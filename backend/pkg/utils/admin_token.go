@@ -22,11 +22,12 @@ const (
 
 // AdminClaims represents the claims of an Admin access token.
 type AdminClaims struct {
+	SessionID string `json:"sid,omitempty"`
 	jwt.RegisteredClaims
 }
 
 // GenerateAdminAccessToken generates a short-lived JWT bound to the admin audience.
-func GenerateAdminAccessToken(userID uuid.UUID) (string, error) {
+func GenerateAdminAccessToken(userID uuid.UUID, sessionID ...uuid.UUID) (string, error) {
 	expiryTime := time.Now().Add(15 * time.Minute)
 	if expiry := os.Getenv("ADMIN_ACCESS_EXPIRY"); expiry != "" {
 		if duration, err := time.ParseDuration(expiry); err == nil {
@@ -34,8 +35,14 @@ func GenerateAdminAccessToken(userID uuid.UUID) (string, error) {
 		}
 	}
 
+	sid := ""
+	if len(sessionID) > 0 && sessionID[0] != uuid.Nil {
+		sid = sessionID[0].String()
+	}
+
 	now := time.Now()
 	claims := AdminClaims{
+		SessionID: sid,
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:    adminTokenIssuer,
 			Subject:   userID.String(),

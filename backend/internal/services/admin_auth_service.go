@@ -201,7 +201,7 @@ func (s *AdminAuthService) LoginAdmin(email, password, ip, userAgent string) (*A
 		return nil, err
 	}
 
-	accessToken, err := utils.GenerateAdminAccessToken(user.ID)
+	accessToken, err := utils.GenerateAdminAccessToken(user.ID, session.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -272,7 +272,7 @@ func (s *AdminAuthService) VerifyAdminMFA(mfaToken, code, ip, userAgent string) 
 		return nil, err
 	}
 
-	accessToken, err := utils.GenerateAdminAccessToken(user.ID)
+	accessToken, err := utils.GenerateAdminAccessToken(user.ID, session.ID)
 	if err != nil {
 		return nil, err
 	}
@@ -396,7 +396,7 @@ func (s *AdminAuthService) refreshInTx(sessionID uuid.UUID, hash string, ip stri
 			return err
 		}
 
-		accessToken, err := utils.GenerateAdminAccessToken(user.ID)
+		accessToken, err := utils.GenerateAdminAccessToken(user.ID, session.ID)
 		if err != nil {
 			return err
 		}
