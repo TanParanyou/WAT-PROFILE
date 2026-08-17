@@ -4256,6 +4256,26 @@ paths:
         '200': {description: Private proof file}
         '404': {$ref: '#/components/responses/NotFound'}
 
+  /admin/donations/{id}/receipt:
+    get:
+      tags: [Admin - Donations]
+      summary: Preview or download donation PDF receipt
+      security: [{AdminBearerAuth: []}]
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+        - in: query
+          name: download
+          schema: {type: string}
+          description: Set to "true" to download file instead of inline preview
+      responses:
+        '200':
+          description: PDF receipt file
+          content:
+            application/pdf:
+              schema: {type: string, format: binary}
+        '404': {$ref: '#/components/responses/NotFound'}
+        '409': {description: Donation is not confirmed or has no receipt number}
+
   /admin/donations/{id}/confirm:
     post:
       tags: [Admin - Donations]
@@ -4662,9 +4682,66 @@ paths:
                       data:
                         type: array
                         items:
-                          $ref: '#/components/schemas/EventRegistrationListItem'
         '403':
           $ref: '#/components/responses/Forbidden'
+    post:
+      tags: [Admin - Registrations]
+      summary: Manually create event registration
+      security:
+        - AdminBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [event_id, contact, participants]
+              properties:
+                event_id:
+                  type: integer
+                  example: 1
+                locale:
+                  type: string
+                  enum: [th, en, de]
+                  default: th
+                status:
+                  type: string
+                  enum: [pending, confirmed, attended, cancelled]
+                  default: confirmed
+                contact:
+                  $ref: '#/components/schemas/RegistrationContactInput'
+                participants:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/RegistrationParticipantInput'
+                dietary_restrictions:
+                  type: string
+                special_needs:
+                  type: string
+                additional_notes:
+                  type: string
+                send_email:
+                  type: boolean
+                  default: false
+      responses:
+        '201':
+          description: Event registration created
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        $ref: '#/components/schemas/EventRegistrationDetail'
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+        '409':
+          $ref: '#/components/responses/Conflict'
+        '422':
+          $ref: '#/components/responses/UnprocessableEntity'
 
   /admin/event-registrations/{id}:
     get:

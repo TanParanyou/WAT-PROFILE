@@ -53,6 +53,65 @@ func CurrentPrivacyNoticeVersion() string {
 	return version
 }
 
+func NormalizeAndValidateAdminCreate(request AdminCreateRequest) (AdminCreateInput, *DomainError) {
+	fields := make(map[string]string)
+	if request.EventID <= 0 {
+		fields["event_id"] = "Event ID is required"
+	}
+	locale, localeFields := normalizeLocale(request.Locale)
+	mergeFields(fields, localeFields)
+	contact, contactFields := normalizeContact(request.Contact)
+	mergeFields(fields, contactFields)
+	participants, participantFields := normalizeParticipants(request.Participants)
+	mergeFields(fields, participantFields)
+
+	status := strings.ToLower(strings.TrimSpace(request.Status))
+	if status == "" {
+		status = "confirmed"
+	}
+	if status != "pending" && status != "confirmed" && status != "attended" && status != "cancelled" {
+		fields["status"] = "Status must be pending, confirmed, attended, or cancelled"
+	}
+
+	dietary := strings.TrimSpace(request.DietaryRestrictions)
+	if runeLength(dietary) > MaxFreeTextLength {
+		fields["dietary_restrictions"] = "Dietary restrictions is too long"
+	}
+	specialNeeds := strings.TrimSpace(request.SpecialNeeds)
+	if runeLength(specialNeeds) > MaxFreeTextLength {
+		fields["special_needs"] = "Special needs is too long"
+	}
+	notes := strings.TrimSpace(request.AdditionalNotes)
+	if runeLength(notes) > MaxFreeTextLength {
+		fields["additional_notes"] = "Additional notes is too long"
+	}
+
+	if request.SendEmail && contact.Email == "" {
+		fields["send_email"] = "Email is required when sending email notification"
+	}
+
+	if len(participants) < 1 {
+		fields["participants"] = "At least one participant is required"
+	} else if len(participants) > MaxParticipantsPerRegistration {
+		return AdminCreateInput{}, NewDomainError(CodeGroupLimitExceeded, "A registration cannot contain more than "+strconv.Itoa(MaxParticipantsPerRegistration)+" participants", map[string]string{"participants": "Too many participants"})
+	}
+	if len(fields) > 0 {
+		return AdminCreateInput{}, NewDomainError(CodeValidation, "Registration details are invalid", fields)
+	}
+
+	return AdminCreateInput{
+		EventID:              request.EventID,
+		Locale:               locale,
+		Status:               status,
+		Contact:              contact,
+		Participants:         participants,
+		DietaryRestrictions: dietary,
+		SpecialNeeds:        specialNeeds,
+		AdditionalNotes:      notes,
+		SendEmail:            request.SendEmail,
+	}, nil
+}
+
 func NormalizeAndValidateUpdate(request UpdateRequest) (UpdateInput, *DomainError) {
 	locale, fields := normalizeLocale(request.Locale)
 	contact, contactFields := normalizeContact(request.Contact)

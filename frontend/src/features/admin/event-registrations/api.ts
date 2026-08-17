@@ -1,4 +1,5 @@
 export {
+  createAdminEventRegistration,
   fetchAdminEventRegistration,
   fetchAdminEventRegistrations,
   setAdminEventRegistrationStatus,

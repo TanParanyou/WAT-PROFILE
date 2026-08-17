@@ -511,7 +511,7 @@
       "donorNameRequired": "Bitte Spendername eingeben (oder anonym wählen)",
       "invalidEmail": "Ungültiges E-Mail-Format",
       "invalidPhone": "Ungültige Telefonnummer (7-15 Ziffern)",
-      "status": "Status", "from": "Von", "to": "Bis", "dateRange": "Spendedatum-Bereich", "createStaff": "Spende durch Personal erfassen", "confirmTitle": "Spende bestätigen", "confirmMessage": "Wurde der Nachweis geprüft und die Spende bestätigt?", "sendReceipt": "Bescheinigung senden", "sendReceiptMessage": "Dauerhafte PDF erstellen und per E-Mail versenden?", "receiptQueued": "Bescheinigung eingereiht", "viewProof": "Nachweis ansehen", "proofPreview": "Vorschau des Überweisungsnachweises", "proofPreviewClose": "Vorschau schließen", "proofOpen": "In neuem Tab öffnen", "proofDownload": "Herunterladen", "proofLoading": "Nachweis wird geladen…", "proofPreviewError": "Der Nachweis konnte nicht geladen werden. Bitte versuchen Sie es erneut.", "proofImageAlt": "Vorschau des Überweisungsnachweises", "proofPdf": "PDF-Dokument", "proofZoom": "Zoom-Steuerung der Vorschau", "proofZoomIn": "Vergrößern", "proofZoomOut": "Verkleinern", "proofZoomReset": "Zoom zurücksetzen", "confirm": "Bestätigen", "cancelAction": "Spende stornieren"
+      "status": "Status", "from": "Von", "to": "Bis", "dateRange": "Spendedatum-Bereich", "createStaff": "Spende durch Personal erfassen", "confirmTitle": "Spende bestätigen", "confirmMessage": "Wurde der Nachweis geprüft und die Spende bestätigt?", "sendReceipt": "Bescheinigung senden", "sendReceiptMessage": "Dauerhafte PDF erstellen und per E-Mail versenden?", "receiptQueued": "Bescheinigung eingereiht", "viewProof": "Nachweis ansehen", "proofPreview": "Vorschau des Überweisungsnachweises", "proofPreviewClose": "Vorschau schließen", "proofOpen": "In neuem Tab öffnen", "proofDownload": "Herunterladen", "proofLoading": "Nachweis wird geladen…", "proofPreviewError": "Der Nachweis konnte nicht geladen werden. Bitte versuchen Sie es erneut.", "proofImageAlt": "Vorschau des Überweisungsnachweises", "proofPdf": "PDF-Dokument", "proofZoom": "Zoom-Steuerung der Vorschau", "proofZoomIn": "Vergrößern", "proofZoomOut": "Verkleinern", "proofZoomReset": "Zoom zurücksetzen", "viewReceipt": "Bescheinigung ansehen", "receiptPreview": "Vorschau der Spendenbescheinigung", "receiptPreviewClose": "Vorschau schließen", "receiptLoading": "Bescheinigung wird geladen…", "receiptPreviewError": "Die Bescheinigung konnte nicht geladen werden. Bitte versuchen Sie es erneut.", "confirm": "Bestätigen", "cancelAction": "Spende stornieren"
     },
     "privacyRequests": {
       "title": "Datenschutzanfragen",
@@ -688,8 +688,22 @@
       "reason": "Grund",
       "reasonPlaceholder": "Warum wird der Status geändert?",
       "saveStatus": "Status speichern",
-      "loadError": "Anmeldungsdetails konnten nicht geladen werden."
-      ,"rotateLink": "Neuen Verwaltungslink senden"
+      "loadError": "Anmeldungsdetails konnten nicht geladen werden.",
+      "rotateLink": "Neuen Verwaltungslink senden",
+      "create": "Anmeldung erstellen",
+      "createTitle": "Neue Veranstaltungsanmeldung erstellen",
+      "createDescription": "Manuelle Erfassung einer Veranstaltungsanmeldung für Vor-Ort- oder Offline-Teilnehmer.",
+      "selectEvent": "Veranstaltung auswählen",
+      "selectEventPlaceholder": "Wählen Sie eine Veranstaltung...",
+      "initialStatus": "Initialer Status",
+      "sendEmailConfirmation": "Bestätigungs-E-Mail an Kontakt senden",
+      "emailOptionalHint": "Ohne E-Mail-Adresse wird keine Bestätigungs-E-Mail versendet.",
+      "phone": "Telefonnummer",
+      "email": "E-Mail",
+      "createSuccess": "Anmeldung erfolgreich erstellt.",
+      "createError": "Fehler beim Erstellen der Anmeldung.",
+      "validationRequired": "Bitte füllen Sie alle Pflichtfelder aus.",
+      "eventRequired": "Bitte wählen Sie eine Veranstaltung aus."
     },
     "settings": {
       "title": "Einstellungen",
@@ -1006,7 +1020,19 @@
     "users": {
       "title": "Benutzer",
       "create": "Benutzer erstellen",
-      "edit": "Benutzer bearbeiten"
+      "edit": "Benutzer bearbeiten",
+      "form": {
+        "name": "Vollständiger Name",
+        "namePlaceholder": "Vollständigen Namen eingeben",
+        "email": "E-Mail",
+        "emailPlaceholder": "beispiel@email.com",
+        "role": "Rolle",
+        "selectRole": "Rolle auswählen...",
+        "password": "Passwort",
+        "newPasswordOptional": "Neues Passwort (leer lassen, um unverändert zu bleiben)",
+        "passwordPlaceholder": "Passwort eingeben (mindestens 8 Zeichen)",
+        "active": "Benutzer aktivieren"
+      }
     },
     "accounts": {
       "title": "Öffentliche Konten",

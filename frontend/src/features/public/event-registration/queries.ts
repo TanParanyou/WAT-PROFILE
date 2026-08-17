@@ -4,6 +4,7 @@ import { publicEventsKeys } from "../events/queries";
 import {
   cancelAccountRegistration,
   cancelGuestRegistration,
+  createAdminEventRegistration,
   createEventRegistration,
   fetchAdminEventRegistration,
   fetchAdminEventRegistrations,
@@ -17,6 +18,7 @@ import {
   updateGuestRegistration,
 } from "./api";
 import type {
+  AdminRegistrationCreateInput,
   AdminRegistrationListParams,
   RegistrationCancelInput,
   RegistrationCreateInput,
@@ -92,4 +94,16 @@ export function useRotateAdminRegistrationManageLink() {
 export function useUpdateAdminEventRegistration() {
   const client = useQueryClient();
   return useMutation({ mutationFn: ({ id, input }: { id: number; input: RegistrationUpdateInput & { cancellation_reason?: string } }) => updateAdminEventRegistration(id, input), onSuccess: (_, input) => { client.invalidateQueries({ queryKey: eventRegistrationKeys.adminDetail(input.id) }); client.invalidateQueries({ queryKey: ["admin", "event-registrations"] }); } });
+}
+
+export function useCreateAdminEventRegistration() {
+  const client = useQueryClient();
+  return useMutation({
+    mutationFn: (input: AdminRegistrationCreateInput) => createAdminEventRegistration(input),
+    onSuccess: () => {
+      client.invalidateQueries({ queryKey: ["admin", "event-registrations"] });
+      client.invalidateQueries({ queryKey: ["admin", "registrations"] });
+      client.invalidateQueries({ queryKey: publicEventsKeys.all });
+    },
+  });
 }

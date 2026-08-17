@@ -28,6 +28,8 @@ import { exportToCsv } from "@/services/adminListExportService";
 import { useQuery } from "@tanstack/react-query";
 import { useLocale } from "next-intl";
 import { Link } from "@/navigation";
+import { Button } from "@/components/ui/Button";
+import { AdminRegistrationDrawer } from "./_components/AdminRegistrationDrawer";
 
 interface RegistrationFilters extends AdminFilterRecord {
   status: string[];
@@ -52,6 +54,7 @@ export default function RegistrationsPage() {
   const { toast } = useToast();
   const { confirm, ConfirmDialog } = useConfirm();
   const [updatingId, setUpdatingId] = useState<number | null>(null);
+  const [isCreateOpen, setIsCreateOpen] = useState(false);
   const selectedIds = useRowSelection();
 
   const listState = useAdminListState<RegistrationFilters>({
@@ -288,6 +291,18 @@ export default function RegistrationsPage() {
       <AdminPageHeader
         title={t("registrations.title")}
         breadcrumbs={[{ label: t("registrations.title") }]}
+        actions={
+          <PermissionGuard resource="events" action="create">
+            <Button
+              variant="primary"
+              onClick={() => setIsCreateOpen(true)}
+              className="inline-flex items-center gap-1.5"
+            >
+              <Icons.Plus size={16} />
+              {t("registrations.create")}
+            </Button>
+          </PermissionGuard>
+        }
       />
 
       <div className="mt-4">
@@ -379,6 +394,13 @@ export default function RegistrationsPage() {
           onSelectAll={(ids) => selectedIds.selectAll(ids)}
         />
       </div>
+      <AdminRegistrationDrawer
+        isOpen={isCreateOpen}
+        onClose={() => setIsCreateOpen(false)}
+        onSuccess={() => void listQuery.refetch()}
+        events={eventsData || []}
+        locale={locale}
+      />
       <ConfirmDialog />
     </div>
   );

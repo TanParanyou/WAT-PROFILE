@@ -106,11 +106,35 @@ type UpdateRequest struct {
 	Participants []ParticipantInput `json:"participants"`
 }
 
+type AdminCreateRequest struct {
+	EventID              int                `json:"event_id"`
+	Locale               string             `json:"locale"`
+	Status               string             `json:"status"`
+	Contact              ContactInput       `json:"contact"`
+	Participants         []ParticipantInput `json:"participants"`
+	DietaryRestrictions string             `json:"dietary_restrictions"`
+	SpecialNeeds         string             `json:"special_needs"`
+	AdditionalNotes      string             `json:"additional_notes"`
+	SendEmail            bool               `json:"send_email"`
+}
+
 type CreateInput struct {
 	Locale               string
 	Contact              ContactInput
 	Participants         []ParticipantInput
 	PrivacyNoticeVersion string
+}
+
+type AdminCreateInput struct {
+	EventID              int
+	Locale               string
+	Status               string
+	Contact              ContactInput
+	Participants         []ParticipantInput
+	DietaryRestrictions string
+	SpecialNeeds         string
+	AdditionalNotes      string
+	SendEmail            bool
 }
 
 type UpdateInput struct {

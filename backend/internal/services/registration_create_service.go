@@ -138,6 +138,139 @@ func (s *RegistrationService) Create(ctx context.Context, eventID int, identity 
 	return detail, nil
 }
 
+func (s *RegistrationService) AdminCreate(ctx context.Context, input registrations.AdminCreateInput) (*registrations.Detail, error) {
+	if s.db == nil {
+		return nil, errors.New("registration database is not configured")
+	}
+	if s.outbox == nil {
+		return nil, errors.New("registration outbox is not configured")
+	}
+	if s.cipherErr != nil {
+		return nil, fmt.Errorf("registration token cipher is not configured: %w", s.cipherErr)
+	}
+	if s.cipher == nil {
+		return nil, errors.New("registration token cipher is not configured")
+	}
+	now := s.now()
+	var detail *registrations.Detail
+	err := s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		var event models.Event
+		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&event, input.EventID).Error; err != nil {
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				return registrations.NewDomainError(registrations.CodeNotFound, "Event not found", nil)
+			}
+			return err
+		}
+
+		if input.Contact.Email != "" {
+			var existing models.EventRegistration
+			duplicateErr := tx.Where(
+				"event_id = ? AND lower(email) = lower(?) AND registration_status IN ?",
+				event.ID, input.Contact.Email, activeRegistrationStatuses,
+			).First(&existing).Error
+			if duplicateErr == nil {
+				return registrations.NewDomainError(registrations.CodeDuplicate, "This email is already registered for this event", nil)
+			}
+			if !errors.Is(duplicateErr, gorm.ErrRecordNotFound) {
+				return duplicateErr
+			}
+		}
+
+		plainToken, tokenHash, err := s.tokenGen()
+		if err != nil {
+			return err
+		}
+		ciphertext, err := s.cipher.Seal(plainToken)
+		if err != nil {
+			return err
+		}
+
+		var confirmedAt *time.Time
+		if input.Status == "confirmed" || input.Status == "attended" {
+			confirmedAt = &now
+		}
+
+		registration := models.EventRegistration{
+			EventID:              event.ID,
+			RegistrationType:     "staff",
+			Locale:               input.Locale,
+			PrivacyNoticeVersion: "staff-recorded",
+			PrivacyConsentAt:     &now,
+			ManageTokenHash:      tokenHash,
+			ManageTokenExpiresAt: eventRegistrationStart(&event),
+			FirstName:            input.Contact.FirstName,
+			LastName:             input.Contact.LastName,
+			Email:                input.Contact.Email,
+			Phone:                input.Contact.Phone,
+			DietaryRestrictions:  input.DietaryRestrictions,
+			SpecialNeeds:         input.SpecialNeeds,
+			AdditionalNotes:      input.AdditionalNotes,
+			RegistrationStatus:   input.Status,
+			ConfirmationCode:     generateConfirmationCode(),
+			ConfirmedAt:          confirmedAt,
+		}
+		if input.Status == "attended" {
+			registration.Attended = true
+			registration.AttendedAt = &now
+		}
+
+		if err := tx.Create(&registration).Error; err != nil {
+			return mapRegistrationDatabaseError(err)
+		}
+
+		participants := make([]models.EventRegistrationParticipant, 0, len(input.Participants))
+		for _, inputParticipant := range input.Participants {
+			attendanceStatus := "registered"
+			var attendedAt *time.Time
+			if input.Status == "attended" {
+				attendanceStatus = "attended"
+				attendedAt = &now
+			}
+			participants = append(participants, models.EventRegistrationParticipant{
+				RegistrationID:      registration.ID,
+				FirstName:           inputParticipant.FirstName,
+				LastName:            inputParticipant.LastName,
+				DietaryRestrictions: inputParticipant.DietaryRestrictions,
+				SpecialNeeds:        inputParticipant.SpecialNeeds,
+				AdditionalNotes:     inputParticipant.AdditionalNotes,
+				AttendanceStatus:    attendanceStatus,
+				AttendedAt:          attendedAt,
+			})
+		}
+		if err := tx.Create(&participants).Error; err != nil {
+			return err
+		}
+
+		if input.SendEmail && input.Contact.Email != "" {
+			if _, err := s.outbox.EnqueueTx(tx, OutboxJobInput{
+				JobKey:        fmt.Sprintf("registration:received:%d:1", registration.ID),
+				Kind:          "registration.received",
+				AggregateType: "event_registration",
+				AggregateID:   fmt.Sprintf("%d", registration.ID),
+				Payload: models.JSONMap{
+					"registration_id":       registration.ID,
+					"locale":                registration.Locale,
+					"token_ciphertext":      ciphertext,
+					"registration_revision": 1,
+				},
+				AvailableAt: now,
+			}); err != nil {
+				return err
+			}
+		}
+
+		registration.Event = &event
+		registration.Participants = participants
+		built := registrationDetail(&registration)
+		detail = &built
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	return detail, nil
+}
+
 func (s *RegistrationService) Availability(ctx context.Context, eventID int) (registrations.Availability, error) {
 	if s.db == nil {
 		return registrations.Availability{}, errors.New("registration database is not configured")

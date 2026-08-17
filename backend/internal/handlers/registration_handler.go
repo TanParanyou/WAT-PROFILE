@@ -290,6 +290,28 @@ func (h *RegistrationHandler) GetAdminRegistrationList(c *fiber.Ctx) error {
 	return utils.PaginatedResponse(c, page.Items, page.Page, page.Limit, int(page.Total))
 }
 
+func (h *RegistrationHandler) CreateAdminRegistration(c *fiber.Ctx) error {
+	if len(c.Body()) > registrationRequestMaxBytes {
+		return utils.CodedFieldErrorResponse(c, fiber.StatusRequestEntityTooLarge, string(registrations.CodeValidation), "Registration request is too large", map[string]string{"body": "Registration request is too large"})
+	}
+	var request registrations.AdminCreateRequest
+	if err := c.BodyParser(&request); err != nil {
+		return utils.CodedErrorResponse(c, fiber.StatusUnprocessableEntity, string(registrations.CodeValidation), "Registration request is invalid")
+	}
+	input, domainErr := registrations.NormalizeAndValidateAdminCreate(request)
+	if domainErr != nil {
+		return utils.CodedFieldErrorResponse(c, fiber.StatusUnprocessableEntity, string(domainErr.Code), domainErr.Message, domainErr.Fields)
+	}
+
+	detail, err := h.registrationService.AdminCreate(c.UserContext(), input)
+	if err != nil {
+		return registrationServiceErrorResponse(c, err)
+	}
+	_ = h.auditService.LogAction(c, "create", "event_registration", strconv.Itoa(detail.ID), map[string]interface{}{"registration_status": detail.RegistrationStatus, "event_id": input.EventID})
+	c.Status(fiber.StatusCreated)
+	return utils.SuccessResponse(c, detail)
+}
+
 func (h *RegistrationHandler) GetAdminRegistration(c *fiber.Ctx) error {
 	id, err := utils.ParseID(c, "id")
 	if err != nil {

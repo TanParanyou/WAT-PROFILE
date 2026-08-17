@@ -5,6 +5,7 @@ import { unwrapApiData, type ApiSuccess } from "../shared/api-types";
 import { parseRegistrationDetail, toRegistrationApiError } from "./schema";
 import type {
   AdminEventRegistrationDetail,
+  AdminRegistrationCreateInput,
   AdminRegistrationListParams,
   AdminRegistrationPage,
   EventRegistrationDetail,
@@ -112,6 +113,15 @@ export async function fetchAdminEventRegistrations(params: AdminRegistrationList
     const suffix = search.toString() ? `?${search.toString()}` : "";
     const response = await adminApi.get<{ success: true; data: readonly EventRegistrationListItem[]; pagination: AdminRegistrationPage["pagination"] }>(`/admin/event-registrations${suffix}`);
     return { items: response.data.data, pagination: response.data.pagination };
+  } catch (error: unknown) {
+    throw toRegistrationApiError(error);
+  }
+}
+
+export async function createAdminEventRegistration(input: AdminRegistrationCreateInput): Promise<AdminEventRegistrationDetail> {
+  try {
+    const response = await adminApi.post<ApiSuccess<AdminEventRegistrationDetail>>("/admin/event-registrations", input);
+    return unwrapApiData(response.data);
   } catch (error: unknown) {
     throw toRegistrationApiError(error);
   }

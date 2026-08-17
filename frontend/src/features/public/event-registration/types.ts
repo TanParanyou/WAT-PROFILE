@@ -2,7 +2,7 @@ import type { AccountLocale } from "../account/types";
 
 export type RegistrationLocale = AccountLocale;
 export type RegistrationStatus = "pending" | "confirmed" | "cancelled" | "attended";
-export type RegistrationType = "guest" | "account" | "member";
+export type RegistrationType = "guest" | "account" | "member" | "staff";
 export type AvailabilityState = "disabled" | "closed" | "full" | "available";
 export const MAX_REGISTRATION_PARTICIPANTS = 10;
 
@@ -98,6 +98,18 @@ export interface RegistrationCreateInput {
   participants: readonly RegistrationParticipantInput[];
   privacy_notice_version: string;
   privacy_consent: boolean;
+}
+
+export interface AdminRegistrationCreateInput {
+  event_id: number;
+  locale?: RegistrationLocale;
+  status?: RegistrationStatus;
+  contact: RegistrationContact;
+  participants: readonly RegistrationParticipantInput[];
+  dietary_restrictions?: string;
+  special_needs?: string;
+  additional_notes?: string;
+  send_email?: boolean;
 }
 
 export interface RegistrationUpdateInput {

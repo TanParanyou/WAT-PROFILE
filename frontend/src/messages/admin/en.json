@@ -511,7 +511,7 @@
       "donorNameRequired": "Please enter donor name (or select anonymous)",
       "invalidEmail": "Invalid email format",
       "invalidPhone": "Invalid phone number (7-15 digits)",
-      "status": "Status", "from": "From", "to": "To", "dateRange": "Donation date range", "createStaff": "Record staff donation", "confirmTitle": "Confirm donation", "confirmMessage": "Have you checked the proof and confirmed this donation?", "sendReceipt": "Send receipt", "sendReceiptMessage": "Create the permanent PDF and queue it for email delivery?", "receiptQueued": "Receipt queued", "viewProof": "View proof", "proofPreview": "Transfer proof preview", "proofPreviewClose": "Close proof preview", "proofOpen": "Open in new tab", "proofDownload": "Download", "proofLoading": "Loading proof…", "proofPreviewError": "The proof could not be loaded. Please try again.", "proofImageAlt": "Transfer proof preview", "proofPdf": "PDF document", "proofZoom": "Preview zoom controls", "proofZoomIn": "Zoom in", "proofZoomOut": "Zoom out", "proofZoomReset": "Reset zoom", "confirm": "Confirm", "cancelAction": "Cancel donation"
+      "status": "Status", "from": "From", "to": "To", "dateRange": "Donation date range", "createStaff": "Record staff donation", "confirmTitle": "Confirm donation", "confirmMessage": "Have you checked the proof and confirmed this donation?", "sendReceipt": "Send receipt", "sendReceiptMessage": "Create the permanent PDF and queue it for email delivery?", "receiptQueued": "Receipt queued", "viewProof": "View proof", "proofPreview": "Transfer proof preview", "proofPreviewClose": "Close proof preview", "proofOpen": "Open in new tab", "proofDownload": "Download", "proofLoading": "Loading proof…", "proofPreviewError": "The proof could not be loaded. Please try again.", "proofImageAlt": "Transfer proof preview", "proofPdf": "PDF document", "proofZoom": "Preview zoom controls", "proofZoomIn": "Zoom in", "proofZoomOut": "Zoom out", "proofZoomReset": "Reset zoom", "viewReceipt": "View receipt", "receiptPreview": "Donation receipt preview", "receiptPreviewClose": "Close receipt preview", "receiptLoading": "Loading receipt…", "receiptPreviewError": "The receipt could not be loaded. Please try again.", "confirm": "Confirm", "cancelAction": "Cancel donation"
     },
     "privacyRequests": {
       "title": "Personal Data Requests",
@@ -688,8 +688,22 @@
       "reason": "Reason",
       "reasonPlaceholder": "Why is this status changing?",
       "saveStatus": "Save status",
-      "loadError": "Registration details could not be loaded."
-      ,"rotateLink": "Send new management link"
+      "loadError": "Registration details could not be loaded.",
+      "rotateLink": "Send new management link",
+      "create": "Create Registration",
+      "createTitle": "Create Event Registration",
+      "createDescription": "Manually record an event registration for walk-in or offline attendees.",
+      "selectEvent": "Select Event",
+      "selectEventPlaceholder": "Choose an event to register...",
+      "initialStatus": "Initial Status",
+      "sendEmailConfirmation": "Send confirmation email to contact",
+      "emailOptionalHint": "If no email is provided, no confirmation email will be sent.",
+      "phone": "Phone number",
+      "email": "Email",
+      "createSuccess": "Registration created successfully.",
+      "createError": "Failed to create registration.",
+      "validationRequired": "Please fill in all required fields.",
+      "eventRequired": "Please select an event."
     },
     "settings": {
       "title": "Settings",
@@ -1006,7 +1020,19 @@
     "users": {
       "title": "Users",
       "create": "Create User",
-      "edit": "Edit User"
+      "edit": "Edit User",
+      "form": {
+        "name": "Full Name",
+        "namePlaceholder": "Enter full name",
+        "email": "Email",
+        "emailPlaceholder": "example@email.com",
+        "role": "Role",
+        "selectRole": "Select a role...",
+        "password": "Password",
+        "newPasswordOptional": "New password (leave blank to keep unchanged)",
+        "passwordPlaceholder": "Enter password (at least 8 characters)",
+        "active": "Active user"
+      }
     },
     "accounts": {
       "title": "Public accounts",

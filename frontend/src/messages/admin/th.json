@@ -511,7 +511,7 @@
       "donorNameRequired": "กรุณาระบุชื่อผู้บริจาค (หรือเลือกไม่ประสงค์ออกนาม)",
       "invalidEmail": "รูปแบบอีเมลไม่ถูกต้อง",
       "invalidPhone": "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง (7-15 หลัก)",
-      "status": "สถานะ", "from": "ตั้งแต่วันที่", "to": "ถึงวันที่", "dateRange": "ช่วงวันที่บริจาค", "createStaff": "บันทึกรายการโดยเจ้าหน้าที่", "confirmTitle": "ยืนยันเงินบริจาค", "confirmMessage": "ตรวจสอบหลักฐานแล้วและยืนยันรายการนี้หรือไม่", "sendReceipt": "ส่งใบเสร็จ", "sendReceiptMessage": "ระบบจะสร้าง PDF ถาวรและเข้าคิวส่งไปยังอีเมลผู้บริจาค ยืนยันหรือไม่", "receiptQueued": "เข้าคิวส่งใบเสร็จแล้ว", "viewProof": "ดูหลักฐาน", "proofPreview": "ตัวอย่างหลักฐานการโอน", "proofPreviewClose": "ปิดตัวอย่างหลักฐาน", "proofOpen": "เปิดในแท็บใหม่", "proofDownload": "ดาวน์โหลด", "proofLoading": "กำลังโหลดหลักฐาน…", "proofPreviewError": "ไม่สามารถโหลดหลักฐานได้ กรุณาลองใหม่อีกครั้ง", "proofImageAlt": "ตัวอย่างหลักฐานการโอน", "proofPdf": "เอกสาร PDF", "proofZoom": "การควบคุมการซูมตัวอย่าง", "proofZoomIn": "ขยาย", "proofZoomOut": "ย่อ", "proofZoomReset": "ขนาดเดิม", "confirm": "ยืนยัน", "cancelAction": "ยกเลิก"
+      "status": "สถานะ", "from": "ตั้งแต่วันที่", "to": "ถึงวันที่", "dateRange": "ช่วงวันที่บริจาค", "createStaff": "บันทึกรายการโดยเจ้าหน้าที่", "confirmTitle": "ยืนยันเงินบริจาค", "confirmMessage": "ตรวจสอบหลักฐานแล้วและยืนยันรายการนี้หรือไม่", "sendReceipt": "ส่งใบเสร็จ", "sendReceiptMessage": "ระบบจะสร้าง PDF ถาวรและเข้าคิวส่งไปยังอีเมลผู้บริจาค ยืนยันหรือไม่", "receiptQueued": "เข้าคิวส่งใบเสร็จแล้ว", "viewProof": "ดูหลักฐาน", "proofPreview": "ตัวอย่างหลักฐานการโอน", "proofPreviewClose": "ปิดตัวอย่างหลักฐาน", "proofOpen": "เปิดในแท็บใหม่", "proofDownload": "ดาวน์โหลด", "proofLoading": "กำลังโหลดหลักฐาน…", "proofPreviewError": "ไม่สามารถโหลดหลักฐานได้ กรุณาลองใหม่อีกครั้ง", "proofImageAlt": "ตัวอย่างหลักฐานการโอน", "proofPdf": "เอกสาร PDF", "proofZoom": "การควบคุมการซูมตัวอย่าง", "proofZoomIn": "ขยาย", "proofZoomOut": "ย่อ", "proofZoomReset": "ขนาดเดิม", "viewReceipt": "ดูใบเสร็จ", "receiptPreview": "ตัวอย่างใบเสร็จเงินบริจาค", "receiptPreviewClose": "ปิดตัวอย่างใบเสร็จ", "receiptLoading": "กำลังโหลดใบเสร็จ…", "receiptPreviewError": "ไม่สามารถโหลดใบเสร็จได้ กรุณาลองใหม่อีกครั้ง", "confirm": "ยืนยัน", "cancelAction": "ยกเลิก"
     },
     "privacyRequests": {
       "title": "คำขอข้อมูลส่วนบุคคล",
@@ -688,8 +688,22 @@
       "reason": "เหตุผล",
       "reasonPlaceholder": "เหตุผลของการเปลี่ยนสถานะ",
       "saveStatus": "บันทึกสถานะ",
-      "loadError": "โหลดรายละเอียดการลงทะเบียนไม่สำเร็จ"
-      ,"rotateLink": "ส่งลิงก์จัดการใหม่"
+      "loadError": "โหลดรายละเอียดการลงทะเบียนไม่สำเร็จ",
+      "rotateLink": "ส่งลิงก์จัดการใหม่",
+      "create": "เพิ่มการลงทะเบียน",
+      "createTitle": "สร้างการลงทะเบียนกิจกรรมใหม่",
+      "createDescription": "บันทึกข้อมูลการลงทะเบียนเข้าร่วมกิจกรรมสำหรับผู้ติดต่อหรือผู้ที่มาติดต่อด้วยตนเอง",
+      "selectEvent": "เลือกกิจกรรม",
+      "selectEventPlaceholder": "เลือกกิจกรรมที่ต้องการลงทะเบียน...",
+      "initialStatus": "สถานะเริ่มต้น",
+      "sendEmailConfirmation": "ส่งอีเมลยืนยันการลงทะเบียนไปยังผู้ติดต่อ",
+      "emailOptionalHint": "หากไม่ระบุอีเมล ระบบจะไม่ส่งอีเมลยืนยัน",
+      "phone": "เบอร์โทรศัพท์",
+      "email": "อีเมล",
+      "createSuccess": "สร้างการลงทะเบียนสำเร็จ",
+      "createError": "เกิดข้อผิดพลาดในการสร้างการลงทะเบียน",
+      "validationRequired": "กรุณากรอกข้อมูลให้ครบถ้วน",
+      "eventRequired": "กรุณาเลือกกิจกรรม"
     },
     "settings": {
       "title": "การตั้งค่า",
@@ -1006,7 +1020,19 @@
     "users": {
       "title": "ผู้ใช้งาน",
       "create": "สร้างผู้ใช้",
-      "edit": "แก้ไขผู้ใช้"
+      "edit": "แก้ไขผู้ใช้",
+      "form": {
+        "name": "ชื่อ-นามสกุล",
+        "namePlaceholder": "กรอกชื่อและนามสกุล",
+        "email": "อีเมล",
+        "emailPlaceholder": "example@email.com",
+        "role": "บทบาท (Role)",
+        "selectRole": "เลือกบทบาท...",
+        "password": "รหัสผ่าน",
+        "newPasswordOptional": "รหัสผ่านใหม่ (เว้นว่างหากไม่ต้องการเปลี่ยน)",
+        "passwordPlaceholder": "กรอกรหัสผ่านอย่างน้อย 8 ตัวอักษร",
+        "active": "เปิดใช้งานผู้ใช้งาน"
+      }
     },
     "accounts": {
       "title": "บัญชีสาธารณะ",
