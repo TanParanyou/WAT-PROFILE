@@ -37,6 +37,7 @@ export function MediaDetailsSidebar({
     alt: { ...DEFAULT_ALT, ...(media?.alt_texts || media?.metadata?.alt || {}) },
     caption: media?.metadata?.caption || "",
     credit: media?.metadata?.credit || "",
+    category: media?.category || "",
   }));
 
   if (!media) return null;
@@ -161,6 +162,14 @@ export function MediaDetailsSidebar({
             value={formData.caption || ""}
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, caption: e.target.value }))
+            }
+          />
+          <Input
+            label="Folder / Category"
+            placeholder="e.g. general, events, monks, gallery, banners"
+            value={typeof formData.category === "string" ? formData.category : ""}
+            onChange={(e) =>
+              setFormData((prev) => ({ ...prev, category: e.target.value }))
             }
           />
           <Input

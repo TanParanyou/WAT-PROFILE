@@ -1446,6 +1446,7 @@
         "locales": {"th": "Thai", "en": "Englisch", "de": "Deutsch"}
       },
       "uploadSuccess": "Bild erfolgreich hochgeladen",
+      "uploadSuccessOptimized": "Erfolgreich als WebP hochgeladen und optimiert ({percent}% kleiner)",
       "uploadError": "Bild konnte nicht hochgeladen werden",
       "backToLibrary": "Zurück zur Medienbibliothek",
       "trash": "Papierkorb"

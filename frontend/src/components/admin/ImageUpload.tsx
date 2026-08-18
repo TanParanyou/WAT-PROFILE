@@ -7,6 +7,8 @@ import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import { mediaService } from "@/services/mediaService";
 
+import { optimizeImageToWebP } from "@/utils/imageOptimization";
+
 interface ImageUploadProps {
   label?: string;
   value?: string | File;
@@ -41,20 +43,24 @@ export function ImageUpload({
         return;
       }
 
-      // Validate file size (5MB)
-      if (file.size > 5 * 1024 * 1024) {
-        setUploadError("ขนาดไฟล์ต้องไม่เกิน 5MB");
+      // Validate file size (15MB raw limit, will be compressed)
+      if (file.size > 15 * 1024 * 1024) {
+        setUploadError("ขนาดไฟล์ต้องไม่เกิน 15MB");
         return;
       }
 
+      // Optimize image to WebP in user browser (auto-resize + WebP quality 85%)
+      const optResult = await optimizeImageToWebP(file);
+      const targetFile = optResult.file;
+
       // Create instant local preview
-      const objectUrl = URL.createObjectURL(file);
+      const objectUrl = URL.createObjectURL(targetFile);
       setLocalPreview(objectUrl);
 
       if (autoUpload) {
         setIsUploading(true);
         try {
-          const url = await mediaService.uploadImage(file);
+          const url = await mediaService.uploadImage(targetFile);
           onChange(url);
           setLocalPreview(null);
         } catch (err: unknown) {
@@ -67,7 +73,7 @@ export function ImageUpload({
           setIsUploading(false);
         }
       } else {
-        onChange(file);
+        onChange(targetFile);
       }
     },
     [autoUpload, onChange]

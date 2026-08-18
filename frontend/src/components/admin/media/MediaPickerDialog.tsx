@@ -9,6 +9,7 @@ import type { Media } from "@/types/entities";
 import { classifyMediaSource } from "@/lib/mediaOrigins";
 import { useTranslations } from "next-intl";
 import { ImageCropDialog } from "./ImageCropDialog";
+import { optimizeImageToWebP } from "@/utils/imageOptimization";
 import {
   AdminSearchInput,
   AdminActiveFilterChips,
@@ -117,7 +118,8 @@ export function MediaPickerDialog({
     setIsUploading(true);
     setError("");
     try {
-      const uploaded = await mediaService.upload(croppedFile);
+      const optResult = await optimizeImageToWebP(croppedFile);
+      const uploaded = await mediaService.upload(optResult.file);
       setIsCropOpen(false);
       setCropSrc(null);
       onSelect(uploaded.url);

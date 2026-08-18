@@ -1446,6 +1446,7 @@
         "locales": {"th": "Thai", "en": "English", "de": "German"}
       },
       "uploadSuccess": "Image uploaded successfully",
+      "uploadSuccessOptimized": "Uploaded and optimized to WebP successfully ({percent}% smaller)",
       "uploadError": "Failed to upload image",
       "backToLibrary": "Back to Media",
       "trash": "Trash"

@@ -1444,6 +1444,7 @@
         "locales": {"th": "ไทย", "en": "อังกฤษ", "de": "เยอรมัน"}
       },
       "uploadSuccess": "อัปโหลดรูปภาพเรียบร้อยแล้ว",
+      "uploadSuccessOptimized": "อัปโหลดและบีบอัดเป็น WebP สำเร็จ (ลดขนาดลง {percent}%)",
       "uploadError": "อัปโหลดรูปภาพไม่สำเร็จ",
       "backToLibrary": "กลับคลังสื่อ",
       "trash": "ถังขยะสื่อ"

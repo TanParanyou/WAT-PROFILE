@@ -247,6 +247,9 @@ func (s *MediaService) UpdateMetadata(id uuid.UUID, metadata map[string]interfac
 			media.AltText = ""
 		}
 	}
+	if category, ok := metadata["category"].(string); ok {
+		media.Category = category
+	}
 	if err := s.db.Save(media).Error; err != nil {
 		return nil, err
 	}

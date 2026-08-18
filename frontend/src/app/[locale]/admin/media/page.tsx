@@ -19,6 +19,7 @@ import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components
 import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
 import { exportToCsv } from "@/services/adminListExportService";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { optimizeImageToWebP, formatBytes } from "@/utils/imageOptimization";
 
 interface MediaFilters extends AdminFilterRecord {
   mime: string[];
@@ -127,12 +128,23 @@ export default function MediaLibraryPage() {
 
     setIsUploading(true);
     try {
-      const media = await mediaService.upload(file);
+      const optResult = await optimizeImageToWebP(file);
+      const media = await mediaService.upload(optResult.file);
       setSelectedMedia(media);
-      toast.success(t("media.uploadSuccess"));
+      if (optResult.isOptimized && optResult.savedPercent > 0) {
+        toast.success(
+          t("uploadSuccessOptimized", {
+            percent: optResult.savedPercent,
+            original: formatBytes(optResult.originalSize),
+            optimized: formatBytes(optResult.optimizedSize),
+          })
+        );
+      } else {
+        toast.success(t("uploadSuccess"));
+      }
       await queryClient.invalidateQueries({ queryKey: ["admin", "media"] });
     } catch {
-      toast.error(t("media.uploadError"));
+      toast.error(t("uploadError"));
     } finally {
       setIsUploading(false);
     }
