@@ -83,6 +83,9 @@ func (s *CommunityQuestionService) CreateQuestion(ctx context.Context, actor uui
 		if err != nil {
 			return err
 		}
+		if publication == models.CommunityPublicationPublished && CheckCommunityWordFilter(tx, title, string(input.Body)) {
+			publication = models.CommunityPublicationPendingReview
+		}
 
 		var existing models.CommunityQuestion
 		if err := tx.Where("author_user_id = ? AND client_request_id = ?", actor, input.ClientRequestID).First(&existing).Error; err == nil {

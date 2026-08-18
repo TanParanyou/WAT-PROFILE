@@ -59,6 +59,9 @@ func (s *CommunityInteractionService) CreateAnswer(ctx context.Context, actor uu
 		if err != nil {
 			return err
 		}
+		if publication == models.CommunityPublicationPublished && CheckCommunityWordFilter(tx, string(input.Body)) {
+			publication = models.CommunityPublicationPendingReview
+		}
 		var existing models.CommunityAnswer
 		if err := tx.Where("question_id = ? AND author_user_id = ? AND client_request_id = ?", questionID, actor, input.ClientRequestID).First(&existing).Error; err == nil {
 			if string(existing.Body) != string(input.Body) {
@@ -190,6 +193,9 @@ func (s *CommunityInteractionService) CreateComment(ctx context.Context, actor u
 		publication, err := s.memberPublication(ctx, tx, actor)
 		if err != nil {
 			return err
+		}
+		if publication == models.CommunityPublicationPublished && CheckCommunityWordFilter(tx, string(input.Body)) {
+			publication = models.CommunityPublicationPendingReview
 		}
 		var existing models.CommunityComment
 		if err := tx.Where("question_id = ? AND author_user_id = ? AND client_request_id = ?", questionID, actor, input.ClientRequestID).First(&existing).Error; err == nil {

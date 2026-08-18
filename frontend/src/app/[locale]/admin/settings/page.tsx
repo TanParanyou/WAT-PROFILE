@@ -25,6 +25,7 @@ import {
   Database,
   Download,
   Loader2,
+  ShieldAlert,
 } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { FormActionBar } from "@/components/admin/FormActionBar";
@@ -196,6 +197,11 @@ export default function SettingsPage() {
   const [aiTranslateEnabled, setAiTranslateEnabled] = useState(true);
   const [initialAiTranslateEnabled, setInitialAiTranslateEnabled] = useState(true);
 
+  const [communityFilterEnabled, setCommunityFilterEnabled] = useState(true);
+  const [initialCommunityFilterEnabled, setInitialCommunityFilterEnabled] = useState(true);
+  const [communityBlockedWords, setCommunityBlockedWords] = useState("");
+  const [initialCommunityBlockedWords, setInitialCommunityBlockedWords] = useState("");
+
   const [isDownloadingBackup, setIsDownloadingBackup] = useState(false);
 
   const { toast } = useToast();
@@ -234,6 +240,14 @@ export default function SettingsPage() {
       setAiTranslateEnabled(aiEnabled);
       setInitialAiTranslateEnabled(aiEnabled);
 
+      const commFilterEnabled = byKey.community_word_filter_enabled !== "false";
+      setCommunityFilterEnabled(commFilterEnabled);
+      setInitialCommunityFilterEnabled(commFilterEnabled);
+
+      const commBlockedWords = byKey.community_blocked_words ?? "";
+      setCommunityBlockedWords(commBlockedWords);
+      setInitialCommunityBlockedWords(commBlockedWords);
+
       const [alertSettings, eventResult] = await Promise.all([
         fetchAdminEventAlertSettings(),
         eventAdminService.getAll({ is_active: "true" }),
@@ -262,12 +276,16 @@ export default function SettingsPage() {
   const isShellChanged = JSON.stringify(shell) !== JSON.stringify(initialShell);
   const isEventsDefaultViewChanged = eventsDefaultView !== initialEventsDefaultView;
   const isAiTranslateChanged = aiTranslateEnabled !== initialAiTranslateEnabled;
+  const isCommunityFilterChanged =
+    communityFilterEnabled !== initialCommunityFilterEnabled ||
+    communityBlockedWords !== initialCommunityBlockedWords;
   const hasChanges =
     Object.keys(changes).length > 0 ||
     isAlertChanged ||
     isShellChanged ||
     isEventsDefaultViewChanged ||
-    isAiTranslateChanged;
+    isAiTranslateChanged ||
+    isCommunityFilterChanged;
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -298,6 +316,12 @@ export default function SettingsPage() {
           { key: "ai_translate_enabled", value: String(aiTranslateEnabled) },
         ]);
       }
+      if (isCommunityFilterChanged) {
+        await settingsAdminService.update([
+          { key: "community_word_filter_enabled", value: String(communityFilterEnabled) },
+          { key: "community_blocked_words", value: communityBlockedWords },
+        ]);
+      }
       toast.success(t("common.success"));
       setChanges({});
       await loadSettings();
@@ -324,6 +348,8 @@ export default function SettingsPage() {
             "event_alert_settings",
             "events_default_view",
             "ai_translate_enabled",
+            "community_word_filter_enabled",
+            "community_blocked_words",
           ].includes(s.key),
       )
       .reduce<Record<string, Setting[]>>((acc, s) => {
@@ -1134,6 +1160,52 @@ export default function SettingsPage() {
                         </>
                       )}
                     </Button>
+                  </div>
+                </div>
+              </div>
+
+              {/* Community Auto-Moderation & Word Filter Card */}
+              <div className="bg-admin-surface rounded-none border border-admin-border overflow-hidden shadow-sm">
+                <div className="px-6 py-4 bg-admin-surface border-b border-admin-border flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <ShieldAlert size={18} className="text-rose-500" />
+                    <h2 className="text-base font-semibold text-admin-foreground">
+                      {t("settings.communityFilterSectionTitle")}
+                    </h2>
+                  </div>
+                  <span className="text-xs text-admin-muted uppercase tracking-wider font-mono">
+                    Community
+                  </span>
+                </div>
+                <div className="p-6 space-y-4">
+                  <p className="text-xs text-admin-muted">
+                    {t("settings.communityFilterSectionDesc")}
+                  </p>
+                  <div className="p-4 bg-admin-surface-muted/30 border border-admin-border space-y-4">
+                    <Switch
+                      id="community-filter-enabled"
+                      label={t("settings.communityFilterEnabled")}
+                      checked={communityFilterEnabled}
+                      onChange={(e) => setCommunityFilterEnabled(e.target.checked)}
+                    />
+                    <p className="text-xs text-admin-muted pl-6">
+                      {t("settings.communityFilterHelp")}
+                    </p>
+                    <div className="space-y-1.5 pt-2 border-t border-admin-border/60">
+                      <label className="text-xs font-semibold text-admin-foreground">
+                        {t("settings.communityBlockedWordsLabel")}
+                      </label>
+                      <Textarea
+                        value={communityBlockedWords}
+                        onChange={(e) => setCommunityBlockedWords(e.target.value)}
+                        placeholder={t("settings.communityBlockedWordsPlaceholder")}
+                        rows={3}
+                        className="text-xs font-mono"
+                      />
+                      <p className="text-[11px] text-admin-muted">
+                        {t("settings.communityBlockedWordsHelp")}
+                      </p>
+                    </div>
                   </div>
                 </div>
               </div>
