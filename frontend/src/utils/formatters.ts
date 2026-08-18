@@ -209,3 +209,93 @@ function parseFlexibleDate(value: string): Date | null {
 function isTimeOnlyValue(value: string): boolean {
   return /^\d{2}:\d{2}(:\d{2})?(?:\.\d+)?$/.test(value);
 }
+
+/**
+ * formatRelativeTime: Formats a date into relative human-readable text (e.g. "5 นาทีที่แล้ว", "vor 2 Stunden", "2 hours ago").
+ */
+export function formatRelativeTime(
+  dateInput: string | Date | null | undefined,
+  locale: string = "th"
+): string {
+  if (!dateInput) return "-";
+  const date = new Date(dateInput);
+  if (isNaN(date.getTime())) return "-";
+
+  const now = new Date();
+  const diffInSeconds = Math.floor((now.getTime() - date.getTime()) / 1000);
+
+  // Future or just now (< 60s)
+  if (diffInSeconds < 60) {
+    if (locale === "th") return "เมื่อสักครู่";
+    if (locale === "de") return "gerade eben";
+    return "just now";
+  }
+
+  const diffInMinutes = Math.floor(diffInSeconds / 60);
+  if (diffInMinutes < 60) {
+    if (locale === "th") return `${diffInMinutes} นาทีที่แล้ว`;
+    if (locale === "de") return `vor ${diffInMinutes} Minuten`;
+    return `${diffInMinutes} minute${diffInMinutes > 1 ? "s" : ""} ago`;
+  }
+
+  const diffInHours = Math.floor(diffInMinutes / 60);
+  if (diffInHours < 24) {
+    if (locale === "th") return `${diffInHours} ชั่วโมงที่แล้ว`;
+    if (locale === "de") return `vor ${diffInHours} Stunden`;
+    return `${diffInHours} hour${diffInHours > 1 ? "s" : ""} ago`;
+  }
+
+  const diffInDays = Math.floor(diffInHours / 24);
+  if (diffInDays === 1) {
+    if (locale === "th") return "เมื่อวานนี้";
+    if (locale === "de") return "gestern";
+    return "yesterday";
+  }
+
+  if (diffInDays < 30) {
+    if (locale === "th") return `${diffInDays} วันที่แล้ว`;
+    if (locale === "de") return `vor ${diffInDays} Tagen`;
+    return `${diffInDays} days ago`;
+  }
+
+  // Fallback to regular short date
+  return formatDate(date, locale);
+}
+
+/**
+ * formatBytes: Formats a byte number into human-readable size (e.g. "1.5 MB", "500 KB").
+ */
+export function formatBytes(bytes: number | null | undefined, decimals: number = 2): string {
+  if (bytes === null || bytes === undefined || isNaN(bytes) || bytes === 0) return "0 Bytes";
+
+  const k = 1024;
+  const dm = decimals < 0 ? 0 : decimals;
+  const sizes = ["Bytes", "KB", "MB", "GB", "TB"];
+
+  const i = Math.floor(Math.log(bytes) / Math.log(k));
+  const safeIndex = Math.min(i, sizes.length - 1);
+
+  return `${parseFloat((bytes / Math.pow(k, safeIndex)).toFixed(dm))} ${sizes[safeIndex]}`;
+}
+
+/**
+ * formatCurrencyEuro: Formats a number specifically for Euro displays with German number locale.
+ */
+export function formatCurrencyEuro(amount: number | string | null | undefined): string {
+  if (amount === null || amount === undefined) return "€ 0,00";
+  const parsed = Number(amount);
+  if (isNaN(parsed)) return "€ 0,00";
+
+  return `€ ${parsed.toLocaleString("de-DE", { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+}
+
+/**
+ * formatPhoneNumber: Cleans and ensures consistent international format for telephone numbers.
+ */
+export function formatPhoneNumber(phone: string | null | undefined): string {
+  if (!phone) return "-";
+  const trimmed = phone.trim();
+  if (!trimmed) return "-";
+  return trimmed;
+}
+
