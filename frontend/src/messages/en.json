@@ -638,7 +638,8 @@
         "retry": "Try again",
         "emptyTitle": "No gallery images yet",
         "emptyDescription": "Published gallery images will appear here.",
-        "imageUnavailable": "Image unavailable"
+        "imageUnavailable": "Image unavailable",
+        "close": "Close"
     },
     "CookieConsent": {
         "title": "We value your privacy",

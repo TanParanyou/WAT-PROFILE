@@ -25,12 +25,12 @@ export default function DetailNavigation({
   actions,
 }: DetailNavigationProps) {
   return (
-    <div className="mb-8 flex flex-col gap-3 border-b border-primary/15 pb-5 md:flex-row md:items-end md:justify-between">
+    <div className="mb-6 flex flex-col gap-3 border-b border-site-border pb-4 md:flex-row md:items-end md:justify-between">
       <div className="flex min-w-0 flex-col gap-2">
         <PageBreadcrumbs items={breadcrumbs} />
         <Link
           href={backHref}
-          className="group inline-flex min-h-11 w-fit items-center gap-2 rounded text-sm font-semibold text-text-800 transition-colors hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-primary"
+          className="group inline-flex min-h-11 w-fit items-center gap-2 text-sm font-semibold text-site-foreground transition-colors hover:text-site-accent focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
         >
           <ArrowLeft
             size={18}

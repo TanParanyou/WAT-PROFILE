@@ -638,7 +638,8 @@
         "retry": "ลองใหม่",
         "emptyTitle": "ยังไม่มีภาพในคลังภาพ",
         "emptyDescription": "ภาพที่เผยแพร่แล้วจะแสดงที่นี่",
-        "imageUnavailable": "ไม่พบรูปภาพ"
+        "imageUnavailable": "ไม่พบรูปภาพ",
+        "close": "ปิด"
     },
     "CookieConsent": {
         "title": "เราให้ความสำคัญกับความเป็นส่วนตัวของคุณ",

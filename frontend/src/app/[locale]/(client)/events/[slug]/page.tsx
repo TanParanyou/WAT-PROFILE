@@ -65,12 +65,14 @@ export default async function EventDetailPage({ params }: Props) {
   }
 
   const headerTitle = initialEvent ? getLocalizedText(initialEvent.title, locale) : tEvents("title");
-  const headerSubtitle = initialEvent ? getLocalizedText(initialEvent.location, locale) : tEvents("subtitle");
+  const eventLocation = initialEvent ? getLocalizedText(initialEvent.location, locale) : "";
+  const headerSubtitle = eventLocation || tEvents("subtitle");
+  const hasCoverImage = Boolean(initialEvent?.image_url);
 
   return (
     <div className="min-h-screen bg-background">
       <PageHeader
-        variant={initialEvent?.image_url ? "image" : "color"}
+        variant={hasCoverImage ? "image" : "color"}
         align="left"
         title={headerTitle}
         subtitle={headerSubtitle}
@@ -78,15 +80,31 @@ export default async function EventDetailPage({ params }: Props) {
         imageAlt={headerTitle}
       >
         {initialEvent ? (
-          <div className="flex flex-wrap gap-x-6 gap-y-3 border-t border-white/30 pt-5 text-sm text-white/90 md:text-base">
+          <div
+            className={`flex flex-wrap gap-x-6 gap-y-3 border-t pt-5 text-sm md:text-base ${
+              hasCoverImage
+                ? "border-white/30 text-white/90"
+                : "border-site-border text-site-body"
+            }`}
+          >
             <span className="flex items-center gap-2">
-              <Calendar size={16} aria-hidden="true" />
+              <Calendar
+                size={16}
+                aria-hidden="true"
+                className={hasCoverImage ? "text-white/80" : "text-site-accent"}
+              />
               {formatDateRange(initialEvent.start_date, initialEvent.end_date, locale)}
             </span>
-            <span className="flex items-center gap-2">
-              <MapPin size={16} aria-hidden="true" />
-              {getLocalizedText(initialEvent.location, locale)}
-            </span>
+            {eventLocation ? (
+              <span className="flex items-center gap-2">
+                <MapPin
+                  size={16}
+                  aria-hidden="true"
+                  className={hasCoverImage ? "text-white/80" : "text-site-accent"}
+                />
+                {eventLocation}
+              </span>
+            ) : null}
           </div>
         ) : null}
       </PageHeader>

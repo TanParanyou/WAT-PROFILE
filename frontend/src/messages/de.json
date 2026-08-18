@@ -638,7 +638,8 @@
         "retry": "Erneut versuchen",
         "emptyTitle": "Noch keine Galeriebilder",
         "emptyDescription": "Veröffentlichte Galeriebilder werden hier angezeigt.",
-        "imageUnavailable": "Bild nicht verfügbar"
+        "imageUnavailable": "Bild nicht verfügbar",
+        "close": "Schließen"
     },
     "CookieConsent": {
         "title": "Wir schätzen Ihre Privatsphäre",

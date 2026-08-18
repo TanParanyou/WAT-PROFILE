@@ -147,7 +147,7 @@ export function EventDetailContent({ slug, initialEvent }: EventDetailContentPro
     : (event.event_type ? (t.has(`types.${event.event_type}`) ? t(`types.${event.event_type}`) : event.event_type) : undefined);
 
   return (
-    <div className="mx-auto max-w-5xl px-4 py-8 sm:px-6 sm:py-12 lg:px-8">
+    <div className="w-full">
       {/* Schema.org Structured Data */}
       <Script
         id={`event-ld-${event.id}`}
@@ -156,7 +156,7 @@ export function EventDetailContent({ slug, initialEvent }: EventDetailContentPro
       />
 
       {/* 1. Status Badges & Action Bar */}
-      <section className="border-b border-t border-site-border py-3">
+      <section className="border-b border-site-border pb-6 mb-8">
         <div className="flex flex-wrap items-center justify-between gap-3">
           {/* Status Badges Row */}
           <div className="flex flex-wrap items-center gap-2">
@@ -269,7 +269,7 @@ export function EventDetailContent({ slug, initialEvent }: EventDetailContentPro
         </div>
       </section>
 
-      {/* 3. Main Grid (Content & Sidebar) */}
+      {/* 2. Main Grid (Content & Sidebar) */}
       <div className="grid gap-10 lg:grid-cols-12 items-start">
         {/* Left Column: Narrative, Live Stream, Poster, Timeline, Gallery */}
         <div className="space-y-10 lg:col-span-8">
@@ -323,18 +323,13 @@ export function EventDetailContent({ slug, initialEvent }: EventDetailContentPro
           )}
 
           {/* Main Event Description */}
-          <article className="space-y-4">
-            <h2 className="font-heading text-2xl font-bold text-site-foreground">
-              {titleText}
-            </h2>
-            <div className="max-w-none text-base leading-relaxed text-site-body">
-              {event.description ? (
+          {event.description ? (
+            <article className="space-y-4">
+              <div className="max-w-none text-base leading-relaxed text-site-body">
                 <RichTextContent value={event.description} locale={locale} defaultLocale="th" />
-              ) : (
-                <p className="text-sm text-site-muted">{t("note")}</p>
-              )}
-            </div>
-          </article>
+              </div>
+            </article>
+          ) : null}
 
           {/* Dress Code & What to bring cards */}
           {(dressCode || whatToBring) && (
