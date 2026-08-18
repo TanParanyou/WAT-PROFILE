@@ -706,3 +706,47 @@ func (h *DonationHandler) BulkDeleteDonationCategories(c *fiber.Ctx) error {
 
 	return utils.MessageResponse(c, "Donation categories deleted successfully")
 }
+
+// GetAnnualSummary - Admin: Retrieve annual donation summary by year
+func (h *DonationHandler) GetAnnualSummary(c *fiber.Ctx) error {
+	yearStr := c.Query("year")
+	year := time.Now().Year()
+	if yearStr != "" {
+		if parsedYear, err := strconv.Atoi(yearStr); err == nil && parsedYear > 1900 {
+			year = parsedYear
+		}
+	}
+
+	summary, err := h.donationService.GetAnnualSummary(year)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to calculate annual donation summary")
+	}
+
+	return utils.SuccessResponse(c, summary)
+}
+
+// GetDonorAnnualStatement - Admin: Retrieve itemized donations for a donor in a specific year
+func (h *DonationHandler) GetDonorAnnualStatement(c *fiber.Ctx) error {
+	yearStr := c.Query("year")
+	year := time.Now().Year()
+	if yearStr != "" {
+		if parsedYear, err := strconv.Atoi(yearStr); err == nil && parsedYear > 1900 {
+			year = parsedYear
+		}
+	}
+
+	donorName := c.Query("donor_name")
+	donorEmail := c.Query("donor_email")
+
+	donations, err := h.donationService.GetDonorAnnualStatement(year, donorName, donorEmail)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to retrieve donor annual statement")
+	}
+
+	return utils.SuccessResponse(c, fiber.Map{
+		"year":        year,
+		"donor_name":  donorName,
+		"donor_email": donorEmail,
+		"donations":   donations,
+	})
+}

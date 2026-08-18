@@ -133,9 +133,21 @@ export const donationAdminService = {
     categories: DonationCategory[];
   }> {
     const res = await api.get(
-      "/admin/donations/filter-options"
+      "/admin/donations/filter-options",
     );
     return res.data.data || { payment_methods: [], currencies: [], categories: [] };
+  },
+  async getAnnualSummary(year: number): Promise<AnnualDonationSummaryResponse> {
+    const res = await api.get<ApiResponse<AnnualDonationSummaryResponse>>("/admin/donations/annual-summary", {
+      params: { year },
+    });
+    return res.data.data!;
+  },
+  async getAnnualStatement(year: number, donorName?: string, donorEmail?: string): Promise<AnnualStatementResponse> {
+    const res = await api.get<ApiResponse<AnnualStatementResponse>>("/admin/donations/annual-statement", {
+      params: { year, donor_name: donorName, donor_email: donorEmail },
+    });
+    return res.data.data!;
   },
 };
 export const memberAdminService = createAdminService<Member>("members");
@@ -228,6 +240,36 @@ export interface DashboardStats {
   donations: number;
   members: number;
   contacts: number;
+}
+
+export interface DonorAnnualSummary {
+  donor_name: string;
+  donor_email: string;
+  donor_address: string;
+  member_id?: number;
+  total_amount: number;
+  currency: string;
+  donation_count: number;
+  first_date: string;
+  last_date: string;
+  methods: string[];
+  receipt_numbers: string[];
+}
+
+export interface AnnualDonationSummaryResponse {
+  year: number;
+  grand_total: number;
+  currency: string;
+  total_donors: number;
+  total_count: number;
+  donors: DonorAnnualSummary[];
+}
+
+export interface AnnualStatementResponse {
+  year: number;
+  donor_name?: string;
+  donor_email?: string;
+  donations: Donation[];
 }
 
 export interface UpcomingEventDashboardItem {

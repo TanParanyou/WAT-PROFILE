@@ -4318,8 +4318,55 @@ paths:
                             type: integer
                           monthly_amount:
                             type: number
-                          monthly_count:
-                            type: integer
+  /admin/donations/annual-summary:
+    get:
+      tags: [Admin - Donations]
+      summary: Get annual donation summary grouped by donor (Spendenbescheinigung)
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: year
+          in: query
+          required: false
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: Annual donation summary
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        type: object
+
+  /admin/donations/annual-statement:
+    get:
+      tags: [Admin - Donations]
+      summary: Get itemized donation records for a donor in a specific year
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: year
+          in: query
+          required: false
+          schema:
+            type: integer
+        - name: donor_name
+          in: query
+          required: false
+          schema:
+            type: string
+        - name: donor_email
+          in: query
+          required: false
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Itemized donor statement
 
   /admin/donations/{id}/proof:
     get:

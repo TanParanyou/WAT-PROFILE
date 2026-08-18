@@ -3,6 +3,7 @@ package services
 import (
 	"errors"
 	"fmt"
+	"sort"
 	"strconv"
 	"strings"
 	"time"
@@ -616,4 +617,157 @@ func generateReceiptNumberAt(tx *gorm.DB, now time.Time) string {
 		Where("EXTRACT(YEAR FROM created_at) = ?", now.Year()).
 		Count(&count)
 	return fmt.Sprintf("DON-%d-%03d", now.Year(), count+1)
+}
+
+type DonorAnnualSummary struct {
+	DonorName      string    `json:"donor_name"`
+	DonorEmail     string    `json:"donor_email"`
+	DonorAddress   string    `json:"donor_address"`
+	MemberID       *int      `json:"member_id,omitempty"`
+	TotalAmount    float64   `json:"total_amount"`
+	Currency       string    `json:"currency"`
+	DonationCount  int       `json:"donation_count"`
+	FirstDate      time.Time `json:"first_date"`
+	LastDate       time.Time `json:"last_date"`
+	Methods        []string  `json:"methods"`
+	ReceiptNumbers []string  `json:"receipt_numbers"`
+}
+
+type AnnualDonationSummaryResponse struct {
+	Year        int                  `json:"year"`
+	GrandTotal  float64              `json:"grand_total"`
+	Currency    string               `json:"currency"`
+	TotalDonors int                  `json:"total_donors"`
+	TotalCount  int                  `json:"total_count"`
+	Donors      []DonorAnnualSummary `json:"donors"`
+}
+
+// GetAnnualSummary aggregates all confirmed donations for the specified year grouped by donor
+func (s *DonationService) GetAnnualSummary(year int) (*AnnualDonationSummaryResponse, error) {
+	if year <= 0 {
+		year = time.Now().Year()
+	}
+
+	startDate := time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC)
+	endDate := time.Date(year, 12, 31, 23, 59, 59, 0, time.UTC)
+
+	var donations []models.Donation
+	err := s.db.Where("status = ? AND donation_date >= ? AND donation_date <= ?", "confirmed", startDate, endDate).
+		Order("donation_date ASC, id ASC").
+		Find(&donations).Error
+	if err != nil {
+		return nil, err
+	}
+
+	donorMap := make(map[string]*DonorAnnualSummary)
+	donorOrder := make([]string, 0)
+	var grandTotal float64
+
+	for _, d := range donations {
+		name := strings.TrimSpace(d.DonorName)
+		if name == "" {
+			if d.IsAnonymous {
+				name = "Anonymous Donor"
+			} else {
+				name = "General Donor"
+			}
+		}
+
+		key := strings.ToLower(name) + "|" + strings.ToLower(strings.TrimSpace(d.DonorEmail))
+		if d.MemberID != nil && *d.MemberID > 0 {
+			key = fmt.Sprintf("member_%d", *d.MemberID)
+		}
+
+		summary, exists := donorMap[key]
+		if !exists {
+			summary = &DonorAnnualSummary{
+				DonorName:      name,
+				DonorEmail:     d.DonorEmail,
+				DonorAddress:   d.DonorAddress,
+				MemberID:       d.MemberID,
+				TotalAmount:    0,
+				Currency:       "EUR",
+				DonationCount:  0,
+				FirstDate:      d.DonationDate,
+				LastDate:       d.DonationDate,
+				Methods:        make([]string, 0),
+				ReceiptNumbers: make([]string, 0),
+			}
+			donorMap[key] = summary
+			donorOrder = append(donorOrder, key)
+		}
+
+		summary.TotalAmount += d.Amount
+		grandTotal += d.Amount
+		summary.DonationCount++
+		if d.DonationDate.Before(summary.FirstDate) {
+			summary.FirstDate = d.DonationDate
+		}
+		if d.DonationDate.After(summary.LastDate) {
+			summary.LastDate = d.DonationDate
+		}
+
+		if d.DonorAddress != "" && summary.DonorAddress == "" {
+			summary.DonorAddress = d.DonorAddress
+		}
+
+		if d.DonationMethod != "" {
+			methodExists := false
+			for _, m := range summary.Methods {
+				if m == d.DonationMethod {
+					methodExists = true
+					break
+				}
+			}
+			if !methodExists {
+				summary.Methods = append(summary.Methods, d.DonationMethod)
+			}
+		}
+
+		if d.ReceiptNumber != "" {
+			summary.ReceiptNumbers = append(summary.ReceiptNumbers, d.ReceiptNumber)
+		}
+	}
+
+	donors := make([]DonorAnnualSummary, 0, len(donorOrder))
+	for _, key := range donorOrder {
+		donors = append(donors, *donorMap[key])
+	}
+
+	sort.Slice(donors, func(i, j int) bool {
+		return donors[i].TotalAmount > donors[j].TotalAmount
+	})
+
+	return &AnnualDonationSummaryResponse{
+		Year:        year,
+		GrandTotal:  grandTotal,
+		Currency:    "EUR",
+		TotalDonors: len(donors),
+		TotalCount:  len(donations),
+		Donors:      donors,
+	}, nil
+}
+
+// GetDonorAnnualStatement returns all confirmed donation records for a donor in a specific year
+func (s *DonationService) GetDonorAnnualStatement(year int, donorName, donorEmail string) ([]models.Donation, error) {
+	if year <= 0 {
+		year = time.Now().Year()
+	}
+
+	startDate := time.Date(year, 1, 1, 0, 0, 0, 0, time.UTC)
+	endDate := time.Date(year, 12, 31, 23, 59, 59, 0, time.UTC)
+
+	query := s.db.Preload("Category").Where("status = ? AND donation_date >= ? AND donation_date <= ?", "confirmed", startDate, endDate)
+
+	if donorEmail != "" {
+		query = query.Where("donor_email ILIKE ?", donorEmail)
+	} else if donorName != "" {
+		query = query.Where("donor_name ILIKE ?", donorName)
+	}
+
+	var donations []models.Donation
+	if err := query.Order("donation_date ASC, id ASC").Find(&donations).Error; err != nil {
+		return nil, err
+	}
+	return donations, nil
 }

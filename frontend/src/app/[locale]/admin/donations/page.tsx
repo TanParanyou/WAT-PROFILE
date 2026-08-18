@@ -30,6 +30,7 @@ import type { StaffDonationFormData } from "@/schemas/donation.schema";
 import { StaffDonationForm } from "@/features/admin/donations/StaffDonationForm";
 import { CancelDonationDialog } from "@/features/admin/donations/CancelDonationDialog";
 import { DonationProofPreviewDrawer, type DonationProofPreviewKind } from "@/features/admin/donations/DonationProofPreviewModal";
+import { AnnualDonationModal } from "./_components/AnnualDonationModal";
 
 interface DonationFilters extends AdminFilterRecord {
   status: string[];
@@ -51,6 +52,7 @@ export default function DonationsPage() {
   const { confirm, ConfirmDialog } = useConfirm();
   const selectedIds = useRowSelection();
   const [showStaffForm, setShowStaffForm] = useState(false);
+  const [isAnnualModalOpen, setIsAnnualModalOpen] = useState(false);
   const [selectedDonationForView, setSelectedDonationForView] = useState<Donation | null>(null);
   const [cancelID, setCancelID] = useState<number | null>(null);
   const [isProofPreviewOpen, setIsProofPreviewOpen] = useState(false);
@@ -402,19 +404,32 @@ export default function DonationsPage() {
         title={t("donations.title")}
         breadcrumbs={[{ label: t("donations.title") }]}
         actions={
-          <PermissionGuard resource="donations" action="create">
-            <Button
-              type="button"
-              onClick={() => {
-                setSelectedDonationForView(null);
-                setShowStaffForm(true);
-              }}
-              className="min-h-11 bg-admin-action px-4 py-2 text-sm font-semibold text-admin-on-action"
-            >
-              <Icons.Plus size={16} className="mr-1.5" />
-              {t("donations.createStaff")}
-            </Button>
-          </PermissionGuard>
+          <div className="flex flex-wrap items-center gap-2">
+            <PermissionGuard resource="donations" action="read">
+              <Button
+                type="button"
+                variant="outline"
+                onClick={() => setIsAnnualModalOpen(true)}
+                className="min-h-11 border border-admin-control-border bg-admin-surface text-admin-foreground hover:bg-admin-surface-muted px-3.5 py-2 text-sm font-semibold inline-flex items-center gap-1.5"
+              >
+                <FileText size={16} />
+                <span>สรุปยอดบริจาครายปี (Spendenbescheinigung)</span>
+              </Button>
+            </PermissionGuard>
+            <PermissionGuard resource="donations" action="create">
+              <Button
+                type="button"
+                onClick={() => {
+                  setSelectedDonationForView(null);
+                  setShowStaffForm(true);
+                }}
+                className="min-h-11 bg-admin-action px-4 py-2 text-sm font-semibold text-admin-on-action"
+              >
+                <Icons.Plus size={16} className="mr-1.5" />
+                {t("donations.createStaff")}
+              </Button>
+            </PermissionGuard>
+          </div>
         }
       />
 
@@ -545,6 +560,10 @@ export default function DonationsPage() {
         }}
         onViewProof={handleProof}
         onViewReceipt={(donation) => void handleReceiptPreview(donation)}
+      />
+      <AnnualDonationModal
+        isOpen={isAnnualModalOpen}
+        onClose={() => setIsAnnualModalOpen(false)}
       />
     </div>
   );
