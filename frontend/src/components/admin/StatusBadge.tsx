@@ -39,7 +39,7 @@ export function StatusBadge({ label, variant, className }: StatusBadgeProps) {
     return (
         <span
             className={cn(
-                'inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium',
+                'inline-flex items-center px-2.5 py-0.5 rounded-none border border-current/20 text-xs font-medium',
                 variantClasses[resolvedVariant],
                 className
             )}

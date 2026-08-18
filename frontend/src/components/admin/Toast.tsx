@@ -45,7 +45,7 @@ export function ToastContainer() {
                         role="status"
                         aria-live={toast.type === 'error' ? 'assertive' : 'polite'}
                         className={cn(
-                            'pointer-events-auto flex items-start gap-3 rounded-md border px-4 py-3 shadow-xl backdrop-blur-md transition-all duration-200',
+                            'pointer-events-auto flex items-start gap-3 rounded-none border px-4 py-3 shadow-xl backdrop-blur-md transition-all duration-200',
                             toneMap[toast.type],
                         )}
                     >
@@ -60,7 +60,7 @@ export function ToastContainer() {
                             type="button"
                             onClick={() => removeToast(toast.id)}
                             aria-label="Dismiss toast"
-                            className="rounded p-1 text-admin-muted transition hover:bg-admin-surface-muted hover:text-admin-foreground"
+                            className="rounded-none p-1 text-admin-muted transition hover:bg-admin-surface-muted hover:text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus"
                         >
                             <X className="h-4 w-4" />
                         </button>
