@@ -1,8 +1,12 @@
 "use client";
 
 import React, { useState } from "react";
+import { Sparkles, Copy, Loader2 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { cn } from "@/utils/cn";
 import type { MultiLangText } from "@/types/api";
+import { useAiTranslate } from "@/hooks/useAiTranslate";
+import { useToast } from "@/hooks/useToast";
 
 interface MultiLangInputProps {
   label: string;
@@ -12,6 +16,7 @@ interface MultiLangInputProps {
   required?: boolean;
   placeholder?: string | MultiLangText;
   error?: string;
+  disableAiTranslate?: boolean;
 }
 
 const langs = [
@@ -28,13 +33,63 @@ export function MultiLangInput({
   required = false,
   placeholder,
   error,
+  disableAiTranslate = false,
 }: MultiLangInputProps) {
   const [activeLang, setActiveLang] = useState<"th" | "en" | "de">("th");
+  const t = useTranslations("Admin.aiTranslate");
+  const { toast } = useToast();
+  const { translateDraft, isTranslating } = useAiTranslate();
 
   const safeValue = value || { th: "", en: "", de: "" };
 
   const handleChange = (text: string) => {
     onChange({ ...safeValue, [activeLang]: text });
+  };
+
+  const handleCopySource = () => {
+    const source = safeValue.th?.trim();
+    if (!source) {
+      toast.warning(t("emptySource"));
+      return;
+    }
+    onChange({
+      ...safeValue,
+      en: safeValue.en ? safeValue.en : source,
+      de: safeValue.de ? safeValue.de : source,
+    });
+    toast.success(t("success"));
+  };
+
+  const handleAiTranslate = async () => {
+    const sourceText = safeValue.th?.trim();
+    if (!sourceText) {
+      toast.warning(t("emptySource"));
+      return;
+    }
+
+    const hasExistingTargets = Boolean(safeValue.en?.trim() || safeValue.de?.trim());
+    if (hasExistingTargets) {
+      const confirmed = window.confirm(t("overwriteConfirmMessage"));
+      if (!confirmed) return;
+    }
+
+    try {
+      const res = await translateDraft({
+        text: sourceText,
+        source_lang: "th",
+        target_langs: ["en", "de"],
+      });
+
+      if (res?.translations) {
+        onChange({
+          ...safeValue,
+          en: res.translations.en || safeValue.en || "",
+          de: res.translations.de || safeValue.de || "",
+        });
+      }
+    } catch {
+      // Error toast is handled inside useAiTranslate hook
+    }
   };
 
   const currentPlaceholder = React.useMemo(() => {
@@ -54,22 +109,53 @@ export function MultiLangInput({
           {label}
           {required && <span className="text-admin-danger ml-1">*</span>}
         </label>
-        <div className="inline-flex border border-admin-control-border rounded-none overflow-hidden h-6">
-          {langs.map((lang) => (
-            <button
-              key={lang.key}
-              type="button"
-              onClick={() => setActiveLang(lang.key)}
-              className={cn(
-                "px-2.5 h-full text-xs font-medium uppercase transition-colors inline-flex items-center justify-center focus-visible:outline-2 focus-visible:outline-admin-focus",
-                activeLang === lang.key
-                  ? "bg-admin-action text-admin-on-action hover:bg-admin-action-hover"
-                  : "bg-admin-surface text-admin-muted hover:bg-admin-surface-muted hover:text-admin-foreground",
-              )}
-            >
-              {lang.label}
-            </button>
-          ))}
+        <div className="flex items-center gap-1.5">
+          {!disableAiTranslate && (
+            <div className="flex items-center gap-1">
+              <button
+                type="button"
+                onClick={handleAiTranslate}
+                disabled={isTranslating || !safeValue.th?.trim()}
+                title={t("button")}
+                className="h-6 px-2 text-[11px] font-medium border border-admin-control-border bg-admin-surface hover:bg-admin-surface-muted text-admin-foreground disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-1 transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
+              >
+                {isTranslating ? (
+                  <Loader2 size={12} className="animate-spin text-admin-action" />
+                ) : (
+                  <Sparkles size={12} className="text-amber-500" />
+                )}
+                <span>{isTranslating ? t("translating") : t("button")}</span>
+              </button>
+              <button
+                type="button"
+                onClick={handleCopySource}
+                disabled={!safeValue.th?.trim()}
+                title={t("copySource")}
+                className="h-6 px-1.5 text-[11px] font-medium border border-admin-control-border bg-admin-surface hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-1 transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
+              >
+                <Copy size={11} />
+                <span className="hidden sm:inline">{t("copySource")}</span>
+              </button>
+            </div>
+          )}
+
+          <div className="inline-flex border border-admin-control-border rounded-none overflow-hidden h-6">
+            {langs.map((lang) => (
+              <button
+                key={lang.key}
+                type="button"
+                onClick={() => setActiveLang(lang.key)}
+                className={cn(
+                  "px-2.5 h-full text-xs font-medium uppercase transition-colors inline-flex items-center justify-center focus-visible:outline-2 focus-visible:outline-admin-focus",
+                  activeLang === lang.key
+                    ? "bg-admin-action text-admin-on-action hover:bg-admin-action-hover"
+                    : "bg-admin-surface text-admin-muted hover:bg-admin-surface-muted hover:text-admin-foreground",
+                )}
+              >
+                {lang.label}
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 

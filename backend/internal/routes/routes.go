@@ -398,6 +398,7 @@ func adminRouteDefinitions() []AdminRouteDefinition {
 		{Method: fiber.MethodPost, Path: "/settings", Resource: "settings", Action: "create", HandlerKey: "settings.create"},
 		{Method: fiber.MethodGet, Path: "/event-alert", Resource: "settings", Action: "read", HandlerKey: "settings.eventAlert.get"},
 		{Method: fiber.MethodPut, Path: "/event-alert", Resource: "settings", Action: "update", HandlerKey: "settings.eventAlert.save"},
+		{Method: fiber.MethodPost, Path: "/ai/translate", Resource: "settings", Action: "update", HandlerKey: "ai.translate"},
 
 		// Public Content Pages Management
 		{Method: fiber.MethodGet, Path: "/about", Resource: "website", Action: "read", HandlerKey: "website.about.get"},
@@ -481,6 +482,7 @@ func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service, accountCfg config.Accou
 	publicContentHandler := handlers.NewPublicContentHandler(db)
 	eventAlertHandler := handlers.NewEventAlertHandler(db)
 	communityAdminHandler := handlers.NewCommunityAdminHandler(db)
+	aiTranslationHandler := handlers.NewAiTranslationHandler(db)
 
 	emailSender, _ := services.NewAccountEmailSender(accountCfg)
 	securityHandler := handlers.NewAdminSecurityHandler(db, emailSender)
@@ -605,6 +607,7 @@ func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service, accountCfg config.Accou
 		"settings.create":               settingsHandler.UpsertSetting,
 		"settings.eventAlert.get":       eventAlertHandler.Get,
 		"settings.eventAlert.save":      eventAlertHandler.Save,
+		"ai.translate":                  aiTranslationHandler.TranslateDraft,
 		"website.about.get":             publicContentHandler.GetAbout,
 		"website.about.save":            publicContentHandler.SaveAbout,
 		"website.contact.get":           publicContentHandler.GetContact,

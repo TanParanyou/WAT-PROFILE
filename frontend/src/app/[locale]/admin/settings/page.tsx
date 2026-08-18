@@ -188,6 +188,9 @@ export default function SettingsPage() {
   const [eventsDefaultView, setEventsDefaultView] = useState<EventsView>("calendar");
   const [initialEventsDefaultView, setInitialEventsDefaultView] = useState<EventsView>("calendar");
 
+  const [aiTranslateEnabled, setAiTranslateEnabled] = useState(true);
+  const [initialAiTranslateEnabled, setInitialAiTranslateEnabled] = useState(true);
+
   const { toast } = useToast();
 
   const loadSettings = useCallback(async () => {
@@ -207,6 +210,10 @@ export default function SettingsPage() {
       const defaultView: EventsView = byKey.events_default_view === "list" ? "list" : "calendar";
       setEventsDefaultView(defaultView);
       setInitialEventsDefaultView(defaultView);
+
+      const aiEnabled = byKey.ai_translate_enabled !== "false";
+      setAiTranslateEnabled(aiEnabled);
+      setInitialAiTranslateEnabled(aiEnabled);
 
       const [alertSettings, eventResult] = await Promise.all([
         fetchAdminEventAlertSettings(),
@@ -235,8 +242,13 @@ export default function SettingsPage() {
   const isAlertChanged = JSON.stringify(alert) !== JSON.stringify(initialAlert);
   const isShellChanged = JSON.stringify(shell) !== JSON.stringify(initialShell);
   const isEventsDefaultViewChanged = eventsDefaultView !== initialEventsDefaultView;
+  const isAiTranslateChanged = aiTranslateEnabled !== initialAiTranslateEnabled;
   const hasChanges =
-    Object.keys(changes).length > 0 || isAlertChanged || isShellChanged || isEventsDefaultViewChanged;
+    Object.keys(changes).length > 0 ||
+    isAlertChanged ||
+    isShellChanged ||
+    isEventsDefaultViewChanged ||
+    isAiTranslateChanged;
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -260,6 +272,11 @@ export default function SettingsPage() {
       if (isEventsDefaultViewChanged) {
         await settingsAdminService.update([
           { key: "events_default_view", value: eventsDefaultView },
+        ]);
+      }
+      if (isAiTranslateChanged) {
+        await settingsAdminService.update([
+          { key: "ai_translate_enabled", value: String(aiTranslateEnabled) },
         ]);
       }
       toast.success(t("common.success"));
@@ -287,6 +304,7 @@ export default function SettingsPage() {
             "youtube_url",
             "event_alert_settings",
             "events_default_view",
+            "ai_translate_enabled",
           ].includes(s.key),
       )
       .reduce<Record<string, Setting[]>>((acc, s) => {
@@ -1017,6 +1035,41 @@ export default function SettingsPage() {
           {/* ========================================================================= */}
           {activeTab === "general" && (
             <div className="space-y-8">
+              {/* AI & Integrations Card */}
+              <div className="bg-admin-surface rounded-none border border-admin-border overflow-hidden shadow-sm">
+                <div className="px-6 py-4 bg-admin-surface border-b border-admin-border flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <Sparkles size={18} className="text-amber-500" />
+                    <h2 className="text-base font-semibold text-admin-foreground">
+                      {t("settings.aiSectionTitle")}
+                    </h2>
+                  </div>
+                  <span className="text-xs text-admin-muted uppercase tracking-wider font-mono">
+                    Integrations
+                  </span>
+                </div>
+                <div className="p-6 space-y-4">
+                  <p className="text-xs text-admin-muted">
+                    {t("settings.aiSectionDesc")}
+                  </p>
+                  <div className="p-4 bg-admin-surface-muted/30 border border-admin-border space-y-3">
+                    <Switch
+                      id="ai-translate-enabled"
+                      label={t("settings.aiTranslateEnabled")}
+                      checked={aiTranslateEnabled}
+                      onChange={(e) => setAiTranslateEnabled(e.target.checked)}
+                    />
+                    <p className="text-xs text-admin-muted pl-6">
+                      {t("settings.aiTranslateHelp")}
+                    </p>
+                    <div className="flex items-start gap-2 p-3 bg-amber-500/10 border border-amber-500/20 text-xs text-amber-900 dark:text-amber-200">
+                      <Info size={16} className="shrink-0 mt-0.5" />
+                      <span>{t("settings.aiFreeTierNote")}</span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
               {Object.keys(grouped).length === 0 ? (
                 <div className="bg-admin-surface border border-admin-border p-8 text-center text-sm text-admin-muted rounded-none">
                   <Sliders size={28} className="mx-auto text-admin-muted/60 mb-2" />

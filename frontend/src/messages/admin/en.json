@@ -730,9 +730,25 @@
       "validationRequired": "Please fill in all required fields.",
       "eventRequired": "Please select an event."
     },
+    "aiTranslate": {
+      "button": "AI Draft Translate",
+      "copySource": "Copy TH",
+      "translating": "Translating with AI...",
+      "success": "Draft translated successfully",
+      "error": "Failed to translate. Please try again.",
+      "disabled": "AI translation is currently disabled in settings",
+      "emptySource": "Please enter Thai text before translating",
+      "overwriteConfirmTitle": "Overwrite existing text?",
+      "overwriteConfirmMessage": "Target languages already contain text. Do you want to overwrite them with the translation?"
+    },
     "settings": {
       "title": "Settings",
       "loadError": "Failed to load settings",
+      "aiSectionTitle": "AI & Integrations",
+      "aiSectionDesc": "Configure AI assistant features such as automatic 3-language draft translation (Google Gemini Free Tier)",
+      "aiTranslateEnabled": "Enable AI Draft Translation Helper",
+      "aiTranslateHelp": "When enabled, an 'AI Draft Translate' action appears in multi-language fields (TH/EN/DE)",
+      "aiFreeTierNote": "100% Free via Google Gemini 1.5 Flash (1,500 requests/day quota, no automated charges)",
       "eventAlert": "Event Alert",
       "eventAlertEnabled": "Enable event alert",
       "eventToDisplay": "Event to display",

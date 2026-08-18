@@ -5008,6 +5008,52 @@ paths:
         '200':
           description: Setting upserted
 
+  /admin/ai/translate:
+    post:
+      tags: [Admin - Settings]
+      summary: Translate draft text using AI (Google Gemini)
+      security:
+        - AdminBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [text]
+              properties:
+                text:
+                  type: string
+                  description: Source text to translate
+                source_lang:
+                  type: string
+                  enum: [th, en, de]
+                  default: th
+                target_langs:
+                  type: array
+                  items:
+                    type: string
+                    enum: [th, en, de]
+                  default: [en, de]
+      responses:
+        '200':
+          description: Translated text per target language
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: object
+                    properties:
+                      translations:
+                        type: object
+                        additionalProperties:
+                          type: string
+
 components:
   securitySchemes:
     BearerAuth:

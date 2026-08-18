@@ -730,9 +730,25 @@
       "validationRequired": "Bitte füllen Sie alle Pflichtfelder aus.",
       "eventRequired": "Bitte wählen Sie eine Veranstaltung aus."
     },
+    "aiTranslate": {
+      "button": "KI-Entwurf übersetzen",
+      "copySource": "TH kopieren",
+      "translating": "Wird mit KI übersetzt...",
+      "success": "Entwurf erfolgreich übersetzt",
+      "error": "Übersetzung fehlgeschlagen. Bitte versuchen Sie es erneut.",
+      "disabled": "Die KI-Übersetzung ist in den Einstellungen deaktiviert",
+      "emptySource": "Bitte geben Sie zuerst thailändischen Text ein",
+      "overwriteConfirmTitle": "Vorhandenen Text überschreiben?",
+      "overwriteConfirmMessage": "Die Zielsprachen enthalten bereits Text. Möchten Sie diese mit der Übersetzung überschreiben?"
+    },
     "settings": {
       "title": "Einstellungen",
       "loadError": "Einstellungen konnten nicht geladen werden",
+      "aiSectionTitle": "KI & Integrationen",
+      "aiSectionDesc": "Konfigurieren Sie KI-Assistenten-Funktionen wie die automatische 3-Sprachen-Entwurfsübersetzung (Google Gemini Free Tier)",
+      "aiTranslateEnabled": "KI-Entwurfsübersetzungshilfe aktivieren",
+      "aiTranslateHelp": "Wenn aktiviert, erscheint die Aktion 'KI-Entwurf übersetzen' in mehrsprachigen Feldern (TH/EN/DE)",
+      "aiFreeTierNote": "100% kostenlos über Google Gemini 1.5 Flash (1.500 Anfragen/Tag Kontingent, keine automatischen Kosten)",
       "eventAlert": "Veranstaltungsbenachrichtigung",
       "eventAlertEnabled": "Veranstaltungsbenachrichtigung aktivieren",
       "eventToDisplay": "Anzuzeigende Veranstaltung",

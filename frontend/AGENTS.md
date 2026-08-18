@@ -33,8 +33,9 @@ but direct `node --test` cannot currently resolve the TypeScript modules.
 - Components must not import Axios or construct API URLs.
 - Public requests belong in `src/features/public/<domain>/api.ts`.
 - Public query keys/hooks belong in the matching `queries.ts`.
-- Admin/shared requests belong in `src/services/`.
-- Use `src/services/api.ts` for authenticated requests.
+- Admin services belong in `src/services/` using `src/services/adminApi.ts` or `createAdminService`.
+- Use `src/services/adminApi.ts` for Admin Panel authenticated requests (`/api/v1/admin/*`, in-memory JWT).
+- Use `src/services/api.ts` for Public Member / User Account requests (`/api/v1/member/*`, `/api/v1/account/*`, `localStorage` JWT).
 - Use `src/services/publicService.ts` for anonymous `/public` requests.
 - Unwrap and validate the backend response envelope before returning domain data.
 - Keep server data in TanStack Query; do not mirror it into Zustand or context.

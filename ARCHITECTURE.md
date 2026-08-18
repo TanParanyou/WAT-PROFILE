@@ -40,8 +40,11 @@ Browser
 - `src/stores/` holds editor UI state, not server records.
 - `src/data/` contains fixtures/fallbacks, not the production persistence layer.
 
-The API base is `NEXT_PUBLIC_API_URL` or `http://localhost:8080`. Admin tokens are
-attached by `src/services/api.ts`; public requests use `src/services/publicService.ts`.
+The API base is `NEXT_PUBLIC_API_URL` or `http://localhost:8080`.
+The frontend utilizes separated HTTP clients based on security context:
+- **`src/services/adminApi.ts`**: Dedicated HTTP client for all **Admin Panel** requests (`/api/v1/admin/*`). Attaches Admin access token stored in memory (`adminAuthStore.ts`) and uses cookie-based single-flight refresh via `/auth/admin/refresh`.
+- **`src/services/api.ts`**: Dedicated HTTP client for **Public Authenticated Member / User Account** requests (`/api/v1/member/*`, `/api/v1/community/*`, `/api/v1/account/*`), reading tokens from `localStorage` and refreshing via `/auth/refresh`.
+- **`src/services/publicService.ts`**: Anonymous HTTP client for `/api/v1/public/*` requests.
 
 ## Backend boundaries
 

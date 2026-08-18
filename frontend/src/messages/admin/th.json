@@ -726,13 +726,27 @@
       "phone": "เบอร์โทรศัพท์",
       "email": "อีเมล",
       "createSuccess": "สร้างการลงทะเบียนสำเร็จ",
-      "createError": "เกิดข้อผิดพลาดในการสร้างการลงทะเบียน",
-      "validationRequired": "กรุณากรอกข้อมูลให้ครบถ้วน",
-      "eventRequired": "กรุณาเลือกกิจกรรม"
+      "createError": "เกิดข้อผิดพลาดในการสร้างการลงทะเบียน"
+    },
+    "aiTranslate": {
+      "button": "แปลร่าง (AI)",
+      "copySource": "คัดลอก TH",
+      "translating": "กำลังแปลด้วย AI...",
+      "success": "แปลร่างเนื้อหาสำเร็จ",
+      "error": "ไม่สามารถแปลภาษาได้ กรุณาลองใหม่อีกครั้ง",
+      "disabled": "ระบบช่วยแปลภาษาถูกปิดใช้งานในการตั้งค่า",
+      "emptySource": "กรุณากรอกข้อความภาษาไทยก่อนกดแปล",
+      "overwriteConfirmTitle": "ยืนยันการเขียนทับข้อความ",
+      "overwriteConfirmMessage": "มีข้อความในภาษาปลายทางอยู่แล้ว ต้องการแปลและเขียนทับหรือไม่?"
     },
     "settings": {
       "title": "การตั้งค่า",
       "loadError": "โหลดการตั้งค่าไม่สำเร็จ",
+      "aiSectionTitle": "ระบบผู้ช่วยปัญญาประดิษฐ์ (AI & Integrations)",
+      "aiSectionDesc": "ตั้งค่าระบบเสริม AI ช่วยแปลเนื้อหา 3 ภาษาอัตโนมัติ (Google Gemini Free Tier)",
+      "aiTranslateEnabled": "เปิดใช้งานระบบ AI ช่วยแปลร่างเนื้อหา (AI Translation Helper)",
+      "aiTranslateHelp": "เมื่อเปิดใช้งาน จะมีปุ่ม 'แปลร่าง (AI)' ในช่องกรอกข้อความหลายภาษา (TH/EN/DE)",
+      "aiFreeTierNote": "ใช้งานฟรี 100% ผ่าน Google Gemini 1.5 Flash (โควตา 1,500 ครั้ง/วัน ปลอดภัยไม่มีการเรียกเก็บเงิน)",
       "eventAlert": "การแจ้งเตือนกิจกรรม",
       "eventAlertEnabled": "เปิดการแจ้งเตือนกิจกรรม",
       "eventToDisplay": "กิจกรรมที่จะแสดง",
