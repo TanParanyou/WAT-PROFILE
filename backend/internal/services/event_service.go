@@ -123,13 +123,15 @@ func (s *EventService) ListAdmin(options EventListOptions) ([]models.Event, int6
 	return events, total, err
 }
 
-// ListActive returns all active events with schedules
+// ListActive returns all active and published events with schedules
 func (s *EventService) ListActive(limit int, from, to *time.Time) ([]models.Event, error) {
 	var events []models.Event
 	preloadSchedules := func(db *gorm.DB) *gorm.DB {
 		return db.Order("display_order ASC")
 	}
 	query := s.db.Where("is_active = ?", true).
+		Where("(publish_status = 'published' OR publish_status = '' OR publish_status IS NULL)").
+		Where("(published_at IS NULL OR published_at <= NOW())").
 		Order("start_date ASC").
 		Preload("Category").
 		Preload("Schedules", preloadSchedules).
@@ -150,13 +152,15 @@ func (s *EventService) ListActive(limit int, from, to *time.Time) ([]models.Even
 	return events, err
 }
 
-// GetBySlug returns a single active event by slug or ID
+// GetBySlug returns a single active and published event by slug or ID
 func (s *EventService) GetBySlug(slug string) (*models.Event, error) {
 	var event models.Event
 	preloadSchedules := func(db *gorm.DB) *gorm.DB {
 		return db.Order("display_order ASC")
 	}
 	query := s.db.Where("is_active = ?", true).
+		Where("(publish_status = 'published' OR publish_status = '' OR publish_status IS NULL)").
+		Where("(published_at IS NULL OR published_at <= NOW())").
 		Preload("Category").
 		Preload("Schedules", preloadSchedules).
 		Preload("ResourceAssignments.Resource")

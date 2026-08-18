@@ -37,6 +37,9 @@ type Event struct {
 	RegistrationEnabled  bool              `gorm:"default:false" json:"registration_enabled"`
 	RegistrationDeadline *time.Time        `json:"registration_deadline"`
 	IsActive             bool              `gorm:"default:true;index" json:"is_active"`
+	PublishStatus        string            `gorm:"size:20;default:'published';index" json:"publish_status"` // 'draft', 'scheduled', 'published', 'archived'
+	PublishedAt          *time.Time        `gorm:"index" json:"published_at"`
+	ScheduledAt          *time.Time        `gorm:"index" json:"scheduled_at"`
 	DisplayOrder         int               `gorm:"default:0" json:"display_order"`
 	GalleryURLs          StringSlice       `gorm:"type:jsonb;default:'[]'" json:"gallery_urls"`
 	OnlineJoinURL        string            `gorm:"size:255" json:"online_join_url"`

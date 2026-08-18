@@ -6186,6 +6186,18 @@ components:
           nullable: true
         is_active:
           type: boolean
+        publish_status:
+          type: string
+          enum: [draft, scheduled, published, archived]
+          default: published
+        published_at:
+          type: string
+          format: date-time
+          nullable: true
+        scheduled_at:
+          type: string
+          format: date-time
+          nullable: true
         display_order:
           type: integer
         gallery_urls:

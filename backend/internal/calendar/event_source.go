@@ -32,7 +32,9 @@ func (s *EventSource) List(ctx context.Context, request Request, canEdit bool) (
 		Where("events.start_date <= ?", request.To).
 		Order("events.start_date ASC, events.display_order ASC, events.id ASC")
 	if !canEdit {
-		query = query.Where("events.is_active = ?", true)
+		query = query.Where("events.is_active = ?", true).
+			Where("(events.publish_status = 'published' OR events.publish_status = '' OR events.publish_status IS NULL)").
+			Where("(events.published_at IS NULL OR events.published_at <= NOW())")
 	}
 	if len(request.ResourceIDs) > 0 {
 		query = query.Where(

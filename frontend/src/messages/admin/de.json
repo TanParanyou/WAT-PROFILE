@@ -243,6 +243,16 @@
         "active": "Aktiv",
         "inactive": "Inaktiv"
       },
+      "publishStatus": {
+        "label": "Veröffentlichungsstatus",
+        "published": "Veröffentlicht (Öffentlich sichtbar)",
+        "scheduled": "Geplant (Später veröffentlichen)",
+        "draft": "Entwurf (Öffentlich ausgeblendet)",
+        "archived": "Archiviert",
+        "scheduledAt": "Geplantes Veröffentlichungsdatum & Zeit",
+        "scheduledAtHint": "Die Veranstaltung wird zum angegebenen Zeitpunkt automatisch auf der öffentlichen Website angezeigt.",
+        "publishedAt": "Veröffentlicht am"
+      },
       "listBadges": {
         "live": "Live-Stream",
         "registration": "Anmeldung",

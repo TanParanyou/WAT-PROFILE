@@ -243,6 +243,16 @@
         "active": "เปิดใช้งาน",
         "inactive": "ปิดใช้งาน"
       },
+      "publishStatus": {
+        "label": "สถานะการเผยแพร่",
+        "published": "เผยแพร่ทันที (Published)",
+        "scheduled": "ตั้งเวลาเผยแพร่ล่วงหน้า (Scheduled)",
+        "draft": "ฉบับร่าง (Draft - ซ่อนจากหน้าเว็บ)",
+        "archived": "เก็บถาวร (Archived)",
+        "scheduledAt": "วัน-เวลาที่กำหนดเผยแพร่",
+        "scheduledAtHint": "ระบบจะนำกิจกรรมนี้ขึ้นแสดงผลบนหน้าเว็บไซต์สาธารณะอัตโนมัติเมื่อถึงวัน-เวลาที่กำหนด",
+        "publishedAt": "วันที่เผยแพร่"
+      },
       "listBadges": {
         "live": "ถ่ายทอดสด",
         "registration": "ลงทะเบียน",

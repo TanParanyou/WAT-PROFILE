@@ -243,6 +243,16 @@
         "active": "Active",
         "inactive": "Inactive"
       },
+      "publishStatus": {
+        "label": "Publishing Status",
+        "published": "Published (Live on website)",
+        "scheduled": "Scheduled (Publish later)",
+        "draft": "Draft (Hidden from public)",
+        "archived": "Archived",
+        "scheduledAt": "Scheduled Date & Time",
+        "scheduledAtHint": "The event will automatically appear on the public website when the scheduled time arrives.",
+        "publishedAt": "Published At"
+      },
       "listBadges": {
         "live": "Live Stream",
         "registration": "Registration",

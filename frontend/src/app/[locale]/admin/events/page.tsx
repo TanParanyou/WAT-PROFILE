@@ -318,8 +318,48 @@ export default function EventsListPage() {
     },
     {
       header: t("columns.status") || "สถานะ",
-      accessorKey: "is_active",
-      cell: (v) => <StatusBadge label={v ? t("events.status.active") : t("events.status.inactive")} />,
+      accessorKey: "publish_status",
+      cell: (_, row) => {
+        const status = row.publish_status || "published";
+        const isActive = row.is_active;
+
+        if (!isActive) {
+          return <StatusBadge label={t("events.status.inactive")} variant="danger" />;
+        }
+
+        if (status === "scheduled") {
+          return (
+            <div className="space-y-0.5">
+              <span className="inline-block px-2 py-0.5 text-[11px] font-medium border border-blue-200 bg-blue-50 text-blue-700 dark:bg-blue-950/30 dark:border-blue-800 dark:text-blue-300">
+                {t("events.publishStatus.scheduled")}
+              </span>
+              {row.scheduled_at && (
+                <div className="text-[10px] text-admin-muted">
+                  {formatDateRange(row.scheduled_at, row.scheduled_at)}
+                </div>
+              )}
+            </div>
+          );
+        }
+
+        if (status === "draft") {
+          return (
+            <span className="inline-block px-2 py-0.5 text-[11px] font-medium border border-admin-border bg-admin-surface-muted text-admin-muted">
+              {t("events.publishStatus.draft")}
+            </span>
+          );
+        }
+
+        if (status === "archived") {
+          return (
+            <span className="inline-block px-2 py-0.5 text-[11px] font-medium border border-admin-border bg-admin-surface-muted text-admin-muted line-through">
+              {t("events.publishStatus.archived")}
+            </span>
+          );
+        }
+
+        return <StatusBadge label={t("events.publishStatus.published")} variant="success" />;
+      },
     },
     {
       header: t("columns.actions") || "จัดการ",

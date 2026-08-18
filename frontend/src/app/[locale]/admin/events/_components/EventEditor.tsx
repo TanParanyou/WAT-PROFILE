@@ -20,7 +20,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useForm, Controller, FormProvider } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createEventSchema, type EventFormData } from "@/schemas/event.schema";
-import { FileText, MapPin, ArrowLeft, ZoomIn, X as CloseIcon } from "lucide-react";
+import { FileText, MapPin, ArrowLeft, ZoomIn, X as CloseIcon, CalendarClock } from "lucide-react";
 import { FormActionBar } from "@/components/admin/FormActionBar";
 import { EventScheduleEditor } from "@/components/admin/events/EventScheduleEditor";
 import { useAppOptions } from "@/hooks/useAppOptions";
@@ -94,6 +94,9 @@ export function EventEditor({ id }: EventEditorProps) {
       contact_email: "",
       transport_info: { ...emptyLang },
       is_active: true,
+      publish_status: "published",
+      scheduled_at: "",
+      published_at: "",
       registration_enabled: false,
       registration_deadline: "",
       max_participants: undefined,
@@ -183,6 +186,13 @@ export function EventEditor({ id }: EventEditorProps) {
           contact_email: event.contact_email || "",
           transport_info: event.transport_info || { ...emptyLang },
           is_active: event.is_active,
+          publish_status: (event.publish_status || "published") as "draft" | "scheduled" | "published" | "archived",
+          scheduled_at: event.scheduled_at
+            ? formatInTimeZone(event.scheduled_at, TIMEZONE, "yyyy-MM-dd'T'HH:mm")
+            : "",
+          published_at: event.published_at
+            ? formatInTimeZone(event.published_at, TIMEZONE, "yyyy-MM-dd'T'HH:mm")
+            : "",
           registration_enabled: event.registration_enabled,
           registration_deadline: event.registration_deadline
             ? formatInTimeZone(event.registration_deadline, TIMEZONE, "yyyy-MM-dd")
@@ -296,6 +306,17 @@ export function EventEditor({ id }: EventEditorProps) {
         categoryId = data.category_id;
       }
 
+      let scheduledAtISO: string | null = null;
+      let publishedAtISO: string | null = null;
+      if (data.publish_status === "scheduled" && data.scheduled_at) {
+        scheduledAtISO = fromZonedTime(data.scheduled_at, TIMEZONE).toISOString();
+        publishedAtISO = scheduledAtISO;
+      } else if (data.publish_status === "published") {
+        publishedAtISO = data.published_at
+          ? fromZonedTime(data.published_at, TIMEZONE).toISOString()
+          : new Date().toISOString();
+      }
+
       // Prepare payload WITHOUT the image if it's a File
       const payload: Record<string, unknown> = {
         ...data,
@@ -305,6 +326,9 @@ export function EventEditor({ id }: EventEditorProps) {
         end_date: endDateISO,
         start_time: startTimeISO,
         end_time: endTimeISO,
+        publish_status: data.publish_status || "published",
+        scheduled_at: scheduledAtISO,
+        published_at: publishedAtISO,
         registration_deadline: registrationDeadlineISO,
         schedules: scheduleISO,
       };
@@ -776,7 +800,57 @@ export function EventEditor({ id }: EventEditorProps) {
                 </div>
               </div>
 
-              {/* Section 3: Registration & Guidelines */}
+              {/* Section 3: Publishing & Visibility */}
+              <div className="bg-admin-surface rounded-none border border-admin-border p-6 space-y-4">
+                <h2 className="text-base font-semibold text-admin-foreground flex items-center gap-2 border-b border-admin-border pb-3">
+                  <CalendarClock size={18} className="text-admin-action" />
+                  {t("events.publishStatus.label")}
+                </h2>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  <div>
+                    <label htmlFor="publish_status" className="text-sm font-medium text-admin-body block mb-1">
+                      {t("events.publishStatus.label")}
+                    </label>
+                    <Controller
+                      control={control}
+                      name="publish_status"
+                      render={({ field }) => (
+                        <Select
+                          id="publish_status"
+                          value={field.value || "published"}
+                          onChange={(val) => field.onChange(val)}
+                          options={[
+                            { value: "published", label: t("events.publishStatus.published") },
+                            { value: "scheduled", label: t("events.publishStatus.scheduled") },
+                            { value: "draft", label: t("events.publishStatus.draft") },
+                            { value: "archived", label: t("events.publishStatus.archived") },
+                          ]}
+                        />
+                      )}
+                    />
+                  </div>
+
+                  {watch("publish_status") === "scheduled" && (
+                    <div>
+                      <label htmlFor="scheduled_at" className="text-sm font-medium text-admin-body block mb-1">
+                        {t("events.publishStatus.scheduledAt")} <span className="text-admin-danger">*</span>
+                      </label>
+                      <Input
+                        id="scheduled_at"
+                        type="datetime-local"
+                        {...register("scheduled_at")}
+                        error={errors.scheduled_at?.message}
+                      />
+                      <p className="text-xs text-admin-muted mt-1">
+                        {t("events.publishStatus.scheduledAtHint")}
+                      </p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Section 4: Registration & Guidelines */}
               <div className="bg-admin-surface rounded-none border border-admin-border p-6 space-y-4">
                 <h2 className="text-base font-semibold text-admin-foreground flex items-center gap-2 border-b border-admin-border pb-3">
                   <FileText size={18} className="text-admin-action" />

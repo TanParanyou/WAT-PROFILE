@@ -58,6 +58,9 @@ export interface Event {
   registration_enabled: boolean;
   registration_deadline: string | null;
   is_active: boolean;
+  publish_status?: "draft" | "scheduled" | "published" | "archived";
+  published_at?: string | null;
+  scheduled_at?: string | null;
   display_order: number;
   gallery_urls?: string[];
   online_join_url?: string;
