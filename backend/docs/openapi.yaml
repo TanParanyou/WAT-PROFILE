@@ -2426,6 +2426,29 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
 
+  /admin/dashboard/overview:
+    get:
+      tags: [Admin - Dashboard]
+      summary: Get complete actionable dashboard overview (stats, pending tasks, upcoming events)
+      description: Requires the `dashboard:read` permission.
+      security:
+        - AdminBearerAuth: []
+      responses:
+        '200':
+          description: Dashboard overview payload
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
   /admin/notifications:
     get:
       tags: [Admin - Dashboard]

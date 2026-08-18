@@ -225,15 +225,28 @@
       "rejectRevision": "Änderung ablehnen"
     },
     "dashboard": {
-      "welcome": "Hallo",
-      "welcomeMessage": "Willkommen im Tempelverwaltungssystem",
+      "welcome": "Willkommen",
+      "welcomeMessage": "Willkommen im Tempel-Verwaltungsportal",
       "events": "Veranstaltungen",
       "monks": "Mönche",
       "gallery": "Galerie",
-      "schedules": "Zeitplan",
+      "schedules": "Zeitpläne",
       "donations": "Spenden",
       "members": "Mitglieder",
-      "contacts": "Kontaktnachrichten"
+      "contacts": "Kontaktanfragen",
+      "quickActions": "Schnellaktionen",
+      "createEvent": "Neue Veranstaltung",
+      "uploadGallery": "Fotos hochladen",
+      "recordDonation": "Spende erfassen",
+      "manageSchedule": "Zeitplan verwalten",
+      "pendingTasksTitle": "Ausstehende Aufgaben (To-Do)",
+      "pendingTasksBadge": "{count} Aufgabe(n) ausstehend",
+      "noPendingTasks": "Alles erledigt! Derzeit keine ausstehenden Aufgaben",
+      "upcomingEventsTitle": "Bevorstehende Veranstaltungen",
+      "noUpcomingEvents": "Keine bevorstehenden Veranstaltungen geplant",
+      "viewAllUpcoming": "Vollständigen Kalender anzeigen",
+      "registeredParticipants": "{count} angemeldet",
+      "checkTask": "Bearbeiten"
     },
     "events": {
       "title": "Veranstaltungen",

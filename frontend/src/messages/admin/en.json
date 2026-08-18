@@ -225,15 +225,28 @@
       "rejectRevision": "Reject revision"
     },
     "dashboard": {
-      "welcome": "Hello",
-      "welcomeMessage": "Welcome to Temple Management System",
+      "welcome": "Welcome back",
+      "welcomeMessage": "Welcome to temple registry and management portal",
       "events": "Events",
       "monks": "Monks",
       "gallery": "Gallery",
       "schedules": "Schedules",
       "donations": "Donations",
       "members": "Members",
-      "contacts": "Contact Messages"
+      "contacts": "Contacts",
+      "quickActions": "Quick Actions",
+      "createEvent": "New Event",
+      "uploadGallery": "Upload Photos",
+      "recordDonation": "Record Donation",
+      "manageSchedule": "Manage Schedule",
+      "pendingTasksTitle": "Action Required (To-Do Queue)",
+      "pendingTasksBadge": "{count} pending item(s)",
+      "noPendingTasks": "All caught up! No pending tasks right now",
+      "upcomingEventsTitle": "Upcoming Temple Events",
+      "noUpcomingEvents": "No upcoming events scheduled",
+      "viewAllUpcoming": "View full calendar",
+      "registeredParticipants": "{count} registered",
+      "checkTask": "Action"
     },
     "events": {
       "title": "Events",

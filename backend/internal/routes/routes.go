@@ -241,6 +241,7 @@ func adminRouteDefinitions() []AdminRouteDefinition {
 	return []AdminRouteDefinition{
 		// Dashboard & Notifications
 		{Method: fiber.MethodGet, Path: "/dashboard/stats", Resource: "dashboard", Action: "read", HandlerKey: "dashboard.stats"},
+		{Method: fiber.MethodGet, Path: "/dashboard/overview", Resource: "dashboard", Action: "read", HandlerKey: "dashboard.overview"},
 		{Method: fiber.MethodGet, Path: "/notifications", Resource: "dashboard", Action: "read", HandlerKey: "dashboard.notifications"},
 
 		// Community Moderation
@@ -499,6 +500,7 @@ func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service, accountCfg config.Accou
 		"calendarResources.update":      calendarResourceHandler.UpdateCalendarResource,
 		"calendarResources.delete":      calendarResourceHandler.DeleteCalendarResource,
 		"dashboard.stats":               dashboardHandler.GetDashboardStats,
+		"dashboard.overview":            dashboardHandler.GetDashboardOverview,
 		"dashboard.notifications":       dashboardHandler.GetAdminNotifications,
 		"community.queue":               communityAdminHandler.ListQueue,
 		"community.categories.list":     communityAdminHandler.ListCategories,

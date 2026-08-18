@@ -219,7 +219,7 @@ export const donationStatsService = {
   },
 };
 
-// Dashboard Stats
+// Dashboard Stats & Overview
 export interface DashboardStats {
   events: number;
   monks: number;
@@ -230,10 +230,48 @@ export interface DashboardStats {
   contacts: number;
 }
 
+export interface UpcomingEventDashboardItem {
+  id: number;
+  title: Record<string, string>;
+  slug: string;
+  start_date: string;
+  start_time: string;
+  location: Record<string, string>;
+  publish_status: string;
+  registrations_count: number;
+}
+
+export interface DashboardOverview {
+  stats: DashboardStats;
+  pending_tasks: {
+    total_unread: number;
+    pending_donations: number;
+    pending_registrations: number;
+    pending_contacts: number;
+    pending_privacy: number;
+    items: Array<{
+      id: string;
+      type: "contact" | "registration" | "donation" | "privacy";
+      title: string;
+      message: string;
+      link: string;
+      created_at: string;
+      is_new: boolean;
+    }>;
+  };
+  upcoming_events: UpcomingEventDashboardItem[];
+}
+
 export const dashboardService = {
   async getStats(): Promise<DashboardStats> {
     const res = await api.get<ApiResponse<DashboardStats>>(
       "/admin/dashboard/stats",
+    );
+    return res.data.data!;
+  },
+  async getOverview(): Promise<DashboardOverview> {
+    const res = await api.get<ApiResponse<DashboardOverview>>(
+      "/admin/dashboard/overview",
     );
     return res.data.data!;
   },
