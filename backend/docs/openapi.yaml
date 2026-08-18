@@ -5060,6 +5060,30 @@ paths:
         '200':
           description: Setting upserted
 
+  /admin/backup/export:
+    get:
+      tags: [Admin - Settings]
+      summary: Export emergency JSON database snapshot
+      description: Returns a full JSON snapshot of temple data. Requires `settings:update` permission.
+      security:
+        - AdminBearerAuth: []
+      responses:
+        '200':
+          description: Database snapshot file
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  metadata:
+                    type: object
+                  data:
+                    type: object
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
   /admin/ai/translate:
     post:
       tags: [Admin - Settings]

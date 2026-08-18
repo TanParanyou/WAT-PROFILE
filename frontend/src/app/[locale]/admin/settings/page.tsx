@@ -22,15 +22,20 @@ import {
   FileText,
   Phone,
   MapPin,
+  Database,
+  Download,
+  Loader2,
 } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { FormActionBar } from "@/components/admin/FormActionBar";
 import { Input } from "@/components/ui/Input";
+import { Button } from "@/components/ui/Button";
 import { Switch } from "@/components/ui/Switch";
 import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import { PageLoading } from "@/components/ui/Loading";
 import { settingsAdminService, eventAdminService } from "@/services/adminService";
+import { backupService } from "@/services/backupService";
 import { useToast } from "@/hooks/useToast";
 import type { Setting, Event } from "@/types/entities";
 import {
@@ -191,7 +196,21 @@ export default function SettingsPage() {
   const [aiTranslateEnabled, setAiTranslateEnabled] = useState(true);
   const [initialAiTranslateEnabled, setInitialAiTranslateEnabled] = useState(true);
 
+  const [isDownloadingBackup, setIsDownloadingBackup] = useState(false);
+
   const { toast } = useToast();
+
+  const handleDownloadBackup = async () => {
+    setIsDownloadingBackup(true);
+    try {
+      await backupService.exportDatabaseSnapshot();
+      toast.success(t("settings.backupSuccess"));
+    } catch {
+      toast.error(t("settings.backupError"));
+    } finally {
+      setIsDownloadingBackup(false);
+    }
+  };
 
   const loadSettings = useCallback(async () => {
     try {
@@ -1066,6 +1085,55 @@ export default function SettingsPage() {
                       <Info size={16} className="shrink-0 mt-0.5" />
                       <span>{t("settings.aiFreeTierNote")}</span>
                     </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Database Backup & Snapshot Card */}
+              <div className="bg-admin-surface rounded-none border border-admin-border overflow-hidden shadow-sm">
+                <div className="px-6 py-4 bg-admin-surface border-b border-admin-border flex items-center justify-between">
+                  <div className="flex items-center gap-2.5">
+                    <Database size={18} className="text-blue-500" />
+                    <h2 className="text-base font-semibold text-admin-foreground">
+                      {t("settings.backupTitle")}
+                    </h2>
+                  </div>
+                  <span className="text-xs text-admin-muted uppercase tracking-wider font-mono">
+                    Maintenance
+                  </span>
+                </div>
+                <div className="p-6 space-y-4">
+                  <p className="text-xs text-admin-muted">
+                    {t("settings.backupDesc")}
+                  </p>
+                  <div className="p-4 bg-admin-surface-muted/30 border border-admin-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                    <div className="space-y-1">
+                      <div className="text-xs font-medium text-admin-foreground">
+                        JSON Application Snapshot
+                      </div>
+                      <div className="text-[11px] text-admin-muted">
+                        Export complete database tables (Events, Monks, Gallery, Donations, Members, Settings)
+                      </div>
+                    </div>
+                    <Button
+                      type="button"
+                      variant="outline"
+                      onClick={handleDownloadBackup}
+                      disabled={isDownloadingBackup}
+                      className="inline-flex items-center gap-2 shrink-0 text-xs"
+                    >
+                      {isDownloadingBackup ? (
+                        <>
+                          <Loader2 size={14} className="animate-spin text-admin-action" />
+                          <span>{t("settings.downloadingBackup")}</span>
+                        </>
+                      ) : (
+                        <>
+                          <Download size={14} className="text-admin-action" />
+                          <span>{t("settings.downloadBackup")}</span>
+                        </>
+                      )}
+                    </Button>
                   </div>
                 </div>
               </div>
