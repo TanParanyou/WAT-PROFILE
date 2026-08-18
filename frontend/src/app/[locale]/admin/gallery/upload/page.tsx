@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
-import { useRouter } from "@/navigation";
+import { useRouter, Link } from "@/navigation";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { MultiLangInput } from "@/components/admin/MultiLangInput";
 import { ImageUpload } from "@/components/admin/ImageUpload";
@@ -10,6 +10,8 @@ import { Select } from "@/components/ui/Select";
 import { Switch } from "@/components/ui/Switch";
 import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/Loading";
+import { FormModal, useModal } from "@/components/ui/Modal";
+import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import api from "@/services/adminApi";
 import {
   galleryAdminService,
@@ -24,10 +26,24 @@ import { useTranslations, useLocale } from "next-intl";
 import { getLocalizedText } from "@/utils/localizedText";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { gallerySchema, type GalleryFormData } from "@/schemas/gallery.schema";
-import { Upload, X, CheckCircle, AlertCircle, GripVertical } from "lucide-react";
+import {
+  gallerySchema,
+  galleryCategorySchema,
+  type GalleryFormData,
+  type GalleryCategoryFormData,
+} from "@/schemas/gallery.schema";
+import {
+  Upload,
+  X,
+  CheckCircle,
+  AlertCircle,
+  GripVertical,
+  Plus,
+  FolderOpen,
+} from "lucide-react";
 import { cn } from "@/utils/cn";
 import { emptyLang } from "@/constants";
+import { generateDefaultSlug } from "@/utils/slug";
 
 
 async function uploadGalleryImage(file: File): Promise<string> {
@@ -53,6 +69,7 @@ interface BatchUploadItem {
   file: File;
   previewUrl: string;
   captionTh: string;
+  categoryId?: string; // empty string or undefined means use global
   status: "idle" | "uploading" | "success" | "error";
   errorMessage?: string;
 }
@@ -70,6 +87,11 @@ export default function GalleryUploadPage() {
   const [categories, setCategories] = useState<GalleryCategory[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
 
+  // Quick Create Category Modal states
+  const { isOpen: isCatModalOpen, open: openCatModal, close: closeCatModal } = useModal();
+  const [isSavingCat, setIsSavingCat] = useState(false);
+  const [catModalTarget, setCatModalTarget] = useState<"batch" | "single" | string>("batch");
+
   // Batch upload states
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [batchItems, setBatchItems] = useState<BatchUploadItem[]>([]);
@@ -85,6 +107,7 @@ export default function GalleryUploadPage() {
     register,
     control,
     handleSubmit,
+    setValue,
     setError,
     formState: { errors },
   } = useForm<GalleryFormData>({
@@ -99,23 +122,47 @@ export default function GalleryUploadPage() {
     },
   });
 
+  const {
+    register: registerCat,
+    control: controlCat,
+    handleSubmit: handleSubmitCat,
+    reset: resetCat,
+    setError: setErrorCat,
+    formState: { errors: errorsCat },
+  } = useForm<GalleryCategoryFormData>({
+    resolver: zodResolver(galleryCategorySchema),
+    defaultValues: {
+      name: { ...emptyLang },
+      slug: generateDefaultSlug("cat"),
+      display_order: 0,
+      is_active: true,
+    },
+  });
+
   // Load categories & events
+  const loadCategoriesAndEvents = async () => {
+    try {
+      const [catRes, evRes] = await Promise.all([
+        galleryCategoryAdminService.getAll(),
+        eventAdminService.getAll(),
+      ]);
+      const activeCats = catRes.data.filter((c) => c.is_active);
+      setCategories(activeCats);
+      setEvents(evRes.data || []);
+      return activeCats;
+    } catch (err: unknown) {
+      handleApiError(err);
+      return [];
+    }
+  };
+
   useEffect(() => {
-    const loadData = async () => {
-      try {
-        const [catRes, evRes] = await Promise.all([
-          galleryCategoryAdminService.getAll(),
-          eventAdminService.getAll(),
-        ]);
-        setCategories(catRes.data.filter((c) => c.is_active));
-        setEvents(evRes.data || []);
-      } catch (err: unknown) {
-        handleApiError(err);
-      } finally {
-        setIsLoadingData(false);
-      }
+    const initData = async () => {
+      setIsLoadingData(true);
+      await loadCategoriesAndEvents();
+      setIsLoadingData(false);
     };
-    loadData();
+    initData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -125,6 +172,55 @@ export default function GalleryUploadPage() {
       batchItems.forEach((item) => URL.revokeObjectURL(item.previewUrl));
     };
   }, [batchItems]);
+
+  const handleOpenCreateCategory = (target: "batch" | "single" | string) => {
+    setCatModalTarget(target);
+    resetCat({
+      name: { ...emptyLang },
+      slug: generateDefaultSlug("cat"),
+      display_order: categories.length + 1,
+      is_active: true,
+    });
+    openCatModal();
+  };
+
+  const handleBatchCategoryChange = (id: string, newCategoryId: string) => {
+    setBatchItems((prev) =>
+      prev.map((i) => (i.id === id ? { ...i, categoryId: newCategoryId } : i)),
+    );
+  };
+
+  const onQuickCreateCategorySubmit = async (data: GalleryCategoryFormData) => {
+    setIsSavingCat(true);
+    try {
+      const newCategory = await galleryCategoryAdminService.create(
+        data as unknown as Record<string, unknown>,
+      );
+      toast.success(t("gallery.categoryCreated"));
+      closeCatModal();
+
+      // Refresh categories list
+      const updatedCats = await loadCategoriesAndEvents();
+      const createdId = newCategory?.id
+        ? newCategory.id.toString()
+        : updatedCats[updatedCats.length - 1]?.id?.toString() || "";
+
+      if (createdId) {
+        if (catModalTarget === "batch") {
+          setBatchCategoryId(createdId);
+        } else if (catModalTarget === "single") {
+          setValue("category_id", parseInt(createdId, 10));
+        } else {
+          // target is batch item ID
+          handleBatchCategoryChange(catModalTarget, createdId);
+        }
+      }
+    } catch (err: unknown) {
+      handleApiError(err, setErrorCat);
+    } finally {
+      setIsSavingCat(false);
+    }
+  };
 
   const onSingleSubmit = async (data: GalleryFormData) => {
     if (!data.image_url) {
@@ -176,6 +272,7 @@ export default function GalleryUploadPage() {
           file,
           previewUrl: URL.createObjectURL(file),
           captionTh: nameWithoutExt,
+          categoryId: "",
           status: "idle",
         });
       }
@@ -257,7 +354,7 @@ export default function GalleryUploadPage() {
       is_active: boolean;
     }> = [];
 
-    const categoryId = batchCategoryId ? parseInt(batchCategoryId, 10) : null;
+    const defaultCategoryId = batchCategoryId ? parseInt(batchCategoryId, 10) : null;
     const eventId = batchEventId ? parseInt(batchEventId, 10) : null;
 
     let successCount = 0;
@@ -269,12 +366,17 @@ export default function GalleryUploadPage() {
         prev.map((it) => (it.id === item.id ? { ...it, status: "uploading" } : it)),
       );
 
+      // Determine category: item-specific or fallback to batch global setting
+      const resolvedCategoryId = item.categoryId
+        ? parseInt(item.categoryId, 10)
+        : defaultCategoryId;
+
       try {
         const imageUrl = await uploadGalleryImage(item.file);
         createdGalleries.push({
           image_url: imageUrl,
           caption: { th: item.captionTh, en: "", de: "" },
-          category_id: categoryId,
+          category_id: resolvedCategoryId,
           event_id: eventId,
           display_order: i,
           is_active: batchIsActive,
@@ -328,6 +430,14 @@ export default function GalleryUploadPage() {
     })),
   ];
 
+  const itemCategoryOptions = [
+    { value: "", label: `(${t("gallery.useGlobalCategory")})` },
+    ...categories.map((cat) => ({
+      value: cat.id.toString(),
+      label: getLocalizedText(cat.name, locale) || cat.slug,
+    })),
+  ];
+
   const eventOptions = [
     { value: "", label: t("gallery.noEvent") },
     ...events.map((e) => ({
@@ -345,29 +455,43 @@ export default function GalleryUploadPage() {
           { label: t("gallery.upload") },
         ]}
         actions={
-          <div className="flex items-center rounded-none border border-admin-border bg-admin-surface p-0.5 text-xs font-medium">
-            <button
-              type="button"
-              onClick={() => setMode("batch")}
-              className={`px-3.5 py-2 min-h-[38px] rounded-none transition-colors ${
-                mode === "batch"
-                  ? "bg-admin-action text-admin-on-action font-medium"
-                  : "text-admin-muted hover:text-admin-foreground hover:bg-admin-surface-muted"
-              }`}
-            >
-              {t("gallery.batchUpload")}
-            </button>
-            <button
-              type="button"
-              onClick={() => setMode("single")}
-              className={`px-3.5 py-2 min-h-[38px] rounded-none transition-colors ${
-                mode === "single"
-                  ? "bg-admin-action text-admin-on-action font-medium"
-                  : "text-admin-muted hover:text-admin-foreground hover:bg-admin-surface-muted"
-              }`}
-            >
-              {t("gallery.singleUpload")}
-            </button>
+          <div className="flex items-center gap-2">
+            <PermissionGuard resource="gallery" action="create">
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => handleOpenCreateCategory("batch")}
+                className="gap-1.5"
+              >
+                <Plus size={14} />
+                {t("gallery.quickAddCategory")}
+              </Button>
+            </PermissionGuard>
+            <div className="flex items-center rounded-none border border-admin-border bg-admin-surface p-0.5 text-xs font-medium">
+              <button
+                type="button"
+                onClick={() => setMode("batch")}
+                className={`px-3.5 py-2 min-h-[38px] rounded-none transition-colors ${
+                  mode === "batch"
+                    ? "bg-admin-action text-admin-on-action font-medium"
+                    : "text-admin-muted hover:text-admin-foreground hover:bg-admin-surface-muted"
+                }`}
+              >
+                {t("gallery.batchUpload")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setMode("single")}
+                className={`px-3.5 py-2 min-h-[38px] rounded-none transition-colors ${
+                  mode === "single"
+                    ? "bg-admin-action text-admin-on-action font-medium"
+                    : "text-admin-muted hover:text-admin-foreground hover:bg-admin-surface-muted"
+                }`}
+              >
+                {t("gallery.singleUpload")}
+              </button>
+            </div>
           </div>
         }
       />
@@ -444,7 +568,7 @@ export default function GalleryUploadPage() {
                   )}
                 </div>
 
-                <div className="max-h-[500px] overflow-y-auto divide-y divide-admin-border">
+                <div className="max-h-[550px] overflow-y-auto divide-y divide-admin-border">
                   {batchItems.map((item, index) => {
                     const isDragging = draggedQueueIndex === index;
                     const isDragOver = dragOverQueueIndex === index && draggedQueueIndex !== index;
@@ -458,7 +582,7 @@ export default function GalleryUploadPage() {
                         onDrop={(e) => handleQueueDrop(e, index)}
                         onDragEnd={handleQueueDragEnd}
                         className={cn(
-                          "p-3 flex items-center gap-3 transition-all duration-150",
+                          "p-3 flex items-start sm:items-center gap-3 transition-all duration-150",
                           isDragging && "opacity-40 bg-admin-surface-muted border-dashed",
                           isDragOver && "bg-admin-surface-muted ring-2 ring-admin-focus",
                           !isDragging && !isDragOver && "hover:bg-admin-surface-muted/30",
@@ -467,38 +591,58 @@ export default function GalleryUploadPage() {
                         {/* Drag Handle */}
                         {!isUploadingBatch && (
                           <div
-                            className="cursor-grab active:cursor-grabbing text-admin-muted hover:text-admin-foreground p-1 shrink-0"
+                            className="cursor-grab active:cursor-grabbing text-admin-muted hover:text-admin-foreground p-1 shrink-0 mt-1 sm:mt-0"
                             title={t("gallery.dragToReorder")}
                           >
                             <GripVertical size={16} />
                           </div>
                         )}
 
-                        <span className="text-xs font-mono text-admin-muted w-6 text-center shrink-0">
+                        <span className="text-xs font-mono text-admin-muted w-6 text-center shrink-0 mt-1 sm:mt-0">
                           #{index + 1}
                         </span>
                         <img
                           src={item.previewUrl}
                           alt=""
-                          className="h-12 w-16 object-cover rounded-none border border-admin-border shrink-0 bg-admin-surface-muted select-none"
+                          className="h-14 w-20 object-cover rounded-none border border-admin-border shrink-0 bg-admin-surface-muted select-none"
                           draggable={false}
                         />
-                        <div className="flex-1 min-w-0">
-                          <input
-                            type="text"
-                            value={item.captionTh}
-                            disabled={isUploadingBatch}
-                            onChange={(e) => handleBatchCaptionChange(item.id, e.target.value)}
-                            placeholder={t("gallery.captionPlaceholder")}
-                            className="w-full text-xs px-2.5 py-1.5 rounded-none border border-admin-border bg-admin-surface text-admin-foreground focus:outline-admin-focus"
-                          />
-                          <p className="text-[11px] text-admin-muted mt-1 truncate">
-                            {item.file.name} ({(item.file.size / 1024).toFixed(1)} KB)
-                          </p>
+                        <div className="flex-1 min-w-0 grid grid-cols-1 sm:grid-cols-2 gap-2">
+                          <div>
+                            <input
+                              type="text"
+                              value={item.captionTh}
+                              disabled={isUploadingBatch}
+                              onChange={(e) => handleBatchCaptionChange(item.id, e.target.value)}
+                              placeholder={t("gallery.captionPlaceholder")}
+                              className="w-full text-xs px-2.5 py-1.5 rounded-none border border-admin-border bg-admin-surface text-admin-foreground focus:outline-admin-focus"
+                            />
+                            <p className="text-[11px] text-admin-muted mt-1 truncate">
+                              {item.file.name} ({(item.file.size / 1024).toFixed(1)} KB)
+                            </p>
+                          </div>
+                          <div>
+                            <select
+                              value={item.categoryId || ""}
+                              disabled={isUploadingBatch}
+                              onChange={(e) => handleBatchCategoryChange(item.id, e.target.value)}
+                              className="w-full text-xs px-2.5 py-1.5 rounded-none border border-admin-border bg-admin-surface text-admin-foreground focus:outline-admin-focus cursor-pointer"
+                              title={t("gallery.itemCategory")}
+                            >
+                              {itemCategoryOptions.map((opt) => (
+                                <option key={opt.value} value={opt.value}>
+                                  {opt.label}
+                                </option>
+                              ))}
+                            </select>
+                            <span className="text-[10px] text-admin-muted block mt-1">
+                              {t("gallery.itemCategory")}
+                            </span>
+                          </div>
                         </div>
 
                         {/* Status Icon */}
-                        <div className="shrink-0">
+                        <div className="shrink-0 mt-1 sm:mt-0">
                           {item.status === "uploading" && (
                             <div className="w-5 h-5 border-2 border-admin-focus border-t-transparent rounded-full animate-spin" />
                           )}
@@ -531,17 +675,44 @@ export default function GalleryUploadPage() {
 
           {/* Right Column: Global Settings */}
           <div className="bg-admin-surface border border-admin-border p-6 space-y-4 rounded-none h-fit">
-            <h3 className="text-sm font-semibold text-admin-foreground border-b border-admin-border pb-3">
-              {t("gallery.globalSettingsTitle")}
-            </h3>
+            <div className="flex items-center justify-between border-b border-admin-border pb-3">
+              <h3 className="text-sm font-semibold text-admin-foreground">
+                {t("gallery.globalSettingsTitle")}
+              </h3>
+              <Link
+                href="/admin/gallery/categories"
+                target="_blank"
+                className="text-xs text-admin-focus hover:underline flex items-center gap-1"
+                title={t("gallery.manageCategories")}
+              >
+                <FolderOpen size={12} />
+                {t("gallery.categories")}
+              </Link>
+            </div>
 
-            <Select
-              id="batch-category"
-              label={t("gallery.category")}
-              options={categoryOptions}
-              value={batchCategoryId}
-              onChange={(e) => setBatchCategoryId(e.target.value)}
-            />
+            <div className="space-y-1.5">
+              <div className="flex items-center justify-between">
+                <label htmlFor="batch-category" className="text-xs font-medium text-admin-foreground">
+                  {t("gallery.category")}
+                </label>
+                <PermissionGuard resource="gallery" action="create">
+                  <button
+                    type="button"
+                    onClick={() => handleOpenCreateCategory("batch")}
+                    className="text-[11px] text-admin-focus hover:underline flex items-center gap-0.5"
+                  >
+                    <Plus size={12} />
+                    {t("gallery.addCategory")}
+                  </button>
+                </PermissionGuard>
+              </div>
+              <Select
+                id="batch-category"
+                options={categoryOptions}
+                value={batchCategoryId}
+                onChange={(e) => setBatchCategoryId(e.target.value)}
+              />
+            </div>
 
             <Select
               id="batch-event"
@@ -615,22 +786,48 @@ export default function GalleryUploadPage() {
             )}
           />
 
-          <Controller
-            control={control}
-            name="category_id"
-            render={({ field }) => (
-              <Select
-                id="single-category"
-                label={t("gallery.category")}
-                options={categoryOptions}
-                value={field.value?.toString() || ""}
-                onChange={(e) =>
-                  field.onChange(e.target.value ? parseInt(e.target.value, 10) : null)
-                }
-                error={errors.category_id?.message}
-              />
-            )}
-          />
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between">
+              <label htmlFor="single-category" className="text-xs font-medium text-admin-foreground">
+                {t("gallery.category")}
+              </label>
+              <div className="flex items-center gap-3">
+                <Link
+                  href="/admin/gallery/categories"
+                  target="_blank"
+                  className="text-[11px] text-admin-muted hover:text-admin-foreground flex items-center gap-1"
+                >
+                  <FolderOpen size={12} />
+                  {t("gallery.categories")}
+                </Link>
+                <PermissionGuard resource="gallery" action="create">
+                  <button
+                    type="button"
+                    onClick={() => handleOpenCreateCategory("single")}
+                    className="text-[11px] text-admin-focus hover:underline flex items-center gap-0.5"
+                  >
+                    <Plus size={12} />
+                    {t("gallery.addCategory")}
+                  </button>
+                </PermissionGuard>
+              </div>
+            </div>
+            <Controller
+              control={control}
+              name="category_id"
+              render={({ field }) => (
+                <Select
+                  id="single-category"
+                  options={categoryOptions}
+                  value={field.value?.toString() || ""}
+                  onChange={(e) =>
+                    field.onChange(e.target.value ? parseInt(e.target.value, 10) : null)
+                  }
+                  error={errors.category_id?.message}
+                />
+              )}
+            />
+          </div>
 
           <Controller
             control={control}
@@ -684,6 +881,59 @@ export default function GalleryUploadPage() {
           </div>
         </form>
       )}
+
+      {/* Quick Create Category Modal */}
+      <FormModal
+        isOpen={isCatModalOpen}
+        onClose={closeCatModal}
+        onSubmit={handleSubmitCat(onQuickCreateCategorySubmit)}
+        title={t("gallery.createCategoryTitle")}
+        isLoading={isSavingCat}
+      >
+        <div className="space-y-4">
+          <Controller
+            control={controlCat}
+            name="name"
+            render={({ field }) => (
+              <MultiLangInput
+                label={`${t("gallery.categoryName")} *`}
+                value={field.value as MultiLangText}
+                onChange={field.onChange}
+                error={
+                  errorsCat.name?.th?.message ||
+                  errorsCat.name?.en?.message ||
+                  errorsCat.name?.de?.message ||
+                  (errorsCat.name as unknown as { message: string })?.message
+                }
+              />
+            )}
+          />
+          <Input
+            id="cat-slug"
+            label={`${t("gallery.categorySlug")} *`}
+            {...registerCat("slug")}
+            error={errorsCat.slug?.message}
+          />
+          <Input
+            id="cat-display-order"
+            label={t("gallery.displayOrder")}
+            type="number"
+            {...registerCat("display_order", { valueAsNumber: true })}
+            error={errorsCat.display_order?.message}
+          />
+          <Controller
+            control={controlCat}
+            name="is_active"
+            render={({ field }) => (
+              <Switch
+                label={t("gallery.activeLabel")}
+                checked={field.value}
+                onChange={(e) => field.onChange(e.target.checked)}
+              />
+            )}
+          />
+        </div>
+      </FormModal>
     </div>
   );
 }
