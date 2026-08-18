@@ -29,7 +29,10 @@ import { useQuery } from "@tanstack/react-query";
 import { useLocale } from "next-intl";
 import { Link } from "@/navigation";
 import { Button } from "@/components/ui/Button";
+import { QrCode, Printer } from "lucide-react";
 import { AdminRegistrationDrawer } from "./_components/AdminRegistrationDrawer";
+import { AttendanceScannerModal } from "./_components/AttendanceScannerModal";
+import { AttendancePrintSheet } from "./_components/AttendancePrintSheet";
 
 interface RegistrationFilters extends AdminFilterRecord {
   status: string[];
@@ -55,6 +58,8 @@ export default function RegistrationsPage() {
   const { confirm, ConfirmDialog } = useConfirm();
   const [updatingId, setUpdatingId] = useState<number | null>(null);
   const [isCreateOpen, setIsCreateOpen] = useState(false);
+  const [isScannerOpen, setIsScannerOpen] = useState(false);
+  const [isPrintSheetOpen, setIsPrintSheetOpen] = useState(false);
   const selectedIds = useRowSelection();
 
   const listState = useAdminListState<RegistrationFilters>({
@@ -292,16 +297,36 @@ export default function RegistrationsPage() {
         title={t("registrations.title")}
         breadcrumbs={[{ label: t("registrations.title") }]}
         actions={
-          <PermissionGuard resource="events" action="create">
+          <div className="flex flex-wrap items-center gap-2">
+            <PermissionGuard resource="events" action="update">
+              <Button
+                variant="outline"
+                onClick={() => setIsScannerOpen(true)}
+                className="inline-flex items-center gap-1.5"
+              >
+                <QrCode size={16} />
+                <span>สแกน QR เช็คชื่อ</span>
+              </Button>
+            </PermissionGuard>
             <Button
-              variant="primary"
-              onClick={() => setIsCreateOpen(true)}
+              variant="outline"
+              onClick={() => setIsPrintSheetOpen(true)}
               className="inline-flex items-center gap-1.5"
             >
-              <Icons.Plus size={16} />
-              {t("registrations.create")}
+              <Printer size={16} />
+              <span>พิมพ์ใบเช็คชื่อ</span>
             </Button>
-          </PermissionGuard>
+            <PermissionGuard resource="events" action="create">
+              <Button
+                variant="primary"
+                onClick={() => setIsCreateOpen(true)}
+                className="inline-flex items-center gap-1.5"
+              >
+                <Icons.Plus size={16} />
+                {t("registrations.create")}
+              </Button>
+            </PermissionGuard>
+          </div>
         }
       />
 
@@ -400,6 +425,16 @@ export default function RegistrationsPage() {
         onSuccess={() => void listQuery.refetch()}
         events={eventsData || []}
         locale={locale}
+      />
+      <AttendanceScannerModal
+        isOpen={isScannerOpen}
+        onClose={() => setIsScannerOpen(false)}
+        onSuccessCheckIn={() => void listQuery.refetch()}
+      />
+      <AttendancePrintSheet
+        isOpen={isPrintSheetOpen}
+        onClose={() => setIsPrintSheetOpen(false)}
+        items={listQuery.rows}
       />
       <ConfirmDialog />
     </div>

@@ -9,6 +9,8 @@ export interface AdminRegistrationTableRow {
   status: string;
   created_at: string;
   participant_count: number;
+  confirmation_code: string;
+  dietary_restrictions?: string;
 }
 
 export function toAdminRegistrationTableRow(item: EventRegistrationListItem, locale: "th" | "en" | "de" = "th"): AdminRegistrationTableRow {
@@ -16,6 +18,7 @@ export function toAdminRegistrationTableRow(item: EventRegistrationListItem, loc
   const lastName = item.contact?.last_name || "";
   const name = `${firstName} ${lastName}`.trim() || "-";
   const eventTitle = item.event?.title?.[locale] || item.event?.title?.th || item.event?.title?.en || item.event?.title?.de || "-";
+  const dietary = item.participants?.map((p) => p.dietary_restrictions).filter(Boolean).join(", ") || "";
   return {
     id: item.id,
     name,
@@ -25,5 +28,7 @@ export function toAdminRegistrationTableRow(item: EventRegistrationListItem, loc
     status: item.registration_status || "pending",
     created_at: item.created_at || "",
     participant_count: item.participant_count || 0,
+    confirmation_code: item.confirmation_code || "-",
+    dietary_restrictions: dietary,
   };
 }

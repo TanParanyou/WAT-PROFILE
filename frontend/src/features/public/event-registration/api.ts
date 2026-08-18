@@ -170,3 +170,12 @@ export async function rotateAdminRegistrationManageLink(id: number): Promise<voi
     throw toRegistrationApiError(error);
   }
 }
+
+export async function checkInAdminEventRegistrationByCode(code: string): Promise<AdminEventRegistrationDetail> {
+  try {
+    const response = await adminApi.post<ApiSuccess<AdminEventRegistrationDetail>>("/admin/event-registrations/check-in", { code });
+    return unwrapApiData(response.data);
+  } catch (error: unknown) {
+    throw toRegistrationApiError(error);
+  }
+}

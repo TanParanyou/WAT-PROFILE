@@ -5,4 +5,5 @@ export {
   setAdminEventRegistrationStatus,
   setAdminParticipantAttendance,
   updateAdminEventRegistration,
+  checkInAdminEventRegistrationByCode,
 } from "@/features/public/event-registration/api";

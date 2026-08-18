@@ -4929,6 +4929,34 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /admin/event-registrations/check-in:
+    post:
+      tags: [Admin - Registrations]
+      summary: Quick check-in an attendee by confirmation code or QR code
+      description: Requires `events:update` permission.
+      security:
+        - AdminBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [code]
+              properties:
+                code:
+                  type: string
+                  description: Registration confirmation code
+      responses:
+        '200':
+          description: Attendee checked in successfully
+        '400':
+          $ref: '#/components/responses/ValidationError'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          description: Registration is cancelled
+
   /admin/event-registrations/{id}/manage-link:
     post:
       tags: [Admin - Registrations]

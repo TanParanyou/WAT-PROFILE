@@ -456,3 +456,23 @@ func (h *RegistrationHandler) DeleteRegistration(c *fiber.Ctx) error {
 
 	return utils.MessageResponse(c, "Event registration deleted successfully")
 }
+
+// CheckInByCode - Admin: Check in attendee via confirmation code / QR code
+func (h *RegistrationHandler) CheckInByCode(c *fiber.Ctx) error {
+	actorID, err := middleware.GetCurrentUserID(c)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusUnauthorized, "Admin user is not authenticated")
+	}
+	var input struct {
+		Code string `json:"code"`
+	}
+	if err := c.BodyParser(&input); err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+	detail, err := h.registrationService.AdminCheckInByCode(c.UserContext(), actorID, input.Code)
+	if err != nil {
+		return registrationServiceErrorResponse(c, err)
+	}
+	_ = h.auditService.LogAction(c, "checkin_by_code", "event_registration", strconv.Itoa(detail.ID), map[string]interface{}{"code": input.Code, "attended": true})
+	return utils.SuccessResponse(c, detail)
+}

@@ -238,3 +238,45 @@ func (s *RegistrationService) AdminRotateManageLink(ctx context.Context, _ uuid.
 func adminRegistrationDetail(row *models.EventRegistration) registrations.AdminDetail {
 	return registrations.AdminDetail{Detail: registrationDetail(row), UserID: row.UserID, MemberID: row.MemberID, PrivacyNoticeVersion: row.PrivacyNoticeVersion, PrivacyConsentAt: row.PrivacyConsentAt, CancellationReason: row.CancellationReason, CancellationOrigin: row.CancellationOrigin}
 }
+
+func (s *RegistrationService) AdminCheckInByCode(ctx context.Context, _ uuid.UUID, code string) (*registrations.AdminDetail, error) {
+	code = strings.TrimSpace(code)
+	if code == "" {
+		return nil, registrations.NewDomainError(registrations.CodeValidation, "Confirmation code is required", nil)
+	}
+
+	var registration models.EventRegistration
+	err := s.db.WithContext(ctx).Preload("Event").Preload("Participants").
+		Where("confirmation_code = ? OR confirmation_code ILIKE ?", code, code).
+		First(&registration).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, registrations.NewDomainError(registrations.CodeNotFound, "Registration not found for code: "+code, nil)
+		}
+		return nil, err
+	}
+
+	if registration.RegistrationStatus == "cancelled" {
+		return nil, registrations.NewDomainError(registrations.CodeConflict, "This registration has been cancelled", nil)
+	}
+
+	now := s.now()
+	if err := s.db.WithContext(ctx).Model(&models.EventRegistration{}).Where("id = ?", registration.ID).
+		Updates(map[string]interface{}{
+			"attended":            true,
+			"attended_at":         &now,
+			"registration_status": "attended",
+		}).Error; err != nil {
+		return nil, err
+	}
+
+	// Also mark participants as attended
+	_ = s.db.WithContext(ctx).Model(&models.EventRegistrationParticipant{}).
+		Where("registration_id = ? AND attendance_status <> ?", registration.ID, "cancelled").
+		Updates(map[string]interface{}{
+			"attendance_status": "attended",
+			"attended_at":       &now,
+		})
+
+	return s.AdminGet(ctx, registration.ID)
+}
