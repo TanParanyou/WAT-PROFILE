@@ -7,6 +7,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { useTranslations } from "next-intl";
 import { AdminLanguageSwitcher } from "@/components/admin/AdminLanguageSwitcher";
 import { AdminThemeSwitcher } from "@/components/admin/theme/AdminThemeSwitcher";
+import { AdminNotificationCenter } from "@/components/admin/AdminNotificationCenter";
 
 interface AdminHeaderProps {
   onMenuClick: () => void;
@@ -42,7 +43,8 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
       {/* Spacer (desktop) */}
       <div className="hidden lg:block" />
 
-      <div className="flex items-center gap-4">
+      <div className="flex items-center gap-2 sm:gap-3">
+        <AdminNotificationCenter />
         <AdminThemeSwitcher className="hidden md:flex" />
         <AdminLanguageSwitcher />
 

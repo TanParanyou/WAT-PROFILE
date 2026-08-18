@@ -239,8 +239,9 @@ func registerAdminRoutes(group fiber.Router, definitions []AdminRouteDefinition,
 // routes must be declared before their parameterized siblings.
 func adminRouteDefinitions() []AdminRouteDefinition {
 	return []AdminRouteDefinition{
-		// Dashboard
+		// Dashboard & Notifications
 		{Method: fiber.MethodGet, Path: "/dashboard/stats", Resource: "dashboard", Action: "read", HandlerKey: "dashboard.stats"},
+		{Method: fiber.MethodGet, Path: "/notifications", Resource: "dashboard", Action: "read", HandlerKey: "dashboard.notifications"},
 
 		// Community Moderation
 		{Method: fiber.MethodGet, Path: "/community/queue", Resource: "community", Action: "read", HandlerKey: "community.queue"},
@@ -496,6 +497,7 @@ func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service, accountCfg config.Accou
 		"calendarResources.update":      calendarResourceHandler.UpdateCalendarResource,
 		"calendarResources.delete":      calendarResourceHandler.DeleteCalendarResource,
 		"dashboard.stats":               dashboardHandler.GetDashboardStats,
+		"dashboard.notifications":       dashboardHandler.GetAdminNotifications,
 		"community.queue":               communityAdminHandler.ListQueue,
 		"community.categories.list":     communityAdminHandler.ListCategories,
 		"community.categories.create":   communityAdminHandler.SaveCategory,

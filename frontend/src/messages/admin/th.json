@@ -103,7 +103,18 @@
       "themeDark": "มืด",
       "th": "ไทย",
       "en": "English",
-      "de": "Deutsch"
+      "de": "Deutsch",
+      "notifications": {
+        "title": "ศูนย์การแจ้งเตือน",
+        "noNotifications": "ไม่มีการแจ้งเตือนใหม่ในขณะนี้",
+        "all": "ทั้งหมด",
+        "contacts": "ข้อความติดต่อ",
+        "registrations": "ลงทะเบียน",
+        "donations": "เงินบริจาค",
+        "pendingTasks": "รายการที่รอตรวจสอบ",
+        "viewAll": "ดูทั้งหมด",
+        "unreadCount": "รอตรวจสอบ {count} รายการ"
+      }
     },
     "auth": {
       "checkingAccess": "กำลังตรวจสอบสิทธิ์..."

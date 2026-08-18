@@ -103,7 +103,18 @@
       "themeDark": "Dark",
       "th": "ไทย",
       "en": "English",
-      "de": "Deutsch"
+      "de": "Deutsch",
+      "notifications": {
+        "title": "Notification Center",
+        "noNotifications": "No new notifications right now",
+        "all": "All",
+        "contacts": "Contacts",
+        "registrations": "Registrations",
+        "donations": "Donations",
+        "pendingTasks": "Pending Tasks",
+        "viewAll": "View all",
+        "unreadCount": "{count} pending item(s)"
+      }
     },
     "auth": {
       "checkingAccess": "Checking access..."

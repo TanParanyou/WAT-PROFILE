@@ -103,7 +103,18 @@
       "themeDark": "Dunkel",
       "th": "ไทย",
       "en": "English",
-      "de": "Deutsch"
+      "de": "Deutsch",
+      "notifications": {
+        "title": "Benachrichtigungen",
+        "noNotifications": "Derzeit keine neuen Benachrichtigungen",
+        "all": "Alle",
+        "contacts": "Kontaktanfragen",
+        "registrations": "Anmeldungen",
+        "donations": "Spenden",
+        "pendingTasks": "Ausstehende Aufgaben",
+        "viewAll": "Alle anzeigen",
+        "unreadCount": "{count} ausstehende Aufgabe(n)"
+      }
     },
     "auth": {
       "checkingAccess": "Zugriff wird geprüft..."

@@ -2426,6 +2426,58 @@ paths:
         '403':
           $ref: '#/components/responses/Forbidden'
 
+  /admin/notifications:
+    get:
+      tags: [Admin - Dashboard]
+      summary: Get admin notification summary and recent pending items
+      description: Requires the `dashboard:read` permission.
+      security:
+        - AdminBearerAuth: []
+      responses:
+        '200':
+          description: Admin notification center summary
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+                  - properties:
+                      data:
+                        type: object
+                        properties:
+                          total_unread:
+                            type: integer
+                          pending_contacts:
+                            type: integer
+                          pending_registrations:
+                            type: integer
+                          pending_donations:
+                            type: integer
+                          items:
+                            type: array
+                            items:
+                              type: object
+                              properties:
+                                id:
+                                  type: string
+                                type:
+                                  type: string
+                                title:
+                                  type: string
+                                message:
+                                  type: string
+                                link:
+                                  type: string
+                                created_at:
+                                  type: string
+                                  format: date-time
+                                is_new:
+                                  type: boolean
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
   /admin/me:
     put:
       tags: [Admin - Self Service]
