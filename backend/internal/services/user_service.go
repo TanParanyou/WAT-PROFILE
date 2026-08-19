@@ -147,12 +147,58 @@ func (s *UserService) Create(user *models.User, password string) error {
 
 // Update saves changes to a user, conditionally hashing password if provided.
 // Password changes and account disablement revoke all active Admin sessions in
+// isUserSuperAdmin checks if a user has the super admin role
+func isUserSuperAdmin(tx *gorm.DB, user *models.User) bool {
+	if user == nil {
+		return false
+	}
+	if user.Role != nil {
+		return (user.Role.IsSystem && user.Role.Name == "admin") || user.Role.Name == "admin"
+	}
+	if user.RoleID != nil {
+		var role models.Role
+		if err := tx.Select("name", "is_system").Where("id = ?", user.RoleID).First(&role).Error; err == nil {
+			return (role.IsSystem && role.Name == "admin") || role.Name == "admin"
+		}
+	}
+	return false
+}
+
+// countActiveSuperAdmins counts the number of active users with the super admin role
+func countActiveSuperAdmins(tx *gorm.DB) (int64, error) {
+	var count int64
+	err := tx.Model(&models.User{}).
+		Joins("JOIN roles ON roles.id = users.role_id").
+		Where("users.is_active = ? AND (roles.name = ? OR (roles.is_system = ? AND roles.admin_access = ?))", true, "admin", true, true).
+		Count(&count).Error
+	return count, err
+}
+
 // the same transaction.
 func (s *UserService) Update(user *models.User, newPassword string) error {
 	// Check email uniqueness if email changed
 	var existingUser models.User
 	if err := s.db.Where("email = ? AND id != ?", user.Email, user.ID).First(&existingUser).Error; err == nil {
 		return errors.New("email already exists")
+	}
+
+	var original models.User
+	if err := s.db.Preload("Role").Where("id = ?", user.ID).First(&original).Error; err != nil {
+		return err
+	}
+
+	// Last Super Admin Protection
+	if original.IsActive && isUserSuperAdmin(s.db, &original) {
+		willRemainSuperAdmin := user.IsActive && isUserSuperAdmin(s.db, user)
+		if !willRemainSuperAdmin {
+			activeCount, err := countActiveSuperAdmins(s.db)
+			if err != nil {
+				return err
+			}
+			if activeCount <= 1 {
+				return errors.New("cannot deactivate or change role of the last active super admin")
+			}
+		}
 	}
 
 	passwordChanged := false
@@ -185,16 +231,11 @@ func (s *UserService) Update(user *models.User, newPassword string) error {
 		passwordChanged = true
 	}
 
-	var current models.User
-	if err := s.db.Select("is_active").Where("id = ?", user.ID).First(&current).Error; err != nil {
-		return err
-	}
-
 	reason := ""
 	switch {
 	case passwordChanged:
 		reason = "password_changed"
-	case current.IsActive && !user.IsActive:
+	case original.IsActive && !user.IsActive:
 		reason = "account_disabled"
 	}
 
@@ -210,23 +251,57 @@ func (s *UserService) Update(user *models.User, newPassword string) error {
 	})
 }
 
-// Delete removes a user by ID, preventing self-deletion (handled in handler usually, but added protection here)
+// Delete removes a user by ID, preventing self-deletion and deletion of the last super admin
 func (s *UserService) Delete(id, currentUserID uuid.UUID) error {
 	if id == currentUserID {
 		return errors.New("cannot delete yourself")
 	}
 
-	// Soft delete or hard delete? The model uses CASCADE constraints on related tables usually.
+	var target models.User
+	if err := s.db.Preload("Role").Where("id = ?", id).First(&target).Error; err != nil {
+		return err
+	}
+
+	if target.IsActive && isUserSuperAdmin(s.db, &target) {
+		activeCount, err := countActiveSuperAdmins(s.db)
+		if err != nil {
+			return err
+		}
+		if activeCount <= 1 {
+			return errors.New("cannot delete the last active super admin")
+		}
+	}
+
 	return s.db.Delete(&models.User{}, "id = ?", id).Error
 }
 
-// BulkDelete removes multiple users by their IDs
+// BulkDelete removes multiple users by their IDs, ensuring no self-delete and last super admin is preserved
 func (s *UserService) BulkDelete(ids []uuid.UUID, currentUserID uuid.UUID) error {
 	for _, id := range ids {
 		if id == currentUserID {
 			return errors.New("cannot delete yourself in a bulk operation")
 		}
 	}
+
+	// Check if bulk deletion removes all remaining super admins
+	activeCount, err := countActiveSuperAdmins(s.db)
+	if err != nil {
+		return err
+	}
+
+	var deletingSuperAdminCount int64
+	err = s.db.Model(&models.User{}).
+		Joins("JOIN roles ON roles.id = users.role_id").
+		Where("users.id IN ? AND users.is_active = ? AND (roles.name = ? OR (roles.is_system = ? AND roles.admin_access = ?))", ids, true, "admin", true, true).
+		Count(&deletingSuperAdminCount).Error
+	if err != nil {
+		return err
+	}
+
+	if deletingSuperAdminCount >= activeCount {
+		return errors.New("cannot delete all remaining active super admins in a bulk operation")
+	}
+
 	return s.db.Where("id IN ?", ids).Delete(&models.User{}).Error
 }
 

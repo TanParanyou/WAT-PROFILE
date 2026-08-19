@@ -53,6 +53,7 @@ type Role struct {
 	Permissions PermissionsMap `gorm:"type:jsonb" json:"permissions"` // {"users": "crud", "posts": "read"}
 	IsActive    bool           `gorm:"default:true" json:"is_active"`
 	AdminAccess bool           `gorm:"default:false;not null" json:"admin_access"` // grants Admin login eligibility
+	IsSystem    bool           `gorm:"default:false;not null" json:"is_system"`    // protected system role (cannot be deleted/renamed)
 	CreatedAt   time.Time      `json:"created_at"`
 	UpdatedAt   time.Time      `json:"updated_at"`
 }
@@ -67,8 +68,24 @@ func (r *Role) BeforeCreate(tx *gorm.DB) error {
 
 // HasPermission checks if role has specific permission
 func (r *Role) HasPermission(resource, action string) bool {
+	if !r.IsActive {
+		return false
+	}
+
+	// 1. Super Admin with admin_access or system admin role automatically has all permissions
+	if (r.IsSystem && r.Name == "admin") || (r.AdminAccess && r.Name == "admin") {
+		return true
+	}
+
 	if r.Permissions == nil {
 		return false
+	}
+
+	// 2. Global wildcard permission check (e.g. {"*": "all"} or {"*": "*"})
+	if globalPerm, ok := r.Permissions["*"]; ok {
+		if v, ok := globalPerm.(string); ok && (v == "all" || v == "*" || v == action) {
+			return true
+		}
 	}
 
 	permission, ok := r.Permissions[resource]
@@ -76,13 +93,13 @@ func (r *Role) HasPermission(resource, action string) bool {
 		return false
 	}
 
-	// Check if permission is "all" or contains the action
+	// 3. Check if permission is "all" or contains the action
 	switch v := permission.(type) {
 	case string:
-		return v == "all" || v == action || contains(v, action)
+		return v == "all" || v == "*" || v == action || contains(v, action)
 	case []interface{}:
 		for _, p := range v {
-			if p == action || p == "all" {
+			if p == action || p == "all" || p == "*" {
 				return true
 			}
 		}

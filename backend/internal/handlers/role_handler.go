@@ -6,17 +6,20 @@ import (
 	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
+	"github.com/watloungporsai/wat-profile-backend/pkg/logger"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
 	"gorm.io/gorm"
 )
 
 type RoleHandler struct {
-	roleService *services.RoleService
+	roleService  *services.RoleService
+	auditService *services.AuditService
 }
 
 func NewRoleHandler(db *gorm.DB) *RoleHandler {
 	return &RoleHandler{
-		roleService: services.NewRoleService(db),
+		roleService:  services.NewRoleService(db),
+		auditService: services.NewAuditService(db),
 	}
 }
 
@@ -43,6 +46,7 @@ func (h *RoleHandler) GetRoles(c *fiber.Ctx) error {
 
 	roles, total, err := h.roleService.List(options)
 	if err != nil {
+		logger.Log.Error().Err(err).Msg("Failed to fetch roles")
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch roles")
 	}
 	return utils.PaginatedResponse(c, roles, common.Page, common.Limit, int(total))
@@ -73,8 +77,15 @@ func (h *RoleHandler) CreateRole(c *fiber.Ctx) error {
 	}
 
 	if err := h.roleService.Create(&role); err != nil {
+		logger.Log.Error().Err(err).Str("role_name", role.Name).Msg("Failed to create role")
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to create role")
 	}
+
+	_ = h.auditService.LogAction(c, "create", "roles", role.ID.String(), map[string]interface{}{
+		"name":         role.Name,
+		"admin_access": role.AdminAccess,
+		"is_active":    role.IsActive,
+	})
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "data": role})
 }
@@ -96,8 +107,15 @@ func (h *RoleHandler) UpdateRole(c *fiber.Ctx) error {
 	}
 
 	if err := h.roleService.Update(role); err != nil {
+		logger.Log.Error().Err(err).Str("role_id", id.String()).Msg("Failed to update role")
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to update role")
 	}
+
+	_ = h.auditService.LogAction(c, "update", "roles", id.String(), map[string]interface{}{
+		"name":         role.Name,
+		"admin_access": role.AdminAccess,
+		"is_active":    role.IsActive,
+	})
 
 	return utils.SuccessResponse(c, role)
 }
@@ -110,8 +128,11 @@ func (h *RoleHandler) DeleteRole(c *fiber.Ctx) error {
 	}
 
 	if err := h.roleService.Delete(id); err != nil {
+		logger.Log.Error().Err(err).Str("role_id", id.String()).Msg("Failed to delete role")
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
+
+	_ = h.auditService.LogAction(c, "delete", "roles", id.String(), nil)
 
 	return utils.MessageResponse(c, "Role deleted successfully")
 }
@@ -128,8 +149,13 @@ func (h *RoleHandler) BulkDeleteRoles(c *fiber.Ctx) error {
 	}
 
 	if err := h.roleService.BulkDelete(req.IDs); err != nil {
+		logger.Log.Error().Err(err).Int("count", len(req.IDs)).Msg("Failed to bulk delete roles")
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
+
+	_ = h.auditService.LogAction(c, "bulk_delete", "roles", "", map[string]interface{}{
+		"count": len(req.IDs),
+	})
 
 	return utils.MessageResponse(c, "Roles deleted successfully")
 }

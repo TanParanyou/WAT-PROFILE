@@ -202,7 +202,21 @@ export default function RolesPage() {
   };
 
   const columns: Column<Role>[] = [
-    { header: t("columns.roleName"), accessorKey: "name", sortable: true },
+    {
+      header: t("columns.roleName"),
+      accessorKey: "name",
+      sortable: true,
+      cell: (v, row) => (
+        <div className="flex items-center gap-2">
+          <span className="font-medium text-admin-foreground">{String(v ?? "")}</span>
+          {(row.is_system || row.name === "admin") && (
+            <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-semibold bg-admin-focus/10 text-admin-focus border border-admin-focus/20">
+              System
+            </span>
+          )}
+        </div>
+      ),
+    },
     { header: t("columns.description"), accessorKey: "description" },
     {
       header: t("columns.status"),
@@ -216,32 +230,37 @@ export default function RolesPage() {
     },
     {
       header: t("columns.actions"),
-      cell: (_, row) => (
-        <div className="flex gap-1.5">
-          <PermissionGuard resource="users" action="update">
-            <button
-              type="button"
-              onClick={() => handleOpenEdit(row)}
-              className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
-            >
-              <Icons.Edit size={16} />
-            </button>
-          </PermissionGuard>
-          <PermissionGuard resource="users" action="delete">
-            <button
-              type="button"
-              onClick={() => handleDelete(String(row.id), row.name)}
-              className="p-1.5 rounded hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger transition-colors disabled:opacity-50 disabled:hover:bg-transparent focus-visible:outline-2 focus-visible:outline-admin-focus"
-              disabled={row.name === "admin"}
-            >
-              <Icons.Delete
-                size={16}
-                className={row.name === "admin" ? "opacity-30" : ""}
-              />
-            </button>
-          </PermissionGuard>
-        </div>
-      ),
+      cell: (_, row) => {
+        const isSystemRole = row.is_system || row.name === "admin";
+        return (
+          <div className="flex gap-1.5">
+            <PermissionGuard resource="users" action="update">
+              <button
+                type="button"
+                onClick={() => handleOpenEdit(row)}
+                className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
+                title={t("common.edit")}
+              >
+                <Icons.Edit size={16} />
+              </button>
+            </PermissionGuard>
+            <PermissionGuard resource="users" action="delete">
+              <button
+                type="button"
+                onClick={() => handleDelete(String(row.id), row.name)}
+                className="p-1.5 rounded hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger transition-colors disabled:opacity-50 disabled:hover:bg-transparent focus-visible:outline-2 focus-visible:outline-admin-focus"
+                disabled={isSystemRole}
+                title={isSystemRole ? "System role cannot be deleted" : t("common.delete")}
+              >
+                <Icons.Delete
+                  size={16}
+                  className={isSystemRole ? "opacity-30" : ""}
+                />
+              </button>
+            </PermissionGuard>
+          </div>
+        );
+      },
     },
   ];
 
@@ -345,12 +364,18 @@ export default function RolesPage() {
         size="xl"
       >
         <div className="space-y-4 pt-2">
+          {(editingRole?.is_system || editingRole?.name === "admin") && (
+            <div className="p-3 bg-admin-focus/10 border border-admin-focus/20 rounded text-xs text-admin-foreground">
+              <span className="font-semibold">System Protected Role:</span> This role is managed by the system. Its name and active status are protected.
+            </div>
+          )}
+
           <Input
             id="role-name"
             label={`${t("roles.form.name")} *`}
             {...register("name")}
             error={errors.name?.message}
-            disabled={editingRole?.name === "admin"}
+            disabled={editingRole?.is_system || editingRole?.name === "admin"}
           />
 
           <Input
@@ -381,7 +406,7 @@ export default function RolesPage() {
             )}
           </div>
 
-          {editingRole?.name !== "admin" && (
+          {!(editingRole?.is_system || editingRole?.name === "admin") && (
             <div className="mt-4">
               <Controller
                 control={control}

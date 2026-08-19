@@ -6110,6 +6110,9 @@ components:
             Whether the role may use the Admin API. Admin sessions are granted
             only when `admin_access` is true; it is never inferred from the role
             name or permissions.
+        is_system:
+          type: boolean
+          description: Whether the role is a protected system role that cannot be deleted or renamed.
         is_active:
           type: boolean
 

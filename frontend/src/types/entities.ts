@@ -8,6 +8,7 @@ export interface Role {
   description: string;
   permissions: Record<string, unknown>;
   is_active: boolean;
+  is_system?: boolean;
   created_at: string;
   updated_at: string;
 }

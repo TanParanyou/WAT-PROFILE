@@ -72,6 +72,7 @@ func seedRoles() {
 			},
 			IsActive:    true,
 			AdminAccess: true,
+			IsSystem:    true,
 		},
 		{
 			Name:        "editor",
