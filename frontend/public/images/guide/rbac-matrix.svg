@@ -1,31 +1,28 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" width="100%" height="100%">
   <defs>
     <style>
-      .bg { fill: #f8fafc; }
-      .surface { fill: #ffffff; stroke: #e2e8f0; stroke-width: 1.5; }
-      .text-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-weight: 700; font-size: 16px; fill: #0f172a; }
-      .text-muted { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 12px; fill: #64748b; }
-      .text-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 13px; fill: #1e293b; }
-      .th-header { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-weight: 600; font-size: 13px; fill: #475569; }
-      .role-admin { fill: #fef2f2; stroke: #fca5a5; }
-      .role-monk { fill: #fffbeb; stroke: #fcd34d; }
-      .role-finance { fill: #ecfdf5; stroke: #6ee7b7; }
+      .canvas { fill: #fbfbfa; }
+      .surface { fill: #ffffff; stroke: #d1d5db; stroke-width: 1; }
+      .text-title { font-family: "Noto Sans Thai", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-weight: 700; font-size: 15px; fill: #242424; }
+      .text-muted { font-family: "Noto Sans Thai", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 12px; fill: #666666; }
+      .text-body { font-family: "Noto Sans Thai", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 13px; fill: #333333; }
+      .th-header { font-family: "Noto Sans Thai", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-weight: 600; font-size: 12px; fill: #666666; }
     </style>
   </defs>
 
-  <rect width="800" height="480" fill="#f1f5f9" />
+  <rect width="800" height="480" class="canvas" />
 
-  <!-- Window Container -->
-  <rect x="40" y="30" width="720" height="420" class="surface" filter="drop-shadow(0 10px 15px rgba(0,0,0,0.08))" />
+  <!-- Main Container -->
+  <rect x="40" y="25" width="720" height="430" class="surface" />
 
   <!-- Header -->
-  <rect x="40" y="30" width="720" height="54" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" />
-  <text x="65" y="63" class="text-title">🛡️ การกำหนดสิทธิ์แบบละเอียด (RBAC Granular Permissions Matrix)</text>
+  <rect x="40" y="25" width="720" height="50" fill="#f4f4f2" stroke="#d1d5db" stroke-width="1" />
+  <text x="65" y="56" class="text-title">🛡️ การกำหนดสิทธิ์แบบละเอียด (RBAC Granular Permissions Matrix)</text>
 
-  <!-- Table Box -->
-  <g transform="translate(65, 105)">
-    <!-- Table Header Row -->
-    <rect x="0" y="0" width="670" height="38" fill="#f1f5f9" stroke="#cbd5e1" stroke-width="1" />
+  <!-- Table Container -->
+  <g transform="translate(65, 95)">
+    <!-- Header Row -->
+    <rect x="0" y="0" width="670" height="38" fill="#f4f4f2" stroke="#d1d5db" stroke-width="1" />
     <text x="20" y="24" class="th-header">โมดูลระบบ (Resource)</text>
     <text x="230" y="24" class="th-header">อ่าน (Read)</text>
     <text x="340" y="24" class="th-header">สร้าง (Create)</text>
@@ -33,47 +30,47 @@
     <text x="560" y="24" class="th-header">ลบ (Delete)</text>
 
     <!-- Row 1: Donations -->
-    <rect x="0" y="38" width="670" height="52" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" />
-    <text x="20" y="65" font-family="sans-serif" font-weight="bold" font-size="13" fill="#0f172a">💰 เงินบริจาค (donations)</text>
-    <text x="20" y="80" class="text-muted">ตรวจสลิปและใบอนุโมทนา</text>
-    <!-- Checkboxes -->
-    <rect x="245" y="52" width="22" height="22" fill="#16a34a" rx="0" />
-    <path d="M250 63 L254 67 L262 57" stroke="#ffffff" stroke-width="2.5" fill="none" stroke-linecap="round" />
-    <rect x="355" y="52" width="22" height="22" fill="#16a34a" rx="0" />
-    <path d="M360 63 L364 67 L372 57" stroke="#ffffff" stroke-width="2.5" fill="none" stroke-linecap="round" />
-    <rect x="465" y="52" width="22" height="22" fill="#16a34a" rx="0" />
-    <path d="M470 63 L474 67 L482 57" stroke="#ffffff" stroke-width="2.5" fill="none" stroke-linecap="round" />
-    <rect x="575" y="52" width="22" height="22" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+    <rect x="0" y="38" width="670" height="52" fill="#ffffff" stroke="#e5e7eb" stroke-width="1" />
+    <text x="20" y="65" font-family="sans-serif" font-weight="700" font-size="13" fill="#242424">💰 เงินบริจาค (donations)</text>
+    <text x="20" y="80" class="text-muted">ตรวจสลิปและใบอนุโมทนาบัตร</text>
+    
+    <rect x="245" y="52" width="22" height="22" fill="#15803d" />
+    <path d="M250 63 L254 67 L262 57" stroke="#ffffff" stroke-width="2.5" fill="none" />
+    <rect x="355" y="52" width="22" height="22" fill="#15803d" />
+    <path d="M360 63 L364 67 L372 57" stroke="#ffffff" stroke-width="2.5" fill="none" />
+    <rect x="465" y="52" width="22" height="22" fill="#15803d" />
+    <path d="M470 63 L474 67 L482 57" stroke="#ffffff" stroke-width="2.5" fill="none" />
+    <rect x="575" y="52" width="22" height="22" fill="#ffffff" stroke="#d1d5db" stroke-width="1" />
 
     <!-- Row 2: Events -->
-    <rect x="0" y="90" width="670" height="52" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" />
-    <text x="20" y="117" font-family="sans-serif" font-weight="bold" font-size="13" fill="#0f172a">📅 กิจกรรมวัด (events)</text>
-    <text x="20" y="132" class="text-muted">สร้างกิจกรรมและลงทะเบียน</text>
-    <!-- Checkboxes -->
-    <rect x="245" y="104" width="22" height="22" fill="#16a34a" rx="0" />
-    <path d="M250 115 L254 119 L262 109" stroke="#ffffff" stroke-width="2.5" fill="none" stroke-linecap="round" />
-    <rect x="355" y="104" width="22" height="22" fill="#16a34a" rx="0" />
-    <path d="M360 115 L364 119 L372 109" stroke="#ffffff" stroke-width="2.5" fill="none" stroke-linecap="round" />
-    <rect x="465" y="104" width="22" height="22" fill="#16a34a" rx="0" />
-    <path d="M470 115 L474 119 L482 109" stroke="#ffffff" stroke-width="2.5" fill="none" stroke-linecap="round" />
-    <rect x="575" y="104" width="22" height="22" fill="#dc2626" rx="0" />
-    <path d="M580 115 L584 119 L592 109" stroke="#ffffff" stroke-width="2.5" fill="none" stroke-linecap="round" />
+    <rect x="0" y="90" width="670" height="52" fill="#fcfcfb" stroke="#e5e7eb" stroke-width="1" />
+    <text x="20" y="117" font-family="sans-serif" font-weight="700" font-size="13" fill="#242424">📅 กิจกรรมวัด (events)</text>
+    <text x="20" y="132" class="text-muted">สร้างกิจกรรมและเปิดรับลงทะเบียน</text>
+    
+    <rect x="245" y="104" width="22" height="22" fill="#15803d" />
+    <path d="M250 115 L254 119 L262 109" stroke="#ffffff" stroke-width="2.5" fill="none" />
+    <rect x="355" y="104" width="22" height="22" fill="#15803d" />
+    <path d="M360 115 L364 119 L372 109" stroke="#ffffff" stroke-width="2.5" fill="none" />
+    <rect x="465" y="104" width="22" height="22" fill="#15803d" />
+    <path d="M470 115 L474 119 L482 109" stroke="#ffffff" stroke-width="2.5" fill="none" />
+    <rect x="575" y="104" width="22" height="22" fill="#b91c1c" />
+    <path d="M580 115 L584 119 L592 109" stroke="#ffffff" stroke-width="2.5" fill="none" />
 
     <!-- Row 3: Users & Roles -->
-    <rect x="0" y="142" width="670" height="52" fill="#ffffff" stroke="#e2e8f0" stroke-width="1" />
-    <text x="20" y="169" font-family="sans-serif" font-weight="bold" font-size="13" fill="#0f172a">👥 ผู้ใช้งาน &amp; สิทธิ์ (users/roles)</text>
+    <rect x="0" y="142" width="670" height="52" fill="#ffffff" stroke="#e5e7eb" stroke-width="1" />
+    <text x="20" y="169" font-family="sans-serif" font-weight="700" font-size="13" fill="#242424">👥 ผู้ใช้งาน &amp; สิทธิ์ (users/roles)</text>
     <text x="20" y="184" class="text-muted">ความปลอดภัยระดับ Super Admin</text>
-    <!-- Checkboxes -->
-    <rect x="245" y="156" width="22" height="22" fill="#16a34a" rx="0" />
-    <path d="M250 167 L254 171 L262 161" stroke="#ffffff" stroke-width="2.5" fill="none" stroke-linecap="round" />
-    <rect x="355" y="156" width="22" height="22" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
-    <rect x="465" y="156" width="22" height="22" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
-    <rect x="575" y="156" width="22" height="22" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" />
+    
+    <rect x="245" y="156" width="22" height="22" fill="#15803d" />
+    <path d="M250 167 L254 171 L262 161" stroke="#ffffff" stroke-width="2.5" fill="none" />
+    <rect x="355" y="156" width="22" height="22" fill="#ffffff" stroke="#d1d5db" stroke-width="1" />
+    <rect x="465" y="156" width="22" height="22" fill="#ffffff" stroke="#d1d5db" stroke-width="1" />
+    <rect x="575" y="156" width="22" height="22" fill="#ffffff" stroke="#d1d5db" stroke-width="1" />
 
-    <!-- Summary Box -->
-    <rect x="0" y="210" width="670" height="85" fill="#eff6ff" stroke="#bfdbfe" stroke-width="1" />
-    <text x="20" y="235" font-family="sans-serif" font-weight="bold" font-size="13" fill="#1e40af">💡 ข้อแนะนำด้านความปลอดภัยตามหลัก Principle of Least Privilege:</text>
-    <text x="20" y="258" font-family="sans-serif" font-size="12" fill="#1e3a8a">• มอบเฉพาะสิทธิ์ที่จำเป็นต่อหน้าที่ (เช่น การเงิน ไม่ควรมีสิทธิ์จัดการ Users หรือ ลบ Audit Logs)</text>
-    <text x="20" y="278" font-family="sans-serif" font-size="12" fill="#1e3a8a">• สิทธิ์การลบ (Delete) ควรจำกัดเฉพาะเจ้าอาวาสหรือ Super Admin เท่านั้น</text>
+    <!-- Summary Box (Terracotta & Ink Styling) -->
+    <rect x="0" y="210" width="670" height="95" fill="#f7ecdd" stroke="#945c26" stroke-width="1" />
+    <text x="20" y="235" font-family="sans-serif" font-weight="700" font-size="13" fill="#945c26">📌 กฎความปลอดภัยตามหลัก Principle of Least Privilege:</text>
+    <text x="20" y="258" font-family="sans-serif" font-size="12" fill="#333333">• มอบเฉพาะสิทธิ์ที่จำเป็นต่อหน้าที่ (เช่น ฝ่ายกิจกรรมไม่ควรมีสิทธิ์เข้าถึงบัญชีการเงินหรือ Users)</text>
+    <text x="20" y="278" font-family="sans-serif" font-size="12" fill="#333333">• สิทธิ์การลบ (Delete) ควรจำกัดเฉพาะเจ้าอาวาสและผู้ดูแลระบบหลักเท่านั้น</text>
   </g>
 </svg>

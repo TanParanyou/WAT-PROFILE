@@ -1,70 +1,74 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" width="100%" height="100%">
   <defs>
     <style>
-      .surface { fill: #ffffff; stroke: #e2e8f0; stroke-width: 1.5; }
-      .text-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-weight: 700; font-size: 16px; fill: #0f172a; }
-      .text-muted { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 12px; fill: #64748b; }
-      .scanner-border { stroke: #22c55e; stroke-width: 3; fill: none; }
+      .canvas { fill: #fbfbfa; }
+      .surface { fill: #ffffff; stroke: #d1d5db; stroke-width: 1; }
+      .text-title { font-family: "Noto Sans Thai", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-weight: 700; font-size: 15px; fill: #242424; }
+      .text-muted { font-family: "Noto Sans Thai", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 12px; fill: #666666; }
+      .text-body { font-family: "Noto Sans Thai", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 13px; fill: #333333; }
+      .scanner-bracket { stroke: #15803d; stroke-width: 3; fill: none; }
     </style>
   </defs>
 
-  <rect width="800" height="480" fill="#f1f5f9" />
+  <rect width="800" height="480" class="canvas" />
 
-  <rect x="50" y="30" width="700" height="420" class="surface" filter="drop-shadow(0 10px 15px rgba(0,0,0,0.08))" />
+  <!-- Main Container -->
+  <rect x="40" y="25" width="720" height="430" class="surface" />
 
   <!-- Header -->
-  <rect x="50" y="30" width="700" height="54" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" />
-  <text x="75" y="63" class="text-title">📱 สแกนเช็คชื่อเข้าร่วมกิจกรรมผ่าน QR Code (Live QR Scanner)</text>
+  <rect x="40" y="25" width="720" height="50" fill="#f4f4f2" stroke="#d1d5db" stroke-width="1" />
+  <text x="65" y="56" class="text-title">📱 สแกนเช็คชื่อผู้เข้าร่วมงานวัดผ่าน QR Code (Live QR Attendance Scanner)</text>
 
-  <!-- Left: Scanner View -->
-  <rect x="75" y="105" width="310" height="320" fill="#0f172a" stroke="#334155" stroke-width="1.5" />
+  <!-- Left: Scanner Viewport (Square, Precise Border) -->
+  <rect x="65" y="95" width="310" height="335" fill="#242424" stroke="#333333" stroke-width="1" />
   
   <!-- Camera Grid & QR Code Target -->
-  <rect x="110" y="140" width="240" height="240" fill="#1e293b" />
+  <rect x="100" y="130" width="240" height="240" fill="#1c1a17" />
   
   <!-- QR Code Mockup in center -->
-  <rect x="150" y="180" width="160" height="160" fill="#ffffff" />
-  <rect x="165" y="195" width="40" height="40" fill="#000000" />
-  <rect x="173" y="203" width="24" height="24" fill="#ffffff" />
-  <rect x="179" y="209" width="12" height="12" fill="#000000" />
+  <rect x="140" y="170" width="160" height="160" fill="#ffffff" />
+  <rect x="155" y="185" width="40" height="40" fill="#242424" />
+  <rect x="163" y="193" width="24" height="24" fill="#ffffff" />
+  <rect x="169" y="199" width="12" height="12" fill="#242424" />
   
-  <rect x="255" y="195" width="40" height="40" fill="#000000" />
-  <rect x="263" y="203" width="24" height="24" fill="#ffffff" />
-  <rect x="269" y="209" width="12" height="12" fill="#000000" />
+  <rect x="245" y="185" width="40" height="40" fill="#242424" />
+  <rect x="253" y="193" width="24" height="24" fill="#ffffff" />
+  <rect x="259" y="199" width="12" height="12" fill="#242424" />
 
-  <rect x="165" y="285" width="40" height="40" fill="#000000" />
-  <rect x="173" y="293" width="24" height="24" fill="#ffffff" />
-  <rect x="179" y="299" width="12" height="12" fill="#000000" />
+  <rect x="155" y="275" width="40" height="40" fill="#242424" />
+  <rect x="163" y="283" width="24" height="24" fill="#ffffff" />
+  <rect x="169" y="289" width="12" height="12" fill="#242424" />
 
-  <!-- Scanner Overlay Frame -->
-  <path d="M 130 160 L 130 140 L 150 140" class="scanner-border" />
-  <path d="M 310 140 L 330 140 L 330 160" class="scanner-border" />
-  <path d="M 130 360 L 130 380 L 150 380" class="scanner-border" />
-  <path d="M 310 380 L 330 380 L 330 360" class="scanner-border" />
+  <!-- Square Scanner Brackets (0px radius) -->
+  <path d="M 120 150 L 120 130 L 140 130" class="scanner-bracket" />
+  <path d="M 300 130 L 320 130 L 320 150" class="scanner-bracket" />
+  <path d="M 120 350 L 120 370 L 140 370" class="scanner-bracket" />
+  <path d="M 300 370 L 320 370 L 320 350" class="scanner-bracket" />
 
-  <!-- Scanning Laser Line -->
-  <line x1="130" y1="260" x2="330" y2="260" stroke="#ef4444" stroke-width="2" stroke-dasharray="4 2" />
+  <!-- Laser Line -->
+  <line x1="120" y1="250" x2="320" y2="250" stroke="#b91c1c" stroke-width="2" stroke-dasharray="4 2" />
   
-  <text x="175" y="405" font-family="sans-serif" font-weight="bold" font-size="12" fill="#22c55e">● กำลังสแกนกล้องสด...</text>
+  <text x="160" y="395" font-family="sans-serif" font-weight="700" font-size="12" fill="#15803d">● กล้องกำลังสแกนสด...</text>
 
   <!-- Right: Verification Result -->
-  <rect x="410" y="105" width="315" height="320" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" />
-  <rect x="410" y="105" width="315" height="42" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="1" />
-  <text x="430" y="132" font-family="sans-serif" font-weight="bold" font-size="14" fill="#065f46">✓ เช็คชื่อสำเร็จ (Checked-in)</text>
+  <rect x="400" y="95" width="335" height="335" fill="#ffffff" stroke="#d1d5db" stroke-width="1" />
+  <rect x="400" y="95" width="335" height="42" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1" />
+  <text x="420" y="121" font-family="sans-serif" font-weight="700" font-size="13" fill="#15803d">✓ เช็คชื่อสำเร็จ (Checked-in)</text>
 
   <!-- Result Details -->
-  <g transform="translate(430, 170)">
+  <g transform="translate(420, 160)">
     <text x="0" y="0" class="text-muted">ชื่อ-นามสกุล ผู้ลงทะเบียน:</text>
-    <text x="0" y="24" font-family="sans-serif" font-weight="bold" font-size="16" fill="#0f172a">คุณสมศรี ใจบุญ (1 ท่าน)</text>
+    <text x="0" y="22" font-family="sans-serif" font-weight="700" font-size="16" fill="#242424">คุณสมศรี ใจบุญ (1 ท่าน)</text>
 
     <text x="0" y="60" class="text-muted">กิจกรรม:</text>
-    <text x="0" y="80" font-family="sans-serif" font-weight="600" font-size="13" fill="#1e293b">พิธีเวียนเทียนวันวิสาขบูชา 2569</text>
+    <text x="0" y="80" class="text-body" font-weight="600">พิธีเวียนเทียนวันวิสาขบูชา 2569</text>
 
     <text x="0" y="115" class="text-muted">เวลาที่เช็คชื่อ:</text>
-    <text x="0" y="135" font-family="sans-serif" font-weight="600" font-size="13" fill="#16a34a">19 ส.ค. 2026, 08:15:22 น.</text>
+    <text x="0" y="135" font-family="monospace" font-size="13" fill="#15803d" font-weight="bold">19 ส.ค. 2026, 08:15:22 น.</text>
 
-    <rect x="0" y="160" width="275" height="70" fill="#f8fafc" stroke="#e2e8f0" />
-    <text x="15" y="185" font-family="sans-serif" font-weight="bold" font-size="12" fill="#334155">สถิติผู้เข้าร่วมล่าสุด:</text>
-    <text x="15" y="208" font-family="sans-serif" font-size="14" fill="#0f172a">เช็คชื่อแล้ว: <tspan fill="#16a34a" font-weight="bold">85</tspan> / 100 ที่นั่ง</text>
+    <rect x="0" y="165" width="295" height="85" fill="#f4f4f2" stroke="#d1d5db" stroke-width="1" />
+    <text x="15" y="190" font-family="sans-serif" font-weight="700" font-size="12" fill="#242424">สถิติผู้เข้าร่วมกิจกรรม:</text>
+    <text x="15" y="215" class="text-body">เช็คชื่อแล้ว: <tspan fill="#15803d" font-weight="700">85</tspan> / 100 ที่นั่ง</text>
+    <text x="15" y="235" class="text-muted">อัตราการมาเข้าร่วม: 85%</text>
   </g>
 </svg>

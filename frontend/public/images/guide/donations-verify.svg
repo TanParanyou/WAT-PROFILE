@@ -1,83 +1,87 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" width="100%" height="100%">
   <defs>
     <style>
-      .bg { fill: #f8fafc; }
-      .surface { fill: #ffffff; stroke: #e2e8f0; stroke-width: 1.5; }
-      .header-bg { fill: #0f172a; }
-      .text-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-weight: 700; font-size: 16px; fill: #0f172a; }
-      .text-muted { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 13px; fill: #64748b; }
-      .text-body { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 14px; fill: #1e293b; }
-      .badge-pending { fill: #fef3c7; stroke: #f59e0b; }
-      .badge-success { fill: #dcfce7; stroke: #22c55e; }
-      .btn-verify { fill: #16a34a; }
-      .btn-reject { fill: #dc2626; }
-      .btn-text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-weight: 600; font-size: 13px; fill: #ffffff; }
-      .check-circle { fill: #22c55e; }
+      .canvas { fill: #fbfbfa; }
+      .surface { fill: #ffffff; stroke: #d1d5db; stroke-width: 1; }
+      .text-title { font-family: "Noto Sans Thai", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-weight: 700; font-size: 15px; fill: #242424; }
+      .text-muted { font-family: "Noto Sans Thai", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 12px; fill: #666666; }
+      .text-body { font-family: "Noto Sans Thai", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 13px; fill: #333333; }
+      .text-accent { font-family: "Noto Sans Thai", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 12px; fill: #945c26; font-weight: 600; }
+      .btn-verify { fill: #15803d; }
+      .btn-reject { fill: #b91c1c; }
+      .btn-text { font-family: "Noto Sans Thai", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-weight: 600; font-size: 13px; fill: #ffffff; }
     </style>
   </defs>
 
-  <!-- Background -->
-  <rect width="800" height="480" fill="#f1f5f9" />
+  <!-- Background Canvas (Register Paper) -->
+  <rect width="800" height="480" class="canvas" />
 
-  <!-- Modal Container -->
-  <rect x="50" y="30" width="700" height="420" class="surface" rx="0" filter="drop-shadow(0 10px 15px rgba(0,0,0,0.08))" />
+  <!-- Main Modal (0px radius, 1px border) -->
+  <rect x="40" y="25" width="720" height="430" class="surface" />
 
   <!-- Modal Header -->
-  <rect x="50" y="30" width="700" height="56" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" />
-  <text x="75" y="64" class="text-title">🧾 ตรวจสอบหลักฐานการโอนเงิน (Donation Proof Verification)</text>
-  <circle cx="720" cy="58" r="14" fill="#e2e8f0" />
-  <path d="M715 53 L725 63 M725 53 L715 63" stroke="#64748b" stroke-width="2" stroke-linecap="round" />
+  <rect x="40" y="25" width="720" height="50" fill="#f4f4f2" stroke="#d1d5db" stroke-width="1" />
+  <text x="65" y="56" class="text-title">🧾 ตรวจสอบหลักฐานการโอนเงิน (Donation Proof Verification)</text>
+  
+  <!-- Close Button (Square) -->
+  <rect x="715" y="38" width="24" height="24" fill="#ffffff" stroke="#d1d5db" stroke-width="1" />
+  <path d="M721 44 L733 56 M733 44 L721 56" stroke="#333333" stroke-width="1.5" />
 
-  <!-- Left: Slip Image Mockup -->
-  <rect x="75" y="105" width="280" height="320" fill="#ffffff" stroke="#cbd5e1" stroke-width="1.5" stroke-dasharray="4 4" />
-  <rect x="95" y="125" width="240" height="70" fill="#ecfdf5" stroke="#a7f3d0" stroke-width="1" />
-  <text x="110" y="152" font-family="sans-serif" font-weight="bold" font-size="12" fill="#065f46">ธนาคารกรุงไทย (KTB)</text>
-  <text x="110" y="172" font-family="sans-serif" font-size="11" fill="#047857">โอนเงินสำเร็จ • SCB Easy / KTB</text>
+  <!-- Left: Slip Mockup (Square, Hairline Border) -->
+  <rect x="65" y="95" width="290" height="335" fill="#ffffff" stroke="#d1d5db" stroke-width="1" />
+  
+  <rect x="85" y="115" width="250" height="60" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1" />
+  <text x="100" y="140" font-family="sans-serif" font-weight="bold" font-size="12" fill="#15803d">ธนาคารกรุงไทย (KTB)</text>
+  <text x="100" y="158" font-family="sans-serif" font-size="11" fill="#166534">โอนเงินสำเร็จ • บัญชีวัดพุทธบารมี</text>
 
   <!-- Slip Details -->
-  <text x="110" y="225" font-family="sans-serif" font-size="12" fill="#64748b">จำนวนเงินโอน:</text>
-  <text x="110" y="250" font-family="sans-serif" font-weight="bold" font-size="20" fill="#0f172a">฿ 2,500.00</text>
+  <text x="100" y="205" class="text-muted">จำนวนเงินโอน:</text>
+  <text x="100" y="232" font-family="sans-serif" font-weight="700" font-size="22" fill="#242424">฿ 2,500.00</text>
 
-  <line x1="95" y1="268" x2="335" y2="268" stroke="#e2e8f0" stroke-width="1" />
+  <line x1="85" y1="248" x2="335" y2="248" stroke="#e5e7eb" stroke-width="1" />
 
-  <text x="110" y="290" font-family="sans-serif" font-size="11" fill="#64748b">โอนเข้าบัญชี:</text>
-  <text x="110" y="310" font-family="sans-serif" font-weight="bold" font-size="12" fill="#1e293b">วัดพุทธบารมี (049-x-xxxxx-x)</text>
+  <text x="100" y="270" class="text-muted">บัญชีปลายทาง:</text>
+  <text x="100" y="288" class="text-body" font-weight="600">วัดพุทธบารมี (049-x-xxxxx-x)</text>
 
-  <text x="110" y="340" font-family="sans-serif" font-size="11" fill="#64748b">วัน-เวลา:</text>
-  <text x="110" y="360" font-family="sans-serif" font-size="12" fill="#1e293b">18 ส.ค. 2026, 14:32 น.</text>
+  <text x="100" y="318" class="text-muted">วัน-เวลา:</text>
+  <text x="100" y="336" class="text-body">19 ส.ค. 2026, 08:14 น.</text>
 
-  <rect x="110" y="380" width="100" height="26" fill="#f8fafc" stroke="#cbd5e1" />
-  <text x="120" y="397" font-family="monospace" font-size="10" fill="#475569">REF: #260818992</text>
+  <rect x="100" y="358" width="130" height="28" fill="#f4f4f2" stroke="#d1d5db" stroke-width="1" />
+  <text x="110" y="376" font-family="monospace" font-size="11" fill="#666666">REF: #2608190814</text>
 
   <!-- Right: Verification Checklist -->
-  <rect x="380" y="105" width="345" height="240" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" />
-  <rect x="380" y="105" width="345" height="38" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1" />
-  <text x="395" y="129" font-family="sans-serif" font-weight="bold" font-size="13" fill="#1e293b">📋 รายการตรวจสอบความถูกต้อง 3 จุด</text>
+  <rect x="380" y="95" width="355" height="255" fill="#ffffff" stroke="#d1d5db" stroke-width="1" />
+  <rect x="380" y="95" width="355" height="38" fill="#f4f4f2" stroke="#d1d5db" stroke-width="1" />
+  <text x="398" y="119" font-family="sans-serif" font-weight="700" font-size="13" fill="#242424">📋 รายการตรวจสอบความถูกต้อง 3 จุดสำคัญ</text>
 
   <!-- Point 1 -->
-  <circle cx="405" cy="165" r="10" class="check-circle" />
-  <path d="M401 165 L404 168 L410 162" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" />
-  <text x="425" y="163" font-family="sans-serif" font-weight="bold" font-size="13" fill="#0f172a">1. ตรวจสอบยอดเงิน</text>
-  <text x="425" y="179" class="text-muted">ตรงกับระบบแจ้ง 2,500.00 บาท</text>
+  <rect x="400" y="152" width="16" height="16" fill="#15803d" />
+  <path d="M403 160 L407 164 L413 156" stroke="#ffffff" stroke-width="2" fill="none" />
+  <text x="426" y="157" font-family="sans-serif" font-weight="700" font-size="13" fill="#242424">1. ยอดเงินโอน</text>
+  <text x="426" y="174" class="text-muted">ตรงกับยอดที่บันทึกในระบบ (2,500.00 บาท)</text>
 
   <!-- Point 2 -->
-  <circle cx="405" cy="215" r="10" class="check-circle" />
-  <path d="M401 215 L404 218 L410 212" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" />
-  <text x="425" y="213" font-family="sans-serif" font-weight="bold" font-size="13" fill="#0f172a">2. บัญชีปลายทางวัด</text>
-  <text x="425" y="229" class="text-muted">เข้าบัญชีธนาคารวัดพุทธบารมีถูกต้อง</text>
+  <rect x="400" y="202" width="16" height="16" fill="#15803d" />
+  <path d="M403 210 L407 214 L413 206" stroke="#ffffff" stroke-width="2" fill="none" />
+  <text x="426" y="207" font-family="sans-serif" font-weight="700" font-size="13" fill="#242424">2. บัญชีปลายทางวัด</text>
+  <text x="426" y="224" class="text-muted">โอนเข้าบัญชีธนาคารทางการของวัดถูกต้อง</text>
 
   <!-- Point 3 -->
-  <circle cx="405" cy="265" r="10" class="check-circle" />
-  <path d="M401 265 L404 268 L410 262" stroke="#ffffff" stroke-width="2" fill="none" stroke-linecap="round" />
-  <text x="425" y="263" font-family="sans-serif" font-weight="bold" font-size="13" fill="#0f172a">3. ตรวจสอบใน Statement วัด</text>
-  <text x="425" y="279" class="text-muted">มียอดเงินเข้าจริง ณ วัน-เวลาที่ระบุ</text>
+  <rect x="400" y="252" width="16" height="16" fill="#15803d" />
+  <path d="M403 260 L407 264 L413 256" stroke="#ffffff" stroke-width="2" fill="none" />
+  <text x="426" y="257" font-family="sans-serif" font-weight="700" font-size="13" fill="#242424">3. เปรียบเทียบกับ Statement วัด</text>
+  <text x="426" y="274" class="text-muted">มียอดเงินเข้าจริง ณ วันและเวลาที่ระบุ</text>
 
-  <!-- Action Buttons -->
-  <g transform="translate(380, 365)">
-    <rect x="0" y="0" width="165" height="42" class="btn-verify" />
-    <text x="35" y="26" class="btn-text">✓ ยืนยันยอดเงิน (Verify)</text>
+  <!-- Terracotta Alert -->
+  <rect x="380" y="300" width="355" height="38" fill="#fffbeb" stroke="#fde68a" stroke-width="1" />
+  <text x="395" y="323" class="text-accent">🔒 Private Asset: สลิปนี้เข้ารหัสเข้าถึงเฉพาะเจ้าหน้าที่การเงิน</text>
 
-    <rect x="180" y="0" width="165" height="42" fill="#ffffff" stroke="#dc2626" stroke-width="1.5" />
-    <text x="220" y="26" font-family="sans-serif" font-weight="bold" font-size="13" fill="#dc2626">✕ ปฏิเสธสลิป (Reject)</text>
+  <!-- Action Buttons (Square corners, min 44px target) -->
+  <g transform="translate(380, 370)">
+    <rect x="0" y="0" width="170" height="44" class="btn-verify" />
+    <text x="28" y="27" class="btn-text">✓ ยืนยันยอดเงิน (Verify)</text>
+
+    <rect x="185" y="0" width="170" height="44" fill="#ffffff" stroke="#b91c1c" stroke-width="1.5" />
+    <text x="215" y="27" font-family="sans-serif" font-weight="700" font-size="13" fill="#b91c1c">✕ ปฏิเสธสลิป (Reject)</text>
   </g>
 </svg>
