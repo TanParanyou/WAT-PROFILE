@@ -8,6 +8,7 @@ export interface Role {
   description: string;
   permissions: PermissionsMap;
   admin_access: boolean;
+  is_system?: boolean;
   is_active: boolean;
   created_at: string;
   updated_at: string;

@@ -2,6 +2,7 @@
 
 import React from 'react';
 import DatePicker from 'react-datepicker';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/utils/cn';
 import 'react-datepicker/dist/react-datepicker.css';
 
@@ -19,11 +20,13 @@ export function DateRangePicker({
   value,
   onChange,
   label,
-  placeholderText = "เลือกช่วงเวลา",
+  placeholderText,
   error,
   required,
   className,
 }: DateRangePickerProps) {
+  const tPicker = useTranslations("Admin.common.picker");
+  const defaultPlaceholder = placeholderText || tPicker("chooseDateRange");
   const handleChange = (dates: [Date | null, Date | null]) => {
     const [start, end] = dates;
     onChange({
@@ -47,7 +50,7 @@ export function DateRangePicker({
           endDate={value.to ?? null}
           onChange={handleChange}
           dateFormat="dd/MM/yyyy"
-          placeholderText={placeholderText}
+          placeholderText={defaultPlaceholder}
           isClearable={true}
           className={cn(
             'h-11 min-h-10 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-1.5 text-xs sm:text-sm text-admin-foreground placeholder:text-admin-muted',

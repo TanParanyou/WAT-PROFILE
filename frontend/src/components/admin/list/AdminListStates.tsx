@@ -21,7 +21,8 @@ export function AdminListEmptyState({
   title,
   description,
 }: AdminListEmptyStateProps) {
-  const t = useTranslations("admin.list");
+  const t = useTranslations("Admin.list");
+  const tCommon = useTranslations("Admin.common");
 
   if (hasActiveQuery) {
     return (
@@ -33,7 +34,7 @@ export function AdminListEmptyState({
           {title ?? t("noMatches")}
         </h3>
         <p className="mt-1 text-sm text-admin-muted max-w-sm">
-          {description ?? "ไม่พบข้อมูลที่ตรงกับเงื่อนไขการค้นหาหรือตัวกรองที่คุณเลือก"}
+          {description ?? tCommon("listStates.emptySearchDesc")}
         </p>
         {onClear && (
           <button
@@ -57,7 +58,7 @@ export function AdminListEmptyState({
         {title ?? t("empty")}
       </h3>
       <p className="mt-1 text-sm text-admin-muted max-w-sm">
-        {description ?? "ยังไม่มีข้อมูลในระบบ"}
+        {description ?? tCommon("noData")}
       </p>
       {onCreate && (
         <button
@@ -66,7 +67,7 @@ export function AdminListEmptyState({
           className="mt-4 inline-flex items-center gap-2 min-h-11 rounded-none bg-admin-action px-4 py-2 text-sm font-medium text-admin-on-action hover:bg-admin-action-hover focus-visible:outline-2 focus-visible:outline-admin-focus transition-colors"
         >
           <Plus className="h-4 w-4" />
-          <span>{createLabel ?? "สร้างรายการใหม่"}</span>
+          <span>{createLabel ?? tCommon("create")}</span>
         </button>
       )}
     </div>
@@ -82,7 +83,8 @@ export function AdminListErrorState({
   message,
   onRetry,
 }: AdminListErrorStateProps) {
-  const t = useTranslations("admin.list");
+  const t = useTranslations("Admin.list");
+  const tCommon = useTranslations("Admin.common");
 
   return (
     <div className="flex flex-col items-center justify-center p-12 text-center border border-admin-danger/20 rounded-none bg-admin-danger-surface/30">
@@ -90,10 +92,10 @@ export function AdminListErrorState({
         <AlertTriangle className="h-6 w-6" />
       </div>
       <h3 className="text-base font-semibold text-admin-foreground">
-        เกิดข้อผิดพลาดในการโหลดข้อมูล
+        {tCommon("listStates.errorTitle")}
       </h3>
       <p className="mt-1 text-sm text-admin-danger max-w-md">
-        {message ?? "ไม่สามารถดึงข้อมูลจากเซิร์ฟเวอร์ได้ กรุณาลองใหม่อีกครั้ง"}
+        {message ?? tCommon("errorScreen.defaultMessage")}
       </p>
       <button
         type="button"
@@ -101,7 +103,7 @@ export function AdminListErrorState({
         className="mt-4 inline-flex items-center gap-2 min-h-11 rounded-none bg-admin-danger px-4 py-2 text-sm font-medium text-admin-on-action hover:brightness-90 focus-visible:outline-2 focus-visible:outline-admin-focus transition-colors"
       >
         <RotateCcw className="h-4 w-4" />
-        <span>{t("retry")}</span>
+        <span>{t("retry") || tCommon("listStates.errorRetry")}</span>
       </button>
     </div>
   );

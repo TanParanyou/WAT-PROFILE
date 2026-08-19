@@ -3,9 +3,11 @@
 import { useEffect, useState } from "react";
 import { Facebook, Mail, Youtube, ChevronUp } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useTranslations } from "next-intl";
 import { usePublicSiteSettings } from "@/features/public/settings/PublicSiteSettingsProvider";
 
 export default function StickySocials() {
+  const t = useTranslations("Common");
   const settings = usePublicSiteSettings();
   const [showScrollTop, setShowScrollTop] = useState(false);
 
@@ -70,8 +72,8 @@ export default function StickySocials() {
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.2 }}
               className="flex h-12 w-12 items-center justify-center border border-site-border bg-site-canvas text-site-foreground transition-colors hover:bg-site-surface hover:text-site-accent focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
-              title="เลื่อนขึ้นด้านบน"
-              aria-label="เลื่อนขึ้นด้านบน"
+              title={t("scrollToTop")}
+              aria-label={t("scrollToTop")}
             >
               <ChevronUp size={24} aria-hidden="true" />
             </motion.button>
@@ -107,8 +109,8 @@ export default function StickySocials() {
               exit={{ opacity: 0, y: 10 }}
               transition={{ duration: 0.2 }}
               className="flex h-12 w-12 items-center justify-center border border-site-border bg-site-canvas text-site-foreground shadow-sm transition-colors hover:bg-site-surface hover:text-site-accent focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
-              title="เลื่อนขึ้นด้านบน"
-              aria-label="เลื่อนขึ้นด้านบน"
+              title={t("scrollToTop")}
+              aria-label={t("scrollToTop")}
             >
               <ChevronUp size={24} aria-hidden="true" />
             </motion.button>

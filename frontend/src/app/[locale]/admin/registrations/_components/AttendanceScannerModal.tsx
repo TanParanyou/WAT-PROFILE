@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { QrCode, Camera, CameraOff, CheckCircle2, AlertCircle, Loader2, X, RefreshCw, UserCheck } from "lucide-react";
+import { QrCode, Camera, CameraOff, CheckCircle2, AlertCircle, Loader2, X, UserCheck } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { checkInAdminEventRegistrationByCode } from "@/features/admin/event-registrations/api";
 import type { AdminEventRegistrationDetail } from "@/features/public/event-registration/types";
 
@@ -16,6 +17,8 @@ export function AttendanceScannerModal({
   onClose,
   onSuccessCheckIn,
 }: AttendanceScannerModalProps) {
+  const tScanner = useTranslations("Admin.registrations.scanner");
+  const tCommon = useTranslations("Admin.common");
   const [manualCode, setManualCode] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
@@ -55,7 +58,7 @@ export function AttendanceScannerModal({
         setManualCode("");
         onSuccessCheckIn?.(detail);
       } catch (err: unknown) {
-        const message = err instanceof Error ? err.message : "ไม่พบรหัสลงทะเบียน หรือการลงทะเบียนถูกยกเลิก";
+        const message = err instanceof Error ? err.message : tScanner("invalidCode");
         setErrorMsg(message);
       } finally {
         setIsLoading(false);
@@ -63,7 +66,7 @@ export function AttendanceScannerModal({
         setTimeout(() => inputRef.current?.focus(), 150);
       }
     },
-    [onSuccessCheckIn]
+    [onSuccessCheckIn, tScanner]
   );
 
   // Camera stream controls
@@ -145,12 +148,13 @@ export function AttendanceScannerModal({
           <div className="flex items-center gap-2.5">
             <QrCode className="text-admin-action" size={20} />
             <h2 className="text-base font-semibold text-admin-foreground">
-              สแกนเช็คชื่อผู้เข้าร่วมกิจกรรม (Attendance Check-in)
+              {tScanner("title")}
             </h2>
           </div>
           <button
             type="button"
             onClick={onClose}
+            aria-label={tCommon("close")}
             className="p-1.5 text-admin-muted hover:text-admin-foreground hover:bg-admin-surface-muted transition-colors rounded-none"
           >
             <X size={18} />
@@ -162,7 +166,7 @@ export function AttendanceScannerModal({
           {/* Manual Code Input / Barcode Scanner Gun Box */}
           <div>
             <label className="block text-xs font-semibold text-admin-foreground mb-1.5">
-              พิมพ์รหัสยืนยัน หรือ ยิงบาร์โค้ด / สแกน QR Code (Confirmation Code)
+              {tScanner("enterCodeManual")}
             </label>
             <form
               onSubmit={(e) => {
@@ -176,7 +180,7 @@ export function AttendanceScannerModal({
                 type="text"
                 value={manualCode}
                 onChange={(e) => setManualCode(e.target.value.toUpperCase())}
-                placeholder="เช่น REG-2026-ABCD"
+                placeholder={tScanner("codePlaceholder")}
                 disabled={isLoading}
                 className="flex-1 min-h-11 px-3.5 border border-admin-control-border bg-admin-surface text-admin-foreground font-mono text-sm uppercase placeholder:normal-case placeholder:text-admin-muted focus-visible:outline-2 focus-visible:outline-admin-focus"
               />
@@ -186,7 +190,7 @@ export function AttendanceScannerModal({
                 className="min-h-11 px-5 bg-admin-action text-admin-on-action hover:bg-admin-action-hover text-sm font-semibold transition-colors disabled:opacity-50 inline-flex items-center gap-2"
               >
                 {isLoading ? <Loader2 size={16} className="animate-spin" /> : <UserCheck size={16} />}
-                <span>เช็คชื่อ</span>
+                <span>{tScanner("checkInButton")}</span>
               </button>
             </form>
           </div>
@@ -196,7 +200,7 @@ export function AttendanceScannerModal({
             <div className="flex items-center justify-between mb-3">
               <span className="text-xs font-medium text-admin-foreground flex items-center gap-2">
                 <Camera size={15} className="text-admin-muted" />
-                โหมดเปิดกล้องสแกนสด (Camera Live Scanner)
+                {tScanner("subtitle")}
               </span>
               <button
                 type="button"
@@ -206,12 +210,12 @@ export function AttendanceScannerModal({
                 {cameraActive ? (
                   <>
                     <CameraOff size={14} />
-                    <span>ปิดกล้อง</span>
+                    <span>{tScanner("cameraOff")}</span>
                   </>
                 ) : (
                   <>
                     <Camera size={14} />
-                    <span>เปิดกล้องมือถือ/แท็บเล็ต</span>
+                    <span>{tScanner("subtitle")}</span>
                   </>
                 )}
               </button>
@@ -222,7 +226,7 @@ export function AttendanceScannerModal({
                 <video ref={videoRef} className="w-full h-full object-cover" playsInline muted />
                 <div className="absolute inset-0 border-2 border-dashed border-white/50 pointer-events-none m-8 flex items-center justify-center">
                   <span className="text-[11px] bg-black/70 text-white px-2.5 py-1">
-                    วาง QR Code ให้อยู่ในกรอบ
+                    {tScanner("subtitle")}
                   </span>
                 </div>
               </div>
@@ -249,23 +253,23 @@ export function AttendanceScannerModal({
             <div className="p-4 bg-emerald-500/10 border border-emerald-500/30 text-emerald-900 dark:text-emerald-200">
               <div className="flex items-center gap-2 mb-2">
                 <CheckCircle2 size={20} className="text-emerald-600 dark:text-emerald-400" />
-                <span className="text-sm font-bold">เช็คชื่อสำเร็จเรียบร้อย! (Checked-in)</span>
+                <span className="text-sm font-bold">{tScanner("checkinSuccess")}</span>
               </div>
               <div className="grid grid-cols-2 gap-2 text-xs pt-2 border-t border-emerald-500/20">
                 <div>
-                  <span className="text-admin-muted block">ชื่อผู้เข้าร่วม:</span>
+                  <span className="text-admin-muted block">{tCommon("filter.memberStatus")}:</span>
                   <span className="font-semibold text-admin-foreground">
                     {lastCheckIn.contact?.first_name} {lastCheckIn.contact?.last_name}
                   </span>
                 </div>
                 <div>
-                  <span className="text-admin-muted block">รหัสยืนยัน:</span>
+                  <span className="text-admin-muted block">{tCommon("csvId") || "Code"}:</span>
                   <span className="font-mono font-bold text-admin-foreground">
                     {lastCheckIn.confirmation_code}
                   </span>
                 </div>
                 <div className="col-span-2">
-                  <span className="text-admin-muted block">กิจกรรม:</span>
+                  <span className="text-admin-muted block">{tCommon("filter.eventDate") || "Event"}:</span>
                   <span className="font-medium text-admin-foreground">
                     {lastCheckIn.event.title["th"] || lastCheckIn.event.title["en"] || "Event"}
                   </span>
@@ -279,14 +283,14 @@ export function AttendanceScannerModal({
             <div>
               <div className="flex items-center justify-between mb-2">
                 <span className="text-xs font-semibold text-admin-foreground">
-                  รายชื่อที่เช็คชื่อแล้วในเซสชันนี้ ({checkedInList.length})
+                  {tScanner("checkinSuccess")} ({checkedInList.length})
                 </span>
                 <button
                   type="button"
                   onClick={() => setCheckedInList([])}
                   className="text-[11px] text-admin-muted hover:text-admin-danger"
                 >
-                  ล้างประวัติเซสชัน
+                  {tCommon("clear")}
                 </button>
               </div>
               <div className="border border-admin-border divide-y divide-admin-border max-h-40 overflow-y-auto text-xs">
@@ -318,7 +322,7 @@ export function AttendanceScannerModal({
             onClick={onClose}
             className="min-h-11 px-5 border border-admin-control-border bg-admin-surface hover:bg-admin-surface-muted text-xs font-semibold text-admin-foreground transition-colors"
           >
-            ปิดหน้าต่าง
+            {tCommon("close")}
           </button>
         </div>
       </div>

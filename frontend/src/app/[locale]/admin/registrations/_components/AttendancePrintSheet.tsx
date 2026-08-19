@@ -2,6 +2,7 @@
 
 import React from "react";
 import { Printer, X, Check } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { AdminRegistrationTableRow } from "@/features/admin/event-registrations/mappers";
 
 interface AttendancePrintSheetProps {
@@ -17,6 +18,9 @@ export function AttendancePrintSheet({
   items,
   eventName = "กิจกรรมวัด / Temple Event",
 }: AttendancePrintSheetProps) {
+  const tPrint = useTranslations("Admin.registrations.printSheet");
+  const tCommon = useTranslations("Admin.common");
+
   if (!isOpen) return null;
 
   return (
@@ -26,10 +30,10 @@ export function AttendancePrintSheet({
         <div className="print:hidden p-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
           <div>
             <h2 className="text-sm font-bold text-gray-800">
-              ใบรายชื่อผู้เข้าร่วมสำหรับโต๊ะลงทะเบียน (Printable Attendance Sheet)
+              {tPrint("title")}
             </h2>
             <p className="text-xs text-gray-500">
-              พร้อมพิมพ์ {items.length} รายชื่อบนกระดาษ A4
+              {items.length} {tCommon("dataTable.entries")}
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -39,12 +43,13 @@ export function AttendancePrintSheet({
               className="min-h-10 px-4 bg-black text-white text-xs font-semibold hover:bg-gray-800 inline-flex items-center gap-1.5 transition-colors"
             >
               <Printer size={15} />
-              <span>พิมพ์เอกสาร (Print)</span>
+              <span>{tPrint("title")} (Print)</span>
             </button>
             <button
               type="button"
               onClick={onClose}
               className="min-h-10 px-3 border border-gray-300 bg-white text-gray-700 text-xs font-semibold hover:bg-gray-100 transition-colors"
+              aria-label={tCommon("close")}
             >
               <X size={15} />
             </button>
@@ -56,14 +61,14 @@ export function AttendancePrintSheet({
           {/* Header */}
           <div className="border-b-2 border-black pb-4 mb-6 text-center">
             <h1 className="text-xl font-bold uppercase tracking-wider">
-              วัดสังฆทาน (Wat Loung Por Sai)
+              {tPrint("title")}
             </h1>
             <h2 className="text-base font-semibold mt-1">
-              ใบเช็คชื่อผู้เข้าร่วมงาน: {eventName}
+              {eventName}
             </h2>
             <div className="flex items-center justify-between text-xs text-gray-600 mt-3 pt-2 border-t border-gray-300">
-              <span>วันที่พิมพ์: {new Date().toLocaleDateString("th-TH", { dateStyle: "long" })}</span>
-              <span>จำนวนผู้ลงทะเบียนทั้งหมด: {items.length} ท่าน</span>
+              <span>{tCommon("filter.dateRange")}: {new Date().toLocaleDateString("de-DE", { dateStyle: "long" })}</span>
+              <span>{tPrint("count")}: {items.length}</span>
             </div>
           </div>
 
@@ -71,13 +76,13 @@ export function AttendancePrintSheet({
           <table className="w-full text-xs border-collapse border border-black">
             <thead>
               <tr className="bg-gray-100 border-b border-black">
-                <th className="border border-black p-2 text-center w-10">ลำดับ</th>
-                <th className="border border-black p-2 text-left w-28">รหัสยืนยัน</th>
-                <th className="border border-black p-2 text-left">ชื่อ-นามสกุล</th>
-                <th className="border border-black p-2 text-center w-14">จำนวน</th>
-                <th className="border border-black p-2 text-left w-28">เบอร์โทร</th>
-                <th className="border border-black p-2 text-left">ความต้องการพิเศษ/อาหาร</th>
-                <th className="border border-black p-2 text-center w-28">ลายเซ็น / เช็คชื่อ</th>
+                <th className="border border-black p-2 text-center w-10">{tPrint("index")}</th>
+                <th className="border border-black p-2 text-left w-28">{tPrint("code")}</th>
+                <th className="border border-black p-2 text-left">{tPrint("name")}</th>
+                <th className="border border-black p-2 text-center w-14">{tPrint("count")}</th>
+                <th className="border border-black p-2 text-left w-28">{tPrint("phone")}</th>
+                <th className="border border-black p-2 text-left">{tPrint("dietary")}</th>
+                <th className="border border-black p-2 text-center w-28">{tPrint("signature")}</th>
               </tr>
             </thead>
             <tbody>
@@ -93,7 +98,7 @@ export function AttendancePrintSheet({
                     {row.status === "attended" ? (
                       <span className="inline-flex items-center gap-1 font-bold text-[10px] uppercase text-emerald-700">
                         <Check size={11} strokeWidth={3} className="shrink-0" />
-                        <span>เช็คแล้ว</span>
+                        <span>{tPrint("checked")}</span>
                       </span>
                     ) : (
                       <div className="w-6 h-6 border border-gray-400 mx-auto" />
@@ -106,8 +111,8 @@ export function AttendancePrintSheet({
 
           {/* Footer Notes */}
           <div className="mt-8 pt-4 border-t border-gray-300 flex items-center justify-between text-[11px] text-gray-500">
-            <span>เจ้าหน้าที่ลงทะเบียน: ............................................................</span>
-            <span>ลงชื่อผู้รับผิดชอบ: ............................................................</span>
+            <span>{tPrint("staffSignature")} ............................................................</span>
+            <span>{tPrint("responsibleSignature")} ............................................................</span>
           </div>
         </div>
       </div>

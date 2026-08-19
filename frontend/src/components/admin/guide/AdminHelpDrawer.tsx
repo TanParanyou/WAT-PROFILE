@@ -18,12 +18,12 @@ export function AdminHelpDrawer({ isOpen, onClose }: AdminHelpDrawerProps) {
   const router = useRouter();
   const t = useTranslations("Admin.guide");
   const locale = useLocale() as "th" | "en" | "de";
-  const { isAdmin } = usePermission();
+  const { isSuperAdmin } = usePermission();
 
   // Find guide matching current pathname
   const matchedGuide = getGuideByRoutePath(pathname);
   const activeGuide =
-    matchedGuide && (!matchedGuide.superAdminOnly || isAdmin)
+    matchedGuide && (!matchedGuide.superAdminOnly || isSuperAdmin)
       ? matchedGuide
       : allGuideArticles.find((a) => !a.superAdminOnly) || allGuideArticles[0];
 

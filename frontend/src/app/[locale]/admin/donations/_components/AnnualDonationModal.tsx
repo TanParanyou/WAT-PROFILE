@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { X, FileText, Download, Search, Loader2, Calendar, Users, DollarSign, Receipt, Printer } from "lucide-react";
+import { X, FileText, Download, Search, Loader2, Users, DollarSign, Receipt } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { donationAdminService, type AnnualDonationSummaryResponse, type DonorAnnualSummary } from "@/services/adminService";
 import type { Donation } from "@/types/entities";
 import { AnnualCertificatePrintSheet } from "./AnnualCertificatePrintSheet";
@@ -12,6 +13,8 @@ interface AnnualDonationModalProps {
 }
 
 export function AnnualDonationModal({ isOpen, onClose }: AnnualDonationModalProps) {
+  const tAnnual = useTranslations("Admin.donations.annual");
+  const tCommon = useTranslations("Admin.common");
   const currentYear = new Date().getFullYear();
   const [selectedYear, setSelectedYear] = useState<number>(currentYear);
   const [summaryData, setSummaryData] = useState<AnnualDonationSummaryResponse | null>(null);
@@ -138,7 +141,7 @@ export function AnnualDonationModal({ isOpen, onClose }: AnnualDonationModalProp
             {/* Year Selector & Action Bar */}
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
               <div className="flex items-center gap-2">
-                <span className="text-xs font-semibold text-admin-foreground">เลือกปีภาษี / Tax Year:</span>
+                <span className="text-xs font-semibold text-admin-foreground">{tAnnual("taxYear")}:</span>
                 <div className="inline-flex border border-admin-control-border bg-admin-surface">
                   {yearOptions.map((yr) => (
                     <button
@@ -151,7 +154,7 @@ export function AnnualDonationModal({ isOpen, onClose }: AnnualDonationModalProp
                           : "text-admin-muted hover:text-admin-foreground hover:bg-admin-surface-muted"
                       }`}
                     >
-                      {yr} (พ.ศ. {yr + 543})
+                      {yr}
                     </button>
                   ))}
                 </div>
@@ -165,7 +168,7 @@ export function AnnualDonationModal({ isOpen, onClose }: AnnualDonationModalProp
                   className="min-h-9 px-3.5 border border-admin-control-border bg-admin-surface hover:bg-admin-surface-muted text-admin-foreground text-xs font-semibold inline-flex items-center gap-1.5 transition-colors disabled:opacity-50"
                 >
                   <Download size={14} />
-                  <span>ส่งออกรายงาน CSV</span>
+                  <span>{tAnnual("exportCsv")}</span>
                 </button>
               </div>
             </div>
@@ -174,7 +177,7 @@ export function AnnualDonationModal({ isOpen, onClose }: AnnualDonationModalProp
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               <div className="p-4 bg-admin-surface border border-admin-border">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-admin-muted">ยอดบริจาครวมทั้งปี {selectedYear}</span>
+                  <span className="text-xs font-medium text-admin-muted">{tAnnual("totalYearDonations")} {selectedYear}</span>
                   <DollarSign size={16} className="text-admin-muted" />
                 </div>
                 <p className="text-2xl font-bold font-mono text-admin-foreground mt-1">
@@ -184,21 +187,21 @@ export function AnnualDonationModal({ isOpen, onClose }: AnnualDonationModalProp
 
               <div className="p-4 bg-admin-surface border border-admin-border">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-admin-muted">ผู้บริจาคทั้งหมด (Unique Donors)</span>
+                  <span className="text-xs font-medium text-admin-muted">{tAnnual("uniqueDonors")}</span>
                   <Users size={16} className="text-admin-muted" />
                 </div>
                 <p className="text-2xl font-bold font-mono text-admin-foreground mt-1">
-                  {summaryData ? summaryData.total_donors.toLocaleString() : 0} ท่าน
+                  {summaryData ? summaryData.total_donors.toLocaleString() : 0}
                 </p>
               </div>
 
               <div className="p-4 bg-admin-surface border border-admin-border">
                 <div className="flex items-center justify-between">
-                  <span className="text-xs font-medium text-admin-muted">จำนวนรายการทำบุญ (Transactions)</span>
+                  <span className="text-xs font-medium text-admin-muted">{tAnnual("transactions")}</span>
                   <Receipt size={16} className="text-admin-muted" />
                 </div>
                 <p className="text-2xl font-bold font-mono text-admin-foreground mt-1">
-                  {summaryData ? summaryData.total_count.toLocaleString() : 0} ครั้ง
+                  {summaryData ? summaryData.total_count.toLocaleString() : 0}
                 </p>
               </div>
             </div>
@@ -210,7 +213,7 @@ export function AnnualDonationModal({ isOpen, onClose }: AnnualDonationModalProp
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="ค้นหาชื่อผู้บริจาค, อีเมล หรือที่อยู่..."
+                placeholder={tAnnual("searchDonorPlaceholder")}
                 className="w-full min-h-10 pl-9 pr-4 text-xs bg-admin-surface border border-admin-control-border text-admin-foreground placeholder:text-admin-muted focus-visible:outline-2 focus-visible:outline-admin-focus"
               />
             </div>
@@ -222,11 +225,11 @@ export function AnnualDonationModal({ isOpen, onClose }: AnnualDonationModalProp
                   <thead className="bg-admin-surface-muted/50 border-b border-admin-border text-admin-muted font-medium sticky top-0 bg-admin-surface">
                     <tr>
                       <th className="p-3 w-12 text-center">#</th>
-                      <th className="p-3">ผู้บริจาค (Donor)</th>
-                      <th className="p-3">ข้อมูลติดต่อ / ที่อยู่</th>
-                      <th className="p-3 text-center">จำนวนครั้ง</th>
-                      <th className="p-3 text-right">ยอดรวมประจำปี</th>
-                      <th className="p-3 text-right">เอกสารอนุโมทนาบัตร</th>
+                      <th className="p-3">{tAnnual("donor")}</th>
+                      <th className="p-3">{tAnnual("contactAddress")}</th>
+                      <th className="p-3 text-center">{tAnnual("donationCount")}</th>
+                      <th className="p-3 text-right">{tAnnual("yearTotal")}</th>
+                      <th className="p-3 text-right">{tAnnual("issueCertificate")}</th>
                     </tr>
                   </thead>
                   <tbody className="divide-y divide-admin-border bg-admin-surface">
@@ -234,13 +237,13 @@ export function AnnualDonationModal({ isOpen, onClose }: AnnualDonationModalProp
                       <tr>
                         <td colSpan={6} className="p-8 text-center text-admin-muted">
                           <Loader2 size={24} className="animate-spin mx-auto mb-2" />
-                          <span>กำลังรวบรวมข้อมูลสรุปประจำปี...</span>
+                          <span>{tCommon("loading")}</span>
                         </td>
                       </tr>
                     ) : filteredDonors.length === 0 ? (
                       <tr>
                         <td colSpan={6} className="p-8 text-center text-admin-muted">
-                          ไม่พบข้อมูลการบริจาคในปี {selectedYear}
+                          {tCommon("noData")}
                         </td>
                       </tr>
                     ) : (
@@ -272,7 +275,7 @@ export function AnnualDonationModal({ isOpen, onClose }: AnnualDonationModalProp
                               className="inline-flex items-center gap-1.5 px-3 py-1.5 border border-admin-control-border bg-admin-surface hover:bg-admin-surface-muted text-admin-action text-[11px] font-semibold transition-colors"
                             >
                               <FileText size={13} />
-                              <span>ออกใบสรุปยอด (Spendenbescheinigung)</span>
+                              <span>{tAnnual("issueCertificate")}</span>
                             </button>
                           </td>
                         </tr>
@@ -291,7 +294,7 @@ export function AnnualDonationModal({ isOpen, onClose }: AnnualDonationModalProp
               onClick={onClose}
               className="min-h-11 px-5 border border-admin-control-border bg-admin-surface hover:bg-admin-surface-muted text-xs font-semibold text-admin-foreground transition-colors"
             >
-              ปิดหน้าต่าง
+              {tCommon("close")}
             </button>
           </div>
         </div>

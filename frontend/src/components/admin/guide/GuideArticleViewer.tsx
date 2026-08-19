@@ -36,7 +36,7 @@ interface ActiveLightboxState {
 export function GuideArticleViewer({ article }: GuideArticleViewerProps) {
   const locale = useLocale() as "th" | "en" | "de";
   const t = useTranslations("Admin.guide");
-  const { isAdmin } = usePermission();
+  const { isSuperAdmin } = usePermission();
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const [lightbox, setLightbox] = useState<ActiveLightboxState | null>(null);
 
@@ -115,8 +115,8 @@ export function GuideArticleViewer({ article }: GuideArticleViewerProps) {
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [lightbox, nextLightboxImage, prevLightboxImage]);
 
-  // If article is superAdminOnly and current user is not admin, show restricted view
-  if (article.superAdminOnly && !isAdmin) {
+  // If article is superAdminOnly and current user is not superadmin, show restricted view
+  if (article.superAdminOnly && !isSuperAdmin) {
     return (
       <div className="max-w-2xl mx-auto my-12 bg-admin-surface border border-admin-danger/30 p-8 space-y-6 text-center shadow-2xs">
         <div className="w-14 h-14 mx-auto bg-admin-danger-surface text-admin-danger flex items-center justify-center border border-admin-danger/30">

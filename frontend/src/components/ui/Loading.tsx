@@ -1,6 +1,5 @@
-'use client';
-
 import React from 'react';
+import { useTranslations } from 'next-intl';
 
 type LoadingSize = 'sm' | 'md' | 'lg';
 
@@ -37,11 +36,14 @@ const Loading: React.FC<LoadingProps> = ({ size = 'md', text, className = '' }) 
 };
 
 // Page Loading
-const PageLoading: React.FC<{ text?: string }> = ({ text = 'กำลังโหลด...' }) => (
-    <div className="flex items-center justify-center min-h-[400px]">
-        <Loading size="lg" text={text} />
-    </div>
-);
+const PageLoading: React.FC<{ text?: string }> = ({ text }) => {
+    const tCommon = useTranslations("Admin.common");
+    return (
+        <div className="flex items-center justify-center min-h-[400px]">
+            <Loading size="lg" text={text || tCommon("loading")} />
+        </div>
+    );
+};
 
 // Skeleton
 interface SkeletonProps {

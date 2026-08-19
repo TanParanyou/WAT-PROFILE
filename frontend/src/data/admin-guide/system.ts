@@ -132,60 +132,89 @@ export const systemGuides: GuideArticle[] = [
     slug: "roles",
     category: "system",
     title: {
-      th: "บทบาทและสิทธิ์การใช้งาน (Roles & RBAC Permissions)",
-      en: "Roles & Granular RBAC Permissions",
-      de: "Rollen & Detaillierte Berechtigungen (RBAC)",
+      th: "บทบาทและสิทธิ์การใช้งาน (Roles & Pure Flag RBAC Architecture)",
+      en: "Roles & Pure Flag RBAC Permissions Architecture",
+      de: "Rollen & Pure-Flag-RBAC-Berechtigungsarchitektur",
     },
     summary: {
-      th: "การสร้างบทบาทและกำหนดสิทธิ์แบบละเอียด (Create, Read, Update, Delete) รายโมดูล",
-      en: "Configuring roles and granular permissions (Create, Read, Update, Delete) per resource.",
-      de: "Konfiguration von Rollen und granularen Zugriffsrechten (Erstellen, Lesen, Bearbeiten, Löschen).",
+      th: "การกำหนดสิทธิ์แบบ Pure Flag (is_system & admin_access), สิทธิ์ Super Admin อัตโนมัติ, การคุ้มครอง System Role และระบบป้องกัน Super Admin คนสุดท้าย (Lockout Protection)",
+      en: "Pure Flag RBAC architecture (is_system & admin_access), automatic Super Admin bypass, System Role immutability, and Last Active Super Admin lockout protection.",
+      de: "Pure-Flag-RBAC-Architektur (is_system & admin_access), automatischer Super-Admin-Bypass, System-Rollen-Schutz und Lockout-Schutz für den letzten Super-Admin.",
     },
     iconName: "Shield",
     resource: "users",
     routePath: "/admin/roles",
     quickSteps: [
       {
-        th: "เข้าเมนู /admin/roles เพื่อดูตารางบทบาททั้งหมด",
-        en: "Navigate to /admin/roles to view role matrix.",
-        de: "Zu /admin/roles gehen für die Rollenmatrix.",
+        th: "เข้าเมนู /admin/roles เพื่อดูตารางบทบาททั้งหมด สังเกต Badge [System] บนบทบาทของระบบ",
+        en: "Navigate to /admin/roles and look for the [System] badge on protected system roles.",
+        de: "Zu /admin/roles gehen und auf das [System]-Badge für geschützte Systemrollen achten.",
       },
       {
-        th: "กด '+ สร้างบทบาท' หรือคลิกแก้ไขบทบาทที่มีอยู่",
-        en: "Click '+ Create Role' or edit an existing one.",
-        de: "Auf '+ Rolle erstellen' klicken oder bestehende bearbeiten.",
+        th: "กด '+ สร้างบทบาท' สำหรับ Custom Role หรือแก้ไขสิทธิ์ในบทบาทที่เปิดให้ปรับแต่ง",
+        en: "Click '+ Create Role' for custom roles or edit configurable permissions.",
+        de: "Auf '+ Rolle erstellen' klicken für eigene Rollen oder Berechtigungen anpassen.",
       },
       {
-        th: "ติ๊กเลือกสิทธิ์ Create/Read/Update/Delete ในแต่ละโมดูลอย่างระมัดระวัง",
-        en: "Check Create/Read/Update/Delete boxes per module carefully.",
-        de: "Berechtigungen pro Modul sorgfältig auswählen.",
+        th: "กำหนดสิทธิ์ Resource + Action โดย Super Admin และ Global Wildcard (*: all) จะมีสิทธิ์ทุกโมดูลอัตโนมัติ",
+        en: "Configure resource actions; Super Admin and Global Wildcard (*: all) inherit all permissions automatically.",
+        de: "Ressourcenrechte festlegen; Super-Admin und Wildcard (*: all) erhalten automatisch alle Rechte.",
+      },
+    ],
+    statusLegends: [
+      {
+        badgeVariant: "info",
+        label: { th: "System Role", en: "System Role", de: "System-Rolle" },
+        meaning: {
+          th: "บทบาทของระบบ (is_system: true) ถูกล็อกห้ามลบ ห้ามเปลี่ยนชื่อ และห้ามปิดการใช้งาน",
+          en: "Protected system role (is_system: true); immutable against deletion, renaming, or deactivation.",
+          de: "Geschützte Systemrolle (is_system: true); geschützt vor Löschung, Umbenennung oder Deaktivierung.",
+        },
+      },
+      {
+        badgeVariant: "success",
+        label: { th: "Super Admin", en: "Super Admin", de: "Super-Admin" },
+        meaning: {
+          th: "ผู้ดูแลระบบสูงสุด (is_system: true && admin_access: true) ได้รับสิทธิ์ทุกโมดูลอัตโนมัติ 100%",
+          en: "Chief administrator (is_system: true && admin_access: true); granted all module permissions automatically.",
+          de: "Hauptadministrator (is_system: true && admin_access: true); erhält automatisch alle Modulrechte.",
+        },
+      },
+      {
+        badgeVariant: "default",
+        label: { th: "Custom Role", en: "Custom Role", de: "Benutzerdefinierte Rolle" },
+        meaning: {
+          th: "บทบาทที่สร้างขึ้นเอง สามารถปรับแต่งสิทธิ์ สร้าง แก้ไข หรือลบได้ตามต้องการ",
+          en: "Custom user-created role; fully configurable, editable, and deletable.",
+          de: "Benutzerdefinierte Rolle; voll konfigurierbar, bearbeitbar und löschbar.",
+        },
       },
     ],
     steps: [
       {
         stepNumber: 1,
         title: {
-          th: "สร้างหรือแก้ไขบทบาท",
-          en: "Create or Edit Role",
-          de: "Rolle anlegen oder bearbeiten",
+          th: "โครงสร้าง Pure Flag Architecture & System Role Immutability",
+          en: "Pure Flag Architecture & System Role Immutability",
+          de: "Pure-Flag-Architektur & Unveränderlichkeit von Systemrollen",
         },
         description: {
-          th: "ตั้งชื่อบทบาท เช่น 'ผู้ช่วยฝ่ายพิธีสงฆ์' พร้อมคำอธิบายหน้าที่ความรับผิดชอบ",
-          en: "Define role name (e.g. 'Ceremony Coordinator') and operational scope.",
-          de: "Rollenname (z.B. 'Zeremonienkoordinator') und Aufgabenbereich definieren.",
+          th: "ระบบเปลี่ยนจากการเช็คชื่อ String มาใช้ Flag is_system และ admin_access ใน Database โดย System Role จะมี Badge [System] กำกับ และถูกล็อกในระดับ API ห้ามลบ ห้ามเปลี่ยนชื่อ หรือปิดสถานะ Active",
+          en: "The system relies on is_system and admin_access database flags rather than hardcoded string names. System roles display a [System] badge and are guarded at the API layer against deletion or renaming.",
+          de: "Das System nutzt is_system und admin_access Flags anstelle von String-Vergleichen. Systemrollen tragen das [System]-Badge und sind auf API-Ebene vor Löschung geschützt.",
         },
       },
       {
         stepNumber: 2,
         title: {
-          th: "กำหนดสิทธิ์ตามหลักความจำเป็นขั้นต่ำ (Least Privilege)",
-          en: "Apply Least Privilege Principle",
-          de: "Prinzip der geringsten Rechte anwenden",
+          th: "กำหนดสิทธิ์ตามหลัก Least Privilege & Global Wildcard",
+          en: "Least Privilege Principle & Global Wildcard",
+          de: "Prinzip der geringsten Rechte & Globaler Wildcard-Zugriff",
         },
         description: {
-          th: "เลือกเปิดเฉพาะสิทธิ์ที่เจ้าหน้าที่ตำแหน่งนั้นต้องใช้งานจริง เช่น เจ้าหน้าที่กิจกรรมควรได้สิทธิ์เฉพาะ Events, Calendar, Registrations เท่านั้น โดยไม่ต้องเข้าถึงโมดูลการเงินหรือสิทธิ์ระบบ",
-          en: "Grant only permissions essential for the duty (e.g. event staff need access to events/calendar, not finance).",
-          de: "Gewähren Sie nur notwendige Berechtigungen (z.B. Event-Team benötigt keinen Zugriff auf Finanzen).",
+          th: "เลือกเปิดเฉพาะสิทธิ์ที่เจ้าหน้าที่ตำแหน่งนั้นต้องใช้งานจริง สำหรับ Super Admin (is_system = true && admin_access = true) หรือบทบาทที่มี Global Wildcard (*: all) ระบบจะมอบสิทธิ์ในทุกโมดูลอัตโนมัติ แม้จะมีโมดูลใหม่เพิ่มเข้ามาในอนาคต",
+          en: "Grant only essential permissions. Super Admin accounts and roles with Global Wildcard (*: all) automatically inherit access to all current and future modules.",
+          de: "Vergeben Sie nur notwendige Rechte. Super-Admins und Rollen mit Wildcard (*: all) erhalten automatisch Vollzugriff auf alle aktuellen und zukünftigen Module.",
         },
         image: "/images/guide/rbac-matrix.svg",
         imageCaption: {
@@ -193,15 +222,41 @@ export const systemGuides: GuideArticle[] = [
           en: "Role-Based Access Control granular permissions matrix preview",
           de: "Rollenbasierte granulare Berechtigungsmatrix",
         },
-        warning: {
-          th: "บทบาท Super Admin ควรสงวนไว้สำหรับเจ้าอาวาสหรือผู้ดูแลระบบหลักเท่านั้น",
-          en: "Super Admin role should be strictly reserved for Abbot and chief system administrators.",
-          de: "Die Super-Admin-Rolle sollte ausschließlich der Tempelleitung vorbehalten sein.",
+      },
+      {
+        stepNumber: 3,
+        title: {
+          th: "ระบบป้องกัน Super Admin คนสุดท้าย (Last Active Super Admin Lockout Protection)",
+          en: "Last Active Super Admin Lockout Protection",
+          de: "Schutz des letzten aktiven Super-Admins (Lockout-Schutz)",
+        },
+        description: {
+          th: "เพื่อป้องกันไม่ให้ระบบล็อกตัวเอง (System Lockout) หากในระบบเหลือ Super Admin ที่ Active อยู่เพียง 1 บัญชีสุดท้าย ระบบจะปฏิเสธการลบ, การปิดการใช้งาน หรือการเปลี่ยนบทบาทของบัญชีนั้นโดยอัตโนมัติ",
+          en: "To prevent system lockout, if only 1 active Super Admin remains, the system strictly blocks deletion, deactivation, or role demotion of that final account.",
+          de: "Um System-Aussperrungen zu verhindern, blockiert das System automatisch das Löschen, Deaktivieren oder Herabstufen des letzten verbleibenden aktiven Super-Admins.",
+        },
+        tip: {
+          th: "หากต้องการเปลี่ยนบทบาทของ Super Admin คนเดิม ให้สร้างหรือตั้งค่า Super Admin บัญชีใหม่ให้เรียบร้อยก่อน",
+          en: "To reassign roles for the current Super Admin, ensure another active Super Admin account is provisioned first.",
+          de: "Um die Rolle des aktuellen Super-Admins zu ändern, erstellen Sie zuerst ein weiteres aktives Super-Admin-Konto.",
         },
       },
     ],
-    faqs: [],
-    relatedSlugs: ["users", "audit-logs"],
+    faqs: [
+      {
+        question: {
+          th: "ทำไมปุ่มลบ (Delete) ถึงเป็นสีเทาหรือไม่สามารถกดได้ในบางบทบาท?",
+          en: "Why is the Delete button disabled on certain roles?",
+          de: "Warum ist die Schaltfläche 'Löschen' bei manchen Rollen deaktiviert?",
+        },
+        answer: {
+          th: "เพราะบทบาทนั้นเป็น System Role (is_system: true) ซึ่งเป็นรากฐานความปลอดภัยของระบบ จึงไม่อนุญาตให้ลบได้",
+          en: "Because the role is a protected System Role (is_system: true) essential for system operation.",
+          de: "Weil es sich um eine geschützte Systemrolle (is_system: true) handelt, die für die Systemsicherheit unverzichtbar ist.",
+        },
+      },
+    ],
+    relatedSlugs: ["users", "audit-logs", "environment-config"],
     updatedAt: "2026-08-19",
   },
   {

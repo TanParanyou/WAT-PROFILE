@@ -25,7 +25,7 @@ export function GuideCategoryNav({
   const locale = useLocale() as "th" | "en" | "de";
   const t = useTranslations("Admin.guide");
   const pathname = usePathname();
-  const { isAdmin } = usePermission();
+  const { isSuperAdmin } = usePermission();
 
   const isHubHome = pathname === "/admin/guide" || pathname.endsWith("/admin/guide");
 
@@ -53,7 +53,7 @@ export function GuideCategoryNav({
       <div className="space-y-4">
         {guideCategories.map((category) => {
           const articles = getGuideArticlesByCategory(category.id).filter(
-            (a) => !a.superAdminOnly || isAdmin,
+            (a) => !a.superAdminOnly || isSuperAdmin,
           );
 
           if (articles.length === 0) return null;

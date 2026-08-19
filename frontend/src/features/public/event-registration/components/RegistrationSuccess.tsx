@@ -53,7 +53,7 @@ export function RegistrationSuccess({ registration }: { registration: EventRegis
               className="inline-flex items-center gap-1.5 text-xs text-site-muted hover:text-site-foreground transition-colors"
             >
               <Download size={13} />
-              <span>บันทึกรูป QR Code</span>
+              <span>{t("saveQrCode")}</span>
             </a>
           </div>
         ) : (
@@ -64,11 +64,11 @@ export function RegistrationSuccess({ registration }: { registration: EventRegis
 
         <div className="flex-1 min-w-0 space-y-3 text-sm">
           <div className="inline-flex items-center gap-1 px-2.5 py-1 bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 border border-emerald-500/20 text-xs font-semibold">
-            <span>บัตรลงทะเบียน / Attendance Pass</span>
+            <span>{t("attendancePass")}</span>
           </div>
 
           <div>
-            <span className="text-xs text-site-muted block">รหัสยืนยันการลงทะเบียน (Confirmation Code)</span>
+            <span className="text-xs text-site-muted block">{t("confirmationCodeLabel")}</span>
             <span className="text-xl font-bold font-mono text-site-foreground tracking-wider block">
               {registration.confirmation_code}
             </span>
@@ -76,13 +76,13 @@ export function RegistrationSuccess({ registration }: { registration: EventRegis
 
           <div className="grid grid-cols-2 gap-4 pt-2 border-t border-site-border/60">
             <div>
-              <span className="text-xs text-site-muted block">จำนวนผู้เข้าร่วม</span>
+              <span className="text-xs text-site-muted block">{t("participantCount")}</span>
               <span className="font-semibold text-site-foreground">
-                {registration.participant_count} ท่าน
+                {registration.participant_count} {t("personUnit")}
               </span>
             </div>
             <div>
-              <span className="text-xs text-site-muted block">ผู้ลงทะเบียน</span>
+              <span className="text-xs text-site-muted block">{t("registrant")}</span>
               <span className="font-semibold text-site-foreground truncate block">
                 {registration.contact?.first_name} {registration.contact?.last_name}
               </span>
@@ -91,7 +91,7 @@ export function RegistrationSuccess({ registration }: { registration: EventRegis
 
           <div className="flex items-start gap-1.5 pt-1 text-xs text-site-muted/90">
             <Lightbulb size={14} className="shrink-0 mt-0.5 text-amber-500" />
-            <span>โปรดแสดง QR Code นี้แก่เจ้าหน้าที่โต๊ะลงทะเบียนหน้าศาลาเพื่อความสะดวกรวดเร็วในการเช็คชื่อ</span>
+            <span>{t("qrInstructions")}</span>
           </div>
         </div>
       </div>
@@ -111,7 +111,7 @@ export function RegistrationSuccess({ registration }: { registration: EventRegis
           className="inline-flex min-h-11 items-center gap-2 border border-site-border bg-site-canvas px-4 text-sm font-medium text-site-foreground hover:bg-site-surface transition-colors"
         >
           <Printer size={16} />
-          <span>พิมพ์ใบคอนเฟิร์ม</span>
+          <span>{t("printConfirmation")}</span>
         </button>
       </div>
     </section>

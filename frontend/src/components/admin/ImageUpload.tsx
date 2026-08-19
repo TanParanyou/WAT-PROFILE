@@ -25,6 +25,7 @@ export function ImageUpload({
   autoUpload = true,
 }: ImageUploadProps) {
   const t = useTranslations("Admin");
+  const tCommon = useTranslations("Admin.common");
   const [isLightboxOpen, setIsLightboxOpen] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [uploadError, setUploadError] = useState<string | null>(null);
@@ -39,13 +40,13 @@ export function ImageUpload({
 
       // Validate file type
       if (!file.type.startsWith("image/")) {
-        setUploadError("กรุณาเลือกไฟล์รูปภาพเท่านั้น");
+        setUploadError(t("gallery.uploadErrors.invalidType") || "กรุณาเลือกไฟล์รูปภาพเท่านั้น");
         return;
       }
 
       // Validate file size (15MB raw limit, will be compressed)
       if (file.size > 15 * 1024 * 1024) {
-        setUploadError("ขนาดไฟล์ต้องไม่เกิน 15MB");
+        setUploadError(t("gallery.uploadErrors.fileTooLarge") || "ขนาดไฟล์ต้องไม่เกิน 15MB");
         return;
       }
 
@@ -67,7 +68,7 @@ export function ImageUpload({
           const message =
             err instanceof Error
               ? err.message
-              : "อัปโหลดรูปภาพไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
+              : t("gallery.uploadErrors.uploadFailed") || "อัปโหลดรูปภาพไม่สำเร็จ กรุณาลองใหม่อีกครั้ง";
           setUploadError(message);
         } finally {
           setIsUploading(false);
@@ -76,7 +77,7 @@ export function ImageUpload({
         onChange(targetFile);
       }
     },
-    [autoUpload, onChange]
+    [autoUpload, onChange, t]
   );
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -154,7 +155,7 @@ export function ImageUpload({
               <div className="absolute inset-0 bg-admin-surface/80 flex flex-col items-center justify-center">
                 <Loader2 size={24} className="animate-spin text-admin-action" />
                 <span className="text-[10px] text-admin-action font-medium mt-1">
-                  กำลังอัปโหลด...
+                  {tCommon("imageUpload.uploading")}
                 </span>
               </div>
             )}
@@ -166,7 +167,7 @@ export function ImageUpload({
                 type="button"
                 onClick={() => setIsLightboxOpen(true)}
                 className="absolute inset-0 bg-black/40 text-admin-on-action rounded-none flex items-center justify-center opacity-0 group-hover/preview:opacity-100 transition-opacity focus-visible:outline-2 focus-visible:outline-admin-focus"
-                title="ดูภาพขนาดเต็ม"
+                title={t("previews.expandImage") || tCommon("common.view")}
               >
                 <Eye size={20} strokeWidth={1.5} />
               </button>
@@ -174,7 +175,7 @@ export function ImageUpload({
                 type="button"
                 onClick={handleRemove}
                 className="absolute -top-2 -right-2 h-6 w-6 bg-admin-danger hover:brightness-90 text-admin-on-action rounded-none flex items-center justify-center shadow-md transition-colors z-10 focus-visible:outline-2 focus-visible:outline-admin-focus"
-                title="ลบรูปภาพ"
+                title={tCommon("delete")}
               >
                 <X size={14} />
               </button>
@@ -196,7 +197,7 @@ export function ImageUpload({
           {isUploading ? (
             <div className="flex flex-col items-center justify-center">
               <Loader2 size={20} className="animate-spin text-admin-action mb-1" />
-              <span className="text-[10px] text-admin-action font-medium">กำลังอัปโหลด...</span>
+              <span className="text-[10px] text-admin-action font-medium">{tCommon("imageUpload.uploading")}</span>
             </div>
           ) : (
             <>
@@ -204,10 +205,10 @@ export function ImageUpload({
                 size={20}
                 className="text-admin-muted group-hover:text-admin-action mb-1 transition-colors"
               />
-              <span className="text-xs text-admin-muted group-hover:text-admin-selected-foreground font-medium">
-                {t("gallery.upload") || "เลือกไฟล์จากเครื่อง"}
+              <span className="text-xs text-admin-muted group-hover:text-admin-selected-foreground font-medium text-center px-2">
+                {tCommon("imageUpload.clickToUpload")}
               </span>
-              <span className="text-[9px] text-admin-muted mt-0.5">ลากไฟล์มาวางได้</span>
+              <span className="text-[9px] text-admin-muted mt-0.5 text-center px-1">{tCommon("imageUpload.dragAndDrop")}</span>
             </>
           )}
         </div>

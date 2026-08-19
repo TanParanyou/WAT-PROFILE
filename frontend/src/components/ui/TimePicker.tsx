@@ -2,6 +2,7 @@
 
 import React, { useMemo } from 'react';
 import ReactDatePicker from 'react-datepicker';
+import { useTranslations } from 'next-intl';
 import { cn } from '@/utils/cn';
 import { formatTimeToHHmm } from '@/utils/formatters';
 import { de, enUS, th } from 'date-fns/locale';
@@ -125,8 +126,9 @@ export const TimePicker = React.forwardRef<HTMLDivElement, TimePickerProps>(
                 onChange(formatTimeToStr(date));
             }
         };
+        const tPicker = useTranslations("Admin.common.picker");
         const errorId = id ? `${id}-error` : undefined;
-        const defaultPlaceholder = variant === 'public' ? 'Choose a time' : 'เลือกเวลา';
+        const defaultPlaceholder = tPicker("chooseTime");
 
         return (
             <div className={cn('w-full space-y-1', className)} ref={ref}>

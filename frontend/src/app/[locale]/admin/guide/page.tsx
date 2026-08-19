@@ -20,16 +20,16 @@ import {
 export default function GuideHubPage() {
   const t = useTranslations("Admin.guide");
   const locale = useLocale() as "th" | "en" | "de";
-  const { isAdmin } = usePermission();
+  const { isSuperAdmin } = usePermission();
   const [filterQuery, setFilterQuery] = useState("");
 
   const visibleArticles = allGuideArticles.filter(
-    (a) => !a.superAdminOnly || isAdmin,
+    (a) => !a.superAdminOnly || isSuperAdmin,
   );
 
   const filteredArticles = filterQuery.trim()
     ? searchGuideArticles(filterQuery, locale).filter(
-        (a) => !a.superAdminOnly || isAdmin,
+        (a) => !a.superAdminOnly || isSuperAdmin,
       )
     : null;
 

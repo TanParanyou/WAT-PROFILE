@@ -116,25 +116,25 @@ export function MultiLangInput({
                 type="button"
                 onClick={handleAiTranslate}
                 disabled={isTranslating || !safeValue.th?.trim()}
-                title={t("button")}
-                className="h-6 px-2 text-[11px] font-medium border border-admin-control-border bg-admin-surface hover:bg-admin-surface-muted text-admin-foreground disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-1 transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
+                title={isTranslating ? t("translating") : t("button")}
+                aria-label={isTranslating ? t("translating") : t("button")}
+                className="h-6 w-6 border border-admin-control-border bg-admin-surface hover:bg-admin-surface-muted text-admin-foreground disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center justify-center transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
               >
                 {isTranslating ? (
-                  <Loader2 size={12} className="animate-spin text-admin-action" />
+                  <Loader2 size={13} className="animate-spin text-admin-action" />
                 ) : (
-                  <Sparkles size={12} className="text-amber-500" />
+                  <Sparkles size={13} className="text-amber-500" />
                 )}
-                <span>{isTranslating ? t("translating") : t("button")}</span>
               </button>
               <button
                 type="button"
                 onClick={handleCopySource}
                 disabled={!safeValue.th?.trim()}
                 title={t("copySource")}
-                className="h-6 px-1.5 text-[11px] font-medium border border-admin-control-border bg-admin-surface hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center gap-1 transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
+                aria-label={t("copySource")}
+                className="h-6 w-6 border border-admin-control-border bg-admin-surface hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground disabled:opacity-40 disabled:cursor-not-allowed inline-flex items-center justify-center transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
               >
-                <Copy size={11} />
-                <span className="hidden sm:inline">{t("copySource")}</span>
+                <Copy size={13} />
               </button>
             </div>
           )}

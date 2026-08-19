@@ -17,7 +17,7 @@ export function GuideSearchModal({ isOpen, onClose }: GuideSearchModalProps) {
   const t = useTranslations("Admin.guide");
   const locale = useLocale() as "th" | "en" | "de";
   const router = useRouter();
-  const { isAdmin } = usePermission();
+  const { isSuperAdmin } = usePermission();
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -28,8 +28,8 @@ export function GuideSearchModal({ isOpen, onClose }: GuideSearchModalProps) {
       ? allGuideArticles.slice(0, 6)
       : searchGuideArticles(query, locale);
 
-    return rawResults.filter((a) => !a.superAdminOnly || isAdmin);
-  }, [query, locale, isAdmin]);
+    return rawResults.filter((a) => !a.superAdminOnly || isSuperAdmin);
+  }, [query, locale, isSuperAdmin]);
 
   // Keyboard navigation inside modal
   const handleKeyDown = (e: React.KeyboardEvent) => {

@@ -8,6 +8,7 @@ import {
   ChevronsRight,
   ArrowUpDown,
 } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { Loading } from "./Loading";
 import { Checkbox } from "./Checkbox";
 import { cn } from "@/utils/cn";
@@ -63,6 +64,7 @@ export function DataTable<T>({
   onSelect,
   onSelectAll,
 }: DataTableProps<T>) {
+  const t = useTranslations("Admin.common.dataTable");
   const safeData = data || [];
   const page = pagination?.page || 1;
   const totalPages = pagination?.totalPages ?? 0;
@@ -231,7 +233,7 @@ export function DataTable<T>({
                     className="h-48"
                   >
                     <div className="flex items-center justify-center h-full">
-                      <Loading size="lg" text="กำลังโหลดข้อมูล..." />
+                      <Loading size="lg" text={t("loading")} />
                     </div>
                   </td>
                 </tr>
@@ -307,7 +309,7 @@ export function DataTable<T>({
                     colSpan={columns.length + (selectable ? 1 : 0)}
                     className="h-32 text-center text-admin-muted"
                   >
-                    ไม่พบข้อมูล
+                    {t("noData")}
                   </td>
                 </tr>
               )}
@@ -321,22 +323,22 @@ export function DataTable<T>({
             <div className="flex flex-wrap items-center gap-4 text-xs text-admin-muted">
               {totalItems > 0 ? (
                 <span>
-                  แสดง{" "}
+                  {t("showing")}{" "}
                   <span className="font-medium text-admin-foreground">
                     {(page - 1) * limit + 1}
                   </span>{" "}
-                  ถึง{" "}
+                  {t("to")}{" "}
                   <span className="font-medium text-admin-foreground">
                     {Math.min(page * limit, totalItems)}
                   </span>{" "}
-                  จาก{" "}
+                  {t("of")}{" "}
                   <span className="font-medium text-admin-foreground">
                     {totalItems}
                   </span>{" "}
-                  รายการ
+                  {t("entries")}
                 </span>
               ) : (
-                <span>ไม่มีรายการ</span>
+                <span>{t("noEntries")}</span>
               )}
 
               {onLimitChange && (

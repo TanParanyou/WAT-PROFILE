@@ -56,7 +56,7 @@ export function EventsList({ events }: EventsListProps) {
                 {event.onlineJoinUrl && (
                   <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-red-50 text-red-700 dark:bg-red-950/40 dark:text-red-300 px-2 py-0.5 border border-red-200 dark:border-red-800">
                     <Radio size={11} className="animate-pulse text-red-600" />
-                    {t("liveStreaming") || "ถ่ายทอดสด"}
+                    {t("liveStreaming")}
                   </span>
                 )}
                 {event.registrationEnabled && (
@@ -72,7 +72,7 @@ export function EventsList({ events }: EventsListProps) {
                 {event.donationEnabled && (
                   <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-amber-50 text-amber-800 dark:bg-amber-950/40 dark:text-amber-300 px-2 py-0.5 border border-amber-200 dark:border-amber-800">
                     <HeartHandshake size={11} />
-                    {t("donationSupport") || "ร่วมทำบุญ"}
+                    {t("donationSupport")}
                   </span>
                 )}
               </div>

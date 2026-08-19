@@ -1,7 +1,8 @@
 "use client";
 
 import React from "react";
-import { Printer, X, Download } from "lucide-react";
+import { Printer, X } from "lucide-react";
+import { useTranslations } from "next-intl";
 import type { DonorAnnualSummary } from "@/services/adminService";
 import type { Donation } from "@/types/entities";
 
@@ -20,6 +21,9 @@ export function AnnualCertificatePrintSheet({
   donor,
   statementItems = [],
 }: AnnualCertificatePrintSheetProps) {
+  const tAnnual = useTranslations("Admin.donations.annual");
+  const tCommon = useTranslations("Admin.common");
+
   if (!isOpen || !donor) return null;
 
   const formattedTotal = donor.total_amount.toLocaleString("de-DE", {
@@ -34,10 +38,10 @@ export function AnnualCertificatePrintSheet({
         <div className="print:hidden p-4 border-b border-gray-200 bg-gray-50 flex items-center justify-between">
           <div>
             <h2 className="text-sm font-bold text-gray-800">
-              ใบอนุโมทนาบัตรสรุปรวมประจำปี (Annual Donation Certificate / Spendenbescheinigung)
+              {tAnnual("printSheetTitle")}
             </h2>
             <p className="text-xs text-gray-500">
-              สำหรับ {donor.donor_name} — ประจำปี {year} (ยอดรวม €{formattedTotal})
+              {tAnnual("forDonor")} {donor.donor_name} — {tAnnual("year")} {year} ({tAnnual("totalAmount")} €{formattedTotal})
             </p>
           </div>
           <div className="flex items-center gap-2">
@@ -47,12 +51,13 @@ export function AnnualCertificatePrintSheet({
               className="min-h-10 px-4 bg-black text-white text-xs font-semibold hover:bg-gray-800 inline-flex items-center gap-1.5 transition-colors"
             >
               <Printer size={15} />
-              <span>พิมพ์ใบอนุโมทนาบัตร (Print PDF)</span>
+              <span>{tAnnual("printSheetTitle")} (Print)</span>
             </button>
             <button
               type="button"
               onClick={onClose}
               className="min-h-10 px-3 border border-gray-300 bg-white text-gray-700 text-xs font-semibold hover:bg-gray-100 transition-colors"
+              aria-label={tCommon("close")}
             >
               <X size={15} />
             </button>

@@ -7,6 +7,7 @@ import 'react-datepicker/dist/react-datepicker.css';
 
 import { de, enUS, th } from 'date-fns/locale';
 import { format, parse, type Locale as DateFnsLocale } from 'date-fns';
+import { useTranslations } from 'next-intl';
 
 export type DatePickerVariant = 'admin' | 'public';
 export type DatePickerLocale = 'th' | 'en' | 'de';
@@ -58,8 +59,9 @@ export function DatePicker({
     if (!date) return '';
     return format(date, 'yyyy-MM-dd');
   };
+  const tPicker = useTranslations("Admin.common.picker");
   const errorId = id ? `${id}-error` : undefined;
-  const defaultPlaceholder = variant === 'public' ? 'Choose a date' : 'เลือกวันที่';
+  const defaultPlaceholder = tPicker("chooseDate");
 
   return (
     <div className={cn('space-y-1 w-full', className)}>

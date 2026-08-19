@@ -74,7 +74,16 @@
     "permissions": {
       "system": "Resource",
       "all": "All",
-      "actions": { "read": "Read", "create": "Create", "update": "Update", "delete": "Delete", "moderate": "Moderate", "answer_officially": "Mark official", "manage_categories": "Manage categories", "restrict_members": "Restrict members" },
+      "actions": {
+        "read": "Read",
+        "create": "Create",
+        "update": "Update",
+        "delete": "Delete",
+        "moderate": "Moderate",
+        "answer_officially": "Mark official",
+        "manage_categories": "Manage categories",
+        "restrict_members": "Restrict members"
+      },
       "resources": {
         "events": "Events",
         "monks": "Monks",
@@ -177,6 +186,41 @@
         "title": "An error occurred",
         "defaultMessage": "An unexpected error occurred. Please try again.",
         "retry": "Try again"
+      },
+      "dataTable": {
+        "loading": "Loading data...",
+        "noData": "No data found",
+        "showing": "Showing",
+        "to": "to",
+        "of": "of",
+        "entries": "entries",
+        "noEntries": "No entries",
+        "manage": "Manage"
+      },
+      "picker": {
+        "chooseDate": "Choose a date",
+        "chooseTime": "Choose a time",
+        "chooseDateRange": "Choose date range"
+      },
+      "modal": {
+        "confirmTitle": "Confirm Action",
+        "confirm": "Confirm"
+      },
+      "imageUpload": {
+        "clickToUpload": "Click to upload",
+        "dragAndDrop": "or drag and drop here",
+        "hint": "Supports JPG, PNG, WEBP up to 5MB",
+        "uploading": "Uploading..."
+      },
+      "listStates": {
+        "emptySearchTitle": "No results found",
+        "emptySearchDesc": "Try adjusting your search terms or filters",
+        "errorTitle": "Error loading data",
+        "errorRetry": "Try again"
+      },
+      "mediaPicker": {
+        "title": "Select image from Media Library",
+        "empty": "No images in Media Library"
       }
     },
     "community": {
@@ -416,7 +460,10 @@
       "calendarInstructions": "Activity calendar. Select an event to view details.",
       "resourceLabel": "Resource",
       "unassignedResource": "Unassigned",
-      "resourceFilter": { "label": "Filter resources", "clear": "Clear resource filter" },
+      "resourceFilter": {
+        "label": "Filter resources",
+        "clear": "Clear resource filter"
+      },
       "scrollHorizontally": "Scroll horizontally to view the full week",
       "moreEvents": "+ {count} more",
       "eventsCount": "{count} events",
@@ -424,16 +471,73 @@
       "timedEvents": "Timed events",
       "eventDetails": "View details",
       "selectedDate": "Schedule for {date}",
-      "views": { "month": "Month", "week": "Week", "day": "Day" },
-      "dayNames": { "sunday": "Sunday", "monday": "Monday", "tuesday": "Tuesday", "wednesday": "Wednesday", "thursday": "Thursday", "friday": "Friday", "saturday": "Saturday" },
-      "drawer": { "source": "Source", "status": "Status", "active": "Active", "inactive": "Inactive", "location": "Location", "description": "Description", "edit": "Edit activity", "close": "Close" }
+      "views": {
+        "month": "Month",
+        "week": "Week",
+        "day": "Day"
+      },
+      "dayNames": {
+        "sunday": "Sunday",
+        "monday": "Monday",
+        "tuesday": "Tuesday",
+        "wednesday": "Wednesday",
+        "thursday": "Thursday",
+        "friday": "Friday",
+        "saturday": "Saturday"
+      },
+      "drawer": {
+        "source": "Source",
+        "status": "Status",
+        "active": "Active",
+        "inactive": "Inactive",
+        "location": "Location",
+        "description": "Description",
+        "edit": "Edit activity",
+        "close": "Close"
+      }
     },
     "calendarResources": {
       "title": "Calendar resources",
       "breadcrumb": "Calendar resources",
-      "form": { "createTitle": "Add resource", "editTitle": "Edit resource", "slug": "Slug", "type": "Resource type", "title": "Localized title", "color": "Color", "colorPlaceholder": "Hex color", "capacity": "Capacity", "order": "Display order", "active": "Active", "public": "Visible on public calendar", "save": "Save resource", "saving": "Saving...", "cancel": "Cancel" },
-      "list": { "title": "Resource registry", "loading": "Loading...", "resource": "Resource", "type": "Type", "visibility": "Visibility", "assignments": "Assignments", "actions": "Actions", "public": "Public", "private": "Admin only", "edit": "Edit", "delete": "Delete", "assigned": "Cannot delete an assigned resource", "empty": "No resources configured" },
-      "messages": { "saved": "Resource saved", "saveError": "Unable to save resource", "deleted": "Resource deleted", "deleteError": "Unable to delete resource", "deleteTitle": "Delete resource", "deleteConfirm": "Delete this calendar resource? Events must be unassigned first." }
+      "form": {
+        "createTitle": "Add resource",
+        "editTitle": "Edit resource",
+        "slug": "Slug",
+        "type": "Resource type",
+        "title": "Localized title",
+        "color": "Color",
+        "colorPlaceholder": "Hex color",
+        "capacity": "Capacity",
+        "order": "Display order",
+        "active": "Active",
+        "public": "Visible on public calendar",
+        "save": "Save resource",
+        "saving": "Saving...",
+        "cancel": "Cancel"
+      },
+      "list": {
+        "title": "Resource registry",
+        "loading": "Loading...",
+        "resource": "Resource",
+        "type": "Type",
+        "visibility": "Visibility",
+        "assignments": "Assignments",
+        "actions": "Actions",
+        "public": "Public",
+        "private": "Admin only",
+        "edit": "Edit",
+        "delete": "Delete",
+        "assigned": "Cannot delete an assigned resource",
+        "empty": "No resources configured"
+      },
+      "messages": {
+        "saved": "Resource saved",
+        "saveError": "Unable to save resource",
+        "deleted": "Resource deleted",
+        "deleteError": "Unable to delete resource",
+        "deleteTitle": "Delete resource",
+        "deleteConfirm": "Delete this calendar resource? Events must be unassigned first."
+      }
     },
     "monks": {
       "title": "Monks",
@@ -610,7 +714,50 @@
       "donorNameRequired": "Please enter donor name (or select anonymous)",
       "invalidEmail": "Invalid email format",
       "invalidPhone": "Invalid phone number (7-15 digits)",
-      "status": "Status", "from": "From", "to": "To", "dateRange": "Donation date range", "createStaff": "Record staff donation", "confirmTitle": "Confirm donation", "confirmMessage": "Have you checked the proof and confirmed this donation?", "sendReceipt": "Send receipt", "sendReceiptMessage": "Create the permanent PDF and queue it for email delivery?", "receiptQueued": "Receipt queued", "viewProof": "View proof", "proofPreview": "Transfer proof preview", "proofPreviewClose": "Close proof preview", "proofOpen": "Open in new tab", "proofDownload": "Download", "proofLoading": "Loading proof…", "proofPreviewError": "The proof could not be loaded. Please try again.", "proofImageAlt": "Transfer proof preview", "proofPdf": "PDF document", "proofZoom": "Preview zoom controls", "proofZoomIn": "Zoom in", "proofZoomOut": "Zoom out", "proofZoomReset": "Reset zoom", "viewReceipt": "View receipt", "receiptPreview": "Donation receipt preview", "receiptPreviewClose": "Close receipt preview", "receiptLoading": "Loading receipt…", "receiptPreviewError": "The receipt could not be loaded. Please try again.", "confirm": "Confirm", "cancelAction": "Cancel donation"
+      "status": "Status",
+      "from": "From",
+      "to": "To",
+      "dateRange": "Donation date range",
+      "createStaff": "Record staff donation",
+      "confirmTitle": "Confirm donation",
+      "confirmMessage": "Have you checked the proof and confirmed this donation?",
+      "sendReceipt": "Send receipt",
+      "sendReceiptMessage": "Create the permanent PDF and queue it for email delivery?",
+      "receiptQueued": "Receipt queued",
+      "viewProof": "View proof",
+      "proofPreview": "Transfer proof preview",
+      "proofPreviewClose": "Close proof preview",
+      "proofOpen": "Open in new tab",
+      "proofDownload": "Download",
+      "proofLoading": "Loading proof…",
+      "proofPreviewError": "The proof could not be loaded. Please try again.",
+      "proofImageAlt": "Transfer proof preview",
+      "proofPdf": "PDF document",
+      "proofZoom": "Preview zoom controls",
+      "proofZoomIn": "Zoom in",
+      "proofZoomOut": "Zoom out",
+      "proofZoomReset": "Reset zoom",
+      "viewReceipt": "View receipt",
+      "receiptPreview": "Donation receipt preview",
+      "receiptPreviewClose": "Close receipt preview",
+      "receiptLoading": "Loading receipt…",
+      "receiptPreviewError": "The receipt could not be loaded. Please try again.",
+      "confirm": "Confirm",
+      "cancelAction": "Cancel donation",
+      "annual": {
+        "modalTitle": "Generate Annual Donation Certificate",
+        "searchPlaceholder": "Search donors...",
+        "downloadPdf": "Download PDF",
+        "grandTotal": "Grand Total",
+        "totalDonations": "Total Donations",
+        "donorCount": "Total Donors",
+        "printSheetTitle": "Annual Donation Certificate",
+        "forDonor": "For",
+        "year": "Year",
+        "totalAmount": "Total Amount",
+        "issuer": "Issuing Staff",
+        "responsible": "Authorized Signature"
+      }
     },
     "privacyRequests": {
       "title": "Personal Data Requests",
@@ -802,7 +949,33 @@
       "createSuccess": "Registration created successfully.",
       "createError": "Failed to create registration.",
       "validationRequired": "Please fill in all required fields.",
-      "eventRequired": "Please select an event."
+      "eventRequired": "Please select an event.",
+      "printSheet": {
+        "title": "Event Attendance Sheet",
+        "index": "No.",
+        "code": "Confirmation Code",
+        "name": "Full Name",
+        "count": "Qty",
+        "phone": "Phone",
+        "dietary": "Dietary Restrictions",
+        "signature": "Signature / Check-in",
+        "checked": "Checked",
+        "staffSignature": "Registration Staff:",
+        "responsibleSignature": "Authorized Signature:"
+      },
+      "scanner": {
+        "title": "Scan QR Code for Check-in",
+        "subtitle": "Use camera to scan attendance pass or enter confirmation code",
+        "cameraOff": "Camera is turned off",
+        "cameraAccessError": "Unable to access camera. Please allow camera access in your browser.",
+        "scanning": "Verifying code...",
+        "checkinSuccess": "Check-in successful",
+        "alreadyAttended": "Already checked in earlier",
+        "invalidCode": "No registration found for this code",
+        "enterCodeManual": "Enter confirmation code manually",
+        "checkInButton": "Check In",
+        "codePlaceholder": "e.g. REG-XXXXXX"
+      }
     },
     "aiTranslate": {
       "button": "AI Draft Translate",
@@ -1170,9 +1343,24 @@
       "providerFilter": "Provider",
       "allStatuses": "All statuses",
       "allProviders": "All providers",
-      "columns": { "account": "Account", "status": "Status", "provider": "Provider", "lastLogin": "Last login", "created": "Created", "actions": "Actions" },
-      "statuses": { "pending_verification": "Pending verification", "active": "Active", "disabled": "Disabled", "closed": "Closed" },
-      "providers": { "password": "Password", "google": "Google" },
+      "columns": {
+        "account": "Account",
+        "status": "Status",
+        "provider": "Provider",
+        "lastLogin": "Last login",
+        "created": "Created",
+        "actions": "Actions"
+      },
+      "statuses": {
+        "pending_verification": "Pending verification",
+        "active": "Active",
+        "disabled": "Disabled",
+        "closed": "Closed"
+      },
+      "providers": {
+        "password": "Password",
+        "google": "Google"
+      },
       "verified": "Email verified",
       "unverified": "Email not verified",
       "view": "View account",
@@ -1185,13 +1373,37 @@
       "pendingPolicy": "Unverified accounts cannot be changed from this page.",
       "reasonsLabel": "Operation reason",
       "selectReason": "Select a reason",
-      "reasons": { "security_review": "Security review", "policy_violation": "Policy violation", "user_request": "User request", "support_request": "Support request" },
-      "actions": {
-        "disable": { "label": "Disable account", "title": "Disable this account?", "body": "{email} will be unable to sign in immediately and all sessions will be revoked.", "success": "Account disabled and all sessions revoked" },
-        "enable": { "label": "Enable account", "title": "Enable this account?", "body": "{email} will be enabled again, but previous sessions will not be restored.", "success": "Account enabled" },
-        "logoutAll": { "label": "Sign out all sessions", "title": "Sign out all sessions?", "body": "All sessions for {email} will be revoked without changing account status.", "success": "All sessions revoked" }
+      "reasons": {
+        "security_review": "Security review",
+        "policy_violation": "Policy violation",
+        "user_request": "User request",
+        "support_request": "Support request"
       },
-      "errors": { "load": "Unable to load public accounts", "action": "Unable to complete account operation", "forbidden": "You do not have permission to manage public accounts" }
+      "actions": {
+        "disable": {
+          "label": "Disable account",
+          "title": "Disable this account?",
+          "body": "{email} will be unable to sign in immediately and all sessions will be revoked.",
+          "success": "Account disabled and all sessions revoked"
+        },
+        "enable": {
+          "label": "Enable account",
+          "title": "Enable this account?",
+          "body": "{email} will be enabled again, but previous sessions will not be restored.",
+          "success": "Account enabled"
+        },
+        "logoutAll": {
+          "label": "Sign out all sessions",
+          "title": "Sign out all sessions?",
+          "body": "All sessions for {email} will be revoked without changing account status.",
+          "success": "All sessions revoked"
+        }
+      },
+      "errors": {
+        "load": "Unable to load public accounts",
+        "action": "Unable to complete account operation",
+        "forbidden": "You do not have permission to manage public accounts"
+      }
     },
     "profile": {
       "title": "My Profile",
@@ -1520,13 +1732,26 @@
         "mimeType": "File Type",
         "category": "Category",
         "altMissing": "Missing Alt Text",
-        "locales": {"th": "Thai", "en": "English", "de": "German"}
+        "locales": {
+          "th": "Thai",
+          "en": "English",
+          "de": "German"
+        }
       },
       "uploadSuccess": "Image uploaded successfully",
       "uploadSuccessOptimized": "Uploaded and optimized to WebP successfully ({percent}% smaller)",
       "uploadError": "Failed to upload image",
       "backToLibrary": "Back to Media",
-      "trash": "Trash"
+      "trash": "Trash",
+      "details": {
+        "usageTitle": "Media Usage",
+        "noUsage": "No usage found",
+        "restore": "Restore Media",
+        "restoring": "Restoring...",
+        "purge": "Delete Permanently",
+        "purging": "Deleting...",
+        "purgeFailed": "Failed to delete media permanently"
+      }
     },
     "mediaSafety": {
       "trash": "Media trash",

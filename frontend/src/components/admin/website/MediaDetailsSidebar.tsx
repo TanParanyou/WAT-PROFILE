@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { X, Loader2, Save } from "lucide-react";
+import { useTranslations } from "next-intl";
 import { MultiLangInput } from "@/components/admin/MultiLangInput";
 import { Input } from "@/components/ui/Input";
 import { Button } from "@/components/ui/Button";
@@ -23,6 +24,8 @@ export function MediaDetailsSidebar({
   onDeleted?: () => void;
   onClose: () => void;
 }) {
+  const tMedia = useTranslations("Admin.media.details");
+  const tCommon = useTranslations("Admin.common");
   const { updateMedia, deleteMedia, isSaving, isDeleting } = useMediaStore();
   const { toast } = useToast();
   const { confirm, ConfirmDialog } = useConfirm();
@@ -46,20 +49,20 @@ export function MediaDetailsSidebar({
     try {
       const updated = await updateMedia(media.id, formData);
       onUpdated?.(updated);
-      toast.success("บันทึกข้อมูลสื่อเรียบร้อยแล้ว");
+      toast.success(tMedia("saveSuccess"));
     } catch {
-      toast.error("บันทึกข้อมูลสื่อไม่สำเร็จ");
+      toast.error(tMedia("saveFailed"));
     }
   };
 
   const handleDelete = async () => {
     const accepted = await confirm({
-      title: "ยืนยันการลบสื่อ",
+      title: tMedia("confirmDeleteTitle"),
       message: referencesQuery.data?.length
-        ? `สื่อนี้ถูกใช้งานอยู่ ${referencesQuery.data.length} ตำแหน่ง การลบจะย้ายไปถังขยะ 30 วันและ URL เดิมยังทำงานระหว่างนี้ ต้องการดำเนินการต่อหรือไม่`
-        : "สื่อนี้จะถูกย้ายไปถังขยะ 30 วันและสามารถกู้คืนได้ ต้องการดำเนินการต่อหรือไม่",
-      confirmText: "ลบ",
-      cancelText: "ยกเลิก",
+        ? tMedia("confirmDeleteWithRefs", { count: referencesQuery.data.length })
+        : tMedia("confirmDeleteMsg"),
+      confirmText: tCommon("delete"),
+      cancelText: tCommon("cancel"),
       variant: "danger",
     });
 
@@ -71,9 +74,9 @@ export function MediaDetailsSidebar({
       await deleteMedia(media.id);
       onDeleted?.();
       onClose();
-      toast.success("ลบสื่อเรียบร้อยแล้ว");
+      toast.success(tMedia("deleteSuccess"));
     } catch {
-      toast.error("ลบสื่อไม่สำเร็จ");
+      toast.error(tMedia("deleteFailed"));
     }
   };
 
@@ -83,9 +86,9 @@ export function MediaDetailsSidebar({
       await mediaService.restore(media.id);
       onDeleted?.();
       onClose();
-      toast.success("กู้คืนสื่อเรียบร้อยแล้ว");
+      toast.success(tMedia("restoreSuccess"));
     } catch {
-      toast.error("กู้คืนสื่อไม่สำเร็จ");
+      toast.error(tMedia("restoreFailed"));
     } finally {
       setIsRestoring(false);
     }
@@ -93,12 +96,12 @@ export function MediaDetailsSidebar({
 
   const handlePurge = async () => {
     const accepted = await confirm({
-      title: "ยืนยันการลบถาวร",
+      title: tMedia("confirmPurgeTitle"),
       message: referencesQuery.data?.length
-        ? `การลบถาวรจะทำให้ ${referencesQuery.data.length} จุดที่อ้างอิง URL นี้เสียหาย ต้องการดำเนินการต่อหรือไม่`
-        : "ไฟล์จะถูกลบจากคลังสื่อและพื้นที่จัดเก็บถาวร ไม่สามารถกู้คืนได้",
-      confirmText: "ลบถาวร",
-      cancelText: "ยกเลิก",
+        ? tMedia("confirmPurgeWithRefs", { count: referencesQuery.data.length })
+        : tMedia("confirmPurgeMsg"),
+      confirmText: tMedia("purge"),
+      cancelText: tCommon("cancel"),
       variant: "danger",
     });
     if (!accepted) return;
@@ -107,9 +110,9 @@ export function MediaDetailsSidebar({
       await mediaService.purge(media.id);
       onDeleted?.();
       onClose();
-      toast.success("ลบสื่อถาวรเรียบร้อยแล้ว");
+      toast.success(tMedia("purgeSuccess"));
     } catch {
-      toast.error("ลบสื่อถาวรไม่สำเร็จ");
+      toast.error(tMedia("purgeFailed"));
     } finally {
       setIsPurging(false);
     }
@@ -139,9 +142,9 @@ export function MediaDetailsSidebar({
         </div>
 
         <div className="border border-admin-border p-3 text-xs text-admin-muted">
-          <div className="mb-2 font-semibold text-admin-foreground">การใช้งานสื่อ</div>
-          {referencesQuery.isLoading ? "กำลังตรวจสอบ..." : null}
-          {!referencesQuery.isLoading && referencesQuery.data?.length === 0 ? "ยังไม่พบจุดที่ใช้งาน" : null}
+          <div className="mb-2 font-semibold text-admin-foreground">{tMedia("usageTitle")}</div>
+          {referencesQuery.isLoading ? tCommon("loading") : null}
+          {!referencesQuery.isLoading && referencesQuery.data?.length === 0 ? tMedia("noUsageFound") : null}
           <ul className="space-y-1">
             {referencesQuery.data?.map((reference) => (
               <li key={`${reference.kind}:${reference.id}`}>
@@ -153,19 +156,19 @@ export function MediaDetailsSidebar({
 
         <div className="space-y-3 pt-2">
           <MultiLangInput
-            label="Alt Text"
+            label={tMedia("altText")}
             value={formData.alt || DEFAULT_ALT}
             onChange={(val) => setFormData((prev) => ({ ...prev, alt: val }))}
           />
           <Input
-            label="Caption"
+            label={tMedia("caption")}
             value={formData.caption || ""}
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, caption: e.target.value }))
             }
           />
           <Input
-            label="Folder / Category"
+            label={tMedia("folderCategory")}
             placeholder="e.g. general, events, monks, gallery, banners"
             value={typeof formData.category === "string" ? formData.category : ""}
             onChange={(e) =>
@@ -173,7 +176,7 @@ export function MediaDetailsSidebar({
             }
           />
           <Input
-            label="Credit"
+            label={tMedia("credit")}
             value={formData.credit || ""}
             onChange={(e) =>
               setFormData((prev) => ({ ...prev, credit: e.target.value }))
@@ -193,7 +196,7 @@ export function MediaDetailsSidebar({
           ) : (
             <Save className="w-4 h-4" />
           )}
-          {isSaving ? "Saving..." : "Save Changes"}
+          {isSaving ? tCommon("saving") : tCommon("save")}
         </Button>
         {media.deleted_at ? (
           <>
@@ -202,7 +205,7 @@ export function MediaDetailsSidebar({
               onClick={handleRestore}
               disabled={isRestoring}
             >
-              {isRestoring ? "กำลังกู้คืน..." : "กู้คืนสื่อ"}
+              {isRestoring ? tCommon("saving") : tMedia("restore")}
             </Button>
             <Button
               variant="danger"
@@ -210,7 +213,7 @@ export function MediaDetailsSidebar({
               onClick={handlePurge}
               disabled={isPurging}
             >
-              {isPurging ? "กำลังลบถาวร..." : "ลบถาวร"}
+              {isPurging ? tCommon("saving") : tMedia("purge")}
             </Button>
           </>
         ) : (
@@ -221,7 +224,7 @@ export function MediaDetailsSidebar({
             disabled={isDeleting}
           >
             {isDeleting ? <Loader2 className="w-4 h-4 animate-spin" /> : null}
-            {isDeleting ? "Deleting..." : "Delete Media"}
+            {isDeleting ? tCommon("saving") : tCommon("delete")}
           </Button>
         )}
       </div>

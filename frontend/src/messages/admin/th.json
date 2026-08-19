@@ -74,7 +74,16 @@
     "permissions": {
       "system": "ระบบ",
       "all": "ทั้งหมด",
-      "actions": { "read": "ดู", "create": "สร้าง", "update": "แก้ไข", "delete": "ลบ", "moderate": "กลั่นกรอง", "answer_officially": "ทำเครื่องหมายคำตอบจากวัด", "manage_categories": "จัดการหมวดหมู่", "restrict_members": "จำกัดสมาชิก" },
+      "actions": {
+        "read": "ดู",
+        "create": "สร้าง",
+        "update": "แก้ไข",
+        "delete": "ลบ",
+        "moderate": "กลั่นกรอง",
+        "answer_officially": "ทำเครื่องหมายคำตอบจากวัด",
+        "manage_categories": "จัดการหมวดหมู่",
+        "restrict_members": "จำกัดสมาชิก"
+      },
       "resources": {
         "events": "กิจกรรม",
         "monks": "พระสงฆ์",
@@ -177,6 +186,41 @@
         "title": "เกิดข้อผิดพลาด",
         "defaultMessage": "เกิดข้อผิดพลาดที่ไม่คาดคิด กรุณาลองใหม่อีกครั้ง",
         "retry": "ลองใหม่"
+      },
+      "dataTable": {
+        "loading": "กำลังโหลดข้อมูล...",
+        "noData": "ไม่พบข้อมูล",
+        "showing": "แสดง",
+        "to": "ถึง",
+        "of": "จาก",
+        "entries": "รายการ",
+        "noEntries": "ไม่มีรายการ",
+        "manage": "จัดการ"
+      },
+      "picker": {
+        "chooseDate": "เลือกวันที่",
+        "chooseTime": "เลือกเวลา",
+        "chooseDateRange": "เลือกช่วงเวลา"
+      },
+      "modal": {
+        "confirmTitle": "ยืนยันการดำเนินการ",
+        "confirm": "ยืนยัน"
+      },
+      "imageUpload": {
+        "clickToUpload": "คลิกเพื่ออัปโหลด",
+        "dragAndDrop": "หรือลากไฟล์มาวางที่นี่",
+        "hint": "รองรับไฟล์ JPG, PNG, WEBP ขนาดไม่เกิน 5MB",
+        "uploading": "กำลังอัปโหลด..."
+      },
+      "listStates": {
+        "emptySearchTitle": "ไม่พบข้อมูลที่ค้นหา",
+        "emptySearchDesc": "ลองเปลี่ยนคำค้นหาหรือตัวกรอง",
+        "errorTitle": "เกิดข้อผิดพลาดในการโหลดข้อมูล",
+        "errorRetry": "ลองใหม่อีกครั้ง"
+      },
+      "mediaPicker": {
+        "title": "เลือกรูปภาพจากคลังสื่อ",
+        "empty": "ยังไม่มีรูปภาพในคลังสื่อ"
       }
     },
     "community": {
@@ -416,7 +460,10 @@
       "calendarInstructions": "ปฏิทินกิจกรรม เลือกกิจกรรมเพื่อดูรายละเอียด",
       "resourceLabel": "ทรัพยากร",
       "unassignedResource": "ยังไม่กำหนดทรัพยากร",
-      "resourceFilter": { "label": "กรองตามทรัพยากร", "clear": "ล้างตัวกรองทรัพยากร" },
+      "resourceFilter": {
+        "label": "กรองตามทรัพยากร",
+        "clear": "ล้างตัวกรองทรัพยากร"
+      },
       "scrollHorizontally": "เลื่อนในแนวนอนเพื่อดูกำหนดการครบทั้งสัปดาห์",
       "moreEvents": "+ อีก {count} รายการ",
       "eventsCount": "{count} กิจกรรม",
@@ -424,16 +471,73 @@
       "timedEvents": "ตามเวลา",
       "eventDetails": "ดูรายละเอียด",
       "selectedDate": "กำหนดการวันที่ {date}",
-      "views": { "month": "เดือน", "week": "สัปดาห์", "day": "วัน" },
-      "dayNames": { "sunday": "อาทิตย์", "monday": "จันทร์", "tuesday": "อังคาร", "wednesday": "พุธ", "thursday": "พฤหัสบดี", "friday": "ศุกร์", "saturday": "เสาร์" },
-      "drawer": { "source": "แหล่งข้อมูล", "status": "สถานะ", "active": "เปิดใช้งาน", "inactive": "ปิดใช้งาน", "location": "สถานที่", "description": "รายละเอียด", "edit": "แก้ไขกิจกรรม", "close": "ปิด" }
+      "views": {
+        "month": "เดือน",
+        "week": "สัปดาห์",
+        "day": "วัน"
+      },
+      "dayNames": {
+        "sunday": "อาทิตย์",
+        "monday": "จันทร์",
+        "tuesday": "อังคาร",
+        "wednesday": "พุธ",
+        "thursday": "พฤหัสบดี",
+        "friday": "ศุกร์",
+        "saturday": "เสาร์"
+      },
+      "drawer": {
+        "source": "แหล่งข้อมูล",
+        "status": "สถานะ",
+        "active": "เปิดใช้งาน",
+        "inactive": "ปิดใช้งาน",
+        "location": "สถานที่",
+        "description": "รายละเอียด",
+        "edit": "แก้ไขกิจกรรม",
+        "close": "ปิด"
+      }
     },
     "calendarResources": {
       "title": "ทรัพยากรปฏิทิน",
       "breadcrumb": "ทรัพยากรปฏิทิน",
-      "form": { "createTitle": "เพิ่มทรัพยากร", "editTitle": "แก้ไขทรัพยากร", "slug": "Slug", "type": "ประเภททรัพยากร", "title": "ชื่อหลายภาษา", "color": "สี", "colorPlaceholder": "รหัสสี Hex", "capacity": "ความจุ", "order": "ลำดับการแสดงผล", "active": "เปิดใช้งาน", "public": "แสดงในปฏิทินสาธารณะ", "save": "บันทึกทรัพยากร", "saving": "กำลังบันทึก...", "cancel": "ยกเลิก" },
-      "list": { "title": "ทะเบียนทรัพยากร", "loading": "กำลังโหลด...", "resource": "ทรัพยากร", "type": "ประเภท", "visibility": "การมองเห็น", "assignments": "จำนวนกิจกรรม", "actions": "การดำเนินการ", "public": "สาธารณะ", "private": "เฉพาะผู้ดูแล", "edit": "แก้ไข", "delete": "ลบ", "assigned": "ไม่สามารถลบทรัพยากรที่ถูกใช้งาน", "empty": "ยังไม่มีทรัพยากร" },
-      "messages": { "saved": "บันทึกทรัพยากรแล้ว", "saveError": "บันทึกทรัพยากรไม่สำเร็จ", "deleted": "ลบทรัพยากรแล้ว", "deleteError": "ลบทรัพยากรไม่สำเร็จ", "deleteTitle": "ลบทรัพยากร", "deleteConfirm": "ต้องการลบทรัพยากรปฏิทินนี้หรือไม่? ต้องยกเลิกการกำหนดกิจกรรมก่อน" }
+      "form": {
+        "createTitle": "เพิ่มทรัพยากร",
+        "editTitle": "แก้ไขทรัพยากร",
+        "slug": "Slug",
+        "type": "ประเภททรัพยากร",
+        "title": "ชื่อหลายภาษา",
+        "color": "สี",
+        "colorPlaceholder": "รหัสสี Hex",
+        "capacity": "ความจุ",
+        "order": "ลำดับการแสดงผล",
+        "active": "เปิดใช้งาน",
+        "public": "แสดงในปฏิทินสาธารณะ",
+        "save": "บันทึกทรัพยากร",
+        "saving": "กำลังบันทึก...",
+        "cancel": "ยกเลิก"
+      },
+      "list": {
+        "title": "ทะเบียนทรัพยากร",
+        "loading": "กำลังโหลด...",
+        "resource": "ทรัพยากร",
+        "type": "ประเภท",
+        "visibility": "การมองเห็น",
+        "assignments": "จำนวนกิจกรรม",
+        "actions": "การดำเนินการ",
+        "public": "สาธารณะ",
+        "private": "เฉพาะผู้ดูแล",
+        "edit": "แก้ไข",
+        "delete": "ลบ",
+        "assigned": "ไม่สามารถลบทรัพยากรที่ถูกใช้งาน",
+        "empty": "ยังไม่มีทรัพยากร"
+      },
+      "messages": {
+        "saved": "บันทึกทรัพยากรแล้ว",
+        "saveError": "บันทึกทรัพยากรไม่สำเร็จ",
+        "deleted": "ลบทรัพยากรแล้ว",
+        "deleteError": "ลบทรัพยากรไม่สำเร็จ",
+        "deleteTitle": "ลบทรัพยากร",
+        "deleteConfirm": "ต้องการลบทรัพยากรปฏิทินนี้หรือไม่? ต้องยกเลิกการกำหนดกิจกรรมก่อน"
+      }
     },
     "monks": {
       "title": "พระสงฆ์",
@@ -610,7 +714,50 @@
       "donorNameRequired": "กรุณาระบุชื่อผู้บริจาค (หรือเลือกไม่ประสงค์ออกนาม)",
       "invalidEmail": "รูปแบบอีเมลไม่ถูกต้อง",
       "invalidPhone": "รูปแบบเบอร์โทรศัพท์ไม่ถูกต้อง (7-15 หลัก)",
-      "status": "สถานะ", "from": "ตั้งแต่วันที่", "to": "ถึงวันที่", "dateRange": "ช่วงวันที่บริจาค", "createStaff": "บันทึกรายการโดยเจ้าหน้าที่", "confirmTitle": "ยืนยันเงินบริจาค", "confirmMessage": "ตรวจสอบหลักฐานแล้วและยืนยันรายการนี้หรือไม่", "sendReceipt": "ส่งใบเสร็จ", "sendReceiptMessage": "ระบบจะสร้าง PDF ถาวรและเข้าคิวส่งไปยังอีเมลผู้บริจาค ยืนยันหรือไม่", "receiptQueued": "เข้าคิวส่งใบเสร็จแล้ว", "viewProof": "ดูหลักฐาน", "proofPreview": "ตัวอย่างหลักฐานการโอน", "proofPreviewClose": "ปิดตัวอย่างหลักฐาน", "proofOpen": "เปิดในแท็บใหม่", "proofDownload": "ดาวน์โหลด", "proofLoading": "กำลังโหลดหลักฐาน…", "proofPreviewError": "ไม่สามารถโหลดหลักฐานได้ กรุณาลองใหม่อีกครั้ง", "proofImageAlt": "ตัวอย่างหลักฐานการโอน", "proofPdf": "เอกสาร PDF", "proofZoom": "การควบคุมการซูมตัวอย่าง", "proofZoomIn": "ขยาย", "proofZoomOut": "ย่อ", "proofZoomReset": "ขนาดเดิม", "viewReceipt": "ดูใบเสร็จ", "receiptPreview": "ตัวอย่างใบเสร็จเงินบริจาค", "receiptPreviewClose": "ปิดตัวอย่างใบเสร็จ", "receiptLoading": "กำลังโหลดใบเสร็จ…", "receiptPreviewError": "ไม่สามารถโหลดใบเสร็จได้ กรุณาลองใหม่อีกครั้ง", "confirm": "ยืนยัน", "cancelAction": "ยกเลิก"
+      "status": "สถานะ",
+      "from": "ตั้งแต่วันที่",
+      "to": "ถึงวันที่",
+      "dateRange": "ช่วงวันที่บริจาค",
+      "createStaff": "บันทึกรายการโดยเจ้าหน้าที่",
+      "confirmTitle": "ยืนยันเงินบริจาค",
+      "confirmMessage": "ตรวจสอบหลักฐานแล้วและยืนยันรายการนี้หรือไม่",
+      "sendReceipt": "ส่งใบเสร็จ",
+      "sendReceiptMessage": "ระบบจะสร้าง PDF ถาวรและเข้าคิวส่งไปยังอีเมลผู้บริจาค ยืนยันหรือไม่",
+      "receiptQueued": "เข้าคิวส่งใบเสร็จแล้ว",
+      "viewProof": "ดูหลักฐาน",
+      "proofPreview": "ตัวอย่างหลักฐานการโอน",
+      "proofPreviewClose": "ปิดตัวอย่างหลักฐาน",
+      "proofOpen": "เปิดในแท็บใหม่",
+      "proofDownload": "ดาวน์โหลด",
+      "proofLoading": "กำลังโหลดหลักฐาน…",
+      "proofPreviewError": "ไม่สามารถโหลดหลักฐานได้ กรุณาลองใหม่อีกครั้ง",
+      "proofImageAlt": "ตัวอย่างหลักฐานการโอน",
+      "proofPdf": "เอกสาร PDF",
+      "proofZoom": "การควบคุมการซูมตัวอย่าง",
+      "proofZoomIn": "ขยาย",
+      "proofZoomOut": "ย่อ",
+      "proofZoomReset": "ขนาดเดิม",
+      "viewReceipt": "ดูใบเสร็จ",
+      "receiptPreview": "ตัวอย่างใบเสร็จเงินบริจาค",
+      "receiptPreviewClose": "ปิดตัวอย่างใบเสร็จ",
+      "receiptLoading": "กำลังโหลดใบเสร็จ…",
+      "receiptPreviewError": "ไม่สามารถโหลดใบเสร็จได้ กรุณาลองใหม่อีกครั้ง",
+      "confirm": "ยืนยัน",
+      "cancelAction": "ยกเลิก",
+      "annual": {
+        "modalTitle": "สร้างใบรับรองยอดบริจาคประจำปี",
+        "searchPlaceholder": "ค้นหาผู้บริจาค...",
+        "downloadPdf": "ดาวน์โหลด PDF",
+        "grandTotal": "ยอดรวมทั้งหมด",
+        "totalDonations": "ยอดบริจาครวม",
+        "donorCount": "จำนวนผู้บริจาค",
+        "printSheetTitle": "ใบรับรองการบริจาคประจำปี",
+        "forDonor": "สำหรับ",
+        "year": "ประจำปี",
+        "totalAmount": "ยอดรวม",
+        "issuer": "เจ้าหน้าที่ผู้ออกเอกสาร",
+        "responsible": "ลงชื่อผู้รับผิดชอบ"
+      }
     },
     "privacyRequests": {
       "title": "คำขอข้อมูลส่วนบุคคล",
@@ -800,7 +947,33 @@
       "phone": "เบอร์โทรศัพท์",
       "email": "อีเมล",
       "createSuccess": "สร้างการลงทะเบียนสำเร็จ",
-      "createError": "เกิดข้อผิดพลาดในการสร้างการลงทะเบียน"
+      "createError": "เกิดข้อผิดพลาดในการสร้างการลงทะเบียน",
+      "printSheet": {
+        "title": "ใบเช็คชื่อผู้เข้าร่วมกิจกรรม",
+        "index": "ลำดับ",
+        "code": "รหัสลงทะเบียน",
+        "name": "ชื่อ-นามสกุล",
+        "count": "จำนวน",
+        "phone": "เบอร์โทรศัพท์",
+        "dietary": "ข้อมูลอาหาร/ข้อจำกัด",
+        "signature": "ลายเซ็น / เช็คชื่อ",
+        "checked": "เช็คแล้ว",
+        "staffSignature": "เจ้าหน้าที่ลงทะเบียน:",
+        "responsibleSignature": "ลงชื่อผู้รับผิดชอบ:"
+      },
+      "scanner": {
+        "title": "สแกน QR Code เพื่อเช็คชื่อ",
+        "subtitle": "ใช้กล้องสแกนบัตรลงทะเบียนหรือพิมพ์รหัสยืนยัน",
+        "cameraOff": "กล้องถูกปิดอยู่",
+        "cameraAccessError": "ไม่สามารถเข้าถึงกล้องได้ กรุณาอนุญาตการเข้าถึงในเบราว์เซอร์",
+        "scanning": "กำลังตรวจสอบรหัส...",
+        "checkinSuccess": "เช็คชื่อสำเร็จ",
+        "alreadyAttended": "เช็คชื่อไปแล้วก่อนหน้านี้",
+        "invalidCode": "ไม่พบข้อมูลการลงทะเบียนสำหรับรหัสนี้",
+        "enterCodeManual": "กรอกรหัสยืนยันด้วยตนเอง",
+        "checkInButton": "บันทึกการเช็คชื่อ",
+        "codePlaceholder": "เช่น REG-XXXXXX"
+      }
     },
     "aiTranslate": {
       "button": "แปลร่าง (AI)",
@@ -1168,9 +1341,24 @@
       "providerFilter": "ผู้ให้บริการ",
       "allStatuses": "ทุกสถานะ",
       "allProviders": "ทุกผู้ให้บริการ",
-      "columns": { "account": "บัญชี", "status": "สถานะ", "provider": "ผู้ให้บริการ", "lastLogin": "เข้าสู่ระบบล่าสุด", "created": "สร้างเมื่อ", "actions": "จัดการ" },
-      "statuses": { "pending_verification": "รอยืนยันอีเมล", "active": "ใช้งานอยู่", "disabled": "ระงับ", "closed": "ปิดบัญชี" },
-      "providers": { "password": "รหัสผ่าน", "google": "Google" },
+      "columns": {
+        "account": "บัญชี",
+        "status": "สถานะ",
+        "provider": "ผู้ให้บริการ",
+        "lastLogin": "เข้าสู่ระบบล่าสุด",
+        "created": "สร้างเมื่อ",
+        "actions": "จัดการ"
+      },
+      "statuses": {
+        "pending_verification": "รอยืนยันอีเมล",
+        "active": "ใช้งานอยู่",
+        "disabled": "ระงับ",
+        "closed": "ปิดบัญชี"
+      },
+      "providers": {
+        "password": "รหัสผ่าน",
+        "google": "Google"
+      },
       "verified": "ยืนยันอีเมลแล้ว",
       "unverified": "ยังไม่ยืนยันอีเมล",
       "view": "ดูรายละเอียดบัญชี",
@@ -1183,13 +1371,37 @@
       "pendingPolicy": "บัญชีที่ยังไม่ยืนยันอีเมลไม่สามารถเปลี่ยนสถานะจากหน้านี้ได้",
       "reasonsLabel": "เหตุผลการดำเนินการ",
       "selectReason": "เลือกเหตุผล",
-      "reasons": { "security_review": "การตรวจสอบความปลอดภัย", "policy_violation": "ละเมิดนโยบาย", "user_request": "คำขอจากผู้ใช้", "support_request": "คำขอจากฝ่ายสนับสนุน" },
-      "actions": {
-        "disable": { "label": "ระงับบัญชี", "title": "ระงับบัญชีนี้?", "body": "บัญชี {email} จะเข้าสู่ระบบไม่ได้ทันที และ session ทั้งหมดจะถูกยกเลิก", "success": "ระงับบัญชีและออกจากระบบทุกอุปกรณ์แล้ว" },
-        "enable": { "label": "เปิดใช้บัญชี", "title": "เปิดใช้บัญชีนี้?", "body": "บัญชี {email} จะกลับมาใช้งานได้ แต่จะไม่คืน session เดิม", "success": "เปิดใช้บัญชีแล้ว" },
-        "logoutAll": { "label": "ออกจากระบบทุกอุปกรณ์", "title": "ออกจากระบบทุกอุปกรณ์?", "body": "session ทั้งหมดของ {email} จะถูกยกเลิก แต่สถานะบัญชีจะไม่เปลี่ยน", "success": "ออกจากระบบทุกอุปกรณ์แล้ว" }
+      "reasons": {
+        "security_review": "การตรวจสอบความปลอดภัย",
+        "policy_violation": "ละเมิดนโยบาย",
+        "user_request": "คำขอจากผู้ใช้",
+        "support_request": "คำขอจากฝ่ายสนับสนุน"
       },
-      "errors": { "load": "ไม่สามารถโหลดบัญชีสาธารณะได้", "action": "ไม่สามารถดำเนินการกับบัญชีได้", "forbidden": "คุณไม่มีสิทธิ์จัดการบัญชีสาธารณะ" }
+      "actions": {
+        "disable": {
+          "label": "ระงับบัญชี",
+          "title": "ระงับบัญชีนี้?",
+          "body": "บัญชี {email} จะเข้าสู่ระบบไม่ได้ทันที และ session ทั้งหมดจะถูกยกเลิก",
+          "success": "ระงับบัญชีและออกจากระบบทุกอุปกรณ์แล้ว"
+        },
+        "enable": {
+          "label": "เปิดใช้บัญชี",
+          "title": "เปิดใช้บัญชีนี้?",
+          "body": "บัญชี {email} จะกลับมาใช้งานได้ แต่จะไม่คืน session เดิม",
+          "success": "เปิดใช้บัญชีแล้ว"
+        },
+        "logoutAll": {
+          "label": "ออกจากระบบทุกอุปกรณ์",
+          "title": "ออกจากระบบทุกอุปกรณ์?",
+          "body": "session ทั้งหมดของ {email} จะถูกยกเลิก แต่สถานะบัญชีจะไม่เปลี่ยน",
+          "success": "ออกจากระบบทุกอุปกรณ์แล้ว"
+        }
+      },
+      "errors": {
+        "load": "ไม่สามารถโหลดบัญชีสาธารณะได้",
+        "action": "ไม่สามารถดำเนินการกับบัญชีได้",
+        "forbidden": "คุณไม่มีสิทธิ์จัดการบัญชีสาธารณะ"
+      }
     },
     "profile": {
       "title": "โปรไฟล์ของฉัน",
@@ -1518,13 +1730,26 @@
         "mimeType": "ประเภทไฟล์",
         "category": "หมวดหมู่",
         "altMissing": "ขาด Alt Text ภาษา",
-        "locales": {"th": "ไทย", "en": "อังกฤษ", "de": "เยอรมัน"}
+        "locales": {
+          "th": "ไทย",
+          "en": "อังกฤษ",
+          "de": "เยอรมัน"
+        }
       },
       "uploadSuccess": "อัปโหลดรูปภาพเรียบร้อยแล้ว",
       "uploadSuccessOptimized": "อัปโหลดและบีบอัดเป็น WebP สำเร็จ (ลดขนาดลง {percent}%)",
       "uploadError": "อัปโหลดรูปภาพไม่สำเร็จ",
       "backToLibrary": "กลับคลังสื่อ",
-      "trash": "ถังขยะสื่อ"
+      "trash": "ถังขยะสื่อ",
+      "details": {
+        "usageTitle": "การใช้งานสื่อ",
+        "noUsage": "ยังไม่พบจุดที่ใช้งาน",
+        "restore": "กู้คืนสื่อ",
+        "restoring": "กำลังกู้คืน...",
+        "purge": "ลบถาวร",
+        "purging": "กำลังลบถาวร...",
+        "purgeFailed": "ลบสื่อถาวรไม่สำเร็จ"
+      }
     },
     "mediaSafety": {
       "trash": "ถังขยะสื่อ",

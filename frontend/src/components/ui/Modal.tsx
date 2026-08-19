@@ -2,6 +2,7 @@
 
 import React, { useEffect, useCallback, useId } from 'react';
 import { createPortal } from 'react-dom';
+import { useTranslations } from 'next-intl';
 import { X, AlertTriangle, CheckCircle, Info, AlertCircle } from 'lucide-react';
 import { Loading } from './Loading';
 
@@ -152,13 +153,17 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
     isOpen,
     onClose,
     onConfirm,
-    title = 'ยืนยันการดำเนินการ',
+    title,
     message,
-    confirmText = 'ยืนยัน',
-    cancelText = 'ยกเลิก',
+    confirmText,
+    cancelText,
     variant = 'default',
     isLoading = false,
 }) => {
+    const tCommon = useTranslations("Admin.common");
+    const resolvedTitle = title || tCommon("modal.confirmTitle");
+    const resolvedConfirmText = confirmText || tCommon("modal.confirm");
+    const resolvedCancelText = cancelText || tCommon("cancel");
     const config = variantConfig[variant];
     const Icon = config.icon;
 
@@ -168,14 +173,14 @@ const ConfirmModal: React.FC<ConfirmModalProps> = ({
                 <div className={`mx-auto mb-4 flex h-12 w-12 items-center justify-center border border-admin-border bg-admin-surface-muted rounded-full ${config.iconColor}`}>
                     <Icon size={24} />
                 </div>
-                <h3 className="mb-2 text-base font-semibold text-admin-foreground">{title}</h3>
+                <h3 className="mb-2 text-base font-semibold text-admin-foreground">{resolvedTitle}</h3>
                 <p className="mb-6 text-sm text-admin-muted">{message}</p>
                 <div className="flex gap-3">
                     <button type="button" onClick={onClose} disabled={isLoading} className="flex-1 border border-admin-control-border bg-admin-surface px-4 py-2 min-h-11 rounded-none text-sm font-medium text-admin-body hover:bg-admin-surface-muted disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus">
-                        {cancelText}
+                        {resolvedCancelText}
                     </button>
                     <button type="button" onClick={onConfirm} disabled={isLoading} className={`flex flex-1 items-center justify-center gap-2 px-4 py-2 min-h-11 rounded-none text-sm font-medium disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus ${config.btnClass}`}>
-                        {isLoading ? <Loading size="sm" /> : confirmText}
+                        {isLoading ? <Loading size="sm" /> : resolvedConfirmText}
                     </button>
                 </div>
             </div>
@@ -190,12 +195,15 @@ const FormModal: React.FC<FormModalProps> = ({
     onSubmit,
     title,
     children,
-    submitText = 'บันทึก',
-    cancelText = 'ยกเลิก',
+    submitText,
+    cancelText,
     isLoading = false,
     size = 'md',
     submitDisabled = false,
 }) => {
+    const tCommon = useTranslations("Admin.common");
+    const resolvedSubmitText = submitText || tCommon("save");
+    const resolvedCancelText = cancelText || tCommon("cancel");
     const formRef = React.useRef<HTMLFormElement>(null);
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -219,7 +227,7 @@ const FormModal: React.FC<FormModalProps> = ({
                         disabled={isLoading}
                         className="border border-admin-control-border bg-admin-surface px-4 py-2 min-h-11 rounded-none text-sm font-medium text-admin-body hover:bg-admin-surface-muted disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus"
                     >
-                        {cancelText}
+                        {resolvedCancelText}
                     </button>
                     <button
                         type="button"
@@ -227,7 +235,7 @@ const FormModal: React.FC<FormModalProps> = ({
                         disabled={isLoading || submitDisabled}
                         className="flex items-center gap-2 bg-admin-action px-6 py-2 min-h-11 rounded-none text-sm font-medium text-admin-on-action hover:bg-admin-action-hover disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus"
                     >
-                        {isLoading ? <Loading size="sm" /> : submitText}
+                        {isLoading ? <Loading size="sm" /> : resolvedSubmitText}
                     </button>
                 </>
             }

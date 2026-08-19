@@ -74,7 +74,16 @@
     "permissions": {
       "system": "Ressource",
       "all": "Alle",
-      "actions": { "read": "Lesen", "create": "Erstellen", "update": "Bearbeiten", "delete": "Löschen", "moderate": "Moderieren", "answer_officially": "Als offiziell markieren", "manage_categories": "Kategorien verwalten", "restrict_members": "Mitglieder einschränken" },
+      "actions": {
+        "read": "Lesen",
+        "create": "Erstellen",
+        "update": "Bearbeiten",
+        "delete": "Löschen",
+        "moderate": "Moderieren",
+        "answer_officially": "Als offiziell markieren",
+        "manage_categories": "Kategorien verwalten",
+        "restrict_members": "Mitglieder einschränken"
+      },
       "resources": {
         "events": "Veranstaltungen",
         "monks": "Mönche",
@@ -177,6 +186,41 @@
         "title": "Ein Fehler ist aufgetreten",
         "defaultMessage": "Ein unerwarteter Fehler ist aufgetreten. Bitte versuchen Sie es erneut.",
         "retry": "Erneut versuchen"
+      },
+      "dataTable": {
+        "loading": "Daten werden geladen...",
+        "noData": "Keine Daten gefunden",
+        "showing": "Zeige",
+        "to": "bis",
+        "of": "von",
+        "entries": "Einträge",
+        "noEntries": "Keine Einträge",
+        "manage": "Verwalten"
+      },
+      "picker": {
+        "chooseDate": "Datum auswählen",
+        "chooseTime": "Uhrzeit auswählen",
+        "chooseDateRange": "Zeitraum auswählen"
+      },
+      "modal": {
+        "confirmTitle": "Aktion bestätigen",
+        "confirm": "Bestätigen"
+      },
+      "imageUpload": {
+        "clickToUpload": "Zum Hochladen klicken",
+        "dragAndDrop": "oder hierher ziehen",
+        "hint": "Unterstützt JPG, PNG, WEBP bis zu 5MB",
+        "uploading": "Wird hochgeladen..."
+      },
+      "listStates": {
+        "emptySearchTitle": "Keine Ergebnisse gefunden",
+        "emptySearchDesc": "Versuchen Sie, Ihre Suchbegriffe oder Filter anzupassen",
+        "errorTitle": "Fehler beim Laden der Daten",
+        "errorRetry": "Erneut versuchen"
+      },
+      "mediaPicker": {
+        "title": "Bild aus der Medienbibliothek auswählen",
+        "empty": "Keine Bilder in der Medienbibliothek"
       }
     },
     "community": {
@@ -416,7 +460,10 @@
       "calendarInstructions": "Aktivitätskalender. Veranstaltung für Details auswählen.",
       "resourceLabel": "Ressource",
       "unassignedResource": "Nicht zugewiesen",
-      "resourceFilter": { "label": "Ressourcen filtern", "clear": "Ressourcenfilter löschen" },
+      "resourceFilter": {
+        "label": "Ressourcen filtern",
+        "clear": "Ressourcenfilter löschen"
+      },
       "scrollHorizontally": "Horizontal scrollen, um die ganze Woche zu sehen",
       "moreEvents": "+ {count} weitere",
       "eventsCount": "{count} Veranstaltungen",
@@ -424,16 +471,73 @@
       "timedEvents": "Nach Uhrzeit",
       "eventDetails": "Details ansehen",
       "selectedDate": "Programm für {date}",
-      "views": { "month": "Monat", "week": "Woche", "day": "Tag" },
-      "dayNames": { "sunday": "Sonntag", "monday": "Montag", "tuesday": "Dienstag", "wednesday": "Mittwoch", "thursday": "Donnerstag", "friday": "Freitag", "saturday": "Samstag" },
-      "drawer": { "source": "Quelle", "status": "Status", "active": "Aktiv", "inactive": "Inaktiv", "location": "Ort", "description": "Beschreibung", "edit": "Aktivität bearbeiten", "close": "Schließen" }
+      "views": {
+        "month": "Monat",
+        "week": "Woche",
+        "day": "Tag"
+      },
+      "dayNames": {
+        "sunday": "Sonntag",
+        "monday": "Montag",
+        "tuesday": "Dienstag",
+        "wednesday": "Mittwoch",
+        "thursday": "Donnerstag",
+        "friday": "Freitag",
+        "saturday": "Samstag"
+      },
+      "drawer": {
+        "source": "Quelle",
+        "status": "Status",
+        "active": "Aktiv",
+        "inactive": "Inaktiv",
+        "location": "Ort",
+        "description": "Beschreibung",
+        "edit": "Aktivität bearbeiten",
+        "close": "Schließen"
+      }
     },
     "calendarResources": {
       "title": "Kalenderressourcen",
       "breadcrumb": "Kalenderressourcen",
-      "form": { "createTitle": "Ressource hinzufügen", "editTitle": "Ressource bearbeiten", "slug": "Slug", "type": "Ressourcentyp", "title": "Lokalisierter Titel", "color": "Farbe", "colorPlaceholder": "Hex-Farbe", "capacity": "Kapazität", "order": "Anzeigereihenfolge", "active": "Aktiv", "public": "Im öffentlichen Kalender sichtbar", "save": "Ressource speichern", "saving": "Wird gespeichert...", "cancel": "Abbrechen" },
-      "list": { "title": "Ressourcenregister", "loading": "Wird geladen...", "resource": "Ressource", "type": "Typ", "visibility": "Sichtbarkeit", "assignments": "Zuordnungen", "actions": "Aktionen", "public": "Öffentlich", "private": "Nur Admin", "edit": "Bearbeiten", "delete": "Löschen", "assigned": "Zugewiesene Ressource kann nicht gelöscht werden", "empty": "Keine Ressourcen konfiguriert" },
-      "messages": { "saved": "Ressource gespeichert", "saveError": "Ressource konnte nicht gespeichert werden", "deleted": "Ressource gelöscht", "deleteError": "Ressource konnte nicht gelöscht werden", "deleteTitle": "Ressource löschen", "deleteConfirm": "Diese Kalenderressource löschen? Veranstaltungen müssen zuerst entfernt werden." }
+      "form": {
+        "createTitle": "Ressource hinzufügen",
+        "editTitle": "Ressource bearbeiten",
+        "slug": "Slug",
+        "type": "Ressourcentyp",
+        "title": "Lokalisierter Titel",
+        "color": "Farbe",
+        "colorPlaceholder": "Hex-Farbe",
+        "capacity": "Kapazität",
+        "order": "Anzeigereihenfolge",
+        "active": "Aktiv",
+        "public": "Im öffentlichen Kalender sichtbar",
+        "save": "Ressource speichern",
+        "saving": "Wird gespeichert...",
+        "cancel": "Abbrechen"
+      },
+      "list": {
+        "title": "Ressourcenregister",
+        "loading": "Wird geladen...",
+        "resource": "Ressource",
+        "type": "Typ",
+        "visibility": "Sichtbarkeit",
+        "assignments": "Zuordnungen",
+        "actions": "Aktionen",
+        "public": "Öffentlich",
+        "private": "Nur Admin",
+        "edit": "Bearbeiten",
+        "delete": "Löschen",
+        "assigned": "Zugewiesene Ressource kann nicht gelöscht werden",
+        "empty": "Keine Ressourcen konfiguriert"
+      },
+      "messages": {
+        "saved": "Ressource gespeichert",
+        "saveError": "Ressource konnte nicht gespeichert werden",
+        "deleted": "Ressource gelöscht",
+        "deleteError": "Ressource konnte nicht gelöscht werden",
+        "deleteTitle": "Ressource löschen",
+        "deleteConfirm": "Diese Kalenderressource löschen? Veranstaltungen müssen zuerst entfernt werden."
+      }
     },
     "monks": {
       "title": "Mönche",
@@ -610,7 +714,50 @@
       "donorNameRequired": "Bitte Spendername eingeben (oder anonym wählen)",
       "invalidEmail": "Ungültiges E-Mail-Format",
       "invalidPhone": "Ungültige Telefonnummer (7-15 Ziffern)",
-      "status": "Status", "from": "Von", "to": "Bis", "dateRange": "Spendedatum-Bereich", "createStaff": "Spende durch Personal erfassen", "confirmTitle": "Spende bestätigen", "confirmMessage": "Wurde der Nachweis geprüft und die Spende bestätigt?", "sendReceipt": "Bescheinigung senden", "sendReceiptMessage": "Dauerhafte PDF erstellen und per E-Mail versenden?", "receiptQueued": "Bescheinigung eingereiht", "viewProof": "Nachweis ansehen", "proofPreview": "Vorschau des Überweisungsnachweises", "proofPreviewClose": "Vorschau schließen", "proofOpen": "In neuem Tab öffnen", "proofDownload": "Herunterladen", "proofLoading": "Nachweis wird geladen…", "proofPreviewError": "Der Nachweis konnte nicht geladen werden. Bitte versuchen Sie es erneut.", "proofImageAlt": "Vorschau des Überweisungsnachweises", "proofPdf": "PDF-Dokument", "proofZoom": "Zoom-Steuerung der Vorschau", "proofZoomIn": "Vergrößern", "proofZoomOut": "Verkleinern", "proofZoomReset": "Zoom zurücksetzen", "viewReceipt": "Bescheinigung ansehen", "receiptPreview": "Vorschau der Spendenbescheinigung", "receiptPreviewClose": "Vorschau schließen", "receiptLoading": "Bescheinigung wird geladen…", "receiptPreviewError": "Die Bescheinigung konnte nicht geladen werden. Bitte versuchen Sie es erneut.", "confirm": "Bestätigen", "cancelAction": "Spende stornieren"
+      "status": "Status",
+      "from": "Von",
+      "to": "Bis",
+      "dateRange": "Spendedatum-Bereich",
+      "createStaff": "Spende durch Personal erfassen",
+      "confirmTitle": "Spende bestätigen",
+      "confirmMessage": "Wurde der Nachweis geprüft und die Spende bestätigt?",
+      "sendReceipt": "Bescheinigung senden",
+      "sendReceiptMessage": "Dauerhafte PDF erstellen und per E-Mail versenden?",
+      "receiptQueued": "Bescheinigung eingereiht",
+      "viewProof": "Nachweis ansehen",
+      "proofPreview": "Vorschau des Überweisungsnachweises",
+      "proofPreviewClose": "Vorschau schließen",
+      "proofOpen": "In neuem Tab öffnen",
+      "proofDownload": "Herunterladen",
+      "proofLoading": "Nachweis wird geladen…",
+      "proofPreviewError": "Der Nachweis konnte nicht geladen werden. Bitte versuchen Sie es erneut.",
+      "proofImageAlt": "Vorschau des Überweisungsnachweises",
+      "proofPdf": "PDF-Dokument",
+      "proofZoom": "Zoom-Steuerung der Vorschau",
+      "proofZoomIn": "Vergrößern",
+      "proofZoomOut": "Verkleinern",
+      "proofZoomReset": "Zoom zurücksetzen",
+      "viewReceipt": "Bescheinigung ansehen",
+      "receiptPreview": "Vorschau der Spendenbescheinigung",
+      "receiptPreviewClose": "Vorschau schließen",
+      "receiptLoading": "Bescheinigung wird geladen…",
+      "receiptPreviewError": "Die Bescheinigung konnte nicht geladen werden. Bitte versuchen Sie es erneut.",
+      "confirm": "Bestätigen",
+      "cancelAction": "Spende stornieren",
+      "annual": {
+        "modalTitle": "Jährliche Zuwendungsbestätigung erstellen",
+        "searchPlaceholder": "Spender suchen...",
+        "downloadPdf": "PDF herunterladen",
+        "grandTotal": "Gesamtbetrag",
+        "totalDonations": "Gesamtspenden",
+        "donorCount": "Anzahl der Spender",
+        "printSheetTitle": "Sammelbestätigung über Geldzuwendungen",
+        "forDonor": "Für",
+        "year": "Jahr",
+        "totalAmount": "Gesamtbetrag",
+        "issuer": "Ausstellende Person",
+        "responsible": "Verantwortliche Unterschrift"
+      }
     },
     "privacyRequests": {
       "title": "Datenschutzanfragen",
@@ -802,7 +949,33 @@
       "createSuccess": "Anmeldung erfolgreich erstellt.",
       "createError": "Fehler beim Erstellen der Anmeldung.",
       "validationRequired": "Bitte füllen Sie alle Pflichtfelder aus.",
-      "eventRequired": "Bitte wählen Sie eine Veranstaltung aus."
+      "eventRequired": "Bitte wählen Sie eine Veranstaltung aus.",
+      "printSheet": {
+        "title": "Anwesenheitsliste der Veranstaltung",
+        "index": "Nr.",
+        "code": "Bestätigungscode",
+        "name": "Vollständiger Name",
+        "count": "Anz.",
+        "phone": "Telefon",
+        "dietary": "Ernährungseinschränkungen",
+        "signature": "Unterschrift / Check-in",
+        "checked": "Eingecheckt",
+        "staffSignature": "Registrierungspersonal:",
+        "responsibleSignature": "Verantwortliche Unterschrift:"
+      },
+      "scanner": {
+        "title": "QR-Code zum Einchecken scannen",
+        "subtitle": "Kamera verwenden oder Bestätigungscode eingeben",
+        "cameraOff": "Kamera ist ausgeschaltet",
+        "cameraAccessError": "Kein Zugriff auf die Kamera möglich. Bitte erlauben Sie den Kamerazugriff im Browser.",
+        "scanning": "Code wird überprüft...",
+        "checkinSuccess": "Erfolgreich eingecheckt",
+        "alreadyAttended": "Bereits zuvor eingecheckt",
+        "invalidCode": "Keine Registrierung für diesen Code gefunden",
+        "enterCodeManual": "Bestätigungscode manuell eingeben",
+        "checkInButton": "Einchecken",
+        "codePlaceholder": "z.B. REG-XXXXXX"
+      }
     },
     "aiTranslate": {
       "button": "KI-Entwurf übersetzen",
@@ -1170,9 +1343,24 @@
       "providerFilter": "Anbieter",
       "allStatuses": "Alle Status",
       "allProviders": "Alle Anbieter",
-      "columns": { "account": "Konto", "status": "Status", "provider": "Anbieter", "lastLogin": "Letzte Anmeldung", "created": "Erstellt", "actions": "Aktionen" },
-      "statuses": { "pending_verification": "Bestätigung ausstehend", "active": "Aktiv", "disabled": "Deaktiviert", "closed": "Geschlossen" },
-      "providers": { "password": "Passwort", "google": "Google" },
+      "columns": {
+        "account": "Konto",
+        "status": "Status",
+        "provider": "Anbieter",
+        "lastLogin": "Letzte Anmeldung",
+        "created": "Erstellt",
+        "actions": "Aktionen"
+      },
+      "statuses": {
+        "pending_verification": "Bestätigung ausstehend",
+        "active": "Aktiv",
+        "disabled": "Deaktiviert",
+        "closed": "Geschlossen"
+      },
+      "providers": {
+        "password": "Passwort",
+        "google": "Google"
+      },
       "verified": "E-Mail bestätigt",
       "unverified": "E-Mail nicht bestätigt",
       "view": "Konto anzeigen",
@@ -1185,13 +1373,37 @@
       "pendingPolicy": "Nicht bestätigte Konten können auf dieser Seite nicht geändert werden.",
       "reasonsLabel": "Grund der Aktion",
       "selectReason": "Grund auswählen",
-      "reasons": { "security_review": "Sicherheitsprüfung", "policy_violation": "Richtlinienverstoß", "user_request": "Benutzeranfrage", "support_request": "Supportanfrage" },
-      "actions": {
-        "disable": { "label": "Konto deaktivieren", "title": "Dieses Konto deaktivieren?", "body": "{email} kann sich sofort nicht mehr anmelden und alle Sitzungen werden beendet.", "success": "Konto deaktiviert und alle Sitzungen beendet" },
-        "enable": { "label": "Konto aktivieren", "title": "Dieses Konto aktivieren?", "body": "{email} wird wieder aktiviert, frühere Sitzungen werden jedoch nicht wiederhergestellt.", "success": "Konto aktiviert" },
-        "logoutAll": { "label": "Alle Sitzungen abmelden", "title": "Alle Sitzungen abmelden?", "body": "Alle Sitzungen von {email} werden beendet, der Kontostatus bleibt unverändert.", "success": "Alle Sitzungen beendet" }
+      "reasons": {
+        "security_review": "Sicherheitsprüfung",
+        "policy_violation": "Richtlinienverstoß",
+        "user_request": "Benutzeranfrage",
+        "support_request": "Supportanfrage"
       },
-      "errors": { "load": "Öffentliche Konten konnten nicht geladen werden", "action": "Kontoaktion konnte nicht abgeschlossen werden", "forbidden": "Sie haben keine Berechtigung, öffentliche Konten zu verwalten" }
+      "actions": {
+        "disable": {
+          "label": "Konto deaktivieren",
+          "title": "Dieses Konto deaktivieren?",
+          "body": "{email} kann sich sofort nicht mehr anmelden und alle Sitzungen werden beendet.",
+          "success": "Konto deaktiviert und alle Sitzungen beendet"
+        },
+        "enable": {
+          "label": "Konto aktivieren",
+          "title": "Dieses Konto aktivieren?",
+          "body": "{email} wird wieder aktiviert, frühere Sitzungen werden jedoch nicht wiederhergestellt.",
+          "success": "Konto aktiviert"
+        },
+        "logoutAll": {
+          "label": "Alle Sitzungen abmelden",
+          "title": "Alle Sitzungen abmelden?",
+          "body": "Alle Sitzungen von {email} werden beendet, der Kontostatus bleibt unverändert.",
+          "success": "Alle Sitzungen beendet"
+        }
+      },
+      "errors": {
+        "load": "Öffentliche Konten konnten nicht geladen werden",
+        "action": "Kontoaktion konnte nicht abgeschlossen werden",
+        "forbidden": "Sie haben keine Berechtigung, öffentliche Konten zu verwalten"
+      }
     },
     "profile": {
       "title": "Mein Profil",
@@ -1520,13 +1732,26 @@
         "mimeType": "Dateityp",
         "category": "Kategorie",
         "altMissing": "Fehlender Alt-Text",
-        "locales": {"th": "Thai", "en": "Englisch", "de": "Deutsch"}
+        "locales": {
+          "th": "Thai",
+          "en": "Englisch",
+          "de": "Deutsch"
+        }
       },
       "uploadSuccess": "Bild erfolgreich hochgeladen",
       "uploadSuccessOptimized": "Erfolgreich als WebP hochgeladen und optimiert ({percent}% kleiner)",
       "uploadError": "Bild konnte nicht hochgeladen werden",
       "backToLibrary": "Zurück zur Medienbibliothek",
-      "trash": "Papierkorb"
+      "trash": "Papierkorb",
+      "details": {
+        "usageTitle": "Medienverwendung",
+        "noUsage": "Keine Verwendung gefunden",
+        "restore": "Medium wiederherstellen",
+        "restoring": "Wird wiederhergestellt...",
+        "purge": "Endgültig löschen",
+        "purging": "Wird endgültig gelöscht...",
+        "purgeFailed": "Medium konnte nicht endgültig gelöscht werden"
+      }
     },
     "mediaSafety": {
       "trash": "Medien-Papierkorb",
