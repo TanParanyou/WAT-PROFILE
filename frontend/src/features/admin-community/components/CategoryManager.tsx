@@ -44,13 +44,14 @@ export function CategoryManager() {
   const deleteMutation = useDeleteAdminCategory();
   const reorderMutation = useReorderAdminCategories();
 
+  const [itemsOverride, setItemsOverride] = useState<AdminCommunityCategory[] | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingCategory, setEditingCategory] = useState<AdminCommunityCategory | null>(null);
   const [formData, setFormData] = useState<AdminCategoryInput>(emptyInput);
 
   const [deletingCategory, setDeletingCategory] = useState<AdminCommunityCategory | null>(null);
 
-  const categories = query.data ?? [];
+  const categories = itemsOverride ?? query.data ?? [];
 
   const handleOpenCreate = () => {
     setEditingCategory(null);
@@ -94,6 +95,7 @@ export function CategoryManager() {
       setIsModalOpen(false);
       setFormData(emptyInput);
       setEditingCategory(null);
+      setItemsOverride(null);
     } catch {
       toast.error(t("actionError"));
     }
@@ -108,27 +110,53 @@ export function CategoryManager() {
       });
       toast.success(t("actionSuccess"));
       setDeletingCategory(null);
+      setItemsOverride(null);
     } catch {
       toast.error(t("actionError"));
     }
   };
 
-  const handleReorder = async (from: number, to: number) => {
+  // Local optimistic reorder during drag hover
+  const handleLocalReorder = (from: number, to: number) => {
     if (from === to || from < 0 || to < 0 || from >= categories.length || to >= categories.length) return;
+    setItemsOverride(() => {
+      const next = [...categories];
+      const [moved] = next.splice(from, 1);
+      next.splice(to, 0, moved);
+      return next;
+    });
+  };
+
+  // Persist to backend on drag end / drop
+  const handleCommitReorder = async () => {
+    if (categories.length === 0) return;
+    try {
+      await reorderMutation.mutateAsync(categories.map((c) => c.id));
+      toast.success(t("reorderSuccess"));
+      setItemsOverride(null);
+    } catch {
+      toast.error(t("reorderError"));
+      setItemsOverride(null);
+    }
+  };
+
+  // Step move via buttons (up/down)
+  const handleStepMove = async (index: number, delta: -1 | 1) => {
+    const target = index + delta;
+    if (target < 0 || target >= categories.length) return;
     const reordered = [...categories];
-    const [moved] = reordered.splice(from, 1);
-    reordered.splice(to, 0, moved);
+    const [moved] = reordered.splice(index, 1);
+    reordered.splice(target, 0, moved);
+    setItemsOverride(reordered);
 
     try {
       await reorderMutation.mutateAsync(reordered.map((c) => c.id));
       toast.success(t("reorderSuccess"));
+      setItemsOverride(null);
     } catch {
       toast.error(t("reorderError"));
+      setItemsOverride(null);
     }
-  };
-
-  const handleStepMove = (index: number, delta: -1 | 1) => {
-    handleReorder(index, index + delta);
   };
 
   return (
@@ -144,7 +172,7 @@ export function CategoryManager() {
             <button
               type="button"
               onClick={handleOpenCreate}
-              className="flex min-h-11 items-center gap-2 bg-admin-action px-4 py-2 text-sm font-semibold text-admin-on-action hover:brightness-95 focus-visible:outline-2 focus-visible:outline-admin-focus"
+              className="flex min-h-11 items-center gap-2 rounded-none bg-admin-action px-4 py-2 text-sm font-semibold text-admin-on-action hover:brightness-95 focus-visible:outline-2 focus-visible:outline-admin-focus"
             >
               <Plus size={16} />
               <span>{t("categoryCreate")}</span>
@@ -155,23 +183,24 @@ export function CategoryManager() {
 
       <div className="mt-4">
         {query.isLoading ? (
-          <div className="flex h-48 items-center justify-center border border-admin-border bg-admin-surface">
+          <div className="flex h-48 items-center justify-center border border-admin-border bg-admin-surface rounded-none">
             <Loading size="md" />
           </div>
         ) : query.isError ? (
-          <p className="border border-admin-danger p-5 text-sm text-admin-danger">
+          <p className="border border-admin-danger p-5 text-sm text-admin-danger rounded-none">
             {t("loadError")}
           </p>
         ) : categories.length === 0 ? (
-          <div className="border border-admin-border bg-admin-surface p-12 text-center text-sm text-admin-muted">
+          <div className="border border-admin-border bg-admin-surface p-12 text-center text-sm text-admin-muted rounded-none">
             {t("empty")}
           </div>
         ) : (
           <SortableList
             items={categories}
-            onReorder={handleReorder}
+            onReorder={handleLocalReorder}
+            onCommit={handleCommitReorder}
             className="space-y-2"
-            renderItem={(category, index, dragProps, isDragging) => {
+            renderItem={(category, index, dragProps, isDragging, isOver) => {
               const displayName =
                 category.name[locale] || category.name.th || category.name.en || category.slug;
               const displayDesc =
@@ -181,10 +210,12 @@ export function CategoryManager() {
                 <article
                   key={category.id}
                   {...dragProps}
-                  className={`flex flex-wrap items-center justify-between gap-4 border bg-admin-surface p-4 transition-all ${
+                  className={`flex flex-wrap items-center justify-between gap-4 border bg-admin-surface p-4 rounded-none transition-all ${
                     isDragging
                       ? "border-admin-focus bg-admin-selected/50 opacity-60 scale-[0.99]"
-                      : "border-admin-border hover:border-admin-control-border"
+                      : isOver
+                        ? "border-admin-action bg-admin-surface-muted shadow-xs"
+                        : "border-admin-border hover:border-admin-control-border"
                   }`}
                 >
                   <div className="flex items-center gap-3">
@@ -217,8 +248,8 @@ export function CategoryManager() {
                     <button
                       type="button"
                       disabled={index === 0 || reorderMutation.isPending}
-                      onClick={() => handleStepMove(index, -1)}
-                      className="p-2 text-admin-muted hover:bg-admin-surface-muted hover:text-admin-foreground disabled:opacity-30 focus-visible:outline-2 focus-visible:outline-admin-focus"
+                      onClick={() => void handleStepMove(index, -1)}
+                      className="p-2 text-admin-muted hover:bg-admin-surface-muted hover:text-admin-foreground disabled:opacity-30 focus-visible:outline-2 focus-visible:outline-admin-focus rounded-none"
                       title={t("moveUp")}
                       aria-label={t("moveUp")}
                     >
@@ -227,8 +258,8 @@ export function CategoryManager() {
                     <button
                       type="button"
                       disabled={index === categories.length - 1 || reorderMutation.isPending}
-                      onClick={() => handleStepMove(index, 1)}
-                      className="p-2 text-admin-muted hover:bg-admin-surface-muted hover:text-admin-foreground disabled:opacity-30 focus-visible:outline-2 focus-visible:outline-admin-focus"
+                      onClick={() => void handleStepMove(index, 1)}
+                      className="p-2 text-admin-muted hover:bg-admin-surface-muted hover:text-admin-foreground disabled:opacity-30 focus-visible:outline-2 focus-visible:outline-admin-focus rounded-none"
                       title={t("moveDown")}
                       aria-label={t("moveDown")}
                     >
@@ -241,7 +272,7 @@ export function CategoryManager() {
                       <button
                         type="button"
                         onClick={() => handleOpenEdit(category)}
-                        className="flex min-h-9 items-center gap-1.5 border border-admin-border px-3 py-1.5 text-xs font-semibold text-admin-foreground hover:bg-admin-surface-muted focus-visible:outline-2 focus-visible:outline-admin-focus"
+                        className="flex min-h-9 items-center gap-1.5 border border-admin-border px-3 py-1.5 text-xs font-semibold text-admin-foreground hover:bg-admin-surface-muted focus-visible:outline-2 focus-visible:outline-admin-focus rounded-none"
                       >
                         <Edit2 size={13} />
                         <span>{t("categoryEdit")}</span>
@@ -249,7 +280,7 @@ export function CategoryManager() {
                       <button
                         type="button"
                         onClick={() => setDeletingCategory(category)}
-                        className="flex min-h-9 items-center gap-1.5 border border-admin-danger/50 px-3 py-1.5 text-xs font-semibold text-admin-danger hover:bg-admin-danger/10 focus-visible:outline-2 focus-visible:outline-admin-focus"
+                        className="flex min-h-9 items-center gap-1.5 border border-admin-danger/50 px-3 py-1.5 text-xs font-semibold text-admin-danger hover:bg-admin-danger/10 focus-visible:outline-2 focus-visible:outline-admin-focus rounded-none"
                       >
                         <Trash2 size={13} />
                         <span>{t("categoryDelete")}</span>
@@ -276,7 +307,7 @@ export function CategoryManager() {
               type="button"
               disabled={saveMutation.isPending}
               onClick={() => setIsModalOpen(false)}
-              className="min-h-11 border border-admin-control-border bg-admin-surface px-4 py-2 text-sm font-medium text-admin-body hover:bg-admin-surface-muted disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus"
+              className="min-h-11 border border-admin-control-border bg-admin-surface px-4 py-2 text-sm font-medium text-admin-body hover:bg-admin-surface-muted disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus rounded-none"
             >
               {t("cancel")}
             </button>
@@ -284,7 +315,7 @@ export function CategoryManager() {
               type="button"
               disabled={saveMutation.isPending}
               onClick={handleSubmitForm}
-              className="flex min-h-11 items-center justify-center gap-2 bg-admin-action px-6 py-2 text-sm font-semibold text-admin-on-action hover:brightness-95 disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus"
+              className="flex min-h-11 items-center justify-center gap-2 bg-admin-action px-6 py-2 text-sm font-semibold text-admin-on-action hover:brightness-95 disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus rounded-none"
             >
               {saveMutation.isPending ? <Loading size="sm" /> : t("categorySave")}
             </button>
@@ -301,7 +332,7 @@ export function CategoryManager() {
                 value={formData.slug}
                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
                 placeholder="e.g. general-dharma"
-                className="mt-1 min-h-11 w-full border border-admin-border bg-admin-canvas px-3 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:outline-2 focus-visible:outline-admin-focus"
+                className="mt-1 min-h-11 w-full border border-admin-border bg-admin-canvas px-3 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:outline-2 focus-visible:outline-admin-focus rounded-none"
               />
             </label>
           </div>
@@ -323,7 +354,7 @@ export function CategoryManager() {
                       name: { ...formData.name, th: e.target.value },
                     })
                   }
-                  className="mt-1 min-h-11 w-full border border-admin-border bg-admin-canvas px-3 text-sm text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus"
+                  className="mt-1 min-h-11 w-full border border-admin-border bg-admin-canvas px-3 text-sm text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus rounded-none"
                 />
               </label>
               <label className="block text-sm">
@@ -338,7 +369,7 @@ export function CategoryManager() {
                       name: { ...formData.name, en: e.target.value },
                     })
                   }
-                  className="mt-1 min-h-11 w-full border border-admin-border bg-admin-canvas px-3 text-sm text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus"
+                  className="mt-1 min-h-11 w-full border border-admin-border bg-admin-canvas px-3 text-sm text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus rounded-none"
                 />
               </label>
               <label className="block text-sm">
@@ -352,7 +383,7 @@ export function CategoryManager() {
                       name: { ...formData.name, de: e.target.value },
                     })
                   }
-                  className="mt-1 min-h-11 w-full border border-admin-border bg-admin-canvas px-3 text-sm text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus"
+                  className="mt-1 min-h-11 w-full border border-admin-border bg-admin-canvas px-3 text-sm text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus rounded-none"
                 />
               </label>
             </div>
@@ -378,7 +409,7 @@ export function CategoryManager() {
                       },
                     })
                   }
-                  className="mt-1 w-full border border-admin-border bg-admin-canvas px-3 py-2 text-sm text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus"
+                  className="mt-1 w-full border border-admin-border bg-admin-canvas px-3 py-2 text-sm text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus rounded-none"
                 />
               </label>
               <label className="block text-sm">
@@ -396,7 +427,7 @@ export function CategoryManager() {
                       },
                     })
                   }
-                  className="mt-1 w-full border border-admin-border bg-admin-canvas px-3 py-2 text-sm text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus"
+                  className="mt-1 w-full border border-admin-border bg-admin-canvas px-3 py-2 text-sm text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus rounded-none"
                 />
               </label>
               <label className="block text-sm">
@@ -409,12 +440,12 @@ export function CategoryManager() {
                       ...formData,
                       description: {
                         th: formData.description?.th ?? "",
-                        en: e.target.value,
-                        de: formData.description?.de ?? "",
+                        en: formData.description?.en ?? "",
+                        de: e.target.value,
                       },
                     })
                   }
-                  className="mt-1 w-full border border-admin-border bg-admin-canvas px-3 py-2 text-sm text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus"
+                  className="mt-1 w-full border border-admin-border bg-admin-canvas px-3 py-2 text-sm text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus rounded-none"
                 />
               </label>
             </div>
@@ -428,7 +459,7 @@ export function CategoryManager() {
                 onChange={(e) =>
                   setFormData({ ...formData, is_active: e.target.checked })
                 }
-                className="size-4 border-admin-border text-admin-action focus:ring-admin-focus"
+                className="size-4 rounded-none border-admin-border text-admin-action focus:ring-admin-focus"
               />
               <span className="font-medium">{t("categoryActive")}</span>
             </label>

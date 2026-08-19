@@ -66,7 +66,7 @@ function SafetyReasonModalContent({
             type="button"
             onClick={onClose}
             disabled={isLoading}
-            className="min-h-11 border border-admin-control-border bg-admin-surface px-4 py-2 text-sm font-medium text-admin-body hover:bg-admin-surface-muted disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus"
+            className="min-h-11 rounded-none border border-admin-control-border bg-admin-surface px-4 py-2 text-sm font-medium text-admin-body hover:bg-admin-surface-muted disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus"
           >
             {cancelText ?? t("cancel")}
           </button>
@@ -74,7 +74,7 @@ function SafetyReasonModalContent({
             type="button"
             onClick={handleSubmit}
             disabled={isLoading || !isReasonValid}
-            className={`flex min-h-11 items-center justify-center gap-2 px-5 py-2 text-sm font-medium text-admin-on-action disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus ${
+            className={`flex min-h-11 items-center justify-center gap-2 rounded-none px-5 py-2 text-sm font-medium text-admin-on-action disabled:opacity-50 focus-visible:outline-2 focus-visible:outline-admin-focus ${
               isDanger
                 ? "bg-admin-danger hover:brightness-95"
                 : "bg-admin-action hover:brightness-95"
@@ -86,7 +86,7 @@ function SafetyReasonModalContent({
       }
     >
       <form onSubmit={handleSubmit} className="space-y-4">
-        <div className="flex items-start gap-3 border border-admin-border bg-admin-surface-muted p-3">
+        <div className="flex items-start gap-3 rounded-none border border-admin-border bg-admin-surface-muted p-3">
           <AlertTriangle
             className={`mt-0.5 size-5 shrink-0 ${
               isDanger ? "text-admin-danger" : "text-admin-warning"
@@ -108,7 +108,7 @@ function SafetyReasonModalContent({
               maxLength={2000}
               placeholder={t("reasonPlaceholder")}
               disabled={isLoading}
-              className="mt-1.5 w-full border border-admin-border bg-admin-canvas px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:outline-2 focus-visible:outline-admin-focus"
+              className="mt-1.5 w-full rounded-none border border-admin-border bg-admin-canvas px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:outline-2 focus-visible:outline-admin-focus"
             />
           </label>
           {touched && !isReasonValid ? (
