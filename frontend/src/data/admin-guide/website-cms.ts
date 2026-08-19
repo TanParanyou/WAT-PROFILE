@@ -381,6 +381,24 @@ export const websiteCmsGuides: GuideArticle[] = [
           en: "Click the edit icon on an image, select aspect ratio (16:9 for banners, 1:1 for avatars), and confirm.",
           de: "Klicken Sie auf das Bearbeiten-Symbol, wählen Sie das Seitenverhältnis (16:9 Banner, 1:1 Avatar).",
         },
+        images: [
+          {
+            src: "/images/event-asanha.png",
+            caption: {
+              th: "ตัวอย่างการเลือกสัดส่วน 16:9 สำหรับแบนเนอร์กิจกรรมและข่าวประชาสัมพันธ์",
+              en: "Selecting 16:9 aspect ratio for event banners and announcements",
+              de: "Auswahl des 16:9-Formats für Veranstaltungsbanner und Ankündigungen",
+            },
+          },
+          {
+            src: "/images/event-meditation.png",
+            caption: {
+              th: "ตัวอย่างการตัดครอบรูปภาพสัดส่วน 1:1 หรือ 4:3 สำหรับอัลบั้มภาพกิจกรรม",
+              en: "Cropping 1:1 or 4:3 aspect ratio for photo albums",
+              de: "Zuschneiden im 1:1- oder 4:3-Format für Fotoalben",
+            },
+          },
+        ],
       },
       {
         stepNumber: 3,

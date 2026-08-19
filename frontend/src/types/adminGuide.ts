@@ -13,12 +13,21 @@ export type GuideCategory =
   | "finance"
   | "system";
 
+export interface GuideImage {
+  src: string;
+  alt?: MultiLangContent;
+  caption?: MultiLangContent;
+}
+
 export interface GuideStep {
   stepNumber: number;
   title: MultiLangContent;
   description: MultiLangContent;
   tip?: MultiLangContent;
   warning?: MultiLangContent;
+  image?: string;
+  images?: GuideImage[];
+  imageCaption?: MultiLangContent;
   codeOrPath?: string;
 }
 
