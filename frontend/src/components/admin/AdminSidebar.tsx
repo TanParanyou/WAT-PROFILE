@@ -92,6 +92,7 @@ const sidebarGroups: SidebarGroup[] = [
       { labelKey: "roles", href: "/admin/roles", icon: Shield, resource: "users" },
       { labelKey: "audit_logs", href: "/admin/audit-logs", icon: Activity, resource: "audit_logs" },
       { labelKey: "settings", href: "/admin/settings", icon: Settings, resource: "settings" },
+      { labelKey: "guide", href: "/admin/guide", icon: BookOpen, alwaysShow: true },
     ],
   },
 ];

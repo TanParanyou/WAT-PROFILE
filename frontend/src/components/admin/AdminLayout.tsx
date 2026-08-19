@@ -1,9 +1,8 @@
-"use client";
-
 import React, { useState, useEffect } from "react";
 import { AdminSidebar } from "./AdminSidebar";
 import { AdminHeader } from "./AdminHeader";
 import { InactivityTimeoutDialog } from "./InactivityTimeoutDialog";
+import { AdminHelpDrawer } from "./guide/AdminHelpDrawer";
 import { cn } from "@/utils/cn";
 
 interface AdminLayoutProps {
@@ -13,6 +12,7 @@ interface AdminLayoutProps {
 export function AdminLayout({ children }: AdminLayoutProps) {
   const [collapsed, setCollapsed] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [helpDrawerOpen, setHelpDrawerOpen] = useState(false);
 
   // Close mobile sidebar on resize
   useEffect(() => {
@@ -48,12 +48,21 @@ export function AdminLayout({ children }: AdminLayoutProps) {
           collapsed ? "lg:ml-16" : "lg:ml-64",
         )}
       >
-        <AdminHeader onMenuClick={() => setMobileOpen(true)} />
+        <AdminHeader
+          onMenuClick={() => setMobileOpen(true)}
+          onHelpClick={() => setHelpDrawerOpen(true)}
+        />
         <main className="p-4 sm:p-6">{children}</main>
       </div>
 
       {/* Inactivity Warning Dialog */}
       <InactivityTimeoutDialog />
+
+      {/* Contextual Help Drawer */}
+      <AdminHelpDrawer
+        isOpen={helpDrawerOpen}
+        onClose={() => setHelpDrawerOpen(false)}
+      />
     </div>
   );
 }

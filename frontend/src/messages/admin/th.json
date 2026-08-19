@@ -68,7 +68,8 @@
       "registrations": "ลงทะเบียน",
       "audit_logs": "บันทึกการใช้งาน",
       "privacyRequests": "คำขอข้อมูลส่วนบุคคล",
-      "community": "ชุมชนถาม-ตอบ"
+      "community": "ชุมชนถาม-ตอบ",
+      "guide": "คู่มือการใช้งาน"
     },
     "permissions": {
       "system": "ระบบ",
@@ -97,6 +98,7 @@
       "logout": "ออกจากระบบ",
       "language": "ภาษา",
       "profile": "โปรไฟล์",
+      "help": "คู่มือและการช่วยเหลือ",
       "theme": "ธีม",
       "themeSystem": "ตามระบบ",
       "themeLight": "สว่าง",
@@ -1638,6 +1640,48 @@
           "traceId": "Trace ID"
         }
       }
+    },
+    "guide": {
+      "title": "คู่มือการใช้งานระบบ",
+      "hubTitle": "ศูนย์รวมคู่มือการใช้งานระบบแอดมิน",
+      "hubSubtitle": "คำแนะนำและขั้นตอนการทำงานสำหรับผู้ดูแลระบบและเจ้าหน้าที่วัด",
+      "searchPlaceholder": "ค้นหาคู่มือหรือขั้นตอนการทำงาน... (Ctrl+K)",
+      "searchModalTitle": "ค้นหาคู่มือการใช้งาน",
+      "categories": "หมวดหมู่คู่มือ",
+      "allArticles": "คู่มือทั้งหมด",
+      "quickStart": "เริ่มต้นอย่างรวดเร็ว",
+      "quickSteps": "สรุปขั้นตอนด่วน",
+      "stepByStep": "ขั้นตอนการปฏิบัติงาน",
+      "statusLegend": "ความหมายของสถานะ",
+      "faqs": "คำถามที่พบบ่อย (FAQ)",
+      "relatedGuides": "คู่มือที่เกี่ยวข้อง",
+      "tableOfContents": "สารบัญในหน้านี้",
+      "exportPdf": "พิมพ์ / บันทึก PDF",
+      "printHandbook": "พิมพ์คู่มือรวมทั้งเล่ม",
+      "openFullGuide": "เปิดอ่านคู่มือฉบับเต็ม",
+      "lastUpdated": "อัปเดตล่าสุด",
+      "noResults": "ไม่พบคู่มือที่ตรงกับคำค้นหา",
+      "contextHelp": "คำแนะนำเฉพาะหน้างาน",
+      "contextHelpSubtitle": "สรุปขั้นตอนและวิธีใช้งานสำหรับหน้านี้",
+      "close": "ปิด",
+      "tip": "คำแนะนำเพิ่มเติม",
+      "warning": "ข้อควรระวัง",
+      "articlesCount": "{count} บทความ",
+      "allArticlesHub": "📚 ศูนย์รวมคู่มือทั้งหมด",
+      "allArticlesTotal": "{count} บทความทั้งหมด",
+      "searchResultsFor": "ผลการค้นหาสำหรับ \"{query}\" ({count} รายการ)",
+      "clearSearch": "ล้างการค้นหา",
+      "keyboardNavSelect": "↑↓ เพื่อเลือก",
+      "keyboardNavOpen": "Enter เพื่อเปิด",
+      "statusHeader": "สถานะ (Status)",
+      "meaningHeader": "ความหมายและการดำเนินการ (Meaning)",
+      "stepsCount": "{count} ขั้นตอน",
+      "printCategory": "หมวดหมู่: {name}",
+      "printArticle": "บทความ: {name}",
+      "printHeaderTitle": "WAT-PROFILE: คู่มือการปฏิบัติงานสำหรับเจ้าหน้าที่วัด",
+      "printHeaderSubtitle": "ระบบบริหารจัดการข้อมูลวัดและเว็บไซต์ (Admin Portal Operations Manual)",
+      "printDate": "วันที่พิมพ์: {date}",
+      "printDisclaimer": "เอกสารฉบับนี้จัดทำขึ้นเพื่อการใช้งานภายในวัดและการปฏิบัติหน้าที่ของเจ้าหน้าที่เท่านั้น"
     }
   },
   "admin": {

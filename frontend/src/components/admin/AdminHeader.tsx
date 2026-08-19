@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { LogOut, User, Menu } from "lucide-react";
+import { LogOut, User, Menu, HelpCircle } from "lucide-react";
 import { Link, useRouter } from "@/navigation";
 import { useAuth } from "@/hooks/useAuth";
 import { useTranslations } from "next-intl";
@@ -11,9 +11,10 @@ import { AdminNotificationCenter } from "@/components/admin/AdminNotificationCen
 
 interface AdminHeaderProps {
   onMenuClick: () => void;
+  onHelpClick?: () => void;
 }
 
-export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
+export function AdminHeader({ onMenuClick, onHelpClick }: AdminHeaderProps) {
   const { user, logout } = useAuth();
   const t = useTranslations("Admin.header");
   const router = useRouter();
@@ -31,7 +32,7 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
   };
 
   return (
-    <header className="h-16 bg-admin-surface border-b border-admin-border flex items-center justify-between px-4 sm:px-6 sticky top-0 z-20">
+    <header className="h-16 bg-admin-surface border-b border-admin-border flex items-center justify-between px-4 sm:px-6 sticky top-0 z-20 print:hidden">
       {/* Mobile menu button */}
       <button
         onClick={onMenuClick}
@@ -44,6 +45,17 @@ export function AdminHeader({ onMenuClick }: AdminHeaderProps) {
       <div className="hidden lg:block" />
 
       <div className="flex items-center gap-2 sm:gap-3">
+        {/* Help Drawer Trigger Button */}
+        {onHelpClick && (
+          <button
+            onClick={onHelpClick}
+            className="p-2 rounded-none hover:bg-admin-surface-muted text-admin-muted hover:text-admin-action transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus min-h-11 min-w-11 flex items-center justify-center cursor-pointer"
+            title={t("help")}
+            aria-label={t("help")}
+          >
+            <HelpCircle size={19} />
+          </button>
+        )}
         <AdminNotificationCenter />
         <AdminThemeSwitcher className="hidden md:flex" />
         <AdminLanguageSwitcher />

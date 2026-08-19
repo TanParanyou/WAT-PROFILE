@@ -67,8 +67,9 @@
       "roles": "Roles",
       "registrations": "Registrations",
       "audit_logs": "Audit Logs",
-      "privacyRequests": "Privacy Requests"
-      ,"community": "Community Q&A"
+      "privacyRequests": "Privacy Requests",
+      "community": "Community Q&A",
+      "guide": "User Guide"
     },
     "permissions": {
       "system": "Resource",
@@ -97,6 +98,7 @@
       "logout": "Logout",
       "language": "Language",
       "profile": "Profile",
+      "help": "User Guide & Help",
       "theme": "Theme",
       "themeSystem": "System",
       "themeLight": "Light",
@@ -1640,6 +1642,48 @@
           "traceId": "Trace ID"
         }
       }
+    },
+    "guide": {
+      "title": "User Guide",
+      "hubTitle": "Admin User Guide & Help Center",
+      "hubSubtitle": "Operational workflows, guides, and checklists for temple staff and administrators",
+      "searchPlaceholder": "Search user guides and workflows... (Ctrl+K)",
+      "searchModalTitle": "Search User Guides",
+      "categories": "Categories",
+      "allArticles": "All Guides",
+      "quickStart": "Quick Start",
+      "quickSteps": "Quick Checklist Steps",
+      "stepByStep": "Step-by-step Procedures",
+      "statusLegend": "Status Definitions",
+      "faqs": "Frequently Asked Questions (FAQ)",
+      "relatedGuides": "Related Guides",
+      "tableOfContents": "Table of Contents",
+      "exportPdf": "Print / Export PDF",
+      "printHandbook": "Print Complete Handbook",
+      "openFullGuide": "Open Full Guide",
+      "lastUpdated": "Last updated",
+      "noResults": "No guides found matching your query",
+      "contextHelp": "Contextual Assistance",
+      "contextHelpSubtitle": "Recommended steps and guidelines for this page",
+      "close": "Close",
+      "tip": "Helpful Tip",
+      "warning": "Important Warning",
+      "articlesCount": "{count} articles",
+      "allArticlesHub": "📚 All Guides Hub",
+      "allArticlesTotal": "{count} total articles",
+      "searchResultsFor": "Search results for \"{query}\" ({count} items)",
+      "clearSearch": "Clear search",
+      "keyboardNavSelect": "↑↓ to select",
+      "keyboardNavOpen": "Enter to open",
+      "statusHeader": "Status",
+      "meaningHeader": "Meaning & Actions",
+      "stepsCount": "{count} steps",
+      "printCategory": "Category: {name}",
+      "printArticle": "Article: {name}",
+      "printHeaderTitle": "WAT-PROFILE: Temple Staff Operations Manual",
+      "printHeaderSubtitle": "Temple Administration Portal & Content Management Manual",
+      "printDate": "Printed on: {date}",
+      "printDisclaimer": "This document is prepared strictly for internal temple administration and staff operations."
     }
   },
   "admin": {

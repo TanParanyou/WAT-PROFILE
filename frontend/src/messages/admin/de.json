@@ -68,7 +68,8 @@
       "registrations": "Anmeldungen",
       "audit_logs": "Audit-Logs",
       "privacyRequests": "Datenschutzanfragen",
-      "community": "Community-Fragen und Antworten"
+      "community": "Community-Fragen und Antworten",
+      "guide": "Benutzerhandbuch"
     },
     "permissions": {
       "system": "Ressource",
@@ -97,6 +98,7 @@
       "logout": "Abmelden",
       "language": "Sprache",
       "profile": "Profil",
+      "help": "Handbuch & Hilfe",
       "theme": "Design",
       "themeSystem": "System",
       "themeLight": "Hell",
@@ -1640,6 +1642,48 @@
           "traceId": "Trace-ID"
         }
       }
+    },
+    "guide": {
+      "title": "Benutzerhandbuch",
+      "hubTitle": "Admin-Benutzerhandbuch & Hilfecenter",
+      "hubSubtitle": "Arbeitsabläufe, Richtlinien und Checklisten für Tempelmitarbeiter und Administratoren",
+      "searchPlaceholder": "Anleitungen und Arbeitsabläufe durchsuchen... (Strg+K)",
+      "searchModalTitle": "Benutzerhandbuch durchsuchen",
+      "categories": "Kategorien",
+      "allArticles": "Alle Anleitungen",
+      "quickStart": "Schnellstart",
+      "quickSteps": "Schnelle Checkliste",
+      "stepByStep": "Schritt-für-Schritt-Anleitung",
+      "statusLegend": "Status-Definitionen",
+      "faqs": "Häufig gestellte Fragen (FAQ)",
+      "relatedGuides": "Verwandte Anleitungen",
+      "tableOfContents": "Inhaltsverzeichnis",
+      "exportPdf": "Drucken / PDF exportieren",
+      "printHandbook": "Vollständiges Handbuch drucken",
+      "openFullGuide": "Vollständige Anleitung öffnen",
+      "lastUpdated": "Zuletzt aktualisiert",
+      "noResults": "Keine Anleitungen für Ihre Suchanfrage gefunden",
+      "contextHelp": "Kontextbezogene Hilfe",
+      "contextHelpSubtitle": "Empfohlene Schritte und Richtlinien für diese Seite",
+      "close": "Schließen",
+      "tip": "Hilfreicher Hinweis",
+      "warning": "Wichtiger Warnhinweis",
+      "articlesCount": "{count} Artikel",
+      "allArticlesHub": "📚 Alle Anleitungen",
+      "allArticlesTotal": "{count} Artikel insgesamt",
+      "searchResultsFor": "Suchergebnisse für \"{query}\" ({count} Einträge)",
+      "clearSearch": "Suche zurücksetzen",
+      "keyboardNavSelect": "↑↓ zum Auswählen",
+      "keyboardNavOpen": "Enter zum Öffnen",
+      "statusHeader": "Status",
+      "meaningHeader": "Bedeutung & Maßnahmen",
+      "stepsCount": "{count} Schritte",
+      "printCategory": "Kategorie: {name}",
+      "printArticle": "Artikel: {name}",
+      "printHeaderTitle": "WAT-PROFILE: Betriebshandbuch für Tempelmitarbeiter",
+      "printHeaderSubtitle": "Handbuch für Tempelverwaltung und Content-Management",
+      "printDate": "Gedruckt am: {date}",
+      "printDisclaimer": "Dieses Dokument dient ausschließlich der internen Tempelverwaltung und dem Dienstbetrieb."
     }
   },
   "admin": {
