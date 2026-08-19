@@ -292,7 +292,7 @@ func (h *UserHandler) BulkDeleteUsers(c *fiber.Ctx) error {
 
 	if err := h.userService.BulkDelete(req.IDs, currentUserID); err != nil {
 		logger.Log.Error().Err(err).Int("count", len(req.IDs)).Msg("Failed to bulk delete users")
-		return utils.ErrorResponse(c, fiber.StatusInternalServerError, err.Error())
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
 
 	_ = h.auditService.LogAction(c, "bulk_delete", "users", "", map[string]interface{}{

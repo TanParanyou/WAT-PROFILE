@@ -4,6 +4,7 @@ import (
 	"database/sql/driver"
 	"encoding/json"
 	"fmt"
+	"strings"
 	"time"
 
 	"github.com/google/uuid"
@@ -72,8 +73,8 @@ func (r *Role) HasPermission(resource, action string) bool {
 		return false
 	}
 
-	// 1. Super Admin with admin_access or system admin role automatically has all permissions
-	if (r.IsSystem && r.Name == "admin") || (r.AdminAccess && r.Name == "admin") {
+	// 1. Super Admin with system role and admin_access automatically has all permissions
+	if r.IsSystem && r.AdminAccess {
 		return true
 	}
 
@@ -93,26 +94,31 @@ func (r *Role) HasPermission(resource, action string) bool {
 		return false
 	}
 
-	// 3. Check if permission is "all" or contains the action
+	// 3. Check if permission is "all", "*", exact match, or in array
 	switch v := permission.(type) {
 	case string:
-		return v == "all" || v == "*" || v == action || contains(v, action)
+		if v == "all" || v == "*" || v == action {
+			return true
+		}
+		// Handle comma-separated action lists like "read,create" or "crud"
+		for _, part := range strings.Split(v, ",") {
+			trimmed := strings.TrimSpace(part)
+			if trimmed == action || trimmed == "all" || trimmed == "*" {
+				return true
+			}
+		}
+		if v == "crud" && (action == "create" || action == "read" || action == "update" || action == "delete") {
+			return true
+		}
 	case []interface{}:
 		for _, p := range v {
-			if p == action || p == "all" || p == "*" {
-				return true
+			if strVal, ok := p.(string); ok {
+				if strVal == action || strVal == "all" || strVal == "*" {
+					return true
+				}
 			}
 		}
 	}
 
-	return false
-}
-
-func contains(s, substr string) bool {
-	for i := 0; i <= len(s)-len(substr); i++ {
-		if s[i:i+len(substr)] == substr {
-			return true
-		}
-	}
 	return false
 }

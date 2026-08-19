@@ -98,12 +98,12 @@ func (u *User) BeforeCreate(tx *gorm.DB) error {
 	return nil
 }
 
-// IsAdmin checks if user is an admin
+// IsAdmin checks if user has admin access
 func (u *User) IsAdmin() bool {
 	if u.Role == nil {
 		return false
 	}
-	return u.Role.Name == "admin"
+	return u.Role.AdminAccess
 }
 
 // RefreshToken represents a refresh token for JWT authentication

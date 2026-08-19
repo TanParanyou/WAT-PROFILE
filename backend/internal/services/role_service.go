@@ -86,8 +86,9 @@ func (s *RoleService) GetByID(id uuid.UUID) (*models.Role, error) {
 	return &role, nil
 }
 
-// Create creates a new role
+// Create creates a new role, ensuring custom roles cannot be marked as system roles
 func (s *RoleService) Create(role *models.Role) error {
+	role.IsSystem = false
 	return s.db.Create(role).Error
 }
 
@@ -106,11 +107,14 @@ func (s *RoleService) Update(role *models.Role) error {
 		if !role.IsActive {
 			return errors.New("cannot deactivate a system role")
 		}
-		if existing.Name == "admin" && !role.AdminAccess {
-			return errors.New("cannot revoke admin_access from the system admin role")
+		if existing.AdminAccess && !role.AdminAccess {
+			return errors.New("cannot revoke admin_access from a system admin role")
 		}
-		// Ensure is_system flag cannot be cleared
+		// Ensure is_system flag remains true
 		role.IsSystem = true
+	} else {
+		// Custom roles cannot be promoted to system roles via API
+		role.IsSystem = false
 	}
 
 	return s.db.Save(role).Error
@@ -124,7 +128,7 @@ func (s *RoleService) Delete(id uuid.UUID) error {
 		return err
 	}
 
-	if role.IsSystem || role.Name == "admin" {
+	if role.IsSystem {
 		return errors.New("cannot delete a system role")
 	}
 
@@ -148,7 +152,7 @@ func (s *RoleService) BulkDelete(ids []uuid.UUID) error {
 		if err := s.db.First(&role, "id = ?", id).Error; err != nil {
 			continue // Skip if not found
 		}
-		if role.IsSystem || role.Name == "admin" {
+		if role.IsSystem {
 			return errors.New("cannot delete system role '" + role.Name + "' in bulk operation")
 		}
 

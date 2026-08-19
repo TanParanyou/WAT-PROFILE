@@ -147,19 +147,21 @@ func (s *UserService) Create(user *models.User, password string) error {
 
 // Update saves changes to a user, conditionally hashing password if provided.
 // Password changes and account disablement revoke all active Admin sessions in
-// isUserSuperAdmin checks if a user has the super admin role
+// isUserSuperAdmin checks if a user has the super admin role (system role with admin access)
 func isUserSuperAdmin(tx *gorm.DB, user *models.User) bool {
 	if user == nil {
 		return false
 	}
-	if user.Role != nil {
-		return (user.Role.IsSystem && user.Role.Name == "admin") || user.Role.Name == "admin"
-	}
+	// Always prioritize RoleID to reflect pending role updates
 	if user.RoleID != nil {
 		var role models.Role
-		if err := tx.Select("name", "is_system").Where("id = ?", user.RoleID).First(&role).Error; err == nil {
-			return (role.IsSystem && role.Name == "admin") || role.Name == "admin"
+		if err := tx.Select("is_system", "admin_access").Where("id = ?", user.RoleID).First(&role).Error; err == nil {
+			return role.IsSystem && role.AdminAccess
 		}
+		return false
+	}
+	if user.Role != nil {
+		return user.Role.IsSystem && user.Role.AdminAccess
 	}
 	return false
 }
@@ -169,7 +171,7 @@ func countActiveSuperAdmins(tx *gorm.DB) (int64, error) {
 	var count int64
 	err := tx.Model(&models.User{}).
 		Joins("JOIN roles ON roles.id = users.role_id").
-		Where("users.is_active = ? AND (roles.name = ? OR (roles.is_system = ? AND roles.admin_access = ?))", true, "admin", true, true).
+		Where("users.is_active = ? AND roles.is_system = ? AND roles.admin_access = ?", true, true, true).
 		Count(&count).Error
 	return count, err
 }
@@ -292,7 +294,7 @@ func (s *UserService) BulkDelete(ids []uuid.UUID, currentUserID uuid.UUID) error
 	var deletingSuperAdminCount int64
 	err = s.db.Model(&models.User{}).
 		Joins("JOIN roles ON roles.id = users.role_id").
-		Where("users.id IN ? AND users.is_active = ? AND (roles.name = ? OR (roles.is_system = ? AND roles.admin_access = ?))", ids, true, "admin", true, true).
+		Where("users.id IN ? AND users.is_active = ? AND roles.is_system = ? AND roles.admin_access = ?", ids, true, true, true).
 		Count(&deletingSuperAdminCount).Error
 	if err != nil {
 		return err

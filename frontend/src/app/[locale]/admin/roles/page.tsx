@@ -125,8 +125,8 @@ export default function RolesPage() {
     setIsModalOpen(true);
   };
 
-  const handleDelete = async (id: string, name: string) => {
-    if (name === "admin") {
+  const handleDelete = async (role: Role) => {
+    if (role.is_system) {
       toast.error(t("roles.cannotDeleteAdmin"));
       return;
     }
@@ -137,7 +137,7 @@ export default function RolesPage() {
       variant: "danger",
       onConfirm: async () => {
         try {
-          await roleAdminService.delete(id);
+          await roleAdminService.delete(String(role.id));
           toast.success(t("common.success"));
           selectedIds.clearSelection();
           listQuery.refetch();
@@ -209,7 +209,7 @@ export default function RolesPage() {
       cell: (v, row) => (
         <div className="flex items-center gap-2">
           <span className="font-medium text-admin-foreground">{String(v ?? "")}</span>
-          {(row.is_system || row.name === "admin") && (
+          {row.is_system && (
             <span className="inline-flex items-center px-1.5 py-0.5 rounded text-[11px] font-semibold bg-admin-focus/10 text-admin-focus border border-admin-focus/20">
               System
             </span>
@@ -231,7 +231,7 @@ export default function RolesPage() {
     {
       header: t("columns.actions"),
       cell: (_, row) => {
-        const isSystemRole = row.is_system || row.name === "admin";
+        const isSystemRole = Boolean(row.is_system);
         return (
           <div className="flex gap-1.5">
             <PermissionGuard resource="users" action="update">
@@ -247,7 +247,7 @@ export default function RolesPage() {
             <PermissionGuard resource="users" action="delete">
               <button
                 type="button"
-                onClick={() => handleDelete(String(row.id), row.name)}
+                onClick={() => handleDelete(row)}
                 className="p-1.5 rounded hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger transition-colors disabled:opacity-50 disabled:hover:bg-transparent focus-visible:outline-2 focus-visible:outline-admin-focus"
                 disabled={isSystemRole}
                 title={isSystemRole ? "System role cannot be deleted" : t("common.delete")}
@@ -364,7 +364,7 @@ export default function RolesPage() {
         size="xl"
       >
         <div className="space-y-4 pt-2">
-          {(editingRole?.is_system || editingRole?.name === "admin") && (
+          {Boolean(editingRole?.is_system) && (
             <div className="p-3 bg-admin-focus/10 border border-admin-focus/20 rounded text-xs text-admin-foreground">
               <span className="font-semibold">System Protected Role:</span> This role is managed by the system. Its name and active status are protected.
             </div>
@@ -375,7 +375,7 @@ export default function RolesPage() {
             label={`${t("roles.form.name")} *`}
             {...register("name")}
             error={errors.name?.message}
-            disabled={editingRole?.is_system || editingRole?.name === "admin"}
+            disabled={Boolean(editingRole?.is_system)}
           />
 
           <Input
@@ -406,7 +406,7 @@ export default function RolesPage() {
             )}
           </div>
 
-          {!(editingRole?.is_system || editingRole?.name === "admin") && (
+          {!Boolean(editingRole?.is_system) && (
             <div className="mt-4">
               <Controller
                 control={control}
