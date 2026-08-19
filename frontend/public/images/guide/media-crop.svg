@@ -1,0 +1,67 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" width="100%" height="100%">
+  <defs>
+    <style>
+      .surface { fill: #ffffff; stroke: #e2e8f0; stroke-width: 1.5; }
+      .text-title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-weight: 700; font-size: 16px; fill: #0f172a; }
+      .text-muted { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 12px; fill: #64748b; }
+      .crop-handle { fill: #ffffff; stroke: #3b82f6; stroke-width: 2; }
+    </style>
+  </defs>
+
+  <rect width="800" height="480" fill="#f1f5f9" />
+
+  <rect x="50" y="30" width="700" height="420" class="surface" filter="drop-shadow(0 10px 15px rgba(0,0,0,0.08))" />
+
+  <!-- Header -->
+  <rect x="50" y="30" width="700" height="54" fill="#f8fafc" stroke="#e2e8f0" stroke-width="1.5" />
+  <text x="75" y="63" class="text-title">✂️ เครื่องมือตัดครอบรูปภาพ (Image Crop &amp; Aspect Ratio Tool)</text>
+
+  <!-- Left: Image Canvas with Crop Box -->
+  <rect x="75" y="105" width="410" height="320" fill="#1e293b" />
+  
+  <!-- Outer dimmed area -->
+  <rect x="95" y="125" width="370" height="280" fill="#475569" opacity="0.4" />
+  
+  <!-- Active 16:9 Crop Box -->
+  <rect x="115" y="155" width="330" height="185" fill="#f8fafc" stroke="#3b82f6" stroke-width="2.5" />
+  
+  <!-- Mock Photo inside Crop Box -->
+  <path d="M 125 320 L 190 230 L 250 290 L 320 200 L 435 320 Z" fill="#93c5fd" opacity="0.7" />
+  <circle cx="390" cy="200" r="22" fill="#fde047" />
+  
+  <!-- Rule of thirds grid lines -->
+  <line x1="225" y1="155" x2="225" y2="340" stroke="#3b82f6" stroke-width="1" stroke-dasharray="3 3" opacity="0.6" />
+  <line x1="335" y1="155" x2="335" y2="340" stroke="#3b82f6" stroke-width="1" stroke-dasharray="3 3" opacity="0.6" />
+  <line x1="115" y1="216" x2="445" y2="216" stroke="#3b82f6" stroke-width="1" stroke-dasharray="3 3" opacity="0.6" />
+  <line x1="115" y1="278" x2="445" y2="278" stroke="#3b82f6" stroke-width="1" stroke-dasharray="3 3" opacity="0.6" />
+
+  <!-- Crop Corner Handles -->
+  <rect x="110" y="150" width="10" height="10" class="crop-handle" />
+  <rect x="440" y="150" width="10" height="10" class="crop-handle" />
+  <rect x="110" y="335" width="10" height="10" class="crop-handle" />
+  <rect x="440" y="335" width="10" height="10" class="crop-handle" />
+
+  <!-- Right: Controls -->
+  <g transform="translate(510, 105)">
+    <rect x="0" y="0" width="215" height="320" fill="#ffffff" stroke="#e2e8f0" stroke-width="1.5" />
+    <rect x="0" y="0" width="215" height="40" fill="#f8fafc" stroke="#e2e8f0" />
+    <text x="15" y="25" font-family="sans-serif" font-weight="bold" font-size="13" fill="#0f172a">สัดส่วนภาพ (Presets)</text>
+
+    <!-- Ratio Options -->
+    <rect x="15" y="55" width="185" height="36" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5" />
+    <text x="28" y="77" font-family="sans-serif" font-weight="bold" font-size="12" fill="#1d4ed8">16:9 แบนเนอร์ / หน้าปก</text>
+
+    <rect x="15" y="100" width="185" height="36" fill="#f8fafc" stroke="#e2e8f0" />
+    <text x="28" y="122" font-family="sans-serif" font-size="12" fill="#475569">1:1 รูปสี่เหลี่ยมจัตุรัส</text>
+
+    <rect x="15" y="145" width="185" height="36" fill="#f8fafc" stroke="#e2e8f0" />
+    <text x="28" y="167" font-family="sans-serif" font-size="12" fill="#475569">4:3 รูปทั่วไป / แกลเลอรี</text>
+
+    <rect x="15" y="190" width="185" height="36" fill="#f8fafc" stroke="#e2e8f0" />
+    <text x="28" y="212" font-family="sans-serif" font-size="12" fill="#475569">Free อิสระ (ไม่ล็อกสัดส่วน)</text>
+
+    <!-- Save Button -->
+    <rect x="15" y="260" width="185" height="40" fill="#16a34a" />
+    <text x="55" y="285" font-family="sans-serif" font-weight="bold" font-size="13" fill="#ffffff">✓ บันทึกรูปภาพ</text>
+  </g>
+</svg>

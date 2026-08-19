@@ -368,14 +368,20 @@ export const operationsGuides: GuideArticle[] = [
       {
         stepNumber: 2,
         title: {
-          th: "ยืนยันหรือแก้ไขสถานะผู้เข้าร่วม",
-          en: "Confirm or Update Status",
-          de: "Status bestätigen oder aktualisieren",
+          th: "ยืนยันหรือแก้ไขสถานะผู้เข้าร่วม & เช็คอินผ่าน QR Code",
+          en: "Confirm Status & Live QR Check-in",
+          de: "Status bestätigen & Live-QR-Check-in",
         },
         description: {
-          th: "คลิกที่สถานะของแต่ละแถวเพื่อเปลี่ยนเป็น 'Confirmed' หรือส่งอีเมลแจ้งเตือนผู้เข้าร่วม",
-          en: "Click the status dropdown on any row to confirm attendance or trigger email reminder.",
-          de: "Klicken Sie auf den Status, um die Teilnahme zu bestätigen.",
+          th: "คลิกที่สถานะของแต่ละแถวเพื่อเปลี่ยนเป็น 'Confirmed' หรือใช้กล้องมือถือ/แท็บเล็ตเปิดระบบสแกน QR Code หน้างานเพื่อเช็คชื่อผู้เข้าร่วมได้แบบ Real-time",
+          en: "Update status to 'Confirmed' or use camera on mobile/tablet for instant real-time QR code attendance check-in.",
+          de: "Status auf 'Bestätigt' setzen oder Smartphone/Tablet für den Echtzeit-QR-Check-in vor Ort nutzen.",
+        },
+        image: "/images/guide/attendance-qr.svg",
+        imageCaption: {
+          th: "ระบบสแกน QR Code เช็คชื่อผู้เข้าร่วมงานวัดแบบสด (Live QR Code Scanner)",
+          en: "Live QR code camera scanner for temple event attendee check-in",
+          de: "Live-Kamera-QR-Code-Scanner für den Vor-Ort-Check-in",
         },
       },
     ],

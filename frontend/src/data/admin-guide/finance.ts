@@ -172,10 +172,11 @@ export const financeGuides: GuideArticle[] = [
           en: "Click the slip thumbnail to view full image. Verify 3 critical points: 1. Exact amount, 2. Timestamp, 3. Temple bank account.",
           de: "Öffnen Sie den Beleg. Prüfen Sie: 1. Betrag, 2. Datum/Uhrzeit, 3. Zielkonto des Tempels.",
         },
+        image: "/images/guide/donations-verify.svg",
         imageCaption: {
-          th: "ตรวจสอบรายละเอียดสลิปโอนเงินและการเปรียบเทียบกับ Statement วัด",
-          en: "Verification of bank transfer receipt details against temple statement",
-          de: "Überprüfung der Überweisungsdetails mit dem Tempel-Kontoauszug",
+          th: "ตัวอย่างหน้าต่างตรวจสอบสลิปโอนเงินและการเทียบยอด 3 จุดสำคัญ",
+          en: "Donation transfer slip proof inspection and 3-point verification checklist",
+          de: "Überprüfung des Überweisungsbelegs und 3-Punkte-Checkliste",
         },
         tip: {
           th: "หลักฐานสลิปโอนเงินเป็นข้อมูลส่วนบุคคล (Private Asset) ระบบจะเข้ารหัสและเปิดให้ดูได้เฉพาะเจ้าหน้าที่ที่มีสิทธิ์เท่านั้น",

@@ -61,6 +61,12 @@ export const websiteCmsGuides: GuideArticle[] = [
           en: "Use the Rich Text toolbar to format headings, bold/italic text, lists, and external links.",
           de: "Nutzen Sie die Rich-Text-Symbolleiste für Überschriften, Listen und Links.",
         },
+        image: "/images/guide/cms-multilang.svg",
+        imageCaption: {
+          th: "การจัดการเนื้อหาและสลับแท็บภาษา 3 ภาษา (TH, EN, DE)",
+          en: "Multilingual content editor with 3-language tab switching (TH, EN, DE)",
+          de: "Mehrsprachiger Editor mit Sprachwechsel (TH, EN, DE)",
+        },
         tip: {
           th: "สลับแท็บภาษา TH/EN/DE ที่แถบด้านบนของกล่องข้อความเพื่อใส่คำแปลให้ครบถ้วน",
           en: "Switch between TH/EN/DE tabs above each field to provide complete translations.",
@@ -383,19 +389,19 @@ export const websiteCmsGuides: GuideArticle[] = [
         },
         images: [
           {
+            src: "/images/guide/media-crop.svg",
+            caption: {
+              th: "เครื่องมือตัดครอบรูปภาพและการเลือกสัดส่วน 16:9, 1:1, 4:3",
+              en: "Image cropping tool and aspect ratio presets (16:9, 1:1, 4:3)",
+              de: "Bildzuschnitt-Werkzeug und Voreinstellungen (16:9, 1:1, 4:3)",
+            },
+          },
+          {
             src: "/images/event-asanha.png",
             caption: {
               th: "ตัวอย่างการเลือกสัดส่วน 16:9 สำหรับแบนเนอร์กิจกรรมและข่าวประชาสัมพันธ์",
               en: "Selecting 16:9 aspect ratio for event banners and announcements",
               de: "Auswahl des 16:9-Formats für Veranstaltungsbanner und Ankündigungen",
-            },
-          },
-          {
-            src: "/images/event-meditation.png",
-            caption: {
-              th: "ตัวอย่างการตัดครอบรูปภาพสัดส่วน 1:1 หรือ 4:3 สำหรับอัลบั้มภาพกิจกรรม",
-              en: "Cropping 1:1 or 4:3 aspect ratio for photo albums",
-              de: "Zuschneiden im 1:1- oder 4:3-Format für Fotoalben",
             },
           },
         ],

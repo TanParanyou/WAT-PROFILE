@@ -187,6 +187,12 @@ export const systemGuides: GuideArticle[] = [
           en: "Grant only permissions essential for the duty (e.g. event staff need access to events/calendar, not finance).",
           de: "Gewähren Sie nur notwendige Berechtigungen (z.B. Event-Team benötigt keinen Zugriff auf Finanzen).",
         },
+        image: "/images/guide/rbac-matrix.svg",
+        imageCaption: {
+          th: "ตัวอย่างตารางการกำหนดสิทธิ์แบบละเอียด (RBAC Granular Permissions Matrix)",
+          en: "Role-Based Access Control granular permissions matrix preview",
+          de: "Rollenbasierte granulare Berechtigungsmatrix",
+        },
         warning: {
           th: "บทบาท Super Admin ควรสงวนไว้สำหรับเจ้าอาวาสหรือผู้ดูแลระบบหลักเท่านั้น",
           en: "Super Admin role should be strictly reserved for Abbot and chief system administrators.",
