@@ -247,7 +247,7 @@ func (s *RegistrationService) AdminCheckInByCode(ctx context.Context, _ uuid.UUI
 
 	var registration models.EventRegistration
 	err := s.db.WithContext(ctx).Preload("Event").Preload("Participants").
-		Where("confirmation_code = ? OR confirmation_code ILIKE ?", code, code).
+		Where("confirmation_code ILIKE ?", code).
 		First(&registration).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -261,22 +261,27 @@ func (s *RegistrationService) AdminCheckInByCode(ctx context.Context, _ uuid.UUI
 	}
 
 	now := s.now()
-	if err := s.db.WithContext(ctx).Model(&models.EventRegistration{}).Where("id = ?", registration.ID).
-		Updates(map[string]interface{}{
-			"attended":            true,
-			"attended_at":         &now,
-			"registration_status": "attended",
-		}).Error; err != nil {
+	err = s.db.WithContext(ctx).Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&models.EventRegistration{}).Where("id = ?", registration.ID).
+			Updates(map[string]interface{}{
+				"attended":            true,
+				"attended_at":         &now,
+				"registration_status": "attended",
+			}).Error; err != nil {
+			return err
+		}
+
+		// Also mark participants as attended
+		return tx.Model(&models.EventRegistrationParticipant{}).
+			Where("registration_id = ? AND attendance_status <> ?", registration.ID, "cancelled").
+			Updates(map[string]interface{}{
+				"attendance_status": "attended",
+				"attended_at":       &now,
+			}).Error
+	})
+	if err != nil {
 		return nil, err
 	}
-
-	// Also mark participants as attended
-	_ = s.db.WithContext(ctx).Model(&models.EventRegistrationParticipant{}).
-		Where("registration_id = ? AND attendance_status <> ?", registration.ID, "cancelled").
-		Updates(map[string]interface{}{
-			"attendance_status": "attended",
-			"attended_at":       &now,
-		})
 
 	return s.AdminGet(ctx, registration.ID)
 }

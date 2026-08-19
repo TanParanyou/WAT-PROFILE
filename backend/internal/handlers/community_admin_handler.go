@@ -67,11 +67,10 @@ func (h *CommunityAdminHandler) SaveCategory(c *fiber.Ctx) error {
 	if err != nil {
 		return communityAdminError(c, err)
 	}
-	status := fiber.StatusOK
 	if input.ID == nil {
-		status = fiber.StatusCreated
+		return c.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "data": category})
 	}
-	return c.Status(status).JSON(fiber.Map{"success": true, "data": category})
+	return utils.SuccessResponse(c, category)
 }
 
 func (h *CommunityAdminHandler) DeleteCategory(c *fiber.Ctx) error {
@@ -97,7 +96,7 @@ func (h *CommunityAdminHandler) ReorderCategories(c *fiber.Ctx) error {
 	if err := h.moderation.ReorderCategories(c.UserContext(), mustLocalsUserID(c), input); err != nil {
 		return communityAdminError(c, err)
 	}
-	return c.JSON(fiber.Map{"success": true})
+	return utils.SuccessResponse(c, fiber.Map{"reordered": true})
 }
 
 func (h *CommunityAdminHandler) DecideRevision(c *fiber.Ctx) error {
@@ -112,7 +111,7 @@ func (h *CommunityAdminHandler) DecideRevision(c *fiber.Ctx) error {
 	if err := h.moderation.DecideRevision(c.UserContext(), mustLocalsUserID(c), id, input, traceID(c)); err != nil {
 		return communityAdminError(c, err)
 	}
-	return c.JSON(fiber.Map{"success": true, "approved": input.Approve})
+	return utils.SuccessResponse(c, fiber.Map{"approved": input.Approve})
 }
 
 func (h *CommunityAdminHandler) Moderate(c *fiber.Ctx) error {
@@ -128,7 +127,7 @@ func (h *CommunityAdminHandler) Moderate(c *fiber.Ctx) error {
 	if err := h.moderation.Moderate(c.UserContext(), mustLocalsUserID(c), targetType, targetID, input, traceID(c)); err != nil {
 		return communityAdminError(c, err)
 	}
-	return c.JSON(fiber.Map{"success": true})
+	return utils.SuccessResponse(c, fiber.Map{"moderated": true})
 }
 
 func (h *CommunityAdminHandler) OfficialAnswer(c *fiber.Ctx) error {
@@ -147,7 +146,7 @@ func (h *CommunityAdminHandler) MemberRestriction(c *fiber.Ctx) error {
 	if err := h.moderation.Moderate(c.UserContext(), mustLocalsUserID(c), "member", targetID, input, traceID(c)); err != nil {
 		return communityAdminError(c, err)
 	}
-	return c.JSON(fiber.Map{"success": true})
+	return utils.SuccessResponse(c, fiber.Map{"restricted": true})
 }
 
 func (h *CommunityAdminHandler) moderateFixedTarget(c *fiber.Ctx, targetType, action string) error {
@@ -163,7 +162,7 @@ func (h *CommunityAdminHandler) moderateFixedTarget(c *fiber.Ctx, targetType, ac
 	if err := h.moderation.Moderate(c.UserContext(), mustLocalsUserID(c), targetType, targetID, input, traceID(c)); err != nil {
 		return communityAdminError(c, err)
 	}
-	return c.JSON(fiber.Map{"success": true})
+	return utils.SuccessResponse(c, fiber.Map{"action": action})
 }
 
 func (h *CommunityAdminHandler) ResolveReport(c *fiber.Ctx) error {
@@ -186,7 +185,7 @@ func (h *CommunityAdminHandler) decideReport(c *fiber.Ctx, state models.Communit
 	if err := h.moderation.ResolveReport(c.UserContext(), mustLocalsUserID(c), reportID, state, input.Reason, traceID(c)); err != nil {
 		return communityAdminError(c, err)
 	}
-	return c.JSON(fiber.Map{"success": true, "state": state})
+	return utils.SuccessResponse(c, fiber.Map{"state": state})
 }
 
 func communityAdminError(c *fiber.Ctx, err error) error {

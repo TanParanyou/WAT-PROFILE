@@ -28,6 +28,8 @@ export function AttendanceScannerModal({
   const streamRef = useRef<MediaStream | null>(null);
   const inputRef = useRef<HTMLInputElement | null>(null);
   const scanIntervalRef = useRef<NodeJS.Timeout | null>(null);
+  const lastScannedCodeRef = useRef<string>("");
+  const lastScannedTimeRef = useRef<number>(0);
 
   // Focus manual input when modal opens
   useEffect(() => {
@@ -74,7 +76,7 @@ export function AttendanceScannerModal({
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        await videoRef.current.play();
+        videoRef.current.play();
       }
       setCameraActive(true);
 
@@ -91,8 +93,12 @@ export function AttendanceScannerModal({
             try {
               const barcodes = await detector.detect(videoRef.current);
               if (barcodes.length > 0) {
-                const scanned = barcodes[0].rawValue;
-                if (scanned) {
+                const scanned = barcodes[0].rawValue?.trim().toUpperCase();
+                const now = Date.now();
+                // Cooldown: prevent re-scanning the same code within 3000ms
+                if (scanned && (scanned !== lastScannedCodeRef.current || now - lastScannedTimeRef.current > 3000)) {
+                  lastScannedCodeRef.current = scanned;
+                  lastScannedTimeRef.current = now;
                   void handleCheckIn(scanned);
                 }
               }

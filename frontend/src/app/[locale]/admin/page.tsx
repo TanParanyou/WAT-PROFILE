@@ -390,8 +390,8 @@ export default function AdminDashboardPage() {
               </div>
             ) : (
               upcomingEvents.map((ev) => {
-                const eventTitle = ev.title[locale] || ev.title["th"] || ev.title["en"] || "Event";
-                const eventLoc = ev.location ? (ev.location[locale] || ev.location["th"] || "") : "";
+                const eventTitle = (ev.title && (ev.title[locale] || ev.title["th"] || ev.title["en"] || ev.title["de"])) || "Event";
+                const eventLoc = ev.location ? (ev.location[locale] || ev.location["th"] || ev.location["en"] || ev.location["de"] || "") : "";
 
                 return (
                   <div
