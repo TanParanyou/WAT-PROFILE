@@ -3,7 +3,6 @@ package main
 import (
 	"context"
 	"fmt"
-	"log"
 	"os"
 	"strings"
 	"time"
@@ -15,62 +14,64 @@ import (
 	"github.com/watloungporsai/wat-profile-backend/internal/registrations"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
 	"github.com/watloungporsai/wat-profile-backend/internal/storage"
+	"github.com/watloungporsai/wat-profile-backend/pkg/logger"
 )
 
 func main() {
+	logger.Init()
 	_ = godotenv.Load()
 	if err := config.InitDatabase(); err != nil {
-		log.Fatal(err)
+		logger.Log.Fatal().Err(err).Msg("Failed to initialize database")
 	}
 	defer config.CloseDatabase()
 
 	r2, err := storage.NewR2Service()
 	if err != nil {
-		log.Fatal(err)
+		logger.Log.Fatal().Err(err).Msg("Failed to initialize R2 storage service")
 	}
 	outbox := services.NewOperationOutboxService(config.DB)
 	refs := services.NewMediaReferenceService(config.DB)
 	retention := services.NewMediaRetentionService(config.DB, r2, refs)
 	sender, err := workerEmailSender()
 	if err != nil {
-		log.Fatal(err)
+		logger.Log.Fatal().Err(err).Msg("Failed to initialize worker email sender")
 	}
 	contactSender, err := services.NewResendEmailSender(
 		strings.TrimSpace(os.Getenv("RESEND_API_KEY")),
 		strings.TrimSpace(os.Getenv("CONTACT_EMAIL_FROM")),
 	)
 	if err != nil {
-		log.Fatal(err)
+		logger.Log.Fatal().Err(err).Msg("Failed to initialize contact email sender")
 	}
 	recipient := strings.TrimSpace(os.Getenv("CONTACT_NOTIFICATION_TO"))
 	if recipient == "" {
-		log.Fatal("CONTACT_NOTIFICATION_TO is required")
+		logger.Log.Fatal().Msg("CONTACT_NOTIFICATION_TO is required")
 	}
 	donations := services.NewDonationServiceWithOutbox(config.DB, outbox)
 	contacts := services.NewContactService(config.DB)
 	notifications := services.NewContactNotificationService(contactSender, recipient)
 	tokenCipher, err := registrations.NewTokenCipher([]byte(os.Getenv("JWT_SECRET")))
 	if err != nil {
-		log.Fatal(err)
+		logger.Log.Fatal().Err(err).Msg("Failed to initialize token cipher")
 	}
 	registrationEmails, err := services.NewRegistrationEmailService(config.DB, sender, os.Getenv("PUBLIC_ACCOUNT_FRONTEND_URL"), tokenCipher, os.Getenv("ENV"))
 	if err != nil {
-		log.Fatal(err)
+		logger.Log.Fatal().Err(err).Msg("Failed to initialize registration email service")
 	}
 	dispatcher := services.NewOperationDispatcher(donations, services.NewDonationEmailService(sender), r2, retention, contacts, notifications, registrationEmails)
 	accountCfg, accountCfgErr := config.LoadAccountAuthConfig()
 	if accountCfgErr != nil {
-		log.Fatal(accountCfgErr)
+		logger.Log.Fatal().Err(accountCfgErr).Msg("Failed to load account auth config")
 	}
 	communityCfg, communityCfgErr := config.LoadCommunityConfig(accountCfg)
 	if communityCfgErr != nil {
-		log.Fatal(communityCfgErr)
+		logger.Log.Fatal().Err(communityCfgErr).Msg("Failed to load community config")
 	}
 	dispatcher.SetCommunityRetentionService(services.NewCommunityRetentionService(config.DB, communityCfg))
 	if frontendURL := strings.TrimSpace(os.Getenv("PUBLIC_ACCOUNT_FRONTEND_URL")); frontendURL != "" {
 		communityEmail, emailErr := services.NewCommunityEmailService(config.DB, sender, frontendURL)
 		if emailErr != nil {
-			log.Fatal(emailErr)
+			logger.Log.Fatal().Err(emailErr).Msg("Failed to initialize community email service")
 		}
 		dispatcher.SetCommunityEmailService(communityEmail)
 	}
@@ -83,7 +84,7 @@ func main() {
 		AggregateType: "media",
 		AggregateID:   "-",
 	}); err != nil {
-		log.Fatal(err)
+		logger.Log.Fatal().Err(err).Msg("Failed to enqueue media purge job")
 	}
 	day := time.Now().UTC().Format("2006-01-02")
 	for _, job := range []services.OutboxJobInput{
@@ -91,17 +92,22 @@ func main() {
 		{JobKey: "community:reconcile:" + day, Kind: "community.reconcile_counts", AggregateType: "community", AggregateID: "-"},
 	} {
 		if _, err := outbox.Enqueue(job); err != nil {
-			log.Fatal(err)
+			logger.Log.Fatal().Err(err).Str("job_key", job.JobKey).Msg("Failed to enqueue community job")
 		}
 	}
 
 	host, _ := os.Hostname()
 	workerID := fmt.Sprintf("operations-worker:%s:%s", host, uuid.NewString())
+	startTime := time.Now()
 	count, err := outbox.RunOnce(context.Background(), workerID, 25, dispatcher.Dispatch)
 	if err != nil {
-		log.Fatal(err)
+		logger.Log.Fatal().Err(err).Str("worker_id", workerID).Msg("Failed to process operation outbox jobs")
 	}
-	log.Printf("processed %d operation outbox jobs", count)
+	logger.Log.Info().
+		Int("processed_count", count).
+		Str("worker_id", workerID).
+		Dur("duration", time.Since(startTime)).
+		Msg("Processed operation outbox jobs successfully")
 }
 
 func workerEmailSender() (accountauth.EmailSender, error) {

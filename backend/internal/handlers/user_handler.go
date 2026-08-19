@@ -10,6 +10,7 @@ import (
 	"github.com/watloungporsai/wat-profile-backend/internal/middleware"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
+	"github.com/watloungporsai/wat-profile-backend/pkg/logger"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
 	"gorm.io/gorm"
 )
@@ -123,8 +124,16 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 	}
 
 	if err := h.userService.Create(&user, req.Password); err != nil {
+		logger.Log.Error().Err(err).Str("email", req.Email).Msg("Failed to create user")
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
+
+	_ = h.auditService.LogAction(c, "create", "users", user.ID.String(), map[string]interface{}{
+		"email":     user.Email,
+		"name":      user.Name,
+		"role_id":   user.RoleID,
+		"is_active": user.IsActive,
+	})
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "data": user})
 }
@@ -167,8 +176,16 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 	user.IsActive = req.IsActive
 
 	if err := h.userService.Update(user, req.Password); err != nil {
+		logger.Log.Error().Err(err).Str("user_id", id.String()).Msg("Failed to update user")
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
+
+	_ = h.auditService.LogAction(c, "update", "users", user.ID.String(), map[string]interface{}{
+		"email":     user.Email,
+		"name":      user.Name,
+		"role_id":   user.RoleID,
+		"is_active": user.IsActive,
+	})
 
 	if req.Password != "" || (wasActive && !user.IsActive) {
 		_ = h.auditService.LogSecurityEvent(c, "admin.sessions.revoked", "sessions_revoked", "admin_auth", user.ID.String())
@@ -209,8 +226,14 @@ func (h *UserHandler) UpdateAdminProfile(c *fiber.Ctx) error {
 
 	updatedUser, err := h.userService.UpdateProfile(user.ID, req.Name, req.Email, req.AvatarURL, req.CurrentPassword, req.NewPassword)
 	if err != nil {
+		logger.Log.Error().Err(err).Str("user_id", user.ID.String()).Msg("Failed to update admin profile")
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
+
+	_ = h.auditService.LogAction(c, "update_profile", "users", user.ID.String(), map[string]interface{}{
+		"email": updatedUser.Email,
+		"name":  updatedUser.Name,
+	})
 
 	if req.NewPassword != "" {
 		_ = h.auditService.LogSecurityEvent(c, "admin.sessions.revoked", "sessions_revoked", "admin_auth", user.ID.String())
@@ -238,8 +261,11 @@ func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 	}
 
 	if err := h.userService.Delete(id, currentUserID); err != nil {
+		logger.Log.Error().Err(err).Str("user_id", id.String()).Msg("Failed to delete user")
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
+
+	_ = h.auditService.LogAction(c, "delete", "users", id.String(), nil)
 
 	return utils.MessageResponse(c, "User deleted successfully")
 }
@@ -265,8 +291,13 @@ func (h *UserHandler) BulkDeleteUsers(c *fiber.Ctx) error {
 	}
 
 	if err := h.userService.BulkDelete(req.IDs, currentUserID); err != nil {
+		logger.Log.Error().Err(err).Int("count", len(req.IDs)).Msg("Failed to bulk delete users")
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, err.Error())
 	}
+
+	_ = h.auditService.LogAction(c, "bulk_delete", "users", "", map[string]interface{}{
+		"count": len(req.IDs),
+	})
 
 	return utils.MessageResponse(c, "Users deleted successfully")
 }

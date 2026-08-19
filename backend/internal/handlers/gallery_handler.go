@@ -7,17 +7,20 @@ import (
 	"github.com/watloungporsai/wat-profile-backend/internal/listquery"
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
+	"github.com/watloungporsai/wat-profile-backend/pkg/logger"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
 	"gorm.io/gorm"
 )
 
 type GalleryHandler struct {
 	galleryService *services.GalleryService
+	auditService   *services.AuditService
 }
 
 func NewGalleryHandler(db *gorm.DB) *GalleryHandler {
 	return &GalleryHandler{
 		galleryService: services.NewGalleryService(db),
+		auditService:   services.NewAuditService(db),
 	}
 }
 
@@ -115,8 +118,15 @@ func (h *GalleryHandler) CreateGallery(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request")
 	}
 	if err := h.galleryService.Create(&gallery); err != nil {
+		logger.Log.Error().Err(err).Msg("Failed to create gallery item")
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to create")
 	}
+
+	_ = h.auditService.LogAction(c, "create", "galleries", strconv.Itoa(int(gallery.ID)), map[string]interface{}{
+		"category_id": gallery.CategoryID,
+		"event_id":    gallery.EventID,
+	})
+
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "data": gallery})
 }
 
@@ -146,8 +156,16 @@ func (h *GalleryHandler) UpdateGallery(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request")
 	}
 	if err := h.galleryService.Update(gallery); err != nil {
+		logger.Log.Error().Err(err).Int("gallery_id", id).Msg("Failed to update gallery item")
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to update")
 	}
+
+	_ = h.auditService.LogAction(c, "update", "galleries", strconv.Itoa(id), map[string]interface{}{
+		"category_id": gallery.CategoryID,
+		"event_id":    gallery.EventID,
+		"is_active":   gallery.IsActive,
+	})
+
 	return utils.SuccessResponse(c, gallery)
 }
 
@@ -157,14 +175,19 @@ func (h *GalleryHandler) DeleteGallery(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
 	if err := h.galleryService.Delete(id); err != nil {
+		logger.Log.Error().Err(err).Int("gallery_id", id).Msg("Failed to delete gallery item")
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete")
 	}
+
+	_ = h.auditService.LogAction(c, "delete", "galleries", strconv.Itoa(id), nil)
+
 	return utils.MessageResponse(c, "Deleted successfully")
 }
 
 func (h *GalleryHandler) GetCategories(c *fiber.Ctx) error {
 	categories, err := h.galleryService.ListCategories()
 	if err != nil {
+		logger.Log.Error().Err(err).Msg("Failed to fetch gallery categories")
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch categories")
 	}
 	return utils.SuccessResponse(c, categories)
@@ -176,8 +199,14 @@ func (h *GalleryHandler) CreateCategory(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request")
 	}
 	if err := h.galleryService.CreateCategory(&category); err != nil {
+		logger.Log.Error().Err(err).Msg("Failed to create gallery category")
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to create category")
 	}
+
+	_ = h.auditService.LogAction(c, "create", "gallery_categories", strconv.Itoa(int(category.ID)), map[string]interface{}{
+		"slug": category.Slug,
+	})
+
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{"success": true, "data": category})
 }
 
@@ -194,8 +223,15 @@ func (h *GalleryHandler) UpdateCategory(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request")
 	}
 	if err := h.galleryService.UpdateCategory(category); err != nil {
+		logger.Log.Error().Err(err).Int("category_id", id).Msg("Failed to update gallery category")
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to update category")
 	}
+
+	_ = h.auditService.LogAction(c, "update", "gallery_categories", strconv.Itoa(id), map[string]interface{}{
+		"slug":      category.Slug,
+		"is_active": category.IsActive,
+	})
+
 	return utils.SuccessResponse(c, category)
 }
 
@@ -211,8 +247,13 @@ func (h *GalleryHandler) BulkDeleteGalleries(c *fiber.Ctx) error {
 	}
 
 	if err := h.galleryService.BulkDelete(req.IDs); err != nil {
+		logger.Log.Error().Err(err).Int("count", len(req.IDs)).Msg("Failed to delete gallery items")
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete gallery items")
 	}
+
+	_ = h.auditService.LogAction(c, "bulk_delete", "galleries", "", map[string]interface{}{
+		"count": len(req.IDs),
+	})
 
 	return utils.MessageResponse(c, "Gallery items deleted successfully")
 }
@@ -229,8 +270,13 @@ func (h *GalleryHandler) BulkDeleteCategories(c *fiber.Ctx) error {
 	}
 
 	if err := h.galleryService.BulkDeleteCategories(req.IDs); err != nil {
+		logger.Log.Error().Err(err).Int("count", len(req.IDs)).Msg("Failed to delete gallery categories")
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete gallery categories")
 	}
+
+	_ = h.auditService.LogAction(c, "bulk_delete", "gallery_categories", "", map[string]interface{}{
+		"count": len(req.IDs),
+	})
 
 	return utils.MessageResponse(c, "Gallery categories deleted successfully")
 }

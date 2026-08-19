@@ -2,15 +2,14 @@ package config
 
 import (
 	"fmt"
-	"log"
 	"os"
 	"strings"
 	"time"
 
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
+	"github.com/watloungporsai/wat-profile-backend/pkg/logger"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
-	"gorm.io/gorm/logger"
 )
 
 var DB *gorm.DB
@@ -22,15 +21,7 @@ func InitDatabase() error {
 		return fmt.Errorf("DATABASE_URL environment variable is not set")
 	}
 
-	newLogger := logger.New(
-		log.New(os.Stdout, "\r\n", log.LstdFlags),
-		logger.Config{
-			SlowThreshold:             2 * time.Second,
-			LogLevel:                  logger.Warn,
-			IgnoreRecordNotFoundError: true,
-			Colorful:                  true,
-		},
-	)
+	gormLog := logger.NewGormLogger(2*time.Second, true)
 
 	var err error
 
@@ -45,25 +36,25 @@ func InitDatabase() error {
 		DSN:                  dsn,
 		PreferSimpleProtocol: useSimpleProtocol,
 	}), &gorm.Config{
-		Logger: newLogger,
+		Logger: gormLog,
 	})
 
 	if err != nil {
 		return fmt.Errorf("failed to connect to database: %w", err)
 	}
 
-	log.Println("Database connected successfully")
+	logger.Log.Info().Msg("Database connected successfully")
 	return nil
 }
 
 // MigrateModels runs auto-migration for all models
 func MigrateModels() error {
 	if os.Getenv("DB_AUTO_MIGRATE") == "false" {
-		log.Println("Database auto-migration skipped (DB_AUTO_MIGRATE is set to false)")
+		logger.Log.Info().Msg("Database auto-migration skipped (DB_AUTO_MIGRATE is set to false)")
 		return nil
 	}
 
-	log.Println("Running database migrations...")
+	logger.Log.Info().Msg("Running database migrations...")
 
 	err := DB.AutoMigrate(
 		// Core models
@@ -122,7 +113,7 @@ func MigrateModels() error {
 		return fmt.Errorf("failed to migrate models: %w", err)
 	}
 
-	log.Println("Database migration completed successfully")
+	logger.Log.Info().Msg("Database migration completed successfully")
 	return nil
 }
 
@@ -130,7 +121,7 @@ func MigrateModels() error {
 func ConfigureConnectionPool() {
 	sqlDB, err := DB.DB()
 	if err != nil {
-		log.Printf("Warning: failed to get sql.DB for pool config: %v", err)
+		logger.Log.Warn().Err(err).Msg("Failed to get sql.DB for pool config")
 		return
 	}
 
@@ -139,20 +130,20 @@ func ConfigureConnectionPool() {
 	sqlDB.SetConnMaxLifetime(5 * time.Minute)
 	sqlDB.SetConnMaxIdleTime(1 * time.Minute)
 
-	log.Println("Database connection pool configured")
+	logger.Log.Info().Msg("Database connection pool configured")
 }
 
 // CloseDatabase ปิด database connection อย่างปลอดภัย
 func CloseDatabase() {
 	sqlDB, err := DB.DB()
 	if err != nil {
-		log.Printf("Warning: failed to get sql.DB for closing: %v", err)
+		logger.Log.Warn().Err(err).Msg("Failed to get sql.DB for closing")
 		return
 	}
 	if err := sqlDB.Close(); err != nil {
-		log.Printf("Warning: error closing database: %v", err)
+		logger.Log.Warn().Err(err).Msg("Error closing database")
 	} else {
-		log.Println("Database connection closed")
+		logger.Log.Info().Msg("Database connection closed")
 	}
 }
 

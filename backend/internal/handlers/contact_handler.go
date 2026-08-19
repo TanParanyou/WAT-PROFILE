@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"strconv"
 	"strings"
 
 	"github.com/gofiber/fiber/v2"
@@ -16,11 +17,13 @@ import (
 
 type ContactHandler struct {
 	contactService *services.ContactService
+	auditService   *services.AuditService
 }
 
 func NewContactHandler(db *gorm.DB) *ContactHandler {
 	return &ContactHandler{
 		contactService: services.NewContactService(db),
+		auditService:   services.NewAuditService(db),
 	}
 }
 
@@ -77,6 +80,7 @@ func (h *ContactHandler) GetContacts(c *fiber.Ctx) error {
 
 	inquiries, total, err := h.contactService.ListOptions(options)
 	if err != nil {
+		logger.Log.Error().Err(err).Msg("Failed to fetch contacts")
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch contacts")
 	}
 
@@ -116,13 +120,20 @@ func (h *ContactHandler) UpdateContactStatus(c *fiber.Ctx) error {
 	userID, userErr := middleware.GetCurrentUserID(c)
 	if body.ReplyMessage != "" && userErr == nil {
 		if err := h.contactService.UpdateStatus(inquiry, body.Status, body.ReplyMessage, &userID); err != nil {
+			logger.Log.Error().Err(err).Int("contact_id", id).Msg("Failed to update contact inquiry")
 			return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to update contact inquiry")
 		}
 	} else {
 		if err := h.contactService.UpdateStatus(inquiry, body.Status, body.ReplyMessage, nil); err != nil {
+			logger.Log.Error().Err(err).Int("contact_id", id).Msg("Failed to update contact inquiry")
 			return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to update contact inquiry")
 		}
 	}
+
+	_ = h.auditService.LogAction(c, "update_status", "contacts", strconv.Itoa(id), map[string]interface{}{
+		"status":      body.Status,
+		"has_reply":   body.ReplyMessage != "",
+	})
 
 	return utils.SuccessResponse(c, inquiry)
 }
@@ -134,8 +145,12 @@ func (h *ContactHandler) DeleteContact(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, err.Error())
 	}
 	if err := h.contactService.Delete(id); err != nil {
+		logger.Log.Error().Err(err).Int("contact_id", id).Msg("Failed to delete contact inquiry")
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete contact inquiry")
 	}
+
+	_ = h.auditService.LogAction(c, "delete", "contacts", strconv.Itoa(id), nil)
+
 	return utils.MessageResponse(c, "Contact inquiry deleted successfully")
 }
 
@@ -151,8 +166,13 @@ func (h *ContactHandler) BulkDeleteContacts(c *fiber.Ctx) error {
 	}
 
 	if err := h.contactService.BulkDelete(req.IDs); err != nil {
+		logger.Log.Error().Err(err).Int("count", len(req.IDs)).Msg("Failed to delete contact inquiries")
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to delete contact inquiries")
 	}
+
+	_ = h.auditService.LogAction(c, "bulk_delete", "contacts", "", map[string]interface{}{
+		"count": len(req.IDs),
+	})
 
 	return utils.MessageResponse(c, "Contact inquiries deleted successfully")
 }
