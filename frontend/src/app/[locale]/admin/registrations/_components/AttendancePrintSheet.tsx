@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Printer, X } from "lucide-react";
+import { Printer, X, Check } from "lucide-react";
 import type { AdminRegistrationTableRow } from "@/features/admin/event-registrations/mappers";
 
 interface AttendancePrintSheetProps {
@@ -91,7 +91,10 @@ export function AttendancePrintSheet({
                   <td className="border border-black p-2 text-gray-600 truncate max-w-xs">{row.dietary_restrictions || "—"}</td>
                   <td className="border border-black p-2 text-center">
                     {row.status === "attended" ? (
-                      <span className="font-bold text-[10px] uppercase text-emerald-700">✓ เช็คแล้ว</span>
+                      <span className="inline-flex items-center gap-1 font-bold text-[10px] uppercase text-emerald-700">
+                        <Check size={11} strokeWidth={3} className="shrink-0" />
+                        <span>เช็คแล้ว</span>
+                      </span>
                     ) : (
                       <div className="w-6 h-6 border border-gray-400 mx-auto" />
                     )}

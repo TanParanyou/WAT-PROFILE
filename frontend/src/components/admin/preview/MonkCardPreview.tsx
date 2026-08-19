@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { UserCheck, Calendar, Eye, Image as ImageIcon, Award } from "lucide-react";
+import { UserCheck, Calendar, Eye, Image as ImageIcon, Award, Circle } from "lucide-react";
 import Lightbox from "yet-another-react-lightbox";
 import "yet-another-react-lightbox/styles.css";
 import { useTranslations } from "next-intl";
@@ -108,9 +108,15 @@ export function MonkCardPreview({
               </span>
 
               {isActive ? (
-                <span className="text-[11px] text-admin-success font-medium">● {tFormActive("formEnabled")}</span>
+                <span className="inline-flex items-center gap-1 text-[11px] text-admin-success font-medium">
+                  <Circle size={7} className="fill-current" />
+                  <span>{tFormActive("formEnabled")}</span>
+                </span>
               ) : (
-                <span className="text-[11px] text-admin-muted">● {tFormActive("formDisabled")}</span>
+                <span className="inline-flex items-center gap-1 text-[11px] text-admin-muted">
+                  <Circle size={7} className="fill-current" />
+                  <span>{tFormActive("formDisabled")}</span>
+                </span>
               )}
             </div>
 

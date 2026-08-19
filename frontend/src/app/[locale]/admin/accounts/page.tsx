@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Eye } from "lucide-react";
+import { Eye, X } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
@@ -146,6 +146,6 @@ function SelectedAccountPanel({ id, onClose }: { id: string; onClose(): void }) 
   const common = useTranslations("Admin.common");
   const query = useAdminAccountDetail(id);
   if (query.isLoading) return <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-xl items-center justify-center border-l border-admin-border bg-admin-surface text-sm text-admin-muted">{common("loading")}</div>;
-  if (query.isError || !query.data) return <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-xl flex-col border-l border-admin-border bg-admin-surface p-5"><button type="button" onClick={onClose} className="self-end min-h-11 min-w-11 text-admin-muted focus-visible:outline-2 focus-visible:outline-admin-focus">×</button><p className="mt-4 text-sm text-admin-danger">{t("errors.load")}</p></div>;
+  if (query.isError || !query.data) return <div className="fixed inset-y-0 right-0 z-50 flex w-full max-w-xl flex-col border-l border-admin-border bg-admin-surface p-5"><button type="button" onClick={onClose} aria-label={common("close")} className="inline-flex items-center justify-center self-end min-h-11 min-w-11 text-admin-muted hover:text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus"><X size={18} /></button><p className="mt-4 text-sm text-admin-danger">{t("errors.load")}</p></div>;
   return <AccountOperationsDetailPanel account={query.data} onClose={onClose} />;
 }

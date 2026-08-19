@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { MapPin } from "lucide-react";
 import { Link } from "@/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
@@ -264,7 +265,8 @@ export default function EventsListPage() {
             <div className="flex flex-wrap items-center gap-2 text-xs text-admin-muted">
               {location && (
                 <span className="inline-flex items-center gap-1">
-                  <span>📍</span> {location}
+                  <MapPin size={12} className="shrink-0 text-admin-muted" />
+                  <span>{location}</span>
                 </span>
               )}
               {row.online_join_url && (

@@ -18,6 +18,7 @@ import {
   useCreateCommunityComment,
 } from "../queries";
 import type { CommunityAnswer, CommunityComment, CommunityLocale } from "../types";
+import { ArrowLeft } from "lucide-react";
 import { CommunityRichTextEditor } from "./CommunityRichTextEditor";
 import { HelpfulButton } from "./HelpfulButton";
 import { ReportDialog } from "./ReportDialog";
@@ -52,7 +53,7 @@ export function QuestionDetailContent({ id }: { id: string }) {
   return (
     <div className="min-h-screen bg-site-canvas">
       <PageContainer width="reading">
-        <Link href="/community" className="text-sm font-semibold text-site-muted underline underline-offset-4 hover:text-site-foreground focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus">← {t("backToCommunity")}</Link>
+        <Link href="/community" className="inline-flex items-center gap-1.5 text-sm font-semibold text-site-muted underline underline-offset-4 hover:text-site-foreground focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"><ArrowLeft size={16} /> {t("backToCommunity")}</Link>
         <div className="mt-10 border-b border-site-border pb-8">
           <div className="flex flex-wrap items-center gap-3 text-xs font-semibold uppercase tracking-[0.12em] text-site-muted"><span>{detail.question.category.name[locale]}</span><span aria-hidden="true">·</span><span>{detail.question.locale.toUpperCase()}</span><span aria-hidden="true">·</span><span>{t(detail.question.lifecycle_status)}</span></div>
           <h1 className="mt-4 font-heading text-[clamp(2rem,5vw,4rem)] font-medium leading-tight text-site-foreground">{detail.question.title}</h1>

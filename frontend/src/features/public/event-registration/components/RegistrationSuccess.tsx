@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { CheckCircle2, QrCode, Download, Printer } from "lucide-react";
+import { CheckCircle2, QrCode, Download, Printer, Lightbulb } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { Link } from "@/navigation";
 import QRCode from "qrcode";
@@ -89,9 +89,10 @@ export function RegistrationSuccess({ registration }: { registration: EventRegis
             </div>
           </div>
 
-          <p className="text-xs text-site-muted/90 pt-1">
-            💡 โปรดแสดง QR Code นี้แก่เจ้าหน้าที่โต๊ะลงทะเบียนหน้าศาลาเพื่อความสะดวกรวดเร็วในการเช็คชื่อ
-          </p>
+          <div className="flex items-start gap-1.5 pt-1 text-xs text-site-muted/90">
+            <Lightbulb size={14} className="shrink-0 mt-0.5 text-amber-500" />
+            <span>โปรดแสดง QR Code นี้แก่เจ้าหน้าที่โต๊ะลงทะเบียนหน้าศาลาเพื่อความสะดวกรวดเร็วในการเช็คชื่อ</span>
+          </div>
         </div>
       </div>
 

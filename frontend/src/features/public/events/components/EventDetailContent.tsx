@@ -16,6 +16,7 @@ import {
   Shirt,
   ShoppingBag,
   HeartHandshake,
+  ArrowRight,
 } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/navigation";
@@ -514,7 +515,8 @@ export function EventDetailContent({ slug, initialEvent }: EventDetailContentPro
                   className="inline-flex items-center gap-1.5 text-xs font-semibold text-site-accent hover:underline"
                 >
                   <Navigation size={12} />
-                  {t("openMap")} &rarr;
+                  <span>{t("openMap")}</span>
+                  <ArrowRight size={13} />
                 </a>
               )}
             </div>
@@ -533,7 +535,8 @@ export function EventDetailContent({ slug, initialEvent }: EventDetailContentPro
               href="/events"
               className="text-sm font-semibold text-site-accent hover:underline flex items-center gap-1"
             >
-              {t("viewAllEvents")} &rarr;
+              <span>{t("viewAllEvents")}</span>
+              <ArrowRight size={14} />
             </Link>
           </div>
 
@@ -571,9 +574,10 @@ export function EventDetailContent({ slug, initialEvent }: EventDetailContentPro
                     <div className="mt-auto pt-2">
                       <Link
                         href={`/events/${item.slug}`}
-                        className="inline-flex items-center text-xs font-bold text-site-accent hover:underline"
+                        className="inline-flex items-center gap-1 text-xs font-bold text-site-accent hover:underline"
                       >
-                        {t("backToEvents")} &rarr;
+                        <span>{t("backToEvents")}</span>
+                        <ArrowRight size={12} />
                       </Link>
                     </div>
                   </div>

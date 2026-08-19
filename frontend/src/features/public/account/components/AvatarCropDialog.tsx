@@ -2,7 +2,7 @@
 
 import { useCallback, useEffect, useId, useRef, useState } from "react";
 import Cropper, { type Area, type Point } from "react-easy-crop";
-import { Loader2, RotateCcw, RotateCw, ZoomIn, ZoomOut } from "lucide-react";
+import { Loader2, RotateCcw, RotateCw, X, ZoomIn, ZoomOut } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { createAvatarFile, type AvatarPixelCrop } from "./avatarCrop";
 
@@ -113,7 +113,7 @@ export function AvatarCropDialog({
             className="inline-flex min-h-11 min-w-11 items-center justify-center border border-site-border text-site-muted transition-colors hover:bg-site-surface hover:text-site-foreground focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-50"
             aria-label={t("account.avatarCancel")}
           >
-            ×
+            <X size={18} />
           </button>
         </div>
 

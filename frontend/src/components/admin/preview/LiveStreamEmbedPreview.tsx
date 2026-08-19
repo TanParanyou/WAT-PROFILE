@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { Radio, CheckCircle2, AlertCircle } from "lucide-react";
+import { Radio, CheckCircle2, AlertCircle, ArrowRight } from "lucide-react";
 import { useTranslations } from "next-intl";
 import { TestLinkButton } from "./TestLinkButton";
 
@@ -96,9 +96,10 @@ export function LiveStreamEmbedPreview({
                 href={cleanUrl}
                 target="_blank"
                 rel="noreferrer"
-                className="text-admin-action hover:underline font-medium"
+                className="inline-flex items-center gap-1 text-admin-action hover:underline font-medium"
               >
-                {t("testLiveStream")} &rarr;
+                <span>{t("testLiveStream")}</span>
+                <ArrowRight size={13} />
               </a>
             </p>
           )}
