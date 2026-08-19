@@ -17,8 +17,12 @@ import {
   ZoomIn,
   X,
   ImageIcon,
+  ShieldAlert,
+  ArrowLeft,
 } from "lucide-react";
 import type { GuideArticle, GuideStep, GuideImage } from "@/types/adminGuide";
+import { usePermission } from "@/hooks/usePermission";
+import { Link } from "@/navigation";
 
 interface GuideArticleViewerProps {
   article: GuideArticle;
@@ -32,6 +36,7 @@ interface ActiveLightboxState {
 export function GuideArticleViewer({ article }: GuideArticleViewerProps) {
   const locale = useLocale() as "th" | "en" | "de";
   const t = useTranslations("Admin.guide");
+  const { isAdmin } = usePermission();
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(null);
   const [lightbox, setLightbox] = useState<ActiveLightboxState | null>(null);
 
@@ -109,6 +114,34 @@ export function GuideArticleViewer({ article }: GuideArticleViewerProps) {
     window.addEventListener("keydown", handleKeyDown);
     return () => window.removeEventListener("keydown", handleKeyDown);
   }, [lightbox, nextLightboxImage, prevLightboxImage]);
+
+  // If article is superAdminOnly and current user is not admin, show restricted view
+  if (article.superAdminOnly && !isAdmin) {
+    return (
+      <div className="max-w-2xl mx-auto my-12 bg-admin-surface border border-admin-danger/30 p-8 space-y-6 text-center shadow-2xs">
+        <div className="w-14 h-14 mx-auto bg-admin-danger-surface text-admin-danger flex items-center justify-center border border-admin-danger/30">
+          <ShieldAlert size={32} />
+        </div>
+        <div className="space-y-2">
+          <h2 className="text-lg sm:text-xl font-bold text-admin-foreground">
+            {t("superAdminOnlyTitle")}
+          </h2>
+          <p className="text-xs sm:text-sm text-admin-muted leading-relaxed max-w-lg mx-auto">
+            {t("superAdminOnlyDesc")}
+          </p>
+        </div>
+        <div className="pt-2">
+          <Link
+            href="/admin/guide"
+            className="inline-flex items-center gap-2 px-4 py-2.5 bg-admin-surface border border-admin-border hover:bg-admin-surface-muted text-admin-foreground text-xs sm:text-sm font-semibold transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus min-h-11 cursor-pointer"
+          >
+            <ArrowLeft size={16} />
+            <span>{t("backToHub")}</span>
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <article className="max-w-4xl mx-auto space-y-8 print:space-y-4">

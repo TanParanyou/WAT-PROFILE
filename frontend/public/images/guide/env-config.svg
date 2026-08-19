@@ -1,0 +1,79 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" width="100%" height="100%">
+  <defs>
+    <style>
+      .canvas { fill: #fbfbfa; }
+      .surface { fill: #ffffff; stroke: #d1d5db; stroke-width: 1; }
+      .text-title { font-family: "Noto Sans Thai", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-weight: 700; font-size: 15px; fill: #242424; }
+      .text-muted { font-family: "Noto Sans Thai", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 12px; fill: #666666; }
+      .text-body { font-family: "Noto Sans Thai", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 13px; fill: #333333; }
+      .code-var { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; font-weight: 600; fill: #0f172a; }
+      .code-val { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 11px; fill: #15803d; }
+      .code-secret { font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 11px; fill: #b91c1c; }
+    </style>
+  </defs>
+
+  <rect width="800" height="480" class="canvas" />
+
+  <!-- Main Container -->
+  <rect x="40" y="25" width="720" height="430" class="surface" />
+
+  <!-- Header -->
+  <rect x="40" y="25" width="720" height="50" fill="#f4f4f2" stroke="#d1d5db" stroke-width="1" />
+  <text x="65" y="56" class="text-title">⚙️ โครงสร้างการตั้งค่าตัวแปรสภาพแวดล้อม (Frontend vs Backend Environment)</text>
+
+  <!-- Left Box: Frontend (.env.local) -->
+  <g transform="translate(65, 95)">
+    <rect x="0" y="0" width="320" height="235" fill="#ffffff" stroke="#d1d5db" stroke-width="1" />
+    <rect x="0" y="0" width="320" height="38" fill="#f4f4f2" stroke="#d1d5db" stroke-width="1" />
+    <text x="15" y="24" font-family="sans-serif" font-weight="700" font-size="13" fill="#242424">🌐 Frontend (frontend/.env.local)</text>
+    
+    <g transform="translate(15, 55)">
+      <text x="0" y="0" class="code-var">NEXT_PUBLIC_API_URL</text>
+      <text x="0" y="16" class="code-val">= "https://api.wat-profile.de"</text>
+
+      <text x="0" y="45" class="code-var">NEXT_PUBLIC_DEFAULT_LOCALE</text>
+      <text x="0" y="61" class="code-val">= "th"</text>
+
+      <text x="0" y="90" class="code-var">NEXT_PUBLIC_MEDIA_ALLOWED_ORIGINS</text>
+      <text x="0" y="106" class="code-val">= "https://pub-xxx.r2.dev"</text>
+
+      <text x="0" y="135" class="code-var">NEXT_PUBLIC_SKIP_ADMIN_AUTH</text>
+      <text x="0" y="151" class="code-secret">= "false" (Production Always)</text>
+    </g>
+
+    <rect x="15" y="185" width="290" height="36" fill="#fef2f2" stroke="#fecaca" stroke-width="1" />
+    <text x="25" y="207" font-family="sans-serif" font-size="11" fill="#b91c1c">⚠️ NEXT_PUBLIC_* จะถูกเปิดเผยในเบราว์เซอร์</text>
+  </g>
+
+  <!-- Right Box: Backend (.env) -->
+  <g transform="translate(415, 95)">
+    <rect x="0" y="0" width="320" height="235" fill="#ffffff" stroke="#d1d5db" stroke-width="1" />
+    <rect x="0" y="0" width="320" height="38" fill="#f4f4f2" stroke="#d1d5db" stroke-width="1" />
+    <text x="15" y="24" font-family="sans-serif" font-weight="700" font-size="13" fill="#242424">🖥️ Backend (backend/.env)</text>
+
+    <g transform="translate(15, 55)">
+      <text x="0" y="0" class="code-var">DATABASE_URL / DB_HOST</text>
+      <text x="0" y="16" class="code-val">= "postgres://user:pass@host/db"</text>
+
+      <text x="0" y="45" class="code-var">JWT_SECRET (32+ bytes random)</text>
+      <text x="0" y="61" class="code-secret">= "••••••••••••••••••••••••••••"</text>
+
+      <text x="0" y="90" class="code-var">R2_ACCESS_KEY / R2_SECRET_KEY</text>
+      <text x="0" y="106" class="code-secret">= "••••••••••••••••••••••••••••"</text>
+
+      <text x="0" y="135" class="code-var">CORS_ORIGINS</text>
+      <text x="0" y="151" class="code-val">= "https://wat-profile.de"</text>
+    </g>
+
+    <rect x="15" y="185" width="290" height="36" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1" />
+    <text x="25" y="207" font-family="sans-serif" font-size="11" fill="#15803d">🔒 Server-side Only: ปลอดภัย ไม่หลุดสู่ผู้ใช้</text>
+  </g>
+
+  <!-- Bottom Guidelines (Terracotta Taupe Box) -->
+  <g transform="translate(65, 345)">
+    <rect x="0" y="0" width="670" height="85" fill="#f7ecdd" stroke="#945c26" stroke-width="1" />
+    <text x="20" y="26" font-family="sans-serif" font-weight="700" font-size="13" fill="#945c26">🛡️ กฎเหล็กด้านความปลอดภัยของไฟล์สภาพแวดล้อม (.env):</text>
+    <text x="20" y="48" font-family="sans-serif" font-size="12" fill="#333333">1. ห้าม Commit ไฟล์ .env หรือ .env.local ขึ้น Git repository เด็ดขาด (ใช้ .env.example ที่มีเฉพาะ placeholder แทน)</text>
+    <text x="20" y="68" font-family="sans-serif" font-size="12" fill="#333333">2. ใน Production ต้องใช้ HTTPS URL สำหรับ API และห้ามเปิดใช้งาน NEXT_PUBLIC_SKIP_ADMIN_AUTH โดยเด็ดขาด</text>
+  </g>
+</svg>

@@ -57,6 +57,7 @@ export interface GuideArticle {
   summary: MultiLangContent;
   iconName: string;
   resource?: PermissionResource;
+  superAdminOnly?: boolean;
   routePath?: string;
   quickSteps: MultiLangContent[];
   statusLegends?: GuideStatusLegend[];

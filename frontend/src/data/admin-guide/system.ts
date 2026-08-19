@@ -307,7 +307,162 @@ export const systemGuides: GuideArticle[] = [
       },
     ],
     faqs: [],
-    relatedSlugs: ["contact", "audit-logs"],
+    relatedSlugs: ["contact", "audit-logs", "environment-config"],
+    updatedAt: "2026-08-19",
+  },
+  {
+    id: "guide-environment-config",
+    slug: "environment-config",
+    category: "system",
+    title: {
+      th: "การตั้งค่าสภาพแวดล้อมระบบ (Environment Variables Config)",
+      en: "System Environment Variables & Deployment Config",
+      de: "System-Umgebungsvariablen & Deployment-Konfiguration",
+    },
+    summary: {
+      th: "คู่มือการตั้งค่า .env สำหรับ Backend และ Frontend การจัดการ Secret, การเชื่อมต่อ Cloudflare R2, ฐานข้อมูล PostgreSQL และกฎความปลอดภัย",
+      en: "Complete guide for configuring Backend and Frontend .env, managing secrets, Cloudflare R2 storage, PostgreSQL, and security rules.",
+      de: "Vollständiger Leitfaden zur Konfiguration von Backend- und Frontend-.env, Secret-Management, Cloudflare R2, PostgreSQL und Sicherheit.",
+    },
+    iconName: "Server",
+    resource: "settings",
+    superAdminOnly: true,
+    routePath: "/admin/settings",
+    quickSteps: [
+      {
+        th: "คัดลอกไฟล์ .env.example เป็น .env (Backend) และ .env.local (Frontend)",
+        en: "Copy .env.example to .env (Backend) and .env.local (Frontend).",
+        de: "Kopieren Sie .env.example nach .env (Backend) und .env.local (Frontend).",
+      },
+      {
+        th: "กำหนดค่า Frontend: NEXT_PUBLIC_API_URL และ NEXT_PUBLIC_MEDIA_ALLOWED_ORIGINS",
+        en: "Set Frontend configs: NEXT_PUBLIC_API_URL and NEXT_PUBLIC_MEDIA_ALLOWED_ORIGINS.",
+        de: "Frontend-Werte setzen: NEXT_PUBLIC_API_URL und NEXT_PUBLIC_MEDIA_ALLOWED_ORIGINS.",
+      },
+      {
+        th: "กำหนดค่า Backend: DATABASE_URL, JWT_SECRET (32+ bytes), และ Cloudflare R2 Storage",
+        en: "Set Backend configs: DATABASE_URL, JWT_SECRET (32+ bytes), and Cloudflare R2 storage credentials.",
+        de: "Backend-Werte setzen: DATABASE_URL, JWT_SECRET (32+ Bytes) und Cloudflare R2-Zugangsdaten.",
+      },
+    ],
+    statusLegends: [
+      {
+        badgeVariant: "success",
+        label: { th: "Production Ready", en: "Production Ready", de: "Produktionsbereit" },
+        meaning: {
+          th: "ค่าคอนฟิกถูกต้องครบถ้วน ใช้ HTTPS และเชื่อมต่อระบบคลาวด์ปลอดภัย",
+          en: "All variables configured securely with HTTPS and valid cloud credentials.",
+          de: "Alle Variablen sicher mit HTTPS und gültigen Cloud-Zugangsdaten konfiguriert.",
+        },
+      },
+      {
+        badgeVariant: "warning",
+        label: { th: "Development", en: "Development", de: "Entwicklung" },
+        meaning: {
+          th: "ค่าคอนฟิกสำหรับเครื่องคอมพิวเตอร์นักพัฒนา (Localhost)",
+          en: "Configuration parameters tuned for local development and testing.",
+          de: "Konfigurationsparameter für die lokale Entwicklung und Tests.",
+        },
+      },
+      {
+        badgeVariant: "danger",
+        label: { th: "Security Risk", en: "Security Risk", de: "Sicherheitsrisiko" },
+        meaning: {
+          th: "ความเสี่ยง: เผลอใส่ Secret ในตัวแปร NEXT_PUBLIC_* หรือ Commit ไฟล์ .env ขึ้น Git",
+          en: "Critical risk: Secrets exposed in NEXT_PUBLIC_* or .env committed to Git.",
+          de: "Kritisches Risiko: Secrets in NEXT_PUBLIC_* oder .env in Git eingecheckt.",
+        },
+      },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: {
+          th: "การตั้งค่าฝั่ง Frontend (frontend/.env.local)",
+          en: "Frontend Environment Configuration (frontend/.env.local)",
+          de: "Frontend-Umgebungskonfiguration (frontend/.env.local)",
+        },
+        description: {
+          th: "สร้างไฟล์ frontend/.env.local จาก .env.example กำหนดค่า NEXT_PUBLIC_API_URL ชี้ไปยัง Backend (ใน Production ต้องเป็น HTTPS เสมอ) และ NEXT_PUBLIC_MEDIA_ALLOWED_ORIGINS สำหรับ Cloudflare R2 Domain",
+          en: "Create frontend/.env.local from .env.example. Set NEXT_PUBLIC_API_URL (must be HTTPS in production) and NEXT_PUBLIC_MEDIA_ALLOWED_ORIGINS for Cloudflare R2.",
+          de: "Erstellen Sie frontend/.env.local aus .env.example. Setzen Sie NEXT_PUBLIC_API_URL (HTTPS in Produktion) und NEXT_PUBLIC_MEDIA_ALLOWED_ORIGINS für Cloudflare R2.",
+        },
+        tip: {
+          th: "กฎเหล็ก: ตัวแปรที่ขึ้นต้นด้วย NEXT_PUBLIC_* จะถูกฝังลงใน JavaScript bundle ของผู้เยี่ยมชม ห้ามใส่รหัสผ่านหรือ Private Key ใดๆ ในฟิลด์นี้เด็ดขาด",
+          en: "Critical Rule: Variables prefixed with NEXT_PUBLIC_* are bundled into client-side JS. Never put passwords or private keys in these variables.",
+          de: "Wichtige Regel: Variablen mit NEXT_PUBLIC_* sind im Client-JS sichtbar. Niemals Passwörter oder private Schlüssel hier eintragen.",
+        },
+      },
+      {
+        stepNumber: 2,
+        title: {
+          th: "การตั้งค่าฝั่ง Backend (backend/.env)",
+          en: "Backend Environment Configuration (backend/.env)",
+          de: "Backend-Umgebungskonfiguration (backend/.env)",
+        },
+        description: {
+          th: "กำหนดค่าการเชื่อมต่อฐานข้อมูล PostgreSQL (DB_HOST, DB_USER, DB_PASSWORD, DB_NAME), ค่าความปลอดภัย JWT (JWT_SECRET สุ่ม 32 ตัวอักษรขึ้นไป), Cloudflare R2 Storage (R2_ACCESS_KEY, R2_SECRET_KEY, R2_BUCKET), และ SMTP Mail",
+          en: "Configure PostgreSQL connection, JWT security parameters (random 32+ bytes string), Cloudflare R2 storage credentials, and SMTP email settings.",
+          de: "Konfigurieren Sie PostgreSQL, JWT-Sicherheitsparameter (zufällige 32+ Zeichen), Cloudflare R2-Zugangsdaten und SMTP-E-Mail.",
+        },
+        image: "/images/guide/env-config.svg",
+        imageCaption: {
+          th: "โครงสร้างตัวแปรสภาพแวดล้อม Frontend vs Backend และกฎความปลอดภัย",
+          en: "Frontend vs Backend environment variable architecture and security rules",
+          de: "Architektur der Frontend- und Backend-Umgebungsvariablen und Sicherheitsregeln",
+        },
+        tip: {
+          th: "สามารถสร้าง JWT Secret สุ่มที่มีความปลอดภัยสูงได้ด้วยคำสั่ง: openssl rand -base64 32",
+          en: "Generate a cryptographically secure random JWT secret using: openssl rand -base64 32",
+          de: "Erzeugen Sie ein kryptografisch sicheres JWT-Secret mit: openssl rand -base64 32",
+        },
+      },
+      {
+        stepNumber: 3,
+        title: {
+          th: "แนวปฏิบัติด้านความปลอดภัยและการ Deployment",
+          en: "Security Best Practices & Deployment Rules",
+          de: "Sicherheits-Best-Practices & Deployment-Regeln",
+        },
+        description: {
+          th: "ตรวจสอบไฟล์ .gitignore ให้แน่ใจว่า .env, .env.local, .env.production ถูกละเว้นจากการ commit ในเซิร์ฟเวอร์จริง ให้กำหนดค่าผ่าน Secret Manager หรือ Environment Injection ของแพลตฟอร์มคลาวด์",
+          en: "Ensure .env, .env.local, and .env.production are excluded in .gitignore. On production servers, inject variables via cloud secret managers.",
+          de: "Stellen Sie sicher, dass .env-Dateien in .gitignore ignoriert werden. Auf Produktionsservern Variablen über Secret Manager einbinden.",
+        },
+        warning: {
+          th: "ห้าม Commit ไฟล์ .env ที่มีรหัสผ่านจริงขึ้น Git repository โดยเด็ดขาด หากเผลอหลุดให้ทำการ Rotate Key และเปลี่ยนรหัสผ่านทันที",
+          en: "Never commit .env files with real credentials to Git. If accidentally leaked, immediately rotate all affected keys and passwords.",
+          de: "Checken Sie niemals .env-Dateien mit echten Zugangsdaten in Git ein. Bei versehentlichem Leak Zugangsdaten sofort erneuern.",
+        },
+      },
+    ],
+    faqs: [
+      {
+        question: {
+          th: "ทำไมระบบถึงไม่อนุญาตให้ใช้ HTTP ใน Production สำหรับ NEXT_PUBLIC_API_URL?",
+          en: "Why does the production build enforce HTTPS for NEXT_PUBLIC_API_URL?",
+          de: "Warum erzwingt der Produktions-Build HTTPS für NEXT_PUBLIC_API_URL?",
+        },
+        answer: {
+          th: "เพื่อป้องกันการดักจับข้อมูลและการโจมตีแบบ Man-in-the-Middle (MitM) โดยเฉพาะข้อมูลการเข้าสู่ระบบและข้อมูลส่วนบุคคลของญาติโยม",
+          en: "To prevent data interception and Man-in-the-Middle (MitM) attacks on user credentials and personal data.",
+          de: "Um Datenabfang und Man-in-the-Middle-Angriffe auf Anmeldedaten und personenbezogene Daten zu verhindern.",
+        },
+      },
+      {
+        question: {
+          th: "ตัวแปร NEXT_PUBLIC_SKIP_ADMIN_AUTH มีไว้เพื่ออะไร?",
+          en: "What is NEXT_PUBLIC_SKIP_ADMIN_AUTH used for?",
+          de: "Wofür wird NEXT_PUBLIC_SKIP_ADMIN_AUTH verwendet?",
+        },
+        answer: {
+          th: "มีไว้สำหรับการทดสอบ UI แอดมินในสภาพแวดล้อม Local แบบแยกส่วนเท่านั้น โดยระบบจะปิดกั้นไม่ให้เปิดใช้งานใน Production อย่างเด็ดขาด",
+          en: "It is exclusively for isolated local UI testing and is strictly forbidden on production builds.",
+          de: "Es dient ausschließlich lokalen UI-Tests und ist im Produktionsbetrieb strengstens untersagt.",
+        },
+      },
+    ],
+    relatedSlugs: ["settings", "audit-logs", "users"],
     updatedAt: "2026-08-19",
   },
 ];

@@ -8,6 +8,8 @@ import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/utils/cn";
 import type { GuideCategory } from "@/types/adminGuide";
 
+import { usePermission } from "@/hooks/usePermission";
+
 interface GuideCategoryNavProps {
   currentCategory?: GuideCategory;
   currentSlug?: string;
@@ -23,6 +25,7 @@ export function GuideCategoryNav({
   const locale = useLocale() as "th" | "en" | "de";
   const t = useTranslations("Admin.guide");
   const pathname = usePathname();
+  const { isAdmin } = usePermission();
 
   const isHubHome = pathname === "/admin/guide" || pathname.endsWith("/admin/guide");
 
@@ -49,7 +52,11 @@ export function GuideCategoryNav({
       {/* Category Groups */}
       <div className="space-y-4">
         {guideCategories.map((category) => {
-          const articles = getGuideArticlesByCategory(category.id);
+          const articles = getGuideArticlesByCategory(category.id).filter(
+            (a) => !a.superAdminOnly || isAdmin,
+          );
+
+          if (articles.length === 0) return null;
 
           return (
             <div key={category.id} className="space-y-1">

@@ -6,6 +6,7 @@ import { searchGuideArticles, allGuideArticles } from "@/data/admin-guide";
 import { GuideIcon } from "./guideIcons";
 import { useRouter } from "@/navigation";
 import { useTranslations, useLocale } from "next-intl";
+import { usePermission } from "@/hooks/usePermission";
 
 interface GuideSearchModalProps {
   isOpen: boolean;
@@ -16,17 +17,19 @@ export function GuideSearchModal({ isOpen, onClose }: GuideSearchModalProps) {
   const t = useTranslations("Admin.guide");
   const locale = useLocale() as "th" | "en" | "de";
   const router = useRouter();
+  const { isAdmin } = usePermission();
   const [query, setQuery] = useState("");
   const [selectedIndex, setSelectedIndex] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
 
   // Derive results using useMemo instead of setting state inside useEffect
   const results = useMemo(() => {
-    if (!query.trim()) {
-      return allGuideArticles.slice(0, 6);
-    }
-    return searchGuideArticles(query, locale);
-  }, [query, locale]);
+    const rawResults = !query.trim()
+      ? allGuideArticles.slice(0, 6)
+      : searchGuideArticles(query, locale);
+
+    return rawResults.filter((a) => !a.superAdminOnly || isAdmin);
+  }, [query, locale, isAdmin]);
 
   // Keyboard navigation inside modal
   const handleKeyDown = (e: React.KeyboardEvent) => {

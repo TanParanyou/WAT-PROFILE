@@ -6,6 +6,7 @@ import { guideCategories, allGuideArticles, searchGuideArticles } from "@/data/a
 import { GuideIcon } from "@/components/admin/guide/guideIcons";
 import { GuidePrintHeader } from "@/components/admin/guide/GuidePrintHeader";
 import { useTranslations, useLocale } from "next-intl";
+import { usePermission } from "@/hooks/usePermission";
 import {
   Search,
   BookOpen,
@@ -19,10 +20,17 @@ import {
 export default function GuideHubPage() {
   const t = useTranslations("Admin.guide");
   const locale = useLocale() as "th" | "en" | "de";
+  const { isAdmin } = usePermission();
   const [filterQuery, setFilterQuery] = useState("");
 
+  const visibleArticles = allGuideArticles.filter(
+    (a) => !a.superAdminOnly || isAdmin,
+  );
+
   const filteredArticles = filterQuery.trim()
-    ? searchGuideArticles(filterQuery, locale)
+    ? searchGuideArticles(filterQuery, locale).filter(
+        (a) => !a.superAdminOnly || isAdmin,
+      )
     : null;
 
   return (
@@ -140,7 +148,7 @@ export default function GuideHubPage() {
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-              {allGuideArticles.slice(0, 3).map((article) => {
+              {visibleArticles.slice(0, 3).map((article) => {
                 return (
                   <Link
                     key={article.slug}
@@ -177,15 +185,17 @@ export default function GuideHubPage() {
                 {t("categories")} ({guideCategories.length})
               </h2>
               <span className="text-xs text-admin-muted">
-                {t("allArticlesTotal", { count: allGuideArticles.length })}
+                {t("allArticlesTotal", { count: visibleArticles.length })}
               </span>
             </div>
 
             <div className="space-y-8">
               {guideCategories.map((category) => {
-                const articles = allGuideArticles.filter(
+                const articles = visibleArticles.filter(
                   (a) => a.category === category.id,
                 );
+
+                if (articles.length === 0) return null;
 
                 return (
                   <div

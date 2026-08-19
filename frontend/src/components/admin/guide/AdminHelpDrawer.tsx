@@ -6,6 +6,7 @@ import { getGuideByRoutePath, allGuideArticles } from "@/data/admin-guide";
 import { GuideIcon, getStatusBadgeClasses } from "./guideIcons";
 import { useTranslations, useLocale } from "next-intl";
 import { X, ExternalLink, HelpCircle, CheckCircle2, ArrowRight } from "lucide-react";
+import { usePermission } from "@/hooks/usePermission";
 
 interface AdminHelpDrawerProps {
   isOpen: boolean;
@@ -17,9 +18,14 @@ export function AdminHelpDrawer({ isOpen, onClose }: AdminHelpDrawerProps) {
   const router = useRouter();
   const t = useTranslations("Admin.guide");
   const locale = useLocale() as "th" | "en" | "de";
+  const { isAdmin } = usePermission();
 
   // Find guide matching current pathname
-  const activeGuide = getGuideByRoutePath(pathname) || allGuideArticles[0];
+  const matchedGuide = getGuideByRoutePath(pathname);
+  const activeGuide =
+    matchedGuide && (!matchedGuide.superAdminOnly || isAdmin)
+      ? matchedGuide
+      : allGuideArticles.find((a) => !a.superAdminOnly) || allGuideArticles[0];
 
   // Close on ESC key
   useEffect(() => {
