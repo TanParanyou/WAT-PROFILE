@@ -6,6 +6,7 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { PermissionButton } from "@/components/admin/PermissionButton";
 import { StatusBadge } from "@/components/admin/StatusBadge";
+import { AdminTableAction, AdminTableActionGroup } from "@/components/admin/AdminTableAction";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { useConfirm } from "@/hooks/useConfirm";
 import { userAdminService, roleAdminService } from "@/services/adminService";
@@ -191,26 +192,23 @@ export default function UsersListPage() {
     {
       header: t("columns.actions"),
       cell: (_, row) => (
-        <div className="flex gap-1.5">
-          <PermissionGuard resource="users" action="update">
-            <Link
-              href={`/admin/users/${row.id}`}
-              className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
-            >
-              <Icons.Edit size={16} />
-            </Link>
-          </PermissionGuard>
-          <PermissionGuard resource="users" action="delete">
-            <button
-              type="button"
-              onClick={() => handleDelete(String(row.id))}
-              className="p-1.5 rounded hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
-              title={t("common.delete")}
-            >
-              <Icons.Delete size={16} />
-            </button>
-          </PermissionGuard>
-        </div>
+        <AdminTableActionGroup>
+          <AdminTableAction
+            resource="users"
+            action="update"
+            label={t("common.edit") || "แก้ไข"}
+            icon={<Icons.Edit size={16} />}
+            href={`/admin/users/${row.id}`}
+          />
+          <AdminTableAction
+            resource="users"
+            action="delete"
+            variant="danger"
+            label={t("common.delete") || "ลบ"}
+            icon={<Icons.Delete size={16} />}
+            onClick={() => handleDelete(String(row.id))}
+          />
+        </AdminTableActionGroup>
       ),
     },
   ];

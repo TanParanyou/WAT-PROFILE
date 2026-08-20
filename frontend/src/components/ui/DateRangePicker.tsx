@@ -14,6 +14,9 @@ interface DateRangePickerProps {
   error?: string;
   required?: boolean;
   className?: string;
+  inputClassName?: string;
+  labelClassName?: string;
+  size?: 'sm' | 'md';
 }
 
 export function DateRangePicker({
@@ -24,6 +27,9 @@ export function DateRangePicker({
   error,
   required,
   className,
+  inputClassName,
+  labelClassName,
+  size = 'md',
 }: DateRangePickerProps) {
   const tPicker = useTranslations("Admin.common.picker");
   const defaultPlaceholder = placeholderText || tPicker("chooseDateRange");
@@ -35,10 +41,19 @@ export function DateRangePicker({
     });
   };
 
+  const isSmall = size === 'sm';
+
   return (
-    <div className={cn('flex flex-col gap-1.5 w-full', className)}>
+    <div className={cn(isSmall ? 'flex flex-col gap-1 w-full' : 'flex flex-col gap-1.5 w-full', className)}>
       {label && (
-        <label className="text-sm font-medium text-admin-body flex items-center min-h-[24px]">
+        <label
+          className={cn(
+            isSmall
+              ? "text-xs font-medium text-admin-body h-5 min-h-[20px] flex items-center"
+              : "text-sm font-medium text-admin-body flex items-center min-h-[24px]",
+            labelClassName
+          )}
+        >
           {label}
           {required && <span className="text-admin-danger ml-1">*</span>}
         </label>
@@ -53,10 +68,13 @@ export function DateRangePicker({
           placeholderText={defaultPlaceholder}
           isClearable={true}
           className={cn(
-            'h-11 min-h-10 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-1.5 text-xs sm:text-sm text-admin-foreground placeholder:text-admin-muted',
+            isSmall
+              ? 'h-10 min-h-10 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-1.5 text-xs sm:text-sm text-admin-foreground placeholder:text-admin-muted'
+              : 'h-11 min-h-10 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-1.5 text-xs sm:text-sm text-admin-foreground placeholder:text-admin-muted',
             'focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus',
             'disabled:cursor-not-allowed disabled:bg-admin-surface-muted disabled:text-admin-muted',
-            error && 'border-admin-danger focus-visible:border-admin-danger focus-visible:outline-admin-danger'
+            error && 'border-admin-danger focus-visible:border-admin-danger focus-visible:outline-admin-danger',
+            inputClassName
           )}
           wrapperClassName="w-full"
           showMonthDropdown

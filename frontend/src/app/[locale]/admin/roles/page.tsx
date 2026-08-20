@@ -5,6 +5,7 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { PermissionButton } from "@/components/admin/PermissionButton";
 import { StatusBadge } from "@/components/admin/StatusBadge";
+import { AdminTableAction, AdminTableActionGroup } from "@/components/admin/AdminTableAction";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { FormModal } from "@/components/ui/Modal";
 import { useConfirm } from "@/hooks/useConfirm";
@@ -233,32 +234,24 @@ export default function RolesPage() {
       cell: (_, row) => {
         const isSystemRole = Boolean(row.is_system);
         return (
-          <div className="flex gap-1.5">
-            <PermissionGuard resource="users" action="update">
-              <button
-                type="button"
-                onClick={() => handleOpenEdit(row)}
-                className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
-                title={t("common.edit")}
-              >
-                <Icons.Edit size={16} />
-              </button>
-            </PermissionGuard>
-            <PermissionGuard resource="users" action="delete">
-              <button
-                type="button"
-                onClick={() => handleDelete(row)}
-                className="p-1.5 rounded hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger transition-colors disabled:opacity-50 disabled:hover:bg-transparent focus-visible:outline-2 focus-visible:outline-admin-focus"
-                disabled={isSystemRole}
-                title={isSystemRole ? "System role cannot be deleted" : t("common.delete")}
-              >
-                <Icons.Delete
-                  size={16}
-                  className={isSystemRole ? "opacity-30" : ""}
-                />
-              </button>
-            </PermissionGuard>
-          </div>
+          <AdminTableActionGroup>
+            <AdminTableAction
+              resource="users"
+              action="update"
+              label={t("common.edit") || "แก้ไข"}
+              icon={<Icons.Edit size={16} />}
+              onClick={() => handleOpenEdit(row)}
+            />
+            <AdminTableAction
+              resource="users"
+              action="delete"
+              variant="danger"
+              disabled={isSystemRole}
+              label={isSystemRole ? "บทบาทระบบไม่สามารถลบได้" : (t("common.delete") || "ลบ")}
+              icon={<Icons.Delete size={16} />}
+              onClick={() => handleDelete(row)}
+            />
+          </AdminTableActionGroup>
         );
       },
     },

@@ -6,6 +6,7 @@ import { useTranslations } from "next-intl";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { StatusBadge } from "@/components/admin/StatusBadge";
+import { AdminTableAction } from "@/components/admin/AdminTableAction";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { useConfirm } from "@/hooks/useConfirm";
 import { memberAdminService } from "@/services/adminService";
@@ -217,17 +218,14 @@ export default function MembersPage() {
     {
       header: t("columns.actions"),
       cell: (_, row) => (
-        <div className="flex gap-1.5">
-          <PermissionGuard resource="members" action="delete">
-            <button
-              type="button"
-              onClick={() => handleDelete(row.id)}
-              className="p-1.5 rounded hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
-            >
-              <Icons.Delete size={16} />
-            </button>
-          </PermissionGuard>
-        </div>
+        <AdminTableAction
+          resource="members"
+          action="delete"
+          variant="danger"
+          label={t("common.delete") || "ลบ"}
+          icon={<Icons.Delete size={16} />}
+          onClick={() => handleDelete(row.id)}
+        />
       ),
     },
   ];

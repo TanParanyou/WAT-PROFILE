@@ -7,6 +7,7 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { PermissionButton } from "@/components/admin/PermissionButton";
 import { StatusBadge } from "@/components/admin/StatusBadge";
+import { AdminTableAction, AdminTableActionGroup } from "@/components/admin/AdminTableAction";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { useConfirm } from "@/hooks/useConfirm";
 import { monkAdminService } from "@/services/adminService";
@@ -163,34 +164,28 @@ export default function MonksListPage() {
     {
       header: t("columns.actions"),
       cell: (_, row) => (
-        <div className="flex gap-1.5">
-          <button
-            type="button"
+        <AdminTableActionGroup>
+          <AdminTableAction
+            label={t("website.viewPublic") || "ดูหน้าเว็บสาธารณะ"}
+            icon={<Icons.View size={16} />}
             onClick={() => setPreviewUrl(`/${locale}/monks/${row.slug || row.id}`)}
-            className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
-            title="ดูหน้าเว็บสาธารณะ"
-          >
-            <Icons.View size={16} />
-          </button>
-          <PermissionGuard resource="monks" action="update">
-            <Link
-              href={`/admin/monks/${row.id}`}
-              className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
-            >
-              <Icons.Edit size={16} />
-            </Link>
-          </PermissionGuard>
-          <PermissionGuard resource="monks" action="delete">
-            <button
-              type="button"
-              onClick={() => handleDelete(row.id)}
-              className="p-1.5 rounded hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
-              title={t("common.delete")}
-            >
-              <Icons.Delete size={16} />
-            </button>
-          </PermissionGuard>
-        </div>
+          />
+          <AdminTableAction
+            resource="monks"
+            action="update"
+            label={t("common.edit") || "แก้ไข"}
+            icon={<Icons.Edit size={16} />}
+            href={`/admin/monks/${row.id}`}
+          />
+          <AdminTableAction
+            resource="monks"
+            action="delete"
+            variant="danger"
+            label={t("common.delete") || "ลบ"}
+            icon={<Icons.Delete size={16} />}
+            onClick={() => handleDelete(row.id)}
+          />
+        </AdminTableActionGroup>
       ),
     },
   ];

@@ -5,6 +5,7 @@ import { useTranslations } from "next-intl";
 import { Icons } from "@/components/ui/Icons";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
+import { AdminTableAction, AdminTableActionGroup } from "@/components/admin/AdminTableAction";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { Modal, useModal } from "@/components/ui/Modal";
@@ -240,26 +241,21 @@ export default function ContactsPage() {
     {
       header: t("columns.actions"),
       cell: (_, row) => (
-        <div className="flex gap-1.5">
-          <button
-            type="button"
+        <AdminTableActionGroup>
+          <AdminTableAction
+            label={t("contacts.viewReply") || "ดู / ตอบกลับ"}
+            icon={<Icons.View size={16} />}
             onClick={() => handleViewReply(row)}
-            className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
-            title={t("contacts.viewReply")}
-          >
-            <Icons.View size={16} />
-          </button>
-          <PermissionGuard resource="contacts" action="delete">
-            <button
-              type="button"
-              onClick={() => handleDelete(row)}
-              className="p-1.5 rounded hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
-              title={t("common.delete")}
-            >
-              <Icons.Delete size={16} />
-            </button>
-          </PermissionGuard>
-        </div>
+          />
+          <AdminTableAction
+            resource="contacts"
+            action="delete"
+            variant="danger"
+            label={t("common.delete") || "ลบ"}
+            icon={<Icons.Delete size={16} />}
+            onClick={() => handleDelete(row)}
+          />
+        </AdminTableActionGroup>
       ),
     },
   ];

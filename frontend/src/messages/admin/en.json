@@ -745,7 +745,19 @@
       "confirm": "Confirm",
       "cancelAction": "Cancel donation",
       "annual": {
-        "modalTitle": "Generate Annual Donation Certificate",
+        "modalTitle": "Annual Donation Summary & Tax Certificates",
+        "modalDescription": "Summary of donations by donor and generate annual tax deduction certificates (Spendenbescheinigung)",
+        "taxYear": "Tax Year",
+        "exportCsv": "Export CSV",
+        "totalYearDonations": "Total Donations in",
+        "uniqueDonors": "Total Donors",
+        "transactions": "Transactions",
+        "searchDonorPlaceholder": "Search donor (name, email, or address)...",
+        "donor": "Donor",
+        "contactAddress": "Contact / Address",
+        "donationCount": "Donations",
+        "yearTotal": "Year Total",
+        "issueCertificate": "Issue Certificate",
         "searchPlaceholder": "Search donors...",
         "downloadPdf": "Download PDF",
         "grandTotal": "Grand Total",
@@ -756,7 +768,8 @@
         "year": "Year",
         "totalAmount": "Total Amount",
         "issuer": "Issuing Staff",
-        "responsible": "Authorized Signature"
+        "responsible": "Authorized Signature",
+        "print": "Print"
       }
     },
     "privacyRequests": {

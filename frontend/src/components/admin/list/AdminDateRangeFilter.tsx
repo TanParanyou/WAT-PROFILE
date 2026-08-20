@@ -35,6 +35,7 @@ export function AdminDateRangeFilter({
   return (
     <div className="flex flex-col gap-1 w-full sm:w-56 md:w-60 flex-shrink-0">
       <DateRangePicker
+        size="sm"
         label={label}
         placeholderText={t.has("selectDateRange") ? t("selectDateRange") : "เลือกช่วงเวลา"}
         value={{ from: parseDate(from), to: parseDate(to) }}

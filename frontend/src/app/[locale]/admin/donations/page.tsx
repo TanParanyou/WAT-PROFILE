@@ -5,6 +5,7 @@ import { useCallback, useEffect, useRef } from "react";
 import { useTranslations } from "next-intl";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
+import { AdminTableAction, AdminTableActionGroup } from "@/components/admin/AdminTableAction";
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { useConfirm } from "@/hooks/useConfirm";
@@ -309,91 +310,70 @@ export default function DonationsPage() {
     {
       header: t("columns.actions"),
       cell: (_, row) => (
-        <div className="flex gap-1.5">
-          <PermissionGuard resource="donations" action="read">
-            <button
-              type="button"
-              onClick={() => {
-                setSelectedDonationForView(row);
-                setShowStaffForm(true);
-              }}
-              className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors"
-              title={t("donations.viewDetails")}
-              aria-label={t("donations.viewDetails")}
-            >
-              <Eye size={16} />
-            </button>
-          </PermissionGuard>
+        <AdminTableActionGroup>
+          <AdminTableAction
+            resource="donations"
+            action="read"
+            label={t("donations.viewDetails") || "ดูรายละเอียด"}
+            icon={<Eye size={16} />}
+            onClick={() => {
+              setSelectedDonationForView(row);
+              setShowStaffForm(true);
+            }}
+          />
           {row.source === "self_reported" && (
-            <PermissionGuard resource="donations" action="read">
-              <button
-                type="button"
-                onClick={() => void handleProof(row.id)}
-                disabled={proofPreviewLoadingId === row.id}
-                aria-busy={proofPreviewLoadingId === row.id}
-                className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors disabled:cursor-wait disabled:opacity-50"
-                title={t("donations.viewProof")}
-                aria-label={t("donations.viewProof")}
-              >
-                <FileImage size={16} />
-              </button>
-            </PermissionGuard>
+            <AdminTableAction
+              resource="donations"
+              action="read"
+              label={t("donations.viewProof") || "ดูสลิปโอนเงิน"}
+              icon={<FileImage size={16} />}
+              isLoading={proofPreviewLoadingId === row.id}
+              disabled={proofPreviewLoadingId === row.id}
+              onClick={() => void handleProof(row.id)}
+            />
           )}
           {row.status === "confirmed" && (
-            <PermissionGuard resource="donations" action="read">
-              <button
-                type="button"
-                onClick={() => void handleReceiptPreview(row)}
-                disabled={proofPreviewLoadingId === row.id}
-                aria-busy={proofPreviewLoadingId === row.id}
-                className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors disabled:cursor-wait disabled:opacity-50"
-                title={t("donations.viewReceipt")}
-                aria-label={t("donations.viewReceipt")}
-              >
-                <FileText size={16} />
-              </button>
-            </PermissionGuard>
+            <AdminTableAction
+              resource="donations"
+              action="read"
+              label={t("donations.viewReceipt") || "ดูใบเสร็จ"}
+              icon={<FileText size={16} />}
+              isLoading={proofPreviewLoadingId === row.id}
+              disabled={proofPreviewLoadingId === row.id}
+              onClick={() => void handleReceiptPreview(row)}
+            />
           )}
           {row.status === "pending" && (
-            <PermissionGuard resource="donations" action="update">
-              <button
-                type="button"
-                onClick={() => void handleConfirm(row.id)}
-                className="p-1.5 rounded hover:bg-admin-success-surface text-admin-success transition-colors"
-                title={t("donations.confirm")}
-                aria-label={t("donations.confirm")}
-              >
-                <CheckCircle2 size={16} />
-              </button>
-            </PermissionGuard>
+            <AdminTableAction
+              resource="donations"
+              action="update"
+              variant="success"
+              label={t("donations.confirm") || "ยืนยันยอดบริจาค"}
+              icon={<CheckCircle2 size={16} />}
+              onClick={() => void handleConfirm(row.id)}
+            />
           )}
           {row.status === "confirmed" && row.receipt_requested && row.donor_email && !row.receipt_dispatched_at && (
-            <PermissionGuard resource="donations" action="update">
-              <button
-                type="button"
-                onClick={() => void handleReceipt(row.id)}
-                className="p-1.5 rounded hover:bg-admin-surface-muted text-admin-action transition-colors"
-                title={t("donations.sendReceipt")}
-                aria-label={t("donations.sendReceipt")}
-              >
-                <Send size={16} />
-              </button>
-            </PermissionGuard>
+            <AdminTableAction
+              resource="donations"
+              action="update"
+              variant="primary"
+              label={t("donations.sendReceipt") || "ส่งใบเสร็จ"}
+              icon={<Send size={16} />}
+              onClick={() => void handleReceipt(row.id)}
+            />
           )}
           {row.status !== "cancelled" && (
-            <PermissionGuard resource="donations" action="update">
-              <button
-                type="button"
-                onClick={() => void handleCancel(row.id)}
-                className="p-1.5 rounded hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger transition-colors"
-                title={t("donations.cancelAction")}
-                aria-label={t("donations.cancelAction")}
-              >
-                <XCircle size={16} />
-              </button>
-            </PermissionGuard>
+            <AdminTableAction
+              resource="donations"
+              action="update"
+              variant="danger"
+              label={t("donations.cancelAction") || "ยกเลิกรายการ"}
+              icon={<XCircle size={16} />}
+              onClick={() => void handleCancel(row.id)}
+            />
           )}
-        </div>
+        </AdminTableActionGroup>
       ),
     },
   ];

@@ -120,10 +120,10 @@ export function AnnualDonationModal({ isOpen, onClose }: AnnualDonationModalProp
               <FileText className="text-admin-action" size={20} />
               <div>
                 <h2 className="text-base font-semibold text-admin-foreground">
-                  สรุปยอดบริจาครายปี & ใบอนุโมทนาบัตร (Annual Tax Summary & Spendenbescheinigung)
+                  {tAnnual("modalTitle")}
                 </h2>
                 <p className="text-xs text-admin-muted">
-                  สรุปยอดรวมตามรายชื่อผู้บริจาคและออกใบอนุโมทนาบัตรลดหย่อนภาษีประจำปี
+                  {tAnnual("modalDescription")}
                 </p>
               </div>
             </div>

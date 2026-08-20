@@ -51,7 +51,7 @@ export function AnnualCertificatePrintSheet({
               className="min-h-10 px-4 bg-black text-white text-xs font-semibold hover:bg-gray-800 inline-flex items-center gap-1.5 transition-colors"
             >
               <Printer size={15} />
-              <span>{tAnnual("printSheetTitle")} (Print)</span>
+              <span>{tAnnual("print")}</span>
             </button>
             <button
               type="button"

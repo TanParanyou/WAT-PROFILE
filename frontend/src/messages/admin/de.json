@@ -745,7 +745,19 @@
       "confirm": "Bestätigen",
       "cancelAction": "Spende stornieren",
       "annual": {
-        "modalTitle": "Jährliche Zuwendungsbestätigung erstellen",
+        "modalTitle": "Jährliche Spendenübersicht & Zuwendungsbestätigung",
+        "modalDescription": "Zusammenfassung der Spenden nach Spender und Ausstellung der jährlichen Zuwendungsbestätigungen (Spendenbescheinigung)",
+        "taxYear": "Steuerjahr",
+        "exportCsv": "CSV exportieren",
+        "totalYearDonations": "Gesamtspenden im Jahr",
+        "uniqueDonors": "Spender insgesamt",
+        "transactions": "Transaktionen",
+        "searchDonorPlaceholder": "Spender suchen (Name, E-Mail oder Anschrift)...",
+        "donor": "Spender",
+        "contactAddress": "Kontakt / Anschrift",
+        "donationCount": "Anzahl Spenden",
+        "yearTotal": "Jahresgesamtbetrag",
+        "issueCertificate": "Bescheinigung ausstellen",
         "searchPlaceholder": "Spender suchen...",
         "downloadPdf": "PDF herunterladen",
         "grandTotal": "Gesamtbetrag",
@@ -756,7 +768,8 @@
         "year": "Jahr",
         "totalAmount": "Gesamtbetrag",
         "issuer": "Ausstellende Person",
-        "responsible": "Verantwortliche Unterschrift"
+        "responsible": "Verantwortliche Unterschrift",
+        "print": "Drucken"
       }
     },
     "privacyRequests": {

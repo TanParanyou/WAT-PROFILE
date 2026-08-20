@@ -6,6 +6,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { StatusBadge } from "@/components/admin/StatusBadge";
+import { AdminTableAction } from "@/components/admin/AdminTableAction";
 import { DataTable, type Column } from "@/components/ui/DataTable";
 import { AdminListToolbar } from "@/components/admin/list/AdminListToolbar";
 import { AdminSearchInput } from "@/components/admin/list/AdminSearchInput";
@@ -114,7 +115,13 @@ export default function AdminAccountsPage() {
     {
       header: t("columns.actions"),
       className: "w-20",
-      cell: (_, row) => <button type="button" onClick={() => setSelectedId(row.id)} title={t("view")} aria-label={t("view")} className="flex min-h-11 min-w-11 items-center justify-center text-admin-muted hover:bg-admin-surface-muted hover:text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus"><Eye size={17} /></button>,
+      cell: (_, row) => (
+        <AdminTableAction
+          label={t("view") || "ดูรายละเอียด"}
+          icon={<Eye size={16} />}
+          onClick={() => setSelectedId(row.id)}
+        />
+      ),
     },
   ];
 

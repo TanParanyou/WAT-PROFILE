@@ -8,6 +8,7 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { PermissionButton } from "@/components/admin/PermissionButton";
 import { StatusBadge } from "@/components/admin/StatusBadge";
+import { AdminTableAction, AdminTableActionGroup } from "@/components/admin/AdminTableAction";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { useConfirm } from "@/hooks/useConfirm";
 import { eventAdminService } from "@/services/adminService";
@@ -366,34 +367,28 @@ export default function EventsListPage() {
     {
       header: t("columns.actions") || "จัดการ",
       cell: (_, row) => (
-        <div className="flex gap-1.5">
-          <button
-            type="button"
+        <AdminTableActionGroup>
+          <AdminTableAction
+            label={t("website.viewPublic") || "ดูหน้าเว็บสาธารณะ"}
+            icon={<Icons.View size={16} />}
             onClick={() => setPreviewUrl(`/${locale}/events/${row.slug || row.id}`)}
-            className="p-1.5 rounded-none hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors border border-transparent hover:border-admin-border focus-visible:outline-2 focus-visible:outline-admin-focus"
-            title={t("website.viewPublic")}
-          >
-            <Icons.View size={15} />
-          </button>
-          <PermissionGuard resource="events" action="update">
-            <Link
-              href={`/admin/events/${row.id}`}
-              className="p-1.5 rounded-none hover:bg-admin-surface-muted text-admin-muted hover:text-admin-foreground transition-colors border border-transparent hover:border-admin-border focus-visible:outline-2 focus-visible:outline-admin-focus"
-            >
-              <Icons.Edit size={15} />
-            </Link>
-          </PermissionGuard>
-          <PermissionGuard resource="events" action="delete">
-            <button
-              type="button"
-              onClick={() => handleDelete(row.id)}
-              className="p-1.5 rounded-none hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger transition-colors border border-transparent hover:border-admin-border focus-visible:outline-2 focus-visible:outline-admin-focus"
-              title={t("common.delete")}
-            >
-              <Icons.Delete size={15} />
-            </button>
-          </PermissionGuard>
-        </div>
+          />
+          <AdminTableAction
+            resource="events"
+            action="update"
+            label={t("common.edit") || "แก้ไข"}
+            icon={<Icons.Edit size={16} />}
+            href={`/admin/events/${row.id}`}
+          />
+          <AdminTableAction
+            resource="events"
+            action="delete"
+            variant="danger"
+            label={t("common.delete") || "ลบ"}
+            icon={<Icons.Delete size={16} />}
+            onClick={() => handleDelete(row.id)}
+          />
+        </AdminTableActionGroup>
       ),
     },
   ];

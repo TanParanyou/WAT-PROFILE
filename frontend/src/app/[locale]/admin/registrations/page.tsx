@@ -3,9 +3,8 @@
 import React, { useState } from "react";
 import { useTranslations } from "next-intl";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
-import { StatusBadge } from "@/components/admin/StatusBadge";
 import { DataTable, Column } from "@/components/ui/DataTable";
-import { Select } from "@/components/ui/Select";
+import { AdminTableAction, AdminTableActionGroup } from "@/components/admin/AdminTableAction";
 import { registrationAdminService, eventAdminService } from "@/services/adminService";
 import { fetchAdminEventRegistrations, setAdminEventRegistrationStatus } from "@/features/admin/event-registrations/api";
 import { toAdminRegistrationTableRow, type AdminRegistrationTableRow } from "@/features/admin/event-registrations/mappers";
@@ -27,9 +26,9 @@ import { AdminListExportButton } from "@/components/admin/list/AdminListExportBu
 import { exportToCsv } from "@/services/adminListExportService";
 import { useQuery } from "@tanstack/react-query";
 import { useLocale } from "next-intl";
-import { Link } from "@/navigation";
 import { Button } from "@/components/ui/Button";
-import { QrCode, Printer } from "lucide-react";
+import { QrCode, Printer, ChevronDown, Loader2 } from "lucide-react";
+import { cn } from "@/utils/cn";
 import { AdminRegistrationDrawer } from "./_components/AdminRegistrationDrawer";
 import { AttendanceScannerModal } from "./_components/AttendanceScannerModal";
 import { AttendancePrintSheet } from "./_components/AttendancePrintSheet";
@@ -230,6 +229,7 @@ export default function RegistrationsPage() {
     {
       header: t("columns.phone"),
       accessorKey: "phone",
+      sortable: true,
       cell: (v) => String(v || "-"),
     },
     {
@@ -242,7 +242,15 @@ export default function RegistrationsPage() {
       header: t("columns.status"),
       accessorKey: "status",
       sortable: true,
-      cell: (v) => <StatusBadge label={t(`registrations.${String(v) === "confirmed" ? "approved" : String(v || "pending")}`)} />,
+      cell: (v, row) => (
+        <RegistrationStatusSelect
+          id={Number(row.id)}
+          status={String(v || "pending")}
+          isUpdating={updatingId === Number(row.id)}
+          options={statusOptions}
+          onStatusChange={handleStatusUpdate}
+        />
+      ),
     },
     {
       header: t("columns.date"),
@@ -258,35 +266,23 @@ export default function RegistrationsPage() {
           : "-",
     },
     {
-      header: t("columns.status"),
-      accessorKey: "id",
-      cell: (v, row) => {
-        const id = Number(v);
-        return (
-          <Select
-            value={String(row.status || "pending")}
-            onChange={(e) => handleStatusUpdate(id, e.target.value)}
-            options={statusOptions}
-            disabled={updatingId === id}
-          />
-        );
-      },
-    },
-    {
       header: t("columns.actions"),
       cell: (_, row) => (
-        <div className="flex gap-1.5">
-          <Link href={`/admin/registrations/${String(row.id)}`} className="inline-flex min-h-11 items-center border border-admin-border px-3 text-xs font-semibold text-admin-foreground hover:bg-admin-surface">{t("registrations.view")}</Link>
-          <PermissionGuard resource="events" action="delete">
-            <button
-              type="button"
-              onClick={() => handleDelete(Number(row.id))}
-              className="p-1.5 rounded hover:bg-admin-danger-surface text-admin-muted hover:text-admin-danger transition-colors focus-visible:outline-2 focus-visible:outline-admin-focus"
-            >
-              <Icons.Delete size={16} />
-            </button>
-          </PermissionGuard>
-        </div>
+        <AdminTableActionGroup>
+          <AdminTableAction
+            href={`/admin/registrations/${String(row.id)}`}
+            label={t("registrations.view")}
+            icon={<Icons.View size={16} />}
+          />
+          <AdminTableAction
+            resource="events"
+            action="delete"
+            variant="danger"
+            label={t("common.delete")}
+            icon={<Icons.Delete size={16} />}
+            onClick={() => handleDelete(Number(row.id))}
+          />
+        </AdminTableActionGroup>
       ),
     },
   ];
@@ -440,3 +436,57 @@ export default function RegistrationsPage() {
     </div>
   );
 }
+
+function RegistrationStatusSelect({
+  id,
+  status,
+  isUpdating,
+  options,
+  onStatusChange,
+}: {
+  id: number;
+  status: string;
+  isUpdating: boolean;
+  options: { value: string; label: string }[];
+  onStatusChange: (id: number, val: string) => void;
+}) {
+  const statusStyles: Record<string, string> = {
+    pending: "bg-admin-warning-surface text-admin-warning border-admin-warning/50",
+    confirmed: "bg-admin-success-surface text-admin-success border-admin-success/50",
+    attended: "bg-admin-info-surface text-admin-info border-admin-info/50",
+    cancelled: "bg-admin-danger-surface text-admin-danger border-admin-danger/50",
+  };
+
+  const currentStyle = statusStyles[status] || "bg-admin-surface text-admin-foreground border-admin-border";
+
+  return (
+    <div className="relative inline-flex items-center min-w-[135px]">
+      <select
+        value={status}
+        disabled={isUpdating}
+        onChange={(e) => onStatusChange(id, e.target.value)}
+        className={cn(
+          "w-full appearance-none rounded-none border px-2.5 py-1.5 pr-7 text-xs font-semibold tracking-wide transition-all cursor-pointer",
+          "focus-visible:outline-2 focus-visible:outline-admin-focus focus-visible:outline-offset-1",
+          "disabled:cursor-not-allowed disabled:opacity-70",
+          currentStyle
+        )}
+        aria-label="เปลี่ยนสถานะ"
+      >
+        {options.map((opt) => (
+          <option key={opt.value} value={opt.value} className="bg-admin-surface text-admin-foreground py-1 font-normal">
+            {opt.label}
+          </option>
+        ))}
+      </select>
+      <div className="pointer-events-none absolute right-2 flex items-center justify-center">
+        {isUpdating ? (
+          <Loader2 size={13} className="animate-spin text-current" />
+        ) : (
+          <ChevronDown size={13} className="text-current opacity-70" />
+        )}
+      </div>
+    </div>
+  );
+}
+
