@@ -123,7 +123,7 @@ export function MultiLangInput({
                 {isTranslating ? (
                   <Loader2 size={13} className="animate-spin text-admin-action" />
                 ) : (
-                  <Sparkles size={13} className="text-amber-500" />
+                  <Sparkles size={13} className="text-admin-warning" />
                 )}
               </button>
               <button

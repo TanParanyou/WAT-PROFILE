@@ -85,53 +85,57 @@ export default function SchedulesPage() {
     setPage: listState.actions.setPage,
   });
 
+  const statusLabelMap: Record<string, string> = {
+    active: t("schedules.status.active"),
+    inactive: t("schedules.status.inactive"),
+  };
+
   const filterDefinitions: AdminFilterDefinition<ScheduleFilters>[] = [
     {
       key: "status",
       kind: "multi",
-      label: "สถานะ",
+      label: t("schedules.filterStatus"),
       options: [
-        { value: "active", label: "Active" },
-        { value: "inactive", label: "Inactive" },
+        { value: "active", label: t("schedules.status.active") },
+        { value: "inactive", label: t("schedules.status.inactive") },
       ],
     },
     {
       key: "type",
       kind: "multi",
-      label: "ประเภทกำหนดการ",
-      options: [
-        { value: "daily", label: "Daily" },
-        { value: "weekly", label: "Weekly" },
-        { value: "monthly", label: "Monthly" },
-        { value: "special", label: "Special" },
-      ],
+      label: t("schedules.filterType"),
+      options: scheduleTypeOptions,
     },
     {
       key: "weekday",
       kind: "multi",
-      label: "วันในสัปดาห์",
-      options: [
-        { value: "0", label: "อาทิตย์" },
-        { value: "1", label: "จันทร์" },
-        { value: "2", label: "อังคาร" },
-        { value: "3", label: "พุธ" },
-        { value: "4", label: "พฤหัสบดี" },
-        { value: "5", label: "ศุกร์" },
-        { value: "6", label: "เสาร์" },
-      ],
+      label: t("schedules.filterWeekday"),
+      options: dayOfWeekOptions,
     },
   ];
 
   const activeChips: AdminActiveFilterChip[] = [];
   for (const s of listState.params.filters.status || []) {
-    activeChips.push({ key: "status", value: s, label: `สถานะ: ${s}` });
+    activeChips.push({
+      key: "status",
+      value: s,
+      label: t("common.filter.statusWithVal", { value: statusLabelMap[s] || s }),
+    });
   }
   for (const tp of listState.params.filters.type || []) {
-    activeChips.push({ key: "type", value: tp, label: `ประเภท: ${tp}` });
+    activeChips.push({
+      key: "type",
+      value: tp,
+      label: t("common.filter.typeWithVal", { value: getScheduleTypeLabel(tp) || tp }),
+    });
   }
   for (const wd of listState.params.filters.weekday || []) {
     const dayLabel = getDayOfWeekLabel(Number(wd));
-    activeChips.push({ key: "weekday", value: wd, label: `วัน: ${dayLabel}` });
+    activeChips.push({
+      key: "weekday",
+      value: wd,
+      label: `${t("schedules.filterWeekday")}: ${dayLabel}`,
+    });
   }
 
   const {

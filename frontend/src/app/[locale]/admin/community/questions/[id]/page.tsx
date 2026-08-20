@@ -82,7 +82,7 @@ export default function AdminCommunityQuestionPage() {
         <div className="max-w-2xl border border-admin-border bg-admin-surface p-6 space-y-4">
           <div className="border-b border-admin-border pb-3">
             <span className="text-xs font-bold uppercase tracking-wider text-admin-muted">
-              Question ID
+              {t("questionId")}
             </span>
             <p className="font-mono text-sm text-admin-foreground">
               {params.id}

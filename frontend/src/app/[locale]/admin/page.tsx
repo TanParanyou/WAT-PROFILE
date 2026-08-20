@@ -118,13 +118,13 @@ export default function AdminDashboardPage() {
   const getTaskIcon = (type: string) => {
     switch (type) {
       case "donation":
-        return <HeartHandshake size={16} className="text-amber-600 dark:text-amber-400" />;
+        return <HeartHandshake size={16} className="text-admin-warning" />;
       case "registration":
-        return <UserCheck size={16} className="text-emerald-600 dark:text-emerald-400" />;
+        return <UserCheck size={16} className="text-admin-success" />;
       case "contact":
-        return <Mail size={16} className="text-blue-600 dark:text-blue-400" />;
+        return <Mail size={16} className="text-admin-info" />;
       case "privacy":
-        return <ShieldAlert size={16} className="text-rose-600 dark:text-rose-400" />;
+        return <ShieldAlert size={16} className="text-admin-danger" />;
       default:
         return <Sparkles size={16} className="text-admin-muted" />;
     }
@@ -225,7 +225,7 @@ export default function AdminDashboardPage() {
           {/* Card Header */}
           <div className="px-6 py-4 border-b border-admin-border flex items-center justify-between gap-4">
             <div className="flex items-center gap-2.5">
-              <ShieldAlert size={18} className="text-amber-600 dark:text-amber-400" />
+              <ShieldAlert size={18} className="text-admin-warning" />
               <h2 className="text-base font-semibold text-admin-foreground">
                 {t("dashboard.pendingTasksTitle")}
               </h2>
@@ -236,7 +236,7 @@ export default function AdminDashboardPage() {
               </span>
             ) : (
               <span className="px-2 py-0.5 text-xs font-medium bg-admin-success-surface text-admin-success border border-admin-success/20 font-mono">
-                0 Pending
+                {t("dashboard.zeroPending")}
               </span>
             )}
           </div>
@@ -252,7 +252,7 @@ export default function AdminDashboardPage() {
                   : "bg-admin-surface-muted text-admin-muted hover:text-admin-foreground"
               }`}
             >
-              ทั้งหมด ({totalPending})
+              {t("dashboard.filterAll", { count: totalPending })}
             </button>
             {pendingTasks && pendingTasks.pending_donations > 0 && (
               <button
@@ -264,7 +264,7 @@ export default function AdminDashboardPage() {
                     : "bg-admin-surface-muted text-admin-muted hover:text-admin-foreground"
                 }`}
               >
-                สลิปบริจาค ({pendingTasks.pending_donations})
+                {t("dashboard.filterDonations", { count: pendingTasks.pending_donations })}
               </button>
             )}
             {pendingTasks && pendingTasks.pending_registrations > 0 && (
@@ -277,7 +277,7 @@ export default function AdminDashboardPage() {
                     : "bg-admin-surface-muted text-admin-muted hover:text-admin-foreground"
                 }`}
               >
-                ลงทะเบียน ({pendingTasks.pending_registrations})
+                {t("dashboard.filterRegistrations", { count: pendingTasks.pending_registrations })}
               </button>
             )}
             {pendingTasks && pendingTasks.pending_contacts > 0 && (
@@ -290,7 +290,7 @@ export default function AdminDashboardPage() {
                     : "bg-admin-surface-muted text-admin-muted hover:text-admin-foreground"
                 }`}
               >
-                ข้อความติดต่อ ({pendingTasks.pending_contacts})
+                {t("dashboard.filterContacts", { count: pendingTasks.pending_contacts })}
               </button>
             )}
             {pendingTasks && pendingTasks.pending_privacy > 0 && (
@@ -303,7 +303,7 @@ export default function AdminDashboardPage() {
                     : "bg-admin-surface-muted text-admin-muted hover:text-admin-foreground"
                 }`}
               >
-                PDPA/Privacy ({pendingTasks.pending_privacy})
+                {t("dashboard.filterPrivacy", { count: pendingTasks.pending_privacy })}
               </button>
             )}
           </div>
@@ -312,12 +312,12 @@ export default function AdminDashboardPage() {
           <div className="flex-1 divide-y divide-admin-border overflow-y-auto max-h-[380px]">
             {filteredTasks.length === 0 ? (
               <div className="py-12 px-4 text-center">
-                <CheckCircle2 size={32} className="mx-auto text-emerald-500 mb-2 opacity-80" />
+                <CheckCircle2 size={32} className="mx-auto text-admin-success mb-2 opacity-80" />
                 <p className="text-sm font-medium text-admin-foreground">
                   {t("dashboard.noPendingTasks")}
                 </p>
                 <p className="text-xs text-admin-muted mt-1">
-                  ทุกรายการได้รับการตรวจสอบและจัดการครบถ้วนแล้ว
+                  {t("dashboard.allTasksResolved")}
                 </p>
               </div>
             ) : (
@@ -365,7 +365,7 @@ export default function AdminDashboardPage() {
           {/* Card Header */}
           <div className="px-6 py-4 border-b border-admin-border flex items-center justify-between">
             <div className="flex items-center gap-2.5">
-              <CalendarDays size={18} className="text-blue-600 dark:text-blue-400" />
+              <CalendarDays size={18} className="text-admin-info" />
               <h2 className="text-base font-semibold text-admin-foreground">
                 {t("dashboard.upcomingEventsTitle")}
               </h2>
@@ -425,7 +425,7 @@ export default function AdminDashboardPage() {
                           </p>
                         )}
                         <div className="flex items-center gap-2 mt-1.5">
-                          <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border border-emerald-500/20 font-mono">
+                          <span className="inline-flex items-center gap-1 text-[10px] px-1.5 py-0.5 bg-admin-success-surface text-admin-success border border-admin-success/30 font-mono">
                             <UserCheck size={10} />
                             {t("dashboard.registeredParticipants", {
                               count: ev.registrations_count,

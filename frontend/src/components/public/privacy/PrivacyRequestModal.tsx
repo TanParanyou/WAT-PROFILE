@@ -126,7 +126,7 @@ export function PrivacyRequestModal({
         {submittedRefId ? (
           /* Success Screen */
           <div className="p-6 sm:p-8 text-center space-y-4 my-auto">
-            <div className="mx-auto flex h-14 w-14 items-center justify-center rounded-full bg-green-100 text-green-600 dark:bg-green-950/50 dark:text-green-400">
+            <div className="mx-auto flex h-14 w-14 items-center justify-center border border-site-border bg-site-surface text-site-accent">
               <CheckCircle2 className="h-8 w-8" />
             </div>
             <h2
@@ -241,7 +241,7 @@ export function PrivacyRequestModal({
                   >
                     <div className="flex items-center justify-between">
                       <div className="flex items-center gap-2">
-                        <Trash2 className="h-4 w-4 text-amber-600" />
+                        <Trash2 className="h-4 w-4 text-site-accent" />
                         <span className="text-xs font-bold text-site-foreground">
                           {t("erasureTitle")}
                         </span>
@@ -252,7 +252,7 @@ export function PrivacyRequestModal({
                         value="erasure"
                         checked={requestType === "erasure"}
                         onChange={() => setRequestType("erasure")}
-                        className="text-amber-600 focus:ring-amber-600"
+                        className="accent-site-accent"
                       />
                     </div>
                     <p className="text-[11px] text-site-muted leading-relaxed pl-6">
@@ -331,7 +331,7 @@ export function PrivacyRequestModal({
 
               {/* Security and Accounting Notice */}
               <div className="flex items-start gap-2.5 p-3.5 bg-site-surface border border-site-border text-[11px] text-site-muted leading-relaxed">
-                <ShieldAlert className="h-4 w-4 mt-0.5 shrink-0 text-amber-600" />
+                <ShieldAlert className="h-4 w-4 mt-0.5 shrink-0 text-site-accent" />
                 <p>{t("legalNotice")}</p>
               </div>
             </div>

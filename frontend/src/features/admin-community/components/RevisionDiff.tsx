@@ -59,7 +59,7 @@ export function RevisionDiff({
         <div className="mt-4 grid gap-4 md:grid-cols-2">
           <div className="border border-admin-border bg-admin-surface-muted p-3">
             <span className="text-xs font-bold uppercase tracking-wider text-admin-muted">
-              Before
+              {t("before")}
             </span>
             <p className="mt-1 text-sm text-admin-muted">
               {revision.title_before || "—"}
@@ -67,7 +67,7 @@ export function RevisionDiff({
           </div>
           <div className="border border-admin-border bg-admin-canvas p-3">
             <span className="text-xs font-bold uppercase tracking-wider text-admin-action">
-              After
+              {t("after")}
             </span>
             <p className="mt-1 text-sm font-semibold text-admin-foreground">
               {revision.title_after}
@@ -79,7 +79,7 @@ export function RevisionDiff({
       <div className="mt-4 grid gap-4 md:grid-cols-2">
         <div className="border border-admin-border bg-admin-surface-muted p-4">
           <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-admin-muted">
-            Before
+            {t("before")}
           </span>
           <RichTextContent
             value={revision.body_before}
@@ -90,7 +90,7 @@ export function RevisionDiff({
         </div>
         <div className="border border-admin-border bg-admin-canvas p-4">
           <span className="mb-2 block text-xs font-bold uppercase tracking-wider text-admin-action">
-            After
+            {t("after")}
           </span>
           <RichTextContent
             value={revision.body_after}

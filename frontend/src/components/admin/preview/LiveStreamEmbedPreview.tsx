@@ -59,7 +59,7 @@ export function LiveStreamEmbedPreview({
     <div className="space-y-3 border border-admin-border p-4 bg-admin-surface rounded-none">
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2">
-          <Radio size={18} className="text-red-600 animate-pulse" />
+          <Radio size={18} className="text-admin-danger animate-pulse" />
           <h4 className="text-sm font-semibold text-admin-foreground">
             {t("liveStreamTitle")}
           </h4>
@@ -105,12 +105,12 @@ export function LiveStreamEmbedPreview({
           )}
         </div>
       ) : isValidUrl ? (
-        <div className="border border-red-800 bg-red-50 p-4 dark:bg-red-950/30 space-y-2">
-          <div className="flex items-center gap-2 text-xs font-semibold text-red-900 dark:text-red-200">
-            <Radio size={14} className="text-red-600" />
+        <div className="border border-admin-danger bg-admin-danger-surface p-4 space-y-2">
+          <div className="flex items-center gap-2 text-xs font-semibold text-admin-danger">
+            <Radio size={14} className="text-admin-danger" />
             <span>{t("liveStreamCustomLink")}</span>
           </div>
-          <p className="text-xs text-red-800 dark:text-red-300 break-all font-mono">
+          <p className="text-xs text-admin-foreground break-all font-mono">
             {cleanUrl}
           </p>
         </div>

@@ -72,21 +72,30 @@ export default function GalleryCategoriesPage() {
     setPage: listState.actions.setPage,
   });
 
+  const statusLabelMap: Record<string, string> = {
+    active: t("common.filter.statusActive") || "Active",
+    inactive: t("common.filter.statusInactive") || "Inactive",
+  };
+
   const filterDefinitions: AdminFilterDefinition<GalleryCategoryFilters>[] = [
     {
       key: "status",
       kind: "multi",
-      label: "สถานะ",
+      label: t("gallery.filterStatus") || t("common.filter.status"),
       options: [
-        { value: "active", label: "Active" },
-        { value: "inactive", label: "Inactive" },
+        { value: "active", label: t("common.filter.statusActive") || "Active" },
+        { value: "inactive", label: t("common.filter.statusInactive") || "Inactive" },
       ],
     },
   ];
 
   const activeChips: AdminActiveFilterChip[] = [];
   for (const s of listState.params.filters.status || []) {
-    activeChips.push({ key: "status", value: s, label: `สถานะ: ${s}` });
+    activeChips.push({
+      key: "status",
+      value: s,
+      label: t("common.filter.statusWithVal", { value: statusLabelMap[s] || s }),
+    });
   }
 
   const handleDelete = async (id: number) => {

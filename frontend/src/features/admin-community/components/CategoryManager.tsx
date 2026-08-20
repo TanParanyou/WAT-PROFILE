@@ -331,7 +331,7 @@ export function CategoryManager() {
                 required
                 value={formData.slug}
                 onChange={(e) => setFormData({ ...formData, slug: e.target.value })}
-                placeholder="e.g. general-dharma"
+                placeholder={t("slugPlaceholder")}
                 className="mt-1 min-h-11 w-full border border-admin-border bg-admin-canvas px-3 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:outline-2 focus-visible:outline-admin-focus rounded-none"
               />
             </label>
@@ -339,7 +339,7 @@ export function CategoryManager() {
 
           <div className="border-t border-admin-border pt-4">
             <h4 className="mb-3 text-xs font-bold uppercase tracking-wider text-admin-muted">
-              {t("title")}
+              {t("categoryNames")}
             </h4>
             <div className="grid gap-3 md:grid-cols-3">
               <label className="block text-sm">

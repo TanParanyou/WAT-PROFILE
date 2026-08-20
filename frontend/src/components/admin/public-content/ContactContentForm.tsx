@@ -254,35 +254,33 @@ export function ContactContentForm() {
                   {t("contact.detailsHeading")}
                 </h3>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Controller
-                    name="title"
-                    control={control}
-                    render={({ field, fieldState }) => (
-                      <MultiLangInput
-                        label={t("contact.fields.title")}
-                        value={field.value}
-                        onChange={field.onChange}
-                        required
-                        error={fieldState.error?.message}
-                      />
-                    )}
-                  />
-                  <Controller
-                    name="description"
-                    control={control}
-                    render={({ field, fieldState }) => (
-                      <MultiLangInput
-                        label={t("contact.fields.description")}
-                        value={field.value}
-                        onChange={field.onChange}
-                        type="textarea"
-                        required
-                        error={fieldState.error?.message}
-                      />
-                    )}
-                  />
-                </div>
+                <Controller
+                  name="title"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <MultiLangInput
+                      label={t("contact.fields.title")}
+                      value={field.value}
+                      onChange={field.onChange}
+                      required
+                      error={fieldState.error?.message}
+                    />
+                  )}
+                />
+                <Controller
+                  name="description"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <MultiLangInput
+                      label={t("contact.fields.description")}
+                      value={field.value}
+                      onChange={field.onChange}
+                      type="textarea"
+                      required
+                      error={fieldState.error?.message}
+                    />
+                  )}
+                />
 
                 <Controller
                   name="body.address"
@@ -349,34 +347,32 @@ export function ContactContentForm() {
                   {t("contact.hoursHeadingDesc")}
                 </h3>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Controller
-                    name="body.opening_hours.days"
-                    control={control}
-                    render={({ field, fieldState }) => (
-                      <MultiLangInput
-                        label={t("contact.hoursDays")}
-                        value={field.value}
-                        onChange={field.onChange}
-                        required
-                        error={fieldState.error?.message}
-                      />
-                    )}
-                  />
-                  <Controller
-                    name="body.opening_hours.time"
-                    control={control}
-                    render={({ field, fieldState }) => (
-                      <MultiLangInput
-                        label={t("contact.hoursHeading")}
-                        value={field.value}
-                        onChange={field.onChange}
-                        required
-                        error={fieldState.error?.message}
-                      />
-                    )}
-                  />
-                </div>
+                <Controller
+                  name="body.opening_hours.days"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <MultiLangInput
+                      label={t("contact.hoursDays")}
+                      value={field.value}
+                      onChange={field.onChange}
+                      required
+                      error={fieldState.error?.message}
+                    />
+                  )}
+                />
+                <Controller
+                  name="body.opening_hours.time"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <MultiLangInput
+                      label={t("contact.hoursHeading")}
+                      value={field.value}
+                      onChange={field.onChange}
+                      required
+                      error={fieldState.error?.message}
+                    />
+                  )}
+                />
 
                 <Controller
                   name="body.opening_hours.notice"
@@ -464,33 +460,31 @@ export function ContactContentForm() {
                   {t("contact.travelHeadingDesc")}
                 </h3>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Controller
-                    name="body.transport.parking"
-                    control={control}
-                    render={({ field, fieldState }) => (
-                      <MultiLangInput
-                        label={t("contact.parking")}
-                        value={field.value}
-                        onChange={field.onChange}
-                        error={fieldState.error?.message}
-                      />
-                    )}
-                  />
-                  <Controller
-                    name="body.transport.driving"
-                    control={control}
-                    render={({ field, fieldState }) => (
-                      <MultiLangInput
-                        label={t("contact.driving")}
-                        value={field.value}
-                        onChange={field.onChange}
-                        type="textarea"
-                        error={fieldState.error?.message}
-                      />
-                    )}
-                  />
-                </div>
+                <Controller
+                  name="body.transport.parking"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <MultiLangInput
+                      label={t("contact.parking")}
+                      value={field.value}
+                      onChange={field.onChange}
+                      error={fieldState.error?.message}
+                    />
+                  )}
+                />
+                <Controller
+                  name="body.transport.driving"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <MultiLangInput
+                      label={t("contact.driving")}
+                      value={field.value}
+                      onChange={field.onChange}
+                      type="textarea"
+                      error={fieldState.error?.message}
+                    />
+                  )}
+                />
 
                 <div className="space-y-4">
                   <div className="flex items-center justify-between">
@@ -558,66 +552,62 @@ export function ContactContentForm() {
                   {t("contact.socialsHeading")}
                 </h3>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <label className="text-sm font-medium text-admin-body">Facebook URL</label>
-                      <TestLinkButton href={watchedSocials?.facebook} label="ทดสอบเปิด Facebook" />
-                    </div>
-                    <input
-                      type="text"
-                      {...methods.register("body.socials.facebook")}
-                      placeholder="https://facebook.com/..."
-                      className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
-                    />
-                    {errors.body?.socials?.facebook && <p className="text-sm text-admin-danger mt-1">{errors.body.socials.facebook.message}</p>}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-admin-body">Facebook URL</label>
+                    <TestLinkButton href={watchedSocials?.facebook} label="ทดสอบเปิด Facebook" />
                   </div>
-
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <label className="text-sm font-medium text-admin-body">Instagram URL</label>
-                      <TestLinkButton href={watchedSocials?.instagram} label="ทดสอบเปิด Instagram" />
-                    </div>
-                    <input
-                      type="text"
-                      {...methods.register("body.socials.instagram")}
-                      placeholder="https://instagram.com/..."
-                      className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
-                    />
-                    {errors.body?.socials?.instagram && <p className="text-sm text-admin-danger mt-1">{errors.body.socials.instagram.message}</p>}
-                  </div>
+                  <input
+                    type="text"
+                    {...methods.register("body.socials.facebook")}
+                    placeholder="https://facebook.com/..."
+                    className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                  />
+                  {errors.body?.socials?.facebook && <p className="text-sm text-admin-danger mt-1">{errors.body.socials.facebook.message}</p>}
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <label className="text-sm font-medium text-admin-body">Facebook Messenger URL</label>
-                      <TestLinkButton href={watchedSocials?.messenger} label="ทดสอบเปิด Messenger" />
-                    </div>
-                    <input
-                      type="text"
-                      {...methods.register("body.socials.messenger")}
-                      placeholder="https://m.me/..."
-                      className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
-                    />
-                    {errors.body?.socials?.messenger && <p className="text-sm text-admin-danger mt-1">{errors.body.socials.messenger.message}</p>}
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-admin-body">Instagram URL</label>
+                    <TestLinkButton href={watchedSocials?.instagram} label="ทดสอบเปิด Instagram" />
                   </div>
+                  <input
+                    type="text"
+                    {...methods.register("body.socials.instagram")}
+                    placeholder="https://instagram.com/..."
+                    className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                  />
+                  {errors.body?.socials?.instagram && <p className="text-sm text-admin-danger mt-1">{errors.body.socials.instagram.message}</p>}
+                </div>
 
-                  <div className="space-y-1">
-                    <div className="flex items-center justify-between">
-                      <label className="text-sm font-medium text-admin-body">LINE ID / Add URL</label>
-                      <TestLinkButton
-                        href={watchedSocials?.line?.startsWith("http") ? watchedSocials?.line : `https://line.me/R/ti/p/${watchedSocials?.line}`}
-                        label="ทดสอบเปิด LINE"
-                      />
-                    </div>
-                    <input
-                      type="text"
-                      {...methods.register("body.socials.line")}
-                      placeholder="@line_id"
-                      className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-admin-body">Facebook Messenger URL</label>
+                    <TestLinkButton href={watchedSocials?.messenger} label="ทดสอบเปิด Messenger" />
+                  </div>
+                  <input
+                    type="text"
+                    {...methods.register("body.socials.messenger")}
+                    placeholder="https://m.me/..."
+                    className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                  />
+                  {errors.body?.socials?.messenger && <p className="text-sm text-admin-danger mt-1">{errors.body.socials.messenger.message}</p>}
+                </div>
+
+                <div className="space-y-1">
+                  <div className="flex items-center justify-between">
+                    <label className="text-sm font-medium text-admin-body">LINE ID / Add URL</label>
+                    <TestLinkButton
+                      href={watchedSocials?.line?.startsWith("http") ? watchedSocials?.line : `https://line.me/R/ti/p/${watchedSocials?.line}`}
+                      label="ทดสอบเปิด LINE"
                     />
                   </div>
+                  <input
+                    type="text"
+                    {...methods.register("body.socials.line")}
+                    placeholder="@line_id"
+                    className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
+                  />
                 </div>
 
                 <div className="space-y-1">
@@ -649,32 +639,30 @@ export function ContactContentForm() {
                   {t("contact.bankHeadingDesc")}
                 </h3>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Controller
-                    name="body.bank.bank_name"
-                    control={control}
-                    render={({ field, fieldState }) => (
-                      <MultiLangInput
-                        label={t("contact.bankName")}
-                        value={field.value}
-                        onChange={field.onChange}
-                        error={fieldState.error?.message}
-                      />
-                    )}
-                  />
-                  <Controller
-                    name="body.bank.account_name"
-                    control={control}
-                    render={({ field, fieldState }) => (
-                      <MultiLangInput
-                        label={t("contact.bankAccount")}
-                        value={field.value}
-                        onChange={field.onChange}
-                        error={fieldState.error?.message}
-                      />
-                    )}
-                  />
-                </div>
+                <Controller
+                  name="body.bank.bank_name"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <MultiLangInput
+                      label={t("contact.bankName")}
+                      value={field.value}
+                      onChange={field.onChange}
+                      error={fieldState.error?.message}
+                    />
+                  )}
+                />
+                <Controller
+                  name="body.bank.account_name"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <MultiLangInput
+                      label={t("contact.bankAccount")}
+                      value={field.value}
+                      onChange={field.onChange}
+                      error={fieldState.error?.message}
+                    />
+                  )}
+                />
 
                 <div className="space-y-1">
                   <label className="text-sm font-medium text-admin-body">เลขบัญชีเงินฝาก (Account Number)</label>
@@ -800,35 +788,33 @@ export function ContactContentForm() {
                   {t("seo.title")}
                 </h3>
                 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Controller
-                    name="seo.title"
-                    control={control}
-                    render={({ field, fieldState }) => (
-                      <MultiLangInput
-                        label={t("seo.titleLabel")}
-                        value={field.value as MultiLangText}
-                        onChange={field.onChange}
-                        required
-                        error={fieldState.error?.message}
-                      />
-                    )}
-                  />
-                  <Controller
-                    name="seo.description"
-                    control={control}
-                    render={({ field, fieldState }) => (
-                      <MultiLangInput
-                        label={t("seo.descLabel")}
-                        value={field.value as MultiLangText}
-                        onChange={field.onChange}
-                        type="textarea"
-                        required
-                        error={fieldState.error?.message}
-                      />
-                    )}
-                  />
-                </div>
+                <Controller
+                  name="seo.title"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <MultiLangInput
+                      label={t("seo.titleLabel")}
+                      value={field.value as MultiLangText}
+                      onChange={field.onChange}
+                      required
+                      error={fieldState.error?.message}
+                    />
+                  )}
+                />
+                <Controller
+                  name="seo.description"
+                  control={control}
+                  render={({ field, fieldState }) => (
+                    <MultiLangInput
+                      label={t("seo.descLabel")}
+                      value={field.value as MultiLangText}
+                      onChange={field.onChange}
+                      type="textarea"
+                      required
+                      error={fieldState.error?.message}
+                    />
+                  )}
+                />
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-1">

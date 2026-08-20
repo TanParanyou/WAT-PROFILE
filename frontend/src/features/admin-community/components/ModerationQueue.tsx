@@ -221,11 +221,24 @@ function ReportRow({
     }
   };
 
+  const getTargetTypeLabel = (type: string) => {
+    switch (type) {
+      case "question":
+        return t("typeQuestion");
+      case "answer":
+        return t("typeAnswer");
+      case "comment":
+        return t("typeComment");
+      default:
+        return type;
+    }
+  };
+
   return (
     <article className="border border-admin-border bg-admin-surface p-5">
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-admin-border pb-3">
         <span className="text-xs font-bold uppercase tracking-wider text-admin-muted">
-          {report.target_type} · ID: {report.target_id}
+          {getTargetTypeLabel(report.target_type)} · ID: {report.target_id}
         </span>
         <span className="border border-admin-danger/40 bg-admin-danger/10 px-2 py-0.5 text-xs font-semibold text-admin-danger">
           {report.reason}

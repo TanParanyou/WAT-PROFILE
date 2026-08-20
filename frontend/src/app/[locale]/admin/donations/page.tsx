@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { useCallback, useEffect, useRef } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { AdminTableAction, AdminTableActionGroup } from "@/components/admin/AdminTableAction";
@@ -49,6 +49,7 @@ interface DonationProofPreviewState {
 
 export default function DonationsPage() {
   const t = useTranslations("Admin");
+  const locale = useLocale();
   const { toast } = useToast();
   const { confirm, ConfirmDialog } = useConfirm();
   const selectedIds = useRowSelection();
@@ -94,47 +95,73 @@ export default function DonationsPage() {
     queryFn: () => donationAdminService.getFilterOptions(),
   });
 
+  const statusLabelMap: Record<string, string> = {
+    pending: t("donations.statusPending"),
+    confirmed: t("donations.statusConfirmed"),
+    cancelled: t("donations.statusCancelled"),
+  };
+
   const filterDefinitions: AdminFilterDefinition<DonationFilters>[] = [
     {
       key: "status",
       kind: "multi",
-      label: t("donations.status"),
+      label: t("donations.filterStatus"),
       options: [
-        { value: "pending", label: "Pending" },
-        { value: "confirmed", label: "Confirmed" },
-        { value: "cancelled", label: "Cancelled" },
+        { value: "pending", label: t("donations.statusPending") },
+        { value: "confirmed", label: t("donations.statusConfirmed") },
+        { value: "cancelled", label: t("donations.statusCancelled") },
       ],
     },
     {
       key: "category",
       kind: "multi",
-      label: t("donations.category"),
-      options: (filterOptions?.categories || []).map((c) => ({ value: String(c.id), label: c.name?.th || String(c.id) })),
+      label: t("donations.filterCategory"),
+      options: (filterOptions?.categories || []).map((c) => ({ value: String(c.id), label: c.name?.[locale as "th" | "en" | "de"] || c.name?.th || String(c.id) })),
     },
     {
       key: "method",
       kind: "multi",
-      label: t("donations.method"),
+      label: t("donations.filterMethod"),
       options: (filterOptions?.payment_methods || []).map((ch: string) => ({ value: ch, label: ch })),
     },
   ];
 
   const activeChips: AdminActiveFilterChip[] = [];
   for (const s of listState.params.filters.status || []) {
-    activeChips.push({ key: "status", value: s, label: `${t("donations.status")}: ${s}` });
+    activeChips.push({
+      key: "status",
+      value: s,
+      label: t("donations.activeStatus", { status: statusLabelMap[s] || s }),
+    });
   }
   for (const cId of listState.params.filters.category || []) {
-    const cName = filterOptions?.categories?.find((c) => String(c.id) === cId)?.name?.th || cId;
-    activeChips.push({ key: "category", value: cId, label: `${t("donations.category")}: ${cName}` });
+    const cName = filterOptions?.categories?.find((c) => String(c.id) === cId)?.name?.[locale as "th" | "en" | "de"] || filterOptions?.categories?.find((c) => String(c.id) === cId)?.name?.th || cId;
+    activeChips.push({
+      key: "category",
+      value: cId,
+      label: t("donations.activeCategory", { category: cName }),
+    });
   }
   for (const ch of listState.params.filters.method || []) {
-    activeChips.push({ key: "method", value: ch, label: `${t("donations.method")}: ${ch}` });
+    activeChips.push({
+      key: "method",
+      value: ch,
+      label: t("donations.activeMethod", { method: ch }),
+    });
   }
   if (listState.params.filters.from) {
-    activeChips.push({ key: "from", value: listState.params.filters.from, label: `${t("donations.from")}: ${listState.params.filters.from}` });
+    activeChips.push({
+      key: "from",
+      value: listState.params.filters.from,
+      label: t("donations.activeFrom", { date: listState.params.filters.from }),
+    });
   }
   if (listState.params.filters.to) {
-    activeChips.push({ key: "to", value: listState.params.filters.to, label: `${t("donations.to")}: ${listState.params.filters.to}` });
+    activeChips.push({
+      key: "to",
+      value: listState.params.filters.to,
+      label: t("donations.activeTo", { date: listState.params.filters.to }),
+    });
   }
 
   const handleConfirm = async (id: number) => {

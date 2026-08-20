@@ -40,10 +40,10 @@ export default function ContactsPage() {
   const t = useTranslations("Admin");
 
   const statusOptions = [
-    { value: "new", label: "New" },
-    { value: "read", label: "Read" },
-    { value: "replied", label: t("contacts.replied") },
-    { value: "archived", label: "Archived" },
+    { value: "new", label: t("contacts.statusNew") },
+    { value: "read", label: t("contacts.statusRead") },
+    { value: "replied", label: t("contacts.statusReplied") },
+    { value: "archived", label: t("contacts.statusArchived") },
   ];
 
   const [selectedContact, setSelectedContact] = useState<ContactInquiry | null>(
@@ -79,39 +79,71 @@ export default function ContactsPage() {
     {
       key: "status",
       kind: "multi",
-      label: "สถานะ",
+      label: t("contacts.filterStatus"),
       options: [
-        { value: "new", label: "New" },
-        { value: "read", label: "Read" },
-        { value: "replied", label: "Replied" },
-        { value: "archived", label: "Archived" },
+        { value: "new", label: t("contacts.statusNew") },
+        { value: "read", label: t("contacts.statusRead") },
+        { value: "replied", label: t("contacts.statusReplied") },
+        { value: "archived", label: t("contacts.statusArchived") },
       ],
     },
     {
       key: "subject",
       kind: "multi",
-      label: "หัวข้อสอบถาม",
+      label: t("contacts.filterSubject"),
       options: [
-        { value: "general", label: "General" },
-        { value: "merit", label: "Merit" },
-        { value: "ceremony", label: "Ceremony" },
-        { value: "other", label: "Other" },
+        { value: "general", label: t("contacts.subjectGeneral") },
+        { value: "merit", label: t("contacts.subjectMerit") },
+        { value: "ceremony", label: t("contacts.subjectCeremony") },
+        { value: "other", label: t("contacts.subjectOther") },
       ],
     },
   ];
 
+  const statusLabelMap: Record<string, string> = {
+    new: t("contacts.statusNew"),
+    read: t("contacts.statusRead"),
+    pending: t("contacts.pending"),
+    replied: t("contacts.statusReplied"),
+    closed: t("contacts.closed"),
+    archived: t("contacts.statusArchived"),
+  };
+
+  const subjectLabelMap: Record<string, string> = {
+    general: t("contacts.subjectGeneral"),
+    merit: t("contacts.subjectMerit"),
+    ceremony: t("contacts.subjectCeremony"),
+    other: t("contacts.subjectOther"),
+  };
+
   const activeChips: AdminActiveFilterChip[] = [];
   for (const s of listState.params.filters.status || []) {
-    activeChips.push({ key: "status", value: s, label: `สถานะ: ${s}` });
+    activeChips.push({
+      key: "status",
+      value: s,
+      label: t("contacts.activeStatus", { status: statusLabelMap[s] || s }),
+    });
   }
   for (const sb of listState.params.filters.subject || []) {
-    activeChips.push({ key: "subject", value: sb, label: `หัวข้อ: ${sb}` });
+    activeChips.push({
+      key: "subject",
+      value: sb,
+      label: t("contacts.activeSubject", { subject: subjectLabelMap[sb] || sb }),
+    });
   }
   if (listState.params.filters.from) {
-    activeChips.push({ key: "from", value: listState.params.filters.from, label: `ตั้งแต่วันที่: ${listState.params.filters.from}` });
+    activeChips.push({
+      key: "from",
+      value: listState.params.filters.from,
+      label: t("contacts.activeFrom", { date: listState.params.filters.from }),
+    });
   }
   if (listState.params.filters.to) {
-    activeChips.push({ key: "to", value: listState.params.filters.to, label: `ถึงวันที่: ${listState.params.filters.to}` });
+    activeChips.push({
+      key: "to",
+      value: listState.params.filters.to,
+      label: t("contacts.activeTo", { date: listState.params.filters.to }),
+    });
   }
 
   const handleViewReply = (contact: ContactInquiry) => {
@@ -183,15 +215,15 @@ export default function ContactsPage() {
     exportToCsv(
       listQuery.rows,
       [
-        { header: "ID", accessor: (item) => item.id },
-        { header: "Name", accessor: (item) => item.name || "" },
-        { header: "Email", accessor: (item) => item.email || "" },
-        { header: "Phone", accessor: (item) => item.phone || "" },
-        { header: "Subject", accessor: (item) => item.subject || "" },
-        { header: "Type", accessor: (item) => item.inquiry_type || "" },
-        { header: "Status", accessor: (item) => item.status || "" },
+        { header: t("contacts.csvId"), accessor: (item) => item.id },
+        { header: t("columns.name"), accessor: (item) => item.name || "" },
+        { header: t("columns.email"), accessor: (item) => item.email || "" },
+        { header: t("contacts.phone"), accessor: (item) => item.phone || "" },
+        { header: t("contacts.subject"), accessor: (item) => item.subject || "" },
+        { header: t("columns.type"), accessor: (item) => item.inquiry_type || "" },
+        { header: t("columns.status"), accessor: (item) => statusLabelMap[item.status] || item.status || "" },
         {
-          header: "Date",
+          header: t("columns.date"),
           accessor: (item) =>
             item.created_at ? new Date(item.created_at as string).toLocaleDateString("th-TH") : "",
         },
@@ -215,16 +247,8 @@ export default function ContactsPage() {
       header: t("columns.status"),
       accessorKey: "status",
       cell: (v) => {
-        const map: Record<string, string> = {
-          new: "New",
-          read: "Read",
-          pending: t("contacts.pending"),
-          replied: t("contacts.replied"),
-          closed: t("contacts.closed"),
-          archived: "Archived",
-        };
         const val = v as string;
-        return <StatusBadge label={map[val] || val} />;
+        return <StatusBadge label={statusLabelMap[val] || val} />;
       },
     },
     {
@@ -282,13 +306,13 @@ export default function ContactsPage() {
           primaryFilters={
             <>
               <AdminMultiSelectFilter
-                label="สถานะ"
+                label={t("contacts.filterStatus")}
                 options={filterDefinitions[0].options || []}
                 values={listState.params.filters.status || []}
                 onChange={(val) => listState.actions.setFilter("status", val)}
               />
               <AdminMultiSelectFilter
-                label="หัวข้อสอบถาม"
+                label={t("contacts.filterSubject")}
                 options={filterDefinitions[1].options || []}
                 values={listState.params.filters.subject || []}
                 onChange={(val) => listState.actions.setFilter("subject", val)}
@@ -312,7 +336,7 @@ export default function ContactsPage() {
           }
         >
           <AdminDateRangeFilter
-            label="ช่วงวันที่ติดต่อ"
+            label={t("contacts.filterDateRange")}
             from={listState.params.filters.from}
             to={listState.params.filters.to}
             onChange={({ from, to }) => {

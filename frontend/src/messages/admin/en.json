@@ -299,7 +299,21 @@
       "noRevisions": "No pending revisions.",
       "decisionSaved": "Decision saved.",
       "approveRevision": "Approve revision",
-      "rejectRevision": "Reject revision"
+      "rejectRevision": "Reject revision",
+      "moderationCardDesc": "Manage moderation queue, questions, answers, comments, and reports.",
+      "categoriesCardDesc": "Manage community question categories, active status, and display order.",
+      "membersCardDesc": "Manage member permissions, posting restrictions, and account bans.",
+      "goToModeration": "Go to Moderation",
+      "manageCategories": "Manage Categories",
+      "manageMembers": "Manage Members",
+      "before": "Before",
+      "after": "After",
+      "questionId": "Question ID",
+      "slugPlaceholder": "e.g. general-dharma",
+      "categoryNames": "Category Names",
+      "typeQuestion": "Question",
+      "typeAnswer": "Answer",
+      "typeComment": "Comment"
     },
     "dashboard": {
       "welcome": "Welcome back",
@@ -323,7 +337,14 @@
       "noUpcomingEvents": "No upcoming events scheduled",
       "viewAllUpcoming": "View full calendar",
       "registeredParticipants": "{count} registered",
-      "checkTask": "Action"
+      "checkTask": "Action",
+      "zeroPending": "0 Pending",
+      "allTasksResolved": "All tasks have been reviewed and resolved.",
+      "filterAll": "All ({count})",
+      "filterDonations": "Donations ({count})",
+      "filterRegistrations": "Registrations ({count})",
+      "filterContacts": "Inquiries ({count})",
+      "filterPrivacy": "Privacy / PDPA ({count})"
     },
     "events": {
       "title": "Events",
@@ -425,8 +446,11 @@
       },
       "types": {
         "ceremony": "Ceremony",
+        "merit": "Merit",
+        "meditation": "Meditation",
         "meditation_course": "Meditation Course",
         "festival": "Festival",
+        "general": "General",
         "other": "Other"
       },
       "schedule": {
@@ -560,10 +584,17 @@
         "abbot": "Abbot",
         "vice_abbot": "Vice Abbot",
         "monk": "Monk"
+      },
+      "filterStatus": "Status",
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive",
+        "retired": "Retired / Deceased"
       }
     },
     "gallery": {
       "title": "Gallery",
+      "filterStatus": "Status",
       "upload": "Upload Images",
       "categories": "Manage Categories",
       "gridView": "Grid View",
@@ -718,6 +749,18 @@
       "from": "From",
       "to": "To",
       "dateRange": "Donation date range",
+      "filterStatus": "Status",
+      "filterCategory": "Category",
+      "filterMethod": "Payment Method",
+      "filterDateRange": "Donation Date Range",
+      "statusPending": "Pending",
+      "statusConfirmed": "Confirmed",
+      "statusCancelled": "Cancelled",
+      "activeStatus": "Status: {status}",
+      "activeCategory": "Category: {category}",
+      "activeMethod": "Method: {method}",
+      "activeFrom": "From: {date}",
+      "activeTo": "To: {date}",
       "createStaff": "Record staff donation",
       "confirmTitle": "Confirm donation",
       "confirmMessage": "Have you checked the proof and confirmed this donation?",
@@ -882,6 +925,13 @@
         "thu": "Thursday",
         "fri": "Friday",
         "sat": "Saturday"
+      },
+      "filterStatus": "Status",
+      "filterType": "Schedule Type",
+      "filterWeekday": "Day of Week",
+      "status": {
+        "active": "Active",
+        "inactive": "Inactive"
       }
     },
     "members": {
@@ -895,7 +945,18 @@
       "emptyDescription": "This page only shows formal temple-member records with a member code. Email and Google public accounts are not automatically created as temple members.",
       "viewAccounts": "View public accounts",
       "loadError": "Unable to load temple members",
-      "retry": "Try again"
+      "retry": "Try again",
+      "status": {
+        "active": "Active",
+        "pending": "Pending",
+        "inactive": "Inactive"
+      },
+      "types": {
+        "monk": "Monk",
+        "layperson": "Layperson",
+        "vip": "VIP",
+        "general": "General"
+      }
     },
     "contacts": {
       "title": "Contact Messages",
@@ -910,7 +971,23 @@
       "subject": "Subject",
       "message": "Message",
       "inquiryType": "Type",
-      "phone": "Phone"
+      "phone": "Phone",
+      "statusNew": "New",
+      "statusRead": "Read",
+      "statusReplied": "Replied",
+      "statusArchived": "Archived",
+      "subjectGeneral": "General Inquiry",
+      "subjectMerit": "Merit / Donation",
+      "subjectCeremony": "Religious Ceremony",
+      "subjectOther": "Other",
+      "filterStatus": "Status",
+      "filterSubject": "Subject",
+      "filterDateRange": "Contact Date Range",
+      "activeStatus": "Status: {status}",
+      "activeSubject": "Subject: {subject}",
+      "activeFrom": "From: {date}",
+      "activeTo": "To: {date}",
+      "csvId": "ID"
     },
     "registrations": {
       "title": "Registrations",

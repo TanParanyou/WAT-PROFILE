@@ -296,10 +296,24 @@
       "confirm": "Bestätigen",
       "noItems": "Keine ausstehenden Inhalte.",
       "noReports": "Keine offenen Meldungen.",
-      "noRevisions": "Keine ausstehenden Änderungen.",
+      "noRevisions": "Keine ausstehenden Überarbeitungen.",
       "decisionSaved": "Entscheidung gespeichert.",
-      "approveRevision": "Änderung freigeben",
-      "rejectRevision": "Änderung ablehnen"
+      "approveRevision": "Überarbeitung genehmigen",
+      "rejectRevision": "Überarbeitung ablehnen",
+      "moderationCardDesc": "Moderationswarteschlange, Fragen, Antworten, Kommentare und Meldungen verwalten.",
+      "categoriesCardDesc": "Kategorien für Community-Fragen, Status und Reihenfolge verwalten.",
+      "membersCardDesc": "Mitgliederberechtigungen, Einschränkungen und Kontosperrungen verwalten.",
+      "goToModeration": "Zur Moderation",
+      "manageCategories": "Kategorien verwalten",
+      "manageMembers": "Mitglieder verwalten",
+      "before": "Vorher",
+      "after": "Nachher",
+      "questionId": "Frage-ID",
+      "slugPlaceholder": "z.B. general-dharma",
+      "categoryNames": "Kategorienamen",
+      "typeQuestion": "Frage",
+      "typeAnswer": "Antwort",
+      "typeComment": "Kommentar"
     },
     "dashboard": {
       "welcome": "Willkommen",
@@ -323,7 +337,14 @@
       "noUpcomingEvents": "Keine bevorstehenden Veranstaltungen geplant",
       "viewAllUpcoming": "Vollständigen Kalender anzeigen",
       "registeredParticipants": "{count} angemeldet",
-      "checkTask": "Bearbeiten"
+      "checkTask": "Bearbeiten",
+      "zeroPending": "0 Ausstehend",
+      "allTasksResolved": "Alle Aufgaben wurden überprüft und erledigt.",
+      "filterAll": "Alle ({count})",
+      "filterDonations": "Spendennachweise ({count})",
+      "filterRegistrations": "Anmeldungen ({count})",
+      "filterContacts": "Kontaktanfragen ({count})",
+      "filterPrivacy": "Datenschutz ({count})"
     },
     "events": {
       "title": "Veranstaltungen",
@@ -425,8 +446,11 @@
       },
       "types": {
         "ceremony": "Zeremonie",
+        "merit": "Verdienst",
+        "meditation": "Meditation",
         "meditation_course": "Meditationskurs",
         "festival": "Fest",
+        "general": "Allgemein",
         "other": "Andere"
       },
       "schedule": {
@@ -560,10 +584,17 @@
         "abbot": "Abt",
         "vice_abbot": "Stellvertretender Abt",
         "monk": "Mönch"
+      },
+      "filterStatus": "Status",
+      "status": {
+        "active": "Aktiv",
+        "inactive": "Inaktiv",
+        "retired": "Im Ruhestand / Verstorben"
       }
     },
     "gallery": {
       "title": "Galerie",
+      "filterStatus": "Status",
       "upload": "Bilder hochladen",
       "categories": "Kategorien verwalten",
       "gridView": "Rasteransicht",
@@ -718,6 +749,18 @@
       "from": "Von",
       "to": "Bis",
       "dateRange": "Spendedatum-Bereich",
+      "filterStatus": "Status",
+      "filterCategory": "Kategorie",
+      "filterMethod": "Zahlungsmethode",
+      "filterDateRange": "Spendenzeitraum",
+      "statusPending": "Ausstehend",
+      "statusConfirmed": "Bestätigt",
+      "statusCancelled": "Storniert",
+      "activeStatus": "Status: {status}",
+      "activeCategory": "Kategorie: {category}",
+      "activeMethod": "Methode: {method}",
+      "activeFrom": "Von: {date}",
+      "activeTo": "Bis: {date}",
       "createStaff": "Spende durch Personal erfassen",
       "confirmTitle": "Spende bestätigen",
       "confirmMessage": "Wurde der Nachweis geprüft und die Spende bestätigt?",
@@ -882,6 +925,13 @@
         "thu": "Donnerstag",
         "fri": "Freitag",
         "sat": "Samstag"
+      },
+      "filterStatus": "Status",
+      "filterType": "Zeitplan-Typ",
+      "filterWeekday": "Wochentag",
+      "status": {
+        "active": "Aktiv",
+        "inactive": "Inaktiv"
       }
     },
     "members": {
@@ -895,7 +945,18 @@
       "emptyDescription": "Diese Seite zeigt nur formelle Tempelmitgliedschaften mit Mitgliedsnummer. Öffentliche Konten per E-Mail oder Google werden nicht automatisch zu Tempelmitgliedern.",
       "viewAccounts": "Öffentliche Konten anzeigen",
       "loadError": "Tempelmitglieder konnten nicht geladen werden",
-      "retry": "Erneut versuchen"
+      "retry": "Erneut versuchen",
+      "status": {
+        "active": "Aktiv",
+        "pending": "Ausstehend",
+        "inactive": "Inaktiv"
+      },
+      "types": {
+        "monk": "Mönch",
+        "layperson": "Laie",
+        "vip": "VIP",
+        "general": "Allgemein"
+      }
     },
     "contacts": {
       "title": "Kontaktnachrichten",
@@ -910,7 +971,23 @@
       "subject": "Betreff",
       "message": "Nachricht",
       "inquiryType": "Typ",
-      "phone": "Telefon"
+      "phone": "Telefon",
+      "statusNew": "Neu",
+      "statusRead": "Gelesen",
+      "statusReplied": "Beantwortet",
+      "statusArchived": "Archiviert",
+      "subjectGeneral": "Allgemeine Anfrage",
+      "subjectMerit": "Verdienst / Spende",
+      "subjectCeremony": "Religiöse Zeremonie",
+      "subjectOther": "Sonstiges",
+      "filterStatus": "Status",
+      "filterSubject": "Betreff",
+      "filterDateRange": "Kontakt-Zeitraum",
+      "activeStatus": "Status: {status}",
+      "activeSubject": "Betreff: {subject}",
+      "activeFrom": "Von: {date}",
+      "activeTo": "Bis: {date}",
+      "csvId": "ID"
     },
     "registrations": {
       "title": "Anmeldungen",

@@ -58,22 +58,32 @@ export default function MonksListPage() {
     setPage: listState.actions.setPage,
   });
 
+  const statusLabelMap: Record<string, string> = {
+    active: t("monks.status.active"),
+    inactive: t("monks.status.inactive"),
+    retired: t("monks.status.retired"),
+  };
+
   const filterDefinitions: AdminFilterDefinition<MonkFilters>[] = [
     {
       key: "status",
       kind: "multi",
-      label: "สถานะ",
+      label: t("monks.filterStatus"),
       options: [
-        { value: "active", label: "Active" },
-        { value: "inactive", label: "Inactive" },
-        { value: "retired", label: "Retired" },
+        { value: "active", label: t("monks.status.active") },
+        { value: "inactive", label: t("monks.status.inactive") },
+        { value: "retired", label: t("monks.status.retired") },
       ],
     },
   ];
 
   const activeChips: AdminActiveFilterChip[] = [];
   for (const s of listState.params.filters.status || []) {
-    activeChips.push({ key: "status", value: s, label: `สถานะ: ${s}` });
+    activeChips.push({
+      key: "status",
+      value: s,
+      label: t("common.filter.statusWithVal", { value: statusLabelMap[s] || s }),
+    });
   }
 
   const handleDelete = async (id: number) => {

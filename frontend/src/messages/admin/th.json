@@ -299,7 +299,21 @@
       "noRevisions": "ไม่มีการแก้ไขที่รอตรวจสอบ",
       "decisionSaved": "บันทึกการตัดสินใจแล้ว",
       "approveRevision": "อนุมัติการแก้ไข",
-      "rejectRevision": "ปฏิเสธการแก้ไข"
+      "rejectRevision": "ปฏิเสธการแก้ไข",
+      "moderationCardDesc": "จัดการคิวกลั่นกรองคำถาม คำตอบ ความคิดเห็น และรายงานข้อร้องเรียน",
+      "categoriesCardDesc": "จัดการหมวดหมู่คำถามชุมชน การเปิด-ปิดใช้งาน และการจัดเรียงลำดับ",
+      "membersCardDesc": "จัดการสิทธิ์การใช้งาน ข้อจำกัด และการระงับบัญชีสมาชิกในชุมชน",
+      "goToModeration": "ไปที่คิวกลั่นกรอง",
+      "manageCategories": "จัดการหมวดหมู่",
+      "manageMembers": "จัดการสมาชิก",
+      "before": "ก่อนแก้ไข",
+      "after": "หลังแก้ไข",
+      "questionId": "รหัสคำถาม (Question ID)",
+      "slugPlaceholder": "เช่น general-dharma",
+      "categoryNames": "ชื่อหมวดหมู่",
+      "typeQuestion": "คำถาม",
+      "typeAnswer": "คำตอบ",
+      "typeComment": "ความคิดเห็น"
     },
     "dashboard": {
       "welcome": "สวัสดี",
@@ -323,7 +337,14 @@
       "noUpcomingEvents": "ยังไม่มีกิจกรรมในเร็วๆ นี้",
       "viewAllUpcoming": "ดูปฏิทินกิจกรรมทั้งหมด",
       "registeredParticipants": "{count} คนลงทะเบียนแล้ว",
-      "checkTask": "จัดการ"
+      "checkTask": "จัดการ",
+      "zeroPending": "ไม่มีงานค้าง",
+      "allTasksResolved": "ทุกรายการได้รับการตรวจสอบและจัดการครบถ้วนแล้ว",
+      "filterAll": "ทั้งหมด ({count})",
+      "filterDonations": "สลิปบริจาค ({count})",
+      "filterRegistrations": "ลงทะเบียน ({count})",
+      "filterContacts": "ข้อความติดต่อ ({count})",
+      "filterPrivacy": "PDPA/ความเป็นส่วนตัว ({count})"
     },
     "events": {
       "title": "กิจกรรม",
@@ -425,8 +446,11 @@
       },
       "types": {
         "ceremony": "พิธีกรรม",
+        "merit": "งานบุญ",
+        "meditation": "ปฏิบัติธรรม",
         "meditation_course": "คอร์สปฏิบัติธรรม",
         "festival": "งานเทศกาล",
+        "general": "ทั่วไป",
         "other": "อื่นๆ"
       },
       "schedule": {
@@ -560,10 +584,17 @@
         "abbot": "เจ้าอาวาส",
         "vice_abbot": "รองเจ้าอาวาส",
         "monk": "พระภิกษุ"
+      },
+      "filterStatus": "สถานะ",
+      "status": {
+        "active": "เปิดใช้งาน",
+        "inactive": "ปิดใช้งาน",
+        "retired": "พ้นจากตำแหน่ง/มรณภาพ"
       }
     },
     "gallery": {
       "title": "แกลเลอรี",
+      "filterStatus": "สถานะ",
       "upload": "อัปโหลดรูปภาพ",
       "categories": "จัดการหมวดหมู่",
       "gridView": "มุมมองแบบการ์ด (Grid View)",
@@ -718,6 +749,18 @@
       "from": "ตั้งแต่วันที่",
       "to": "ถึงวันที่",
       "dateRange": "ช่วงวันที่บริจาค",
+      "filterStatus": "สถานะ",
+      "filterCategory": "หมวดหมู่",
+      "filterMethod": "วิธีการ",
+      "filterDateRange": "ช่วงวันที่บริจาค",
+      "statusPending": "รอดำเนินการ",
+      "statusConfirmed": "ยืนยันแล้ว",
+      "statusCancelled": "ยกเลิก",
+      "activeStatus": "สถานะ: {status}",
+      "activeCategory": "หมวดหมู่: {category}",
+      "activeMethod": "วิธีการ: {method}",
+      "activeFrom": "ตั้งแต่วันที่: {date}",
+      "activeTo": "ถึงวันที่: {date}",
       "createStaff": "บันทึกรายการโดยเจ้าหน้าที่",
       "confirmTitle": "ยืนยันเงินบริจาค",
       "confirmMessage": "ตรวจสอบหลักฐานแล้วและยืนยันรายการนี้หรือไม่",
@@ -882,6 +925,13 @@
         "thu": "พฤหัสบดี",
         "fri": "ศุกร์",
         "sat": "เสาร์"
+      },
+      "filterStatus": "สถานะ",
+      "filterType": "ประเภทกำหนดการ",
+      "filterWeekday": "วันในสัปดาห์",
+      "status": {
+        "active": "เปิดใช้งาน",
+        "inactive": "ปิดใช้งาน"
       }
     },
     "members": {
@@ -895,7 +945,18 @@
       "emptyDescription": "หน้านี้แสดงเฉพาะข้อมูลสมาชิกวัดที่มีรหัสสมาชิก บัญชีสาธารณะจากการสมัครอีเมลหรือ Google จะไม่ถูกสร้างเป็นสมาชิกวัดโดยอัตโนมัติ",
       "viewAccounts": "ดูบัญชีสาธารณะ",
       "loadError": "ไม่สามารถโหลดข้อมูลสมาชิกวัดได้",
-      "retry": "ลองโหลดอีกครั้ง"
+      "retry": "ลองโหลดอีกครั้ง",
+      "status": {
+        "active": "เปิดใช้งาน",
+        "pending": "รอดำเนินการ",
+        "inactive": "ปิดใช้งาน"
+      },
+      "types": {
+        "monk": "พระสงฆ์",
+        "layperson": "ฆราวาส",
+        "vip": "VIP",
+        "general": "ทั่วไป"
+      }
     },
     "contacts": {
       "title": "จัดการข้อความติดต่อ",
@@ -910,7 +971,23 @@
       "subject": "หัวข้อ",
       "message": "ข้อความ",
       "inquiryType": "ประเภท",
-      "phone": "เบอร์โทร"
+      "phone": "เบอร์โทร",
+      "statusNew": "ใหม่",
+      "statusRead": "อ่านแล้ว",
+      "statusReplied": "ตอบกลับแล้ว",
+      "statusArchived": "เก็บถาวร",
+      "subjectGeneral": "สอบถามทั่วไป",
+      "subjectMerit": "ทำบุญ/บริจาค",
+      "subjectCeremony": "พิธีกรรมทางศาสนา",
+      "subjectOther": "อื่นๆ",
+      "filterStatus": "สถานะ",
+      "filterSubject": "หัวข้อสอบถาม",
+      "filterDateRange": "ช่วงวันที่ติดต่อ",
+      "activeStatus": "สถานะ: {status}",
+      "activeSubject": "หัวข้อ: {subject}",
+      "activeFrom": "ตั้งแต่วันที่: {date}",
+      "activeTo": "ถึงวันที่: {date}",
+      "csvId": "รหัส"
     },
     "registrations": {
       "title": "การลงทะเบียน",

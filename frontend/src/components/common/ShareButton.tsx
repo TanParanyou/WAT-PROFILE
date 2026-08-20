@@ -54,8 +54,8 @@ export default function ShareButton({ shareLabel, copiedLabel }: ShareButtonProp
     >
       {copied ? (
         <>
-          <Check size={15} className="text-green-600" aria-hidden="true" />
-          <span className="text-green-700">{copiedLabel}</span>
+          <Check size={15} className="text-site-accent" aria-hidden="true" />
+          <span className="text-site-accent">{copiedLabel}</span>
         </>
       ) : (
         <>

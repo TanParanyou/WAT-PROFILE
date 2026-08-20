@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { Control, FieldValues, Path } from "react-hook-form";
 import { useController } from "react-hook-form";
 
@@ -50,16 +50,16 @@ export function JsonTextareaField<T extends FieldValues>({
 
   return (
     <label className="space-y-1">
-      <div className="text-sm font-medium text-zinc-950">{label}</div>
+      <div className="text-sm font-medium text-admin-body">{label}</div>
       <textarea
         rows={rows}
         disabled={disabled}
         value={text}
         onChange={(event) => setText(event.target.value)}
         onBlur={handleBlur}
-        className="w-full border border-zinc-300 bg-white px-3 py-2 font-mono text-xs text-zinc-900 outline-none focus:border-zinc-950"
+        className="w-full border border-admin-control-border bg-admin-surface px-3 py-2 font-mono text-xs text-admin-foreground outline-none focus:border-admin-focus"
       />
-      {error ? <p className="text-xs text-red-600">{error}</p> : null}
+      {error ? <p className="text-xs text-admin-danger">{error}</p> : null}
     </label>
   );
 }

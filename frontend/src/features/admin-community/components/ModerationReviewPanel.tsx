@@ -60,12 +60,25 @@ export function ModerationReviewPanel({
     return "border border-admin-border text-admin-foreground hover:bg-admin-surface-muted";
   };
 
+  const getTargetTypeLabel = (type: AdminCommunityQueueItem["target_type"]) => {
+    switch (type) {
+      case "question":
+        return t("typeQuestion");
+      case "answer":
+        return t("typeAnswer");
+      case "comment":
+        return t("typeComment");
+      default:
+        return type;
+    }
+  };
+
   return (
     <article className="border border-admin-border bg-admin-surface p-5">
       <div className="flex flex-wrap items-start justify-between gap-3 border-b border-admin-border pb-3">
         <div>
           <span className="text-xs font-bold uppercase tracking-wider text-admin-muted">
-            {item.target_type} · ID: {item.target_id}
+            {getTargetTypeLabel(item.target_type)} · ID: {item.target_id}
           </span>
           <h3 className="mt-1 text-base font-semibold text-admin-foreground">
             {item.title || t("items")}

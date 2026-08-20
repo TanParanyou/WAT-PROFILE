@@ -47,11 +47,11 @@ export function AdminNotificationCenter() {
   const getItemIcon = (type: AdminNotificationItem["type"]) => {
     switch (type) {
       case "contact":
-        return <Mail size={16} className="text-blue-500" />;
+        return <Mail size={16} className="text-admin-info" />;
       case "registration":
-        return <UserCheck size={16} className="text-emerald-500" />;
+        return <UserCheck size={16} className="text-admin-success" />;
       case "donation":
-        return <HeartHandshake size={16} className="text-amber-500" />;
+        return <HeartHandshake size={16} className="text-admin-warning" />;
       default:
         return <Bell size={16} className="text-admin-muted" />;
     }
@@ -160,7 +160,7 @@ export function AdminNotificationCenter() {
           <div className="max-h-80 overflow-y-auto divide-y divide-admin-border">
             {filteredItems.length === 0 ? (
               <div className="py-8 px-4 text-center">
-                <CheckCircle2 size={28} className="mx-auto text-emerald-500 mb-2 opacity-80" />
+                <CheckCircle2 size={28} className="mx-auto text-admin-success mb-2 opacity-80" />
                 <p className="text-xs text-admin-muted font-medium">{t("noNotifications")}</p>
               </div>
             ) : (

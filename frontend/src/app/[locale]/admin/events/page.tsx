@@ -82,13 +82,20 @@ export default function EventsListPage() {
       kind: "multi",
       label: t("events.form.type") || t("columns.category"),
       options: [
-        { value: "ceremony", label: "Ceremony" },
-        { value: "merit", label: "Merit" },
-        { value: "meditation", label: "Meditation" },
-        { value: "general", label: "General" },
+        { value: "ceremony", label: t("events.types.ceremony") },
+        { value: "merit", label: t("events.types.merit") },
+        { value: "meditation", label: t("events.types.meditation") },
+        { value: "general", label: t("events.types.general") },
       ],
     },
   ];
+
+  const typeLabelMap: Record<string, string> = {
+    ceremony: t("events.types.ceremony"),
+    merit: t("events.types.merit"),
+    meditation: t("events.types.meditation"),
+    general: t("events.types.general"),
+  };
 
   const activeChips: AdminActiveFilterChip[] = [];
   for (const s of listState.params.filters.status || []) {
@@ -99,7 +106,11 @@ export default function EventsListPage() {
     });
   }
   for (const tp of listState.params.filters.type || []) {
-    activeChips.push({ key: "type", value: tp, label: `${t("events.form.type")}: ${tp}` });
+    activeChips.push({
+      key: "type",
+      value: tp,
+      label: `${t("events.form.type")}: ${typeLabelMap[tp] || tp}`,
+    });
   }
   if (listState.params.filters.from) {
     activeChips.push({

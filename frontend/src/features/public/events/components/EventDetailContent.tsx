@@ -185,7 +185,7 @@ export function EventDetailContent({ slug, initialEvent }: EventDetailContentPro
             )}
 
             {event.online_join_url && (
-              <span className="inline-flex items-center gap-1.5 border border-red-700 bg-red-50 px-2.5 py-1 text-xs font-semibold text-red-700 dark:bg-red-950/40 dark:text-red-300">
+              <span className="inline-flex items-center gap-1.5 border border-site-danger bg-site-danger-surface px-2.5 py-1 text-xs font-semibold text-site-danger">
                 <Radio size={12} className="animate-pulse" />
                 {t("hasLive")}
               </span>
@@ -276,14 +276,14 @@ export function EventDetailContent({ slug, initialEvent }: EventDetailContentPro
         <div className="space-y-10 lg:col-span-8">
           {/* Live Streaming Banner if available */}
           {event.online_join_url && (
-            <div className="border border-red-700 bg-red-50 p-6 dark:bg-red-950/30">
+            <div className="border border-site-danger bg-site-danger-surface p-6">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <div>
-                  <h3 className="flex items-center gap-2 font-heading text-lg font-bold text-red-900 dark:text-red-200">
-                    <Radio size={20} className="text-red-600 animate-pulse" />
+                  <h3 className="flex items-center gap-2 font-heading text-lg font-bold text-site-danger">
+                    <Radio size={20} className="text-site-danger animate-pulse" />
                     {t("liveBannerTitle")}
                   </h3>
-                  <p className="mt-1 text-sm text-red-800 dark:text-red-300">
+                  <p className="mt-1 text-sm text-site-body">
                     {t("liveBannerDesc")}
                   </p>
                 </div>
@@ -291,7 +291,7 @@ export function EventDetailContent({ slug, initialEvent }: EventDetailContentPro
                   href={event.online_join_url}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex min-h-11 items-center justify-center gap-2 border border-red-800 bg-red-700 px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:bg-red-800 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-red-600 whitespace-nowrap"
+                  className="inline-flex min-h-11 items-center justify-center gap-2 border border-site-danger bg-site-danger px-6 py-2.5 text-sm font-semibold text-white transition-colors hover:brightness-90 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus whitespace-nowrap"
                 >
                   <ExternalLink size={16} />
                   {t("watchLive")}

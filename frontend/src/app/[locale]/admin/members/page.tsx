@@ -56,15 +56,28 @@ export default function MembersPage() {
     setPage: listState.actions.setPage,
   });
 
+  const statusLabelMap: Record<string, string> = {
+    active: t("members.status.active"),
+    pending: t("members.status.pending"),
+    inactive: t("members.status.inactive"),
+  };
+
+  const typeLabelMap: Record<string, string> = {
+    monk: t("members.types.monk"),
+    layperson: t("members.types.layperson"),
+    vip: t("members.types.vip"),
+    general: t("members.types.general"),
+  };
+
   const filterDefinitions: AdminFilterDefinition<MemberFilters>[] = [
     {
       key: "status",
       kind: "multi",
       label: t("common.filter.memberStatus"),
       options: [
-        { value: "active", label: "Active" },
-        { value: "pending", label: "Pending" },
-        { value: "inactive", label: "Inactive" },
+        { value: "active", label: t("members.status.active") },
+        { value: "pending", label: t("members.status.pending") },
+        { value: "inactive", label: t("members.status.inactive") },
       ],
     },
     {
@@ -72,10 +85,10 @@ export default function MembersPage() {
       kind: "multi",
       label: t("common.filter.memberType"),
       options: [
-        { value: "monk", label: "Monk" },
-        { value: "layperson", label: "Layperson" },
-        { value: "vip", label: "VIP" },
-        { value: "general", label: "General" },
+        { value: "monk", label: t("members.types.monk") },
+        { value: "layperson", label: t("members.types.layperson") },
+        { value: "vip", label: t("members.types.vip") },
+        { value: "general", label: t("members.types.general") },
       ],
     },
   ];
@@ -85,14 +98,14 @@ export default function MembersPage() {
     activeChips.push({
       key: "status",
       value: s,
-      label: t("common.filter.statusWithVal", { value: s }),
+      label: t("common.filter.statusWithVal", { value: statusLabelMap[s] || s }),
     });
   }
   for (const tp of listState.params.filters.type || []) {
     activeChips.push({
       key: "type",
       value: tp,
-      label: t("common.filter.typeWithVal", { value: tp }),
+      label: t("common.filter.typeWithVal", { value: typeLabelMap[tp] || tp }),
     });
   }
   if (listState.params.filters.from) {

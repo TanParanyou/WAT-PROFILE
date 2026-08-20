@@ -138,7 +138,7 @@ export function LocalizedTextFields<T extends FieldValues>({
                   <button
                     type="button"
                     onClick={() => handleCopyFrom(locale)}
-                    className="text-[10px] text-zinc-500 hover:text-zinc-950 bg-zinc-100 hover:bg-zinc-200 px-1.5 py-0.5 rounded transition-colors cursor-pointer"
+                    className="text-[10px] text-admin-muted hover:text-admin-foreground bg-admin-surface-muted hover:bg-admin-surface border border-admin-border px-1.5 py-0.5 rounded-none transition-colors cursor-pointer"
                     title="Copy from other language"
                   >
                     Copy
@@ -146,7 +146,7 @@ export function LocalizedTextFields<T extends FieldValues>({
                   <button
                     type="button"
                     onClick={() => handleAutoTranslate(locale)}
-                    className="text-[10px] text-indigo-600 hover:text-indigo-800 bg-indigo-50 hover:bg-indigo-100 px-1.5 py-0.5 rounded transition-colors cursor-pointer"
+                    className="text-[10px] text-admin-warning hover:text-admin-foreground bg-admin-warning-surface hover:bg-admin-surface border border-admin-border px-1.5 py-0.5 rounded-none transition-colors cursor-pointer"
                     title="Auto-translate"
                   >
                     Translate
@@ -159,7 +159,7 @@ export function LocalizedTextFields<T extends FieldValues>({
       })}
 
       {groupErrorMessage && (
-        <p className="text-xs text-red-600">
+        <p className="text-xs text-admin-danger">
           {groupErrorMessage === "At least one language is required"
             ? t("atLeastOneLanguageRequired")
             : groupErrorMessage}

@@ -161,11 +161,11 @@ export default function AdminCommunityPage() {
                 {t("queue")}
               </h2>
               <p className="mt-1 text-xs leading-relaxed text-admin-muted">
-                {t("items")}, {t("revisions")}, {t("reports")}
+                {t("moderationCardDesc")}
               </p>
             </div>
             <div className="mt-6 flex items-center gap-1 text-xs font-semibold text-admin-action">
-              <span>{t("moderation")}</span>
+              <span>{t("goToModeration")}</span>
               <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
             </div>
           </Link>
@@ -188,11 +188,11 @@ export default function AdminCommunityPage() {
                 {t("categories")}
               </h2>
               <p className="mt-1 text-xs leading-relaxed text-admin-muted">
-                {t("categorySave")}, {t("categoryReorder")}
+                {t("categoriesCardDesc")}
               </p>
             </div>
             <div className="mt-6 flex items-center gap-1 text-xs font-semibold text-admin-action">
-              <span>{t("categories")}</span>
+              <span>{t("manageCategories")}</span>
               <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
             </div>
           </Link>
@@ -212,11 +212,11 @@ export default function AdminCommunityPage() {
                 {t("members")}
               </h2>
               <p className="mt-1 text-xs leading-relaxed text-admin-muted">
-                {t("restrict")}, {t("unrestrict")}, {t("ban")}
+                {t("membersCardDesc")}
               </p>
             </div>
             <div className="mt-6 flex items-center gap-1 text-xs font-semibold text-admin-action">
-              <span>{t("members")}</span>
+              <span>{t("manageMembers")}</span>
               <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
             </div>
           </Link>
