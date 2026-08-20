@@ -130,6 +130,16 @@
     "auth": {
       "checkingAccess": "กำลังตรวจสอบสิทธิ์..."
     },
+    "pwa": {
+      "installApp": "ติดตั้งแอปพลิเคชัน Admin",
+      "offlineBanner": "ไม่มีการเชื่อมต่ออินเทอร์เน็ต (ระบบ Admin ทำงานในโหมดออฟไลน์)",
+      "iosGuideTitle": "วิธีติดตั้งบน iPhone / iPad",
+      "iosGuideStep1": "แตะที่ปุ่มแชร์ (Share) ที่แถบด้านล่างของ Safari",
+      "iosGuideStep2": "เลื่อนลงแล้วเลือก 'เพิ่มไปยังหน้าจอโฮม' (Add to Home Screen)",
+      "iosGuideStep3": "แตะ 'เพิ่ม' (Add) ที่มุมขวาบนของหน้าจอ",
+      "close": "ปิด"
+    },
+
     "common": {
       "create": "สร้างใหม่",
       "edit": "แก้ไข",

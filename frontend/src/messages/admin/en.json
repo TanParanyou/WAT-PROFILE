@@ -130,6 +130,16 @@
     "auth": {
       "checkingAccess": "Checking access..."
     },
+    "pwa": {
+      "installApp": "Install Admin App",
+      "offlineBanner": "No internet connection (Admin working offline)",
+      "iosGuideTitle": "Install on iPhone / iPad",
+      "iosGuideStep1": "Tap the Share button at the bottom bar of Safari",
+      "iosGuideStep2": "Scroll down and select 'Add to Home Screen'",
+      "iosGuideStep3": "Tap 'Add' in the top right corner",
+      "close": "Close"
+    },
+
     "common": {
       "create": "Create",
       "edit": "Edit",

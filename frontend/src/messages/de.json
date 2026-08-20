@@ -1161,5 +1161,19 @@
   "Events": {
     "liveStreaming": "Live-Übertragung",
     "donationSupport": "Spenden & Unterstützen"
+  },
+  "Pwa": {
+    "installApp": "App installieren",
+    "installBannerTitle": "Wat Loung Por Sai App installieren",
+    "installBannerDesc": "Zum Startbildschirm hinzufügen für schnellen Zugriff auf Kalender und Neuigkeiten.",
+    "installButton": "Installieren",
+    "dismiss": "Später",
+    "offlineTitle": "Sie sind offline",
+    "offlineDesc": "Derzeit keine Internetverbindung vorhanden. Sie können weiterhin gespeicherte Inhalte einsehen.",
+    "offlineBanner": "Keine Internetverbindung (Offline-Modus)",
+    "retry": "Erneut versuchen",
+    "backToHome": "Zurück zur Startseite"
   }
 }
+
+

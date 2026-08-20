@@ -14,6 +14,8 @@ import { PublicThemeSwitcher } from "@/components/public/theme/PublicThemeSwitch
 import { LanguageSwitcher } from "./LanguageSwitcher";
 import { AccountAvatar } from "@/features/public/account/components/AccountAvatar";
 import { useCommunityNotificationsQuery } from "@/features/public/community/queries";
+import PwaInstallButton from "@/components/pwa/PwaInstallButton";
+
 
 const languageOptions = [
   { code: "th", label: "ไทย" },
@@ -97,11 +99,15 @@ export default function Navbar() {
                 <UserRound className="size-5" aria-hidden="true" />
               )}
               <span>{accountLabel}</span>
-            </Link></div>
+            </Link>
+          </div>
           ) : null}
+          <PwaInstallButton variant="navbar" />
           <PublicThemeSwitcher />
           <LanguageSwitcher />
         </div>
+
+
 
         <div className="flex items-center gap-2 lg:hidden">
           {ACCOUNT_FEATURE_ENABLED ? (
@@ -168,9 +174,14 @@ export default function Navbar() {
               <span className="text-sm font-medium text-site-muted">{t("theme")}</span>
               <PublicThemeSwitcher className="w-full" variant="full" />
             </div>
+
+            <div className="mt-6">
+              <PwaInstallButton variant="mobile-menu" onInstalled={() => setIsOpen(false)} />
+            </div>
           </nav>
         </div>
       ) : null}
+
     </header>
   );
 }

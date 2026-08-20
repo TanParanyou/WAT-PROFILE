@@ -3,7 +3,10 @@ import { AdminSidebar } from "./AdminSidebar";
 import { AdminHeader } from "./AdminHeader";
 import { InactivityTimeoutDialog } from "./InactivityTimeoutDialog";
 import { AdminHelpDrawer } from "./guide/AdminHelpDrawer";
+import { AdminOfflineBanner } from "./AdminOfflineBanner";
+import ServiceWorkerRegister from "@/components/pwa/ServiceWorkerRegister";
 import { cn } from "@/utils/cn";
+
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -63,6 +66,11 @@ export function AdminLayout({ children }: AdminLayoutProps) {
         isOpen={helpDrawerOpen}
         onClose={() => setHelpDrawerOpen(false)}
       />
+
+      {/* PWA offline banner and SW registration */}
+      <ServiceWorkerRegister />
+      <AdminOfflineBanner />
     </div>
   );
 }
+

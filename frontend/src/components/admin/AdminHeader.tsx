@@ -8,6 +8,8 @@ import { useTranslations } from "next-intl";
 import { AdminLanguageSwitcher } from "@/components/admin/AdminLanguageSwitcher";
 import { AdminThemeSwitcher } from "@/components/admin/theme/AdminThemeSwitcher";
 import { AdminNotificationCenter } from "@/components/admin/AdminNotificationCenter";
+import AdminPwaInstallButton from "@/components/admin/AdminPwaInstallButton";
+
 
 interface AdminHeaderProps {
   onMenuClick: () => void;
@@ -57,8 +59,10 @@ export function AdminHeader({ onMenuClick, onHelpClick }: AdminHeaderProps) {
           </button>
         )}
         <AdminNotificationCenter />
+        <AdminPwaInstallButton className="hidden sm:flex" />
         <AdminThemeSwitcher className="hidden md:flex" />
         <AdminLanguageSwitcher />
+
 
         {/* User info / Profile Link */}
         <Link

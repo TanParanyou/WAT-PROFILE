@@ -130,6 +130,16 @@
     "auth": {
       "checkingAccess": "Zugriff wird geprüft..."
     },
+    "pwa": {
+      "installApp": "Admin App installieren",
+      "offlineBanner": "Keine Internetverbindung (Admin-Bereich im Offline-Modus)",
+      "iosGuideTitle": "Auf dem iPhone / iPad installieren",
+      "iosGuideStep1": "Tippen Sie auf die Teilen-Schaltfläche unten in Safari",
+      "iosGuideStep2": "Scrollen Sie nach unten und wählen Sie 'Zum Home-Bildschirm'",
+      "iosGuideStep3": "Tippen Sie oben rechts auf 'Hinzufügen'",
+      "close": "Schließen"
+    },
+
     "common": {
       "create": "Erstellen",
       "edit": "Bearbeiten",

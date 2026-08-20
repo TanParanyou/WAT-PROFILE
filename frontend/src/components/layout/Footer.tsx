@@ -8,6 +8,8 @@ import { usePublicSiteSettings } from '@/features/public/settings/PublicSiteSett
 import { isAccountPath } from '@/features/public/account/accountNavigation';
 import { getLocalizedText } from '@/utils/localizedText';
 import { STATIC_ASSETS } from '@/constants/assets';
+import PwaInstallButton from '@/components/pwa/PwaInstallButton';
+
 
 export default function Footer() {
     const pathname = usePathname();
@@ -75,7 +77,11 @@ export default function Footer() {
                                     </Link>
                                 </li>
                             ))}
+                            <li>
+                                <PwaInstallButton variant="link" />
+                            </li>
                         </ul>
+
                     </div>
 
                     {/* Column 3: Contact Info */}

@@ -1161,5 +1161,19 @@
   "Events": {
     "liveStreaming": "Live Streaming",
     "donationSupport": "Support & Donate"
+  },
+  "Pwa": {
+    "installApp": "Install Application",
+    "installBannerTitle": "Install Wat Loung Por Sai App",
+    "installBannerDesc": "Add to your home screen for quick and easy access to temple calendar and news.",
+    "installButton": "Install",
+    "dismiss": "Later",
+    "offlineTitle": "You are offline",
+    "offlineDesc": "Unable to connect to the internet right now. You can still browse cached content and information.",
+    "offlineBanner": "No internet connection (Offline mode)",
+    "retry": "Try Again",
+    "backToHome": "Back to Home"
   }
 }
+
+

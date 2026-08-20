@@ -5,7 +5,17 @@ import { routing } from "@/routing";
 import { Providers } from "../providers";
 import "../globals.css";
 import { siteConfig } from "@/config/site.config";
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
+
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: siteConfig.theme.colorPrimary },
+    { media: "(prefers-color-scheme: dark)", color: "#1a120b" },
+  ],
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 5,
+};
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.domain),
@@ -17,6 +27,14 @@ export const metadata: Metadata = {
   keywords: siteConfig.seo.keywords,
   authors: siteConfig.authors,
   creator: siteConfig.creator,
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "default",
+    title: siteConfig.siteShortName || siteConfig.siteName.th,
+  },
+  formatDetection: {
+    telephone: false,
+  },
   openGraph: {
     type: "website",
     locale: siteConfig.defaultLocale,
@@ -49,11 +67,18 @@ export const metadata: Metadata = {
     },
   },
   icons: {
-    icon: "/favicon.ico",
+    icon: [
+      { url: "/favicon.ico", sizes: "any" },
+      { url: "/icons/icon-192x192.png", sizes: "192x192", type: "image/png" },
+      { url: "/icons/icon-512x512.png", sizes: "512x512", type: "image/png" },
+    ],
     shortcut: "/favicon.ico",
-    apple: "/apple-touch-icon.png", // Assuming this exists or will be added
+    apple: [
+      { url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
+    ],
   },
 };
+
 
 export function generateStaticParams() {
   return routing.locales.map((locale) => ({ locale }));
