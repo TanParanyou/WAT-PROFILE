@@ -31,7 +31,7 @@ export function NotificationPreferences() {
       <h2 id="community-notification-preferences" className="font-heading text-2xl font-medium">{t("notificationPreferencesTitle")}</h2>
       <p className="mt-2 text-sm text-site-muted">{t("notificationPreferencesSubtitle")}</p>
       <div className="mt-5 grid gap-3 sm:grid-cols-2">
-        {options.map((option) => <label key={option.key} className="flex min-h-11 items-center gap-3 border border-site-border px-3 text-sm"><input type="checkbox" checked={values[option.key]} onChange={(event) => setDraft((current) => ({ ...(current ?? values), [option.key]: event.target.checked }))} className="size-4 accent-site-action" /><span>{t(option.label)}</span></label>)}
+        {options.map((option) => <label key={option.key} className="flex min-h-11 items-center gap-3 border border-site-border px-3 text-sm cursor-pointer"><input type="checkbox" checked={values[option.key]} onChange={(event) => setDraft((current) => ({ ...(current ?? values), [option.key]: event.target.checked }))} className="size-4 accent-site-accent focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-site-focus" /><span>{t(option.label)}</span></label>)}
       </div>
       <div className="mt-5 flex items-center gap-4">
         <button type="button" disabled={mutation.isPending} onClick={() => void mutation.mutateAsync({ email_preferences: values })} className="min-h-11 border border-site-border px-4 text-sm font-semibold disabled:opacity-60">{t("savePreferences")}</button>

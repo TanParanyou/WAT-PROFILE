@@ -42,15 +42,39 @@ export function normalizeLocalizedRichText(
   return normalized;
 }
 
+export function isRichTextDocumentEmpty(doc: unknown): boolean {
+  if (!isRichTextDocument(doc)) return true;
+  if (!doc.content || doc.content.length === 0) return true;
+  return doc.content.every((node) => {
+    if (!node.content || node.content.length === 0) return true;
+    return node.content.every((c) => !c.text || c.text.trim() === "");
+  });
+}
+
 export function getLocalizedRichText(value: unknown, locale: string = "th", defaultLocale: string = "th"): RichTextDocument {
   if (!isLocalizedRichTextSource(value)) {
     return normalizeLegacyRichText(value);
   }
 
-  const selectedValue =
-    value[locale] ??
-    value[defaultLocale] ??
-    Object.values(value).find((entry) => typeof entry === "string" || isRichTextDocument(entry));
+  // 1. Try requested locale
+  const requestedDoc = normalizeLegacyRichText(value[locale]);
+  if (!isRichTextDocumentEmpty(requestedDoc)) {
+    return requestedDoc;
+  }
 
-  return normalizeLegacyRichText(selectedValue);
+  // 2. Fallback to default locale (usually 'th')
+  const defaultDoc = normalizeLegacyRichText(value[defaultLocale]);
+  if (!isRichTextDocumentEmpty(defaultDoc)) {
+    return defaultDoc;
+  }
+
+  // 3. Fallback to any locale that has non-empty content
+  for (const entry of Object.values(value)) {
+    const candidate = normalizeLegacyRichText(entry);
+    if (!isRichTextDocumentEmpty(candidate)) {
+      return candidate;
+    }
+  }
+
+  return requestedDoc;
 }

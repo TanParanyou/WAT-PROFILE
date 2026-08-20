@@ -1,6 +1,7 @@
 "use client";
 
 import type { CalendarResource } from "@/features/calendar/types";
+import { Checkbox } from "@/components/ui/Checkbox";
 
 interface CalendarResourceFilterProps {
   resources: readonly CalendarResource[];
@@ -24,15 +25,13 @@ export function CalendarResourceFilter({ resources, value, label, clearLabel, on
       <legend className="px-1 text-sm font-semibold text-admin-foreground">{label}</legend>
       <div className="flex flex-wrap gap-2">
         {resources.map((resource) => (
-          <label key={resource.id} className="inline-flex min-h-11 items-center gap-2 border border-admin-border px-3 text-sm text-admin-body hover:bg-admin-surface-muted">
-            <input
-              type="checkbox"
+          <div key={resource.id} className="inline-flex min-h-11 items-center border border-admin-border px-3 text-sm text-admin-body hover:bg-admin-surface-muted">
+            <Checkbox
               checked={selected.has(resource.id)}
               onChange={() => toggle(resource.id)}
-              className="h-4 w-4 accent-admin-action"
+              label={resource.title}
             />
-            <span>{resource.title}</span>
-          </label>
+          </div>
         ))}
         {selected.size > 0 ? (
           <button type="button" onClick={() => onChange([])} className="min-h-11 px-3 text-sm text-admin-action underline focus-visible:outline-[3px] focus-visible:outline-admin-focus">

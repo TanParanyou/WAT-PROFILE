@@ -8,6 +8,7 @@ import { StatusBadge } from "@/components/admin/StatusBadge";
 import { SortableList } from "@/components/admin/SortableList";
 import { Modal } from "@/components/ui/Modal";
 import { Loading } from "@/components/ui/Loading";
+import { Checkbox } from "@/components/ui/Checkbox";
 import { useToast } from "@/hooks/useToast";
 import {
   GripVertical,
@@ -452,17 +453,14 @@ export function CategoryManager() {
           </div>
 
           <div className="border-t border-admin-border pt-4">
-            <label className="flex min-h-11 cursor-pointer items-center gap-2 text-sm text-admin-foreground">
-              <input
-                type="checkbox"
-                checked={formData.is_active}
-                onChange={(e) =>
-                  setFormData({ ...formData, is_active: e.target.checked })
-                }
-                className="size-4 rounded-none border-admin-border text-admin-action focus:ring-admin-focus"
-              />
-              <span className="font-medium">{t("categoryActive")}</span>
-            </label>
+            <Checkbox
+              id="category_is_active"
+              checked={formData.is_active}
+              onChange={(e) =>
+                setFormData({ ...formData, is_active: e.target.checked })
+              }
+              label={t("categoryActive")}
+            />
           </div>
         </form>
       </Modal>

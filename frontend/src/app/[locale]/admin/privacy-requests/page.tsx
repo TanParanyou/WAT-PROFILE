@@ -34,6 +34,7 @@ import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { Button } from "@/components/ui/Button";
 import { Input } from "@/components/ui/Input";
 import { Textarea } from "@/components/ui/Textarea";
+import { Checkbox } from "@/components/ui/Checkbox";
 import { Modal, ConfirmModal } from "@/components/ui/Modal";
 import { Loading } from "@/components/ui/Loading";
 import { useToast } from "@/hooks/useToast";
@@ -1065,13 +1066,12 @@ export default function PrivacyRequestsPage() {
                               : "border-admin-border bg-admin-surface hover:bg-admin-surface-muted"
                           }`}
                         >
-                          <input
-                            type="checkbox"
+                          <Checkbox
                             checked={isChecked}
                             onChange={(e) =>
                               handleToggleItem(originalIndex, e.target.checked)
                             }
-                            className="h-4 w-4 rounded-none border-admin-control-border text-admin-action focus:ring-admin-focus"
+                            aria-label={`${domainInfo.label}: ${item.record_id}`}
                           />
 
                           {/* Domain Badge */}

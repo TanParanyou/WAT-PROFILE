@@ -698,7 +698,7 @@
       "itemCategory": "Bildkategorie",
       "useGlobalCategory": "Standard (Globale Einstellung)",
       "manageCategories": "Alle Kategorien verwalten",
-      "categories": {
+      "categoryManager": {
         "title": "Galeriekategorien verwalten",
         "breadcrumb": "Kategorien",
         "create": "Kategorie hinzufügen",

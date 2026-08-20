@@ -285,8 +285,8 @@ export function DonationReportForm({ onDirtyChange }: DonationReportFormProps) {
             />
           </div>
           <div className="grid gap-4 border-t border-site-border pt-6">
-            <label className="flex min-h-11 items-start gap-3 text-sm leading-6 text-site-body"><input type="checkbox" className="mt-1 size-5 shrink-0 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus" {...register("receipt_requested")} /><span>{t("receiptRequested")}</span></label>
-            <label className="flex min-h-11 items-start gap-3 text-sm leading-6 text-site-body"><input type="checkbox" className="mt-1 size-5 shrink-0 focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus" aria-invalid={Boolean(errors.privacy_acknowledged)} aria-describedby={errors.privacy_acknowledged ? "privacy-error" : undefined} {...register("privacy_acknowledged")} /><span>{t("privacyAcknowledged")}</span></label>
+            <label className="flex min-h-11 items-start gap-3 text-sm leading-6 text-site-body"><input type="checkbox" className="mt-1 size-5 shrink-0 accent-site-accent focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus" {...register("receipt_requested")} /><span>{t("receiptRequested")}</span></label>
+            <label className="flex min-h-11 items-start gap-3 text-sm leading-6 text-site-body"><input type="checkbox" className="mt-1 size-5 shrink-0 accent-site-accent focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus" aria-invalid={Boolean(errors.privacy_acknowledged)} aria-describedby={errors.privacy_acknowledged ? "privacy-error" : undefined} {...register("privacy_acknowledged")} /><span>{t("privacyAcknowledged")}</span></label>
             <div className="min-h-4">{errorMessage("privacy_acknowledged") ? <p id="privacy-error" role="alert" className="text-sm leading-4 text-site-danger">{errorMessage("privacy_acknowledged")}</p> : null}</div>
           </div>
         </div>

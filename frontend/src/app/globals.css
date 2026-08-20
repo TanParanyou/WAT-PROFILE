@@ -228,6 +228,10 @@
     color-scheme: light;
 }
 
+.public-theme input[type="checkbox"] {
+    accent-color: var(--public-accent);
+}
+
 .site-date-picker-popper {
     z-index: 80;
 }
@@ -354,6 +358,10 @@
 
     background: var(--admin-canvas);
     color: var(--admin-foreground);
+}
+
+.admin-theme input[type="checkbox"] {
+    accent-color: var(--admin-focus);
 }
 
 /* Admin dark mode is intentionally scoped below the Admin route seam. */

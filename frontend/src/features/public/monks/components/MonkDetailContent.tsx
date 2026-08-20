@@ -3,6 +3,7 @@
 import { User } from "lucide-react";
 import { useLocale, useTranslations } from "next-intl";
 import { RichTextContent } from "@/components/admin/rich-text/RichTextContent";
+import { isRichTextDocumentEmpty, getLocalizedRichText as getRichTextDoc } from "@/lib/rich-text/document";
 import { getLocalizedText } from "../mappers";
 import type { PublicMonkDto } from "../types";
 import { usePublicMonkQuery } from "../queries";
@@ -109,7 +110,7 @@ export function MonkDetailContent({ slug, initialMonk }: MonkDetailContentProps)
             {t("biography")}
           </h2>
           <div className="max-w-[75ch]">
-            {monk.bio ? (
+            {monk.bio && !isRichTextDocumentEmpty(getRichTextDoc(monk.bio, locale, "th")) ? (
               <RichTextContent value={monk.bio} locale={locale} defaultLocale="th" />
             ) : (
               <p className="text-sm text-site-muted">{tState("emptyContent")}</p>

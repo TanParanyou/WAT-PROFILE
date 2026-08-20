@@ -698,7 +698,7 @@
       "itemCategory": "Image Category",
       "useGlobalCategory": "Default (Global Setting)",
       "manageCategories": "Manage All Categories",
-      "categories": {
+      "categoryManager": {
         "title": "Gallery Categories",
         "breadcrumb": "Categories",
         "create": "Add Category",

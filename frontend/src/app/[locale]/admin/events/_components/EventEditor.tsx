@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/Input";
 import { TimePicker } from "@/components/ui/TimePicker";
 import { Select } from "@/components/ui/Select";
 import { Switch } from "@/components/ui/Switch";
+import { Checkbox } from "@/components/ui/Checkbox";
 import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/Loading";
 import { FormTabs, type TabConfig } from "@/components/admin/FormTabs";
@@ -753,9 +754,8 @@ export function EventEditor({ id }: EventEditorProps) {
                             return calendarResources.length > 0 ? (
                               <div className="grid gap-2 sm:grid-cols-2">
                                 {calendarResources.map((resource) => (
-                                  <label key={resource.id} className="flex min-h-11 items-center gap-2 border border-admin-border px-3 text-sm text-admin-body">
-                                    <input
-                                      type="checkbox"
+                                  <div key={resource.id} className="flex min-h-11 items-center border border-admin-border px-3 text-sm text-admin-body hover:bg-admin-surface-muted">
+                                    <Checkbox
                                       checked={selected.has(resource.id)}
                                       onChange={(event) => {
                                         const next = new Set(selected);
@@ -763,10 +763,9 @@ export function EventEditor({ id }: EventEditorProps) {
                                         else next.delete(resource.id);
                                         field.onChange([...next].sort((a, b) => a - b));
                                       }}
-                                      className="h-4 w-4 accent-admin-action"
+                                      label={resource.title[resourceLocale]}
                                     />
-                                    <span>{resource.title[resourceLocale]}</span>
-                                  </label>
+                                  </div>
                                 ))}
                               </div>
                             ) : <p className="text-sm text-admin-muted">{t("events.form.resourcesEmpty")}</p>;

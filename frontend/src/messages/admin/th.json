@@ -698,7 +698,7 @@
       "itemCategory": "หมวดหมู่รูปภาพ",
       "useGlobalCategory": "ตามค่าเริ่มต้นส่วนกลาง",
       "manageCategories": "จัดการหมวดหมู่ทั้งหมด",
-      "categories": {
+      "categoryManager": {
         "title": "จัดการหมวดหมู่คลังภาพ",
         "breadcrumb": "หมวดหมู่",
         "create": "เพิ่มหมวดหมู่",

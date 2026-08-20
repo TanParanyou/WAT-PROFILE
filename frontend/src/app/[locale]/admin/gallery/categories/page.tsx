@@ -47,7 +47,7 @@ interface GalleryCategoryFilters extends AdminFilterRecord {
 export default function GalleryCategoriesPage() {
   const t = useTranslations("Admin");
   const tg = useTranslations("Admin.gallery");
-  const tc = useTranslations("Admin.gallery.categories");
+  const tc = useTranslations("Admin.gallery.categoryManager");
   const [isSaving, setIsSaving] = useState(false);
   const { isOpen, open, close } = useModal();
   const { confirm, ConfirmDialog } = useConfirm();

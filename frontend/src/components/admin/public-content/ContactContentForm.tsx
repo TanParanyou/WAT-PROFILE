@@ -6,6 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { Mail, Clock, MapPin, Navigation, Share2, Landmark, ToggleLeft, Search, Plus, Trash, Eye, X } from "lucide-react";
 import { useToast } from "@/hooks/useToast";
 import { Button } from "@/components/ui/Button";
+import { Checkbox } from "@/components/ui/Checkbox";
 import { PageLoading } from "@/components/ui/Loading";
 import { MultiLangInput } from "@/components/admin/MultiLangInput";
 import { FormTabs, TabConfig } from "@/components/admin/FormTabs";
@@ -729,16 +730,12 @@ export function ContactContentForm() {
                   {t("contact.formHeading")}
                 </h3>
                 
-                <div className="flex items-center gap-2">
-                  <input
-                    type="checkbox"
+                <div>
+                  <Checkbox
                     id="form_enabled"
+                    label={t("contact.formEnabledLabel")}
                     {...methods.register("body.contact_form.enabled")}
-                    className="rounded text-admin-action focus-visible:outline-2 focus-visible:outline-admin-focus border-admin-control-border w-4 h-4"
                   />
-                  <label htmlFor="form_enabled" className="text-sm font-medium text-admin-body select-none">
-                    {t("contact.formEnabledLabel")}
-                  </label>
                 </div>
 
                 <Controller
@@ -826,16 +823,12 @@ export function ContactContentForm() {
                       className="min-h-11 w-full rounded-none border border-admin-control-border bg-admin-surface px-3 py-2 text-sm text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-2 focus-visible:outline-offset-1 focus-visible:outline-admin-focus"
                     />
                   </div>
-                  <div className="flex items-center gap-2 pt-6">
-                    <input
-                      type="checkbox"
+                  <div className="pt-6">
+                    <Checkbox
                       id="seo_noindex"
+                      label={t("seo.noIndex")}
                       {...methods.register("seo.noindex")}
-                      className="rounded text-admin-action focus-visible:outline-2 focus-visible:outline-admin-focus border-admin-control-border w-4 h-4"
                     />
-                    <label htmlFor="seo_noindex" className="text-sm font-medium text-admin-body select-none">
-                      {t("seo.noIndex")}
-                    </label>
                   </div>
                 </div>
 

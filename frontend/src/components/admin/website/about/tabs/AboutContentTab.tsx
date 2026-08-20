@@ -4,6 +4,8 @@ import { useFormContext } from "react-hook-form";
 import { LocalizedTextFields } from "@/components/forms/LocalizedTextFields";
 import { LocalizedTextareaFields } from "@/components/forms/LocalizedTextareaFields";
 
+import { Checkbox } from "@/components/ui/Checkbox";
+
 interface AboutContentTabProps {
   disabled?: boolean;
 }
@@ -70,18 +72,12 @@ export function AboutContentTab({ disabled = false }: AboutContentTabProps) {
           rows={6}
         />
 
-        <div className="flex items-center gap-2">
-          <input
-            type="checkbox"
-            id="show_timeline"
-            {...register("content.show_timeline")}
-            disabled={disabled}
-            className="h-4 w-4 rounded border-admin-control-border bg-admin-surface text-admin-action focus:ring-admin-focus"
-          />
-          <label htmlFor="show_timeline" className="text-sm font-medium text-admin-foreground select-none">
-            Show History Timeline
-          </label>
-        </div>
+        <Checkbox
+          id="show_timeline"
+          label="Show History Timeline"
+          {...register("content.show_timeline")}
+          disabled={disabled}
+        />
       </div>
     </div>
   );

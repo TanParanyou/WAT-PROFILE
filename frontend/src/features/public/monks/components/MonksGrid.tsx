@@ -30,12 +30,19 @@ export function MonksGrid({ monks }: MonksGridProps) {
             />
           </div>
           <div className="py-6">
-            {monk.title ? <p className="text-sm font-medium text-site-accent">
-              {getLocalizedText(monk.title, locale)}
-            </p> : null}
+            {monk.title && getLocalizedText(monk.title, locale) ? (
+              <p className="text-sm font-medium text-site-accent">
+                {getLocalizedText(monk.title, locale)}
+              </p>
+            ) : null}
             <h3 className="mt-2 font-heading text-xl font-medium text-site-foreground">
               {getLocalizedText(monk.name, locale)}
             </h3>
+            {monk.dharma_name && getLocalizedText(monk.dharma_name, locale) ? (
+              <p className="mt-1 text-sm text-site-muted italic">
+                ({getLocalizedText(monk.dharma_name, locale)})
+              </p>
+            ) : null}
           </div>
         </Link>
       ))}
