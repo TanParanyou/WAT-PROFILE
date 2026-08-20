@@ -61,3 +61,7 @@ next-env.d.ts
 .playwright-mcp/
 
 .gocache
+backups/
+*.sql.gz
+*.dump
+
