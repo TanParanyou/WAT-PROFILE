@@ -1,7 +1,6 @@
-import { getTranslations } from "next-intl/server";
+import { getTranslations, setRequestLocale } from "next-intl/server";
 import type { Metadata } from "next";
 import { websiteCmsPublicService } from "@/services/websiteCmsService";
-import ClientLayout from "./(client)/layout";
 import HeroSection from "@/components/home/HeroSection";
 import WelcomeSection from "@/components/home/WelcomeSection";
 import EventsSection from "@/components/home/EventsSection";
@@ -12,6 +11,7 @@ import { getLocalizedText } from "@/utils/localizedText";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
+  setRequestLocale(locale);
   const t = await getTranslations({ locale, namespace: "PublicHome" });
   const cmsPage = await websiteCmsPublicService.getPage("home").catch(() => null);
   const title = cmsPage ? getLocalizedText(cmsPage.title, locale) || t("heroFallbackTitle") : t("heroFallbackTitle");
@@ -38,15 +38,14 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
 export default async function PublicHomePage({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
+  setRequestLocale(locale);
   return (
-    <ClientLayout>
-      <div className="flex min-h-screen flex-col">
-        <HeroSection />
-        <WelcomeSection />
-        <EventsSection locale={locale} />
-        <DonationSection />
-        <EventAlertModal />
-      </div>
-    </ClientLayout>
+    <div className="flex min-h-screen flex-col">
+      <HeroSection />
+      <WelcomeSection />
+      <EventsSection locale={locale} />
+      <DonationSection />
+      <EventAlertModal />
+    </div>
   );
 }
