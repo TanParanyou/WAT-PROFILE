@@ -7,6 +7,8 @@ export function toMonkListItem(monk: PublicMonkDto): MonkListItem {
     imageUrl: monk.image_url,
     name: monk.name,
     title: monk.title,
+    dharma_name: monk.dharma_name,
+    education: monk.education,
     position: monk.position,
   };
 }

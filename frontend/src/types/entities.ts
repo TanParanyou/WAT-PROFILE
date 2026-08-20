@@ -117,6 +117,8 @@ export interface Monk {
   image_url: string;
   name: MultiLangText;
   title: MultiLangText;
+  dharma_name?: MultiLangText;
+  education?: MultiLangText;
   bio: LocalizedRichText;
   ordination_date: string | null;
   position: string;

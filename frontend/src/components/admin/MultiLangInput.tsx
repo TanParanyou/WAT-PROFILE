@@ -2,7 +2,7 @@
 
 import React, { useState } from "react";
 import { Sparkles, Copy, Loader2 } from "lucide-react";
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { cn } from "@/utils/cn";
 import type { MultiLangText } from "@/types/api";
 import { useAiTranslate } from "@/hooks/useAiTranslate";
@@ -17,6 +17,7 @@ interface MultiLangInputProps {
   placeholder?: string | MultiLangText;
   error?: string;
   disableAiTranslate?: boolean;
+  defaultLang?: "th" | "en" | "de";
 }
 
 const langs = [
@@ -34,8 +35,13 @@ export function MultiLangInput({
   placeholder,
   error,
   disableAiTranslate = false,
+  defaultLang,
 }: MultiLangInputProps) {
-  const [activeLang, setActiveLang] = useState<"th" | "en" | "de">("th");
+  const systemLocale = useLocale();
+  const validSystemLang = (["th", "en", "de"].includes(systemLocale) ? systemLocale : "th") as "th" | "en" | "de";
+  const [selectedLang, setSelectedLang] = useState<"th" | "en" | "de" | null>(null);
+  const activeLang = selectedLang ?? defaultLang ?? validSystemLang;
+
   const t = useTranslations("Admin.aiTranslate");
   const { toast } = useToast();
   const { translateDraft, isTranslating } = useAiTranslate();
@@ -144,7 +150,7 @@ export function MultiLangInput({
               <button
                 key={lang.key}
                 type="button"
-                onClick={() => setActiveLang(lang.key)}
+                onClick={() => setSelectedLang(lang.key)}
                 className={cn(
                   "px-2.5 h-full text-xs font-medium uppercase transition-colors inline-flex items-center justify-center focus-visible:outline-2 focus-visible:outline-admin-focus",
                   activeLang === lang.key

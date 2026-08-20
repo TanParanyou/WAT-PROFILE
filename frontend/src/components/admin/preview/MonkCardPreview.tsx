@@ -14,9 +14,13 @@ function getLangText(text?: PartialMultiLangText, lang: "th" | "en" | "de" = "th
   return text[lang] || text.th || text.en || text.de || fallback;
 }
 
+import { calculatePansa } from "@/utils/monk";
+
 export function MonkCardPreview({
   name,
   title,
+  dharmaName,
+  education,
   position,
   ordinationDate,
   imageUrl,
@@ -24,6 +28,8 @@ export function MonkCardPreview({
 }: {
   name?: PartialMultiLangText;
   title?: PartialMultiLangText;
+  dharmaName?: PartialMultiLangText;
+  education?: PartialMultiLangText;
   position?: string;
   ordinationDate?: string | null;
   imageUrl?: string | File | null;
@@ -36,12 +42,14 @@ export function MonkCardPreview({
 
   const displayName = getLangText(name, lang, t("monkDefaultName"));
   const displayTitle = getLangText(title, lang, t("monkDefaultTitle"));
+  const displayDharmaName = getLangText(dharmaName, lang, "");
+  const displayEducation = getLangText(education, lang, "");
   const previewSrc = typeof imageUrl === "string" ? imageUrl : "";
+  const pansaYears = calculatePansa(ordinationDate);
 
-  const positionLabel = position === "abbot"
-    ? tMonk("positions.abbot")
-    : position === "vice_abbot"
-    ? tMonk("positions.vice_abbot")
+  const positionKey = position as string | undefined;
+  const positionLabel = positionKey && tMonk.raw(`positions.${positionKey}`)
+    ? tMonk(`positions.${positionKey}`)
     : tMonk("positions.monk");
 
   return (
@@ -110,19 +118,26 @@ export function MonkCardPreview({
               {isActive ? (
                 <span className="inline-flex items-center gap-1 text-[11px] text-admin-success font-medium">
                   <Circle size={7} className="fill-current" />
-                  <span>{tFormActive("formEnabled")}</span>
+                  <span>{tMonk("status.active")}</span>
                 </span>
               ) : (
                 <span className="inline-flex items-center gap-1 text-[11px] text-admin-muted">
                   <Circle size={7} className="fill-current" />
-                  <span>{tFormActive("formDisabled")}</span>
+                  <span>{tMonk("status.inactive")}</span>
                 </span>
               )}
             </div>
 
-            <h3 className="text-base font-bold text-admin-foreground leading-snug">
-              {displayName}
-            </h3>
+            <div>
+              <h3 className="text-base font-bold text-admin-foreground leading-snug">
+                {displayName}
+              </h3>
+              {displayDharmaName && (
+                <p className="text-xs text-admin-muted font-medium italic">
+                  ({displayDharmaName})
+                </p>
+              )}
+            </div>
 
             {displayTitle && (
               <p className="text-xs text-admin-action font-medium">
@@ -130,10 +145,21 @@ export function MonkCardPreview({
               </p>
             )}
 
+            {displayEducation && (
+              <p className="text-xs text-admin-muted">
+                {displayEducation}
+              </p>
+            )}
+
             {ordinationDate && (
-              <div className="flex items-center justify-center sm:justify-start gap-1.5 text-xs text-admin-muted pt-1">
+              <div className="flex flex-wrap items-center justify-center sm:justify-start gap-1.5 text-xs text-admin-muted pt-1">
                 <Calendar size={13} className="text-admin-action flex-shrink-0" />
                 <span>{t("monkOrdinationLabel", { date: ordinationDate })}</span>
+                {pansaYears !== null && (
+                  <span className="bg-admin-action-surface text-admin-action px-1.5 py-0.2 rounded text-[11px] font-medium">
+                    {tMonk("form.pansaCount", { count: pansaYears })}
+                  </span>
+                )}
               </div>
             )}
           </div>
@@ -149,9 +175,4 @@ export function MonkCardPreview({
       )}
     </div>
   );
-}
-
-function tFormActive(key: "formEnabled" | "formDisabled"): string {
-  if (key === "formEnabled") return "แสดงบนหน้าเว็บ";
-  return "ซ่อนจากหน้าเว็บ";
 }

@@ -46,6 +46,8 @@ interface GalleryCategoryFilters extends AdminFilterRecord {
 
 export default function GalleryCategoriesPage() {
   const t = useTranslations("Admin");
+  const tg = useTranslations("Admin.gallery");
+  const tc = useTranslations("Admin.gallery.categories");
   const [isSaving, setIsSaving] = useState(false);
   const { isOpen, open, close } = useModal();
   const { confirm, ConfirmDialog } = useConfirm();
@@ -73,18 +75,18 @@ export default function GalleryCategoriesPage() {
   });
 
   const statusLabelMap: Record<string, string> = {
-    active: t("common.filter.statusActive") || "Active",
-    inactive: t("common.filter.statusInactive") || "Inactive",
+    active: tc("active"),
+    inactive: tc("inactive"),
   };
 
   const filterDefinitions: AdminFilterDefinition<GalleryCategoryFilters>[] = [
     {
       key: "status",
       kind: "multi",
-      label: t("gallery.filterStatus") || t("common.filter.status"),
+      label: tg("filterStatus") || t("common.filter.status"),
       options: [
-        { value: "active", label: t("common.filter.statusActive") || "Active" },
-        { value: "inactive", label: t("common.filter.statusInactive") || "Inactive" },
+        { value: "active", label: tc("active") },
+        { value: "inactive", label: tc("inactive") },
       ],
     },
   ];
@@ -143,12 +145,12 @@ export default function GalleryCategoriesPage() {
     exportToCsv(
       listQuery.rows,
       [
-        { header: "ID", accessor: (item) => item.id },
-        { header: "Name (TH)", accessor: (item) => item.name?.th || "" },
-        { header: "Name (EN)", accessor: (item) => item.name?.en || "" },
-        { header: "Slug", accessor: (item) => item.slug || "" },
-        { header: "Display Order", accessor: (item) => item.display_order || 0 },
-        { header: "Status", accessor: (item) => (item.is_active ? "Active" : "Inactive") },
+        { header: tc("csvId"), accessor: (item) => item.id },
+        { header: tc("csvNameTh"), accessor: (item) => item.name?.th || "" },
+        { header: tc("csvNameEn"), accessor: (item) => item.name?.en || "" },
+        { header: tc("csvSlug"), accessor: (item) => item.slug || "" },
+        { header: tc("csvOrder"), accessor: (item) => item.display_order || 0 },
+        { header: tc("csvStatus"), accessor: (item) => (item.is_active ? tc("active") : tc("inactive")) },
       ],
       "gallery_categories_export"
     );
@@ -219,25 +221,25 @@ export default function GalleryCategoriesPage() {
 
   const columns: Column<GalleryCategory>[] = [
     {
-      header: "ชื่อ (TH)",
+      header: tc("nameTh"),
       accessorKey: "name",
       cell: (v) => (v as GalleryCategory["name"])?.th || "-",
       sortable: true,
     },
     {
-      header: "ชื่อ (EN)",
+      header: tc("nameEn"),
       accessorKey: "name",
       cell: (v) => (v as GalleryCategory["name"])?.en || "-",
     },
-    { header: "Slug", accessorKey: "slug", sortable: true },
-    { header: "ลำดับ", accessorKey: "display_order", sortable: true },
+    { header: tc("slug"), accessorKey: "slug", sortable: true },
+    { header: tc("order"), accessorKey: "display_order", sortable: true },
     {
-      header: "สถานะ",
+      header: tc("status"),
       accessorKey: "is_active",
-      cell: (v) => <StatusBadge label={v ? "Active" : "Inactive"} />,
+      cell: (v) => <StatusBadge label={v ? tc("active") : tc("inactive")} />,
     },
     {
-      header: "จัดการ",
+      header: tc("actions"),
       cell: (_, row) => (
         <div className="flex gap-2">
           <PermissionGuard resource="gallery" action="update">
@@ -266,10 +268,10 @@ export default function GalleryCategoriesPage() {
   return (
     <div>
       <AdminPageHeader
-        title="จัดการหมวดหมู่คลังภาพ"
+        title={tc("title")}
         breadcrumbs={[
-          { label: "คลังภาพ", href: "/admin/gallery" },
-          { label: "หมวดหมู่" },
+          { label: tg("title"), href: "/admin/gallery" },
+          { label: tc("breadcrumb") },
         ]}
         actions={
           <PermissionButton
@@ -278,7 +280,7 @@ export default function GalleryCategoriesPage() {
             icon={<Plus size={16} />}
             onClick={handleOpenCreate}
           >
-            เพิ่มหมวดหมู่
+            {tc("create")}
           </PermissionButton>
         }
       />
@@ -297,7 +299,7 @@ export default function GalleryCategoriesPage() {
           }
           primaryFilters={
             <AdminMultiSelectFilter
-              label="สถานะ"
+              label={filterDefinitions[0].label}
               options={filterDefinitions[0].options || []}
               values={listState.params.filters.status || []}
               onChange={(val) => listState.actions.setFilter("status", val)}
@@ -357,7 +359,7 @@ export default function GalleryCategoriesPage() {
         isOpen={isOpen}
         onClose={close}
         onSubmit={handleSubmit(onSubmit)}
-        title={editingCategory ? "แก้ไขหมวดหมู่" : "เพิ่มหมวดหมู่"}
+        title={editingCategory ? tc("edit") : tc("create")}
         isLoading={isSaving}
       >
         <div className="space-y-4">
@@ -366,7 +368,7 @@ export default function GalleryCategoriesPage() {
             name="name"
             render={({ field }) => (
               <MultiLangInput
-                label="ชื่อหมวดหมู่ *"
+                label={tc("nameLabel")}
                 value={field.value as MultiLangText}
                 onChange={field.onChange}
                 error={
@@ -380,13 +382,13 @@ export default function GalleryCategoriesPage() {
           />
           <Input
             id="slug"
-            label="Slug *"
+            label={`${tc("slug")} *`}
             {...register("slug")}
             error={errors.slug?.message}
           />
           <Input
             id="display_order"
-            label="ลำดับการแสดง"
+            label={tc("displayOrder")}
             type="number"
             {...register("display_order", { valueAsNumber: true })}
             error={errors.display_order?.message}
@@ -396,7 +398,7 @@ export default function GalleryCategoriesPage() {
             name="is_active"
             render={({ field }) => (
               <Switch
-                label="เปิดใช้งาน"
+                label={tc("activeLabel")}
                 checked={field.value}
                 onChange={(e) => field.onChange(e.target.checked)}
               />

@@ -22,7 +22,14 @@ export function useAppOptions() {
   const getMonkPositionOptions = (): SelectOption[] => [
     { value: "abbot", label: t("monks.positions.abbot") },
     { value: "vice_abbot", label: t("monks.positions.vice_abbot") },
+    { value: "assistant_abbot", label: t("monks.positions.assistant_abbot") },
+    { value: "secretary", label: t("monks.positions.secretary") },
+    { value: "dhammaduta", label: t("monks.positions.dhammaduta") },
+    { value: "meditation_master", label: t("monks.positions.meditation_master") },
+    { value: "resident_monk", label: t("monks.positions.resident_monk") },
+    { value: "advisor", label: t("monks.positions.advisor") },
     { value: "monk", label: t("monks.positions.monk") },
+    { value: "novice", label: t("monks.positions.novice") },
   ];
 
   // Schedule type options

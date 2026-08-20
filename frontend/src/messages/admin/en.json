@@ -405,7 +405,10 @@
       "tabs": {
         "general": "General Info",
         "details": "Date & Location",
-        "schedule": "Schedule"
+        "schedule": "Schedule",
+        "registration": "Registration & Settings",
+        "prevStep": "Previous",
+        "nextStep": "Next"
       },
       "form": {
         "title": "Event Title",
@@ -570,20 +573,41 @@
       "backToList": "Back to Monks",
       "createDesc": "Add biography and details for a monk or temple leader",
       "editDesc": "Edit biography and details for a monk or temple leader",
+      "previewRealtime": "Live Preview",
+      "mobilePreviewTitle": "Mobile Preview",
+      "viewPublic": "View Public Page",
+      "deleteMonk": "Delete Monk Profile",
+      "deleteConfirmTitle": "Confirm Deletion",
+      "deleteConfirmDesc": "Are you sure you want to delete this monk profile? This action cannot be undone.",
       "form": {
-        "name": "Full Name / Title",
+        "name": "Full Name",
+        "dharmaName": "Dharma Name (Chaya)",
+        "education": "Ecclesiastical / Academic Education",
         "slug": "Slug (URL)",
         "position": "Position",
         "ordinationDate": "Ordination Date",
+        "pansaCount": "{count} Vassa (Monastic Years)",
+        "displayOrder": "Display Order (Priority)",
+        "displayOrderHelp": "Lower numbers appear first (e.g. 1 before 2)",
         "titleRank": "Rank / Title",
         "bio": "Biography",
         "image": "Profile Image",
-        "active": "Show on Public Site"
+        "active": "Show on Public Site",
+        "auditTitle": "System Information",
+        "createdAt": "Created At",
+        "updatedAt": "Last Updated"
       },
       "positions": {
         "abbot": "Abbot",
         "vice_abbot": "Vice Abbot",
-        "monk": "Monk"
+        "assistant_abbot": "Assistant Abbot",
+        "secretary": "Secretary Monk",
+        "dhammaduta": "Dhammaduta (Overseas Missionary)",
+        "meditation_master": "Meditation Master",
+        "resident_monk": "Resident Monk",
+        "advisor": "Monastic Advisor",
+        "monk": "Monk",
+        "novice": "Novice (Samanera)"
       },
       "filterStatus": "Status",
       "status": {
@@ -673,7 +697,30 @@
       "categorySlug": "Category Slug",
       "itemCategory": "Image Category",
       "useGlobalCategory": "Default (Global Setting)",
-      "manageCategories": "Manage All Categories"
+      "manageCategories": "Manage All Categories",
+      "categories": {
+        "title": "Gallery Categories",
+        "breadcrumb": "Categories",
+        "create": "Add Category",
+        "edit": "Edit Category",
+        "nameTh": "Name (TH)",
+        "nameEn": "Name (EN)",
+        "slug": "Slug",
+        "order": "Order",
+        "displayOrder": "Display Order",
+        "status": "Status",
+        "actions": "Actions",
+        "nameLabel": "Category Name *",
+        "activeLabel": "Active",
+        "active": "Active",
+        "inactive": "Inactive",
+        "csvId": "ID",
+        "csvNameTh": "Name (TH)",
+        "csvNameEn": "Name (EN)",
+        "csvSlug": "Slug",
+        "csvOrder": "Display Order",
+        "csvStatus": "Status"
+      }
     },
     "donations": {
       "title": "Donations",
@@ -813,6 +860,36 @@
         "issuer": "Issuing Staff",
         "responsible": "Authorized Signature",
         "print": "Print"
+      },
+      "categories": {
+        "title": "Donation Categories",
+        "breadcrumb": "Categories",
+        "create": "Add Category",
+        "edit": "Edit Category",
+        "deleteTitle": "Delete Category",
+        "deleteConfirm": "Confirm deletion?",
+        "bulkDeleteConfirm": "Confirm deleting selected categories?",
+        "nameLabel": "Category Name *",
+        "descLabel": "Description",
+        "orderLabel": "Display Order",
+        "activeLabel": "Active",
+        "nameTh": "Name (TH)",
+        "nameEn": "Name (EN)",
+        "description": "Description",
+        "order": "Order",
+        "status": "Status",
+        "actions": "Actions",
+        "active": "Active",
+        "inactive": "Inactive",
+        "filterStatus": "Status",
+        "activeStatus": "Status: {status}",
+        "csvId": "ID",
+        "csvNameTh": "Name (TH)",
+        "csvNameEn": "Name (EN)",
+        "csvDescTh": "Description (TH)",
+        "csvDescEn": "Description (EN)",
+        "csvOrder": "Display Order",
+        "csvStatus": "Status"
       }
     },
     "privacyRequests": {
@@ -932,7 +1009,15 @@
       "status": {
         "active": "Active",
         "inactive": "Inactive"
-      }
+      },
+      "csvId": "ID",
+      "csvType": "Type",
+      "csvDay": "Day",
+      "csvStartTime": "Start Time",
+      "csvEndTime": "End Time",
+      "csvActivityTh": "Activity (TH)",
+      "csvActivityEn": "Activity (EN)",
+      "csvStatus": "Status"
     },
     "members": {
       "title": "Members",
@@ -1257,6 +1342,8 @@
         "descLabel": "SEO Description (Description for Google)",
         "noIndex": "No Index (Do not index on Google)",
         "ogImage": "OG Image URL (Preview image when shared)",
+        "ogImageDesc": "Preview image displayed when sharing page link on Facebook, LINE or social media",
+        "canonicalUrl": "Canonical URL (Primary URL of the page)",
         "keywords": "SEO Keywords (Comma separated)"
       },
       "about": {
@@ -1384,11 +1471,26 @@
         "bankHeading": "Bank Account Header",
         "bankName": "Bank Name",
         "bankAccount": "Account Holder Name",
-        "iban": "IBAN (Germany)",
-        "bic": "BIC/SWIFT Code",
+        "iban": "IBAN (Germany/Europe)",
+        "bic": "BIC / SWIFT Code",
+        "accountNumber": "Account Number",
+        "qrImageDesc": "Upload or enter QR Code image URL for donation transfers",
         "formEnabled": "Enable contact form on website",
         "formSuccess": "Success Message",
-        "formPrivacy": "Privacy Policy link for consent agreement"
+        "formPrivacy": "Privacy Policy link for consent agreement",
+        "privacyPageLink": "Privacy Policy Page Link",
+        "facebookUrl": "Facebook URL",
+        "instagramUrl": "Instagram URL",
+        "messengerUrl": "Facebook Messenger URL",
+        "lineIdUrl": "LINE ID / Add URL",
+        "youtubeUrl": "YouTube Channel URL",
+        "testFacebook": "Test Facebook",
+        "testInstagram": "Test Instagram",
+        "testMessenger": "Test Messenger",
+        "testLine": "Test LINE",
+        "testYoutube": "Test YouTube",
+        "testDirectionsLink": "Test Directions Link",
+        "testLink": "Test Link"
       }
     },
     "login": {

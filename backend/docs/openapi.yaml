@@ -6905,6 +6905,10 @@ components:
           $ref: '#/components/schemas/MultiLangText'
         title:
           $ref: '#/components/schemas/MultiLangText'
+        dharma_name:
+          $ref: '#/components/schemas/MultiLangText'
+        education:
+          $ref: '#/components/schemas/MultiLangText'
         bio:
           $ref: '#/components/schemas/MultiLangText'
         ordination_date:

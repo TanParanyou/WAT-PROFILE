@@ -821,10 +821,15 @@
     "readMore": "Lesen Sie unsere Datenschutzerklärung"
   },
   "MonksPage": {
-    "title": "Mönchschronik",
-    "subtitle": "Biografien unserer ehrwürdigen Mönche",
-    "backButton": "Zurück zur Mönchschronik",
-    "role": "Rolle",
+    "title": "Mönchsverzeichnis",
+    "subtitle": "Mönche und spirituelle Leiter von Wat Loung Por Sai",
+    "backButton": "Zurück zum Verzeichnis",
+    "role": "Position",
+    "dharmaName": "Dharma-Name",
+    "education": "Ausbildung",
+    "ordinationDate": "Ordinationsdatum",
+    "pansa": "Vassa",
+    "pansaYears": "{count} Vassa",
     "biography": "Biografie"
   },
   "EventDetailPage": {

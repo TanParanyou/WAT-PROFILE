@@ -430,7 +430,7 @@ export function ContactContentForm() {
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
                     <label className="text-sm font-medium text-admin-body">{t("contact.mapDirections")}</label>
-                    <TestLinkButton href={watchedMap?.directions_url} label="ทดสอบลิงก์นำทาง" />
+                    <TestLinkButton href={watchedMap?.directions_url} label={t("contact.testDirectionsLink")} />
                   </div>
                   <input
                     type="text"
@@ -554,8 +554,8 @@ export function ContactContentForm() {
                 
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium text-admin-body">Facebook URL</label>
-                    <TestLinkButton href={watchedSocials?.facebook} label="ทดสอบเปิด Facebook" />
+                    <label className="text-sm font-medium text-admin-body">{t("contact.facebookUrl")}</label>
+                    <TestLinkButton href={watchedSocials?.facebook} label={t("contact.testFacebook")} />
                   </div>
                   <input
                     type="text"
@@ -568,8 +568,8 @@ export function ContactContentForm() {
 
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium text-admin-body">Instagram URL</label>
-                    <TestLinkButton href={watchedSocials?.instagram} label="ทดสอบเปิด Instagram" />
+                    <label className="text-sm font-medium text-admin-body">{t("contact.instagramUrl")}</label>
+                    <TestLinkButton href={watchedSocials?.instagram} label={t("contact.testInstagram")} />
                   </div>
                   <input
                     type="text"
@@ -582,8 +582,8 @@ export function ContactContentForm() {
 
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium text-admin-body">Facebook Messenger URL</label>
-                    <TestLinkButton href={watchedSocials?.messenger} label="ทดสอบเปิด Messenger" />
+                    <label className="text-sm font-medium text-admin-body">{t("contact.messengerUrl")}</label>
+                    <TestLinkButton href={watchedSocials?.messenger} label={t("contact.testMessenger")} />
                   </div>
                   <input
                     type="text"
@@ -596,10 +596,10 @@ export function ContactContentForm() {
 
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium text-admin-body">LINE ID / Add URL</label>
+                    <label className="text-sm font-medium text-admin-body">{t("contact.lineIdUrl")}</label>
                     <TestLinkButton
                       href={watchedSocials?.line?.startsWith("http") ? watchedSocials?.line : `https://line.me/R/ti/p/${watchedSocials?.line}`}
-                      label="ทดสอบเปิด LINE"
+                      label={t("contact.testLine")}
                     />
                   </div>
                   <input
@@ -612,8 +612,8 @@ export function ContactContentForm() {
 
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium text-admin-body">YouTube Channel URL</label>
-                    <TestLinkButton href={watchedSocials?.youtube} label="ทดสอบเปิด YouTube" />
+                    <label className="text-sm font-medium text-admin-body">{t("contact.youtubeUrl")}</label>
+                    <TestLinkButton href={watchedSocials?.youtube} label={t("contact.testYoutube")} />
                   </div>
                   <input
                     type="text"
@@ -665,7 +665,7 @@ export function ContactContentForm() {
                 />
 
                 <div className="space-y-1">
-                  <label className="text-sm font-medium text-admin-body">เลขบัญชีเงินฝาก (Account Number)</label>
+                  <label className="text-sm font-medium text-admin-body">{t("contact.accountNumber")}</label>
                   <input
                     type="text"
                     {...methods.register("body.bank.account_number")}
@@ -675,7 +675,7 @@ export function ContactContentForm() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-admin-body">IBAN (เยอรมนี/ยุโรป)</label>
+                    <label className="text-sm font-medium text-admin-body">{t("contact.iban")}</label>
                     <input
                       type="text"
                       {...methods.register("body.bank.iban")}
@@ -683,7 +683,7 @@ export function ContactContentForm() {
                     />
                   </div>
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-admin-body">BIC / SWIFT Code</label>
+                    <label className="text-sm font-medium text-admin-body">{t("contact.bic")}</label>
                     <input
                       type="text"
                       {...methods.register("body.bank.bic")}
@@ -701,7 +701,7 @@ export function ContactContentForm() {
                       label={t("contact.qrImageUrl")}
                       value={field.value}
                       onChange={field.onChange}
-                      description="อัปโหลดหรือระบุ URL รูปภาพ QR Code สำหรับสแกนโอนเงินบริจาค"
+                      description={t("contact.qrImageDesc")}
                       error={fieldState.error?.message}
                     />
                   )}
@@ -758,8 +758,8 @@ export function ContactContentForm() {
 
                 <div className="space-y-1">
                   <div className="flex items-center justify-between">
-                    <label className="text-sm font-medium text-admin-body">ลิงก์หน้านโยบายความเป็นส่วนตัว (Privacy Page Link)</label>
-                    <TestLinkButton href={watchedContactForm?.privacy_page_link} label="ทดสอบเปิดลิงก์" />
+                    <label className="text-sm font-medium text-admin-body">{t("contact.privacyPageLink")}</label>
+                    <TestLinkButton href={watchedContactForm?.privacy_page_link} label={t("contact.testLink")} />
                   </div>
                   <input
                     type="text"
@@ -818,7 +818,7 @@ export function ContactContentForm() {
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                   <div className="space-y-1">
-                    <label className="text-sm font-medium text-admin-body">Canonical URL</label>
+                    <label className="text-sm font-medium text-admin-body">{t("seo.canonicalUrl")}</label>
                     <input
                       type="text"
                       {...methods.register("seo.canonical_url")}
@@ -848,7 +848,7 @@ export function ContactContentForm() {
                       label={t("seo.ogImage")}
                       value={field.value}
                       onChange={field.onChange}
-                      description="รูปภาพตัวอย่างสำหรับแสดงเมื่อแชร์ลิงก์เพจบน Facebook, LINE หรือโซเชียลมีเดีย"
+                      description={t("seo.ogImageDesc")}
                       error={fieldState.error?.message}
                     />
                   )}

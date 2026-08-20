@@ -5,6 +5,8 @@ export interface PublicMonkDto {
   image_url: string | null;
   name: LocalizedTextDto;
   title: LocalizedTextDto | null;
+  dharma_name?: LocalizedTextDto | null;
+  education?: LocalizedTextDto | null;
   bio: LocalizedRichTextDto | null;
   ordination_date: string | null;
   position: string | null;
@@ -16,5 +18,7 @@ export interface MonkListItem {
   imageUrl: string | null;
   name: LocalizedTextDto;
   title: LocalizedTextDto | null;
+  dharma_name?: LocalizedTextDto | null;
+  education?: LocalizedTextDto | null;
   position: string | null;
 }

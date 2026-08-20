@@ -251,17 +251,17 @@ export default function SchedulesPage() {
     exportToCsv(
       listQuery.rows,
       [
-        { header: "ID", accessor: (item) => item.id },
-        { header: "Type", accessor: (item) => item.schedule_type || "" },
+        { header: t("schedules.csvId"), accessor: (item) => item.id },
+        { header: t("schedules.csvType"), accessor: (item) => item.schedule_type || "" },
         {
-          header: "Day",
+          header: t("schedules.csvDay"),
           accessor: (item) => (item.day_of_week !== null ? getDayLabel(item.day_of_week) : ""),
         },
-        { header: "Start Time", accessor: (item) => formatTimeToHHmm(item.time_start) },
-        { header: "End Time", accessor: (item) => formatTimeToHHmm(item.time_end) },
-        { header: "Activity (TH)", accessor: (item) => item.activity?.th || "" },
-        { header: "Activity (EN)", accessor: (item) => item.activity?.en || "" },
-        { header: "Status", accessor: (item) => (item.is_active ? "Active" : "Inactive") },
+        { header: t("schedules.csvStartTime"), accessor: (item) => formatTimeToHHmm(item.time_start) },
+        { header: t("schedules.csvEndTime"), accessor: (item) => formatTimeToHHmm(item.time_end) },
+        { header: t("schedules.csvActivityTh"), accessor: (item) => item.activity?.th || "" },
+        { header: t("schedules.csvActivityEn"), accessor: (item) => item.activity?.en || "" },
+        { header: t("schedules.csvStatus"), accessor: (item) => (item.is_active ? t("schedules.status.active") : t("schedules.status.inactive")) },
       ],
       "schedules_export"
     );
@@ -292,7 +292,7 @@ export default function SchedulesPage() {
     {
       header: t("columns.status"),
       accessorKey: "is_active",
-      cell: (v) => <StatusBadge label={v ? "Active" : "Inactive"} />,
+      cell: (v) => <StatusBadge label={v ? t("schedules.status.active") : t("schedules.status.inactive")} />,
     },
     {
       header: t("columns.actions"),
@@ -301,7 +301,7 @@ export default function SchedulesPage() {
           <AdminTableAction
             resource="schedules"
             action="update"
-            label={t("common.edit") || "แก้ไข"}
+            label={t("common.edit")}
             icon={<Icons.Edit size={16} />}
             onClick={() => handleEdit(row)}
           />
@@ -309,7 +309,7 @@ export default function SchedulesPage() {
             resource="schedules"
             action="delete"
             variant="danger"
-            label={t("common.delete") || "ลบ"}
+            label={t("common.delete")}
             icon={<Icons.Delete size={16} />}
             onClick={() => handleDelete(row)}
           />
@@ -350,13 +350,13 @@ export default function SchedulesPage() {
           primaryFilters={
             <>
               <AdminMultiSelectFilter
-                label="สถานะ"
+                label={filterDefinitions[0].label}
                 options={filterDefinitions[0].options || []}
                 values={listState.params.filters.status || []}
                 onChange={(val) => listState.actions.setFilter("status", val)}
               />
               <AdminMultiSelectFilter
-                label="ประเภทกำหนดการ"
+                label={filterDefinitions[1].label}
                 options={filterDefinitions[1].options || []}
                 values={listState.params.filters.type || []}
                 onChange={(val) => listState.actions.setFilter("type", val)}
@@ -380,7 +380,7 @@ export default function SchedulesPage() {
           }
         >
           <AdminMultiSelectFilter
-            label="วันในสัปดาห์"
+            label={filterDefinitions[2].label}
             options={filterDefinitions[2].options || []}
             values={listState.params.filters.weekday || []}
             onChange={(val) => listState.actions.setFilter("weekday", val)}

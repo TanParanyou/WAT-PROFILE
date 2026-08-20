@@ -209,9 +209,10 @@ export default function MonksListPage() {
           <PermissionButton
             resource="monks"
             action="create"
+            href="/admin/monks/create"
             icon={<Icons.Plus size={14} />}
           >
-            <Link href="/admin/monks/create">{t("monks.create")}</Link>
+            {t("monks.create")}
           </PermissionButton>
         }
       />
@@ -230,7 +231,7 @@ export default function MonksListPage() {
           }
           primaryFilters={
             <AdminMultiSelectFilter
-              label="สถานะ"
+              label={filterDefinitions[0].label}
               options={filterDefinitions[0].options || []}
               values={listState.params.filters.status || []}
               onChange={(val) => listState.actions.setFilter("status", val)}

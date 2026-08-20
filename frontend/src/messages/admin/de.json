@@ -405,7 +405,10 @@
       "tabs": {
         "general": "Allgemeine Info",
         "details": "Datum & Ort",
-        "schedule": "Zeitplan"
+        "schedule": "Zeitplan",
+        "registration": "Anmeldung & Einstellungen",
+        "prevStep": "Zurück",
+        "nextStep": "Weiter"
       },
       "form": {
         "title": "Veranstaltungstitel",
@@ -570,20 +573,41 @@
       "backToList": "Zurück zur Liste",
       "createDesc": "Biografie und Details eines Mönchs oder Tempelleiters hinzufügen",
       "editDesc": "Biografie und Details eines Mönchs oder Tempelleiters bearbeiten",
+      "previewRealtime": "Echtzeit-Vorschau",
+      "mobilePreviewTitle": "Mobile Vorschau",
+      "viewPublic": "Öffentliche Seite ansehen",
+      "deleteMonk": "Mönchsprofil löschen",
+      "deleteConfirmTitle": "Löschen bestätigen",
+      "deleteConfirmDesc": "Möchten Sie dieses Mönchsprofil wirklich löschen? Diese Aktion kann nicht rückgängig gemacht werden.",
       "form": {
-        "name": "Vollständiger Name / Titel",
+        "name": "Vollständiger Name",
+        "dharmaName": "Dharma-Name (Chaya)",
+        "education": "Ausbildung / Titel",
         "slug": "Slug (URL)",
         "position": "Position",
         "ordinationDate": "Ordinationsdatum",
+        "pansaCount": "{count} Vassa (Ordinationsjahre)",
+        "displayOrder": "Anzeigereihenfolge (Priorität)",
+        "displayOrderHelp": "Kleinere Zahlen werden zuerst angezeigt (z. B. 1 vor 2)",
         "titleRank": "Titel / Rang",
         "bio": "Biografie",
         "image": "Profilbild",
-        "active": "Auf der Website anzeigen"
+        "active": "Auf der Website anzeigen",
+        "auditTitle": "Systeminformationen",
+        "createdAt": "Erstellt am",
+        "updatedAt": "Zuletzt aktualisiert"
       },
       "positions": {
         "abbot": "Abt",
         "vice_abbot": "Stellvertretender Abt",
-        "monk": "Mönch"
+        "assistant_abbot": "Assistent des Abts",
+        "secretary": "Sekretär-Mönch",
+        "dhammaduta": "Dhammaduta (Auslandsmissionar)",
+        "meditation_master": "Meditationsmeister",
+        "resident_monk": "Ansässiger Mönch",
+        "advisor": "Berater-Mönch",
+        "monk": "Mönch",
+        "novice": "Novize (Samanera)"
       },
       "filterStatus": "Status",
       "status": {
@@ -673,7 +697,30 @@
       "categorySlug": "Kategorie-Slug",
       "itemCategory": "Bildkategorie",
       "useGlobalCategory": "Standard (Globale Einstellung)",
-      "manageCategories": "Alle Kategorien verwalten"
+      "manageCategories": "Alle Kategorien verwalten",
+      "categories": {
+        "title": "Galeriekategorien verwalten",
+        "breadcrumb": "Kategorien",
+        "create": "Kategorie hinzufügen",
+        "edit": "Kategorie bearbeiten",
+        "nameTh": "Name (TH)",
+        "nameEn": "Name (EN)",
+        "slug": "Slug",
+        "order": "Reihenfolge",
+        "displayOrder": "Anzeigereihenfolge",
+        "status": "Status",
+        "actions": "Aktionen",
+        "nameLabel": "Kategoriename *",
+        "activeLabel": "Aktiv",
+        "active": "Aktiv",
+        "inactive": "Inaktiv",
+        "csvId": "ID",
+        "csvNameTh": "Name (TH)",
+        "csvNameEn": "Name (EN)",
+        "csvSlug": "Slug",
+        "csvOrder": "Reihenfolge",
+        "csvStatus": "Status"
+      }
     },
     "donations": {
       "title": "Spenden",
@@ -813,6 +860,36 @@
         "issuer": "Ausstellende Person",
         "responsible": "Verantwortliche Unterschrift",
         "print": "Drucken"
+      },
+      "categories": {
+        "title": "Spendenkategorien",
+        "breadcrumb": "Kategorien",
+        "create": "Kategorie hinzufügen",
+        "edit": "Kategorie bearbeiten",
+        "deleteTitle": "Kategorie löschen",
+        "deleteConfirm": "Löschen bestätigen?",
+        "bulkDeleteConfirm": "Ausgewählte Kategorien löschen bestätigen?",
+        "nameLabel": "Kategoriename *",
+        "descLabel": "Beschreibung",
+        "orderLabel": "Reihenfolge",
+        "activeLabel": "Aktiv",
+        "nameTh": "Name (TH)",
+        "nameEn": "Name (EN)",
+        "description": "Beschreibung",
+        "order": "Reihenfolge",
+        "status": "Status",
+        "actions": "Aktionen",
+        "active": "Aktiv",
+        "inactive": "Inaktiv",
+        "filterStatus": "Status",
+        "activeStatus": "Status: {status}",
+        "csvId": "ID",
+        "csvNameTh": "Name (TH)",
+        "csvNameEn": "Name (EN)",
+        "csvDescTh": "Beschreibung (TH)",
+        "csvDescEn": "Beschreibung (EN)",
+        "csvOrder": "Reihenfolge",
+        "csvStatus": "Status"
       }
     },
     "privacyRequests": {
@@ -932,7 +1009,15 @@
       "status": {
         "active": "Aktiv",
         "inactive": "Inaktiv"
-      }
+      },
+      "csvId": "ID",
+      "csvType": "Typ",
+      "csvDay": "Tag",
+      "csvStartTime": "Startzeit",
+      "csvEndTime": "Endzeit",
+      "csvActivityTh": "Aktivität (TH)",
+      "csvActivityEn": "Aktivität (EN)",
+      "csvStatus": "Status"
     },
     "members": {
       "title": "Mitglieder",
@@ -1257,6 +1342,8 @@
         "descLabel": "SEO-Beschreibung (Beschreibung für Google)",
         "noIndex": "No Index (Nicht auf Google indexieren)",
         "ogImage": "OG-Bild-URL (Vorschaubild beim Teilen des Links)",
+        "ogImageDesc": "Vorschaubild beim Teilen des Seitenlinks auf Facebook, LINE oder Social Media",
+        "canonicalUrl": "Kanonische URL (Haupt-URL der Seite)",
         "keywords": "SEO-Keywords (Kommagetrennt)"
       },
       "about": {
@@ -1384,11 +1471,26 @@
         "bankHeading": "Bankverbindung Überschrift",
         "bankName": "Bankname",
         "bankAccount": "Kontoinhaber",
-        "iban": "IBAN (Deutschland)",
-        "bic": "BIC/SWIFT-Code",
+        "iban": "IBAN (Deutschland/Europa)",
+        "bic": "BIC / SWIFT-Code",
+        "accountNumber": "Kontonummer (Account Number)",
+        "qrImageDesc": "QR-Code-Bild für Spendenüberweisungen hochladen oder URL eingeben",
         "formEnabled": "Kontaktformular auf Website aktivieren",
         "formSuccess": "Erfolgsmeldung",
-        "formPrivacy": "Datenschutzerklärung-Link für Einwilligungserklärung"
+        "formPrivacy": "Datenschutzerklärung-Link für Einwilligungserklärung",
+        "privacyPageLink": "Link zur Datenschutzerklärung (Privacy Page Link)",
+        "facebookUrl": "Facebook-URL",
+        "instagramUrl": "Instagram-URL",
+        "messengerUrl": "Facebook-Messenger-URL",
+        "lineIdUrl": "LINE-ID / Add-URL",
+        "youtubeUrl": "YouTube-Kanal-URL",
+        "testFacebook": "Facebook testen",
+        "testInstagram": "Instagram testen",
+        "testMessenger": "Messenger testen",
+        "testLine": "LINE testen",
+        "testYoutube": "YouTube testen",
+        "testDirectionsLink": "Navigationslink testen",
+        "testLink": "Link testen"
       }
     },
     "login": {

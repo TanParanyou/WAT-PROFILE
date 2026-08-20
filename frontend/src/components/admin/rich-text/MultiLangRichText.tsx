@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
+import { useLocale } from "next-intl";
 import type { LocalizedRichText, RichTextDocument } from "@/lib/rich-text/document";
 import { getLocalizedRichText } from "@/lib/rich-text/document";
 import { DEFAULT_RICH_TEXT_LOCALE_CONFIGS, DEFAULT_LOCALE, type RichTextLocaleConfig } from "@/constants";
@@ -29,7 +30,7 @@ export type MultiLangRichTextProps = {
 export function MultiLangRichText({
   label,
   locales = DEFAULT_RICH_TEXT_LOCALE_CONFIGS,
-  defaultLocale = DEFAULT_LOCALE,
+  defaultLocale,
   value,
   onChange,
   disabled = false,
@@ -37,14 +38,19 @@ export function MultiLangRichText({
   placeholder,
   error,
 }: MultiLangRichTextProps) {
-  const [selectedLocale, setSelectedLocale] = useState(defaultLocale);
+  const systemLocale = useLocale();
+  const [selectedLocale, setSelectedLocale] = useState<string | null>(null);
+
+  const fallbackLocale = defaultLocale || (locales.some((l) => l.code === systemLocale) ? systemLocale : DEFAULT_LOCALE);
+  const activeLocale = selectedLocale && locales.some((l) => l.code === selectedLocale)
+    ? selectedLocale
+    : fallbackLocale;
+
   const safeValue = useMemo(() => value || {}, [value]);
 
-  const activeLocale = locales.some((l) => l.code === selectedLocale) ? selectedLocale : defaultLocale;
-
   const activeDocument = useMemo(
-    () => getLocalizedRichText(safeValue, activeLocale, defaultLocale),
-    [activeLocale, defaultLocale, safeValue],
+    () => getLocalizedRichText(safeValue, activeLocale, fallbackLocale),
+    [activeLocale, fallbackLocale, safeValue],
   );
 
   const activePlaceholder = useMemo(() => {

@@ -1,6 +1,7 @@
 'use client';
 
 import React from 'react';
+import { Link } from '@/navigation';
 import { cn } from '@/utils/cn';
 import { Loading } from './Loading';
 
@@ -12,6 +13,9 @@ interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
     size?: ButtonSize;
     isLoading?: boolean;
     icon?: React.ReactNode;
+    href?: string;
+    target?: string;
+    rel?: string;
 }
 
 const variantClasses: Record<ButtonVariant, string> = {
@@ -30,17 +34,38 @@ const sizeClasses: Record<ButtonSize, string> = {
 };
 
 const Button = React.forwardRef<HTMLButtonElement, ButtonProps>(
-    ({ className, variant = 'primary', size = 'md', isLoading, icon, children, disabled, ...props }, ref) => {
+    ({ className, variant = 'primary', size = 'md', isLoading, icon, children, disabled, href, target, rel, ...props }, ref) => {
+        const classes = cn(
+            'inline-flex items-center justify-center gap-2 min-h-11 rounded-none font-medium transition-colors focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus disabled:opacity-50 disabled:cursor-not-allowed',
+            variantClasses[variant],
+            sizeClasses[size],
+            className
+        );
+
+        if (href && !disabled && !isLoading) {
+            return (
+                <Link
+                    href={href}
+                    target={target}
+                    rel={rel}
+                    className={classes}
+                    {...(props as unknown as React.AnchorHTMLAttributes<HTMLAnchorElement>)}
+                >
+                    {isLoading ? (
+                        <Loading size="sm" />
+                    ) : icon ? (
+                        icon
+                    ) : null}
+                    {children}
+                </Link>
+            );
+        }
+
         return (
             <button
                 ref={ref}
                 disabled={disabled || isLoading}
-                className={cn(
-                    'inline-flex items-center justify-center gap-2 min-h-11 rounded-none font-medium transition-colors focus:outline-none focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-admin-focus disabled:opacity-50 disabled:cursor-not-allowed',
-                    variantClasses[variant],
-                    sizeClasses[size],
-                    className
-                )}
+                className={classes}
                 {...props}
             >
                 {isLoading ? (

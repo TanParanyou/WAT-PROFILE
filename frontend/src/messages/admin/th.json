@@ -405,7 +405,10 @@
       "tabs": {
         "general": "ข้อมูลทั่วไป",
         "details": "วันและสถานที่",
-        "schedule": "กำหนดการ"
+        "schedule": "กำหนดการ",
+        "registration": "การลงทะเบียนและตั้งค่า",
+        "prevStep": "ย้อนกลับ",
+        "nextStep": "ถัดไป"
       },
       "form": {
         "title": "ชื่อกิจกรรม",
@@ -570,20 +573,41 @@
       "backToList": "ย้อนกลับ",
       "createDesc": "เพิ่มข้อมูลประวัติ พระภิกษุ หรือผู้บริหารของวัด",
       "editDesc": "แก้ไขข้อมูลประวัติ พระภิกษุ หรือผู้บริหารของวัด",
+      "previewRealtime": "ดูพรีวิวแบบเรียลไทม์",
+      "mobilePreviewTitle": "พรีวิวการแสดงผล (Mobile Preview)",
+      "viewPublic": "ดูหน้าเว็บสาธารณะ",
+      "deleteMonk": "ลบข้อมูลพระสงฆ์",
+      "deleteConfirmTitle": "ยืนยันการลบข้อมูลพระสงฆ์",
+      "deleteConfirmDesc": "ต้องการลบข้อมูลพระสงฆ์รูปนี้ใช่หรือไม่ การกระทำนี้ไม่สามารถยกเลิกได้",
       "form": {
-        "name": "ชื่อ-ฉายา",
+        "name": "ชื่อ-นามสกุล",
+        "dharmaName": "ฉายาทางธรรม",
+        "education": "วิทยฐานะ / วุฒิการศึกษา",
         "slug": "Slug (สำหรับ URL)",
         "position": "ตำแหน่ง",
         "ordinationDate": "วันที่อุปสมบท",
-        "titleRank": "ตำแหน่ง/สมณศักดิ์",
+        "pansaCount": "บวชแล้ว {count} พรรษา",
+        "displayOrder": "ลำดับการแสดงผล (Priority)",
+        "displayOrderHelp": "ตัวเลขน้อยจะแสดงก่อน เช่น 1 แสดงก่อน 2",
+        "titleRank": "ตำแหน่ง / สมณศักดิ์",
         "bio": "ประวัติ",
         "image": "รูปภาพประจำตัว",
-        "active": "เปิดใช้งานแสดงบนเว็บไซต์"
+        "active": "เปิดใช้งานแสดงบนเว็บไซต์",
+        "auditTitle": "ข้อมูลระบบ",
+        "createdAt": "สร้างเมื่อ",
+        "updatedAt": "แก้ไขล่าสุด"
       },
       "positions": {
         "abbot": "เจ้าอาวาส",
         "vice_abbot": "รองเจ้าอาวาส",
-        "monk": "พระภิกษุ"
+        "assistant_abbot": "ผู้ช่วยเจ้าอาวาส",
+        "secretary": "พระเลขานุการ",
+        "dhammaduta": "พระธรรมทูต (สายต่างประเทศ)",
+        "meditation_master": "พระวิปัสสนาจารย์",
+        "resident_monk": "พระประจำวัด / พระลูกวัด",
+        "advisor": "พระที่ปรึกษา",
+        "monk": "พระภิกษุสงฆ์",
+        "novice": "สามเณร"
       },
       "filterStatus": "สถานะ",
       "status": {
@@ -673,7 +697,30 @@
       "categorySlug": "Slug หมวดหมู่",
       "itemCategory": "หมวดหมู่รูปภาพ",
       "useGlobalCategory": "ตามค่าเริ่มต้นส่วนกลาง",
-      "manageCategories": "จัดการหมวดหมู่ทั้งหมด"
+      "manageCategories": "จัดการหมวดหมู่ทั้งหมด",
+      "categories": {
+        "title": "จัดการหมวดหมู่คลังภาพ",
+        "breadcrumb": "หมวดหมู่",
+        "create": "เพิ่มหมวดหมู่",
+        "edit": "แก้ไขหมวดหมู่",
+        "nameTh": "ชื่อ (TH)",
+        "nameEn": "ชื่อ (EN)",
+        "slug": "Slug",
+        "order": "ลำดับ",
+        "displayOrder": "ลำดับการแสดง",
+        "status": "สถานะ",
+        "actions": "จัดการ",
+        "nameLabel": "ชื่อหมวดหมู่ *",
+        "activeLabel": "เปิดใช้งาน",
+        "active": "Active",
+        "inactive": "Inactive",
+        "csvId": "ID",
+        "csvNameTh": "Name (TH)",
+        "csvNameEn": "Name (EN)",
+        "csvSlug": "Slug",
+        "csvOrder": "Display Order",
+        "csvStatus": "Status"
+      }
     },
     "donations": {
       "title": "รายการบริจาค",
@@ -813,6 +860,36 @@
         "issuer": "เจ้าหน้าที่ผู้ออกเอกสาร",
         "responsible": "ลงชื่อผู้รับผิดชอบ",
         "print": "พิมพ์เอกสาร"
+      },
+      "categories": {
+        "title": "หมวดหมู่การบริจาค",
+        "breadcrumb": "หมวดหมู่",
+        "create": "เพิ่มหมวดหมู่",
+        "edit": "แก้ไขหมวดหมู่",
+        "deleteTitle": "ลบหมวดหมู่",
+        "deleteConfirm": "ยืนยันการลบ?",
+        "bulkDeleteConfirm": "ยืนยันการลบที่เลือก?",
+        "nameLabel": "ชื่อหมวดหมู่ *",
+        "descLabel": "คำอธิบาย",
+        "orderLabel": "ลำดับ",
+        "activeLabel": "เปิดใช้งาน",
+        "nameTh": "ชื่อ (TH)",
+        "nameEn": "ชื่อ (EN)",
+        "description": "คำอธิบาย",
+        "order": "ลำดับ",
+        "status": "สถานะ",
+        "actions": "จัดการ",
+        "active": "Active",
+        "inactive": "Inactive",
+        "filterStatus": "สถานะ",
+        "activeStatus": "สถานะ: {status}",
+        "csvId": "ID",
+        "csvNameTh": "Name (TH)",
+        "csvNameEn": "Name (EN)",
+        "csvDescTh": "Description (TH)",
+        "csvDescEn": "Description (EN)",
+        "csvOrder": "Display Order",
+        "csvStatus": "Status"
       }
     },
     "privacyRequests": {
@@ -932,7 +1009,15 @@
       "status": {
         "active": "เปิดใช้งาน",
         "inactive": "ปิดใช้งาน"
-      }
+      },
+      "csvId": "ID",
+      "csvType": "Type",
+      "csvDay": "Day",
+      "csvStartTime": "Start Time",
+      "csvEndTime": "End Time",
+      "csvActivityTh": "Activity (TH)",
+      "csvActivityEn": "Activity (EN)",
+      "csvStatus": "Status"
     },
     "members": {
       "title": "จัดการสมาชิก",
@@ -1255,6 +1340,8 @@
         "descLabel": "SEO Description (คำอธิบายสำหรับ Google)",
         "noIndex": "No Index (ไม่ให้แสดงผลบน Google)",
         "ogImage": "OG Image URL (ภาพตัวอย่างเมื่อแชร์ลิงก์)",
+        "ogImageDesc": "รูปภาพตัวอย่างสำหรับแสดงเมื่อแชร์ลิงก์เพจบน Facebook, LINE หรือโซเชียลมีเดีย",
+        "canonicalUrl": "Canonical URL (URL หลักของหน้าเพจ)",
         "keywords": "SEO Keywords (คำค้นหา คั่นด้วยจุลภาค)"
       },
       "about": {
@@ -1382,11 +1469,26 @@
         "bankHeading": "หัวข้อบัญชีธนาคาร",
         "bankName": "ชื่อธนาคาร",
         "bankAccount": "ชื่อบัญชีธนาคาร",
-        "iban": "เลขบัญชี (IBAN สำหรับเยอรมนี)",
-        "bic": "รหัสธนาคาร (BIC/SWIFT)",
+        "iban": "IBAN (เยอรมนี/ยุโรป)",
+        "bic": "BIC / SWIFT Code",
+        "accountNumber": "เลขบัญชีเงินฝาก (Account Number)",
+        "qrImageDesc": "อัปโหลดหรือระบุ URL รูปภาพ QR Code สำหรับสแกนโอนเงินบริจาค",
         "formEnabled": "เปิดใช้งานฟอร์มติดต่อรับข้อความหน้าเว็บ",
         "formSuccess": "ข้อความแสดงเมื่อส่งข้อความสำเร็จ",
-        "formPrivacy": "หน้าเพจนโยบายความเป็นส่วนตัวสำหรับข้อตกลง"
+        "formPrivacy": "หน้าเพจนโยบายความเป็นส่วนตัวสำหรับข้อตกลง",
+        "privacyPageLink": "ลิงก์หน้านโยบายความเป็นส่วนตัว (Privacy Page Link)",
+        "facebookUrl": "Facebook URL",
+        "instagramUrl": "Instagram URL",
+        "messengerUrl": "Facebook Messenger URL",
+        "lineIdUrl": "LINE ID / ลิงก์ Add LINE",
+        "youtubeUrl": "YouTube Channel URL",
+        "testFacebook": "ทดสอบเปิด Facebook",
+        "testInstagram": "ทดสอบเปิด Instagram",
+        "testMessenger": "ทดสอบเปิด Messenger",
+        "testLine": "ทดสอบเปิด LINE",
+        "testYoutube": "ทดสอบเปิด YouTube",
+        "testDirectionsLink": "ทดสอบลิงก์นำทาง",
+        "testLink": "ทดสอบเปิดลิงก์"
       }
     },
     "login": {

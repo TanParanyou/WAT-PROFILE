@@ -394,17 +394,19 @@ export default function GalleryListPage() {
               resource="gallery"
               action="create"
               variant="outline"
+              href="/admin/gallery/categories"
               icon={<FolderOpen size={16} />}
             >
-              <Link href="/admin/gallery/categories">{t("gallery.categories")}</Link>
+              {t("gallery.categories")}
             </PermissionButton>
 
             <PermissionButton
               resource="gallery"
               action="create"
+              href="/admin/gallery/upload"
               icon={<Icons.Plus size={14} />}
             >
-              <Link href="/admin/gallery/upload">{t("gallery.upload")}</Link>
+              {t("gallery.upload")}
             </PermissionButton>
           </div>
         }

@@ -416,9 +416,10 @@ export default function EventsListPage() {
             <PermissionButton
               resource="events"
               action="create"
+              href="/admin/events/create"
               icon={<Icons.Plus size={14} />}
             >
-              <Link href="/admin/events/create">{t("events.create")}</Link>
+              {t("events.create")}
             </PermissionButton>
           </div>
         }

@@ -821,10 +821,15 @@
     "readMore": "Read our Privacy Policy"
   },
   "MonksPage": {
-    "title": "Monks History",
-    "subtitle": "Biographies of our Venerable Monks",
-    "backButton": "Back to Monks History",
-    "role": "Role",
+    "title": "Monks Directory",
+    "subtitle": "Resident Monks & Leaders of Wat Loung Por Sai",
+    "backButton": "Back to Monks",
+    "role": "Position",
+    "dharmaName": "Dharma Name",
+    "education": "Ecclesiastical Rank",
+    "ordinationDate": "Ordination Date",
+    "pansa": "Vassa",
+    "pansaYears": "{count} Vassa",
     "biography": "Biography"
   },
   "EventDetailPage": {

@@ -1,0 +1,2 @@
+ALTER TABLE monks DROP COLUMN IF EXISTS dharma_name;
+ALTER TABLE monks DROP COLUMN IF EXISTS education;

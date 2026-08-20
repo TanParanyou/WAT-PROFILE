@@ -825,6 +825,11 @@
     "subtitle": "ประวัติพระสงฆ์วัดหลวงพ่อใส",
     "backButton": "กลับไปทำเนียบพระสงฆ์",
     "role": "ตำแหน่ง",
+    "dharmaName": "ฉายาทางธรรม",
+    "education": "วิทยฐานะ",
+    "ordinationDate": "วันที่อุปสมบท",
+    "pansa": "พรรษา",
+    "pansaYears": "{count} พรรษา",
     "biography": "ประวัติ"
   },
   "EventDetailPage": {

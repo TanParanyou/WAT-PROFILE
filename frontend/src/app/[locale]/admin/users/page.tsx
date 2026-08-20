@@ -222,9 +222,10 @@ export default function UsersListPage() {
           <PermissionButton
             resource="users"
             action="create"
+            href="/admin/users/create"
             icon={<Icons.Plus size={14} />}
           >
-            <Link href="/admin/users/create">{t("users.create")}</Link>
+            {t("users.create")}
           </PermissionButton>
         }
       />

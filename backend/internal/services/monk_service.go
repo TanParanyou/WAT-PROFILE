@@ -42,8 +42,8 @@ func (s *MonkService) ListAdmin(options MonkListOptions) ([]models.Monk, int64, 
 	if options.Common.Search != "" {
 		searchTerm := "%" + options.Common.Search + "%"
 		query = query.Where(
-			"monks.slug ILIKE ? OR monks.name->>'th' ILIKE ? OR monks.name->>'en' ILIKE ? OR monks.name->>'de' ILIKE ? OR monks.title->>'th' ILIKE ? OR monks.title->>'en' ILIKE ? OR monks.title->>'de' ILIKE ? OR monks.position->>'th' ILIKE ? OR monks.position->>'en' ILIKE ? OR monks.position->>'de' ILIKE ?",
-			searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm,
+			"monks.slug ILIKE ? OR monks.name->>'th' ILIKE ? OR monks.name->>'en' ILIKE ? OR monks.name->>'de' ILIKE ? OR monks.title->>'th' ILIKE ? OR monks.title->>'en' ILIKE ? OR monks.title->>'de' ILIKE ? OR monks.dharma_name->>'th' ILIKE ? OR monks.dharma_name->>'en' ILIKE ? OR monks.dharma_name->>'de' ILIKE ? OR monks.education->>'th' ILIKE ? OR monks.education->>'en' ILIKE ? OR monks.education->>'de' ILIKE ? OR monks.position ILIKE ?",
+			searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm, searchTerm,
 		)
 	}
 

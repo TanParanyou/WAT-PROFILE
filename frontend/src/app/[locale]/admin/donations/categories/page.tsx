@@ -17,7 +17,7 @@ import { useToast } from "@/hooks/useToast";
 import { useApiError } from "@/hooks/useApiError";
 import type { DonationCategory } from "@/types/entities";
 import type { MultiLangText } from "@/types/api";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
@@ -45,6 +45,8 @@ interface DonationCategoryFilters extends AdminFilterRecord {
 
 export default function DonationCategoriesPage() {
   const t = useTranslations("Admin");
+  const tc = useTranslations("Admin.donations.categories");
+  const locale = useLocale();
   const [isSaving, setIsSaving] = useState(false);
   const { isOpen, open, close } = useModal();
   const { confirm, ConfirmDialog } = useConfirm();
@@ -74,17 +76,18 @@ export default function DonationCategoriesPage() {
     {
       key: "status",
       kind: "multi",
-      label: "สถานะ",
+      label: tc("filterStatus"),
       options: [
-        { value: "active", label: "Active" },
-        { value: "inactive", label: "Inactive" },
+        { value: "active", label: tc("active") },
+        { value: "inactive", label: tc("inactive") },
       ],
     },
   ];
 
   const activeChips: AdminActiveFilterChip[] = [];
   for (const s of listState.params.filters.status || []) {
-    activeChips.push({ key: "status", value: s, label: `สถานะ: ${s}` });
+    const statusLabel = s === "active" ? tc("active") : s === "inactive" ? tc("inactive") : s;
+    activeChips.push({ key: "status", value: s, label: tc("activeStatus", { status: statusLabel }) });
   }
 
   const {
@@ -152,8 +155,8 @@ export default function DonationCategoriesPage() {
 
   const handleDelete = async (id: number) => {
     await confirm({
-      title: "ลบหมวดหมู่",
-      message: "ยืนยันการลบ?",
+      title: tc("deleteTitle"),
+      message: tc("deleteConfirm"),
       variant: "danger",
       onConfirm: async () => {
         try {
@@ -172,8 +175,8 @@ export default function DonationCategoriesPage() {
   const handleBulkDelete = async () => {
     if (selectedIds.selectedCount === 0) return;
     await confirm({
-      title: "ลบหมวดหมู่",
-      message: "ยืนยันการลบที่เลือก?",
+      title: tc("deleteTitle"),
+      message: tc("bulkDeleteConfirm"),
       variant: "danger",
       onConfirm: async () => {
         try {
@@ -195,13 +198,13 @@ export default function DonationCategoriesPage() {
     exportToCsv(
       listQuery.rows,
       [
-        { header: "ID", accessor: (item) => item.id },
-        { header: "Name (TH)", accessor: (item) => item.name?.th || "" },
-        { header: "Name (EN)", accessor: (item) => item.name?.en || "" },
-        { header: "Description (TH)", accessor: (item) => item.description?.th || "" },
-        { header: "Description (EN)", accessor: (item) => item.description?.en || "" },
-        { header: "Display Order", accessor: (item) => item.display_order || 0 },
-        { header: "Status", accessor: (item) => (item.is_active ? "Active" : "Inactive") },
+        { header: tc("csvId"), accessor: (item) => item.id },
+        { header: tc("csvNameTh"), accessor: (item) => item.name?.th || "" },
+        { header: tc("csvNameEn"), accessor: (item) => item.name?.en || "" },
+        { header: tc("csvDescTh"), accessor: (item) => item.description?.th || "" },
+        { header: tc("csvDescEn"), accessor: (item) => item.description?.en || "" },
+        { header: tc("csvOrder"), accessor: (item) => item.display_order || 0 },
+        { header: tc("csvStatus"), accessor: (item) => (item.is_active ? tc("active") : tc("inactive")) },
       ],
       "donation_categories_export"
     );
@@ -209,29 +212,32 @@ export default function DonationCategoriesPage() {
 
   const columns: Column<DonationCategory>[] = [
     {
-      header: "ชื่อ (TH)",
+      header: tc("nameTh"),
       accessorKey: "name",
       cell: (v) => (v as DonationCategory["name"])?.th || "-",
       sortable: true,
     },
     {
-      header: "ชื่อ (EN)",
+      header: tc("nameEn"),
       accessorKey: "name",
       cell: (v) => (v as DonationCategory["name"])?.en || "-",
     },
     {
-      header: "คำอธิบาย",
+      header: tc("description"),
       accessorKey: "description",
-      cell: (v) => (v as DonationCategory["description"])?.th || "-",
+      cell: (v) => {
+        const desc = v as DonationCategory["description"];
+        return (locale === "en" ? desc?.en : locale === "de" ? desc?.de : desc?.th) || desc?.th || desc?.en || desc?.de || "-";
+      },
     },
-    { header: "ลำดับ", accessorKey: "display_order", sortable: true },
+    { header: tc("order"), accessorKey: "display_order", sortable: true },
     {
-      header: "สถานะ",
+      header: tc("status"),
       accessorKey: "is_active",
-      cell: (v) => <StatusBadge label={v ? "Active" : "Inactive"} />,
+      cell: (v) => <StatusBadge label={v ? tc("active") : tc("inactive")} />,
     },
     {
-      header: "จัดการ",
+      header: tc("actions"),
       cell: (_, row) => (
         <div className="flex gap-1.5">
           <PermissionGuard resource="donations" action="update">
@@ -260,10 +266,10 @@ export default function DonationCategoriesPage() {
   return (
     <div className="space-y-6">
       <AdminPageHeader
-        title="หมวดหมู่การบริจาค"
+        title={tc("title")}
         breadcrumbs={[
-          { label: "รายการบริจาค", href: "/admin/donations" },
-          { label: "หมวดหมู่" },
+          { label: t("donations.title"), href: "/admin/donations" },
+          { label: tc("breadcrumb") },
         ]}
         actions={
           <PermissionButton
@@ -272,7 +278,7 @@ export default function DonationCategoriesPage() {
             icon={<Icons.Plus size={14} />}
             onClick={handleOpenCreate}
           >
-            เพิ่มหมวดหมู่
+            {tc("create")}
           </PermissionButton>
         }
       />
@@ -290,7 +296,7 @@ export default function DonationCategoriesPage() {
         }
         primaryFilters={
           <AdminMultiSelectFilter
-            label="สถานะ"
+            label={tc("filterStatus")}
             options={filterDefinitions[0].options || []}
             values={listState.params.filters.status || []}
             onChange={(val) => listState.actions.setFilter("status", val)}
@@ -347,7 +353,7 @@ export default function DonationCategoriesPage() {
         isOpen={isOpen}
         onClose={close}
         onSubmit={handleSubmit(onSubmit)}
-        title={editingId ? "แก้ไขหมวดหมู่" : "เพิ่มหมวดหมู่"}
+        title={editingId ? tc("edit") : tc("create")}
         isLoading={isSaving}
       >
         <div className="space-y-4">
@@ -356,7 +362,7 @@ export default function DonationCategoriesPage() {
             name="name"
             render={({ field }) => (
               <MultiLangInput
-                label="ชื่อหมวดหมู่ *"
+                label={tc("nameLabel")}
                 value={field.value as MultiLangText}
                 onChange={field.onChange}
                 error={
@@ -373,7 +379,7 @@ export default function DonationCategoriesPage() {
             name="description"
             render={({ field }) => (
               <MultiLangInput
-                label="คำอธิบาย"
+                label={tc("descLabel")}
                 type="textarea"
                 value={(field.value || { ...emptyLang }) as MultiLangText}
                 onChange={field.onChange}
@@ -389,7 +395,7 @@ export default function DonationCategoriesPage() {
           />
           <Input
             id="display_order"
-            label="ลำดับ"
+            label={tc("orderLabel")}
             type="number"
             {...register("display_order", { valueAsNumber: true })}
             error={errors.display_order?.message}
@@ -399,7 +405,7 @@ export default function DonationCategoriesPage() {
             name="is_active"
             render={({ field }) => (
               <Switch
-                label="เปิดใช้งาน"
+                label={tc("activeLabel")}
                 checked={field.value}
                 onChange={(e) => field.onChange(e.target.checked)}
               />

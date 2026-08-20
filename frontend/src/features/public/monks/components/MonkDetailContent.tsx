@@ -58,17 +58,48 @@ export function MonkDetailContent({ slug, initialMonk }: MonkDetailContentProps)
               sizes="(max-width: 1200px) 100vw, 33vw"
             />
           </div>
-          {monk.title ? <div className="border-t border-site-border p-6">
-            <div className="flex items-center gap-3 text-site-body">
-              <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-site-border text-site-accent">
-                <User size={20} />
+          <div className="border-t border-site-border divide-y divide-site-border">
+            {monk.dharma_name && getLocalizedText(monk.dharma_name, locale) ? (
+              <div className="p-6">
+                <p className="text-xs font-bold text-site-muted">{t("dharmaName")}</p>
+                <p className="font-medium text-site-foreground text-base">
+                  {getLocalizedText(monk.dharma_name, locale)}
+                </p>
               </div>
-              <div>
-                <p className="text-xs font-bold text-site-muted">{t("role")}</p>
-                <p className="font-medium">{getLocalizedText(monk.title, locale)}</p>
+            ) : null}
+
+            {monk.title && getLocalizedText(monk.title, locale) ? (
+              <div className="p-6">
+                <div className="flex items-center gap-3 text-site-body">
+                  <div className="flex h-10 w-10 shrink-0 items-center justify-center border border-site-border text-site-accent">
+                    <User size={20} />
+                  </div>
+                  <div>
+                    <p className="text-xs font-bold text-site-muted">{t("role")}</p>
+                    <p className="font-medium text-site-foreground">{getLocalizedText(monk.title, locale)}</p>
+                  </div>
+                </div>
               </div>
-            </div>
-          </div> : null}
+            ) : null}
+
+            {monk.education && getLocalizedText(monk.education, locale) ? (
+              <div className="p-6">
+                <p className="text-xs font-bold text-site-muted">{t("education")}</p>
+                <p className="font-medium text-site-foreground text-sm">
+                  {getLocalizedText(monk.education, locale)}
+                </p>
+              </div>
+            ) : null}
+
+            {monk.ordination_date ? (
+              <div className="p-6">
+                <p className="text-xs font-bold text-site-muted">{t("ordinationDate")}</p>
+                <p className="font-medium text-site-foreground text-sm">
+                  {monk.ordination_date.split("T")[0]}
+                </p>
+              </div>
+            ) : null}
+          </div>
         </div>
       </div>
 
