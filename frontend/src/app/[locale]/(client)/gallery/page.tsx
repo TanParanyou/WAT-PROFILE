@@ -15,7 +15,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
 
     const title = apiPage ? getLocalizedText(apiPage.title, locale) : cmsPage ? getLocalizedText(cmsPage.title, locale) : '';
     const description = apiPage ? getLocalizedText(apiPage.description, locale) : cmsPage ? getLocalizedText(cmsPage.description, locale) : '';
-    return buildPublicMetadata({ locale, pathname: `/${locale}/gallery`, seo: normalizeSeo(apiPage?.seo), content: { title, description }, messages: { title: t('title'), description: t('subtitle') }, site: { name: siteConfig.siteName.th, description: siteConfig.seo.defaultDescription, image: siteConfig.seo.defaultOgImage } });
+    return buildPublicMetadata({
+        locale,
+        pathname: `/${locale}/gallery`,
+        seo: normalizeSeo(apiPage?.seo),
+        content: { title, description },
+        messages: { title: t('title'), description: t('subtitle') },
+    });
 }
 
 export default async function GalleryPage() {

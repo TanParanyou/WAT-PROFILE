@@ -27,5 +27,55 @@ export default async function CommunityQuestionPage({ params }: { params: Promis
   const messages = await getMessages({ locale });
   const queryClient = new QueryClient();
   queryClient.setQueryData(communityKeys.question(id), detail);
-  return <NextIntlClientProvider locale={locale} messages={messages}><HydrationBoundary state={dehydrate(queryClient)}><QuestionDetailContent id={id} /></HydrationBoundary></NextIntlClientProvider>;
+
+  const qaSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'QAPage',
+    mainEntity: {
+      '@type': 'Question',
+      name: detail.question.title,
+      text: detail.question.title,
+      answerCount: detail.question.published_answer_count || 0,
+      dateCreated: detail.question.created_at,
+      author: {
+        '@type': 'Person',
+        name: detail.question.author?.display_name || 'Community Member',
+      },
+    },
+  };
+
+  const breadcrumbSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: 'Community',
+        item: `${siteConfig.domain}/${locale}/community`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: detail.question.title,
+        item: `${siteConfig.domain}/${detail.question.locale}/community/q/${detail.question.id}/${detail.question.slug}`,
+      },
+    ],
+  };
+
+  return (
+    <NextIntlClientProvider locale={locale} messages={messages}>
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(qaSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+      />
+      <HydrationBoundary state={dehydrate(queryClient)}>
+        <QuestionDetailContent id={id} />
+      </HydrationBoundary>
+    </NextIntlClientProvider>
+  );
 }

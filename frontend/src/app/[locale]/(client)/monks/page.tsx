@@ -9,7 +9,16 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     const { locale } = await params;
     const t = await getTranslations({ locale, namespace: 'MonksPage' });
     const page = await fetchPublishedPageMetadata('monks').catch(() => null);
-    return buildPublicMetadata({ locale, pathname: `/${locale}/monks`, seo: normalizeSeo(page?.seo), content: { title: page?.title[locale as keyof typeof page.title] ?? '', description: page?.description[locale as keyof typeof page.description] ?? '' }, messages: { title: t('title'), description: t('subtitle') }, site: { name: siteConfig.siteName.th, description: siteConfig.seo.defaultDescription, image: siteConfig.seo.defaultOgImage } });
+    return buildPublicMetadata({
+        locale,
+        pathname: `/${locale}/monks`,
+        seo: normalizeSeo(page?.seo),
+        content: {
+            title: page?.title[locale as keyof typeof page.title] ?? '',
+            description: page?.description[locale as keyof typeof page.description] ?? '',
+        },
+        messages: { title: t('title'), description: t('subtitle') },
+    });
 }
 
 export default async function MonksPage() {

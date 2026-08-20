@@ -36,6 +36,11 @@ export type SeoConfig = {
     defaultDescription: string;
     defaultOgImage: string;
     keywords: string[];
+    verification?: {
+        google?: string;
+        bing?: string;
+        yandex?: string;
+    };
 };
 
 export type AddressDetails = {
@@ -135,7 +140,9 @@ export const siteConfig: SiteConfig = {
         en: 'Buddhist Meditation Center',
         de: 'Buddhist Meditation Center',
     },
-    domain: 'https://sermrangsi.vercel.app', // Placeholder
+    domain:
+        process.env.NEXT_PUBLIC_SITE_URL ||
+        (process.env.NEXT_PUBLIC_VERCEL_URL ? `https://${process.env.NEXT_PUBLIC_VERCEL_URL}` : 'https://sermrangsi.vercel.app'),
 
     defaultLocale: 'th',
     locales: ['th', 'en', 'de'],
@@ -172,6 +179,10 @@ export const siteConfig: SiteConfig = {
             'ทำบุญ',
             'ปฏิบัติธรรม',
         ],
+        verification: {
+            google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION,
+            bing: process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION,
+        },
     },
 
     contact: {
@@ -219,7 +230,7 @@ export const siteConfig: SiteConfig = {
     },
 
     integrations: {
-        googleAnalyticsId: '',
+        googleAnalyticsId: process.env.NEXT_PUBLIC_GA_ID || '',
     },
 
     features: {

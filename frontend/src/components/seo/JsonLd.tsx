@@ -1,34 +1,53 @@
-"use client";
-
 import { siteConfig } from '@/config/site.config';
-import { useLocale } from 'next-intl';
+import { getLocale } from 'next-intl/server';
 import { getLocalizedText } from '@/utils/localizedText';
-import { usePublicSiteSettings } from '@/features/public/settings/PublicSiteSettingsProvider';
+import { fetchPublicSiteSettings } from '@/features/public/settings/api';
+import { getFallbackPublicSiteSettings, mapPublicSiteSettings } from '@/features/public/settings/mapper';
 
-export default function JsonLd() {
-    const locale = useLocale();
-    const settings = usePublicSiteSettings();
+export default async function JsonLd() {
+    let locale = 'th';
+    try {
+        locale = await getLocale();
+    } catch {
+        locale = siteConfig.defaultLocale;
+    }
+
+    let settings = getFallbackPublicSiteSettings();
+    try {
+        const raw = await fetchPublicSiteSettings();
+        settings = mapPublicSiteSettings(raw, settings);
+    } catch {
+        // Fallback to siteConfig
+    }
+
+    const templeName = getLocalizedText(settings.siteName, locale) || siteConfig.siteName.th;
+    const templeDescription = getLocalizedText(settings.description, locale) || siteConfig.seo.defaultDescription;
+    const templeAddress = getLocalizedText(settings.address, locale) || (siteConfig.contact.address ? getLocalizedText(siteConfig.contact.address, locale) : '');
+
     const jsonLd = {
         '@context': 'https://schema.org',
-        '@type': 'BuddhistTemple', // More specific than Organization
-        name: getLocalizedText(settings.siteName, locale),
-        alternateName: [settings.siteName.en, settings.siteName.de],
+        '@type': 'BuddhistTemple',
+        name: templeName,
+        alternateName: [settings.siteName.th, settings.siteName.en, settings.siteName.de].filter(Boolean),
         url: siteConfig.domain,
-        logo: `${siteConfig.domain}${siteConfig.logo.light}`,
+        logo: `${siteConfig.domain}${settings.logoUrl || siteConfig.logo.light}`,
         image: `${siteConfig.domain}${siteConfig.seo.defaultOgImage}`,
-        description: getLocalizedText(settings.description, locale),
-        telephone: settings.phone,
-        email: settings.email,
+        description: templeDescription,
+        telephone: settings.phone || siteConfig.contact.phone,
+        email: settings.email || siteConfig.contact.email,
         address: {
             '@type': 'PostalAddress',
-            streetAddress: getLocalizedText(settings.address, locale),
+            streetAddress: templeAddress,
+            addressLocality: siteConfig.contact.addressDetails?.addressLocality,
+            postalCode: siteConfig.contact.addressDetails?.postalCode,
+            addressCountry: siteConfig.contact.addressDetails?.addressCountry,
         },
         geo: {
             '@type': 'GeoCoordinates',
             latitude: siteConfig.contact.geo?.latitude,
             longitude: siteConfig.contact.geo?.longitude,
         },
-        priceRange: '0', // Temples are usually free/donation based
+        priceRange: '0',
         openingHoursSpecification: siteConfig.contact.openingHours?.map((hours) => ({
             '@type': 'OpeningHoursSpecification',
             dayOfWeek: hours.dayOfWeek,

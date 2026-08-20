@@ -77,6 +77,12 @@ export const metadata: Metadata = {
       { url: "/icons/apple-touch-icon.png", sizes: "180x180", type: "image/png" },
     ],
   },
+  verification: {
+    google: siteConfig.seo.verification?.google,
+    other: siteConfig.seo.verification?.bing
+      ? { "msvalidate.01": siteConfig.seo.verification.bing }
+      : undefined,
+  },
 };
 
 

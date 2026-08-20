@@ -23,15 +23,21 @@ interface Props {
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, locale } = await params;
   const tEvents = await getTranslations({ locale, namespace: "EventsPage" });
-    const titleFallback = tEvents("title");
+  const titleFallback = tEvents("title");
   const descriptionFallback = tEvents("subtitle");
 
   try {
     const event = await fetchPublicEventBySlug(slug);
-    const title = getLocalizedText(event.title, locale);
+    const title = getLocalizedText(event.title, locale) || titleFallback;
     const description = event.description ? getLocalizedPlainText(event.description, locale) : descriptionFallback;
 
-    return buildPublicMetadata({ locale, pathname: `/${locale}/events/${slug}`, seo: emptySeoMetadata, content: { title, description, image: event.image_url ?? undefined }, messages: { title: titleFallback, description: descriptionFallback }, site: { name: siteConfig.siteName.th, description: siteConfig.seo.defaultDescription, image: siteConfig.seo.defaultOgImage } });
+    return buildPublicMetadata({
+      locale,
+      pathname: `/${locale}/events/${slug}`,
+      seo: emptySeoMetadata,
+      content: { title, description, image: event.image_url ?? undefined },
+      messages: { title: titleFallback, description: descriptionFallback },
+    });
   } catch (error) {
     const queryError = toPublicQueryError(error);
     if (queryError.kind === "not-found") {
@@ -69,8 +75,62 @@ export default async function EventDetailPage({ params }: Props) {
   const headerSubtitle = eventLocation || tEvents("subtitle");
   const hasCoverImage = Boolean(initialEvent?.image_url);
 
+  // Structured Data schemas
+  const eventSchema = initialEvent ? {
+    '@context': 'https://schema.org',
+    '@type': 'Event',
+    name: headerTitle,
+    description: initialEvent.description ? getLocalizedPlainText(initialEvent.description, locale) : headerSubtitle,
+    startDate: initialEvent.start_date,
+    endDate: initialEvent.end_date || initialEvent.start_date,
+    eventStatus: 'https://schema.org/EventScheduled',
+    eventAttendanceMode: initialEvent.online_join_url
+      ? 'https://schema.org/MixedEventAttendanceMode'
+      : 'https://schema.org/OfflineEventAttendanceMode',
+    location: {
+      '@type': 'Place',
+      name: eventLocation || siteConfig.siteName.th,
+      address: siteConfig.contact.address ? getLocalizedText(siteConfig.contact.address, locale) : undefined,
+    },
+    image: initialEvent.image_url ? [initialEvent.image_url] : undefined,
+    organizer: {
+      '@type': 'Organization',
+      name: siteConfig.siteName.th,
+      url: siteConfig.domain,
+    },
+  } : null;
+
+  const breadcrumbsSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: t('breadcrumbs.events') || 'Events',
+        item: `${siteConfig.domain}/${locale}/events`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: headerTitle,
+        item: `${siteConfig.domain}/${locale}/events/${slug}`,
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      {eventSchema ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(eventSchema) }}
+        />
+      ) : null}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsSchema) }}
+      />
       <PageHeader
         variant={hasCoverImage ? "image" : "color"}
         align="left"

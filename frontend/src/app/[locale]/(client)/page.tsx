@@ -17,11 +17,15 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const title = cmsPage ? getLocalizedText(cmsPage.title, locale) || t("heroFallbackTitle") : t("heroFallbackTitle");
   const description = cmsPage ? getLocalizedText(cmsPage.description, locale) || t("heroFallbackDescription") : t("heroFallbackDescription");
 
+  const siteName = getLocalizedText(siteConfig.siteName, locale) || siteConfig.siteName.th;
+
   return {
     title,
     description,
     openGraph: {
-      title: `${title} | ${siteConfig.siteName.th}`,
+      type: "website",
+      locale,
+      title: `${title} | ${siteName}`,
       description,
       images: [{ url: siteConfig.seo.defaultOgImage, width: 1200, height: 630 }],
     },
@@ -31,6 +35,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
         th: "/th",
         en: "/en",
         de: "/de",
+        "x-default": "/th",
       },
     },
   };

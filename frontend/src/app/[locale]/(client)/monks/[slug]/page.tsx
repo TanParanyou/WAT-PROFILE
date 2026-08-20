@@ -19,23 +19,30 @@ interface Props {
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug, locale } = await params;
+  const t = await getTranslations({ locale, namespace: "MonksPage" });
 
   try {
     const monk = await fetchPublicMonkBySlug(slug);
-    const name = getLocalizedText(monk.name, locale);
+    const name = getLocalizedText(monk.name, locale) || t("title");
     const title = monk.title ? getLocalizedText(monk.title, locale) : "";
 
     const description = title ? `${name}, ${title}` : name;
-    return buildPublicMetadata({ locale, pathname: `/${locale}/monks/${slug}`, seo: emptySeoMetadata, content: { title: name, description, image: monk.image_url ?? undefined }, messages: { title: name, description }, site: { name: siteConfig.siteName.th, description: siteConfig.seo.defaultDescription, image: siteConfig.seo.defaultOgImage } });
+    return buildPublicMetadata({
+      locale,
+      pathname: `/${locale}/monks/${slug}`,
+      seo: emptySeoMetadata,
+      content: { title: name, description, image: monk.image_url ?? undefined },
+      messages: { title: name, description },
+    });
   } catch (error) {
     const queryError = toPublicQueryError(error);
-    return queryError.kind === "not-found" ? { title: "Monk Not Found" } : { title: siteConfig.siteName.th };
+    return queryError.kind === "not-found" ? { title: t("title") } : { title: t("title") };
   }
 }
 
 export default async function MonkDetailPage({ params }: Props) {
   const { slug, locale } = await params;
-  const t = await getTranslations("MonksPage");
+  const t = await getTranslations({ locale, namespace: "MonksPage" });
 
   let initialMonk: PublicMonkDto | undefined;
   try {
@@ -50,8 +57,50 @@ export default async function MonkDetailPage({ params }: Props) {
   const monkName = initialMonk ? getLocalizedText(initialMonk.name, locale) : t("title");
   const monkTitle = initialMonk?.title ? getLocalizedText(initialMonk.title, locale) : undefined;
 
+  const monkSchema = initialMonk ? {
+    '@context': 'https://schema.org',
+    '@type': 'Person',
+    name: monkName,
+    jobTitle: monkTitle || 'Buddhist Monk',
+    image: initialMonk.image_url || undefined,
+    worksFor: {
+      '@type': 'Organization',
+      name: siteConfig.siteName.th,
+      url: siteConfig.domain,
+    },
+  } : null;
+
+  const breadcrumbsSchema = {
+    '@context': 'https://schema.org',
+    '@type': 'BreadcrumbList',
+    itemListElement: [
+      {
+        '@type': 'ListItem',
+        position: 1,
+        name: t('title') || 'Monks',
+        item: `${siteConfig.domain}/${locale}/monks`,
+      },
+      {
+        '@type': 'ListItem',
+        position: 2,
+        name: monkName,
+        item: `${siteConfig.domain}/${locale}/monks/${slug}`,
+      },
+    ],
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      {monkSchema ? (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(monkSchema) }}
+        />
+      ) : null}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsSchema) }}
+      />
       <PageHeader variant="color" align="left" title={monkName} subtitle={monkTitle} />
       <PageContainer width="content">
         <DetailNavigation

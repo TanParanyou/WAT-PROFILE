@@ -7,15 +7,13 @@ import { DonationReportPageContent } from "@/features/public/donations/DonationR
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "DonationReportPage" });
-  const metadata = buildPublicMetadata({
+  return buildPublicMetadata({
     locale,
     pathname: `/${locale}/donate/report`,
     seo: normalizeSeo({}),
     content: { title: t("title"), description: t("subtitle") },
     messages: { title: t("title"), description: t("subtitle") },
-    site: { name: siteConfig.siteName.th, description: siteConfig.seo.defaultDescription, image: siteConfig.seo.defaultOgImage },
   });
-  return { ...metadata, openGraph: { ...metadata.openGraph, title: `${metadata.title} | ${siteConfig.siteName.th}` } };
 }
 
 export default function DonationReportPage() {

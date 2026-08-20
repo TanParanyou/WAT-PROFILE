@@ -14,7 +14,16 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
     const t = await getTranslations({ locale, namespace: 'EventsPage' });
 
     const page = await fetchPublishedPageMetadata('events').catch(() => null);
-    return buildPublicMetadata({ locale, pathname: `/${locale}/events`, seo: normalizeSeo(page?.seo), content: { title: page ? page.title[locale as keyof typeof page.title] ?? '' : '', description: page ? page.description[locale as keyof typeof page.description] ?? '' : '' }, messages: { title: t('title'), description: t('subtitle') }, site: { name: siteConfig.siteName.th, description: siteConfig.seo.defaultDescription, image: siteConfig.seo.defaultOgImage } });
+    return buildPublicMetadata({
+        locale,
+        pathname: `/${locale}/events`,
+        seo: normalizeSeo(page?.seo),
+        content: {
+            title: page ? page.title[locale as keyof typeof page.title] ?? '' : '',
+            description: page ? page.description[locale as keyof typeof page.description] ?? '' : '',
+        },
+        messages: { title: t('title'), description: t('subtitle') },
+    });
 }
 
 export default async function EventsPage({ params }: { params: Promise<{ locale: string }> }) {

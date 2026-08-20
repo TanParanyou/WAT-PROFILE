@@ -10,15 +10,13 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "PrivacyPage" });
   const page = await publicContentService.getPublicPrivacy().catch(() => null);
-  const metadata = buildPublicMetadata({
+  return buildPublicMetadata({
     locale,
     pathname: `/${locale}/privacy`,
     seo: normalizeSeo(page?.seo),
     content: { title: page ? getLocalizedText(page.title, locale) : "", description: "", image: page?.seo.og_image },
     messages: { title: t("title"), description: t("title") },
-    site: { name: siteConfig.siteName.th, description: siteConfig.seo.defaultDescription, image: siteConfig.seo.defaultOgImage },
   });
-  return { ...metadata, openGraph: { ...metadata.openGraph, title: `${metadata.title} | ${siteConfig.siteName.th}` } };
 }
 
 export default function PrivacyPage() {
