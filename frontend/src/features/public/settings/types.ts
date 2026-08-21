@@ -2,6 +2,14 @@ import type { LocalizedText } from "@/types/common";
 
 export type EventsView = "calendar" | "list";
 
+export interface PublicSiteFeatures {
+  accountAuth: boolean;
+  communityRead: boolean;
+  communityWrite: boolean;
+  donations: boolean;
+  eventRegistration: boolean;
+}
+
 export interface PublicSiteSettings {
   siteName: LocalizedText;
   description: LocalizedText;
@@ -18,4 +26,5 @@ export interface PublicSiteSettings {
   heroBgUrl: string;
   socialSidebarPosition: "left" | "right";
   defaultEventsView: EventsView;
+  features: PublicSiteFeatures;
 }

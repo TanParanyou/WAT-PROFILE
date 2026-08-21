@@ -1,30 +1,26 @@
 "use client";
 
-import { Bell, Menu, UserRound, X } from "lucide-react";
-import Image from "next/image";
 import { useState } from "react";
-import { useLocale, useTranslations } from "next-intl";
+import Image from "next/image";
 import { Link, usePathname } from "@/navigation";
+import { useLocale, useTranslations } from "next-intl";
+import { Menu, X, UserRound, Bell } from "lucide-react";
+import { LanguageSwitcher } from "@/components/layout/LanguageSwitcher";
+import { PublicThemeSwitcher } from "@/components/public/theme/PublicThemeSwitcher";
+import { siteConfig } from "@/config/site.config";
+import { getLocalizedText } from "@/utils/i18n";
+import { STATIC_ASSETS } from "@/constants/assets";
 import { usePublicSiteSettings } from "@/features/public/settings/PublicSiteSettingsProvider";
 import { useAccountSession } from "@/features/public/account/AccountSessionProvider";
-import { getLocalizedText } from "@/utils/i18n";
-import { siteConfig } from "@/config/site.config";
-import { STATIC_ASSETS } from "@/constants/assets";
-import { PublicThemeSwitcher } from "@/components/public/theme/PublicThemeSwitcher";
-import { LanguageSwitcher } from "./LanguageSwitcher";
 import { AccountAvatar } from "@/features/public/account/components/AccountAvatar";
 import { useCommunityNotificationsQuery } from "@/features/public/community/queries";
 import PwaInstallButton from "@/components/pwa/PwaInstallButton";
-
 
 const languageOptions = [
   { code: "th", label: "ไทย" },
   { code: "en", label: "EN" },
   { code: "de", label: "DE" },
 ] as const;
-
-const ACCOUNT_FEATURE_ENABLED = process.env.NEXT_PUBLIC_PUBLIC_ACCOUNT_AUTH_ENABLED === "true";
-const COMMUNITY_FEATURE_ENABLED = process.env.NEXT_PUBLIC_COMMUNITY_ENABLED === "true";
 
 export default function Navbar() {
   const [isOpen, setIsOpen] = useState(false);
@@ -34,7 +30,11 @@ export default function Navbar() {
   const tSite = useTranslations("Site");
   const settings = usePublicSiteSettings();
   const accountSession = useAccountSession();
-  const notifications = useCommunityNotificationsQuery(COMMUNITY_FEATURE_ENABLED && accountSession.status === "authenticated");
+
+  const isAccountEnabled = settings.features?.accountAuth ?? (process.env.NEXT_PUBLIC_PUBLIC_ACCOUNT_AUTH_ENABLED === "true");
+  const isCommunityEnabled = settings.features?.communityRead ?? (process.env.NEXT_PUBLIC_COMMUNITY_ENABLED === "true");
+
+  const notifications = useCommunityNotificationsQuery(isCommunityEnabled && accountSession.status === "authenticated");
 
   const accountHref =
     accountSession.status === "authenticated" ? "/account" : "/account/login";
@@ -46,7 +46,7 @@ export default function Navbar() {
     { name: t("events"), href: "/events" },
     { name: t("gallery"), href: "/gallery" },
     { name: t("contact"), href: "/contact" },
-    ...(COMMUNITY_FEATURE_ENABLED ? [{ name: t("community"), href: "/community" }] : []),
+    ...(isCommunityEnabled ? [{ name: t("community"), href: "/community" }] : []),
   ];
 
   const accountLabel =
@@ -89,9 +89,9 @@ export default function Navbar() {
         </nav>
 
         <div className="hidden items-center gap-3 lg:flex">
-          {ACCOUNT_FEATURE_ENABLED ? (
+          {isAccountEnabled ? (
             <div className="flex items-center gap-2">
-            {COMMUNITY_FEATURE_ENABLED && accountSession.status === "authenticated" ? <Link href="/community/notifications" aria-label={t("communityNotifications")} className="relative inline-flex size-11 items-center justify-center border border-site-border text-site-foreground hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus"><Bell className="size-5" aria-hidden="true" />{notifications.data?.unread_count ? <span className="absolute right-1 top-1 min-w-4 rounded-full bg-site-action px-1 text-center text-[10px] leading-4 text-site-on-action">{notifications.data.unread_count > 99 ? "99+" : notifications.data.unread_count}</span> : null}</Link> : null}
+            {isCommunityEnabled && accountSession.status === "authenticated" ? <Link href="/community/notifications" aria-label={t("communityNotifications")} className="relative inline-flex size-11 items-center justify-center border border-site-border text-site-foreground hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus"><Bell className="size-5" aria-hidden="true" />{notifications.data?.unread_count ? <span className="absolute right-1 top-1 min-w-4 rounded-full bg-site-action px-1 text-center text-[10px] leading-4 text-site-on-action">{notifications.data.unread_count > 99 ? "99+" : notifications.data.unread_count}</span> : null}</Link> : null}
             <Link href={accountHref} className="inline-flex min-h-11 items-center gap-2 border border-site-border bg-site-canvas px-3 text-sm font-semibold text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus">
               {accountSession.status === "authenticated" && accountSession.account ? (
                 <AccountAvatar account={accountSession.account} size="sm" />
@@ -106,12 +106,9 @@ export default function Navbar() {
           <LanguageSwitcher />
         </div>
 
-
-
-
         <div className="flex items-center gap-2 lg:hidden">
-          {ACCOUNT_FEATURE_ENABLED ? (
-            <div className="flex items-center gap-2">{COMMUNITY_FEATURE_ENABLED && accountSession.status === "authenticated" ? <Link href="/community/notifications" aria-label={t("communityNotifications")} className="relative inline-flex size-11 items-center justify-center border border-site-border bg-site-canvas"><Bell className="size-5" aria-hidden="true" />{notifications.data?.unread_count ? <span className="absolute right-1 top-1 min-w-4 rounded-full bg-site-action px-1 text-center text-[10px] leading-4 text-site-on-action">{notifications.data.unread_count > 99 ? "99+" : notifications.data.unread_count}</span> : null}</Link> : null}<Link href={accountHref} className="inline-flex size-11 items-center justify-center border border-site-border bg-site-canvas transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus" aria-label={accountLabel}>
+          {isAccountEnabled ? (
+            <div className="flex items-center gap-2">{isCommunityEnabled && accountSession.status === "authenticated" ? <Link href="/community/notifications" aria-label={t("communityNotifications")} className="relative inline-flex size-11 items-center justify-center border border-site-border bg-site-canvas"><Bell className="size-5" aria-hidden="true" />{notifications.data?.unread_count ? <span className="absolute right-1 top-1 min-w-4 rounded-full bg-site-action px-1 text-center text-[10px] leading-4 text-site-on-action">{notifications.data.unread_count > 99 ? "99+" : notifications.data.unread_count}</span> : null}</Link> : null}<Link href={accountHref} className="inline-flex size-11 items-center justify-center border border-site-border bg-site-canvas transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus" aria-label={accountLabel}>
               {accountSession.status === "authenticated" && accountSession.account ? (
                 <AccountAvatar account={accountSession.account} size="sm" />
               ) : (

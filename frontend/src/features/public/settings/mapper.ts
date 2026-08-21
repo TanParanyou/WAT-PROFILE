@@ -1,6 +1,6 @@
 import { siteConfig } from "@/config/site.config";
 import type { LocalizedText } from "@/types/common";
-import type { EventsView, PublicSiteSettings } from "./types";
+import type { EventsView, PublicSiteFeatures, PublicSiteSettings } from "./types";
 
 const readLocalized = (raw: Record<string, string>, prefix: string, fallback: LocalizedText): LocalizedText => ({
   th: raw[`${prefix}_th`] || fallback.th,
@@ -8,7 +8,24 @@ const readLocalized = (raw: Record<string, string>, prefix: string, fallback: Lo
   de: raw[`${prefix}_de`] || fallback.de,
 });
 
+const parseBoolSetting = (val: string | undefined, fallback: boolean): boolean => {
+  if (val === undefined || val === null || val === "") return fallback;
+  const lower = val.trim().toLowerCase();
+  return lower === "true" || lower === "1" || lower === "yes";
+};
+
 export function getFallbackPublicSiteSettings(): PublicSiteSettings {
+  const envAccountAuth = process.env.NEXT_PUBLIC_PUBLIC_ACCOUNT_AUTH_ENABLED === "true";
+  const envCommunity = process.env.NEXT_PUBLIC_COMMUNITY_ENABLED === "true";
+
+  const fallbackFeatures: PublicSiteFeatures = {
+    accountAuth: envAccountAuth,
+    communityRead: envCommunity,
+    communityWrite: envCommunity,
+    donations: true,
+    eventRegistration: true,
+  };
+
   return {
     siteName: siteConfig.siteName,
     description: {
@@ -29,12 +46,21 @@ export function getFallbackPublicSiteSettings(): PublicSiteSettings {
     heroBgUrl: "/images/hero-bg.png",
     socialSidebarPosition: siteConfig.layout.socialSidebarPosition,
     defaultEventsView: "calendar",
+    features: fallbackFeatures,
   };
 }
 
 export function mapPublicSiteSettings(raw: Record<string, string>, fallback = getFallbackPublicSiteSettings()): PublicSiteSettings {
   const position = raw.social_sidebar_position === "right" ? "right" : raw.social_sidebar_position === "left" ? "left" : fallback.socialSidebarPosition;
   const defaultEventsView: EventsView = raw.events_default_view === "list" ? "list" : raw.events_default_view === "calendar" ? "calendar" : fallback.defaultEventsView;
+
+  const features: PublicSiteFeatures = {
+    accountAuth: parseBoolSetting(raw.feature_public_account_auth, fallback.features.accountAuth),
+    communityRead: parseBoolSetting(raw.feature_public_community_read, fallback.features.communityRead),
+    communityWrite: parseBoolSetting(raw.feature_public_community_write, fallback.features.communityWrite),
+    donations: parseBoolSetting(raw.feature_donations, fallback.features.donations),
+    eventRegistration: parseBoolSetting(raw.feature_event_registration, fallback.features.eventRegistration),
+  };
 
   return {
     siteName: readLocalized(raw, "site_name", fallback.siteName),
@@ -52,5 +78,6 @@ export function mapPublicSiteSettings(raw: Record<string, string>, fallback = ge
     heroBgUrl: (raw.hero_bg_url && raw.hero_bg_url.trim()) ? raw.hero_bg_url.trim() : fallback.heroBgUrl,
     socialSidebarPosition: position,
     defaultEventsView,
+    features,
   };
 }

@@ -47,9 +47,10 @@ import {
 } from "@/features/public/event-alert/api";
 import { MediaPickerDialog } from "@/components/admin/media/MediaPickerDialog";
 import type { EventsView } from "@/features/public/settings/types";
+import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/utils/cn";
 
-type SettingsTab = "branding" | "eventAlert" | "general";
+type SettingsTab = "branding" | "eventAlert" | "general" | "features";
 
 interface ShellMediaAssetProps {
   label: string;
@@ -202,6 +203,27 @@ export default function SettingsPage() {
   const [communityBlockedWords, setCommunityBlockedWords] = useState("");
   const [initialCommunityBlockedWords, setInitialCommunityBlockedWords] = useState("");
 
+  const { user } = useAuth();
+  const isSuperAdmin = Boolean(
+    user?.role?.name === "super_admin" ||
+    (user?.role?.is_system && user?.role?.admin_access)
+  );
+
+  const [featureFlags, setFeatureFlags] = useState({
+    feature_public_account_auth: false,
+    feature_public_community_read: false,
+    feature_public_community_write: false,
+    feature_donations: true,
+    feature_event_registration: true,
+  });
+  const [initialFeatureFlags, setInitialFeatureFlags] = useState({
+    feature_public_account_auth: false,
+    feature_public_community_read: false,
+    feature_public_community_write: false,
+    feature_donations: true,
+    feature_event_registration: true,
+  });
+
   const [isDownloadingBackup, setIsDownloadingBackup] = useState(false);
 
   const { toast } = useToast();
@@ -224,6 +246,23 @@ export default function SettingsPage() {
       const data = await settingsAdminService.getAll();
       setSettings(data);
       const byKey = Object.fromEntries(data.map((item) => [item.key, item.value]));
+
+      const parseBool = (v: string | undefined, defaultVal: boolean) => {
+        if (v === undefined || v === null || v === "") return defaultVal;
+        const lower = v.trim().toLowerCase();
+        return lower === "true" || lower === "1" || lower === "yes";
+      };
+
+      const flags = {
+        feature_public_account_auth: parseBool(byKey.feature_public_account_auth, false),
+        feature_public_community_read: parseBool(byKey.feature_public_community_read, false),
+        feature_public_community_write: parseBool(byKey.feature_public_community_write, false),
+        feature_donations: parseBool(byKey.feature_donations, true),
+        feature_event_registration: parseBool(byKey.feature_event_registration, true),
+      };
+      setFeatureFlags(flags);
+      setInitialFeatureFlags(flags);
+
       const shellVal = {
         logo_url: byKey.logo_url ?? "",
         hero_bg_url: byKey.hero_bg_url ?? "",
@@ -279,13 +318,16 @@ export default function SettingsPage() {
   const isCommunityFilterChanged =
     communityFilterEnabled !== initialCommunityFilterEnabled ||
     communityBlockedWords !== initialCommunityBlockedWords;
+  const isFeaturesChanged = JSON.stringify(featureFlags) !== JSON.stringify(initialFeatureFlags);
+
   const hasChanges =
     Object.keys(changes).length > 0 ||
     isAlertChanged ||
     isShellChanged ||
     isEventsDefaultViewChanged ||
     isAiTranslateChanged ||
-    isCommunityFilterChanged;
+    isCommunityFilterChanged ||
+    isFeaturesChanged;
 
   const handleSave = async () => {
     setIsSaving(true);
@@ -322,6 +364,15 @@ export default function SettingsPage() {
           { key: "community_blocked_words", value: communityBlockedWords },
         ]);
       }
+      if (isFeaturesChanged) {
+        await settingsAdminService.update([
+          { key: "feature_public_account_auth", value: String(featureFlags.feature_public_account_auth) },
+          { key: "feature_public_community_read", value: String(featureFlags.feature_public_community_read) },
+          { key: "feature_public_community_write", value: String(featureFlags.feature_public_community_write) },
+          { key: "feature_donations", value: String(featureFlags.feature_donations) },
+          { key: "feature_event_registration", value: String(featureFlags.feature_event_registration) },
+        ]);
+      }
       toast.success(t("common.success"));
       setChanges({});
       await loadSettings();
@@ -332,7 +383,7 @@ export default function SettingsPage() {
     }
   };
 
-  // จัดกลุ่มตาม category และกรองข้อมูลติดต่อ โซเชียล และบัญชีสมาคมออก
+  // จัดกลุ่มตาม category และกรองข้อมูลติดต่อ โซเชียล บัญชีสมาคม และ Feature Flags ออก
   const grouped = useMemo(() => {
     return settings
       .filter(
@@ -340,6 +391,8 @@ export default function SettingsPage() {
           s.category !== "contact" &&
           s.category !== "social" &&
           s.category !== "donation" &&
+          s.category !== "features" &&
+          !s.key.startsWith("feature_") &&
           ![
             "logo_url",
             "hero_bg_url",
@@ -602,6 +655,25 @@ export default function SettingsPage() {
                 <span className="h-2 w-2 rounded-full bg-amber-500" />
               )}
             </button>
+
+            {isSuperAdmin && (
+              <button
+                type="button"
+                onClick={() => setActiveTab("features")}
+                className={cn(
+                  "flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap",
+                  activeTab === "features"
+                    ? "border-admin-foreground text-admin-foreground"
+                    : "border-transparent text-admin-muted hover:text-admin-body hover:border-admin-border",
+                )}
+              >
+                <ShieldAlert size={16} className="text-amber-600 dark:text-amber-400" />
+                {t("settings.tabs.features")}
+                {isFeaturesChanged && (
+                  <span className="h-2 w-2 rounded-full bg-amber-500" />
+                )}
+              </button>
+            )}
           </div>
         </div>
 
@@ -1264,6 +1336,151 @@ export default function SettingsPage() {
                   );
                 })
               )}
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* TAB 4: SYSTEM MODULES / FEATURE FLAGS (SUPER ADMIN ONLY)                  */}
+          {/* ========================================================================= */}
+          {activeTab === "features" && isSuperAdmin && (
+            <div className="space-y-6">
+              <div className="bg-admin-surface border border-admin-border p-6 space-y-6 rounded-none shadow-sm">
+                <div className="border-b border-admin-border pb-4 flex items-start justify-between">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <ShieldAlert size={20} className="text-amber-600 dark:text-amber-400" />
+                      <h2 className="text-base font-semibold text-admin-foreground">
+                        {t("settings.featuresSectionTitle")}
+                      </h2>
+                    </div>
+                    <p className="text-xs text-admin-muted mt-1">
+                      {t("settings.featuresSectionDesc")}
+                    </p>
+                  </div>
+                  <span className="px-2.5 py-1 bg-amber-500/10 text-amber-600 dark:text-amber-400 border border-amber-500/20 text-xs font-semibold uppercase tracking-wider">
+                    {t("settings.superAdminOnlyBadge")}
+                  </span>
+                </div>
+
+                <div className="divide-y divide-admin-border">
+                  {/* 1. Public Account Auth */}
+                  <div className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-1 max-w-xl">
+                      <div className="text-sm font-semibold text-admin-foreground flex items-center gap-2">
+                        <span>{t("settings.featureAccountAuthTitle")}</span>
+                        <span className="font-mono text-[11px] text-admin-muted">feature_public_account_auth</span>
+                      </div>
+                      <p className="text-xs text-admin-muted leading-relaxed">
+                        {t("settings.featureAccountAuthDesc")}
+                      </p>
+                    </div>
+                    <Switch
+                      id="feature_public_account_auth"
+                      checked={featureFlags.feature_public_account_auth}
+                      onChange={(e) =>
+                        setFeatureFlags((prev) => ({
+                          ...prev,
+                          feature_public_account_auth: e.target.checked,
+                        }))
+                      }
+                    />
+                  </div>
+
+                  {/* 2. Public Community Q&A Read */}
+                  <div className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-1 max-w-xl">
+                      <div className="text-sm font-semibold text-admin-foreground flex items-center gap-2">
+                        <span>{t("settings.featureCommunityReadTitle")}</span>
+                        <span className="font-mono text-[11px] text-admin-muted">feature_public_community_read</span>
+                      </div>
+                      <p className="text-xs text-admin-muted leading-relaxed">
+                        {t("settings.featureCommunityReadDesc")}
+                      </p>
+                    </div>
+                    <Switch
+                      id="feature_public_community_read"
+                      checked={featureFlags.feature_public_community_read}
+                      onChange={(e) =>
+                        setFeatureFlags((prev) => ({
+                          ...prev,
+                          feature_public_community_read: e.target.checked,
+                          feature_public_community_write: e.target.checked ? prev.feature_public_community_write : false,
+                        }))
+                      }
+                    />
+                  </div>
+
+                  {/* 3. Community Write */}
+                  <div className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-1 max-w-xl">
+                      <div className="text-sm font-semibold text-admin-foreground flex items-center gap-2">
+                        <span>{t("settings.featureCommunityWriteTitle")}</span>
+                        <span className="font-mono text-[11px] text-admin-muted">feature_public_community_write</span>
+                      </div>
+                      <p className="text-xs text-admin-muted leading-relaxed">
+                        {t("settings.featureCommunityWriteDesc")}
+                      </p>
+                    </div>
+                    <Switch
+                      id="feature_public_community_write"
+                      checked={featureFlags.feature_public_community_write}
+                      disabled={!featureFlags.feature_public_community_read}
+                      onChange={(e) =>
+                        setFeatureFlags((prev) => ({
+                          ...prev,
+                          feature_public_community_write: e.target.checked,
+                        }))
+                      }
+                    />
+                  </div>
+
+                  {/* 4. Donations */}
+                  <div className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-1 max-w-xl">
+                      <div className="text-sm font-semibold text-admin-foreground flex items-center gap-2">
+                        <span>{t("settings.featureDonationsTitle")}</span>
+                        <span className="font-mono text-[11px] text-admin-muted">feature_donations</span>
+                      </div>
+                      <p className="text-xs text-admin-muted leading-relaxed">
+                        {t("settings.featureDonationsDesc")}
+                      </p>
+                    </div>
+                    <Switch
+                      id="feature_donations"
+                      checked={featureFlags.feature_donations}
+                      onChange={(e) =>
+                        setFeatureFlags((prev) => ({
+                          ...prev,
+                          feature_donations: e.target.checked,
+                        }))
+                      }
+                    />
+                  </div>
+
+                  {/* 5. Event Registration */}
+                  <div className="py-4 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="space-y-1 max-w-xl">
+                      <div className="text-sm font-semibold text-admin-foreground flex items-center gap-2">
+                        <span>{t("settings.featureEventRegistrationTitle")}</span>
+                        <span className="font-mono text-[11px] text-admin-muted">feature_event_registration</span>
+                      </div>
+                      <p className="text-xs text-admin-muted leading-relaxed">
+                        {t("settings.featureEventRegistrationDesc")}
+                      </p>
+                    </div>
+                    <Switch
+                      id="feature_event_registration"
+                      checked={featureFlags.feature_event_registration}
+                      onChange={(e) =>
+                        setFeatureFlags((prev) => ({
+                          ...prev,
+                          feature_event_registration: e.target.checked,
+                        }))
+                      }
+                    />
+                  </div>
+                </div>
+              </div>
             </div>
           )}
         </div>

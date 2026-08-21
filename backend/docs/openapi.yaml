@@ -5120,6 +5120,7 @@ paths:
     put:
       tags: [Admin - Settings]
       summary: Batch update settings
+      description: Updates multiple settings keys. Modifying system feature flags (keys starting with `feature_`) requires the `super_admin` role.
       security:
         - AdminBearerAuth: []
       requestBody:
@@ -5127,27 +5128,31 @@ paths:
         content:
           application/json:
             schema:
-              type: object
-              required: [items]
-              properties:
-                items:
-                  type: array
-                  items:
-                    type: object
-                    required: [key, value]
-                    properties:
-                      key:
-                        type: string
-                      value:
-                        type: string
+              type: array
+              items:
+                type: object
+                required: [key, value]
+                properties:
+                  key:
+                    type: string
+                  value:
+                    type: string
       responses:
         '200':
           description: Settings updated
+        '403':
+          description: Forbidden - only super_admin can modify system feature flags
     post:
       tags: [Admin - Settings]
       summary: Upsert a single setting
+      description: Upserts a setting. Modifying system feature flags (category `features` or keys starting with `feature_`) requires the `super_admin` role.
       security:
         - AdminBearerAuth: []
+      responses:
+        '201':
+          description: Setting created or updated
+        '403':
+          description: Forbidden - only super_admin can modify system feature flags
       requestBody:
         required: true
         content:

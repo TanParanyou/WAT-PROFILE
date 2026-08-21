@@ -1237,8 +1237,24 @@
       "tabs": {
         "branding": "Branding & Layout",
         "eventAlert": "Event Alert Popup",
-        "general": "General Settings"
+        "general": "General Settings",
+        "features": "System Modules"
       },
+      "featuresSectionTitle": "System Feature Flags Management",
+      "featuresSectionDesc": "Configure active platform modules such as member accounts, community forum, and donations (Super Admin only).",
+      "superAdminOnlyBadge": "Super Admin Only",
+      "featureAccountAuthTitle": "Public Account Authentication",
+      "featureAccountAuthDesc": "Allow public visitors to register, sign in with Google or Email, and manage profile registrations.",
+      "featureCommunityReadTitle": "Public Community Q&A (Read)",
+      "featureCommunityReadDesc": "Allow public website visitors to read community questions and discussions.",
+      "featureCommunityWriteTitle": "Community Participation (Write)",
+      "featureCommunityWriteDesc": "Allow authenticated members to ask questions, post answers, comment, and vote.",
+      "featureDonationsTitle": "Donation & Sponsorship System",
+      "featureDonationsDesc": "Enable the public donation information page, bank details, and transfer slip reporting form.",
+      "featureEventRegistrationTitle": "Event Registration System",
+      "featureEventRegistrationDesc": "Allow visitors to register for temple ceremonies, retreats, and events.",
+      "featureConfirmModalTitle": "Confirm System Module Changes",
+      "featureConfirmModalWarning": "Changing module availability takes immediate effect across the public website. Please confirm that you want to save these changes.",
       "preview": {
         "title": "Popup Live Preview",
         "badge": "Featured Event",

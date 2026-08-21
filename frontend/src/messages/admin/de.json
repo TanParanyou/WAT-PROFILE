@@ -1237,8 +1237,24 @@
       "tabs": {
         "branding": "Erscheinungsbild & Layout",
         "eventAlert": "Veranstaltungs-Pop-up",
-        "general": "Allgemeine Einstellungen"
+        "general": "Allgemeine Einstellungen",
+        "features": "Systemmodule"
       },
+      "featuresSectionTitle": "Verwaltung der System-Feature-Flags",
+      "featuresSectionDesc": "Aktivieren oder deaktivieren Sie Kernmodule wie Mitgliedskonten, Community-Forum und Spenden (nur Super-Admin).",
+      "superAdminOnlyBadge": "Nur Super-Admin",
+      "featureAccountAuthTitle": "Öffentliche Benutzerkonten-Authentifizierung",
+      "featureAccountAuthDesc": "Ermöglicht Besuchern die Registrierung, Anmeldung über Google/E-Mail und Verwaltung von Anmeldungen.",
+      "featureCommunityReadTitle": "Öffentliches Community-Forum (Lesen)",
+      "featureCommunityReadDesc": "Erlaubt Website-Besuchern das Lesen von Fragen und Diskussionen in der Community.",
+      "featureCommunityWriteTitle": "Community-Beteiligung (Schreiben)",
+      "featureCommunityWriteDesc": "Erlaubt angemeldeten Mitgliedern, Fragen zu stellen, Antworten zu verfassen und abzustimmen.",
+      "featureDonationsTitle": "Spenden- & Patenschaftssystem",
+      "featureDonationsDesc": "Aktiviert die öffentliche Spendenseite, Bankverbindungsdaten und das Meldeformular für Überweisungen.",
+      "featureEventRegistrationTitle": "Veranstaltungsanmeldesystem",
+      "featureEventRegistrationDesc": "Ermöglicht es Besuchern, sich online für Zeremonien und Veranstaltungen anzumelden.",
+      "featureConfirmModalTitle": "Änderungen an Systemmodulen bestätigen",
+      "featureConfirmModalWarning": "Änderungen an der Modulverfügbarkeit wirken sich sofort auf die Website aus. Bitte bestätigen Sie das Speichern.",
       "preview": {
         "title": "Pop-up Live-Vorschau",
         "badge": "Empfohlene Veranstaltung",

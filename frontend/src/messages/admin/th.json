@@ -1235,8 +1235,24 @@
       "tabs": {
         "branding": "รูปลักษณ์และเลย์เอาต์",
         "eventAlert": "ป๊อปอัปแจ้งเตือนกิจกรรม",
-        "general": "การตั้งค่าทั่วไป"
+        "general": "การตั้งค่าทั่วไป",
+        "features": "โมดูลระบบ (Feature Flags)"
       },
+      "featuresSectionTitle": "จัดการการเปิด-ปิดโมดูลระบบ (System Feature Flags)",
+      "featuresSectionDesc": "กำหนดการเปิดใช้งานโมดูลหลักของเว็บไซต์ เช่น ระบบสมาชิก, เว็บบอร์ด, ระบบบริจาค (เฉพาะ Super Admin เท่านั้น)",
+      "superAdminOnlyBadge": "เฉพาะ Super Admin",
+      "featureAccountAuthTitle": "ระบบบัญชีสมาชิกสาธารณะ (Public Account Auth)",
+      "featureAccountAuthDesc": "เปิดให้บุคคลทั่วไปสามารถสมัครสมาชิก เข้าสู่ระบบผ่าน Google หรืออีเมล และจัดการโปรไฟล์ส่วนตัวได้",
+      "featureCommunityReadTitle": "การเข้าชมเว็บบอร์ดสาธารณะ (Community Q&A Read)",
+      "featureCommunityReadDesc": "เปิดให้ผู้เยี่ยมชมเว็บไซต์สามารถอ่านกระทู้และคำถาม-คำตอบในชุมชนได้",
+      "featureCommunityWriteTitle": "การตั้งกระทู้และตอบคำถาม (Community Q&A Write)",
+      "featureCommunityWriteDesc": "อนุญาตให้สมาชิกที่เข้าสู่ระบบสามารถสร้างคำถาม แสดงความคิดเห็น และโหวตในชุมชนได้",
+      "featureDonationsTitle": "ระบบแจ้งข้อมูลการบริจาค (Donation & Sponsorship)",
+      "featureDonationsDesc": "เปิดใช้งานหน้าข้อมูลการบริจาค บัญชีธนาคาร และแบบฟอร์มแจ้งการโอนเงินทำบุญ",
+      "featureEventRegistrationTitle": "ระบบลงทะเบียนเข้าร่วมกิจกรรม (Event Registration)",
+      "featureEventRegistrationDesc": "เปิดให้ผู้สนใจสามารถลงทะเบียนเข้าร่วมกิจกรรมต่างๆ ของวัดผ่านหน้าเว็บไซต์ได้",
+      "featureConfirmModalTitle": "ยืนยันการปรับเปลี่ยนโมดูลระบบ",
+      "featureConfirmModalWarning": "การเปลี่ยนแปลงสถานะของโมดูลระบบจะมีผลทันทีต่อผู้ใช้งานบนเว็บไซต์ โปรดยืนยันว่าคุณต้องการบันทึกการเปลี่ยนแปลงนี้",
       "preview": {
         "title": "ตัวอย่างป๊อปอัปบนหน้าเว็บ (Live Preview)",
         "badge": "กิจกรรมแนะนำ",
