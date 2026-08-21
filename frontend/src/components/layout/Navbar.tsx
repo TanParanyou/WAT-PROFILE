@@ -102,10 +102,10 @@ export default function Navbar() {
             </Link>
           </div>
           ) : null}
-          <PwaInstallButton variant="navbar" />
           <PublicThemeSwitcher />
           <LanguageSwitcher />
         </div>
+
 
 
 
