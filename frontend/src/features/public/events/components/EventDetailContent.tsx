@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useState } from "react";
-import Script from "next/script";
 import {
   Calendar,
   MapPin,
@@ -111,34 +110,11 @@ export function EventDetailContent({ slug, initialEvent }: EventDetailContentPro
     document.body.removeChild(link);
   };
 
-  // Structured Data (JSON-LD)
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "Event",
-    name: titleText,
-    startDate: event.start_date,
-    endDate: event.end_date,
-    eventStatus: "https://schema.org/EventScheduled",
-    eventAttendanceMode: event.online_join_url
-      ? "https://schema.org/MixedEventAttendanceMode"
-      : "https://schema.org/OfflineEventAttendanceMode",
-    location: {
-      "@type": "Place",
-      name: locationText,
-      address: {
-        "@type": "PostalAddress",
-        addressLocality: locationText,
-      },
-    },
-    image: event.image_url ? [event.image_url] : undefined,
-    description: event.description ? getLocalizedPlainText(event.description, locale) : undefined,
-  };
-
   const otherEvents = (relatedEventsQuery.data || []).filter(
     (item: PublicEventDto) => item.slug !== event.slug,
   );
 
-  const galleryImages = (event.gallery_urls || []).filter((url) => !!url);
+  const galleryImages = (event.gallery_urls || []).filter((url) => Boolean(url));
   const dressCode = event.dress_code ? getLocalizedText(event.dress_code, locale) : "";
   const whatToBring = event.what_to_bring ? getLocalizedText(event.what_to_bring, locale) : "";
   const transportInfo = event.transport_info ? getLocalizedText(event.transport_info, locale) : "";
@@ -149,13 +125,6 @@ export function EventDetailContent({ slug, initialEvent }: EventDetailContentPro
 
   return (
     <div className="w-full">
-      {/* Schema.org Structured Data */}
-      <Script
-        id={`event-ld-${event.id}`}
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
-      />
-
       {/* 1. Status Badges & Action Bar */}
       <section className="border-b border-site-border pb-6 mb-8">
         <div className="flex flex-wrap items-center justify-between gap-3">

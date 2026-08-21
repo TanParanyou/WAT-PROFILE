@@ -17,13 +17,19 @@ export default async function Image({
   params: Promise<{ slug: string; locale: string }>;
 }) {
   const { slug, locale } = await params;
-  let title = "งานบุญและกิจกรรม";
+  const fallbackTitle =
+    locale === "de"
+      ? "Veranstaltungen & Aktivitäten"
+      : locale === "en"
+        ? "Events & Activities"
+        : "งานบุญและกิจกรรม";
+  let title = fallbackTitle;
   let dateText = "";
   let locationText = "";
 
   try {
     const event = await fetchPublicEventBySlug(slug);
-    title = getLocalizedText(event.title, locale) || title;
+    title = getLocalizedText(event.title, locale) || fallbackTitle;
     dateText = formatDateRange(event.start_date, event.end_date, locale);
     locationText = getLocalizedText(event.location, locale);
   } catch {
@@ -31,6 +37,18 @@ export default async function Image({
   }
 
   const siteName = getLocalizedText(siteConfig.siteName, locale) || siteConfig.siteName.th;
+  let hostName = "watloungporsai.de";
+  try {
+    hostName = new URL(siteConfig.domain).hostname;
+  } catch {
+    // Fallback host
+  }
+  const bottomTagline =
+    locale === "de"
+      ? "Buddhistisches Meditationszentrum in Deutschland"
+      : locale === "en"
+        ? "Buddhist Meditation Center in Germany"
+        : "ศูนย์รวมจิตใจชาวพุทธในเยอรมนี";
 
   return new ImageResponse(
     (
@@ -152,7 +170,7 @@ export default async function Image({
               color: "#333333",
             }}
           >
-            watloungporsai.de
+            {hostName}
           </span>
           <span
             style={{
@@ -160,7 +178,7 @@ export default async function Image({
               color: "#666666",
             }}
           >
-            ศูนย์รวมจิตใจชาวพุทธในเยอรมนี
+            {bottomTagline}
           </span>
         </div>
       </div>

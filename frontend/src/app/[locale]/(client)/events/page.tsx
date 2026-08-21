@@ -9,6 +9,8 @@ import { dehydrate, HydrationBoundary, QueryClient } from '@tanstack/react-query
 import { fetchPublicEvents, fetchPublicSchedules } from '@/features/public/events/api';
 import { publicEventsKeys } from '@/features/public/events/queries';
 
+import { getLocalizedText } from '@/utils/localizedText';
+
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
     const { locale } = await params;
     const t = await getTranslations({ locale, namespace: 'EventsPage' });
@@ -19,8 +21,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
         pathname: `/${locale}/events`,
         seo: normalizeSeo(page?.seo),
         content: {
-            title: page ? page.title[locale as keyof typeof page.title] ?? '' : '',
-            description: page ? page.description[locale as keyof typeof page.description] ?? '' : '',
+            title: page ? getLocalizedText(page.title, locale) : '',
+            description: page ? getLocalizedText(page.description, locale) : '',
         },
         messages: { title: t('title'), description: t('subtitle') },
     });

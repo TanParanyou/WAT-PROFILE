@@ -5,11 +5,13 @@ import { motion, AnimatePresence, useReducedMotion } from "framer-motion";
 import { useTranslations } from "next-intl";
 import { Link } from "@/navigation";
 import Script from "next/script";
+import { usePathname } from "next/navigation";
 import { siteConfig } from "@/config/site.config";
 
 export default function CookieConsent() {
   const [isVisible, setIsVisible] = useState(false);
   const [hasConsent, setHasConsent] = useState(false);
+  const pathname = usePathname();
   const t = useTranslations("CookieConsent");
   const shouldReduceMotion = useReducedMotion();
   const gaId = siteConfig.integrations?.googleAnalyticsId;
@@ -25,6 +27,17 @@ export default function CookieConsent() {
       return () => clearTimeout(timer);
     }
   }, []);
+
+  // Track pageviews on SPA navigation
+  useEffect(() => {
+    if (!hasConsent || !gaId) return;
+    const win = typeof window !== "undefined" ? (window as unknown as { gtag?: (...args: unknown[]) => void }) : undefined;
+    if (win?.gtag) {
+      win.gtag("config", gaId, {
+        page_path: pathname,
+      });
+    }
+  }, [pathname, hasConsent, gaId]);
 
   const handleAccept = () => {
     localStorage.setItem("cookie-consent", "accepted");

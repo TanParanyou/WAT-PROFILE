@@ -83,7 +83,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
             }
             const questionEntries = allQuestions.map((question) => ({
                 url: `${siteConfig.domain}/${question.locale}/community/q/${question.id}/${question.slug}`,
-                lastModified: new Date(question.last_activity_at),
+                lastModified: question.last_activity_at ? new Date(question.last_activity_at) : new Date(),
                 changeFrequency: 'daily' as const,
                 priority: 0.7,
             }));

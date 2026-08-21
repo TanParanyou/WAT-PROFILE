@@ -4,6 +4,8 @@ import { getLocalizedText } from '@/utils/localizedText';
 import { fetchPublicSiteSettings } from '@/features/public/settings/api';
 import { getFallbackPublicSiteSettings, mapPublicSiteSettings } from '@/features/public/settings/mapper';
 
+import { toAbsoluteUrl } from '@/utils/url';
+
 export default async function JsonLd() {
     let locale = 'th';
     try {
@@ -30,8 +32,8 @@ export default async function JsonLd() {
         name: templeName,
         alternateName: [settings.siteName.th, settings.siteName.en, settings.siteName.de].filter(Boolean),
         url: siteConfig.domain,
-        logo: `${siteConfig.domain}${settings.logoUrl || siteConfig.logo.light}`,
-        image: `${siteConfig.domain}${siteConfig.seo.defaultOgImage}`,
+        logo: toAbsoluteUrl(settings.logoUrl || siteConfig.logo.light),
+        image: toAbsoluteUrl(siteConfig.seo.defaultOgImage),
         description: templeDescription,
         telephone: settings.phone || siteConfig.contact.phone,
         email: settings.email || siteConfig.contact.email,

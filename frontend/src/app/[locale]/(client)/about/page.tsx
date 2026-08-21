@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
         content: {
             title: page ? getLocalizedText(page.title, locale) : "",
             description: page ? getLocalizedText(page.description, locale) : "",
-            image: page?.seo.og_image,
+            image: page?.seo?.og_image,
         },
         messages: { title: t('title'), description: t('missionDesc') },
     });

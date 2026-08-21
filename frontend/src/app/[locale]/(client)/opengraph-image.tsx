@@ -21,6 +21,19 @@ export default async function Image({
     ? `${siteConfig.contact.addressDetails.addressLocality}, ${siteConfig.contact.addressDetails.addressCountry}`
     : "Biebergemünd, Germany";
 
+  let hostName = "watloungporsai.de";
+  try {
+    hostName = new URL(siteConfig.domain).hostname;
+  } catch {
+    // Fallback host
+  }
+  const bottomTagline =
+    locale === "de"
+      ? "Zentrum für Geist und Dharma-Praxis"
+      : locale === "en"
+        ? "Sanctuary for Mind and Dharma Practice"
+        : "ศูนย์รวมจิตใจและการปฏิบัติธรรม";
+
   return new ImageResponse(
     (
       <div
@@ -128,7 +141,7 @@ export default async function Image({
               color: "#333333",
             }}
           >
-            Wat Loung Por Sai
+            {hostName}
           </span>
           <span
             style={{
@@ -136,7 +149,7 @@ export default async function Image({
               color: "#666666",
             }}
           >
-            ศูนย์รวมจิตใจและการปฏิบัติธรรม
+            {bottomTagline}
           </span>
         </div>
       </div>

@@ -4,6 +4,7 @@ import { getTranslations } from 'next-intl/server';
 import { siteConfig } from '@/config/site.config';
 import { fetchPublishedPageMetadata } from '@/features/public/seo/api';
 import { buildPublicMetadata, normalizeSeo } from '@/features/public/seo/metadata';
+import { getLocalizedText } from '@/utils/localizedText';
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
     const { locale } = await params;
@@ -14,8 +15,8 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
         pathname: `/${locale}/monks`,
         seo: normalizeSeo(page?.seo),
         content: {
-            title: page?.title[locale as keyof typeof page.title] ?? '',
-            description: page?.description[locale as keyof typeof page.description] ?? '',
+            title: page ? getLocalizedText(page.title, locale) : '',
+            description: page ? getLocalizedText(page.description, locale) : '',
         },
         messages: { title: t('title'), description: t('subtitle') },
     });

@@ -189,9 +189,9 @@ export const siteConfig: SiteConfig = {
         email: 'Watloungporsai@gmail.com',
         phone: '0160-1604486',
         address: {
-            th: 'Buddhistisches Meditationszentrum e.V.Am Pflaster 11, 63599 Biebergemünd',
-            en: 'Buddhistisches Meditationszentrum e.V.Am Pflaster 11, 63599 Biebergemünd',
-            de: 'Buddhistisches Meditationszentrum e.V.Am Pflaster 11, 63599 Biebergemünd'
+            th: 'Buddhistisches Meditationszentrum e.V. Am Pflaster 11, 63599 Biebergemünd',
+            en: 'Buddhistisches Meditationszentrum e.V. Am Pflaster 11, 63599 Biebergemünd',
+            de: 'Buddhistisches Meditationszentrum e.V. Am Pflaster 11, 63599 Biebergemünd'
         },
         addressDetails: {
             streetAddress: 'Am Pflaster 11',
