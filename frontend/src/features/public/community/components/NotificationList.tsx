@@ -3,6 +3,7 @@
 import { useTranslations } from "next-intl";
 import { Link } from "@/navigation";
 import { useCommunityNotificationsQuery, useMarkAllCommunityNotificationsRead, useMarkCommunityNotificationRead } from "../queries";
+import { Check, CheckCircle2, MessageSquare, ShieldCheck, ThumbsUp, AlertCircle, FileEdit } from "lucide-react";
 
 export function NotificationList() {
   const t = useTranslations("Community");
@@ -10,18 +11,109 @@ export function NotificationList() {
   const markRead = useMarkCommunityNotificationRead();
   const markAll = useMarkAllCommunityNotificationsRead();
 
-  if (query.isLoading) return <p className="text-sm text-site-muted">{t("loadingNotifications")}</p>;
-  if (query.isError || !query.data) return <p role="alert" className="text-sm text-site-danger">{t("notificationsLoadError")}</p>;
+  if (query.isLoading) {
+    return (
+      <div className="space-y-3 py-4" aria-label={t("loadingNotifications")}>
+        <div className="h-16 animate-pulse border border-site-border bg-site-surface" />
+        <div className="h-16 animate-pulse border border-site-border bg-site-surface" />
+      </div>
+    );
+  }
+
+  if (query.isError || !query.data) {
+    return <p role="alert" className="text-sm text-site-danger">{t("notificationsLoadError")}</p>;
+  }
 
   return (
     <section aria-labelledby="community-notifications-list">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <p id="community-notifications-list" className="text-sm text-site-muted">{t("unreadNotifications", { count: query.data.unread_count })}</p>
-        {query.data.unread_count > 0 ? <button type="button" disabled={markAll.isPending} onClick={() => void markAll.mutateAsync()} className="min-h-11 border border-site-border px-4 text-sm font-semibold disabled:opacity-60">{t("markAllRead")}</button> : null}
+      <div className="flex flex-wrap items-center justify-between gap-3 border-b border-site-border pb-4">
+        <p id="community-notifications-list" className="text-sm font-medium text-site-foreground">
+          {t("unreadNotifications", { count: query.data.unread_count })}
+        </p>
+        {query.data.unread_count > 0 ? (
+          <button
+            type="button"
+            disabled={markAll.isPending}
+            onClick={() => void markAll.mutateAsync()}
+            className="inline-flex min-h-10 items-center gap-1.5 border border-site-border bg-site-canvas px-3.5 py-1.5 text-xs font-semibold text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus disabled:opacity-60"
+          >
+            <Check size={14} />
+            <span>{t("markAllRead")}</span>
+          </button>
+        ) : null}
       </div>
-      {query.data.items.length === 0 ? <p className="mt-6 border border-site-border p-5 text-sm text-site-muted">{t("noNotifications")}</p> : <ul className="mt-5 divide-y divide-site-border border-y border-site-border">{query.data.items.map((notification) => <li key={notification.id} className={`flex flex-wrap items-center justify-between gap-4 py-5 ${notification.read_at ? "" : "bg-site-surface/50"}`}><div className="min-w-0"><p className="font-semibold text-site-foreground">{!notification.read_at ? <span className="mr-2 inline-block size-2 rounded-full bg-site-action align-middle" aria-label={t("unreadLabel")} /> : null}{notificationTitle(t, notification.event_type)}</p><time dateTime={notification.created_at} className="mt-1 block text-xs text-site-muted">{new Intl.DateTimeFormat("en-GB", { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Berlin" }).format(new Date(notification.created_at))}</time></div><div className="flex items-center gap-3">{notification.target_type === "question" && notification.target_id ? <Link href={`/community/q/${notification.target_id}/question`} className="inline-flex min-h-11 items-center text-sm font-semibold underline underline-offset-4">{t("viewNotification")}</Link> : null}{!notification.read_at ? <button type="button" disabled={markRead.isPending} onClick={() => void markRead.mutateAsync(notification.id)} className="min-h-11 border border-site-border px-3 text-sm disabled:opacity-60">{t("markRead")}</button> : null}</div></li>)}</ul>}
+
+      {query.data.items.length === 0 ? (
+        <p className="mt-6 border border-site-border bg-site-surface/40 p-6 text-center text-sm text-site-muted">
+          {t("noNotifications")}
+        </p>
+      ) : (
+        <ul className="divide-y divide-site-border border-b border-site-border">
+          {query.data.items.map((notification) => {
+            const isUnread = !notification.read_at;
+            return (
+              <li
+                key={notification.id}
+                className={`flex flex-col gap-3 py-5 sm:flex-row sm:items-center sm:justify-between ${
+                  isUnread ? "bg-site-surface/30 px-3 -mx-3 border-l-2 border-site-accent" : ""
+                }`}
+              >
+                <div className="flex items-start gap-3 min-w-0">
+                  <div className="mt-0.5 shrink-0 text-site-muted">
+                    {getNotificationIcon(notification.event_type)}
+                  </div>
+                  <div className="min-w-0">
+                    <p className="text-sm font-semibold text-site-foreground">
+                      {notificationTitle(t, notification.event_type)}
+                    </p>
+                    <time dateTime={notification.created_at} className="mt-1 block text-xs text-site-muted">
+                      {new Intl.DateTimeFormat("en-GB", {
+                        dateStyle: "medium",
+                        timeStyle: "short",
+                        timeZone: "Europe/Berlin",
+                      }).format(new Date(notification.created_at))}
+                    </time>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-3 self-end sm:self-auto">
+                  {notification.target_type === "question" && notification.target_id ? (
+                    <Link
+                      href={`/community/q/${notification.target_id}/view`}
+                      className="inline-flex min-h-10 items-center border border-site-border bg-site-canvas px-3.5 py-1.5 text-xs font-semibold text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus"
+                    >
+                      {t("viewNotification")}
+                    </Link>
+                  ) : null}
+                  {isUnread ? (
+                    <button
+                      type="button"
+                      disabled={markRead.isPending}
+                      onClick={() => void markRead.mutateAsync(notification.id)}
+                      className="inline-flex min-h-10 items-center border border-site-border/60 bg-site-canvas px-3 py-1.5 text-xs text-site-muted transition-colors hover:border-site-border hover:text-site-foreground focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus disabled:opacity-60"
+                    >
+                      {t("markRead")}
+                    </button>
+                  ) : null}
+                </div>
+              </li>
+            );
+          })}
+        </ul>
+      )}
     </section>
   );
+}
+
+function getNotificationIcon(eventType: string) {
+  if (eventType === "community.answer.created") return <MessageSquare size={16} className="text-site-foreground" />;
+  if (eventType === "community.comment.created") return <MessageSquare size={16} className="text-site-muted" />;
+  if (eventType === "community.accepted") return <CheckCircle2 size={16} className="text-site-action" />;
+  if (eventType === "community.helpful") return <ThumbsUp size={16} className="text-site-accent" />;
+  if (eventType === "community.official") return <ShieldCheck size={16} className="text-site-accent" />;
+  if (eventType === "community.approval") return <CheckCircle2 size={16} className="text-site-accent" />;
+  if (eventType === "community.revision") return <FileEdit size={16} className="text-site-foreground" />;
+  return <AlertCircle size={16} className="text-site-muted" />;
 }
 
 function notificationTitle(t: ReturnType<typeof useTranslations<"Community">>, eventType: string) {

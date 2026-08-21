@@ -7,7 +7,7 @@ import { fetchCommunityQuestionServer } from "@/features/public/community/server
 import { communityKeys } from "@/features/public/community/queries";
 import { siteConfig } from "@/config/site.config";
 
-const COMMUNITY_ENABLED = process.env.NEXT_PUBLIC_COMMUNITY_ENABLED === "true";
+const COMMUNITY_ENABLED = process.env.NEXT_PUBLIC_COMMUNITY_ENABLED !== "false";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string; id: string; slug: string }> }) {
   const { locale, id } = await params;
@@ -23,7 +23,13 @@ export default async function CommunityQuestionPage({ params }: { params: Promis
   const { locale, id, slug } = await params;
   const detail = await fetchCommunityQuestionServer(id).catch(() => null);
   if (!detail) notFound();
-  if (locale !== detail.question.locale || slug !== detail.question.slug) redirect(`/${detail.question.locale}/community/q/${detail.question.id}/${detail.question.slug}`);
+
+  // Normalize and compare slug safely. If the slug is outdated or mismatched, redirect within the current locale.
+  const decodedParamSlug = decodeURIComponent(slug || "");
+  const decodedQuestionSlug = decodeURIComponent(detail.question.slug || "");
+  if (decodedParamSlug && decodedQuestionSlug && decodedParamSlug !== decodedQuestionSlug) {
+    redirect(`/${locale}/community/q/${detail.question.id}/${encodeURIComponent(detail.question.slug)}`);
+  }
   const messages = await getMessages({ locale });
   const queryClient = new QueryClient();
   queryClient.setQueryData(communityKeys.question(id), detail);

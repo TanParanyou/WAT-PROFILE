@@ -7,7 +7,7 @@ import { fetchCommunityCategoriesServer, fetchCommunityQuestionsServer } from "@
 import { communityKeys } from "@/features/public/community/queries";
 import type { CommunityLocale } from "@/features/public/community/types";
 
-const COMMUNITY_ENABLED = process.env.NEXT_PUBLIC_COMMUNITY_ENABLED === "true";
+const COMMUNITY_ENABLED = process.env.NEXT_PUBLIC_COMMUNITY_ENABLED !== "false";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

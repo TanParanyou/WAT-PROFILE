@@ -2,6 +2,8 @@ package handlers
 
 import (
 	"errors"
+	"fmt"
+	"os"
 	"strconv"
 	"strings"
 
@@ -10,6 +12,7 @@ import (
 	"github.com/watloungporsai/wat-profile-backend/internal/community"
 	"github.com/watloungporsai/wat-profile-backend/internal/config"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
+	"github.com/watloungporsai/wat-profile-backend/pkg/logger"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
 	"gorm.io/gorm"
 )
@@ -344,6 +347,10 @@ func parseCommunityID(raw string) (uuid.UUID, error) {
 func communityAccountError(c *fiber.Ctx, err error) error {
 	var domainErr *community.DomainError
 	if !errors.As(err, &domainErr) {
+		logger.Log.Error().Err(err).Str("path", c.Path()).Msg("Community account operation failed")
+		if os.Getenv("ENV") != "production" {
+			return utils.ErrorResponse(c, fiber.StatusInternalServerError, fmt.Sprintf("Community error: %v", err))
+		}
 		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Community request failed")
 	}
 	status := fiber.StatusBadRequest

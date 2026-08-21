@@ -23,12 +23,15 @@ import { AccountField } from "./AccountField";
 import { AccountTabs, type AccountTab } from "./AccountTabs";
 import { buildAccountHref, parseAccountTab } from "../accountNavigation";
 import { useUnsavedChanges } from "../hooks/useUnsavedChanges";
+import { AccountRegistrationsContent } from "@/features/public/event-registration/components/AccountRegistrationsContent";
+import { NotificationPreferences } from "@/features/public/community/components/NotificationPreferences";
 import {
   createAccountFormSchemas,
   type ProfileFormValues,
 } from "@/features/public/account/formSchemas";
 import { mapAccountFormError } from "@/features/public/account/formErrors";
 import type { AccountLocale } from "@/features/public/account/types";
+import { Calendar, Heart, MessageSquare } from "lucide-react";
 
 const inputBase =
   "mt-2 min-h-11 w-full border border-site-border bg-site-canvas px-3 py-2.5 text-base text-site-foreground outline-none transition-colors placeholder:text-site-muted focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus";
@@ -68,6 +71,7 @@ export function ProfileForm() {
   >(null);
   const [panelHeadingRefs] = useState(() => ({
     profile: null as HTMLHeadingElement | null,
+    registrations: null as HTMLHeadingElement | null,
     preferences: null as HTMLHeadingElement | null,
     security: null as HTMLHeadingElement | null,
   }));
@@ -438,19 +442,59 @@ export function ProfileForm() {
               >
                 {t("account.profileSection")}
               </h2>
-              <dl className="mt-4 grid gap-3 text-sm sm:grid-cols-2">
+              <dl className="mt-4 grid gap-4 text-sm sm:grid-cols-2">
                 <div>
-                  <dt className="font-semibold text-text-800">
+                  <dt className="font-semibold text-site-foreground">
                     {t("account.emailLabel")}
                   </dt>
-                  <dd className="text-site-muted">{account.email}</dd>
+                  <dd className="mt-1 flex items-center gap-2 text-site-muted">
+                    <span>{account.email}</span>
+                    <span
+                      className={`inline-flex items-center border px-2 py-0.5 text-xs font-semibold uppercase tracking-wider ${
+                        account.email_verified
+                          ? "border-emerald-700 bg-emerald-50 text-emerald-800"
+                          : "border-amber-700 bg-amber-50 text-amber-800"
+                      }`}
+                    >
+                      {account.email_verified
+                        ? t("account.verifiedLabel")
+                        : t("account.unverifiedLabel")}
+                    </span>
+                  </dd>
                 </div>
                 <div>
-                  <dt className="font-semibold text-text-800">
+                  <dt className="font-semibold text-site-foreground">
                     {t("account.statusLabel")}
                   </dt>
-                  <dd className="text-site-muted">
-                    {t(`account.status${capitalize(account.account_status)}`)}
+                  <dd className="mt-1 text-site-muted">
+                    <span className="inline-flex items-center border border-site-border bg-site-surface px-2.5 py-0.5 text-xs font-semibold uppercase tracking-wider text-site-foreground">
+                      {t(`account.status${capitalize(account.account_status)}`)}
+                    </span>
+                  </dd>
+                </div>
+                <div>
+                  <dt className="font-semibold text-site-foreground">
+                    {t("account.providersLabel")}
+                  </dt>
+                  <dd className="mt-1 flex flex-wrap gap-1.5 text-sm text-site-muted">
+                    {account.providers.map((provider) => (
+                      <span
+                        key={provider}
+                        className="inline-flex items-center border border-site-border bg-site-surface px-2 py-0.5 text-xs font-medium text-site-foreground"
+                      >
+                        {provider === "google"
+                          ? "Google"
+                          : t("account.passwordTitle")}
+                      </span>
+                    ))}
+                  </dd>
+                </div>
+                <div>
+                  <dt className="font-semibold text-site-foreground">
+                    {t("account.accountIdLabel")}
+                  </dt>
+                  <dd className="mt-1 font-mono text-xs text-site-muted break-all">
+                    {account.id}
                   </dd>
                 </div>
               </dl>
@@ -478,8 +522,45 @@ export function ProfileForm() {
                 }
               />
             </AccountField>
+
+            <div className="border-t border-site-border pt-6">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-site-muted mb-3">
+                {t("account.quickLinksSection")}
+              </h3>
+              <div className="flex flex-col gap-3 sm:flex-row">
+                <Link
+                  href="/events"
+                  className={secondaryActionClass}
+                >
+                  <Calendar className="size-4 shrink-0" aria-hidden />
+                  {t("account.exploreEvents")}
+                </Link>
+                <Link
+                  href="/donate"
+                  className={secondaryActionClass}
+                >
+                  <Heart className="size-4 shrink-0" aria-hidden />
+                  {t("account.makeDonation")}
+                </Link>
+              </div>
+            </div>
           </section>
         </form>
+
+        <section
+          className={`col-start-1 row-start-1 ${tabPanelVisibilityClass(activeTab, "registrations")}`}
+          aria-hidden={activeTab !== "registrations"}
+        >
+          <section
+            id="account-tabpanel-registrations"
+            role="tabpanel"
+            aria-labelledby="account-tab-registrations"
+            tabIndex={0}
+            className="space-y-6 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
+          >
+            <AccountRegistrationsContent />
+          </section>
+        </section>
 
         <form
           className={`col-start-1 row-start-1 space-y-5 ${tabPanelVisibilityClass(activeTab, "preferences")}`}
@@ -492,45 +573,65 @@ export function ProfileForm() {
             role="tabpanel"
             aria-labelledby="account-tab-preferences"
             tabIndex={0}
-            className="space-y-5 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
+            className="space-y-6 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
           >
-            <h2
-              id="account-panel-preferences-heading"
-              ref={(element) => {
-                panelHeadingRefs.preferences = element;
-              }}
-              tabIndex={-1}
-              className="font-heading text-xl font-bold text-site-foreground focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
-            >
-              {t("account.languageSection")}
-            </h2>
-            <AccountField
-              id="profile-locale"
-              label={t("account.localeLabel")}
-              error={errors.preferredLocale?.message}
-            >
-              <select
+            <div>
+              <h2
+                id="account-panel-preferences-heading"
+                ref={(element) => {
+                  panelHeadingRefs.preferences = element;
+                }}
+                tabIndex={-1}
+                className="font-heading text-xl font-bold text-site-foreground focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
+              >
+                {t("account.languageSection")}
+              </h2>
+              <AccountField
                 id="profile-locale"
-                {...preferredLocaleField}
-                className={inputBase}
-                aria-invalid={errors.preferredLocale ? true : undefined}
-                aria-describedby={`profile-locale-description${
-                  errors.preferredLocale ? " profile-locale-error" : ""
-                }`}
+                label={t("account.localeLabel")}
+                error={errors.preferredLocale?.message}
               >
-                {locales.map((code) => (
-                  <option key={code} value={code}>
-                    {localeLabels[code]}
-                  </option>
-                ))}
-              </select>
-              <p
-                id="profile-locale-description"
-                className="mt-2 max-w-prose text-sm leading-6 text-site-muted"
-              >
-                {t("account.localeDescription")}
-              </p>
-            </AccountField>
+                <select
+                  id="profile-locale"
+                  {...preferredLocaleField}
+                  className={inputBase}
+                  aria-invalid={errors.preferredLocale ? true : undefined}
+                  aria-describedby={`profile-locale-description${
+                    errors.preferredLocale ? " profile-locale-error" : ""
+                  }`}
+                >
+                  {locales.map((code) => (
+                    <option key={code} value={code}>
+                      {localeLabels[code]}
+                    </option>
+                  ))}
+                </select>
+                <p
+                  id="profile-locale-description"
+                  className="mt-2 max-w-prose text-sm leading-6 text-site-muted"
+                >
+                  {t("account.localeDescription")}
+                </p>
+              </AccountField>
+            </div>
+
+            <div className="border-t border-site-border pt-6">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
+                <div>
+                  <h3 className="font-heading text-lg font-bold text-site-foreground">
+                    {t("account.communityActivityTitle")}
+                  </h3>
+                </div>
+                <Link
+                  href="/community/activity"
+                  className={secondaryActionClass}
+                >
+                  <MessageSquare className="size-4 shrink-0" aria-hidden />
+                  {t("account.communityActivityLink")}
+                </Link>
+              </div>
+              <NotificationPreferences />
+            </div>
           </section>
         </form>
 

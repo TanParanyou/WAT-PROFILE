@@ -43,6 +43,24 @@ func adminAllowedOrigins() []string {
 	return origins
 }
 
+func accountAllowedOrigins(accountCfg config.AccountAuthConfig) []string {
+	if len(accountCfg.AllowedOrigins) > 0 {
+		return accountCfg.AllowedOrigins
+	}
+	value := os.Getenv("PUBLIC_ACCOUNT_ALLOWED_ORIGINS")
+	if strings.TrimSpace(value) == "" {
+		value = os.Getenv("ALLOWED_ORIGINS")
+	}
+	if strings.TrimSpace(value) == "" {
+		value = "http://localhost:3000,http://localhost:3002"
+	}
+	origins, err := middleware.ParseAdminAllowedOrigins(value)
+	if err != nil {
+		return []string{"http://localhost:3000", "http://localhost:3002"}
+	}
+	return origins
+}
+
 // SetupRoutes registers all API routes. accountCfg controls whether the public
 // account API is mounted; when disabled, account routes 404 and the legacy
 // anonymous /auth/register stays enabled.
@@ -65,6 +83,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 	memberHandler := handlers.NewMemberHandler(db)
 	registrationHandler := handlers.NewRegistrationHandler(db)
 	contactHandler := handlers.NewContactHandler(db)
+	settingsService := services.NewSettingsService(db)
 	settingsHandler := handlers.NewSettingsHandler(db)
 	contentHandler := handlers.NewContentHandler(db)
 	publicContentHandler := handlers.NewPublicContentHandler(db)
@@ -73,12 +92,10 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 
 	// ============ PUBLIC ROUTES (No Auth Required) ============
 	public := api.Group("/public")
-	if communityCfg.ReadEnabled {
-		communityPublicHandler := handlers.NewCommunityPublicHandler(db, communityCfg)
-		public.Get("/community/categories", communityPublicHandler.GetCategories)
-		public.Get("/community/questions", communityPublicHandler.ListQuestions)
-		public.Get("/community/questions/:id", communityPublicHandler.GetQuestion)
-	}
+	communityPublicHandler := handlers.NewCommunityPublicHandler(db, communityCfg, settingsService)
+	public.Get("/community/categories", communityPublicHandler.GetCategories)
+	public.Get("/community/questions", communityPublicHandler.ListQuestions)
+	public.Get("/community/questions/:id", communityPublicHandler.GetQuestion)
 
 	// Public Content Pages
 	public.Get("/about", publicContentHandler.GetPublicAbout)
@@ -156,30 +173,32 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 		accountRegistrations.Post("/registrations/:id/cancel", registrationHandler.CancelAccountRegistration)
 	}
 
-	if communityCfg.WriteEnabled {
-		communityAccountHandler := handlers.NewCommunityAccountHandler(db, communityCfg)
-		communityAccount := api.Group("/accounts/community", middleware.AccountOriginGuard(accountCfg.AllowedOrigins), middleware.PublicAccountRequired(db, []byte(os.Getenv("JWT_SECRET"))))
-		communityAccount.Post("/questions", communityAccountHandler.CreateQuestion)
-		communityAccount.Get("/questions/:id", communityAccountHandler.GetOwnedQuestion)
-		communityAccount.Patch("/questions/:id", communityAccountHandler.UpdateQuestion)
-		communityAccount.Delete("/questions/:id", communityAccountHandler.DeleteQuestion)
-		communityAccount.Post("/questions/:id/answers", communityAccountHandler.CreateAnswer)
-		communityAccount.Post("/questions/:id/comments", communityAccountHandler.CreateComment)
-		communityAccount.Patch("/answers/:id", communityAccountHandler.UpdateAnswer)
-		communityAccount.Patch("/comments/:id", communityAccountHandler.UpdateComment)
-		communityAccount.Post("/answers/:id/accept", communityAccountHandler.AcceptAnswer)
-		communityAccount.Post("/answers/:id/helpful", communityAccountHandler.ToggleHelpful)
-		communityAccount.Put("/answers/:id/helpful", communityAccountHandler.SetHelpful)
-		communityAccount.Delete("/answers/:id/helpful", communityAccountHandler.SetHelpful)
-		communityAccount.Post("/reports", communityAccountHandler.CreateReport)
-		communityAccount.Get("/notifications", communityAccountHandler.ListNotifications)
-		communityAccount.Post("/notifications/:id/read", communityAccountHandler.MarkNotificationRead)
-		communityAccount.Post("/notifications/read-all", communityAccountHandler.MarkAllNotificationsRead)
-		communityAccount.Get("/notifications/preferences", communityAccountHandler.GetNotificationPreferences)
-		communityAccount.Put("/notifications/preferences", communityAccountHandler.UpdateNotificationPreferences)
-		communityAccount.Get("/activity", communityAccountHandler.ListMyActivity)
-		communityAccount.Get("/questions/:id/viewer", communityAccountHandler.GetViewerState)
-	}
+	communityAccountHandler := handlers.NewCommunityAccountHandler(db, communityCfg)
+	communityAccount := api.Group("/accounts/community",
+		middleware.FeatureRequired(settingsService, "feature_public_community_write"),
+		middleware.AccountOriginGuard(accountAllowedOrigins(accountCfg)),
+		middleware.PublicAccountRequired(db, []byte(os.Getenv("JWT_SECRET"))),
+	)
+	communityAccount.Post("/questions", communityAccountHandler.CreateQuestion)
+	communityAccount.Get("/questions/:id", communityAccountHandler.GetOwnedQuestion)
+	communityAccount.Patch("/questions/:id", communityAccountHandler.UpdateQuestion)
+	communityAccount.Delete("/questions/:id", communityAccountHandler.DeleteQuestion)
+	communityAccount.Post("/questions/:id/answers", communityAccountHandler.CreateAnswer)
+	communityAccount.Post("/questions/:id/comments", communityAccountHandler.CreateComment)
+	communityAccount.Patch("/answers/:id", communityAccountHandler.UpdateAnswer)
+	communityAccount.Patch("/comments/:id", communityAccountHandler.UpdateComment)
+	communityAccount.Post("/answers/:id/accept", communityAccountHandler.AcceptAnswer)
+	communityAccount.Post("/answers/:id/helpful", communityAccountHandler.ToggleHelpful)
+	communityAccount.Put("/answers/:id/helpful", communityAccountHandler.SetHelpful)
+	communityAccount.Delete("/answers/:id/helpful", communityAccountHandler.SetHelpful)
+	communityAccount.Post("/reports", communityAccountHandler.CreateReport)
+	communityAccount.Get("/notifications", communityAccountHandler.ListNotifications)
+	communityAccount.Post("/notifications/:id/read", communityAccountHandler.MarkNotificationRead)
+	communityAccount.Post("/notifications/read-all", communityAccountHandler.MarkAllNotificationsRead)
+	communityAccount.Get("/notifications/preferences", communityAccountHandler.GetNotificationPreferences)
+	communityAccount.Put("/notifications/preferences", communityAccountHandler.UpdateNotificationPreferences)
+	communityAccount.Get("/activity", communityAccountHandler.ListMyActivity)
+	communityAccount.Get("/questions/:id/viewer", communityAccountHandler.GetViewerState)
 
 	// ============ ADMIN AUTH ROUTES (Origin-Guarded, Cookie-Based) ============
 	// These endpoints are deliberately separate from the member /auth group.

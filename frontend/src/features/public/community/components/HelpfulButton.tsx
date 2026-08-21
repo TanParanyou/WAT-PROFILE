@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { useTranslations } from "next-intl";
+import { ThumbsUp } from "lucide-react";
 import { toCommunityApiError } from "../api";
 import { useSetCommunityHelpful } from "../queries";
 
@@ -43,9 +44,16 @@ export function HelpfulButton({
       disabled={!enabled || mutation.isPending}
       aria-pressed={state.voted}
       onClick={toggle}
-      className="min-h-10 border border-site-border px-3 py-2 text-sm font-semibold hover:bg-site-surface disabled:cursor-not-allowed disabled:opacity-50"
+      className={`inline-flex min-h-11 items-center gap-2 border px-3.5 py-2 text-sm font-semibold transition-colors focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-50 ${
+        state.voted
+          ? "border-site-accent/70 bg-site-surface text-site-accent"
+          : "border-site-border bg-site-canvas text-site-foreground hover:bg-site-surface"
+      }`}
     >
-      {t("helpful")} · {state.count}
+      <ThumbsUp size={15} className={state.voted ? "fill-current" : ""} aria-hidden="true" />
+      <span>{t("helpful")}</span>
+      <span className="font-mono text-xs opacity-80" aria-hidden="true">·</span>
+      <span className="font-mono text-xs">{state.count}</span>
     </button>
   );
 }

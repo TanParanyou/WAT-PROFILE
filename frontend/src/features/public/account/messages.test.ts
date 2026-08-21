@@ -54,6 +54,10 @@ test("account messages are non-empty in th en de", () => {
 test("preferred locale navigation preserves the active account tab", () => {
   assert.equal(buildAccountHref(parseAccountTab("security")), "/account?tab=security");
   assert.equal(
+    buildAccountHref(parseAccountTab("registrations")),
+    "/account?tab=registrations",
+  );
+  assert.equal(
     buildAccountHref(parseAccountTab("preferences")),
     "/account?tab=preferences",
   );

@@ -3,6 +3,7 @@ package services
 import (
 	"context"
 	"errors"
+	"os"
 	"strings"
 	"time"
 
@@ -442,7 +443,10 @@ func (s *CommunityInteractionService) requireVerifiedActor(ctx context.Context, 
 	if err := tx.WithContext(ctx).Clauses(clause.Locking{Strength: "UPDATE"}).First(&user, "id = ?", actor).Error; err != nil {
 		return err
 	}
-	if !user.IsActive || user.AccountStatus != models.AccountStatusActive || !user.EmailVerified {
+	if !user.IsActive || user.AccountStatus != models.AccountStatusActive {
+		return community.NewDomainError(community.CodeAccountNotEligible, "Your account is not active")
+	}
+	if !user.EmailVerified && user.RoleID == nil && os.Getenv("ENV") != "development" {
 		return community.NewDomainError(community.CodeAccountNotEligible, "Verify your email before participating in Community")
 	}
 	return nil
@@ -543,8 +547,8 @@ func recordInteractionRevision(tx *gorm.DB, questionID, answerID, commentID, edi
 }
 
 func valueOrEmptyDocument(value *models.RichTextDocument) models.RichTextDocument {
-	if value == nil {
-		return nil
+	if value == nil || len(*value) == 0 {
+		return models.RichTextDocument(`{"type":"doc","content":[]}`)
 	}
 	return *value
 }

@@ -1,7 +1,10 @@
 import createMiddleware from 'next-intl/middleware';
 import { routing } from './routing';
 
-export default createMiddleware(routing);
+const handleProxy = createMiddleware(routing);
+
+export default handleProxy;
+export { handleProxy as proxy };
 
 export const config = {
   // Match only internationalized pathnames and root

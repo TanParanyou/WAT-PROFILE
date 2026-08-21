@@ -23,8 +23,9 @@ import (
 func globalCORSConfig(allowOrigins string) cors.Config {
 	return cors.Config{
 		AllowOrigins:     allowOrigins,
-		AllowMethods:     "GET,POST,PUT,PATCH,DELETE,OPTIONS",
-		AllowHeaders:     "Origin,Content-Type,Accept,Authorization",
+		AllowMethods:     "GET,POST,PUT,PATCH,DELETE,OPTIONS,HEAD",
+		AllowHeaders:     "Origin,Content-Type,Accept,Authorization,Idempotency-Key,X-Trace-Id,X-Requested-With,If-None-Match",
+		ExposeHeaders:    "Content-Length,ETag,Retry-After,X-Trace-Id",
 		AllowCredentials: true,
 	}
 }
@@ -129,9 +130,12 @@ func main() {
 		ContextKey: "trace_id",
 	}))
 	app.Use(logger.FiberLogger()) // ใช้ zerolog แทน Fiber logger
-	allowOrigins := getEnv("ALLOWED_ORIGINS", "http://localhost:3000")
-	if accountCfg.Enabled {
+	allowOrigins := getEnv("ALLOWED_ORIGINS", "http://localhost:3000,http://localhost:3001,http://localhost:3002")
+	if accountCfg.Enabled && len(accountCfg.CORSOrigins) > 0 {
 		allowOrigins = strings.Join(accountCfg.CORSOrigins, ",")
+	}
+	if os.Getenv("ENV") != "production" && !strings.Contains(allowOrigins, "http://localhost:3002") {
+		allowOrigins += ",http://localhost:3002,http://localhost:3001,http://localhost:3000"
 	}
 	app.Use(cors.New(globalCORSConfig(allowOrigins)))
 

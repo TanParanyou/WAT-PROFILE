@@ -12,22 +12,33 @@ export interface AccountTabsProps {
   isDirty: boolean;
 }
 
-const tabs: readonly AccountTab[] = ["profile", "preferences", "security"];
+const tabs: readonly AccountTab[] = [
+  "profile",
+  "registrations",
+  "preferences",
+  "security",
+];
 
-const tabLabels: Record<AccountTab, "tabsProfile" | "tabsPreferences" | "tabsSecurity"> = {
+const tabLabels: Record<
+  AccountTab,
+  "tabsProfile" | "tabsRegistrations" | "tabsPreferences" | "tabsSecurity"
+> = {
   profile: "tabsProfile",
+  registrations: "tabsRegistrations",
   preferences: "tabsPreferences",
   security: "tabsSecurity",
 };
 
 const tabPanelIds: Record<AccountTab, string> = {
   profile: "account-tabpanel-profile",
+  registrations: "account-tabpanel-registrations",
   preferences: "account-tabpanel-preferences",
   security: "account-tabpanel-security",
 };
 
 const tabIds: Record<AccountTab, string> = {
   profile: "account-tab-profile",
+  registrations: "account-tab-registrations",
   preferences: "account-tab-preferences",
   security: "account-tab-security",
 };

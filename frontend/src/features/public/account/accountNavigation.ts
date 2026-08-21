@@ -1,4 +1,4 @@
-export type AccountTab = "profile" | "preferences" | "security";
+export type AccountTab = "profile" | "registrations" | "preferences" | "security";
 
 export type AccountDestination =
   | "/"
@@ -13,9 +13,15 @@ export type AccountDestination =
   | "/account/confirm-email-change"
   | "/account/link"
   | "/account/sessions"
+  | "/account/registrations"
   | `/account?tab=${AccountTab}`;
 
-const accountTabs: readonly AccountTab[] = ["profile", "preferences", "security"];
+const accountTabs: readonly AccountTab[] = [
+  "profile",
+  "registrations",
+  "preferences",
+  "security",
+];
 
 const allowedAccountPaths = new Set([
   "/account",

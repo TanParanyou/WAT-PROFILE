@@ -7,7 +7,7 @@ import { fetchCommunityCategoriesServer, fetchCommunityQuestionsServer } from "@
 import { communityKeys } from "@/features/public/community/queries";
 import type { CommunityLocale } from "@/features/public/community/types";
 
-const COMMUNITY_ENABLED = process.env.NEXT_PUBLIC_COMMUNITY_ENABLED === "true";
+const COMMUNITY_ENABLED = process.env.NEXT_PUBLIC_COMMUNITY_ENABLED !== "false";
 
 export default async function CommunityCategoryPage({ params }: { params: Promise<{ locale: string; slug: string }> }) {
   if (!COMMUNITY_ENABLED) notFound();

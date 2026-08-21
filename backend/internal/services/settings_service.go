@@ -2,6 +2,7 @@ package services
 
 import (
 	"fmt"
+	"os"
 	"strings"
 	"sync"
 
@@ -115,14 +116,40 @@ func (s *SettingsService) Get(key string) (string, error) {
 	return s.cache[key], nil
 }
 
-// IsFeatureEnabled checks if a boolean feature flag is enabled (defaulting to false if missing or error)
+// IsFeatureEnabled checks if a boolean feature flag is enabled in database settings with environment fallback
 func (s *SettingsService) IsFeatureEnabled(key string) bool {
 	val, err := s.Get(key)
-	if err != nil {
-		return false
+	if err == nil && val != "" {
+		val = strings.TrimSpace(strings.ToLower(val))
+		if val == "true" || val == "1" || val == "yes" {
+			return true
+		}
+		if val == "false" || val == "0" || val == "no" {
+			// Check if env explicitly enables it as override
+			switch key {
+			case "feature_public_community_read":
+				return os.Getenv("PUBLIC_COMMUNITY_READ_ENABLED") == "true"
+			case "feature_public_community_write":
+				return os.Getenv("PUBLIC_COMMUNITY_WRITE_ENABLED") == "true"
+			case "feature_public_account_auth":
+				return os.Getenv("PUBLIC_ACCOUNT_AUTH_ENABLED") == "true"
+			}
+			return false
+		}
 	}
-	val = strings.TrimSpace(strings.ToLower(val))
-	return val == "true" || val == "1" || val == "yes"
+
+	// Fallback to environment variables
+	switch key {
+	case "feature_public_community_read":
+		return os.Getenv("PUBLIC_COMMUNITY_READ_ENABLED") == "true"
+	case "feature_public_community_write":
+		return os.Getenv("PUBLIC_COMMUNITY_WRITE_ENABLED") == "true"
+	case "feature_public_account_auth":
+		return os.Getenv("PUBLIC_ACCOUNT_AUTH_ENABLED") == "true"
+	case "feature_donations", "feature_event_registration":
+		return true
+	}
+	return false
 }
 
 // UpdateBatch updates multiple settings at once (ใช้ transaction เพื่อความปลอดภัย)

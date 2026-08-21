@@ -196,6 +196,12 @@ func (r *CommunityPostRevision) BeforeCreate(_ *gorm.DB) error {
 	if r.ID == uuid.Nil {
 		r.ID = uuid.New()
 	}
+	if len(r.BodyBefore) == 0 {
+		r.BodyBefore = RichTextDocument(`{"type":"doc","content":[]}`)
+	}
+	if len(r.BodyAfter) == 0 {
+		r.BodyAfter = RichTextDocument(`{"type":"doc","content":[]}`)
+	}
 	return nil
 }
 

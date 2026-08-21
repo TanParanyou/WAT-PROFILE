@@ -21,12 +21,13 @@ import (
 type CommunityPublicHandler struct {
 	query       *services.CommunityQueryService
 	rateLimiter *services.CommunityRateLimitService
+	settings    *services.SettingsService
 	cfg         config.CommunityConfig
 }
 
-func NewCommunityPublicHandler(db *gorm.DB, cfg config.CommunityConfig) *CommunityPublicHandler {
+func NewCommunityPublicHandler(db *gorm.DB, cfg config.CommunityConfig, settings *services.SettingsService) *CommunityPublicHandler {
 	return &CommunityPublicHandler{
-		query: services.NewCommunityQueryService(db), rateLimiter: services.NewCommunityRateLimitService(db), cfg: cfg,
+		query: services.NewCommunityQueryService(db), rateLimiter: services.NewCommunityRateLimitService(db), settings: settings, cfg: cfg,
 	}
 }
 
@@ -83,7 +84,7 @@ func (h *CommunityPublicHandler) GetQuestion(c *fiber.Ctx) error {
 }
 
 func (h *CommunityPublicHandler) ensureRead(c *fiber.Ctx) error {
-	if h.cfg.ReadEnabled {
+	if h.cfg.ReadEnabled || (h.settings != nil && h.settings.IsFeatureEnabled("feature_public_community_read")) {
 		return nil
 	}
 	return utils.CodedErrorResponse(c, fiber.StatusNotFound, "COMMUNITY_DISABLED", "Community is not available")

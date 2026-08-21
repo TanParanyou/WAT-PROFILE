@@ -31,12 +31,12 @@ func (d *RichTextDocument) UnmarshalJSON(raw []byte) error {
 
 func (d RichTextDocument) Value() (driver.Value, error) {
 	if len(d) == 0 {
-		return []byte(`{"type":"doc","content":[{"type":"paragraph"}]}`), nil
+		return `{"type":"doc","content":[{"type":"paragraph"}]}`, nil
 	}
 	if !json.Valid(d) {
 		return nil, errors.New("invalid rich text JSON")
 	}
-	return []byte(d), nil
+	return string(d), nil
 }
 
 func (d *RichTextDocument) Scan(value any) error {

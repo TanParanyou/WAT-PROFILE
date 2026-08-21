@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 	"fmt"
+	"os"
 	"strings"
 	"time"
 	"unicode"
@@ -60,7 +61,10 @@ func (s *CommunityQuestionService) CreateQuestion(ctx context.Context, actor uui
 		if err := tx.Clauses(clause.Locking{Strength: "UPDATE"}).First(&user, "id = ?", actor).Error; err != nil {
 			return err
 		}
-		if !user.IsActive || user.AccountStatus != models.AccountStatusActive || !user.EmailVerified {
+		if !user.IsActive || user.AccountStatus != models.AccountStatusActive {
+			return community.NewDomainError(community.CodeAccountNotEligible, "Your account is not active")
+		}
+		if !user.EmailVerified && user.RoleID == nil && os.Getenv("ENV") != "development" {
 			return community.NewDomainError(community.CodeAccountNotEligible, "Verify your email before participating in Community")
 		}
 
@@ -294,6 +298,12 @@ func (s *CommunityQuestionService) recordRevisionSnapshot(_ context.Context, tx 
 	var oldTitlePtr *string
 	if oldTitle != "" {
 		oldTitlePtr = &oldTitle
+	}
+	if len(oldBody) == 0 {
+		oldBody = models.RichTextDocument(`{"type":"doc","content":[]}`)
+	}
+	if len(newBody) == 0 {
+		newBody = models.RichTextDocument(`{"type":"doc","content":[]}`)
 	}
 	return tx.Create(&models.CommunityPostRevision{
 		QuestionID: &question.ID, EditorUserID: question.AuthorUserID, TitleBefore: oldTitlePtr, TitleAfter: &newTitle,
