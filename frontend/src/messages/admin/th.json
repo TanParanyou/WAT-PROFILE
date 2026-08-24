@@ -101,6 +101,14 @@
         "account_operations": "บัญชีผู้ใช้สาธารณะ",
         "calendar_resources": "ทรัพยากรปฏิทิน",
         "community": "ชุมชนถาม-ตอบ"
+      },
+      "presets": {
+        "title": "สิทธิ์สำเร็จรูป (Quick Presets)",
+        "readOnly": "ดูอย่างเดียว",
+        "contentEditor": "ผู้ดูแลเนื้อหา",
+        "finance": "เจ้าหน้าที่การเงิน",
+        "fullAdmin": "ผู้ดูแลระบบทั้งหมด",
+        "clear": "ล้างสิทธิ์ทั้งหมด"
       }
     },
     "header": {
@@ -159,6 +167,7 @@
       "refresh": "รีเฟรช",
       "selectedItems": "เลือกแล้ว {count} รายการ",
       "clear": "ล้างการเลือก",
+      "generateSlug": "สร้าง Slug อัตโนมัติ",
       "exportCsv": "Export CSV",
       "bulkDelete": "ลบข้อมูลที่เลือก",
       "noChanges": "ไม่มีการเปลี่ยนแปลง",
@@ -174,8 +183,8 @@
       "copiedToClipboard": "คัดลอกลงคลิปบอร์ดแล้ว",
       "filter": {
         "status": "สถานะ",
-        "statusActive": "Active",
-        "statusInactive": "Inactive",
+        "statusActive": "ใช้งานอยู่",
+        "statusInactive": "ปิดใช้งาน",
         "statusWithVal": "สถานะ: {value}",
         "role": "บทบาท",
         "roleWithVal": "บทบาท: {value}",
@@ -323,7 +332,46 @@
       "categoryNames": "ชื่อหมวดหมู่",
       "typeQuestion": "คำถาม",
       "typeAnswer": "คำตอบ",
-      "typeComment": "ความคิดเห็น"
+      "typeComment": "ความคิดเห็น",
+      "overview": "ภาพรวม",
+      "tabOverview": "ภาพรวม",
+      "tabQueue": "คิวตรวจสอบ",
+      "tabCategories": "หมวดหมู่",
+      "tabMembers": "จัดการสมาชิก",
+      "searchMember": "ค้นหาสมาชิก",
+      "searchMemberPlaceholder": "พิมพ์ชื่อ หรืออีเมลเพื่อค้นหาสมาชิก...",
+      "noMembersFound": "ไม่พบข้อมูลสมาชิก",
+      "selectMember": "เลือกสมาชิก",
+      "selectedMember": "สมาชิกที่เลือก",
+      "changeMember": "เปลี่ยนสมาชิก",
+      "activePenalties": "รายการสมาชิกที่ถูกจำกัดสิทธิ์ในระบบ",
+      "noPenalties": "ไม่มีสมาชิกที่ติดโทษหรือถูกระงับสิทธิ์ในขณะนี้",
+      "penaltyType": "รูปแบบข้อจำกัด",
+      "penaltyExpires": "วันหมดอายุ",
+      "permanent": "ระงับถาวร",
+      "confirmUnrestrict": "ยืนยันการยกเลิกการจำกัดสิทธิ์",
+      "confirmUnrestrictDesc": "สมาชิกจะสามารถกลับมาโพสต์ ตอบคำถาม และแสดงความคิดเห็นในชุมชนได้ตามปกติ",
+      "penaltyModalTitle": "กำหนดการจำกัดสิทธิ์สมาชิก",
+      "duration": "ระยะเวลา",
+      "duration24h": "24 ชั่วโมง",
+      "duration3d": "3 วัน",
+      "duration7d": "7 วัน",
+      "duration30d": "30 วัน",
+      "durationPermanent": "ระงับถาวร (Ban)",
+      "questionCount": "มีทั้งหมด {count} กระทู้",
+      "systemStatus": "สถานะระบบ",
+      "statusEnabled": "เปิดใช้งาน",
+      "statusDisabled": "ปิดใช้งาน",
+      "langTabTh": "ภาษาไทย",
+      "langTabEn": "English",
+      "langTabDe": "Deutsch",
+      "resolveReportConfirm": "ยืนยันการปิดรายงานว่าแก้ไขแล้ว",
+      "dismissReportConfirm": "ยืนยันการยกเลิกรายงาน",
+      "reportDetails": "รายละเอียดรายงาน",
+      "reportedBy": "ผู้รายงาน",
+      "reportedContent": "เนื้อหาที่ถูกรายงาน",
+      "reporterUser": "ผู้ใช้งาน",
+      "reasonRequired": "กรุณาระบุเหตุผลอย่างน้อย 2 ตัวอักษร"
     },
     "dashboard": {
       "welcome": "สวัสดี",
@@ -722,14 +770,14 @@
         "actions": "จัดการ",
         "nameLabel": "ชื่อหมวดหมู่ *",
         "activeLabel": "เปิดใช้งาน",
-        "active": "Active",
-        "inactive": "Inactive",
-        "csvId": "ID",
-        "csvNameTh": "Name (TH)",
-        "csvNameEn": "Name (EN)",
-        "csvSlug": "Slug",
-        "csvOrder": "Display Order",
-        "csvStatus": "Status"
+        "active": "เปิดใช้งาน",
+        "inactive": "ปิดใช้งาน",
+        "csvId": "รหัส",
+        "csvNameTh": "ชื่อ (ไทย)",
+        "csvNameEn": "ชื่อ (อังกฤษ)",
+        "csvSlug": "สลัก URL",
+        "csvOrder": "ลำดับการแสดงผล",
+        "csvStatus": "สถานะ"
       }
     },
     "donations": {
@@ -869,7 +917,18 @@
         "totalAmount": "ยอดรวม",
         "issuer": "เจ้าหน้าที่ผู้ออกเอกสาร",
         "responsible": "ลงชื่อผู้รับผิดชอบ",
-        "print": "พิมพ์เอกสาร"
+        "print": "พิมพ์เอกสาร",
+        "csvHeaders": {
+          "index": "ลำดับ",
+          "donorName": "ชื่อผู้บริจาค",
+          "email": "อีเมล",
+          "address": "ที่อยู่",
+          "totalEur": "ยอดรวมทั้งปี (EUR)",
+          "count": "จำนวนครั้ง",
+          "firstDate": "บริจาคครั้งแรก",
+          "lastDate": "บริจาคล่าสุด",
+          "methods": "ช่องทางการบริจาค"
+        }
       },
       "categories": {
         "title": "หมวดหมู่การบริจาค",
@@ -889,17 +948,17 @@
         "order": "ลำดับ",
         "status": "สถานะ",
         "actions": "จัดการ",
-        "active": "Active",
-        "inactive": "Inactive",
+        "active": "เปิดใช้งาน",
+        "inactive": "ปิดใช้งาน",
         "filterStatus": "สถานะ",
         "activeStatus": "สถานะ: {status}",
-        "csvId": "ID",
-        "csvNameTh": "Name (TH)",
-        "csvNameEn": "Name (EN)",
-        "csvDescTh": "Description (TH)",
-        "csvDescEn": "Description (EN)",
-        "csvOrder": "Display Order",
-        "csvStatus": "Status"
+        "csvId": "รหัส",
+        "csvNameTh": "ชื่อ (ไทย)",
+        "csvNameEn": "ชื่อ (อังกฤษ)",
+        "csvDescTh": "คำอธิบาย (ไทย)",
+        "csvDescEn": "คำอธิบาย (อังกฤษ)",
+        "csvOrder": "ลำดับการแสดงผล",
+        "csvStatus": "สถานะ"
       }
     },
     "privacyRequests": {
@@ -1020,14 +1079,14 @@
         "active": "เปิดใช้งาน",
         "inactive": "ปิดใช้งาน"
       },
-      "csvId": "ID",
-      "csvType": "Type",
-      "csvDay": "Day",
-      "csvStartTime": "Start Time",
-      "csvEndTime": "End Time",
-      "csvActivityTh": "Activity (TH)",
-      "csvActivityEn": "Activity (EN)",
-      "csvStatus": "Status"
+      "csvId": "รหัส",
+      "csvType": "ประเภท",
+      "csvDay": "วัน",
+      "csvStartTime": "เวลาเริ่มต้น",
+      "csvEndTime": "เวลาสิ้นสุด",
+      "csvActivityTh": "กิจกรรม (ไทย)",
+      "csvActivityEn": "กิจกรรม (อังกฤษ)",
+      "csvStatus": "สถานะ"
     },
     "members": {
       "title": "จัดการสมาชิก",
@@ -2072,16 +2131,16 @@
       "export": {
         "filename": "audit_logs_export",
         "headers": {
-          "id": "ID",
-          "date": "Date / Time",
-          "user": "User",
-          "userEmail": "User Email",
-          "action": "Action",
-          "actionLabel": "Action Name",
-          "entityType": "Entity Type",
-          "entityLabel": "Entity Name",
-          "entityId": "Entity ID",
-          "ipAddress": "IP Address",
+          "id": "รหัส",
+          "date": "วันที่ / เวลา",
+          "user": "ผู้ทำรายการ",
+          "userEmail": "อีเมลผู้ทำรายการ",
+          "action": "การทำงาน",
+          "actionLabel": "ชื่อการทำงาน",
+          "entityType": "ประเภทข้อมูล",
+          "entityLabel": "ชื่อข้อมูล",
+          "entityId": "รหัสข้อมูล",
+          "ipAddress": "หมายเลข IP",
           "traceId": "Trace ID"
         }
       }

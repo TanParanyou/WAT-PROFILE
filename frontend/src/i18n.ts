@@ -10,9 +10,20 @@ export default getRequestConfig(async ({ requestLocale }) => {
         locale = routing.defaultLocale;
     }
 
+    const publicMessages = (await import(`./messages/${locale}.json`)).default;
+    let adminMessages = {};
+    try {
+        adminMessages = (await import(`./messages/admin/${locale}.json`)).default;
+    } catch {
+        // Admin messages fallback
+    }
+
     return {
         locale,
-        messages: (await import(`./messages/${locale}.json`)).default,
+        messages: {
+            ...publicMessages,
+            ...adminMessages,
+        },
         timeZone: 'Europe/Berlin',
         onError(error) {
             if (process.env.NODE_ENV !== 'production') {
