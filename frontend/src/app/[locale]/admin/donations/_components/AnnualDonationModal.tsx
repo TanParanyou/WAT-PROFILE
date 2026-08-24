@@ -74,15 +74,15 @@ export function AnnualDonationModal({ isOpen, onClose }: AnnualDonationModalProp
     if (!summaryData || summaryData.donors.length === 0) return;
 
     const headers = [
-      "ลำดับ",
-      "ชื่อผู้บริจาค (Donor Name)",
-      "อีเมล (Email)",
-      "ที่อยู่ (Address)",
-      "ยอดรวมทั้งปี (Total EUR)",
-      "จำนวนครั้ง (Count)",
-      "บริจาคครั้งแรก (First Date)",
-      "บริจาคล่าสุด (Last Date)",
-      "ช่องทางที่ใช้ (Methods)",
+      tAnnual("csvHeaders.index"),
+      tAnnual("csvHeaders.donorName"),
+      tAnnual("csvHeaders.email"),
+      tAnnual("csvHeaders.address"),
+      tAnnual("csvHeaders.totalEur"),
+      tAnnual("csvHeaders.count"),
+      tAnnual("csvHeaders.firstDate"),
+      tAnnual("csvHeaders.lastDate"),
+      tAnnual("csvHeaders.methods"),
     ];
 
     const rows = summaryData.donors.map((d, index) => [

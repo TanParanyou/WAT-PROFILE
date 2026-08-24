@@ -1,14 +1,20 @@
 "use client";
 
 import { NextIntlClientProvider } from "next-intl";
-import th from "@/messages/admin/th.json";
-import en from "@/messages/admin/en.json";
-import de from "@/messages/admin/de.json";
+import thAdmin from "@/messages/admin/th.json";
+import enAdmin from "@/messages/admin/en.json";
+import deAdmin from "@/messages/admin/de.json";
+import thPublic from "@/messages/th.json";
+import enPublic from "@/messages/en.json";
+import dePublic from "@/messages/de.json";
 import { useAdminLocale } from "@/hooks/useAdminLocale";
 import { ReactNode } from "react";
 
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-const messagesMap: Record<string, any> = { th, en, de };
+const messagesMap: Record<string, Record<string, unknown>> = {
+  th: { ...thPublic, ...thAdmin },
+  en: { ...enPublic, ...enAdmin },
+  de: { ...dePublic, ...deAdmin },
+};
 
 export default function AdminIntlProvider({
   children,
@@ -16,7 +22,7 @@ export default function AdminIntlProvider({
   children: ReactNode;
 }) {
   const { locale, mounted } = useAdminLocale();
-  const messages = messagesMap[locale] || th;
+  const messages = messagesMap[locale] || messagesMap.th;
 
   return (
     <NextIntlClientProvider locale={locale} messages={messages}>

@@ -12,7 +12,9 @@ import { OtpInput } from "@/components/admin/security/OtpInput";
 import { useAuth } from "@/hooks/useAuth";
 import type { ApiResponse } from "@/types/api";
 
-export default function AdminLoginPage() {
+import { Suspense } from "react";
+
+function AdminLoginForm() {
   const t = useTranslations("Admin");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -275,5 +277,13 @@ export default function AdminLoginPage() {
         </div>
       </div>
     </div>
+  );
+}
+
+export default function AdminLoginPage() {
+  return (
+    <Suspense fallback={null}>
+      <AdminLoginForm />
+    </Suspense>
   );
 }

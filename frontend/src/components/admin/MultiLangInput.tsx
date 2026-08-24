@@ -146,21 +146,33 @@ export function MultiLangInput({
           )}
 
           <div className="inline-flex border border-admin-control-border rounded-none overflow-hidden h-6">
-            {langs.map((lang) => (
-              <button
-                key={lang.key}
-                type="button"
-                onClick={() => setSelectedLang(lang.key)}
-                className={cn(
-                  "px-2.5 h-full text-xs font-medium uppercase transition-colors inline-flex items-center justify-center focus-visible:outline-2 focus-visible:outline-admin-focus",
-                  activeLang === lang.key
-                    ? "bg-admin-action text-admin-on-action hover:bg-admin-action-hover"
-                    : "bg-admin-surface text-admin-muted hover:bg-admin-surface-muted hover:text-admin-foreground",
-                )}
-              >
-                {lang.label}
-              </button>
-            ))}
+            {langs.map((lang) => {
+              const hasContent = Boolean(safeValue[lang.key]?.trim());
+              return (
+                <button
+                  key={lang.key}
+                  type="button"
+                  onClick={() => setSelectedLang(lang.key)}
+                  className={cn(
+                    "px-2 h-full text-xs font-medium uppercase transition-colors inline-flex items-center justify-center gap-1 focus-visible:outline-2 focus-visible:outline-admin-focus",
+                    activeLang === lang.key
+                      ? "bg-admin-action text-admin-on-action hover:bg-admin-action-hover"
+                      : "bg-admin-surface text-admin-muted hover:bg-admin-surface-muted hover:text-admin-foreground",
+                  )}
+                >
+                  <span>{lang.label}</span>
+                  {hasContent && (
+                    <span
+                      className={cn(
+                        "w-1.5 h-1.5 rounded-full",
+                        activeLang === lang.key ? "bg-white" : "bg-admin-action"
+                      )}
+                      aria-hidden="true"
+                    />
+                  )}
+                </button>
+              );
+            })}
           </div>
         </div>
       </div>

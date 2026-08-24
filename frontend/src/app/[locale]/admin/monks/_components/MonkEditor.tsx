@@ -27,7 +27,7 @@ import { useAppOptions } from "@/hooks/useAppOptions";
 import { hasLegacyLocalizedRichText, normalizeLocalizedRichText } from "@/lib/rich-text/document";
 import { richTextMigrationService } from "@/services/richTextMigrationService";
 import { getFieldError } from "@/utils/form-errors";
-import { generateDefaultSlug } from "@/utils/slug";
+import { generateDefaultSlug, generateSlug } from "@/utils/slug";
 import { emptyLang } from "@/constants";
 import { MonkCardPreview, GoogleSearchPreview } from "@/components/admin/preview";
 import { calculatePansa } from "@/utils/monk";
@@ -80,6 +80,7 @@ export function MonkEditor({ id }: MonkEditorProps) {
     control,
     handleSubmit,
     reset,
+    setValue,
     setError,
     watch,
     formState: { errors, isDirty },
@@ -133,6 +134,12 @@ export function MonkEditor({ id }: MonkEditorProps) {
   const watchedOrdinationDate = watch("ordination_date");
   const calculatedPansa = calculatePansa(watchedOrdinationDate);
   const currentSlug = watch("slug");
+
+  const handleAutoSlug = () => {
+    const currentName = watch("name");
+    const slugValue = generateSlug(currentName) || generateDefaultSlug("monk");
+    setValue("slug", slugValue, { shouldDirty: true, shouldValidate: true });
+  };
 
   const onSubmit = async (data: MonkFormData) => {
     setIsLoading(true);
@@ -342,14 +349,27 @@ export function MonkEditor({ id }: MonkEditorProps) {
                 </h3>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <Input
-                    id="slug"
-                    label={t("monks.form.slug")}
-                    placeholder="monk-slug-name"
-                    {...register("slug")}
-                    error={errors.slug?.message}
-                    required
-                  />
+                  <div className="space-y-1.5">
+                    <div className="flex items-center justify-between">
+                      <label htmlFor="slug" className="text-sm font-medium text-admin-body">
+                        {t("monks.form.slug")} <span className="text-admin-danger">*</span>
+                      </label>
+                      <button
+                        type="button"
+                        onClick={handleAutoSlug}
+                        className="text-xs text-admin-action hover:underline focus-visible:outline-2 focus-visible:outline-admin-focus"
+                      >
+                        {t("common.generateSlug")}
+                      </button>
+                    </div>
+                    <Input
+                      id="slug"
+                      placeholder="monk-slug-name"
+                      {...register("slug")}
+                      error={errors.slug?.message}
+                      required
+                    />
+                  </div>
 
                   <Controller
                     control={control}
