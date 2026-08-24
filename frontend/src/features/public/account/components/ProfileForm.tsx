@@ -23,7 +23,9 @@ import { AccountField } from "./AccountField";
 import { AccountTabs, type AccountTab } from "./AccountTabs";
 import { buildAccountHref, parseAccountTab } from "../accountNavigation";
 import { useUnsavedChanges } from "../hooks/useUnsavedChanges";
+import { CopyButton } from "@/components/common/CopyButton";
 import { AccountRegistrationsContent } from "@/features/public/event-registration/components/AccountRegistrationsContent";
+import { AccountDonationsContent } from "@/features/public/donations/components/AccountDonationsContent";
 import { NotificationPreferences } from "@/features/public/community/components/NotificationPreferences";
 import {
   createAccountFormSchemas,
@@ -72,6 +74,7 @@ export function ProfileForm() {
   const [panelHeadingRefs] = useState(() => ({
     profile: null as HTMLHeadingElement | null,
     registrations: null as HTMLHeadingElement | null,
+    donations: null as HTMLHeadingElement | null,
     preferences: null as HTMLHeadingElement | null,
     security: null as HTMLHeadingElement | null,
   }));
@@ -493,8 +496,14 @@ export function ProfileForm() {
                   <dt className="font-semibold text-site-foreground">
                     {t("account.accountIdLabel")}
                   </dt>
-                  <dd className="mt-1 font-mono text-xs text-site-muted break-all">
-                    {account.id}
+                  <dd className="mt-1 flex flex-wrap items-center gap-2 font-mono text-xs text-site-muted break-all">
+                    <span>{account.id}</span>
+                    <CopyButton
+                      text={account.id}
+                      label={t("account.copyCode")}
+                      copiedLabel={t("account.codeCopied")}
+                      variant="inline"
+                    />
                   </dd>
                 </div>
               </dl>
@@ -527,7 +536,7 @@ export function ProfileForm() {
               <h3 className="text-xs font-bold uppercase tracking-wider text-site-muted mb-3">
                 {t("account.quickLinksSection")}
               </h3>
-              <div className="flex flex-col gap-3 sm:flex-row">
+              <div className="flex flex-col gap-3 sm:flex-row sm:flex-wrap">
                 <Link
                   href="/events"
                   className={secondaryActionClass}
@@ -541,6 +550,13 @@ export function ProfileForm() {
                 >
                   <Heart className="size-4 shrink-0" aria-hidden />
                   {t("account.makeDonation")}
+                </Link>
+                <Link
+                  href="/community/activity"
+                  className={secondaryActionClass}
+                >
+                  <MessageSquare className="size-4 shrink-0" aria-hidden />
+                  {t("account.communityActivityLink")}
                 </Link>
               </div>
             </div>
@@ -559,6 +575,21 @@ export function ProfileForm() {
             className="space-y-6 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
           >
             <AccountRegistrationsContent />
+          </section>
+        </section>
+
+        <section
+          className={`col-start-1 row-start-1 ${tabPanelVisibilityClass(activeTab, "donations")}`}
+          aria-hidden={activeTab !== "donations"}
+        >
+          <section
+            id="account-tabpanel-donations"
+            role="tabpanel"
+            aria-labelledby="account-tab-donations"
+            tabIndex={0}
+            className="space-y-6 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
+          >
+            <AccountDonationsContent />
           </section>
         </section>
 
@@ -616,20 +647,6 @@ export function ProfileForm() {
             </div>
 
             <div className="border-t border-site-border pt-6">
-              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-4">
-                <div>
-                  <h3 className="font-heading text-lg font-bold text-site-foreground">
-                    {t("account.communityActivityTitle")}
-                  </h3>
-                </div>
-                <Link
-                  href="/community/activity"
-                  className={secondaryActionClass}
-                >
-                  <MessageSquare className="size-4 shrink-0" aria-hidden />
-                  {t("account.communityActivityLink")}
-                </Link>
-              </div>
               <NotificationPreferences />
             </div>
           </section>

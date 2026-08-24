@@ -15,6 +15,7 @@ export function toEventListItem(event: PublicEventDto): EventListItem {
     category: event.category,
     eventType: event.event_type,
     registrationEnabled: event.registration_enabled,
+    registrationDeadline: event.registration_deadline,
     donationEnabled: event.donation_enabled,
     onlineJoinUrl: event.online_join_url,
     galleryUrls: event.gallery_urls,

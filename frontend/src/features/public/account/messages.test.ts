@@ -1,8 +1,8 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import en from "../../../messages/en.json";
-import th from "../../../messages/th.json";
-import de from "../../../messages/de.json";
+import en from "../../../messages/en.json" with { type: "json" };
+import th from "../../../messages/th.json" with { type: "json" };
+import de from "../../../messages/de.json" with { type: "json" };
 import {
   inspectPassword,
   normalizeAccountEmail,
@@ -56,6 +56,10 @@ test("preferred locale navigation preserves the active account tab", () => {
   assert.equal(
     buildAccountHref(parseAccountTab("registrations")),
     "/account?tab=registrations",
+  );
+  assert.equal(
+    buildAccountHref(parseAccountTab("donations")),
+    "/account?tab=donations",
   );
   assert.equal(
     buildAccountHref(parseAccountTab("preferences")),

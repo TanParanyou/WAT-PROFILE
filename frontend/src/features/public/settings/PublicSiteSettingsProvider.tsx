@@ -19,6 +19,5 @@ export function PublicSiteSettingsProvider({ children }: { children: React.React
 
 export function usePublicSiteSettings(): PublicSiteSettings {
   const settings = useContext(PublicSiteSettingsContext);
-  if (!settings) throw new Error("usePublicSiteSettings must be used inside PublicSiteSettingsProvider");
-  return settings;
+  return settings ?? getFallbackPublicSiteSettings();
 }

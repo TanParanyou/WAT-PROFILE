@@ -59,16 +59,31 @@ export function EventsList({ events }: EventsListProps) {
                     {t("liveStreaming")}
                   </span>
                 )}
-                {event.registrationEnabled && (
-                  <Link
-                    href={`/events/${event.slug}/register`}
-                    className="inline-flex min-h-9 items-center gap-1 border border-site-border bg-site-surface px-2.5 py-1 text-[11px] font-medium text-site-accent transition-colors hover:bg-site-canvas focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus"
-                    aria-label={t("registrationOpen")}
-                  >
-                    <UserCheck size={11} />
-                    {t("registrationOpen")}
-                  </Link>
-                )}
+                {event.registrationEnabled && (() => {
+                  const isClosed = event.registrationDeadline
+                    ? new Date(event.registrationDeadline).getTime() < Date.now()
+                    : false;
+
+                  if (isClosed) {
+                    return (
+                      <span className="inline-flex min-h-9 items-center gap-1 border border-site-border/60 bg-site-surface/50 px-2.5 py-1 text-[11px] font-medium text-site-muted">
+                        <UserCheck size={11} />
+                        {t("registrationClosed")}
+                      </span>
+                    );
+                  }
+
+                  return (
+                    <Link
+                      href={`/events/${event.slug}/register`}
+                      className="inline-flex min-h-9 items-center gap-1 border border-site-border bg-site-surface px-2.5 py-1 text-[11px] font-medium text-site-accent transition-colors hover:bg-site-canvas focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus"
+                      aria-label={t("registrationOpen")}
+                    >
+                      <UserCheck size={11} />
+                      {t("registrationOpen")}
+                    </Link>
+                  );
+                })()}
                 {event.donationEnabled && (
                   <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-site-surface text-site-foreground px-2 py-0.5 border border-site-border">
                     <HeartHandshake size={11} className="text-site-accent" />

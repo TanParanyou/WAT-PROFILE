@@ -5,6 +5,7 @@ import { CheckCircle2, QrCode, Download, Printer, Lightbulb } from "lucide-react
 import { useTranslations } from "next-intl";
 import { Link } from "@/navigation";
 import QRCode from "qrcode";
+import { CopyButton } from "@/components/common/CopyButton";
 import type { EventRegistrationDetail } from "../types";
 
 export function RegistrationSuccess({ registration }: { registration: EventRegistrationDetail }) {
@@ -69,9 +70,17 @@ export function RegistrationSuccess({ registration }: { registration: EventRegis
 
           <div>
             <span className="text-xs text-site-muted block">{t("confirmationCodeLabel")}</span>
-            <span className="text-xl font-bold font-mono text-site-foreground tracking-wider block">
-              {registration.confirmation_code}
-            </span>
+            <div className="flex items-center gap-2 mt-0.5">
+              <span className="text-xl font-bold font-mono text-site-foreground tracking-wider block">
+                {registration.confirmation_code}
+              </span>
+              <CopyButton
+                text={registration.confirmation_code}
+                label={t("copyCode")}
+                copiedLabel={t("codeCopied")}
+                variant="inline"
+              />
+            </div>
           </div>
 
           <div className="grid grid-cols-2 gap-4 pt-2 border-t border-site-border/60">

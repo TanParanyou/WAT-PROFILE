@@ -70,6 +70,7 @@ export interface EventListItem {
   category?: { id: number; name: LocalizedTextDto; description?: LocalizedTextDto } | null;
   eventType?: string;
   registrationEnabled?: boolean;
+  registrationDeadline?: string | null;
   donationEnabled?: boolean;
   onlineJoinUrl?: string | null;
   galleryUrls?: readonly string[];

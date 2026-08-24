@@ -4,6 +4,7 @@ import { useLocale, useTranslations } from "next-intl";
 import { useState } from "react";
 import { useAccountSession } from "@/features/public/account/AccountSessionProvider";
 import { Link } from "@/navigation";
+import { formatDateRange, formatTimeRange } from "@/utils/formatters";
 import {
   useAccountRegistrationsQuery,
   useCancelAccountRegistration,
@@ -15,7 +16,17 @@ import type {
   RegistrationLocale,
   RegistrationParticipantInput,
 } from "../types";
-import { Loader2, Calendar, Users, AlertCircle } from "lucide-react";
+import { CopyButton } from "@/components/common/CopyButton";
+import { QRCodePass } from "@/components/common/QRCodePass";
+import {
+  Loader2,
+  Calendar,
+  Users,
+  AlertCircle,
+  QrCode,
+  ChevronDown,
+  ChevronUp,
+} from "lucide-react";
 
 const primaryActionClass =
   "inline-flex min-h-11 items-center justify-center gap-2 bg-site-action px-6 py-[13px] text-sm font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus disabled:opacity-60";
@@ -144,6 +155,15 @@ export function AccountRegistrationsContent() {
   );
 }
 
+interface RegistrationCardProps {
+  item: EventRegistrationListItem;
+  locale: RegistrationLocale;
+  editing: boolean;
+  onEdit: () => void;
+  onCancel: () => void;
+  cancelPending: boolean;
+}
+
 function RegistrationCard({
   item,
   locale,
@@ -151,16 +171,10 @@ function RegistrationCard({
   onEdit,
   onCancel,
   cancelPending,
-}: {
-  item: EventRegistrationListItem;
-  locale: RegistrationLocale;
-  editing: boolean;
-  onEdit: () => void;
-  onCancel: () => void;
-  cancelPending: boolean;
-}) {
+}: RegistrationCardProps) {
   const t = useTranslations("EventRegistration");
   const update = useUpdateAccountRegistration();
+  const [showQr, setShowQr] = useState(false);
   const [firstName, setFirstName] = useState(item.contact.first_name);
   const [lastName, setLastName] = useState(item.contact.last_name);
   const [phone, setPhone] = useState(item.contact.phone);
@@ -189,15 +203,11 @@ function RegistrationCard({
         ? "border-red-700 bg-red-50 text-red-800"
         : "border-site-border bg-site-surface text-site-foreground";
 
-  const eventDateFormatted = item.event.start_date
-    ? new Intl.DateTimeFormat(locale, {
-        dateStyle: "medium",
-        timeZone: "Europe/Berlin",
-      }).format(new Date(item.event.start_date))
-    : null;
+  const dateFormatted = formatDateRange(item.event.start_date, item.event.end_date, locale);
+  const timeFormatted = formatTimeRange(item.event.start_time, item.event.end_time, locale);
 
   return (
-    <article className="border border-site-border bg-site-canvas p-5 sm:p-6">
+    <article className="border border-site-border bg-site-canvas p-5 sm:p-6 transition-colors hover:border-site-border/80">
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <h3 className="font-heading text-lg font-bold text-site-foreground">
@@ -206,9 +216,16 @@ function RegistrationCard({
           <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-xs text-site-muted">
             <span>{item.contact.email}</span>
             {item.confirmation_code ? (
-              <span className="font-mono">
-                {t("confirmationCode")}: <strong className="text-site-foreground">{item.confirmation_code}</strong>
-              </span>
+              <div className="flex items-center gap-1.5 font-mono">
+                <span>{t("confirmationCode")}:</span>
+                <strong className="text-site-foreground">{item.confirmation_code}</strong>
+                <CopyButton
+                  text={item.confirmation_code}
+                  label={t("copyCode")}
+                  copiedLabel={t("codeCopied")}
+                  variant="inline"
+                />
+              </div>
             ) : null}
           </div>
         </div>
@@ -223,8 +240,8 @@ function RegistrationCard({
         <div className="flex items-center gap-2">
           <Calendar className="size-4 shrink-0 text-site-accent" aria-hidden />
           <span>
-            {eventDateFormatted}
-            {item.event.start_time ? ` (${item.event.start_time})` : ""}
+            {dateFormatted}
+            {timeFormatted && timeFormatted !== "-" ? ` • ${timeFormatted}` : ""}
           </span>
         </div>
         <div className="flex items-center gap-2">
@@ -235,14 +252,44 @@ function RegistrationCard({
         </div>
       </div>
 
-      {item.event.slug ? (
-        <div className="mt-3">
+      <div className="mt-4 flex flex-wrap items-center justify-between gap-3 border-t border-site-border pt-3">
+        {item.confirmation_code ? (
+          <button
+            type="button"
+            onClick={() => setShowQr((prev) => !prev)}
+            className="inline-flex min-h-9 items-center gap-1.5 border border-site-border bg-site-surface px-3 py-1.5 text-xs font-semibold text-site-foreground transition-colors hover:bg-site-canvas focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus"
+          >
+            <QrCode className="size-3.5 text-site-accent" aria-hidden />
+            <span>{showQr ? t("hideQrCode") : t("showQrCode")}</span>
+            {showQr ? (
+              <ChevronUp className="size-3 text-site-muted" aria-hidden />
+            ) : (
+              <ChevronDown className="size-3 text-site-muted" aria-hidden />
+            )}
+          </button>
+        ) : <div />}
+
+        {item.event.slug ? (
           <Link
             href={`/events/${item.event.slug}`}
             className="text-xs font-medium text-site-accent underline hover:text-site-foreground focus-visible:outline-site-focus"
           >
             {t("backToEvent")} →
           </Link>
+        ) : null}
+      </div>
+
+      {showQr && item.confirmation_code ? (
+        <div className="mt-4">
+          <QRCodePass
+            value={item.confirmation_code}
+            title={t("qrPassTitle")}
+            codeLabel={t("confirmationCode")}
+            instructions={t("qrInstructions")}
+            downloadLabel={t("saveQrCode")}
+            copyLabel={t("copyCode")}
+            copiedLabel={t("codeCopied")}
+          />
         </div>
       ) : null}
 
