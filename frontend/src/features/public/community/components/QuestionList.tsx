@@ -33,7 +33,7 @@ export function QuestionList({ items, locale, answerLabel, activityLabel, status
                     href={`/community/category/${item.category.slug}`}
                     className="border border-site-border bg-site-surface px-2 py-0.5 text-site-foreground transition-colors hover:bg-site-surface/80"
                   >
-                    {item.category.name[locale]}
+                    {item.category.name[locale] || item.category.name.th || item.category.name.en || item.category.name.de || item.category.slug}
                   </Link>
 
                   <span className="border border-site-border/70 px-2 py-0.5">{item.locale.toUpperCase()}</span>

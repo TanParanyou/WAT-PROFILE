@@ -39,26 +39,26 @@ export function NotificationPreferences() {
   if (query.isError) return <p role="alert" className="text-sm text-site-danger">{t("notificationsLoadError")}</p>;
 
   return (
-    <section aria-labelledby="community-notification-preferences" className="mt-12 border-t border-site-border pt-8 pb-16">
+    <div className="space-y-4">
       <div className="flex items-center gap-2 text-xs font-semibold uppercase tracking-wider text-site-muted">
-        <Mail size={14} />
-        <span>Email Notifications</span>
+        <Mail size={14} aria-hidden />
+        <span>{t("emailNotificationsBadge")}</span>
       </div>
-      <h2 id="community-notification-preferences" className="mt-1 font-heading text-2xl font-medium text-site-foreground">
+      <h3 id="community-notification-preferences" className="font-heading text-lg font-bold text-site-foreground">
         {t("notificationPreferencesTitle")}
-      </h2>
-      <p className="mt-2 text-sm text-site-muted">{t("notificationPreferencesSubtitle")}</p>
+      </h3>
+      <p className="text-sm text-site-muted">{t("notificationPreferencesSubtitle")}</p>
 
-      <div className="mt-6 grid gap-3 sm:grid-cols-2">
+      <div className="mt-4 grid gap-3 sm:grid-cols-2">
         {options.map((option) => {
           const checked = values[option.key] ?? false;
           return (
             <label
               key={option.key}
-              className={`flex min-h-12 cursor-pointer items-center gap-3 border px-4 py-2 text-sm transition-colors ${
+              className={`flex min-h-11 cursor-pointer items-center gap-3 border px-4 py-2.5 text-sm transition-colors ${
                 checked
-                  ? "border-site-border bg-site-surface/50 text-site-foreground"
-                  : "border-site-border/60 bg-site-canvas text-site-body hover:bg-site-surface/30"
+                  ? "border-site-border bg-site-surface text-site-foreground"
+                  : "border-site-border/60 bg-site-canvas text-site-foreground hover:bg-site-surface/50"
               }`}
             >
               <input
@@ -80,17 +80,17 @@ export function NotificationPreferences() {
           type="button"
           disabled={mutation.isPending}
           onClick={() => void mutation.mutateAsync({ email_preferences: values })}
-          className="inline-flex min-h-11 items-center gap-2 border border-site-border bg-site-action px-6 text-sm font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus disabled:opacity-60"
+          className="inline-flex min-h-11 items-center justify-center gap-2 bg-site-action px-6 py-[13px] font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus disabled:cursor-not-allowed disabled:opacity-60"
         >
           {mutation.isPending ? t("saving") : t("savePreferences")}
         </button>
         {mutation.isSuccess ? (
-          <span role="status" className="inline-flex items-center gap-1.5 text-sm text-site-accent font-medium">
-            <Check size={16} />
+          <span role="status" className="inline-flex items-center gap-1.5 text-sm text-emerald-800 font-medium">
+            <Check size={16} aria-hidden />
             <span>{t("preferencesSaved")}</span>
           </span>
         ) : null}
       </div>
-    </section>
+    </div>
   );
 }

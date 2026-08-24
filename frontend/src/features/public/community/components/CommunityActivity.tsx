@@ -29,17 +29,19 @@ export function CommunityActivity() {
 
   if (session.status !== "authenticated") {
     return (
-      <PageContainer width="content">
-        <div className="border-y border-site-border py-12">
-          <h2 className="font-heading text-2xl font-medium text-site-foreground">{t("signInToViewActivity")}</h2>
-          <Link
-            href="/account/login"
-            className="mt-6 inline-flex min-h-11 items-center border border-site-border bg-site-action px-5 text-sm font-semibold text-site-on-action"
-          >
-            {t("signIn")}
-          </Link>
-        </div>
-      </PageContainer>
+      <div className="min-h-screen bg-site-canvas pt-[76px] sm:pt-[88px]">
+        <PageContainer width="content">
+          <div className="border-y border-site-border py-12">
+            <h2 className="font-heading text-2xl font-medium text-site-foreground">{t("signInToViewActivity")}</h2>
+            <Link
+              href="/account/login"
+              className="mt-6 inline-flex min-h-11 items-center border border-site-border bg-site-action px-5 text-sm font-semibold text-site-on-action"
+            >
+              {t("signIn")}
+            </Link>
+          </div>
+        </PageContainer>
+      </div>
     );
   }
 

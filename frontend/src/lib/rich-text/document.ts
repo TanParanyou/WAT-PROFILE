@@ -11,12 +11,20 @@ export const isRichTextDocument = (value: unknown): value is RichTextDocument =>
   typeof value === "object" && value !== null && (value as { type?: unknown }).type === "doc";
 
 export const isLocalizedRichTextSource = (value: unknown): value is LocalizedRichTextSource =>
-  typeof value === "object" && value !== null && !Array.isArray(value);
+  typeof value === "object" && value !== null && !Array.isArray(value) && !isRichTextDocument(value);
 
 export function normalizeLegacyRichText(value: unknown): RichTextDocument {
   if (isRichTextDocument(value)) return value;
   const text = typeof value === "string" ? value.trim() : "";
   if (!text) return emptyRichTextDocument();
+  if (text.startsWith("{") && text.endsWith("}")) {
+    try {
+      const parsed = JSON.parse(text);
+      if (isRichTextDocument(parsed)) return parsed;
+    } catch {
+      // Not valid JSON, continue with HTML / plain text fallback
+    }
+  }
   if (/<[a-z][\s\S]*>/i.test(text)) return generateJSON(text, richTextExtensions);
   return { type: "doc", content: text.split(/\n{2,}/).map((paragraph) => ({ type: "paragraph", content: paragraph ? [{ type: "text", text: paragraph }] : [] })) };
 }
@@ -52,6 +60,10 @@ export function isRichTextDocumentEmpty(doc: unknown): boolean {
 }
 
 export function getLocalizedRichText(value: unknown, locale: string = "th", defaultLocale: string = "th"): RichTextDocument {
+  if (isRichTextDocument(value)) {
+    return value;
+  }
+
   if (!isLocalizedRichTextSource(value)) {
     return normalizeLegacyRichText(value);
   }

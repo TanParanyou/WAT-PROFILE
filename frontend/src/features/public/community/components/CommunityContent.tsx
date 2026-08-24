@@ -139,7 +139,7 @@ export function CommunityContent({ categoryID }: { categoryID?: string }) {
                 <option value="">{t("allCategories")}</option>
                 {categoriesQuery.data?.map((category) => (
                   <option key={category.id} value={category.id}>
-                    {category.name[locale]}
+                    {category.name[locale] || category.name.th || category.name.en || category.name.de || category.slug}
                   </option>
                 ))}
               </select>

@@ -25,6 +25,7 @@ interface CommunityRichTextEditorProps {
   placeholder: string;
   disabled?: boolean;
   error?: string;
+  compact?: boolean;
 }
 
 const restrictedExtensions = [
@@ -52,6 +53,7 @@ export function CommunityRichTextEditor({
   placeholder,
   disabled = false,
   error,
+  compact = false,
 }: CommunityRichTextEditorProps) {
   const t = useTranslations("Community");
   const [linkOpen, setLinkOpen] = useState(false);
@@ -144,7 +146,7 @@ export function CommunityRichTextEditor({
     <div className={`border bg-site-canvas transition-all ${ringStyle}`}>
       {/* Editor Toolbar matching Admin style */}
       {editor && (
-        <div className="flex flex-wrap items-center gap-1 border-b border-site-border bg-site-surface/60 p-2">
+        <div className="flex flex-wrap items-center gap-1 border-b border-site-border bg-site-surface/60 p-1.5 sm:p-2">
           {/* Undo / Redo */}
           <ToolbarButton
             label={t("editorUndo")}
@@ -163,7 +165,7 @@ export function CommunityRichTextEditor({
             <Redo size={15} />
           </ToolbarButton>
 
-          <div className="mx-1 h-4 w-[1px] bg-site-border" aria-hidden="true" />
+          <div className="mx-0.5 sm:mx-1 h-4 w-[1px] bg-site-border" aria-hidden="true" />
 
           {/* Formatting */}
           <ToolbarButton
@@ -191,7 +193,7 @@ export function CommunityRichTextEditor({
             <ListOrdered size={15} />
           </ToolbarButton>
 
-          <div className="mx-1 h-4 w-[1px] bg-site-border" aria-hidden="true" />
+          <div className="mx-0.5 sm:mx-1 h-4 w-[1px] bg-site-border" aria-hidden="true" />
 
           {/* Link & Clear Format */}
           <ToolbarButton
@@ -231,7 +233,7 @@ export function CommunityRichTextEditor({
                   setLinkError("");
                 }}
                 placeholder="https://example.com"
-                className="min-h-9 min-w-56 flex-1 border border-site-border bg-site-canvas px-3 text-xs outline-none focus-visible:border-site-focus focus-visible:ring-2 focus-visible:ring-site-focus/30"
+                className="min-h-9 min-w-44 flex-1 border border-site-border bg-site-canvas px-3 text-xs outline-none focus-visible:border-site-focus focus-visible:ring-2 focus-visible:ring-site-focus/30"
                 autoFocus
               />
               <button
@@ -263,9 +265,13 @@ export function CommunityRichTextEditor({
         </div>
       )}
 
-      {/* Editor Content with Admin-like prose styling */}
+      {/* Editor Content with Responsive & Compact Mode */}
       <div
-        className="relative min-h-[160px] cursor-text p-4 text-sm text-site-foreground sm:text-base [&_.ProseMirror]:min-h-[128px] [&_.ProseMirror]:whitespace-pre-wrap [&_.ProseMirror]:outline-none [&_.ProseMirror_p]:my-2 [&_.ProseMirror_ul]:my-2 [&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ul]:pl-6 [&_.ProseMirror_ol]:my-2 [&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_ol]:pl-6 [&_.ProseMirror_li]:my-1 [&_.ProseMirror_a]:font-medium [&_.ProseMirror_a]:text-site-accent [&_.ProseMirror_a]:underline [&_.ProseMirror_a]:underline-offset-2"
+        className={`relative cursor-text p-3 sm:p-4 text-sm text-site-foreground sm:text-base ${
+          compact
+            ? "min-h-[100px] [&_.ProseMirror]:min-h-[80px] text-xs sm:text-sm"
+            : "min-h-[140px] sm:min-h-[160px] [&_.ProseMirror]:min-h-[110px] sm:[&_.ProseMirror]:min-h-[128px]"
+        } [&_.ProseMirror]:whitespace-pre-wrap [&_.ProseMirror]:outline-none [&_.ProseMirror_p]:my-1.5 [&_.ProseMirror_ul]:my-1.5 [&_.ProseMirror_ul]:list-disc [&_.ProseMirror_ul]:pl-5 [&_.ProseMirror_ol]:my-1.5 [&_.ProseMirror_ol]:list-decimal [&_.ProseMirror_ol]:pl-5 [&_.ProseMirror_li]:my-0.5 [&_.ProseMirror_a]:font-medium [&_.ProseMirror_a]:text-site-accent [&_.ProseMirror_a]:underline [&_.ProseMirror_a]:underline-offset-2`}
         onMouseDown={(event) => {
           if (disabled || event.target !== event.currentTarget) return;
           event.preventDefault();
@@ -273,7 +279,7 @@ export function CommunityRichTextEditor({
         }}
       >
         {isEmpty && !isFocused && (
-          <p className="pointer-events-none absolute left-4 top-4 text-sm text-site-muted">
+          <p className="pointer-events-none absolute left-3 sm:left-4 top-3 sm:top-4 text-xs sm:text-sm text-site-muted">
             {placeholder}
           </p>
         )}
@@ -281,7 +287,7 @@ export function CommunityRichTextEditor({
       </div>
 
       {error ? (
-        <p className="border-t border-site-border bg-site-danger/5 px-4 py-2 text-xs font-medium text-site-danger" role="alert">
+        <p className="border-t border-site-border bg-site-danger/5 px-3 sm:px-4 py-2 text-xs font-medium text-site-danger" role="alert">
           {error}
         </p>
       ) : null}
