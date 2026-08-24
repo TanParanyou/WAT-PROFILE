@@ -141,11 +141,11 @@ func (s *SettingsService) IsFeatureEnabled(key string) bool {
 	// Fallback to environment variables
 	switch key {
 	case "feature_public_community_read":
-		return os.Getenv("PUBLIC_COMMUNITY_READ_ENABLED") == "true"
+		return os.Getenv("PUBLIC_COMMUNITY_READ_ENABLED") == "true" || os.Getenv("ENV") == "development"
 	case "feature_public_community_write":
-		return os.Getenv("PUBLIC_COMMUNITY_WRITE_ENABLED") == "true"
+		return os.Getenv("PUBLIC_COMMUNITY_WRITE_ENABLED") == "true" || os.Getenv("ENV") == "development"
 	case "feature_public_account_auth":
-		return os.Getenv("PUBLIC_ACCOUNT_AUTH_ENABLED") == "true"
+		return os.Getenv("PUBLIC_ACCOUNT_AUTH_ENABLED") == "true" || os.Getenv("ENV") == "development"
 	case "feature_donations", "feature_event_registration":
 		return true
 	}

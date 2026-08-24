@@ -10,6 +10,11 @@ import (
 // Example: {"th": "ข้อความ", "en": "Text", "de": "Text"}
 type MultiLangText map[string]string
 
+// GormDataType returns gorm data type for schema parser
+func (MultiLangText) GormDataType() string {
+	return "jsonb"
+}
+
 // Value implements driver.Valuer interface for GORM
 func (m MultiLangText) Value() (driver.Value, error) {
 	if m == nil {

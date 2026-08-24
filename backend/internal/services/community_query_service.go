@@ -2,6 +2,7 @@ package services
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"strings"
 	"time"
@@ -24,8 +25,8 @@ type communityQuestionListRow struct {
 	ID                   uuid.UUID
 	CategoryID           uuid.UUID
 	CategorySlug         string
-	CategoryName         models.MultiLangText
-	CategoryDescription  models.MultiLangText
+	CategoryName         []byte `gorm:"column:category_name"`
+	CategoryDescription  []byte `gorm:"column:category_description"`
 	Locale               string
 	Title                string
 	Slug                 string
@@ -220,6 +221,17 @@ func (s *CommunityQueryService) loadAuthors(ctx context.Context, ids []uuid.UUID
 	return result, nil
 }
 
+func parseMultiLangJSON(raw []byte) models.MultiLangText {
+	if len(raw) == 0 {
+		return models.MultiLangText{}
+	}
+	var res models.MultiLangText
+	if err := json.Unmarshal(raw, &res); err != nil {
+		return models.MultiLangText{}
+	}
+	return res
+}
+
 func questionListItemFromRow(row communityQuestionListRow) community.QuestionListItemDTO {
 	var author *community.PublicAuthorDTO
 	if row.AuthorID != nil {
@@ -232,11 +244,22 @@ func questionListItemFromRow(row communityQuestionListRow) community.QuestionLis
 		}
 	}
 	return community.QuestionListItemDTO{
-		ID:       row.ID,
-		Category: community.CategoryDTO{ID: row.CategoryID, Slug: row.CategorySlug, Name: row.CategoryName, Description: row.CategoryDescription},
-		Locale:   row.Locale, Title: row.Title, Slug: row.Slug, LifecycleStatus: row.LifecycleStatus,
-		PublishedAnswerCount: row.PublishedAnswerCount, OfficialAnswerCount: row.OfficialAnswerCount,
-		LastActivityAt: row.LastActivityAt, CreatedAt: row.CreatedAt, Author: author,
+		ID: row.ID,
+		Category: community.CategoryDTO{
+			ID:          row.CategoryID,
+			Slug:        row.CategorySlug,
+			Name:        parseMultiLangJSON(row.CategoryName),
+			Description: parseMultiLangJSON(row.CategoryDescription),
+		},
+		Locale:               row.Locale,
+		Title:                row.Title,
+		Slug:                 row.Slug,
+		LifecycleStatus:      row.LifecycleStatus,
+		PublishedAnswerCount: row.PublishedAnswerCount,
+		OfficialAnswerCount:  row.OfficialAnswerCount,
+		LastActivityAt:       row.LastActivityAt,
+		CreatedAt:            row.CreatedAt,
+		Author:               author,
 	}
 }
 
