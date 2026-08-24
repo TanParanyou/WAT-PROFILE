@@ -10,6 +10,7 @@ import {
   useAdminCommunityQueue,
   useAdminCommunityCategories,
 } from "@/features/admin-community/queries";
+import { CommunityAdminTabs } from "@/features/admin-community/components/CommunityAdminTabs";
 import {
   ShieldAlert,
   FolderTree,
@@ -18,6 +19,8 @@ import {
   ArrowRight,
   Clock,
   AlertCircle,
+  Activity,
+  CheckCircle2,
 } from "lucide-react";
 
 export default function AdminCommunityPage() {
@@ -53,10 +56,16 @@ export default function AdminCommunityPage() {
           {t("description")}
         </p>
 
+        {/* Sub-Navigation Tabs */}
+        <CommunityAdminTabs />
+
         {/* Metric Summary Cards */}
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
           {/* Pending Moderation Queue Card */}
-          <div className="border border-admin-border bg-admin-surface p-5">
+          <Link
+            href="/admin/community/moderation"
+            className="group border border-admin-border bg-admin-surface p-5 transition-colors hover:border-admin-focus hover:bg-admin-surface-muted"
+          >
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-admin-muted">
                 {t("statPendingQueue")}
@@ -74,16 +83,20 @@ export default function AdminCommunityPage() {
                 </span>
               )}
               <span className="text-xs text-admin-muted">
-                ({pendingItemsCount} {t("items")}, {pendingRevisionsCount} {t("revisions")})
+                ({pendingItemsCount} {t("items")}, {pendingRevisionsCount}{" "}
+                {t("revisions")})
               </span>
             </div>
             <p className="mt-2 text-xs text-admin-muted">
               {t("statPendingDescription")}
             </p>
-          </div>
+          </Link>
 
           {/* Active Reports Card */}
-          <div className="border border-admin-border bg-admin-surface p-5">
+          <Link
+            href="/admin/community/moderation"
+            className="group border border-admin-border bg-admin-surface p-5 transition-colors hover:border-admin-focus hover:bg-admin-surface-muted"
+          >
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-admin-muted">
                 {t("statActiveReports")}
@@ -98,7 +111,9 @@ export default function AdminCommunityPage() {
               ) : (
                 <span
                   className={`text-3xl font-bold ${
-                    openReportsCount > 0 ? "text-admin-danger" : "text-admin-foreground"
+                    openReportsCount > 0
+                      ? "text-admin-danger"
+                      : "text-admin-foreground"
                   }`}
                 >
                   {openReportsCount}
@@ -109,10 +124,13 @@ export default function AdminCommunityPage() {
             <p className="mt-2 text-xs text-admin-muted">
               {t("statReportsDescription")}
             </p>
-          </div>
+          </Link>
 
           {/* Categories Count Card */}
-          <div className="border border-admin-border bg-admin-surface p-5 sm:col-span-2 lg:col-span-1">
+          <Link
+            href="/admin/community/categories"
+            className="group border border-admin-border bg-admin-surface p-5 sm:col-span-2 lg:col-span-1 transition-colors hover:border-admin-focus hover:bg-admin-surface-muted"
+          >
             <div className="flex items-center justify-between">
               <span className="text-xs font-bold uppercase tracking-wider text-admin-muted">
                 {t("statTotalCategories")}
@@ -136,7 +154,7 @@ export default function AdminCommunityPage() {
             <p className="mt-2 text-xs text-admin-muted">
               {t("statCategoriesDescription")}
             </p>
-          </div>
+          </Link>
         </div>
 
         {/* Feature Navigation Hub */}
@@ -166,7 +184,10 @@ export default function AdminCommunityPage() {
             </div>
             <div className="mt-6 flex items-center gap-1 text-xs font-semibold text-admin-action">
               <span>{t("goToModeration")}</span>
-              <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+              <ArrowRight
+                size={14}
+                className="transition-transform group-hover:translate-x-1"
+              />
             </div>
           </Link>
 
@@ -193,7 +214,10 @@ export default function AdminCommunityPage() {
             </div>
             <div className="mt-6 flex items-center gap-1 text-xs font-semibold text-admin-action">
               <span>{t("manageCategories")}</span>
-              <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+              <ArrowRight
+                size={14}
+                className="transition-transform group-hover:translate-x-1"
+              />
             </div>
           </Link>
 
@@ -217,7 +241,10 @@ export default function AdminCommunityPage() {
             </div>
             <div className="mt-6 flex items-center gap-1 text-xs font-semibold text-admin-action">
               <span>{t("manageMembers")}</span>
-              <ArrowRight size={14} className="transition-transform group-hover:translate-x-1" />
+              <ArrowRight
+                size={14}
+                className="transition-transform group-hover:translate-x-1"
+              />
             </div>
           </Link>
         </div>

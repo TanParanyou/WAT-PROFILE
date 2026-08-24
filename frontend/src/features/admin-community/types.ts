@@ -51,3 +51,14 @@ export interface AdminCategoryInput {
   sort_order: number;
   is_active: boolean;
 }
+
+export interface AdminUserOption {
+  id: string;
+  name: string;
+  email: string;
+  avatar_url?: string;
+  is_active: boolean;
+  role?: {
+    name: string;
+  };
+}
