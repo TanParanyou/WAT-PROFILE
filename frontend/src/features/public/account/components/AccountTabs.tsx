@@ -15,16 +15,18 @@ export interface AccountTabsProps {
 const tabs: readonly AccountTab[] = [
   "profile",
   "registrations",
+  "donations",
   "preferences",
   "security",
 ];
 
 const tabLabels: Record<
   AccountTab,
-  "tabsProfile" | "tabsRegistrations" | "tabsPreferences" | "tabsSecurity"
+  "tabsProfile" | "tabsRegistrations" | "tabsDonations" | "tabsPreferences" | "tabsSecurity"
 > = {
   profile: "tabsProfile",
   registrations: "tabsRegistrations",
+  donations: "tabsDonations",
   preferences: "tabsPreferences",
   security: "tabsSecurity",
 };
@@ -32,6 +34,7 @@ const tabLabels: Record<
 const tabPanelIds: Record<AccountTab, string> = {
   profile: "account-tabpanel-profile",
   registrations: "account-tabpanel-registrations",
+  donations: "account-tabpanel-donations",
   preferences: "account-tabpanel-preferences",
   security: "account-tabpanel-security",
 };
@@ -39,6 +42,7 @@ const tabPanelIds: Record<AccountTab, string> = {
 const tabIds: Record<AccountTab, string> = {
   profile: "account-tab-profile",
   registrations: "account-tab-registrations",
+  donations: "account-tab-donations",
   preferences: "account-tab-preferences",
   security: "account-tab-security",
 };

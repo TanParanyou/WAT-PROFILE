@@ -465,25 +465,78 @@ func (h *DonationHandler) GetMyDonations(c *fiber.Ctx) error {
 	}
 	result := make([]memberDonationResponse, 0, len(donations))
 	for _, donation := range donations {
+		receiptAvailable := donation.Status == "confirmed" && strings.TrimSpace(donation.ReceiptNumber) != ""
 		result = append(result, memberDonationResponse{
 			ID: donation.ID, ReceiptNumber: donation.ReceiptNumber, Amount: donation.Amount,
 			Currency: donation.Currency, DonationDate: donation.DonationDate, DonationTime: donation.DonationTime, Status: donation.Status,
+			ReceiptAvailable: receiptAvailable, Category: donation.Category, Purpose: &donation.Purpose,
 			CancellationReason: donation.CancellationReason, CancelledAt: donation.CancelledAt,
 		})
 	}
 	return utils.PaginatedResponse(c, result, common.Page, common.Limit, int(total))
 }
 
+// GetAccountDonationReceipt returns the confirmed donation receipt PDF for the authenticated user.
+func (h *DonationHandler) GetAccountDonationReceipt(c *fiber.Ctx) error {
+	userID, err := middleware.GetCurrentUserID(c)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusUnauthorized, "User not authenticated")
+	}
+	id, err := utils.ParseID(c, "id")
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid donation ID")
+	}
+	donation, err := h.donationService.GetByIDForMember(id, userID)
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return utils.ErrorResponse(c, fiber.StatusNotFound, "Donation not found")
+		}
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to fetch donation")
+	}
+	if donation.Status != "confirmed" {
+		return utils.ErrorResponse(c, fiber.StatusConflict, "Donation must be confirmed before receipt access")
+	}
+	if strings.TrimSpace(donation.ReceiptNumber) == "" {
+		return utils.ErrorResponse(c, fiber.StatusConflict, "Donation has no receipt number")
+	}
+
+	if donation.ReceiptObjectKey != "" && h.store != nil {
+		body, err := h.store.OpenPrivate(c.UserContext(), donation.ReceiptObjectKey)
+		if err == nil {
+			defer body.Close()
+			c.Set("Content-Type", "application/pdf")
+			c.Set("Content-Disposition", "inline; filename=\"receipt-"+donation.ReceiptNumber+".pdf\"")
+			c.Set("Cache-Control", "private, no-store")
+			return c.SendStream(body)
+		}
+	}
+
+	if h.documents == nil {
+		return utils.ErrorResponse(c, fiber.StatusNotImplemented, "Receipt document generation unavailable")
+	}
+	pdf, _, renderErr := h.documents.RenderReceipt(donation)
+	if renderErr != nil {
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Unable to render receipt")
+	}
+	c.Set("Content-Type", "application/pdf")
+	c.Set("Content-Disposition", "inline; filename=\"receipt-"+donation.ReceiptNumber+".pdf\"")
+	c.Set("Cache-Control", "private, no-store")
+	return c.Send(pdf)
+}
+
 type memberDonationResponse struct {
-	ID                 int               `json:"id"`
-	ReceiptNumber      string            `json:"receipt_number"`
-	Amount             float64           `json:"amount"`
-	Currency           string            `json:"currency"`
-	DonationDate       time.Time         `json:"donation_date"`
-	DonationTime       *models.TimeOfDay `json:"donation_time"`
-	Status             string            `json:"status"`
-	CancellationReason string            `json:"cancellation_reason,omitempty"`
-	CancelledAt        *time.Time        `json:"cancelled_at,omitempty"`
+	ID                 int                      `json:"id"`
+	ReceiptNumber      string                   `json:"receipt_number"`
+	Amount             float64                  `json:"amount"`
+	Currency           string                   `json:"currency"`
+	DonationDate       time.Time                `json:"donation_date"`
+	DonationTime       *models.TimeOfDay        `json:"donation_time"`
+	Status             string                   `json:"status"`
+	ReceiptAvailable   bool                     `json:"receipt_available"`
+	Category           *models.DonationCategory `json:"category,omitempty"`
+	Purpose            *models.MultiLangText    `json:"purpose,omitempty"`
+	CancellationReason string                   `json:"cancellation_reason,omitempty"`
+	CancelledAt        *time.Time               `json:"cancelled_at,omitempty"`
 }
 
 // GetDonations - Admin: List all donations with pagination and filters

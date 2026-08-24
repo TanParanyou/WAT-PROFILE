@@ -2402,6 +2402,110 @@ paths:
         '409':
           $ref: '#/components/responses/Conflict'
 
+  /account/donations:
+    get:
+      tags: [Account]
+      summary: List authenticated member's donation history
+      security:
+        - PublicAccountBearerAuth: []
+      parameters:
+        - in: query
+          name: page
+          schema:
+            type: integer
+            default: 1
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 20
+        - in: query
+          name: search
+          schema:
+            type: string
+        - in: query
+          name: from
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: to
+          schema:
+            type: string
+            format: date
+        - in: query
+          name: sort
+          schema:
+            type: string
+            enum: [donation_date, created_at]
+            default: donation_date
+        - in: query
+          name: order
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+      responses:
+        '200':
+          description: Member donation history
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id:
+                          type: integer
+                        receipt_number:
+                          type: string
+                        amount:
+                          type: number
+                        currency:
+                          type: string
+                        donation_date:
+                          type: string
+                          format: date
+                        status:
+                          type: string
+                        receipt_available:
+                          type: boolean
+                        cancellation_reason:
+                          type: string
+                  pagination:
+                    $ref: '#/components/schemas/PaginationMeta'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+
+  /account/donations/{id}/receipt:
+    get:
+      tags: [Account]
+      summary: Download receipt PDF for an authenticated member donation
+      security:
+        - PublicAccountBearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: PDF receipt file stream
+          content:
+            application/pdf:
+              schema:
+                type: string
+                format: binary
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '404':
+          $ref: '#/components/responses/NotFound'
+        '409':
+          $ref: '#/components/responses/Conflict'
+
   # ==================== ADMIN - Users & Roles ====================
   /admin/dashboard/stats:
     get:

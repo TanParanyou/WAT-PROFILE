@@ -167,10 +167,12 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 		} else {
 			handlers.RegisterAccountRoutes(api, accountHandler, accountCfg.AllowedOrigins)
 		}
-		accountRegistrations := api.Group("/account", middleware.PublicAccountRequired(db, []byte(os.Getenv("JWT_SECRET"))))
-		accountRegistrations.Get("/registrations", registrationHandler.GetAccountRegistrations)
-		accountRegistrations.Patch("/registrations/:id", registrationHandler.UpdateAccountRegistration)
-		accountRegistrations.Post("/registrations/:id/cancel", registrationHandler.CancelAccountRegistration)
+		accountGroup := api.Group("/account", middleware.PublicAccountRequired(db, []byte(os.Getenv("JWT_SECRET"))))
+		accountGroup.Get("/registrations", registrationHandler.GetAccountRegistrations)
+		accountGroup.Patch("/registrations/:id", registrationHandler.UpdateAccountRegistration)
+		accountGroup.Post("/registrations/:id/cancel", registrationHandler.CancelAccountRegistration)
+		accountGroup.Get("/donations", donationHandler.GetMyDonations)
+		accountGroup.Get("/donations/:id/receipt", donationHandler.GetAccountDonationReceipt)
 	}
 
 	communityAccountHandler := handlers.NewCommunityAccountHandler(db, communityCfg)

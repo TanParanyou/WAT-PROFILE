@@ -307,18 +307,44 @@ type DonationCategoryListOptions struct {
 	Statuses []string
 }
 
-// ListForMember returns only donations linked to the authenticated user's
-// member profile. The member lookup and donation query are both scoped by the
-// user ID so callers cannot supply another member identifier.
+// ListForMember returns donations linked to the authenticated user via
+// member profile, user ID, or matching donor email.
 func (s *DonationService) ListForMember(userID uuid.UUID, common listquery.Common) ([]models.Donation, int64, error) {
+	var user models.User
+	userFound := true
+	if err := s.db.First(&user, "id = ?", userID).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			userFound = false
+		} else {
+			return nil, 0, err
+		}
+	}
+
 	var member models.Member
+	memberFound := true
 	if err := s.db.Where("user_id = ?", userID).First(&member).Error; err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return []models.Donation{}, 0, nil
+			memberFound = false
+		} else {
+			return nil, 0, err
 		}
-		return nil, 0, err
 	}
-	query := s.db.Model(&models.Donation{}).Where("member_id = ?", member.ID)
+
+	if !userFound && !memberFound {
+		return []models.Donation{}, 0, nil
+	}
+
+	query := s.db.Model(&models.Donation{})
+	if memberFound && userFound && strings.TrimSpace(user.Email) != "" {
+		query = query.Where("member_id = ? OR created_by_id = ? OR (donor_email ILIKE ? AND donor_email != '')", member.ID, userID, user.Email)
+	} else if memberFound {
+		query = query.Where("member_id = ? OR created_by_id = ?", member.ID, userID)
+	} else if userFound && strings.TrimSpace(user.Email) != "" {
+		query = query.Where("created_by_id = ? OR (donor_email ILIKE ? AND donor_email != '')", userID, user.Email)
+	} else {
+		query = query.Where("created_by_id = ?", userID)
+	}
+
 	if common.Search != "" {
 		term := "%" + common.Search + "%"
 		query = query.Where("(donor_name ILIKE ? OR receipt_number ILIKE ?)", term, term)
@@ -347,6 +373,30 @@ func (s *DonationService) ListForMember(userID uuid.UUID, common listquery.Commo
 		return nil, 0, err
 	}
 	return donations, total, nil
+}
+
+// GetByIDForMember returns the donation only if it belongs to the authenticated user/member.
+func (s *DonationService) GetByIDForMember(id int, userID uuid.UUID) (*models.Donation, error) {
+	donation, err := s.GetByID(id)
+	if err != nil {
+		return nil, err
+	}
+	if donation.CreatedByID != nil && *donation.CreatedByID == userID {
+		return donation, nil
+	}
+	var member models.Member
+	if err := s.db.Where("user_id = ?", userID).First(&member).Error; err == nil {
+		if donation.MemberID != nil && *donation.MemberID == member.ID {
+			return donation, nil
+		}
+	}
+	var user models.User
+	if err := s.db.First(&user, "id = ?", userID).Error; err == nil {
+		if strings.TrimSpace(user.Email) != "" && strings.EqualFold(strings.TrimSpace(donation.DonorEmail), strings.TrimSpace(user.Email)) {
+			return donation, nil
+		}
+	}
+	return nil, gorm.ErrRecordNotFound
 }
 
 type DonationFilterOptions struct {

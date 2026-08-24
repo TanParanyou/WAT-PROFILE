@@ -1,4 +1,9 @@
-export type AccountTab = "profile" | "registrations" | "preferences" | "security";
+export type AccountTab =
+  | "profile"
+  | "registrations"
+  | "donations"
+  | "preferences"
+  | "security";
 
 export type AccountDestination =
   | "/"
@@ -19,6 +24,7 @@ export type AccountDestination =
 const accountTabs: readonly AccountTab[] = [
   "profile",
   "registrations",
+  "donations",
   "preferences",
   "security",
 ];
