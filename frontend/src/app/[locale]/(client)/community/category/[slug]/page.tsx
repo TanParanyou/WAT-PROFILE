@@ -6,6 +6,9 @@ import { CommunityContent } from "@/features/public/community/components/Communi
 import { fetchCommunityCategoriesServer, fetchCommunityQuestionsServer } from "@/features/public/community/server-api";
 import { communityKeys } from "@/features/public/community/queries";
 import type { CommunityLocale } from "@/features/public/community/types";
+import { buildPublicMetadata } from "@/features/public/seo/metadata";
+import { emptySeoMetadata } from "@/features/public/seo/schema";
+import { getLocalizedText } from "@/utils/localizedText";
 
 const COMMUNITY_ENABLED = process.env.NEXT_PUBLIC_COMMUNITY_ENABLED !== "false";
 
@@ -28,5 +31,14 @@ export async function generateMetadata({ params }: { params: Promise<{ locale: s
   const t = await getTranslations({ locale, namespace: "Community" });
   const categories = await fetchCommunityCategoriesServer().catch(() => []);
   const category = categories.find((item) => item.slug === slug);
-  return { title: category?.name[locale === "en" || locale === "de" ? locale : "th"] ?? t("title") };
+  const categoryName = category ? getLocalizedText(category.name, locale) : t("title");
+  const description = category?.description ? getLocalizedText(category.description, locale) : t("subtitle");
+
+  return buildPublicMetadata({
+    locale,
+    pathname: `/${locale}/community/category/${slug}`,
+    seo: emptySeoMetadata,
+    content: { title: `${categoryName} | ${t("title")}`, description },
+    messages: { title: t("title"), description: t("subtitle") },
+  });
 }

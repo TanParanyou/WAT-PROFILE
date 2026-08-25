@@ -160,15 +160,20 @@ export function formatNumber(num: number | string | null | undefined): string {
 
 export function formatCurrency(
   num: number | string | null | undefined,
-  currency: string = "THB",
+  currency: string = "EUR",
+  locale: string = "th",
 ): string {
   if (num === null || num === undefined) return "-";
   const parsed = Number(num);
   if (isNaN(parsed)) return "-";
 
-  return new Intl.NumberFormat("th-TH", {
+  const intlLocale = locale === "de" ? "de-DE" : locale === "en" ? "en-US" : "th-TH";
+
+  return new Intl.NumberFormat(intlLocale, {
     style: "currency",
     currency: currency,
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2,
   }).format(parsed);
 }
 

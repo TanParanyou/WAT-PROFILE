@@ -1,6 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { motion, useReducedMotion } from "framer-motion";
 import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/navigation";
@@ -11,6 +10,8 @@ import { PublicImage } from "@/components/public/media/PublicImage";
 import { QueryErrorState } from "@/components/public/states/QueryErrorState";
 import { EmptyState } from "@/components/public/states/EmptyState";
 import { STATIC_ASSETS } from "@/constants/assets";
+import { EpcQrModal } from "@/features/public/donations/EpcQrModal";
+import { useDisclosure } from "@/hooks/useDisclosure";
 
 const donationFallbackImage = STATIC_ASSETS.DONATION.FALLBACK;
 const easeOutSmooth = [0.22, 1, 0.36, 1] as const;
@@ -20,20 +21,12 @@ export default function DonationSection() {
   const locale = useLocale();
   const reduceMotion = useReducedMotion();
   const contactQuery = usePublicContactQuery();
-  const [showQrModal, setShowQrModal] = useState(false);
+  const qrModal = useDisclosure();
+  const epcQrModal = useDisclosure();
   const bank = contactQuery.data?.body.bank;
   const hasBankTransfer = Boolean(bank && (bank.bank_name || bank.account_name || bank.account_number || bank.iban || bank.bic));
   const hasQr = Boolean(bank?.qr_image_url);
   const hasPaymentData = hasBankTransfer || hasQr;
-
-  useEffect(() => {
-    if (!showQrModal) return;
-    const closeOnEscape = (event: KeyboardEvent) => {
-      if (event.key === "Escape") setShowQrModal(false);
-    };
-    window.addEventListener("keydown", closeOnEscape);
-    return () => window.removeEventListener("keydown", closeOnEscape);
-  }, [showQrModal]);
 
   return (
     <section id="donate" className="border-t border-site-border bg-site-surface px-6 py-[clamp(4rem,9vw,8rem)] text-site-foreground sm:px-10 lg:px-[8vw]">
@@ -91,7 +84,7 @@ export default function DonationSection() {
                   <p className="mb-6 text-sm leading-7 text-site-body">{t("createQrDesc")}</p>
                   <button
                     type="button"
-                    onClick={() => setShowQrModal(true)}
+                    onClick={() => qrModal.open()}
                     className="group relative mb-6 h-64 w-full max-w-xs overflow-hidden border border-site-border bg-site-canvas p-4 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
                   >
                     <PublicImage
@@ -107,7 +100,7 @@ export default function DonationSection() {
                   </button>
                   <button
                     type="button"
-                    onClick={() => setShowQrModal(true)}
+                    onClick={() => qrModal.open()}
                     className="min-h-11 bg-site-action px-6 py-[13px] text-sm font-medium text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
                   >
                     {t("scanQr")}
@@ -158,6 +151,22 @@ export default function DonationSection() {
                         <p className="font-medium text-site-foreground">{bank.account_number}</p>
                       </div>
                     ) : null}
+
+                    {bank.iban ? (
+                      <div className="pt-2">
+                        <button
+                          type="button"
+                          onClick={() => epcQrModal.open()}
+                          className="flex min-h-11 w-full items-center justify-center gap-2 border border-site-border bg-site-action px-4 py-2.5 text-xs font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus"
+                        >
+                          <QrCode size={16} />
+                          <span>{t("generateSepaQr")}</span>
+                        </button>
+                        <p className="mt-2 text-center text-[11px] leading-relaxed text-site-muted">
+                          {t("sepaQrDesc")}
+                        </p>
+                      </div>
+                    ) : null}
                   </div>
                 </motion.div>
               ) : null}
@@ -175,8 +184,8 @@ export default function DonationSection() {
         )}
       </div>
 
-      {showQrModal && bank?.qr_image_url ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={() => setShowQrModal(false)}>
+      {qrModal.isOpen && bank?.qr_image_url ? (
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/70 p-4" onClick={qrModal.close}>
           <motion.div
             role="dialog"
             aria-modal="true"
@@ -201,13 +210,24 @@ export default function DonationSection() {
             </div>
             <button
               type="button"
-              onClick={() => setShowQrModal(false)}
+              onClick={qrModal.close}
               className="mt-4 min-h-11 w-full bg-site-action py-3 font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus"
             >
               {t("close")}
             </button>
           </motion.div>
         </div>
+      ) : null}
+
+      {bank?.iban ? (
+        <EpcQrModal
+          open={epcQrModal.isOpen}
+          onClose={epcQrModal.close}
+          bankName={bank.bank_name ? getLocalizedText(bank.bank_name, locale) : undefined}
+          accountName={bank.account_name ? getLocalizedText(bank.account_name, locale) : undefined}
+          iban={bank.iban}
+          bic={bank.bic}
+        />
       ) : null}
     </section>
   );

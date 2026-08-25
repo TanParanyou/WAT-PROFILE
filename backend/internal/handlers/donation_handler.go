@@ -500,28 +500,39 @@ func (h *DonationHandler) GetAccountDonationReceipt(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusConflict, "Donation has no receipt number")
 	}
 
+	var data []byte
 	if donation.ReceiptObjectKey != "" && h.store != nil {
 		body, err := h.store.OpenPrivate(c.UserContext(), donation.ReceiptObjectKey)
 		if err == nil {
 			defer body.Close()
-			c.Set("Content-Type", "application/pdf")
-			c.Set("Content-Disposition", "inline; filename=\"receipt-"+donation.ReceiptNumber+".pdf\"")
-			c.Set("Cache-Control", "private, no-store")
-			return c.SendStream(body)
+			readData, readErr := io.ReadAll(io.LimitReader(body, 20*1024*1024+1))
+			if readErr == nil && len(readData) <= 20*1024*1024 {
+				data = readData
+			}
 		}
 	}
 
-	if h.documents == nil {
-		return utils.ErrorResponse(c, fiber.StatusNotImplemented, "Receipt document generation unavailable")
+	if len(data) == 0 {
+		if h.documents == nil {
+			return utils.ErrorResponse(c, fiber.StatusNotImplemented, "Receipt document generation unavailable")
+		}
+		pdf, _, renderErr := h.documents.RenderReceipt(donation)
+		if renderErr != nil {
+			return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Unable to render receipt")
+		}
+		data = pdf
 	}
-	pdf, _, renderErr := h.documents.RenderReceipt(donation)
-	if renderErr != nil {
-		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Unable to render receipt")
+
+	dispositionType := "attachment"
+	if c.Query("inline") == "true" || c.Query("inline") == "1" {
+		dispositionType = "inline"
 	}
-	c.Set("Content-Type", "application/pdf")
-	c.Set("Content-Disposition", "inline; filename=\"receipt-"+donation.ReceiptNumber+".pdf\"")
+
+	filename := "receipt-" + donation.ReceiptNumber + ".pdf"
+	c.Set(fiber.HeaderContentType, "application/pdf")
+	c.Set(fiber.HeaderContentDisposition, fmt.Sprintf(`%s; filename="%s"`, dispositionType, filename))
 	c.Set("Cache-Control", "private, no-store")
-	return c.Send(pdf)
+	return c.Send(data)
 }
 
 type memberDonationResponse struct {

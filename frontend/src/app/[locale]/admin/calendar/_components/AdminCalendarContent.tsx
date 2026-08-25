@@ -3,7 +3,8 @@
 import { format, isSameMonth, isSameYear, parse } from "date-fns";
 import { de, enUS, th } from "date-fns/locale";
 import { useLocale, useTranslations } from "next-intl";
-import { useState } from "react";
+import { getBuddhistHolyDaysForRange } from "@/features/calendar/lunar-calendar";
+import { useMemo, useState } from "react";
 import { useRoutedCalendar } from "@/features/calendar/integrations/next/useRoutedCalendar";
 import { Calendar } from "@/features/calendar/Calendar";
 import { CalendarQueryBoundary } from "@/features/calendar/integrations/wat/CalendarQueryBoundary";
@@ -28,6 +29,15 @@ export default function AdminCalendarContent() {
   const [resourceIds, setResourceIds] = useState<readonly string[]>([]);
   const controller = useRoutedCalendar({ scope: "admin", weekStartsOn: locale === "th" ? 0 : 1, initialView: "month" });
   const query = useCalendarEntries({ scope: "admin", locale, range: controller.visibleRange, resourceIds });
+
+  const holyDays = useMemo(() => {
+    if (!controller.visibleRange.startDate || !controller.visibleRange.endDate) return [];
+    return getBuddhistHolyDaysForRange(
+      new Date(`${controller.visibleRange.startDate}T00:00:00`),
+      new Date(`${controller.visibleRange.endDate}T23:59:59`),
+      locale,
+    );
+  }, [controller.visibleRange.startDate, controller.visibleRange.endDate, locale]);
   const dateFnsLocale = locale === "th" ? th : locale === "de" ? de : enUS;
   const labels: CalendarLabels = {
     previousMonth: t("previous"),
@@ -102,7 +112,7 @@ export default function AdminCalendarContent() {
             <Calendar
               preset={planningPreset}
               controller={controller}
-              events={data.entries}
+              events={[...holyDays, ...data.entries]}
               resources={data.resources}
               labels={labels}
               variant="admin"

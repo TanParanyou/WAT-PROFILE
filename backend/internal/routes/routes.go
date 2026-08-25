@@ -73,6 +73,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 	eventHandler := handlers.NewEventHandler(db)
 	calendarHandler := handlers.NewCalendarHandler(db)
 	monkHandler := handlers.NewMonkHandler(db)
+	chantingHandler := handlers.NewChantingHandler(db)
 	galleryHandler := handlers.NewGalleryHandler(db)
 	scheduleHandler := handlers.NewScheduleHandler(db)
 	donationAudit := services.NewAuditService(db)
@@ -112,6 +113,10 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 	// Monks
 	public.Get("/monks", monkHandler.GetMonks)
 	public.Get("/monks/:slug", monkHandler.GetMonk)
+
+	// Chantings
+	public.Get("/chanting", chantingHandler.GetChantings)
+	public.Get("/chanting/:slug", chantingHandler.GetChantingBySlug)
 
 	// Gallery
 	public.Get("/gallery", galleryHandler.GetGalleries)
@@ -323,6 +328,13 @@ func adminRouteDefinitions() []AdminRouteDefinition {
 		{Method: fiber.MethodDelete, Path: "/monks/bulk", Resource: "monks", Action: "delete", HandlerKey: "monks.bulkDelete"},
 		{Method: fiber.MethodDelete, Path: "/monks/:id", Resource: "monks", Action: "delete", HandlerKey: "monks.delete"},
 
+		// Chanting Management
+		{Method: fiber.MethodGet, Path: "/chanting", Resource: "chanting", Action: "read", HandlerKey: "chanting.list"},
+		{Method: fiber.MethodGet, Path: "/chanting/:id", Resource: "chanting", Action: "read", HandlerKey: "chanting.get"},
+		{Method: fiber.MethodPost, Path: "/chanting", Resource: "chanting", Action: "create", HandlerKey: "chanting.create"},
+		{Method: fiber.MethodPut, Path: "/chanting/:id", Resource: "chanting", Action: "update", HandlerKey: "chanting.update"},
+		{Method: fiber.MethodDelete, Path: "/chanting/:id", Resource: "chanting", Action: "delete", HandlerKey: "chanting.delete"},
+
 		// Gallery Management
 		{Method: fiber.MethodGet, Path: "/gallery", Resource: "gallery", Action: "read", HandlerKey: "gallery.list"},
 		{Method: fiber.MethodGet, Path: "/gallery/categories", Resource: "gallery", Action: "read", HandlerKey: "gallery.categories.list"},
@@ -485,6 +497,7 @@ func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service, accountCfg config.Accou
 	calendarHandler := handlers.NewCalendarHandler(db)
 	calendarResourceHandler := handlers.NewCalendarResourceHandler(db)
 	monkHandler := handlers.NewMonkHandler(db)
+	chantingHandler := handlers.NewChantingHandler(db)
 	galleryHandler := handlers.NewGalleryHandler(db)
 	scheduleHandler := handlers.NewScheduleHandler(db)
 	donationAudit := services.NewAuditService(db)
@@ -558,6 +571,11 @@ func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service, accountCfg config.Accou
 		"monks.update":                  monkHandler.UpdateMonk,
 		"monks.bulkDelete":              monkHandler.BulkDeleteMonks,
 		"monks.delete":                  monkHandler.DeleteMonk,
+		"chanting.list":                 chantingHandler.GetAdminChantings,
+		"chanting.get":                  chantingHandler.GetAdminChantingByID,
+		"chanting.create":               chantingHandler.CreateChanting,
+		"chanting.update":               chantingHandler.UpdateChanting,
+		"chanting.delete":               chantingHandler.DeleteChanting,
 		"gallery.list":                  galleryHandler.GetAdminGalleries,
 		"gallery.categories.list":       galleryHandler.GetAdminCategories,
 		"gallery.bulkStatus":            galleryHandler.BulkUpdateStatus,

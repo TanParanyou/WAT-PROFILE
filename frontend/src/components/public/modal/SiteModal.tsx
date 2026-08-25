@@ -10,6 +10,8 @@ import {
 import { X } from "lucide-react";
 import { SiteModalPortal } from "./SiteModalPortal";
 
+import { useScrollLock } from "@/hooks/useScrollLock";
+
 type SiteModalSize = "sm" | "md";
 type SiteModalTone = "neutral" | "danger";
 
@@ -69,6 +71,8 @@ export function SiteModal({
   const closeButtonRef = useRef<HTMLButtonElement>(null);
   const previousFocusRef = useRef<HTMLElement | null>(null);
 
+  useScrollLock(open);
+
   useEffect(() => {
     if (!open) return;
 
@@ -76,8 +80,6 @@ export function SiteModal({
       document.activeElement instanceof HTMLElement
         ? document.activeElement
         : null;
-    const previousOverflow = document.body.style.overflow;
-    document.body.style.overflow = "hidden";
 
     const focusFirstControl = () => {
       const firstControl =
@@ -121,7 +123,6 @@ export function SiteModal({
     return () => {
       cancelAnimationFrame(frame);
       document.removeEventListener("keydown", handleKeyDown);
-      document.body.style.overflow = previousOverflow;
       previousFocusRef.current?.focus();
     };
   }, [busy, initialFocusRef, onClose, open]);

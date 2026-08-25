@@ -90,4 +90,5 @@ export type PermissionResource =
   | "privacy_requests"
   | "account_operations"
   | "calendar_resources"
-  | "community";
+  | "community"
+  | "chanting";

@@ -155,6 +155,34 @@ export function AccountRegistrationsContent() {
   );
 }
 
+function isRegistrationEditable(item: EventRegistrationListItem): boolean {
+  if (
+    item.registration_status === "cancelled" ||
+    item.registration_status === "attended"
+  ) {
+    return false;
+  }
+  if (!item.event?.start_date) return true;
+
+  try {
+    const datePart = item.event.start_date.includes("T")
+      ? item.event.start_date.split("T")[0]
+      : item.event.start_date;
+    const timePart = item.event.start_time
+      ? item.event.start_time.includes("T")
+        ? item.event.start_time.split("T")[1].replace("Z", "")
+        : item.event.start_time
+      : "00:00:00";
+    const [h = "00", m = "00"] = timePart.split(":");
+    const eventStartDate = new Date(
+      `${datePart}T${h.padStart(2, "0")}:${m.padStart(2, "0")}:00Z`,
+    );
+    return new Date().getTime() < eventStartDate.getTime();
+  } catch {
+    return true;
+  }
+}
+
 interface RegistrationCardProps {
   item: EventRegistrationListItem;
   locale: RegistrationLocale;
@@ -175,6 +203,8 @@ function RegistrationCard({
   const t = useTranslations("EventRegistration");
   const update = useUpdateAccountRegistration();
   const [showQr, setShowQr] = useState(false);
+  const [editError, setEditError] = useState<string | null>(null);
+  const isEditable = isRegistrationEditable(item);
   const [firstName, setFirstName] = useState(item.contact.first_name);
   const [lastName, setLastName] = useState(item.contact.last_name);
   const [phone, setPhone] = useState(item.contact.phone);
@@ -205,6 +235,40 @@ function RegistrationCard({
 
   const dateFormatted = formatDateRange(item.event.start_date, item.event.end_date, locale);
   const timeFormatted = formatTimeRange(item.event.start_time, item.event.end_time, locale);
+
+  const handleSave = async (event: React.FormEvent) => {
+    event.preventDefault();
+    setEditError(null);
+    try {
+      await update.mutateAsync({
+        id: item.id,
+        input: {
+          locale,
+          contact: {
+            ...item.contact,
+            first_name: firstName,
+            last_name: lastName,
+            phone,
+          },
+          participants,
+        },
+      });
+      onEdit();
+    } catch (err: unknown) {
+      if (
+        err &&
+        typeof err === "object" &&
+        "code" in err &&
+        err.code === "REGISTRATION_NOT_EDITABLE"
+      ) {
+        setEditError(t("errors.REGISTRATION_NOT_EDITABLE"));
+      } else if (err instanceof Error) {
+        setEditError(err.message || t("updateError"));
+      } else {
+        setEditError(t("updateError"));
+      }
+    }
+  };
 
   return (
     <article className="border border-site-border bg-site-canvas p-5 sm:p-6 transition-colors hover:border-site-border/80">
@@ -296,25 +360,17 @@ function RegistrationCard({
       {editing ? (
         <form
           className="mt-6 space-y-5 border-t border-site-border pt-5"
-          onSubmit={(event) => {
-            event.preventDefault();
-            void update
-              .mutateAsync({
-                id: item.id,
-                input: {
-                  locale,
-                  contact: {
-                    ...item.contact,
-                    first_name: firstName,
-                    last_name: lastName,
-                    phone,
-                  },
-                  participants,
-                },
-              })
-              .then(onEdit);
-          }}
+          onSubmit={handleSave}
         >
+          {editError ? (
+            <div
+              role="alert"
+              className="flex items-center gap-2 border border-red-700 bg-red-50 p-3 text-xs text-red-800"
+            >
+              <AlertCircle className="size-4 shrink-0 text-red-700" aria-hidden />
+              <span>{editError}</span>
+            </div>
+          ) : null}
           <div className="grid gap-3 sm:grid-cols-3">
             <div>
               <label className="block text-xs font-semibold text-site-foreground mb-1">
@@ -494,25 +550,36 @@ function RegistrationCard({
       ) : null}
 
       {item.registration_status !== "cancelled" && !editing ? (
-        <div className="mt-5 flex flex-wrap gap-3 border-t border-site-border pt-4">
-          <button
-            type="button"
-            onClick={onEdit}
-            className={secondaryActionClass}
-          >
-            {t("editRegistration")}
-          </button>
-          <button
-            type="button"
-            onClick={onCancel}
-            disabled={cancelPending}
-            className={dangerActionClass}
-          >
-            {cancelPending && (
-              <Loader2 className="size-4 animate-spin" aria-hidden />
-            )}
-            {t("cancelRegistration")}
-          </button>
+        <div className="mt-5 flex flex-wrap items-center justify-between gap-3 border-t border-site-border pt-4">
+          {isEditable ? (
+            <div className="flex flex-wrap gap-3">
+              <button
+                type="button"
+                onClick={() => {
+                  setEditError(null);
+                  onEdit();
+                }}
+                className={secondaryActionClass}
+              >
+                {t("editRegistration")}
+              </button>
+              <button
+                type="button"
+                onClick={onCancel}
+                disabled={cancelPending}
+                className={dangerActionClass}
+              >
+                {cancelPending && (
+                  <Loader2 className="size-4 animate-spin" aria-hidden />
+                )}
+                {t("cancelRegistration")}
+              </button>
+            </div>
+          ) : (
+            <span className="text-xs text-site-muted italic">
+              {t("errors.REGISTRATION_NOT_EDITABLE")}
+            </span>
+          )}
         </div>
       ) : null}
     </article>

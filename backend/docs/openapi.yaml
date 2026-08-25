@@ -914,6 +914,45 @@ paths:
         '404':
           $ref: '#/components/responses/NotFound'
 
+  /public/chanting:
+    get:
+      tags: [Chanting]
+      summary: List active Buddhist chants
+      parameters:
+        - name: category
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [all, morning_chant, evening_chant, paritta, funeral, blessing, general]
+      responses:
+        '200':
+          description: List of Buddhist chants
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+
+  /public/chanting/{slug}:
+    get:
+      tags: [Chanting]
+      summary: Get chanting by slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Chanting detail with dual Pali scripts and translations
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+        '404':
+          $ref: '#/components/responses/NotFound'
+
   /public/gallery:
     get:
       tags: [Gallery]
@@ -3647,6 +3686,73 @@ paths:
       responses:
         '200':
           description: Monk deleted
+
+  # ==================== ADMIN - Chanting ====================
+  /admin/chanting:
+    get:
+      tags: [Admin - Chanting]
+      summary: List chantings (admin)
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/PageParam'
+        - $ref: '#/components/parameters/LimitParam'
+        - $ref: '#/components/parameters/SearchParam'
+        - $ref: '#/components/parameters/SortParam'
+        - $ref: '#/components/parameters/OrderParam'
+      responses:
+        '200':
+          description: Paginated chantings list
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/PaginatedResponse'
+    post:
+      tags: [Admin - Chanting]
+      summary: Create chanting
+      security:
+        - AdminBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SuccessResponse'
+      responses:
+        '201':
+          description: Chanting created
+
+  /admin/chanting/{id}:
+    get:
+      tags: [Admin - Chanting]
+      summary: Get chanting by ID
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Chanting detail
+    put:
+      tags: [Admin - Chanting]
+      summary: Update chanting
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Chanting updated
+    delete:
+      tags: [Admin - Chanting]
+      summary: Delete chanting
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - $ref: '#/components/parameters/IdParam'
+      responses:
+        '200':
+          description: Chanting deleted
 
   # ==================== ADMIN - Gallery ====================
   /admin/gallery:

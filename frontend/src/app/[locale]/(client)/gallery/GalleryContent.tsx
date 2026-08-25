@@ -9,7 +9,7 @@ import { getLocalizedText } from "@/utils/i18n";
 import { PublicImage } from "@/components/public/media/PublicImage";
 import { QueryErrorState } from "@/components/public/states/QueryErrorState";
 import { EmptyState } from "@/components/public/states/EmptyState";
-import { PublicLightboxModal, type LightboxSlide } from "@/components/public/modal";
+import { PublicLightboxModal } from "@/components/public/modal";
 import {
   usePublicGalleryCategoriesQuery,
   usePublicGalleryQuery,
@@ -54,7 +54,7 @@ export default function GalleryContent({ cmsPage }: { cmsPage: PublicContentPage
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-site-canvas">
       <PageHeader
         variant={heroImage ? "image" : "color"}
         align="left"

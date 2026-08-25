@@ -7,6 +7,7 @@ import { getLocalizedPlainText } from "@/features/public/shared/rich-text";
 import type { EventListItem } from "../types";
 import { PublicImage } from "@/components/public/media/PublicImage";
 import { publicEventFallbackImage } from "@/components/public/media/publicImageFallbacks";
+import { Badge } from "@/components/ui/Badge";
 
 interface EventsListProps {
   events: readonly EventListItem[];
@@ -43,9 +44,9 @@ export function EventsList({ events }: EventsListProps) {
                 if (!categoryLabel) return null;
                 return (
                   <div className="absolute top-3 left-3 z-10">
-                    <span className="bg-black/75 text-white text-[11px] font-semibold px-2.5 py-1 uppercase tracking-wider border border-white/20 backdrop-blur-sm">
+                    <Badge variant="dark" size="sm" className="font-semibold uppercase tracking-wider">
                       {categoryLabel}
-                    </span>
+                    </Badge>
                   </div>
                 );
               })()}
@@ -54,10 +55,13 @@ export function EventsList({ events }: EventsListProps) {
               {/* Badges / Tags */}
               <div className="flex flex-wrap items-center gap-2 mb-3">
                 {event.onlineJoinUrl && (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-site-danger-surface text-site-danger px-2 py-0.5 border border-site-danger">
-                    <Radio size={11} className="animate-pulse text-site-danger" />
+                  <Badge
+                    variant="danger"
+                    size="sm"
+                    icon={<Radio size={11} className="animate-pulse text-site-danger" />}
+                  >
                     {t("liveStreaming")}
-                  </span>
+                  </Badge>
                 )}
                 {event.registrationEnabled && (() => {
                   const isClosed = event.registrationDeadline
@@ -66,29 +70,37 @@ export function EventsList({ events }: EventsListProps) {
 
                   if (isClosed) {
                     return (
-                      <span className="inline-flex min-h-9 items-center gap-1 border border-site-border/60 bg-site-surface/50 px-2.5 py-1 text-[11px] font-medium text-site-muted">
-                        <UserCheck size={11} />
+                      <Badge
+                        variant="muted"
+                        size="sm"
+                        icon={<UserCheck size={11} />}
+                      >
                         {t("registrationClosed")}
-                      </span>
+                      </Badge>
                     );
                   }
 
                   return (
-                    <Link
+                    <Badge
                       href={`/events/${event.slug}/register`}
-                      className="inline-flex min-h-9 items-center gap-1 border border-site-border bg-site-surface px-2.5 py-1 text-[11px] font-medium text-site-accent transition-colors hover:bg-site-canvas focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus"
+                      variant="accent"
+                      size="sm"
+                      icon={<UserCheck size={11} />}
+                      className="min-h-9"
                       aria-label={t("registrationOpen")}
                     >
-                      <UserCheck size={11} />
                       {t("registrationOpen")}
-                    </Link>
+                    </Badge>
                   );
                 })()}
                 {event.donationEnabled && (
-                  <span className="inline-flex items-center gap-1 text-[11px] font-medium bg-site-surface text-site-foreground px-2 py-0.5 border border-site-border">
-                    <HeartHandshake size={11} className="text-site-accent" />
+                  <Badge
+                    variant="default"
+                    size="sm"
+                    icon={<HeartHandshake size={11} className="text-site-accent" />}
+                  >
                     {t("donationSupport")}
-                  </span>
+                  </Badge>
                 )}
               </div>
 

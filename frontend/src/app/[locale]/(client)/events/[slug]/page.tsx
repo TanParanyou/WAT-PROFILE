@@ -134,6 +134,7 @@ export default async function EventDetailPage({ params }: Props) {
       <PageHeader
         variant={hasCoverImage ? "image" : "color"}
         align="left"
+        width="content"
         title={headerTitle}
         subtitle={headerSubtitle}
         imageSrc={initialEvent?.image_url}

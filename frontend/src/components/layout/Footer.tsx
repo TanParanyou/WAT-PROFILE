@@ -28,7 +28,7 @@ export default function Footer() {
     if (isAccountPath(pathname)) return null;
 
     return (
-        <footer className="border-t border-site-border bg-site-canvas py-16 text-site-foreground">
+        <footer className="border-t border-site-border bg-site-canvas py-16 text-site-foreground print:hidden">
             <div className="mx-auto max-w-[1440px] px-6 sm:px-10 lg:px-[6vw]">
                 <div className="grid grid-cols-1 gap-12 md:grid-cols-3">
                     {/* Column 1: About */}

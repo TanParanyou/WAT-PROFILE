@@ -46,6 +46,7 @@
       "calendar": "ปฏิทิน",
       "calendarResources": "ทรัพยากรปฏิทิน",
       "monks": "พระสงฆ์",
+      "chanting": "บทสวดมนต์",
       "gallery": "แกลเลอรี",
       "schedules": "ตารางเวลา",
       "donations": "เงินบริจาค",
@@ -163,6 +164,12 @@
       "confirmDelete": "คุณแน่ใจหรือไม่ที่จะลบรายการนี้?",
       "success": "สำเร็จ",
       "error": "เกิดข้อผิดพลาด",
+      "savedSuccessfully": "บันทึกข้อมูลเรียบร้อยแล้ว",
+      "createdSuccessfully": "สร้างข้อมูลเรียบร้อยแล้ว",
+      "deletedSuccessfully": "ลบข้อมูลเรียบร้อยแล้ว",
+      "active": "เปิดใช้งาน",
+      "inactive": "ปิดใช้งาน",
+      "activeStatus": "สถานะการใช้งาน",
       "actions": "จัดการ",
       "refresh": "รีเฟรช",
       "selectedItems": "เลือกแล้ว {count} รายการ",
@@ -672,6 +679,38 @@
         "active": "เปิดใช้งาน",
         "inactive": "ปิดใช้งาน",
         "retired": "พ้นจากตำแหน่ง/มรณภาพ"
+      }
+    },
+    "chanting": {
+      "title": "บทสวดมนต์",
+      "create": "เพิ่มบทสวดมนต์",
+      "createSubtitle": "สร้างบทสวดมนต์ใหม่ พร้อมบทบาลี คำแปล และไฟล์เสียง",
+      "edit": "แก้ไขบทสวดมนต์",
+      "searchPlaceholder": "ค้นหาบทสวดมนต์...",
+      "filterCategory": "หมวดหมู่",
+      "filterStatus": "สถานะ",
+      "category": "หมวดหมู่",
+      "paliThai": "บทสวดบาลี (อักษรไทย)",
+      "paliRoman": "บทสวดบาลี (อักษรโรมัน / IAST)",
+      "hasAudio": "มีเสียงสวด",
+      "media": "สื่อเสียง",
+      "sectionTitle": "ชื่อและหัวข้อบทสวด",
+      "titleLabel": "ชื่อบทสวดมนต์",
+      "subtitleLabel": "คำอธิบาย / วาระการสวด",
+      "sectionPali": "เนื้อหาบทสวดภาษาบาลี",
+      "sectionTranslation": "คำแปลบทสวดมนต์",
+      "translationLabel": "คำแปล",
+      "sectionSettings": "การจัดหมวดหมู่และสถานะ",
+      "audioSettings": "การตั้งค่าไฟล์เสียงสวดมนต์",
+      "audioUrl": "URL ไฟล์เสียง (.mp3)",
+      "durationSeconds": "ความยาวไฟล์เสียง (วินาที)",
+      "categories": {
+        "morning_chant": "ทำวัตรเช้า",
+        "evening_chant": "ทำวัตรเย็น",
+        "paritta": "พระปริตร",
+        "blessing": "บทให้พร / แผ่เมตตา",
+        "funeral": "บทสวดงานอภิธรรม",
+        "general": "บทสวดทั่วไป"
       }
     },
     "gallery": {
@@ -1832,6 +1871,8 @@
       "cannotDeleteAdmin": "ไม่สามารถลบบทบาท 'admin' ได้"
     },
     "columns": {
+      "id": "ID",
+      "title": "ชื่อบทสวด / หัวข้อ",
       "image": "รูป",
       "name": "ชื่อ-นามสกุล",
       "roleName": "ชื่อบทบาท",

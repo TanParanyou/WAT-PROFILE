@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { useTranslations } from "next-intl";
+import { useTranslations, useLocale } from "next-intl";
 import { Icons } from "@/components/ui/Icons";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
@@ -28,6 +28,7 @@ import { AdminDateRangeFilter } from "@/components/admin/list/AdminDateRangeFilt
 import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components/admin/list/AdminActiveFilterChips";
 import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
 import { exportToCsv } from "@/services/adminListExportService";
+import { formatDate, formatDateTime } from "@/utils/formatters";
 
 interface ContactFilters extends AdminFilterRecord {
   status: string[];
@@ -38,6 +39,7 @@ interface ContactFilters extends AdminFilterRecord {
 
 export default function ContactsPage() {
   const t = useTranslations("Admin");
+  const locale = useLocale();
 
   const statusOptions = [
     { value: "new", label: t("contacts.statusNew") },
@@ -224,8 +226,7 @@ export default function ContactsPage() {
         { header: t("columns.status"), accessor: (item) => statusLabelMap[item.status] || item.status || "" },
         {
           header: t("columns.date"),
-          accessor: (item) =>
-            item.created_at ? new Date(item.created_at as string).toLocaleDateString("th-TH") : "",
+          accessor: (item) => formatDate(item.created_at as string, locale),
         },
       ],
       "contacts_export"
@@ -448,7 +449,7 @@ export default function ContactsPage() {
             {selectedContact.replied_at && (
               <p className="text-xs text-admin-muted">
                 {t("contacts.repliedAt")}:{" "}
-                {new Date(selectedContact.replied_at).toLocaleString("th-TH")}
+                {formatDateTime(selectedContact.replied_at, locale)}
               </p>
             )}
             <div className="flex justify-end gap-3 pt-4 border-t border-admin-border">

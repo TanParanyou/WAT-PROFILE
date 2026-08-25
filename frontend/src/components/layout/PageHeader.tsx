@@ -4,6 +4,13 @@ import { PublicImage } from "@/components/public/media/PublicImage";
 export type PageHeaderVariant = "image" | "color" | "reading";
 export type PageHeaderAlign = "left" | "center";
 export type PageHeaderDensity = "default" | "compact";
+export type PageHeaderWidth = "wide" | "content" | "reading";
+
+const widths: Record<PageHeaderWidth, string> = {
+  wide: "max-w-7xl",
+  content: "max-w-6xl",
+  reading: "max-w-3xl",
+};
 
 interface PageHeaderProps {
   title: string;
@@ -12,6 +19,7 @@ interface PageHeaderProps {
   variant?: PageHeaderVariant;
   align?: PageHeaderAlign;
   density?: PageHeaderDensity;
+  width?: PageHeaderWidth;
   imageSrc?: string | null;
   imageAlt?: string;
 }
@@ -23,18 +31,20 @@ export default function PageHeader({
   subtitle,
   children,
   variant = "color",
-  align = "center",
-  density = "default",
+  align = "left",
+  density = "compact",
+  width,
   imageSrc,
   imageAlt,
 }: PageHeaderProps) {
   const isReading = variant === "reading";
   const isImage = variant === "image";
+  const resolvedWidth = width || (isReading ? "reading" : "wide");
   const heightClass = isReading
-    ? "pb-12 pt-32 md:pb-16 md:pt-36"
+    ? "pb-12 pt-28 md:pb-14 md:pt-32"
     : density === "compact"
       ? "pb-12 pt-24 md:pb-14 md:pt-28"
-      : "pb-16 pt-36 md:pb-20 md:pt-44";
+      : "pb-12 pt-24 md:pb-14 md:pt-28";
   const alignmentClass = align === "center" ? "mx-auto text-center" : "text-left";
   const textClass = isImage ? "text-site-on-action" : "text-site-foreground";
   const subtitleClass = isImage ? "text-site-on-action/90" : "text-site-body";
@@ -67,7 +77,7 @@ export default function PageHeader({
         </>
       ) : null}
 
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+      <div className={`relative z-10 mx-auto w-full px-6 sm:px-10 lg:px-[8vw] ${widths[resolvedWidth]}`}>
         <div className={`max-w-4xl ${alignmentClass} ${textClass}`}>
           <h1 className="font-heading text-[clamp(2.5rem,6vw,5rem)] font-bold leading-[1.12] tracking-[-0.03em] text-balance">
             {title}

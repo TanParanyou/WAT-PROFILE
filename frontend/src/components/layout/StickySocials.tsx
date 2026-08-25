@@ -61,7 +61,7 @@ export default function StickySocials() {
   return (
     <>
       {/* Desktop Floating Stack (Scroll To Top + Socials) */}
-      <div className={`fixed bottom-6 ${positionClass} z-40 hidden flex-col gap-3 md:flex`}>
+      <div className={`fixed bottom-6 ${positionClass} z-40 hidden flex-col gap-3 md:flex print:hidden`}>
         <AnimatePresence>
           {showScrollTop && (
             <motion.button
@@ -98,7 +98,7 @@ export default function StickySocials() {
       </div>
 
       {/* Mobile Scroll To Top */}
-      <div className="fixed bottom-6 right-6 z-40 md:hidden">
+      <div className="fixed bottom-6 right-6 z-40 md:hidden print:hidden">
         <AnimatePresence>
           {showScrollTop && (
             <motion.button

@@ -28,6 +28,8 @@ import { AdminMultiSelectFilter } from "@/components/admin/list/AdminMultiSelect
 import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components/admin/list/AdminActiveFilterChips";
 import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
 import { exportToCsv } from "@/services/adminListExportService";
+import { useDisclosure } from "@/hooks/useDisclosure";
+import { formatDate } from "@/utils/formatters";
 
 interface MonkFilters extends AdminFilterRecord {
   status: string[];
@@ -40,7 +42,7 @@ export default function MonksListPage() {
   const { confirm, ConfirmDialog } = useConfirm();
   const { toast } = useToast();
   const selectedIds = useRowSelection();
-  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const previewDrawer = useDisclosure<string>();
 
   const listState = useAdminListState<MonkFilters>({
     schema: {
@@ -178,7 +180,7 @@ export default function MonksListPage() {
           <AdminTableAction
             label={t("website.viewPublic") || "ดูหน้าเว็บสาธารณะ"}
             icon={<Icons.View size={16} />}
-            onClick={() => setPreviewUrl(`/${locale}/monks/${row.slug || row.id}`)}
+            onClick={() => previewDrawer.open(`/${locale}/monks/${row.slug || row.id}`)}
           />
           <AdminTableAction
             resource="monks"
@@ -291,11 +293,11 @@ export default function MonksListPage() {
 
       {/* Public View Slide-over Drawer */}
       <Drawer
-        isOpen={!!previewUrl}
-        onClose={() => setPreviewUrl(null)}
+        isOpen={previewDrawer.isOpen}
+        onClose={previewDrawer.close}
         title="ตัวอย่างบนเว็บไซต์ (Live Preview)"
       >
-        {previewUrl && <IframePreview url={previewUrl} />}
+        {previewDrawer.data && <IframePreview url={previewDrawer.data} />}
       </Drawer>
     </div>
   );

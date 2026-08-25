@@ -545,7 +545,7 @@ export function ProfileForm() {
                   {t("account.exploreEvents")}
                 </Link>
                 <Link
-                  href="/donate"
+                  href="/#donate"
                   className={secondaryActionClass}
                 >
                   <Heart className="size-4 shrink-0" aria-hidden />

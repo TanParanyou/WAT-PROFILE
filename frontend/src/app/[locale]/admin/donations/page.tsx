@@ -26,6 +26,7 @@ import { AdminDateRangeFilter } from "@/components/admin/list/AdminDateRangeFilt
 import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components/admin/list/AdminActiveFilterChips";
 import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
 import { exportToCsv } from "@/services/adminListExportService";
+import { formatCurrency } from "@/utils/formatters";
 import { useQuery } from "@tanstack/react-query";
 import type { StaffDonationFormData } from "@/schemas/donation.schema";
 import { StaffDonationForm } from "@/features/admin/donations/StaffDonationForm";
@@ -297,9 +298,8 @@ export default function DonationsPage() {
       accessorKey: "amount",
       sortable: true,
       cell: (v, row) => (
-        <span className="font-semibold text-admin-success">
-          {Number(v).toLocaleString("th-TH", { minimumFractionDigits: 2 })}{" "}
-          {row.currency}
+        <span className="font-semibold text-admin-success font-mono">
+          {formatCurrency(Number(v), row.currency || "EUR", locale)}
         </span>
       ),
     },

@@ -10,7 +10,11 @@ const COMMUNITY_ENABLED = process.env.NEXT_PUBLIC_COMMUNITY_ENABLED !== "false";
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "Community" });
-  return { title: t("askTitle"), description: t("askDescription") };
+  return {
+    title: t("askTitle"),
+    description: t("askDescription"),
+    robots: { index: false, follow: false },
+  };
 }
 
 export default async function CommunityAskPage({ params }: { params: Promise<{ locale: string }> }) {

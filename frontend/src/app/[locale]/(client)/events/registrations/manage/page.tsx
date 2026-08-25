@@ -1,8 +1,19 @@
+import type { Metadata } from "next";
 import { getTranslations } from "next-intl/server";
 import PageHeader from "@/components/layout/PageHeader";
 import { RegistrationManageContent } from "@/features/public/event-registration/components/RegistrationManageContent";
 
 interface Props { params: Promise<{ locale: string }> }
+
+export async function generateMetadata({ params }: Props): Promise<Metadata> {
+  const { locale } = await params;
+  const t = await getTranslations({ locale, namespace: "EventRegistration" });
+  return {
+    title: t("manageTitle"),
+    description: t("manageDescription"),
+    robots: { index: false, follow: false },
+  };
+}
 
 export default async function EventRegistrationManagePage({ params }: Props) {
   const { locale } = await params;

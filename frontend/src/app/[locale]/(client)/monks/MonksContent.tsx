@@ -17,8 +17,8 @@ export default function MonksContent() {
   const monks = monksQuery.data?.map(toMonkListItem) ?? [];
 
   return (
-    <div className="min-h-screen bg-background">
-      <PageHeader variant="color" align="left" title={t("title")} subtitle={t("subtitle")} />
+    <div className="min-h-screen bg-site-canvas">
+      <PageHeader variant="color" align="left" width="content" title={t("title")} subtitle={t("subtitle")} />
       <PageContainer width="content">
         {monksQuery.isLoading ? (
           <MonksGridSkeleton />

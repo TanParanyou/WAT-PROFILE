@@ -18,7 +18,9 @@ import {
   type AccountDonationItem,
 } from "../accountDonationsApi";
 import type { AccountLocale } from "../../account/types";
+import { useAccountSession } from "@/features/public/account/AccountSessionProvider";
 import { CopyButton } from "@/components/common/CopyButton";
+import { formatCurrency } from "@/utils/formatters";
 
 const PAGE_SIZE = 10;
 
@@ -26,19 +28,6 @@ const primaryActionClass =
   "inline-flex min-h-11 items-center justify-center gap-2 bg-site-action px-6 py-[13px] font-semibold text-site-on-action transition-colors hover:bg-site-action-hover focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus";
 const secondaryActionClass =
   "inline-flex min-h-11 items-center justify-center gap-2 border border-site-border bg-site-canvas px-6 py-[13px] font-semibold text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus";
-
-function formatCurrency(amount: number, currency: string): string {
-  try {
-    return new Intl.NumberFormat(undefined, {
-      style: "currency",
-      currency: currency || "EUR",
-      minimumFractionDigits: 2,
-      maximumFractionDigits: 2,
-    }).format(amount);
-  } catch {
-    return `${amount.toFixed(2)} ${currency || "EUR"}`;
-  }
-}
 
 function formatDate(dateStr: string, locale: string): string {
   if (!dateStr) return "-";
@@ -105,8 +94,12 @@ function DonationRow({
       setDownloading(true);
       setDownloadError(null);
       await downloadDonationReceipt(donation.id, donation.receipt_number);
-    } catch {
-      setDownloadError(t("account.donationsLoadError"));
+    } catch (err: unknown) {
+      if (err instanceof Error && err.message) {
+        setDownloadError(err.message);
+      } else {
+        setDownloadError(t("account.receiptDownloadError"));
+      }
     } finally {
       setDownloading(false);
     }
@@ -145,7 +138,7 @@ function DonationRow({
 
         <div className="flex flex-col items-end gap-1.5">
           <span className="font-heading text-lg font-bold text-site-foreground">
-            {formatCurrency(donation.amount, donation.currency)}
+            {formatCurrency(donation.amount, donation.currency, locale)}
           </span>
           <DonationStatusBadge status={donation.status} />
         </div>
@@ -192,14 +185,18 @@ export function AccountDonationsContent() {
       ? rawLocale
       : "en";
   const [page, setPage] = useState(1);
+  const session = useAccountSession();
 
   const { data, isLoading, isError, error, refetch, isFetching } =
-    useAccountDonationsQuery({
-      page,
-      limit: PAGE_SIZE,
-    });
+    useAccountDonationsQuery(
+      {
+        page,
+        limit: PAGE_SIZE,
+      },
+      session.status === "authenticated",
+    );
 
-  if (isLoading) {
+  if (session.status === "loading" || isLoading) {
     return (
       <div className="space-y-4">
         <div className="border border-site-border bg-site-surface/40 p-6">
@@ -210,6 +207,25 @@ export function AccountDonationsContent() {
             </span>
           </div>
         </div>
+      </div>
+    );
+  }
+
+  if (session.status !== "authenticated") {
+    return (
+      <div className="border border-site-border bg-site-surface p-6">
+        <h2 className="font-heading text-xl font-semibold text-site-foreground">
+          {t("account.donationsSection")}
+        </h2>
+        <p className="mt-2 text-sm text-site-muted">
+          {t("account.donationsSubtitle")}
+        </p>
+        <Link
+          href="/account/login"
+          className={`mt-4 ${primaryActionClass}`}
+        >
+          {t("account.loginAction")}
+        </Link>
       </div>
     );
   }
@@ -270,7 +286,7 @@ export function AccountDonationsContent() {
             {t("account.noDonationsDescription")}
           </p>
           <div className="mt-6">
-            <Link href="/donate" className={primaryActionClass}>
+            <Link href="/#donate" className={primaryActionClass}>
               <Heart className="size-4 shrink-0" aria-hidden />
               {t("account.makeDonationButton")}
             </Link>
@@ -291,7 +307,7 @@ export function AccountDonationsContent() {
             {t("account.donationsSubtitle")}
           </p>
         </div>
-        <Link href="/donate" className={secondaryActionClass}>
+        <Link href="/#donate" className={secondaryActionClass}>
           <Heart className="size-4 shrink-0" aria-hidden />
           {t("account.makeDonationButton")}
         </Link>

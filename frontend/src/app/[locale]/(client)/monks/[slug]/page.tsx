@@ -101,7 +101,7 @@ export default async function MonkDetailPage({ params }: Props) {
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsSchema) }}
       />
-      <PageHeader variant="color" align="left" title={monkName} subtitle={monkTitle} />
+      <PageHeader variant="color" align="left" width="content" title={monkName} subtitle={monkTitle} />
       <PageContainer width="content">
         <DetailNavigation
           breadcrumbs={[{ label: t("title"), href: "/monks" }, { label: monkName, active: true }]}

@@ -33,6 +33,8 @@ import { AdminRegistrationDrawer } from "./_components/AdminRegistrationDrawer";
 import { AttendanceScannerModal } from "./_components/AttendanceScannerModal";
 import { AttendancePrintSheet } from "./_components/AttendancePrintSheet";
 
+import { useDisclosure } from "@/hooks/useDisclosure";
+
 interface RegistrationFilters extends AdminFilterRecord {
   status: string[];
   event: string[];
@@ -56,9 +58,9 @@ export default function RegistrationsPage() {
   const { toast } = useToast();
   const { confirm, ConfirmDialog } = useConfirm();
   const [updatingId, setUpdatingId] = useState<number | null>(null);
-  const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [isScannerOpen, setIsScannerOpen] = useState(false);
-  const [isPrintSheetOpen, setIsPrintSheetOpen] = useState(false);
+  const createModal = useDisclosure();
+  const scannerModal = useDisclosure();
+  const printSheetModal = useDisclosure();
   const selectedIds = useRowSelection();
 
   const listState = useAdminListState<RegistrationFilters>({
@@ -297,7 +299,7 @@ export default function RegistrationsPage() {
             <PermissionGuard resource="events" action="update">
               <Button
                 variant="outline"
-                onClick={() => setIsScannerOpen(true)}
+                onClick={() => scannerModal.open()}
                 className="inline-flex items-center gap-1.5"
               >
                 <QrCode size={16} />
@@ -306,7 +308,7 @@ export default function RegistrationsPage() {
             </PermissionGuard>
             <Button
               variant="outline"
-              onClick={() => setIsPrintSheetOpen(true)}
+              onClick={() => printSheetModal.open()}
               className="inline-flex items-center gap-1.5"
             >
               <Printer size={16} />
@@ -315,7 +317,7 @@ export default function RegistrationsPage() {
             <PermissionGuard resource="events" action="create">
               <Button
                 variant="primary"
-                onClick={() => setIsCreateOpen(true)}
+                onClick={() => createModal.open()}
                 className="inline-flex items-center gap-1.5"
               >
                 <Icons.Plus size={16} />
@@ -416,20 +418,20 @@ export default function RegistrationsPage() {
         />
       </div>
       <AdminRegistrationDrawer
-        isOpen={isCreateOpen}
-        onClose={() => setIsCreateOpen(false)}
+        isOpen={createModal.isOpen}
+        onClose={createModal.close}
         onSuccess={() => void listQuery.refetch()}
         events={eventsData || []}
         locale={locale}
       />
       <AttendanceScannerModal
-        isOpen={isScannerOpen}
-        onClose={() => setIsScannerOpen(false)}
+        isOpen={scannerModal.isOpen}
+        onClose={scannerModal.close}
         onSuccessCheckIn={() => void listQuery.refetch()}
       />
       <AttendancePrintSheet
-        isOpen={isPrintSheetOpen}
-        onClose={() => setIsPrintSheetOpen(false)}
+        isOpen={printSheetModal.isOpen}
+        onClose={printSheetModal.close}
         items={listQuery.rows}
       />
       <ConfirmDialog />

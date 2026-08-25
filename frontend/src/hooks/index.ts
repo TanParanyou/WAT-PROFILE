@@ -13,3 +13,5 @@ export { useDateFormat } from "./useDateFormat";
 export { useLocalStorage } from "./useLocalStorage";
 export { useOnlineStatus } from "./useOnlineStatus";
 export { usePwaInstall } from "./usePwaInstall";
+export { useDisclosure, createDisclosureState } from "./useDisclosure";
+export { useScrollLock, lockScroll, unlockScroll } from "./useScrollLock";

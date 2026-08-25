@@ -18,6 +18,7 @@ import type {
   Role,
   CalendarResourceEntity,
 } from "@/types/entities";
+import type { Chanting } from "@/types/chanting";
 
 // Generic CRUD helpers สำหรับ admin endpoints
 export function createAdminService<T>(resource: string) {
@@ -326,3 +327,6 @@ export const registrationAdminService = {
     await api.put(`/admin/registrations/${id}/status`, { status, reason });
   },
 };
+
+// Chanting
+export const chantingAdminService = createAdminService<Chanting>("chanting");

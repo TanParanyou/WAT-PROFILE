@@ -49,7 +49,6 @@ export default async function JsonLd() {
             latitude: siteConfig.contact.geo?.latitude,
             longitude: siteConfig.contact.geo?.longitude,
         },
-        priceRange: '0',
         openingHoursSpecification: siteConfig.contact.openingHours?.map((hours) => ({
             '@type': 'OpeningHoursSpecification',
             dayOfWeek: hours.dayOfWeek,

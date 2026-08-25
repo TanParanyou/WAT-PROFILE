@@ -600,7 +600,7 @@ func (s *DonationService) GetStats() (map[string]interface{}, error) {
 // GetByID returns a donation by ID
 func (s *DonationService) GetByID(id int) (*models.Donation, error) {
 	var donation models.Donation
-	err := s.db.First(&donation, id).Error
+	err := s.db.Preload("Category").Preload("Member").First(&donation, id).Error
 	if err != nil {
 		return nil, err
 	}

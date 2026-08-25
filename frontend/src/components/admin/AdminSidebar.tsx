@@ -73,6 +73,7 @@ const sidebarGroups: SidebarGroup[] = [
       { labelKey: "schedules", href: "/admin/schedules", icon: Clock, resource: "schedules" },
       { labelKey: "gallery", href: "/admin/gallery", icon: Image, resource: "gallery" },
       { labelKey: "monks", href: "/admin/monks", icon: Users, resource: "monks" },
+      { labelKey: "chanting", href: "/admin/chanting", icon: BookOpen, resource: "chanting" },
     ],
   },
   {

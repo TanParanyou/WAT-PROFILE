@@ -53,8 +53,8 @@ export default function EventsContent() {
         : tPage("allEvents");
 
   return (
-    <div className="min-h-screen bg-background">
-      <PageHeader variant="color" align="left" title={tPage("title")} subtitle={tPage("subtitle")} />
+    <div className="min-h-screen bg-site-canvas">
+      <PageHeader variant="color" align="left" width="content" title={tPage("title")} subtitle={tPage("subtitle")} />
       <PageContainer width="content">
         <section aria-labelledby="schedule-heading">
           <PublicSectionHeading id="schedule-heading" title={tPage("regularSchedule")} description={tPage("subtitle")} />

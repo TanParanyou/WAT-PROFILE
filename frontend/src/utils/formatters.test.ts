@@ -5,6 +5,7 @@ import {
   formatTimeToHHmm,
   formatTimeRange,
   toCalendarDateTime,
+  formatCurrency,
 } from "./formatters";
 
 describe("formatters utils", () => {
@@ -75,6 +76,21 @@ describe("formatters utils", () => {
         toCalendarDateTime("2026-08-14", "09:00:00"),
         "20260814T090000"
       );
+    });
+  });
+
+  describe("formatCurrency", () => {
+    it("formats EUR and THB currency across locales", () => {
+      assert.equal(formatCurrency(null), "-");
+      assert.equal(formatCurrency(undefined), "-");
+      assert.equal(formatCurrency("invalid"), "-");
+      // German locale EUR formatting uses comma decimal
+      const formattedDe = formatCurrency(50.5, "EUR", "de");
+      assert.ok(formattedDe.includes("50,50") && formattedDe.includes("€"));
+
+      // English locale EUR formatting
+      const formattedEn = formatCurrency(50.5, "EUR", "en");
+      assert.ok(formattedEn.includes("50.50") && formattedEn.includes("€"));
     });
   });
 });

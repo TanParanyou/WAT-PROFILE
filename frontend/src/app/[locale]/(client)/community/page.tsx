@@ -6,13 +6,21 @@ import { CommunityContent } from "@/features/public/community/components/Communi
 import { fetchCommunityCategoriesServer, fetchCommunityQuestionsServer } from "@/features/public/community/server-api";
 import { communityKeys } from "@/features/public/community/queries";
 import type { CommunityLocale } from "@/features/public/community/types";
+import { buildPublicMetadata } from "@/features/public/seo/metadata";
+import { emptySeoMetadata } from "@/features/public/seo/schema";
 
 const COMMUNITY_ENABLED = process.env.NEXT_PUBLIC_COMMUNITY_ENABLED !== "false";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   const t = await getTranslations({ locale, namespace: "Community" });
-  return { title: t("title"), description: t("subtitle") };
+  return buildPublicMetadata({
+    locale,
+    pathname: `/${locale}/community`,
+    seo: emptySeoMetadata,
+    content: { title: t("title"), description: t("subtitle") },
+    messages: { title: t("title"), description: t("subtitle") },
+  });
 }
 
 export default async function CommunityPage({ params }: { params: Promise<{ locale: string }> }) {

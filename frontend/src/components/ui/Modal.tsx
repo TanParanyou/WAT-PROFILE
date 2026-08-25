@@ -5,6 +5,8 @@ import { createPortal } from 'react-dom';
 import { useTranslations } from 'next-intl';
 import { X, AlertTriangle, CheckCircle, Info, AlertCircle } from 'lucide-react';
 import { Loading } from './Loading';
+import { useScrollLock } from "@/hooks/useScrollLock";
+import { useDisclosure, type UseDisclosureReturn } from "@/hooks/useDisclosure";
 
 type ModalSize = 'sm' | 'md' | 'lg' | 'xl';
 type ModalVariant = 'default' | 'danger' | 'success' | 'warning' | 'info';
@@ -77,6 +79,8 @@ const Modal: React.FC<ModalProps> = ({
 }) => {
     const titleId = useId();
     const descriptionId = useId();
+    useScrollLock(isOpen);
+    
     const handleEscape = useCallback(
         (e: KeyboardEvent) => {
             if (e.key === 'Escape' && closeOnEscape) onClose();
@@ -87,11 +91,9 @@ const Modal: React.FC<ModalProps> = ({
     useEffect(() => {
         if (isOpen) {
             document.addEventListener('keydown', handleEscape);
-            document.body.style.overflow = 'hidden';
         }
         return () => {
             document.removeEventListener('keydown', handleEscape);
-            document.body.style.overflow = 'unset';
         };
     }, [isOpen, handleEscape]);
 
@@ -247,12 +249,9 @@ const FormModal: React.FC<FormModalProps> = ({
     );
 };
 
-// useModal Hook
-const useModal = (initialState = false) => {
-    const [isOpen, setIsOpen] = React.useState(initialState);
-    const open = useCallback(() => setIsOpen(true), []);
-    const close = useCallback(() => setIsOpen(false), []);
-    return { isOpen, open, close };
+// useModal Hook (alias for useDisclosure for unified modal state management)
+const useModal = <T = void>(initialState = false) => {
+    return useDisclosure<T>({ defaultIsOpen: initialState });
 };
 export { Modal, ConfirmModal, FormModal, useModal };
-export type { ModalProps, ConfirmModalProps, FormModalProps, ModalSize, ModalVariant };
+export type { ModalProps, ConfirmModalProps, FormModalProps, ModalSize, ModalVariant, UseDisclosureReturn };
