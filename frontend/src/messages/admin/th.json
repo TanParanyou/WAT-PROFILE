@@ -1407,6 +1407,7 @@
       }
     },
     "website": {
+      "previewModalTitle": "ตัวอย่างบนเว็บไซต์ (Live Preview)",
       "back": "ย้อนกลับ",
       "viewPublic": "ดูหน้าสาธารณะ",
       "publish": "เผยแพร่",

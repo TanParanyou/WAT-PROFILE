@@ -1407,6 +1407,7 @@
       }
     },
     "website": {
+      "previewModalTitle": "Live-Vorschau auf der Website",
       "back": "Zurück",
       "viewPublic": "Öffentlich ansehen",
       "publish": "Veröffentlichen",
