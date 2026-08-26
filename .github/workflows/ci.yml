@@ -1,0 +1,131 @@
+name: CI / Production Quality Gate
+
+on:
+  push:
+    branches:
+      - main
+      - master
+      - develop
+      - staging
+  pull_request:
+    branches:
+      - main
+      - master
+      - develop
+      - staging
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  # ============================================================================
+  # 1. Backend Verification (Go 1.25)
+  # ============================================================================
+  backend-ci:
+    name: Backend (Go Vet, Tests, Build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version: "1.25"
+          cache: true
+          cache-dependency-path: backend/go.sum
+
+      - name: Download Go modules
+        run: go mod download
+
+      - name: Run Go Vet
+        run: go vet ./...
+
+      - name: Run Backend Unit Tests
+        run: go test -v -p 1 ./...
+
+      - name: Compile Backend Binaries
+        run: |
+          CGO_ENABLED=0 go build -o bin/server ./cmd/app
+          CGO_ENABLED=0 go build -o bin/operations-worker ./cmd/operations-worker
+          CGO_ENABLED=0 go build -o bin/migrate ./cmd/migrate
+          CGO_ENABLED=0 go build -o bin/seed ./cmd/seed
+
+  # ============================================================================
+  # 2. Frontend Verification (Next.js & TypeScript)
+  # ============================================================================
+  frontend-ci:
+    name: Frontend (Typecheck, Tests, Next.js Build)
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: "npm"
+          cache-dependency-path: frontend/package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run TypeScript Typecheck
+        run: npm run typecheck
+
+      - name: Run Frontend Tests
+        run: npm run test
+
+      - name: Build Next.js Standalone
+        env:
+          NEXT_PUBLIC_API_URL: "https://api.watloungporsai.de"
+          NEXT_PUBLIC_MEDIA_ALLOWED_ORIGINS: "https://pub-6a058faa22bc41b8b701533c372288a3.r2.dev"
+          NEXT_PUBLIC_PUBLIC_ACCOUNT_AUTH_ENABLED: "false"
+          NEXT_PUBLIC_COMMUNITY_ENABLED: "false"
+        run: npm run build
+
+  # ============================================================================
+  # 3. Docker Image Build Validation
+  # ============================================================================
+  docker-ci:
+    name: Docker Build Validation
+    runs-on: ubuntu-latest
+    needs: [backend-ci, frontend-ci]
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: actions/setup-buildx-action@v3
+
+      - name: Validate Backend Docker Build
+        uses: docker/build-push-action@v5
+        with:
+          context: ./backend
+          file: ./backend/Dockerfile
+          push: false
+          tags: wat-backend:ci
+
+      - name: Validate Frontend Docker Build
+        uses: docker/build-push-action@v5
+        with:
+          context: ./frontend
+          file: ./frontend/Dockerfile
+          push: false
+          build-args: |
+            NEXT_PUBLIC_API_URL=https://api.watloungporsai.de
+            NEXT_PUBLIC_MEDIA_ALLOWED_ORIGINS=https://pub-6a058faa22bc41b8b701533c372288a3.r2.dev
+            NEXT_PUBLIC_PUBLIC_ACCOUNT_AUTH_ENABLED=false
+            NEXT_PUBLIC_COMMUNITY_ENABLED=false
+          tags: wat-frontend:ci
