@@ -1,20 +1,21 @@
 package main
 
 import (
+	"flag"
 	"log"
-	"os"
 
 	"github.com/joho/godotenv"
 	"github.com/watloungporsai/wat-profile-backend/internal/config"
-	"github.com/watloungporsai/wat-profile-backend/internal/models"
-	"github.com/watloungporsai/wat-profile-backend/internal/services"
-	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
+	"github.com/watloungporsai/wat-profile-backend/internal/seeder"
 )
 
 func main() {
-	// Load .env
+	mode := flag.String("mode", "full", "Seed mode: 'essential' for minimal production, 'full' for complete staging/demo")
+	flag.Parse()
+
+	// Load .env if present
 	if err := godotenv.Load(); err != nil {
-		log.Println("No .env file found, using system env")
+		log.Println("No .env file found, using system environment variables")
 	}
 
 	// Connect database
@@ -24,247 +25,21 @@ func main() {
 
 	// Run migrations
 	if err := config.MigrateModels(); err != nil {
-		log.Fatalf("Failed to migrate: %v", err)
+		log.Fatalf("Failed to migrate database models: %v", err)
 	}
 
-	// Seed roles
-	seedRoles()
+	s := seeder.NewSeeder(config.DB)
 
-	// Seed admin user
-	seedAdminUser()
-
-	// Seed default settings
-	seedSettings()
-
-	// Seed website CMS
-	seedWebsiteCMS()
-
-	// Seed donation categories
-	seedDonationCategories()
-
-	log.Println("Seed completed successfully!")
-}
-
-func seedRoles() {
-	log.Println("Seeding roles...")
-
-	roles := []models.Role{
-		{
-			Name:        "admin",
-			Description: "System administrator with full access",
-			Permissions: models.PermissionsMap{
-				"dashboard":          "read",
-				"events":             "all",
-				"calendar_resources": "all",
-				"monks":              "all",
-				"gallery":            "all",
-				"schedules":          "all",
-				"donations":          "all",
-				"members":            "all",
-				"contacts":           "all",
-				"settings":           "all",
-				"users":              "all",
-				"website":            "all",
-				"audit_logs":         "all",
-				"profile":            "update",
-				"privacy_requests":   "all",
-				"account_operations": "all",
-			},
-			IsActive:    true,
-			AdminAccess: true,
-			IsSystem:    true,
-		},
-		{
-			Name:        "editor",
-			Description: "Content editor - manages events, monks, gallery, schedules",
-			Permissions: models.PermissionsMap{
-				"dashboard":          "read",
-				"events":             "all",
-				"calendar_resources": "all",
-				"monks":              "all",
-				"gallery":            "all",
-				"schedules":          "all",
-				"contacts":           "read",
-				"website":            "all",
-				"profile":            "update",
-			},
-			IsActive:    true,
-			AdminAccess: true,
-		},
-		{
-			Name:        "accountant",
-			Description: "Finance manager - manages donations and views members",
-			Permissions: models.PermissionsMap{
-				"dashboard": "read",
-				"donations": "all",
-				"members":   "read",
-				"profile":   "update",
-			},
-			IsActive:    true,
-			AdminAccess: true,
-		},
-		{
-			Name:        "member",
-			Description: "Registered temple member",
-			Permissions: models.PermissionsMap{
-				"events":        "read",
-				"monks":         "read",
-				"gallery":       "read",
-				"donations":     "create",
-				"registrations": "create",
-			},
-			IsActive:    true,
-			AdminAccess: false,
-		},
-	}
-
-	for _, role := range roles {
-		var existing models.Role
-		if err := config.DB.Where("name = ?", role.Name).First(&existing).Error; err != nil {
-			config.DB.Create(&role)
-			log.Printf("  Created role: %s", role.Name)
-		} else {
-			log.Printf("  Role already exists: %s", role.Name)
+	switch *mode {
+	case "essential", "prod", "production":
+		if err := s.SeedEssential(); err != nil {
+			log.Fatalf("Essential seed failed: %v", err)
 		}
-	}
-}
-
-func seedAdminUser() {
-	log.Println("Seeding admin user...")
-
-	adminEmail := os.Getenv("ADMIN_EMAIL")
-	adminPassword := os.Getenv("ADMIN_PASSWORD")
-	adminName := os.Getenv("ADMIN_NAME")
-
-	if adminEmail == "" {
-		adminEmail = "admin@watloungporsai.de"
-	}
-	if adminPassword == "" {
-		adminPassword = "changeme123"
-	}
-	if adminName == "" {
-		adminName = "Wat Admin"
-	}
-
-	// Check if admin already exists
-	var existing models.User
-	if err := config.DB.Where("email = ?", adminEmail).First(&existing).Error; err == nil {
-		log.Printf("  Admin user already exists: %s", adminEmail)
-		return
-	}
-
-	// Get admin role
-	var adminRole models.Role
-	if err := config.DB.Where("name = ?", "admin").First(&adminRole).Error; err != nil {
-		log.Fatalf("  Admin role not found. Run seedRoles first.")
-	}
-
-	// Hash password
-	hashedPassword, err := utils.HashAdminPassword(adminPassword)
-	if err != nil {
-		log.Fatalf("  Failed to hash password: %v", err)
-	}
-
-	// Create admin user
-	hashedPasswordValue := hashedPassword
-	admin := models.User{
-		Email:         adminEmail,
-		PasswordHash:  &hashedPasswordValue,
-		Name:          adminName,
-		RoleID:        &adminRole.ID,
-		EmailVerified: true,
-		IsActive:      true,
-	}
-
-	if err := config.DB.Create(&admin).Error; err != nil {
-		log.Fatalf("  Failed to create admin user: %v", err)
-	}
-
-	log.Printf("  Created admin user: %s", adminEmail)
-}
-
-func seedSettings() {
-	log.Println("Seeding default settings...")
-
-	settings := []models.Setting{
-		{Key: "site_name", Value: "วัดหลวงพ่อใส", Type: "string", Category: "general", IsPublic: true},
-		{Key: "site_name_en", Value: "Wat Loung Por Sai", Type: "string", Category: "general", IsPublic: true},
-		{Key: "site_name_de", Value: "Wat Loung Por Sai", Type: "string", Category: "general", IsPublic: true},
-		{Key: "contact_email", Value: "info@watloungporsai.de", Type: "string", Category: "contact", IsPublic: true},
-		{Key: "contact_phone", Value: "", Type: "string", Category: "contact", IsPublic: true},
-		{Key: "address", Value: "", Type: "string", Category: "contact", IsPublic: true},
-		{Key: "facebook_url", Value: "", Type: "string", Category: "social", IsPublic: true},
-		{Key: "youtube_url", Value: "", Type: "string", Category: "social", IsPublic: true},
-		{Key: "line_id", Value: "", Type: "string", Category: "social", IsPublic: true},
-		{Key: "bank_account_info", Value: "", Type: "json", Category: "donation", IsPublic: true},
-		{Key: "paypal_email", Value: "", Type: "string", Category: "donation", IsPublic: false},
-	}
-
-	for _, setting := range settings {
-		var existing models.Setting
-		if err := config.DB.Where("key = ?", setting.Key).First(&existing).Error; err != nil {
-			config.DB.Create(&setting)
-			log.Printf("  Created setting: %s", setting.Key)
+	case "full", "dev", "demo", "staging":
+		if err := s.SeedFull(); err != nil {
+			log.Fatalf("Full seed failed: %v", err)
 		}
-	}
-}
-
-func seedDonationCategories() {
-	log.Println("Seeding donation categories...")
-
-	categories := []models.DonationCategory{
-		{
-			Name:         models.MultiLangText{"en": "General Donation", "th": "ทำบุญทั่วไป", "de": "Allgemeine Spende"},
-			Description:  models.MultiLangText{"en": "General temple donation", "th": "บริจาคทั่วไปเพื่อกิจการของวัด", "de": "Allgemeine Tempelspende"},
-			IsActive:     true,
-			DisplayOrder: 1,
-		},
-		{
-			Name:         models.MultiLangText{"en": "Building Fund", "th": "ทุนก่อสร้าง", "de": "Baufonds"},
-			Description:  models.MultiLangText{"en": "Temple construction and renovation", "th": "เพื่อการก่อสร้างและบูรณะวัด", "de": "Tempelkonstruktion und Renovierung"},
-			IsActive:     true,
-			DisplayOrder: 2,
-		},
-		{
-			Name:         models.MultiLangText{"en": "Sangha Dana", "th": "ถวายสังฆทาน", "de": "Sangha Dana"},
-			Description:  models.MultiLangText{"en": "Offering to the monastic community", "th": "ถวายปัจจัยแด่พระสงฆ์", "de": "Opfergabe an die Mönchsgemeinschaft"},
-			IsActive:     true,
-			DisplayOrder: 3,
-		},
-		{
-			Name:         models.MultiLangText{"en": "Meditation Course", "th": "คอร์สปฏิบัติธรรม", "de": "Meditationskurs"},
-			Description:  models.MultiLangText{"en": "Support meditation retreat programs", "th": "สนับสนุนโครงการปฏิบัติธรรม", "de": "Unterstützung von Meditationsretreat-Programmen"},
-			IsActive:     true,
-			DisplayOrder: 4,
-		},
-	}
-
-	for _, cat := range categories {
-		var existing models.DonationCategory
-		enName := cat.Name["en"]
-		if err := config.DB.Where("name->>'en' = ?", enName).First(&existing).Error; err != nil {
-			config.DB.Create(&cat)
-			log.Printf("  Created category: %s", enName)
-		}
-	}
-}
-
-func seedWebsiteCMS() {
-	log.Println("Seeding website CMS...")
-	contentService := services.NewContentService(config.DB)
-	if err := contentService.EnsureHomePageSeed(); err != nil {
-		log.Printf("  Failed to seed home page: %v", err)
-	}
-	if err := contentService.EnsureContactPageSeed(); err != nil {
-		log.Printf("  Failed to seed contact page: %v", err)
-	}
-	if err := contentService.EnsurePrivacyPageSeed(); err != nil {
-		log.Printf("  Failed to seed privacy page: %v", err)
-	}
-	if err := contentService.EnsureImpressumPageSeed(); err != nil {
-		log.Printf("  Failed to seed impressum page: %v", err)
-	}
-	if err := contentService.EnsureAboutPageSeed(); err != nil {
-		log.Printf("  Failed to seed about page: %v", err)
+	default:
+		log.Fatalf("Unknown seed mode %q. Use 'essential' or 'full'.", *mode)
 	}
 }

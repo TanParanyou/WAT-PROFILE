@@ -129,11 +129,16 @@ export function useCalendar(options: UseCalendarOptions): CalendarController {
   const setDate = useCallback((nextDate: Date) => updateDate(nextDate), [updateDate]);
   const selectDate = useCallback((nextDate: Date) => updateDate(nextDate), [updateDate]);
 
-  return {
+  const visibleRange = useMemo(
+    () => getVisibleRange(state.date, state.view, options.weekStartsOn),
+    [state.date, state.view, options.weekStartsOn],
+  );
+
+  return useMemo(() => ({
     view: state.view,
     date: state.date,
     selectedDate: state.selectedDate,
-    visibleRange: getVisibleRange(state.date, state.view, options.weekStartsOn),
+    visibleRange,
     config: calendarConfig,
     previous,
     next,
@@ -141,7 +146,19 @@ export function useCalendar(options: UseCalendarOptions): CalendarController {
     setView,
     setDate,
     selectDate,
-  };
+  }), [
+    state.view,
+    state.date,
+    state.selectedDate,
+    visibleRange,
+    calendarConfig,
+    previous,
+    next,
+    today,
+    setView,
+    setDate,
+    selectDate,
+  ]);
 }
 
 export function getCalendarViewLabels(labels: CalendarLabels): Record<CalendarView, string> {

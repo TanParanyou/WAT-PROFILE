@@ -91,4 +91,5 @@ export type PermissionResource =
   | "account_operations"
   | "calendar_resources"
   | "community"
-  | "chanting";
+  | "chanting"
+  | "chatbot";

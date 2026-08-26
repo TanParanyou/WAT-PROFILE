@@ -38,7 +38,7 @@ export function CalendarQueryBoundary<TData>({ query, labels, children }: Calend
         role="status"
         aria-live="polite"
         aria-hidden={!query.isFetching}
-        className={`pointer-events-none absolute right-0 top-0 z-30 border border-current/15 bg-current/10 px-2 py-1 text-xs motion-safe:transition-opacity motion-safe:duration-150 motion-reduce:transition-none ${query.isFetching ? "opacity-100" : "opacity-0"}`}
+        className={`pointer-events-none absolute right-0 top-0 z-30 rounded-xs border border-current/15 bg-current/10 px-2 py-1 text-xs backdrop-blur-xs motion-safe:transition-opacity motion-safe:duration-300 motion-reduce:transition-none ${query.isFetching ? "opacity-100" : "opacity-0"}`}
       >
         {labels.refreshing ?? labels.loading ?? "Refreshing"}
       </p>

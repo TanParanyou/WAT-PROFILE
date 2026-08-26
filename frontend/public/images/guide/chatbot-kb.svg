@@ -1,0 +1,73 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 480" width="100%" height="100%">
+  <defs>
+    <style>
+      .canvas { fill: #fbfbfa; }
+      .surface { fill: #ffffff; stroke: #d1d5db; stroke-width: 1; }
+      .text-title { font-family: "Noto Sans Thai", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-weight: 700; font-size: 15px; fill: #242424; }
+      .text-muted { font-family: "Noto Sans Thai", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 12px; fill: #666666; }
+      .text-body { font-family: "Noto Sans Thai", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; font-size: 13px; fill: #333333; }
+    </style>
+  </defs>
+
+  <rect width="800" height="480" class="canvas" />
+
+  <!-- Main Container -->
+  <rect x="40" y="25" width="720" height="430" class="surface" />
+
+  <!-- Header -->
+  <rect x="40" y="25" width="720" height="50" fill="#f4f4f2" stroke="#d1d5db" stroke-width="1" />
+  <text x="65" y="56" class="text-title">🤖 ฐานความรู้แชทบอทและการตอบคำถามอัตโนมัติ (AI Chatbot &amp; Knowledge Base)</text>
+
+  <!-- Left: Knowledge Base Q&A List -->
+  <g transform="translate(65, 95)">
+    <rect x="0" y="0" width="350" height="335" fill="#ffffff" stroke="#d1d5db" stroke-width="1" />
+    <rect x="0" y="0" width="350" height="38" fill="#f4f4f2" stroke="#d1d5db" stroke-width="1" />
+    <text x="15" y="24" font-family="sans-serif" font-weight="700" font-size="13" fill="#242424">📚 รายการคำถาม-คำตอบ (Curated Q&amp;A)</text>
+
+    <!-- Q&A Item 1 (Active) -->
+    <rect x="12" y="50" width="326" height="75" fill="#fcfcfb" stroke="#242424" stroke-width="1.5" />
+    <text x="24" y="72" font-family="sans-serif" font-weight="700" font-size="13" fill="#242424">เวลาเปิด-ปิดพระอุโบสถ และการเข้ากราบ</text>
+    <text x="24" y="92" class="text-muted">หมวด: เวลาปฏิบัติศาสนกิจ • 3 ภาษา (TH, EN, DE)</text>
+    <rect x="24" y="102" width="55" height="16" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1" />
+    <text x="32" y="114" font-family="sans-serif" font-size="10" fill="#15803d" font-weight="700">✓ Active</text>
+
+    <!-- Q&A Item 2 -->
+    <rect x="12" y="135" width="326" height="75" fill="#ffffff" stroke="#d1d5db" stroke-width="1" />
+    <text x="24" y="157" font-family="sans-serif" font-weight="700" font-size="13" fill="#242424">การแต่งกายเมื่อมาวัดและการถือศีล 8</text>
+    <text x="24" y="177" class="text-muted">หมวด: ข้อปฏิบัติ • 3 ภาษา (TH, EN, DE)</text>
+    <rect x="24" y="187" width="55" height="16" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1" />
+    <text x="32" y="199" font-family="sans-serif" font-size="10" fill="#15803d" font-weight="700">✓ Active</text>
+
+    <!-- Q&A Item 3 -->
+    <rect x="12" y="220" width="326" height="75" fill="#ffffff" stroke="#d1d5db" stroke-width="1" />
+    <text x="24" y="242" font-family="sans-serif" font-weight="700" font-size="13" fill="#242424">การจองคิวทำบุญสังฆทานและพิธีบังสุกุล</text>
+    <text x="24" y="262" class="text-muted">หมวด: พิธีกรรม • 3 ภาษา (TH, EN, DE)</text>
+    <rect x="24" y="272" width="55" height="16" fill="#f0fdf4" stroke="#bbf7d0" stroke-width="1" />
+    <text x="32" y="284" font-family="sans-serif" font-size="10" fill="#15803d" font-weight="700">✓ Active</text>
+  </g>
+
+  <!-- Right: Hybrid Aggregator Engine Overview -->
+  <g transform="translate(435, 95)">
+    <rect x="0" y="0" width="300" height="335" fill="#ffffff" stroke="#d1d5db" stroke-width="1" />
+    <rect x="0" y="0" width="300" height="38" fill="#f4f4f2" stroke="#d1d5db" stroke-width="1" />
+    <text x="15" y="24" font-family="sans-serif" font-weight="700" font-size="13" fill="#242424">🧠 Hybrid AI Context Architecture</text>
+
+    <g transform="translate(15, 52)">
+      <rect x="0" y="0" width="270" height="50" fill="#f4f4f2" stroke="#d1d5db" stroke-width="1" />
+      <text x="12" y="20" font-family="sans-serif" font-weight="700" font-size="12" fill="#242424">1. ข้อมูลฐานความรู้ (Knowledge Base)</text>
+      <text x="12" y="38" class="text-muted">คำตอบเฉพาะทางที่แอดมินกำหนดเอง</text>
+
+      <rect x="0" y="60" width="270" height="50" fill="#f4f4f2" stroke="#d1d5db" stroke-width="1" />
+      <text x="12" y="80" font-family="sans-serif" font-weight="700" font-size="12" fill="#242424">2. ข้อมูลสดในระบบ (Live DB Context)</text>
+      <text x="12" y="98" class="text-muted">ตารางกิจกรรม, พระสงฆ์, ปฏิทินวันพระ</text>
+
+      <rect x="0" y="120" width="270" height="50" fill="#f4f4f2" stroke="#d1d5db" stroke-width="1" />
+      <text x="12" y="140" font-family="sans-serif" font-weight="700" font-size="12" fill="#242424">3. กรอบจริยธรรม (Persona Guardrails)</text>
+      <text x="12" y="158" class="text-muted">ภาษาสำรวม ถูกต้องตามธรรมวินัย</text>
+
+      <rect x="0" y="180" width="270" height="85" fill="#f7ecdd" stroke="#945c26" stroke-width="1" />
+      <text x="12" y="202" font-family="sans-serif" font-weight="700" font-size="12" fill="#945c26">✨ Google Gemini 2.5 Flash</text>
+      <text x="12" y="222" font-family="sans-serif" font-size="11" fill="#333333">ประมวลผลคำตอบอัตโนมัติ 3 ภาษาอย่างรวดเร็วและแม่นยำ</text>
+    </g>
+  </g>
+</svg>

@@ -197,6 +197,24 @@ export const financeGuides: GuideArticle[] = [
           de: "Bei Gültigkeit auf 'Bestätigen' klicken (Quittung wird versendet). Bei Ungültigkeit auf 'Ablehnen' mit Begründung.",
         },
       },
+      {
+        stepNumber: 4,
+        title: {
+          th: "ระบบแปลงสกุลเงินอัตโนมัติ (EUR ↔ THB Currency Converter)",
+          en: "Real-time Currency Converter (EUR ↔ THB)",
+          de: "Währungsrechner in Echtzeit (EUR ↔ THB)",
+        },
+        description: {
+          th: "ในฟอร์มบันทึกเงินบริจาค มีเครื่องมือคำนวณอัตราแลกเปลี่ยนเงินยูโร (EUR) และเงินบาทไทย (THB) ช่วยให้เจ้าหน้าที่และญาติโยมระบุยอดทำบุญเทียบเคียงได้อย่างแม่นยำตามอัตราแลกเปลี่ยนจริง",
+          en: "The donation form includes an interactive EUR/THB currency converter to accurately calculate offerings for international transfers and local cash donations.",
+          de: "Das Spendenformular enthält einen EUR/THB-Währungsrechner zur präzisen Erfassung von Spenden in Euro oder Baht.",
+        },
+        tip: {
+          th: "ระบบจะบันทึกยอดเงินเป็นสกุลเงินหลัก EUR พร้อมแนบข้อมูลแปลงสกุลเงินไว้ในประวัติรายการอย่างโปร่งใส",
+          en: "Transactions are primarily recorded in EUR with converted figures attached for transparent financial bookkeeping.",
+          de: "Spenden werden primär in EUR verbucht und für die Buchhaltung transparent dokumentiert.",
+        },
+      },
     ],
     faqs: [
       {

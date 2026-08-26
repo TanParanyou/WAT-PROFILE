@@ -1,6 +1,7 @@
 package services
 
 import (
+	"strings"
 	"time"
 
 	"github.com/watloungporsai/wat-profile-backend/internal/models"
@@ -37,6 +38,16 @@ type DatabaseSnapshot struct {
 		Settings           []models.Setting          `json:"settings"`
 		Roles              []models.Role             `json:"roles"`
 	} `json:"data"`
+}
+
+func isSensitiveSettingKey(key string) bool {
+	lower := strings.ToLower(key)
+	return strings.Contains(lower, "secret") ||
+		strings.Contains(lower, "key") ||
+		strings.Contains(lower, "token") ||
+		strings.Contains(lower, "password") ||
+		strings.Contains(lower, "credential") ||
+		strings.Contains(lower, "private")
 }
 
 func (s *BackupService) ExportSnapshot() (*DatabaseSnapshot, error) {
@@ -90,8 +101,13 @@ func (s *BackupService) ExportSnapshot() (*DatabaseSnapshot, error) {
 	s.db.Find(&snapshot.Data.ContactInquiries)
 	snapshot.Metadata.RecordCounts["contact_inquiries"] = int64(len(snapshot.Data.ContactInquiries))
 
-	// Settings
+	// Settings (Redact sensitive values like secrets, API keys, passwords)
 	s.db.Find(&snapshot.Data.Settings)
+	for i := range snapshot.Data.Settings {
+		if isSensitiveSettingKey(snapshot.Data.Settings[i].Key) {
+			snapshot.Data.Settings[i].Value = "[REDACTED]"
+		}
+	}
 	snapshot.Metadata.RecordCounts["settings"] = int64(len(snapshot.Data.Settings))
 
 	// Roles

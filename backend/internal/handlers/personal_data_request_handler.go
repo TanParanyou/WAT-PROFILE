@@ -168,9 +168,6 @@ func (h *PersonalDataRequestHandler) SendVerification(c *fiber.Ctx) error {
 	if err := h.sender.Send(c.UserContext(), accountauth.EmailMessage{To: row.SubjectEmail, Locale: "en", Subject: "Personal data request verification", Body: body}); err != nil {
 		return utils.ErrorResponse(c, 502, "Unable to send verification email")
 	}
-	if os.Getenv("ENV") == "development" {
-		return utils.SuccessResponse(c, fiber.Map{"message": "Verification email sent", "development_token": token})
-	}
 	return utils.MessageResponse(c, "Verification email sent")
 }
 

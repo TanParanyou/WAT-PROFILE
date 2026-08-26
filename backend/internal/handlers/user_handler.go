@@ -17,12 +17,14 @@ import (
 
 type UserHandler struct {
 	userService  *services.UserService
+	roleService  *services.RoleService
 	auditService *services.AuditService
 }
 
 func NewUserHandler(db *gorm.DB) *UserHandler {
 	return &UserHandler{
 		userService:  services.NewUserService(db),
+		roleService:  services.NewRoleService(db),
 		auditService: services.NewAuditService(db),
 	}
 }
@@ -116,6 +118,17 @@ func (h *UserHandler) CreateUser(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Email, password, and name are required")
 	}
 
+	currentUser, _ := middleware.GetCurrentUser(c)
+	if req.RoleID != nil {
+		role, err := h.roleService.GetByID(*req.RoleID)
+		if err == nil && (role.AdminAccess || role.IsSystem) {
+			if !isSuperAdmin(currentUser) {
+				_ = h.auditService.LogSecurityEvent(c, "admin.security.unauthorized_role_assignment", "unauthorized_role_assignment", "users", "Non-super_admin attempted to create user with administrative role")
+				return utils.ErrorResponse(c, fiber.StatusForbidden, "Only super_admin can create users with administrative roles")
+			}
+		}
+	}
+
 	user := models.User{
 		Email:    req.Email,
 		Name:     req.Name,
@@ -162,6 +175,26 @@ func (h *UserHandler) UpdateUser(c *fiber.Ctx) error {
 	var req UpdateUserRequest
 	if err := c.BodyParser(&req); err != nil {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid request body")
+	}
+
+	currentUser, _ := middleware.GetCurrentUser(c)
+
+	// Check if target user has administrative privileges
+	targetIsAdmin := user.IsAdmin() || (user.Role != nil && user.Role.IsSystem)
+	if targetIsAdmin && !isSuperAdmin(currentUser) && (currentUser == nil || currentUser.ID != user.ID) {
+		_ = h.auditService.LogSecurityEvent(c, "admin.security.unauthorized_user_modification", "unauthorized_user_modification", "users", "Non-super_admin attempted to modify an administrative user")
+		return utils.ErrorResponse(c, fiber.StatusForbidden, "Only super_admin can modify administrative users")
+	}
+
+	// Check if role escalation is being attempted
+	if req.RoleID != nil && (user.RoleID == nil || *req.RoleID != *user.RoleID) {
+		newRole, err := h.roleService.GetByID(*req.RoleID)
+		if err == nil && (newRole.AdminAccess || newRole.IsSystem) {
+			if !isSuperAdmin(currentUser) {
+				_ = h.auditService.LogSecurityEvent(c, "admin.security.unauthorized_role_escalation", "unauthorized_role_escalation", "users", "Non-super_admin attempted to assign an administrative role")
+				return utils.ErrorResponse(c, fiber.StatusForbidden, "Only super_admin can assign administrative roles")
+			}
+		}
 	}
 
 	req.Email = strings.TrimSpace(req.Email)
@@ -249,15 +282,17 @@ func (h *UserHandler) DeleteUser(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "Invalid UUID")
 	}
 
-	// In a real app we'd get current userID from JWT context
-	// For now we pass uuid.Nil to bypass the self-delete check or get it from context if available
-	var currentUserID uuid.UUID
-	if val := c.Locals("user_id"); val != nil {
-		if uid, ok := val.(string); ok {
-			currentUserID, _ = uuid.Parse(uid)
-		} else if uid, ok := val.(uuid.UUID); ok {
-			currentUserID = uid
-		}
+	currentUser, _ := middleware.GetCurrentUser(c)
+	currentUserID, _ := middleware.GetCurrentUserID(c)
+
+	target, err := h.userService.GetByID(id)
+	if err != nil {
+		return utils.ErrorResponse(c, fiber.StatusNotFound, "User not found")
+	}
+
+	if (target.IsAdmin() || (target.Role != nil && target.Role.IsSystem)) && !isSuperAdmin(currentUser) {
+		_ = h.auditService.LogSecurityEvent(c, "admin.security.unauthorized_user_deletion", "unauthorized_user_deletion", "users", "Non-super_admin attempted to delete an administrative user")
+		return utils.ErrorResponse(c, fiber.StatusForbidden, "Only super_admin can delete administrative users")
 	}
 
 	if err := h.userService.Delete(id, currentUserID); err != nil {
@@ -281,12 +316,16 @@ func (h *UserHandler) BulkDeleteUsers(c *fiber.Ctx) error {
 		return utils.ErrorResponse(c, fiber.StatusBadRequest, "No IDs provided for deletion")
 	}
 
-	var currentUserID uuid.UUID
-	if val := c.Locals("user_id"); val != nil {
-		if uid, ok := val.(string); ok {
-			currentUserID, _ = uuid.Parse(uid)
-		} else if uid, ok := val.(uuid.UUID); ok {
-			currentUserID = uid
+	currentUser, _ := middleware.GetCurrentUser(c)
+	currentUserID, _ := middleware.GetCurrentUserID(c)
+
+	// Verify that if any target is admin, caller is super_admin
+	for _, id := range req.IDs {
+		if target, err := h.userService.GetByID(id); err == nil {
+			if (target.IsAdmin() || (target.Role != nil && target.Role.IsSystem)) && !isSuperAdmin(currentUser) {
+				_ = h.auditService.LogSecurityEvent(c, "admin.security.unauthorized_user_deletion", "unauthorized_user_deletion", "users", "Non-super_admin attempted to bulk delete an administrative user")
+				return utils.ErrorResponse(c, fiber.StatusForbidden, "Only super_admin can delete administrative users")
+			}
 		}
 	}
 

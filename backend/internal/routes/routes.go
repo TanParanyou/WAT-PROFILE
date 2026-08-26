@@ -25,6 +25,20 @@ func registrationLimiter() fiber.Handler {
 	})
 }
 
+func chatbotLimiter() fiber.Handler {
+	return limiter.New(limiter.Config{
+		Max:        15,
+		Expiration: time.Minute,
+		LimitReached: func(c *fiber.Ctx) error {
+			return c.Status(fiber.StatusTooManyRequests).JSON(fiber.Map{
+				"success": false,
+				"error":   "Too many chatbot requests. Please wait a moment and try again.",
+				"code":    "CHATBOT_RATE_LIMITED",
+			})
+		},
+	})
+}
+
 // adminAllowedOrigins returns the explicit origin allowlist for Admin auth
 // cookie endpoints. It falls back to ALLOWED_ORIGINS when ADMIN_ALLOWED_ORIGINS
 // is unset. Wildcard origins are rejected by the parser.
@@ -90,6 +104,7 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 	publicContentHandler := handlers.NewPublicContentHandler(db)
 	eventAlertHandler := handlers.NewEventAlertHandler(db)
 	personalDataRequestHandler := handlers.NewPersonalDataRequestHandler(db)
+	chatbotHandler := handlers.NewChatbotHandler(db)
 
 	// ============ PUBLIC ROUTES (No Auth Required) ============
 	public := api.Group("/public")
@@ -103,6 +118,10 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 	public.Get("/contact", publicContentHandler.GetPublicContact)
 	public.Get("/privacy", publicContentHandler.GetPublicPrivacy)
 	public.Get("/impressum", publicContentHandler.GetPublicImpressum)
+
+	// Chatbot
+	public.Post("/chatbot/message", chatbotLimiter(), chatbotHandler.SendMessage)
+	public.Get("/chatbot/quick-questions", chatbotHandler.GetQuickQuestions)
 
 	// Events
 	public.Get("/events", eventHandler.GetEvents)
@@ -439,6 +458,14 @@ func adminRouteDefinitions() []AdminRouteDefinition {
 		{Method: fiber.MethodPost, Path: "/ai/translate", Resource: "settings", Action: "update", HandlerKey: "ai.translate"},
 		{Method: fiber.MethodGet, Path: "/backup/export", Resource: "settings", Action: "update", HandlerKey: "backup.export"},
 
+		// Chatbot Knowledge Base Management
+		{Method: fiber.MethodGet, Path: "/chatbot/knowledge-base", Resource: "chatbot", Action: "read", HandlerKey: "chatbot.kb.list"},
+		{Method: fiber.MethodGet, Path: "/chatbot/knowledge-base/:id", Resource: "chatbot", Action: "read", HandlerKey: "chatbot.kb.get"},
+		{Method: fiber.MethodPost, Path: "/chatbot/knowledge-base", Resource: "chatbot", Action: "create", HandlerKey: "chatbot.kb.create"},
+		{Method: fiber.MethodPut, Path: "/chatbot/knowledge-base/:id", Resource: "chatbot", Action: "update", HandlerKey: "chatbot.kb.update"},
+		{Method: fiber.MethodPatch, Path: "/chatbot/knowledge-base/:id/toggle-active", Resource: "chatbot", Action: "update", HandlerKey: "chatbot.kb.toggleActive"},
+		{Method: fiber.MethodDelete, Path: "/chatbot/knowledge-base/:id", Resource: "chatbot", Action: "delete", HandlerKey: "chatbot.kb.delete"},
+
 		// Public Content Pages Management
 		{Method: fiber.MethodGet, Path: "/about", Resource: "website", Action: "read", HandlerKey: "website.about.get"},
 		{Method: fiber.MethodPut, Path: "/about", Resource: "website", Action: "update", HandlerKey: "website.about.save"},
@@ -524,12 +551,19 @@ func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service, accountCfg config.Accou
 	communityAdminHandler := handlers.NewCommunityAdminHandler(db)
 	aiTranslationHandler := handlers.NewAiTranslationHandler(db)
 	backupHandler := handlers.NewBackupHandler(db)
+	adminChatbotHandler := handlers.NewAdminChatbotHandler(db)
 
 	emailSender, _ := services.NewAccountEmailSender(accountCfg)
 	securityHandler := handlers.NewAdminSecurityHandler(db, emailSender)
 	sessionHandler := handlers.NewAdminSessionHandler(db)
 
 	return map[string]fiber.Handler{
+		"chatbot.kb.list":               adminChatbotHandler.GetAllKnowledgeBase,
+		"chatbot.kb.get":                adminChatbotHandler.GetKnowledgeBaseByID,
+		"chatbot.kb.create":             adminChatbotHandler.CreateKnowledgeBase,
+		"chatbot.kb.update":             adminChatbotHandler.UpdateKnowledgeBase,
+		"chatbot.kb.toggleActive":       adminChatbotHandler.ToggleActiveKnowledgeBase,
+		"chatbot.kb.delete":             adminChatbotHandler.DeleteKnowledgeBase,
 		"calendar.admin":                calendarHandler.GetAdmin,
 		"calendarResources.list":        calendarResourceHandler.GetAdminCalendarResources,
 		"calendarResources.get":         calendarResourceHandler.GetCalendarResource,

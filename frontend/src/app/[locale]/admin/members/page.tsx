@@ -1,12 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "@/navigation";
 import { useTranslations } from "next-intl";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
 import { StatusBadge } from "@/components/admin/StatusBadge";
-import { AdminTableAction } from "@/components/admin/AdminTableAction";
+import { AdminTableAction, AdminTableActionGroup } from "@/components/admin/AdminTableAction";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { useConfirm } from "@/hooks/useConfirm";
 import { memberAdminService } from "@/services/adminService";
@@ -25,6 +25,7 @@ import { AdminDateRangeFilter } from "@/components/admin/list/AdminDateRangeFilt
 import { AdminActiveFilterChips, type AdminActiveFilterChip } from "@/components/admin/list/AdminActiveFilterChips";
 import { AdminListExportButton } from "@/components/admin/list/AdminListExportButton";
 import { exportToCsv } from "@/services/adminListExportService";
+import { AdminMemberDrawer } from "./_components/AdminMemberDrawer";
 
 interface MemberFilters extends AdminFilterRecord {
   status: string[];
@@ -38,6 +39,7 @@ export default function MembersPage() {
   const { toast } = useToast();
   const { confirm, ConfirmDialog } = useConfirm();
   const selectedIds = useRowSelection();
+  const [selectedMember, setSelectedMember] = useState<Member | null>(null);
 
   const listState = useAdminListState<MemberFilters>({
     schema: {
@@ -67,6 +69,7 @@ export default function MembersPage() {
     layperson: t("members.types.layperson"),
     vip: t("members.types.vip"),
     general: t("members.types.general"),
+    lifetime: "Lifetime",
   };
 
   const filterDefinitions: AdminFilterDefinition<MemberFilters>[] = [
@@ -89,6 +92,7 @@ export default function MembersPage() {
         { value: "layperson", label: t("members.types.layperson") },
         { value: "vip", label: t("members.types.vip") },
         { value: "general", label: t("members.types.general") },
+        { value: "lifetime", label: "Lifetime" },
       ],
     },
   ];
@@ -207,13 +211,14 @@ export default function MembersPage() {
       header: t("members.fullName"),
       accessorKey: "first_name_th",
       sortable: true,
-      cell: (_, row) => `${row.first_name_th || ""} ${row.last_name_th || ""}`,
+      cell: (_, row) => `${row.first_name_th || ""} ${row.last_name_th || ""}`.trim() || "-",
     },
     { header: t("columns.phone"), accessorKey: "phone" },
     {
       header: t("columns.type"),
       accessorKey: "membership_type",
       sortable: true,
+      cell: (v) => <span className="uppercase text-xs font-semibold">{String(v || "-")}</span>,
     },
     {
       header: t("columns.status"),
@@ -231,14 +236,21 @@ export default function MembersPage() {
     {
       header: t("columns.actions"),
       cell: (_, row) => (
-        <AdminTableAction
-          resource="members"
-          action="delete"
-          variant="danger"
-          label={t("common.delete") || "ลบ"}
-          icon={<Icons.Delete size={16} />}
-          onClick={() => handleDelete(row.id)}
-        />
+        <AdminTableActionGroup>
+          <AdminTableAction
+            label={t("common.edit") || "ดู / แก้ไขข้อมูล"}
+            icon={<Icons.Edit size={16} />}
+            onClick={() => setSelectedMember(row)}
+          />
+          <AdminTableAction
+            resource="members"
+            action="delete"
+            variant="danger"
+            label={t("common.delete") || "ลบ"}
+            icon={<Icons.Delete size={16} />}
+            onClick={() => handleDelete(row.id)}
+          />
+        </AdminTableActionGroup>
       ),
     },
   ];
@@ -374,6 +386,14 @@ export default function MembersPage() {
           onSelectAll={(ids) => selectedIds.selectAll(ids)}
         />
       </div>
+
+      <AdminMemberDrawer
+        isOpen={selectedMember !== null}
+        member={selectedMember}
+        onClose={() => setSelectedMember(null)}
+        onSuccess={() => listQuery.refetch()}
+      />
+
       <ConfirmDialog />
     </div>
   );

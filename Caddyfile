@@ -1,0 +1,44 @@
+# Caddy configuration for WAT-PROFILE
+# Replace yourdomain.com with your actual production domain
+
+# Option A: Dual-domain (e.g. www.watloungporsai.de & api.watloungporsai.de)
+# {$DOMAIN:-watloungporsai.de}, www.{$DOMAIN:-watloungporsai.de} {
+#     reverse_proxy frontend:3000
+# }
+# api.{$DOMAIN:-watloungporsai.de} {
+#     reverse_proxy backend:8080
+# }
+
+# Option B: Single-domain (Frontend + Backend on the same domain)
+{$DOMAIN:-localhost} {
+    # Backend API routes
+    handle /api/* {
+        reverse_proxy backend:8080
+    }
+
+    # API Documentation (Scalar / Swagger)
+    handle /docs* {
+        reverse_proxy backend:8080
+    }
+
+    # Health check
+    handle /health {
+        reverse_proxy backend:8080
+    }
+
+    # Frontend Next.js app
+    handle {
+        reverse_proxy frontend:3000
+    }
+
+    # Security headers
+    header {
+        Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+        X-Content-Type-Options "nosniff"
+        X-Frame-Options "SAMEORIGIN"
+        Referrer-Policy "strict-origin-when-cross-origin"
+    }
+
+    # Compression
+    encode zstd gzip
+}

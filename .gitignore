@@ -10,6 +10,8 @@ frontend/.yarn/*
 
 # testing
 frontend/coverage/
+frontend/playwright-report/
+frontend/test-results/
 
 # next.js
 frontend/.next/
@@ -22,6 +24,7 @@ frontend/build/
 .env*
 !.env.example
 !backend/.env.example
+!frontend/.env.example
 
 # backend
 backend/tmp/

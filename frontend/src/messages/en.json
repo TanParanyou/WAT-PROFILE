@@ -195,7 +195,20 @@
     "proofRequired": "Attach your transfer proof.",
     "proofType": "Use a PDF, JPG, PNG, or WebP file.",
     "proofSize": "The file must be 10 MB or smaller.",
-    "serverError": "Something went wrong. Please try again."
+    "serverError": "Something went wrong. Please try again.",
+    "converterTitle": "Currency conversion assistant",
+    "converterSubtitle": "If you transferred in Thai Baht (THB) or other currencies, you can calculate the EUR equivalent here.",
+    "transferCurrencyLabel": "Transferred currency",
+    "transferAmountLabel": "Transferred amount",
+    "transferAmountPlaceholder": "Enter transferred amount",
+    "quickPresetsLabel": "Popular donation amounts",
+    "convertedResultLabel": "Estimated equivalent",
+    "applyConvertedAmount": "Apply {amount} EUR to form",
+    "appliedSuccess": "Applied to form successfully",
+    "exchangeRateReference": "Reference exchange rate: {rate}",
+    "exchangeRateDisclaimer": "Note: Exchange rates are estimates for your convenience. The temple will verify the actual amount from your transfer proof.",
+    "toggleConverterOpen": "Open currency converter (THB ฿, USD $, CHF Fr)",
+    "toggleConverterClose": "Hide currency converter"
   },
   "EventsSection": {
     "title": "Upcoming Events",
@@ -1303,6 +1316,25 @@
       "loop": "Loop playback",
       "loopOff": "Turn off loop"
     }
+  },
+  "Chatbot": {
+    "assistantTitle": "Wat Loung Por Sai Assistant",
+    "statusOnline": "Online",
+    "triggerAria": "Open Chat Assistant",
+    "triggerGreeting": "Ask about the temple",
+    "welcomeHeading": "Welcome to Wat Loung Por Sai",
+    "welcomeMessage": "How can I help you today with temple events, meditation schedules, visiting guidelines, or directions?",
+    "inputPlaceholder": "Type your message...",
+    "send": "Send message",
+    "suggestedTitle": "Suggested Questions",
+    "disclaimer": "Information is provided for guidance. Please verify with temple staff for special arrangements.",
+    "clearChat": "Clear conversation",
+    "minimize": "Minimize window",
+    "close": "Close window",
+    "typing": "Thinking...",
+    "errorFallback": "Sorry, the assistant is currently unable to reply. Please try again later or contact temple staff directly.",
+    "resetConfirm": "Are you sure you want to clear the conversation history?",
+    "cancel": "Cancel"
   }
 }
 

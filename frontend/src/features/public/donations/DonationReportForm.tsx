@@ -12,6 +12,7 @@ import { useUnsavedChanges } from "@/features/public/account/hooks/useUnsavedCha
 import { usePublicDonationCategoriesQuery } from "./queries";
 import { isPublicDonationApiError, submitSelfReportedDonation, type SelfReportedDonationPayload } from "./api";
 import { DonationProofUpload } from "./DonationProofUpload";
+import { DonationCurrencyConverter } from "./components/DonationCurrencyConverter";
 import { createSelfReportedDonationSchema, type SelfReportedDonationValues } from "./schema";
 
 const inputClassName = "box-border h-11 min-h-11 w-full border border-site-border bg-site-canvas px-3 py-2 text-site-foreground focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus";
@@ -80,13 +81,25 @@ export function DonationReportForm({ onDirtyChange }: DonationReportFormProps) {
     proofType: t("proofType"),
     proofSize: t("proofSize"),
   }), [t]);
-  const { control, register, handleSubmit, reset, setError, formState: { errors, isDirty, isSubmitting } } = useForm<z.input<typeof schema>, unknown, SelfReportedDonationValues>({
+  const { control, register, handleSubmit, reset, setError, setValue, formState: { errors, isDirty, isSubmitting } } = useForm<z.input<typeof schema>, unknown, SelfReportedDonationValues>({
     resolver: zodResolver(schema),
     mode: "onBlur",
     reValidateMode: "onChange",
     shouldFocusError: true,
     defaultValues,
   });
+
+  function handleApplyConvertedAmount(amountEur: number) {
+    setValue("amount", amountEur as unknown as number, {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+    const input = document.getElementById("donation-amount");
+    if (input) {
+      input.focus();
+    }
+  }
 
   useUnsavedChanges({
     isDirty: isDirty && !isSubmitting,
@@ -155,6 +168,13 @@ export function DonationReportForm({ onDirtyChange }: DonationReportFormProps) {
         <div className="grid gap-4">
           <p className="max-w-[65ch] text-sm leading-6 text-site-body">{t("detailsDescription")}</p>
           <div className="grid min-w-0 gap-4 md:grid-cols-2">
+            <div className="md:col-span-2">
+              <DonationCurrencyConverter
+                locale={locale}
+                onApplyAmount={handleApplyConvertedAmount}
+              />
+            </div>
+
             <div className={fieldClassName}>
               <label htmlFor="donation-amount" className="text-sm font-semibold text-site-foreground">{t("amountLabel")}</label>
               <input id="donation-amount" type="number" min="0.01" step="0.01" inputMode="decimal" aria-invalid={Boolean(errors.amount)} aria-describedby={errors.amount ? "donation-amount-error donation-amount-hint" : "donation-amount-hint"} {...register("amount")} className={inputClassName} />

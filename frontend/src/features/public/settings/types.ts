@@ -8,6 +8,7 @@ export interface PublicSiteFeatures {
   communityWrite: boolean;
   donations: boolean;
   eventRegistration: boolean;
+  chatbot: boolean;
 }
 
 export interface PublicSiteSettings {

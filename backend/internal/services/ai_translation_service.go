@@ -52,8 +52,9 @@ type geminiContent struct {
 }
 
 type geminiRequest struct {
-	Contents         []geminiContent `json:"contents"`
-	GenerationConfig struct {
+	SystemInstruction *geminiContent  `json:"system_instruction,omitempty"`
+	Contents          []geminiContent `json:"contents"`
+	GenerationConfig  struct {
 		ResponseMimeType string `json:"responseMimeType,omitempty"`
 	} `json:"generationConfig,omitempty"`
 }

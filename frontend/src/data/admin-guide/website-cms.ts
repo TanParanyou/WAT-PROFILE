@@ -437,4 +437,148 @@ export const websiteCmsGuides: GuideArticle[] = [
     relatedSlugs: ["events", "gallery", "monks"],
     updatedAt: "2026-08-19",
   },
+  {
+    id: "guide-chatbot",
+    slug: "chatbot",
+    category: "website",
+    title: {
+      th: "ระบบแชทบอทและฐานความรู้ (AI Chatbot & Knowledge Base)",
+      en: "AI Visitor Chatbot & Knowledge Base",
+      de: "KI-Besucher-Chatbot & Wissensdatenbank",
+    },
+    summary: {
+      th: "การจัดการฐานความรู้ ถาม-ตอบ (Q&A) อัจฉริยะ 3 ภาษา (TH, EN, DE) และการควบคุมการทำงานของแชทบอทประจำวัด",
+      en: "Managing curated Q&A knowledge base across 3 languages (TH, EN, DE) and configuring the AI temple assistant.",
+      de: "Verwaltung der dreisprachigen Wissensdatenbank (TH, EN, DE) und Konfiguration des KI-Tempelassistenten.",
+    },
+    iconName: "MessageSquare",
+    resource: "chatbot",
+    routePath: "/admin/chatbot",
+    quickSteps: [
+      {
+        th: "เข้าเมนู /admin/chatbot เพื่อดูรายการคำถาม-คำตอบ (Knowledge Base)",
+        en: "Open /admin/chatbot to view curated Q&A knowledge base entries.",
+        de: "Zu /admin/chatbot gehen, um die Q&A-Wissensdatenbank einzusehen.",
+      },
+      {
+        th: "กด '+ เพิ่มคำถาม-คำตอบ' และระบุเนื้อหาทั้ง 3 ภาษา (ไทย, อังกฤษ, เยอรมัน)",
+        en: "Click '+ Add Q&A' and fill in content for all 3 languages (TH, EN, DE).",
+        de: "Auf '+ Frage & Antwort hinzufügen' klicken und Inhalte in allen 3 Sprachen ausfüllen.",
+      },
+      {
+        th: "เปิดสถานะ 'Active' เพื่อให้ AI นำข้อมูลไปใช้ตอบคำถามญาติโยมบนหน้าเว็บ",
+        en: "Set status to 'Active' so the AI assistant can reference it for public inquiries.",
+        de: "Status auf 'Aktiv' setzen, damit der KI-Assistent die Antworten für Besucher nutzt.",
+      },
+    ],
+    statusLegends: [
+      {
+        badgeVariant: "success",
+        label: { th: "Active (ใช้งาน)", en: "Active", de: "Aktiv" },
+        meaning: {
+          th: "ข้อมูล Q&A ถูกเปิดใช้งานและพร้อมให้ AI นำไปประมวลผลตอบคำถามสด",
+          en: "Q&A is active and currently indexed by the AI response aggregator.",
+          de: "Q&A ist aktiv und wird vom KI-Assistenten für Antworten verwendet.",
+        },
+      },
+      {
+        badgeVariant: "default",
+        label: { th: "Draft (แบบร่าง)", en: "Draft", de: "Entwurf" },
+        meaning: {
+          th: "แบบร่างที่ยังไม่เปิดให้ AI นำไปตอบคำถามสาธารณะ",
+          en: "Draft entry hidden from the public AI assistant.",
+          de: "Entwurf, der für den öffentlichen KI-Assistenten noch nicht sichtbar ist.",
+        },
+      },
+      {
+        badgeVariant: "info",
+        label: { th: "Hybrid Context", en: "Hybrid Context", de: "Hybrid-Kontext" },
+        meaning: {
+          th: "AI จะดึงข้อมูล Q&A ร่วมกับตารางกิจกรรม ปฏิทินวันพระ และทำเนียบพระสงฆ์แบบ Real-time",
+          en: "AI combines curated Q&A with live database data (events, monks, schedules).",
+          de: "KI kombiniert Q&A mit Live-Datenbankdaten (Events, Mönche, Kalender).",
+        },
+      },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: {
+          th: "การเพิ่มและจัดการรายการคำถาม-คำตอบ (Curated Q&A)",
+          en: "Add and Manage Curated Q&A",
+          de: "Q&A-Einträge hinzufügen und verwalten",
+        },
+        description: {
+          th: "คลิกปุ่ม '+ เพิ่มคำถาม-คำตอบ' กรอกหัวข้อ คำถามที่พบบ่อย และคำตอบที่ถูกต้องตามหลักพระพุทธศาสนาและธรรมเนียมปฏิบัติของวัด ระบุให้ครบทั้ง 3 ภาษา (TH, EN, DE) เพื่อรองรับญาติโยมทั้งชาวไทยและชาวต่างชาติ",
+          en: "Click '+ Add Q&A', provide frequently asked questions and accurate responses aligned with temple customs in all 3 languages (TH, EN, DE).",
+          de: "Klicken Sie auf '+ Frage & Antwort hinzufügen' und tragen Sie Antworten zu Tempelregeln in allen 3 Sprachen (TH, EN, DE) ein.",
+        },
+        image: "/images/guide/chatbot-kb.svg",
+        imageCaption: {
+          th: "หน้าต่างจัดการฐานความรู้แชทบอทและสถาปัตยกรรม Hybrid AI Context",
+          en: "Chatbot knowledge base manager and Hybrid AI Context architecture",
+          de: "Chatbot-Wissensdatenbank und Hybrid-KI-Kontext-Architektur",
+        },
+      },
+      {
+        stepNumber: 2,
+        title: {
+          th: "หลักการทำงานของ Hybrid Context Aggregator & Guardrails",
+          en: "Hybrid Context Aggregator & Safety Guardrails",
+          de: "Hybrid-Kontext-Aggregator & Sicherheitsrichtlinien",
+        },
+        description: {
+          th: "เมื่อญาติโยมพิมพ์สอบถาม แชทบอทจะค้นหา Q&A ที่ตรงที่สุด ผสานกับข้อมูลสดในระบบ (เช่น กิจกรรมที่กำลังจะมาถึง, ตารางวัตรปฏิบัติ, วันพระ) และใช้กรอบจริยธรรม (Persona Guardrails) เพื่อตอบด้วยภาษาที่สุภาพ สำรวม และถูกต้องตามพระธรรมวินัย",
+          en: "When visitors inquire, the chatbot retrieves matching Q&A combined with live database records (upcoming events, monk roster) with strict Theravada Forest Tradition etiquette.",
+          de: "Bei Besucheranfragen kombiniert der Chatbot passende Q&A-Einträge mit Live-Daten (Veranstaltungen, Tagespläne) unter Wahrung buddhistischer Höflichkeitsregeln.",
+        },
+        tip: {
+          th: "หากข้อมูลเกี่ยวกับกิจกรรมเปลี่ยนแปลง เช่น เลื่อนเวลา ระบบจะอัปเดตข้อมูลให้แชทบอทอัตโนมัติโดยไม่ต้องแก้ Q&A ซ้ำซ้อน",
+          en: "If event dates change in the database, the chatbot automatically reflects the new schedule without needing manual Q&A edits.",
+          de: "Bei Terminänderungen übernimmt der Chatbot die neuen Daten automatisch aus der Datenbank.",
+        },
+      },
+      {
+        stepNumber: 3,
+        title: {
+          th: "การเปิด/ปิด Widget แชทบอทบนหน้าเว็บไซต์",
+          en: "Enable/Disable Public Floating Widget",
+          de: "Öffentliches Chat-Widget aktivieren/deaktivieren",
+        },
+        description: {
+          th: "สามารถควบคุมการแสดงผล Floating Widget บนหน้าเว็บไซต์สาธารณะได้ผ่านตัวแปรสภาพแวดล้อม NEXT_PUBLIC_CHATBOT_ENABLED ในฝั่ง Frontend",
+          en: "Control the visibility of the floating chat bubble on public pages via NEXT_PUBLIC_CHATBOT_ENABLED.",
+          de: "Die Sichtbarkeit des Chat-Widgets kann über NEXT_PUBLIC_CHATBOT_ENABLED gesteuert werden.",
+        },
+      },
+    ],
+    faqs: [
+      {
+        question: {
+          th: "หากไม่มีข้อมูลในฐานความรู้ แชทบอทจะตอบอย่างไร?",
+          en: "How does the chatbot respond if no matching Q&A is found?",
+          de: "Wie antwortet der Chatbot, wenn keine passende Antwort gefunden wird?",
+        },
+        answer: {
+          th: "แชทบอทจะใช้โมเดล Google Gemini ประมวลผลจากข้อมูลทั่วไปของวัดที่มีอยู่ในระบบอย่างสุภาพ หากเป็นเรื่องเฉพาะทางที่ไม่มีข้อมูล จะแนะนำให้ญาติโยมติดต่อวัดโดยตรงผ่านหน้า 'ติดต่อเรา'",
+          en: "The AI provides a polite summary based on general temple information or gently advises the visitor to contact the temple directly via the Contact page.",
+          de: "Der KI-Assistent antwortet höflich anhand allgemeiner Tempeldaten oder empfiehlt die Kontaktaufnahme über die Kontaktseite.",
+        },
+      },
+      {
+        question: {
+          th: "แชทบอทสามารถตอบภาษาอื่นนอกจาก ไทย อังกฤษ เยอรมัน ได้หรือไม่?",
+          en: "Can the chatbot answer in languages other than Thai, English, and German?",
+          de: "Kann der Chatbot auch in anderen Sprachen als TH, EN, DE antworten?",
+        },
+        answer: {
+          th: "ระบบหลักรองรับภาษาไทย อังกฤษ และเยอรมันอย่างสมบูรณ์แบบ หากมีผู้สอบถามด้วยภาษาอื่น โมเดล Gemini สามารถทำความเข้าใจและตอบกลับด้วยภาษานั้นๆ ได้อย่างเป็นธรรมชาติ",
+          en: "While primarily optimized for Thai, English, and German, Gemini can understand and respond politely in other visitor languages as well.",
+          de: "Obwohl für TH, EN und DE optimiert, kann Gemini auch Anfragen in anderen Sprachen höflich beantworten.",
+        },
+      },
+    ],
+    relatedSlugs: ["about", "contact", "events", "environment-config"],
+    updatedAt: "2026-08-26",
+  },
 ];

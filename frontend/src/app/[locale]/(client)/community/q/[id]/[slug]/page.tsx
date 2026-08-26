@@ -6,6 +6,7 @@ import { QuestionDetailContent } from "@/features/public/community/components/Qu
 import { fetchCommunityQuestionServer } from "@/features/public/community/server-api";
 import { communityKeys } from "@/features/public/community/queries";
 import { siteConfig } from "@/config/site.config";
+import { serializeJsonLd } from "@/utils/jsonLd";
 
 const COMMUNITY_ENABLED = process.env.NEXT_PUBLIC_COMMUNITY_ENABLED !== "false";
 
@@ -73,11 +74,11 @@ export default async function CommunityQuestionPage({ params }: { params: Promis
     <NextIntlClientProvider locale={locale} messages={messages}>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(qaSchema) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(qaSchema) }}
       />
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbSchema) }}
       />
       <HydrationBoundary state={dehydrate(queryClient)}>
         <QuestionDetailContent id={id} />

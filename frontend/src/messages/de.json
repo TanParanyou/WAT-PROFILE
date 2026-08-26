@@ -195,7 +195,20 @@
     "proofRequired": "Fügen Sie den Überweisungsnachweis hinzu.",
     "proofType": "Verwenden Sie eine PDF-, JPG-, PNG- oder WebP-Datei.",
     "proofSize": "Die Datei darf höchstens 10 MB groß sein.",
-    "serverError": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut."
+    "serverError": "Etwas ist schiefgelaufen. Bitte versuchen Sie es erneut.",
+    "converterTitle": "Währungsrechner-Assistent",
+    "converterSubtitle": "Falls Sie in Thailändischen Baht (THB) oder anderen Währungen überwiesen haben, können Sie hier den EUR-Gegenwert berechnen.",
+    "transferCurrencyLabel": "Überweisungswährung",
+    "transferAmountLabel": "Überweisungsbetrag",
+    "transferAmountPlaceholder": "Überweisungsbetrag eingeben",
+    "quickPresetsLabel": "Beliebte Spendenbeträge",
+    "convertedResultLabel": "Geschätzter Gegenwert",
+    "applyConvertedAmount": "{amount} EUR in Formular übernehmen",
+    "appliedSuccess": "Erfolgreich ins Formular übernommen",
+    "exchangeRateReference": "Referenzwechselkurs: {rate}",
+    "exchangeRateDisclaimer": "Hinweis: Der Wechselkurs dient als unverbindlicher Richtwert. Der Tempel prüft den tatsächlichen Betrag anhand des Überweisungsnachweises.",
+    "toggleConverterOpen": "Währungsrechner öffnen (THB ฿, USD $, CHF Fr)",
+    "toggleConverterClose": "Währungsrechner ausblenden"
   },
   "EventsSection": {
     "title": "Kommende Veranstaltungen",
@@ -1303,6 +1316,25 @@
       "loop": "Endlosschleife",
       "loopOff": "Endlosschleife ausschalten"
     }
+  },
+  "Chatbot": {
+    "assistantTitle": "Assistent des Klosters Wat Loung Por Sai",
+    "statusOnline": "Online",
+    "triggerAria": "Chat-Assistent öffnen",
+    "triggerGreeting": "Fragen zum Tempel",
+    "welcomeHeading": "Willkommen im Wat Loung Por Sai",
+    "welcomeMessage": "Wie kann ich Ihnen heute bei Tempelveranstaltungen, Meditationszeiten, Besucherregeln oder der Anfahrt helfen?",
+    "inputPlaceholder": "Ihre Frage eingeben...",
+    "send": "Nachricht senden",
+    "suggestedTitle": "Häufige Fragen",
+    "disclaimer": "Angaben dienen zur Orientierung. Bitte bei Bedarf beim Tempel nachfragen.",
+    "clearChat": "Verlauf löschen",
+    "minimize": "Fenster minimieren",
+    "close": "Fenster schließen",
+    "typing": "Antwortet...",
+    "errorFallback": "Entschuldigung, der Assistent ist derzeit nicht erreichbar. Bitte versuchen Sie es später erneut oder kontaktieren Sie uns direkt.",
+    "resetConfirm": "Möchten Sie den gesamten Chatverlauf wirklich löschen?",
+    "cancel": "Abbrechen"
   }
 }
 

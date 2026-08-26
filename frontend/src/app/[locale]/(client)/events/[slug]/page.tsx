@@ -15,6 +15,7 @@ import { formatDateRange } from "@/utils/formatters";
 import { siteConfig } from "@/config/site.config";
 import { buildPublicMetadata } from "@/features/public/seo/metadata";
 import { emptySeoMetadata } from "@/features/public/seo/schema";
+import { serializeJsonLd } from "@/utils/jsonLd";
 
 interface Props {
   params: Promise<{ slug: string; locale: string }>;
@@ -124,12 +125,12 @@ export default async function EventDetailPage({ params }: Props) {
       {eventSchema ? (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(eventSchema) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(eventSchema) }}
         />
       ) : null}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsSchema) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbsSchema) }}
       />
       <PageHeader
         variant={hasCoverImage ? "image" : "color"}

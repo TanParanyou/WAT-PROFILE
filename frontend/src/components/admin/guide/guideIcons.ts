@@ -30,6 +30,8 @@ import {
   HelpCircle,
   Server,
   Terminal,
+  MessageSquare,
+  Music,
 } from "lucide-react";
 
 export const guideIconMap: Record<string, LucideIcon> = {
@@ -60,6 +62,8 @@ export const guideIconMap: Record<string, LucideIcon> = {
   Globe,
   Server,
   Terminal,
+  MessageSquare,
+  Music,
 };
 
 export function GuideIcon({

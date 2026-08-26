@@ -2,7 +2,9 @@ package handlers
 
 import (
 	"context"
+	"io"
 	"mime/multipart"
+	"net/http"
 	"path/filepath"
 	"strings"
 
@@ -17,6 +19,21 @@ import (
 // maxUploadFileSize is the largest accepted image upload (20 MiB). The Fiber
 // BodyLimit is configured slightly larger to leave room for multipart overhead.
 const maxUploadFileSize = 20 * 1024 * 1024
+
+var allowedImageMIMEs = map[string]string{
+	"image/jpeg": ".jpg",
+	"image/png":  ".png",
+	"image/webp": ".webp",
+	"image/gif":  ".gif",
+}
+
+var allowedImageExtensions = map[string]bool{
+	".jpg":  true,
+	".jpeg": true,
+	".png":  true,
+	".webp": true,
+	".gif":  true,
+}
 
 // fileUploader uploads a file to storage and returns its public URL.
 type fileUploader interface {
@@ -50,14 +67,6 @@ func (h *UploadHandler) UploadFile(c *fiber.Ctx) error {
 		})
 	}
 
-	// เช็คว่าเป็นรูปภาพหรือไม่
-	if !strings.HasPrefix(file.Header.Get("Content-Type"), "image/") {
-		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
-			"success": false,
-			"error":   "Only image files are allowed",
-		})
-	}
-
 	// เช็คขนาดไฟล์ (20MB)
 	if file.Size > maxUploadFileSize {
 		return c.Status(fiber.StatusRequestEntityTooLarge).JSON(fiber.Map{
@@ -66,9 +75,14 @@ func (h *UploadHandler) UploadFile(c *fiber.Ctx) error {
 		})
 	}
 
-	// สร้างชื่อไฟล์ใหม่
-	ext := filepath.Ext(file.Filename)
-	newFilename := uuid.New().String() + ext
+	// ตรวจสอบนามสกุลไฟล์
+	rawExt := strings.ToLower(filepath.Ext(file.Filename))
+	if !allowedImageExtensions[rawExt] {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"error":   "Only JPG, PNG, WEBP, and GIF images are allowed",
+		})
+	}
 
 	// เปิดไฟล์
 	src, err := file.Open()
@@ -81,8 +95,41 @@ func (h *UploadHandler) UploadFile(c *fiber.Ctx) error {
 	}
 	defer src.Close()
 
+	// ตรวจสอบ Magic Bytes (หัวไฟล์ 512 ไบต์) เพื่อระบุ MIME Type จริง
+	headerBuf := make([]byte, 512)
+	n, readErr := io.ReadFull(src, headerBuf)
+	if readErr != nil && readErr != io.EOF && readErr != io.ErrUnexpectedEOF {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"error":   "Failed to inspect uploaded file contents",
+		})
+	}
+	detectedMIME := http.DetectContentType(headerBuf[:n])
+
+	canonicalExt, ok := allowedImageMIMEs[detectedMIME]
+	if !ok {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{
+			"success": false,
+			"error":   "Invalid image content or unsupported format",
+		})
+	}
+
+	// Reset read pointer
+	if seeker, ok := src.(io.Seeker); ok {
+		if _, err := seeker.Seek(0, io.SeekStart); err != nil {
+			log.Error().Err(err).Msg("Failed to seek uploaded file")
+			return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
+				"success": false,
+				"error":   "Failed to process uploaded file",
+			})
+		}
+	}
+
+	// สร้างชื่อไฟล์ใหม่ที่ปลอดภัย
+	newFilename := uuid.New().String() + canonicalExt
+
 	// อัปโหลดไฟล์ไป R2
-	url, err := h.r2.UploadFile(c.Context(), src, newFilename, file.Header.Get("Content-Type"))
+	url, err := h.r2.UploadFile(c.Context(), src, newFilename, detectedMIME)
 	if err != nil {
 		log.Error().Err(err).Msg("Failed to upload file to R2")
 		return c.Status(fiber.StatusInternalServerError).JSON(fiber.Map{
@@ -103,8 +150,8 @@ func (h *UploadHandler) UploadFile(c *fiber.Ctx) error {
 
 	media := models.Media{
 		Filename:         newFilename,
-		OriginalFilename: file.Filename,
-		MimeType:         file.Header.Get("Content-Type"),
+		OriginalFilename: filepath.Base(file.Filename),
+		MimeType:         detectedMIME,
 		Size:             file.Size,
 		URL:              url,
 		Path:             newFilename,

@@ -5,6 +5,7 @@ import { fetchPublicSiteSettings } from '@/features/public/settings/api';
 import { getFallbackPublicSiteSettings, mapPublicSiteSettings } from '@/features/public/settings/mapper';
 
 import { toAbsoluteUrl } from '@/utils/url';
+import { serializeJsonLd } from '@/utils/jsonLd';
 
 export default async function JsonLd() {
     let locale = 'th';
@@ -60,7 +61,7 @@ export default async function JsonLd() {
     return (
         <script
             type="application/ld+json"
-            dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+            dangerouslySetInnerHTML={{ __html: serializeJsonLd(jsonLd) }}
         />
     );
 }

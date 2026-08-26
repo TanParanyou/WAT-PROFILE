@@ -8,6 +8,7 @@ import OfflineBanner from "@/components/pwa/OfflineBanner";
 import { PublicSiteSettingsProvider } from "@/features/public/settings/PublicSiteSettingsProvider";
 import { PublicThemeProvider } from "@/components/public/theme/PublicThemeProvider";
 import { AccountSessionProvider } from "@/features/public/account/AccountSessionProvider";
+import { ChatWidget } from "@/components/chatbot/ChatWidget";
 
 export default function ClientLayout({
   children,
@@ -25,6 +26,7 @@ export default function ClientLayout({
             <main className="grow">{children}</main>
             <Footer />
             <StickySocials />
+            <ChatWidget />
             <JsonLd />
             <OfflineBanner />
             <div id="public-modal-root" />

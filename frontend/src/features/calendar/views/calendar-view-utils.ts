@@ -70,3 +70,17 @@ export function formatEntryTime(entry: CalendarEventLike): string {
   if (entry.allDay) return entry.start;
   return `${entry.start.slice(11, 16)}–${entry.end.slice(11, 16)}`;
 }
+
+export function filterEntriesForRange<TEvent extends CalendarEventLike>(
+  entries: readonly TEvent[],
+  range: CalendarRange,
+): TEvent[] {
+  if (!range.startDate || !range.endDate) return [...entries];
+  const { startDate, endDate } = range;
+  return entries.filter((entry) => {
+    const entryStart = entry.start.slice(0, dateFormat.length);
+    const entryEnd = entry.end.slice(0, dateFormat.length);
+    return entryStart <= endDate && entryEnd >= startDate;
+  });
+}
+

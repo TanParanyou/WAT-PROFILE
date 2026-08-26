@@ -14,6 +14,7 @@ import { useClientCalendarLabels } from "@/features/calendar/integrations/wat/us
 import { discoveryPreset } from "@/features/calendar/presets/discovery";
 import { useCalendarEntries } from "@/features/calendar/queries";
 import { getBuddhistHolyDaysForRange } from "@/features/calendar/lunar-calendar";
+import { filterEntriesForRange } from "@/features/calendar/views/calendar-view-utils";
 import type { CalendarEntry, CalendarLocale } from "@/features/calendar/types";
 import { useMemo } from "react";
 
@@ -52,7 +53,8 @@ export function PublicCalendarSection() {
   return (
     <CalendarQueryBoundary query={query} labels={labels}>
       {(data) => {
-        const combinedEvents = [...holyDays, ...data.entries];
+        const validEntries = filterEntriesForRange(data.entries, controller.visibleRange);
+        const combinedEvents = [...holyDays, ...validEntries];
         return (
           <Calendar
             preset={discoveryPreset}

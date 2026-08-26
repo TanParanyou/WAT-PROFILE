@@ -3,6 +3,7 @@ import test from "node:test";
 import { getCalendarOverflowCount, buildTimedColumns, groupEntriesByResource } from "../layout";
 import type { CalendarEntry } from "../types";
 import { buildTimeGridModel } from "./time-grid";
+import { filterEntriesForRange } from "./calendar-view-utils";
 import { discoveryPreset } from "../presets/discovery";
 import { planningPreset } from "../presets/planning";
 
@@ -54,3 +55,21 @@ test("Planning falls back to compact mobile layouts", () => {
   assert.equal(planningPreset.layouts?.mobile?.week, "dayStrip");
   assert.equal(planningPreset.layouts?.mobile?.day, "timeGrid");
 });
+
+test("filterEntriesForRange retains only entries overlapping visibleRange", () => {
+  const entries = [
+    entry("in-range", "2026-08-15T09:00:00+02:00", "2026-08-15T10:00:00+02:00"),
+    entry("before-range", "2026-07-01T09:00:00+02:00", "2026-07-01T10:00:00+02:00"),
+    entry("after-range", "2026-09-15T09:00:00+02:00", "2026-09-15T10:00:00+02:00"),
+    entry("spanning", "2026-07-28T09:00:00+02:00", "2026-08-05T10:00:00+02:00"),
+  ];
+  const range = { startDate: "2026-08-01", endDate: "2026-08-31" };
+  const filtered = filterEntriesForRange(entries, range);
+
+  assert.equal(filtered.length, 2);
+  assert.ok(filtered.some((e) => e.id === "in-range"));
+  assert.ok(filtered.some((e) => e.id === "spanning"));
+  assert.ok(!filtered.some((e) => e.id === "before-range"));
+  assert.ok(!filtered.some((e) => e.id === "after-range"));
+});
+

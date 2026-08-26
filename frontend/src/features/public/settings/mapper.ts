@@ -24,6 +24,7 @@ export function getFallbackPublicSiteSettings(): PublicSiteSettings {
     communityWrite: envCommunity,
     donations: true,
     eventRegistration: true,
+    chatbot: true,
   };
 
   return {
@@ -60,6 +61,7 @@ export function mapPublicSiteSettings(raw: Record<string, string>, fallback = ge
     communityWrite: parseBoolSetting(raw.feature_public_community_write, fallback.features.communityWrite),
     donations: parseBoolSetting(raw.feature_donations, fallback.features.donations),
     eventRegistration: parseBoolSetting(raw.feature_event_registration, fallback.features.eventRegistration),
+    chatbot: parseBoolSetting(raw.chatbot_enabled, fallback.features.chatbot),
   };
 
   return {

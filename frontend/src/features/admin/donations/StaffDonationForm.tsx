@@ -37,6 +37,7 @@ import {
   FileText,
 } from "lucide-react";
 import { cn } from "@/utils/cn";
+import { AdminCurrencyConverter } from "./AdminCurrencyConverter";
 
 export interface StaffDonationFormProps {
   isOpen?: boolean;
@@ -390,6 +391,14 @@ export function StaffDonationForm({
                     <Wallet size={17} className="text-admin-action shrink-0" />
                     <span>{t("donations.donationInfo")}</span>
                   </div>
+
+                  {/* Currency Converter Assistant */}
+                  <AdminCurrencyConverter
+                    locale={locale}
+                    onApplyAmount={(convertedEur) => {
+                      setValue("amount", convertedEur, { shouldValidate: true, shouldDirty: true });
+                    }}
+                  />
 
                   {/* Amount Input with Quick Presets */}
                   <div className="space-y-2">

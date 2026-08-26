@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/watloungporsai/wat-profile-backend/internal/middleware"
 	"github.com/watloungporsai/wat-profile-backend/internal/services"
 	"github.com/watloungporsai/wat-profile-backend/pkg/logger"
 	"github.com/watloungporsai/wat-profile-backend/pkg/utils"
@@ -23,8 +24,16 @@ func NewBackupHandler(db *gorm.DB) *BackupHandler {
 	}
 }
 
-// ExportDatabaseDump - Admin: Export JSON database snapshot
+// ExportDatabaseDump - Admin: Export JSON database snapshot (super_admin only)
 func (h *BackupHandler) ExportDatabaseDump(c *fiber.Ctx) error {
+	user, _ := middleware.GetCurrentUser(c)
+	if !isSuperAdmin(user) {
+		if h.auditService != nil {
+			_ = h.auditService.LogSecurityEvent(c, "admin.security.unauthorized_backup_export", "unauthorized_backup_export", "backup", "Non-super_admin attempted to export database backup")
+		}
+		return utils.ErrorResponse(c, fiber.StatusForbidden, "Only super_admin can export database backups")
+	}
+
 	snapshot, err := h.backupService.ExportSnapshot()
 	if err != nil {
 		logger.Log.Error().Err(err).Msg("Failed to export database snapshot")

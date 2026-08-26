@@ -79,9 +79,94 @@ tags:
     description: Contact inquiries management (Admin only)
   - name: Admin - Settings
     description: Settings management (Admin only)
+  - name: Chatbot
+    description: Public multilingual chatbot assistant
+  - name: Admin - Chatbot
+    description: Knowledge Base management for Chatbot (Admin only)
 
 paths:
   # ==================== PUBLIC ====================
+  /public/chatbot/message:
+    post:
+      tags: [Chatbot]
+      summary: Send a message to the temple chatbot assistant
+      description: Processes visitor inquiry, retrieves live temple context and knowledge base entries, and generates a response.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [message]
+              properties:
+                message:
+                  type: string
+                  maxLength: 1000
+                  example: "ตารางปฏิบัติธรรมมีวันไหนบ้าง"
+                locale:
+                  type: string
+                  enum: [th, en, de]
+                  default: th
+                history:
+                  type: array
+                  items:
+                    type: object
+                    required: [role, content]
+                    properties:
+                      role:
+                        type: string
+                        enum: [user, model]
+                      content:
+                        type: string
+      responses:
+        '200':
+          description: Chatbot response generated
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  data:
+                    type: object
+                    properties:
+                      reply: { type: string }
+                      suggested_followups:
+                        type: array
+                        items: { type: string }
+        '400': { $ref: '#/components/responses/ValidationError' }
+        '429': { $ref: '#/components/responses/TooManyRequests' }
+
+  /public/chatbot/quick-questions:
+    get:
+      tags: [Chatbot]
+      summary: Get suggested quick questions for visitors
+      parameters:
+        - name: locale
+          in: query
+          required: false
+          schema:
+            type: string
+            enum: [th, en, de]
+            default: th
+      responses:
+        '200':
+          description: List of suggested quick questions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  data:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        id: { type: integer }
+                        text: { type: string }
+                        category: { type: string }
+
   /accounts/community/questions:
     post:
       tags: [Community]
@@ -5438,10 +5523,149 @@ paths:
                   data:
                     type: object
                     properties:
-                      translations:
-                        type: object
-                        additionalProperties:
-                          type: string
+  # ==================== ADMIN - Chatbot ====================
+  /admin/chatbot/knowledge-base:
+    get:
+      tags: [Admin - Chatbot]
+      summary: List knowledge base items
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 10 }
+        - name: search
+          in: query
+          schema: { type: string }
+        - name: category
+          in: query
+          schema: { type: string }
+        - name: active_only
+          in: query
+          schema: { type: boolean }
+      responses:
+        '200':
+          description: Paginated list of knowledge base items
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  data:
+                    type: array
+                    items: { $ref: '#/components/schemas/ChatbotKnowledgeBaseItem' }
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+    post:
+      tags: [Admin - Chatbot]
+      summary: Create knowledge base item
+      security:
+        - AdminBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ChatbotKnowledgeBaseInput' }
+      responses:
+        '201':
+          description: Created knowledge base item
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  data: { $ref: '#/components/schemas/ChatbotKnowledgeBaseItem' }
+        '400': { $ref: '#/components/responses/ValidationError' }
+
+  /admin/chatbot/knowledge-base/{id}:
+    get:
+      tags: [Admin - Chatbot]
+      summary: Get knowledge base item by ID
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Knowledge base item details
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  data: { $ref: '#/components/schemas/ChatbotKnowledgeBaseItem' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    put:
+      tags: [Admin - Chatbot]
+      summary: Update knowledge base item
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema: { $ref: '#/components/schemas/ChatbotKnowledgeBaseInput' }
+      responses:
+        '200':
+          description: Updated knowledge base item
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  data: { $ref: '#/components/schemas/ChatbotKnowledgeBaseItem' }
+        '404': { $ref: '#/components/responses/NotFound' }
+    delete:
+      tags: [Admin - Chatbot]
+      summary: Delete knowledge base item
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Deleted successfully
+        '404': { $ref: '#/components/responses/NotFound' }
+
+  /admin/chatbot/knowledge-base/{id}/toggle-active:
+    patch:
+      tags: [Admin - Chatbot]
+      summary: Toggle active status of knowledge base item
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Toggled knowledge base item
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  data: { $ref: '#/components/schemas/ChatbotKnowledgeBaseItem' }
 
 components:
   securitySchemes:
@@ -5628,6 +5852,35 @@ components:
             $ref: '#/components/schemas/ErrorResponse'
 
   schemas:
+    ChatbotKnowledgeBaseItem:
+      type: object
+      required: [id, category, question, answer, is_active]
+      properties:
+        id: { type: integer, example: 1 }
+        category: { type: string, example: "practice" }
+        question: { $ref: '#/components/schemas/MultiLangText' }
+        answer: { $ref: '#/components/schemas/MultiLangText' }
+        keywords:
+          type: array
+          items: { type: string }
+        priority: { type: integer, default: 0 }
+        is_active: { type: boolean, default: true }
+        created_at: { type: string, format: date-time }
+        updated_at: { type: string, format: date-time }
+
+    ChatbotKnowledgeBaseInput:
+      type: object
+      required: [question, answer]
+      properties:
+        category: { type: string, default: "general" }
+        question: { $ref: '#/components/schemas/MultiLangText' }
+        answer: { $ref: '#/components/schemas/MultiLangText' }
+        keywords:
+          type: array
+          items: { type: string }
+        priority: { type: integer, default: 0 }
+        is_active: { type: boolean, default: true }
+
     CommunityCategory:
       type: object
       required: [id, slug, name, sort_order]

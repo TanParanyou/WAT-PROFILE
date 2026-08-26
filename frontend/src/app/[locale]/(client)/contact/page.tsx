@@ -5,6 +5,7 @@ import { siteConfig } from "@/config/site.config";
 import { publicContentService } from "@/services/publicContentService";
 import { getLocalizedText } from "@/utils/localizedText";
 import { buildPublicMetadata, normalizeSeo } from "@/features/public/seo/metadata";
+import { serializeJsonLd } from "@/utils/jsonLd";
 
 export async function generateMetadata({ params }: { params: Promise<{ locale: string }> }): Promise<Metadata> {
   const { locale } = await params;
@@ -88,7 +89,7 @@ export default async function ContactPage({ params }: { params: Promise<{ locale
     <>
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(faqSchema) }}
       />
       <ContactContent locale={locale} />
     </>

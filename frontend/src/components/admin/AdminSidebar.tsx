@@ -29,6 +29,7 @@ import {
   FileText,
   Settings,
   MessageCircleQuestion,
+  MessageSquare,
 } from "lucide-react";
 import { usePermission } from "@/hooks/usePermission";
 import { cn } from "@/utils/cn";
@@ -61,6 +62,7 @@ const sidebarGroups: SidebarGroup[] = [
       { labelKey: "impressum", href: "/admin/impressum", icon: FileText },
       { labelKey: "privacy", href: "/admin/privacy", icon: ShieldCheck },
       { labelKey: "media", href: "/admin/media", icon: FolderOpen, resource: "website" },
+      { labelKey: "chatbot", href: "/admin/chatbot", icon: MessageSquare, resource: "chatbot" },
     ],
   },
   {

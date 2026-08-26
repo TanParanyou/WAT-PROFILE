@@ -438,9 +438,9 @@ export const systemGuides: GuideArticle[] = [
           de: "Frontend-Umgebungskonfiguration (frontend/.env.local)",
         },
         description: {
-          th: "สร้างไฟล์ frontend/.env.local จาก .env.example กำหนดค่า NEXT_PUBLIC_API_URL ชี้ไปยัง Backend (ใน Production ต้องเป็น HTTPS เสมอ) และ NEXT_PUBLIC_MEDIA_ALLOWED_ORIGINS สำหรับ Cloudflare R2 Domain",
-          en: "Create frontend/.env.local from .env.example. Set NEXT_PUBLIC_API_URL (must be HTTPS in production) and NEXT_PUBLIC_MEDIA_ALLOWED_ORIGINS for Cloudflare R2.",
-          de: "Erstellen Sie frontend/.env.local aus .env.example. Setzen Sie NEXT_PUBLIC_API_URL (HTTPS in Produktion) und NEXT_PUBLIC_MEDIA_ALLOWED_ORIGINS für Cloudflare R2.",
+          th: "สร้างไฟล์ frontend/.env.local จาก .env.example กำหนดค่า NEXT_PUBLIC_API_URL ชี้ไปยัง Backend (ใน Production ต้องเป็น HTTPS เสมอ), NEXT_PUBLIC_MEDIA_ALLOWED_ORIGINS สำหรับ Cloudflare R2 Domain, และ NEXT_PUBLIC_CHATBOT_ENABLED สำหรับเปิด/ปิด Floating Widget แชทบอทบนหน้าเว็บ",
+          en: "Create frontend/.env.local from .env.example. Set NEXT_PUBLIC_API_URL (must be HTTPS in production), NEXT_PUBLIC_MEDIA_ALLOWED_ORIGINS for Cloudflare R2, and NEXT_PUBLIC_CHATBOT_ENABLED for the visitor chat widget.",
+          de: "Erstellen Sie frontend/.env.local aus .env.example. Setzen Sie NEXT_PUBLIC_API_URL (HTTPS in Produktion), NEXT_PUBLIC_MEDIA_ALLOWED_ORIGINS für Cloudflare R2 und NEXT_PUBLIC_CHATBOT_ENABLED für das Chat-Widget.",
         },
         tip: {
           th: "กฎเหล็ก: ตัวแปรที่ขึ้นต้นด้วย NEXT_PUBLIC_* จะถูกฝังลงใน JavaScript bundle ของผู้เยี่ยมชม ห้ามใส่รหัสผ่านหรือ Private Key ใดๆ ในฟิลด์นี้เด็ดขาด",
@@ -456,9 +456,9 @@ export const systemGuides: GuideArticle[] = [
           de: "Backend-Umgebungskonfiguration (backend/.env)",
         },
         description: {
-          th: "กำหนดค่าการเชื่อมต่อฐานข้อมูล PostgreSQL (DB_HOST, DB_USER, DB_PASSWORD, DB_NAME), ค่าความปลอดภัย JWT (JWT_SECRET สุ่ม 32 ตัวอักษรขึ้นไป), Cloudflare R2 Storage (R2_ACCESS_KEY, R2_SECRET_KEY, R2_BUCKET), และ SMTP Mail",
-          en: "Configure PostgreSQL connection, JWT security parameters (random 32+ bytes string), Cloudflare R2 storage credentials, and SMTP email settings.",
-          de: "Konfigurieren Sie PostgreSQL, JWT-Sicherheitsparameter (zufällige 32+ Zeichen), Cloudflare R2-Zugangsdaten und SMTP-E-Mail.",
+          th: "กำหนดค่าการเชื่อมต่อฐานข้อมูล PostgreSQL (DB_HOST, DB_USER, DB_PASSWORD, DB_NAME), ค่าความปลอดภัย JWT (JWT_SECRET สุ่ม 32 ตัวอักษรขึ้นไป), Cloudflare R2 Storage (R2_ACCESS_KEY, R2_SECRET_KEY, R2_BUCKET), SMTP Mail, และ GEMINI_API_KEY สำหรับระบบ AI Translation และ Chatbot Assistant",
+          en: "Configure PostgreSQL connection, JWT security parameters (random 32+ bytes string), Cloudflare R2 storage credentials, SMTP email settings, and GEMINI_API_KEY for AI translation and chatbot assistant.",
+          de: "Konfigurieren Sie PostgreSQL, JWT-Sicherheitsparameter (zufällige 32+ Zeichen), Cloudflare R2-Zugangsdaten, SMTP-E-Mail und GEMINI_API_KEY für KI-Übersetzung und Chatbot-Assistenten.",
         },
         image: "/images/guide/env-config.svg",
         imageCaption: {
@@ -506,14 +506,14 @@ export const systemGuides: GuideArticle[] = [
       },
       {
         question: {
-          th: "ตัวแปร NEXT_PUBLIC_SKIP_ADMIN_AUTH มีไว้เพื่ออะไร?",
-          en: "What is NEXT_PUBLIC_SKIP_ADMIN_AUTH used for?",
-          de: "Wofür wird NEXT_PUBLIC_SKIP_ADMIN_AUTH verwendet?",
+          th: "การเข้าสู่ระบบ Admin Panel มีระบบป้องกันความปลอดภัยอย่างไร?",
+          en: "How is Admin Panel authentication secured?",
+          de: "Wie ist die Admin-Panel-Authentifizierung gesichert?",
         },
         answer: {
-          th: "มีไว้สำหรับการทดสอบ UI แอดมินในสภาพแวดล้อม Local แบบแยกส่วนเท่านั้น โดยระบบจะปิดกั้นไม่ให้เปิดใช้งานใน Production อย่างเด็ดขาด",
-          en: "It is exclusively for isolated local UI testing and is strictly forbidden on production builds.",
-          de: "Es dient ausschließlich lokalen UI-Tests und ist im Produktionsbetrieb strengstens untersagt.",
+          th: "ระบบบังคับยืนยันตัวตนผ่าน JWT + HttpOnly Cookie แบบ 100% ในทุกสภาพแวดล้อม โดยไม่มีช่องทางข้าม (Bypass) เพื่อความปลอดภัยสูงสุดของข้อมูลภายในวัด",
+          en: "The system strictly enforces JWT + HttpOnly cookie authentication in all environments without any bypass mechanisms for maximum security.",
+          de: "Das System erzwingt die Authentifizierung über JWT + HttpOnly-Cookies in allen Umgebungen für maximale Sicherheit.",
         },
       },
     ],

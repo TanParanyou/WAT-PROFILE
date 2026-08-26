@@ -6,6 +6,7 @@ import { usePathname, useRouter } from "@/navigation";
 import { shiftCalendarDate } from "../../core/calendar-state";
 import { resolveCalendarConfig } from "../../config";
 import { discoveryPreset } from "../../presets/discovery";
+import type { CalendarView } from "../../core/types";
 import { useCalendar, type CalendarController, type UseCalendarOptions } from "../../useCalendar";
 import { calendarPreferenceKey, formatCalendarUrlDate, parseCalendarUrlState } from "./calendar-url-state";
 
@@ -25,9 +26,15 @@ export function useRoutedCalendar(options: UseRoutedCalendarOptions): CalendarCo
   const controller = useCalendar({ ...options, preset, config, initialView, initialDate: urlState.date ?? options.initialDate, onStateChange: undefined });
 
   const replaceUrl = useCallback((view: string, date: Date) => {
+    const nextDateStr = formatCalendarUrlDate(date);
+    const currentView = searchParams.get("view");
+    const currentDate = searchParams.get("date");
+    if (currentView === view && currentDate === nextDateStr) {
+      return;
+    }
     const params = new URLSearchParams(searchParams.toString());
     params.set("view", view);
-    params.set("date", formatCalendarUrlDate(date));
+    params.set("date", nextDateStr);
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
   }, [pathname, router, searchParams]);
 
@@ -35,33 +42,43 @@ export function useRoutedCalendar(options: UseRoutedCalendarOptions): CalendarCo
     window.localStorage.setItem(calendarPreferenceKey(options.scope), controller.view);
   }, [controller.view, options.scope]);
 
+  const { view: controllerView, date: controllerDate, setView: controllerSetView, setDate: controllerSetDate, selectDate: controllerSelectDate } = controller;
+
   useEffect(() => {
     if (urlState.rawView !== null && urlState.view === null) {
-      replaceUrl(controller.view, controller.date);
+      replaceUrl(controllerView, controllerDate);
       return;
     }
-    if (urlState.view && urlState.view !== controller.view) controller.setView(urlState.view);
-    if (urlState.date && formatCalendarUrlDate(urlState.date) !== formatCalendarUrlDate(controller.date)) controller.setDate(urlState.date);
-  }, [controller, replaceUrl, urlState]);
+    if (urlState.view && urlState.view !== controllerView) controllerSetView(urlState.view);
+    if (urlState.date && formatCalendarUrlDate(urlState.date) !== formatCalendarUrlDate(controllerDate)) controllerSetDate(urlState.date);
+  }, [controllerDate, controllerSetDate, controllerSetView, controllerView, replaceUrl, urlState]);
 
-  const setView = useCallback((view: typeof controller.view) => { controller.setView(view); replaceUrl(view, controller.date); }, [controller, replaceUrl]);
-  const setDate = useCallback((date: Date) => { controller.setDate(date); replaceUrl(controller.view, date); }, [controller, replaceUrl]);
-  const selectDate = useCallback((date: Date) => { controller.selectDate(date); replaceUrl(controller.view, date); }, [controller, replaceUrl]);
+  const setView = useCallback((view: CalendarView) => { controllerSetView(view); replaceUrl(view, controllerDate); }, [controllerDate, controllerSetView, replaceUrl]);
+  const setDate = useCallback((date: Date) => { controllerSetDate(date); replaceUrl(controllerView, date); }, [controllerSetDate, controllerView, replaceUrl]);
+  const selectDate = useCallback((date: Date) => { controllerSelectDate(date); replaceUrl(controllerView, date); }, [controllerSelectDate, controllerView, replaceUrl]);
   const previous = useCallback(() => {
-    const nextDate = shiftCalendarDate(controller.date, controller.view, -1);
-    controller.setDate(nextDate);
-    replaceUrl(controller.view, nextDate);
-  }, [controller, replaceUrl]);
+    const nextDate = shiftCalendarDate(controllerDate, controllerView, -1);
+    controllerSetDate(nextDate);
+    replaceUrl(controllerView, nextDate);
+  }, [controllerDate, controllerSetDate, controllerView, replaceUrl]);
   const next = useCallback(() => {
-    const nextDate = shiftCalendarDate(controller.date, controller.view, 1);
-    controller.setDate(nextDate);
-    replaceUrl(controller.view, nextDate);
-  }, [controller, replaceUrl]);
+    const nextDate = shiftCalendarDate(controllerDate, controllerView, 1);
+    controllerSetDate(nextDate);
+    replaceUrl(controllerView, nextDate);
+  }, [controllerDate, controllerSetDate, controllerView, replaceUrl]);
   const today = useCallback(() => {
     const nextDate = new Date();
-    controller.setDate(nextDate);
-    replaceUrl(controller.view, nextDate);
-  }, [controller, replaceUrl]);
+    controllerSetDate(nextDate);
+    replaceUrl(controllerView, nextDate);
+  }, [controllerSetDate, controllerView, replaceUrl]);
 
-  return { ...controller, previous, next, today, setView, setDate, selectDate };
+  return useMemo(() => ({
+    ...controller,
+    previous,
+    next,
+    today,
+    setView,
+    setDate,
+    selectDate,
+  }), [controller, next, previous, selectDate, setDate, setView, today]);
 }

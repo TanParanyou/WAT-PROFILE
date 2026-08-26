@@ -59,6 +59,10 @@ test("toolbar state reports a selected list and the undo availability", () => {
     orderedList: false,
     blockquote: false,
     link: false,
+    alignLeft: false,
+    alignCenter: false,
+    alignRight: false,
+    alignJustify: false,
   });
   editor.destroy();
 });

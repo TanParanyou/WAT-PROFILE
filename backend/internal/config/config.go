@@ -107,6 +107,7 @@ func MigrateModels() error {
 		&models.CommunityNotification{},
 		&models.CommunityNotificationPreference{},
 		&models.CommunityRateLimitBucket{},
+		&models.ChatbotKnowledgeBase{},
 	)
 
 	if err != nil {

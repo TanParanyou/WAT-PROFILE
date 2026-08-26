@@ -574,4 +574,131 @@ export const operationsGuides: GuideArticle[] = [
     relatedSlugs: ["about", "media"],
     updatedAt: "2026-08-19",
   },
+  {
+    id: "guide-chanting",
+    slug: "chanting",
+    category: "operations",
+    title: {
+      th: "การจัดการบทสวดมนต์และพระธรรม (Chanting & Prayers Management)",
+      en: "Chanting & Buddhist Prayers Management",
+      de: "Verwaltung buddhistischer Gesänge & Gebete",
+    },
+    summary: {
+      th: "การเพิ่มและจัดการบทสวดมนต์ทำวัตรเช้า-เย็น พระปริตร คำอ่านภาษาบาลี คำแปล 3 ภาษา (TH, EN, DE) และไฟล์เสียงสวดมนต์",
+      en: "Managing morning/evening chants, Paritta protective verses, Pali romanization, 3-language translations, and audio recordings.",
+      de: "Verwaltung von Morgen-/Abendgesängen, Paritta-Schutzversen, Pali-Lautschrift, 3-sprachigen Übersetzungen und Audioaufnahmen.",
+    },
+    iconName: "BookOpen",
+    resource: "chanting",
+    routePath: "/admin/chanting",
+    quickSteps: [
+      {
+        th: "เข้าเมนู /admin/chanting เพื่อดูรายการบทสวดมนต์ทั้งหมด",
+        en: "Navigate to /admin/chanting to view all chanting texts.",
+        de: "Zu /admin/chanting gehen für die Übersicht aller Gesänge.",
+      },
+      {
+        th: "กด '+ เพิ่มบทสวดมนต์' กรอกชื่อ คำบาลี คำอ่าน และคำแปล",
+        en: "Click '+ Add Chanting' to enter title, Pali verses, phonetics, and translation.",
+        de: "Auf '+ Gesang hinzufügen' klicken, um Titel, Pali-Text, Lautschrift und Übersetzung einzutragen.",
+      },
+      {
+        th: "อัปโหลดไฟล์เสียง MP3 และเลือกหมวดหมู่ก่อนบันทึกเผยแพร่",
+        en: "Upload MP3 audio file, assign category, and publish.",
+        de: "MP3-Audiodatei hochladen, Kategorie zuweisen und veröffentlichen.",
+      },
+    ],
+    statusLegends: [
+      {
+        badgeVariant: "success",
+        label: { th: "Published (เผยแพร่)", en: "Published", de: "Veröffentlicht" },
+        meaning: {
+          th: "บทสวดมนต์แสดงผลบนหน้าเว็บไซต์สาธารณะ /chanting ให้ญาติโยมเปิดอ่านและสวดตาม",
+          en: "Chanting text is publicly visible on the /chanting portal for devotees.",
+          de: "Der Gesangstext ist öffentlich auf /chanting für Gläubige verfügbar.",
+        },
+      },
+      {
+        badgeVariant: "default",
+        label: { th: "Draft (แบบร่าง)", en: "Draft", de: "Entwurf" },
+        meaning: {
+          th: "แบบร่างที่อยู่ระหว่างการตรวจทานคำบาลี ยังไม่แสดงบนหน้าเว็บ",
+          en: "Draft under review; hidden from public visitors.",
+          de: "Entwurf in Prüfung; für Besucher ausgeblendet.",
+        },
+      },
+      {
+        badgeVariant: "info",
+        label: { th: "Audio Player", en: "Audio Player", de: "Audio-Player" },
+        meaning: {
+          th: "มีไฟล์เสียงสวดมนต์แนบ ญาติโยมสามารถกดฟังเสียงสวดของพระสงฆ์ได้ทันที",
+          en: "Attached audio enables devotees to listen to monk chanting on web & mobile.",
+          de: "Audioaufnahme vorhanden; Gläubige können dem Gesang direkt folgen.",
+        },
+      },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: {
+          th: "สร้างบทสวดมนต์และจัดหมวดหมู่",
+          en: "Create Chanting & Assign Category",
+          de: "Gesang anlegen & Kategorie zuweisen",
+        },
+        description: {
+          th: "คลิก '+ เพิ่มบทสวดมนต์' ตั้งชื่อบทสวด เช่น 'ทำวัตรเช้า (Morning Chanting)' และเลือกหมวดหมู่ที่เหมาะสม เช่น ทำวัตรเช้า-เย็น (Daily), พระปริตร (Paritta), บทสวดพิเศษ, หรือพระสูตร",
+          en: "Click '+ Add Chanting', name the chant (e.g. 'Morning Chanting'), and assign to Daily Chants, Paritta Protection, or Special Occasions.",
+          de: "Klicken Sie auf '+ Gesang hinzufügen', geben Sie den Namen ein und wählen Sie die Kategorie (Tagesgesänge, Paritta, Feiertage).",
+        },
+        image: "/images/guide/chanting-editor.svg",
+        imageCaption: {
+          th: "ฟอร์มแก้ไขบทสวดมนต์ คำอ่านบาลี และการแนบไฟล์เสียง MP3",
+          en: "Chanting editor form with Pali text, phonetics, and MP3 audio attachment",
+          de: "Gesangs-Editor mit Pali-Text, Lautschrift und MP3-Audioeinbindung",
+        },
+      },
+      {
+        stepNumber: 2,
+        title: {
+          th: "การกรอกคำบาลี คำอ่าน และคำแปล 3 ภาษา",
+          en: "Enter Pali Verses, Phonetics & Translations",
+          de: "Pali-Verse, Lautschrift & 3-sprachige Übersetzung",
+        },
+        description: {
+          th: "ระบุข้อความภาษาบาลีอักษรไทย พร้อมคำอ่านออกเสียง (Transliteration) และคำแปลความหมาย 3 ภาษา (TH, EN, DE) เพื่อให้ชาวไทยและชาวต่างชาติเข้าใจความหมายอันลึกซึ้งของบทสวด",
+          en: "Provide Pali script along with phonetic transcription and 3-language translations (TH, EN, DE) so both local and international visitors can understand the Dhamma meaning.",
+          de: "Tragen Sie Pali-Text mit Lautschrift und Übersetzung in 3 Sprachen (TH, EN, DE) ein, damit auch internationale Besucher die Bedeutung verstehen.",
+        },
+      },
+      {
+        stepNumber: 3,
+        title: {
+          th: "การแนบไฟล์เสียงสวดมนต์ (MP3 Audio)",
+          en: "Attach Chanting Audio Recording",
+          de: "Audioaufnahme des Gesangs anhängen",
+        },
+        description: {
+          th: "อัปโหลดไฟล์เสียงสวดมนต์คุณภาพสูง (รองรับ .mp3, .m4a) เพื่อให้ระบบสร้าง Audio Player ให้ญาติโยมเปิดฟังและสวดมนต์ตามพระสงฆ์ได้ทุกที่ทุกเวลา",
+          en: "Upload high-quality MP3 chanting audio to enable the online audio player for daily meditation and home practice.",
+          de: "Laden Sie MP3-Dateien hoch, damit Gläubige den Gesängen auch zu Hause oder unterwegs folgen können.",
+        },
+      },
+    ],
+    faqs: [
+      {
+        question: {
+          th: "บทสวดมนต์รองรับการเปิดอ่านบนสมาร์ทโฟนขณะสวดมนต์หรือไม่?",
+          en: "Is the chanting viewer optimized for smartphones during ceremonies?",
+          de: "Ist die Gesangsanzeige für Smartphones während der Zeremonie optimiert?",
+        },
+        answer: {
+          th: "ใช่ หน้า /chanting ได้รับการออกแบบให้มีโหมดตัวอักษรขนาดใหญ่ (Large Typography) และ Contrast ที่สบายตา เหมาะแก่การเปิดอ่านบนมือถือขณะร่วมพิธีในพระอุโบสถ",
+          en: "Yes, the public /chanting portal features large, readable typography and high contrast optimized for handheld smartphone reading during temple service.",
+          de: "Ja, die /chanting Seite ist mit großer Schrift und hohem Kontrast für das Lesen auf Smartphones während der Zeremonie optimiert.",
+        },
+      },
+    ],
+    relatedSlugs: ["schedules", "events", "monks"],
+    updatedAt: "2026-08-26",
+  },
 ];

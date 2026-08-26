@@ -12,6 +12,7 @@ import type { PublicMonkDto } from "@/features/public/monks/types";
 import { buildPublicMetadata } from "@/features/public/seo/metadata";
 import { emptySeoMetadata } from "@/features/public/seo/schema";
 import { siteConfig } from "@/config/site.config";
+import { serializeJsonLd } from "@/utils/jsonLd";
 
 interface Props {
   params: Promise<{ slug: string; locale: string }>;
@@ -94,12 +95,12 @@ export default async function MonkDetailPage({ params }: Props) {
       {monkSchema ? (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(monkSchema) }}
+          dangerouslySetInnerHTML={{ __html: serializeJsonLd(monkSchema) }}
         />
       ) : null}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbsSchema) }}
+        dangerouslySetInnerHTML={{ __html: serializeJsonLd(breadcrumbsSchema) }}
       />
       <PageHeader variant="color" align="left" width="content" title={monkName} subtitle={monkTitle} />
       <PageContainer width="content">

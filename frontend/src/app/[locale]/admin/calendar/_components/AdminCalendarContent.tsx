@@ -17,6 +17,7 @@ import {
   getWatEventBarClass,
   getWatEventLocation,
 } from "@/features/calendar/adapters/wat-calendar";
+import { filterEntriesForRange } from "@/features/calendar/views/calendar-view-utils";
 import { CalendarEntryDrawer } from "./CalendarEntryDrawer";
 import { CalendarResourceFilter } from "./CalendarResourceFilter";
 import { DEFAULT_RESOURCE_ID } from "@/features/calendar/core/types";
@@ -112,7 +113,7 @@ export default function AdminCalendarContent() {
             <Calendar
               preset={planningPreset}
               controller={controller}
-              events={[...holyDays, ...data.entries]}
+              events={[...holyDays, ...filterEntriesForRange(data.entries, controller.visibleRange)]}
               resources={data.resources}
               labels={labels}
               variant="admin"
