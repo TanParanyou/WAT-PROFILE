@@ -1245,8 +1245,14 @@
     "offlineDesc": "Derzeit keine Internetverbindung vorhanden. Sie können weiterhin gespeicherte Inhalte einsehen.",
     "offlineBanner": "Keine Internetverbindung (Offline-Modus)",
     "retry": "Erneut versuchen",
-    "backToHome": "Zurück zur Startseite"
+    "backToHome": "Zurück zur Startseite",
+    "iosGuideTitle": "Auf dem iPhone / iPad installieren",
+    "iosGuideStep1": "Tippen Sie auf die Teilen-Schaltfläche unten in Safari",
+    "iosGuideStep2": "Scrollen Sie nach unten und wählen Sie 'Zum Home-Bildschirm'",
+    "iosGuideStep3": "Tippen Sie oben rechts auf 'Hinzufügen'",
+    "close": "Schließen"
   },
+
   "EpcQrModal": {
     "eyebrow": "SEPA-Banküberweisung",
     "title": "SEPA-QR-Code generieren (GiroCode)",

@@ -1245,8 +1245,14 @@
     "offlineDesc": "Unable to connect to the internet right now. You can still browse cached content and information.",
     "offlineBanner": "No internet connection (Offline mode)",
     "retry": "Try Again",
-    "backToHome": "Back to Home"
+    "backToHome": "Back to Home",
+    "iosGuideTitle": "Install on iPhone / iPad",
+    "iosGuideStep1": "Tap the Share button at the bottom bar of Safari",
+    "iosGuideStep2": "Scroll down and select 'Add to Home Screen'",
+    "iosGuideStep3": "Tap 'Add' in the top right corner",
+    "close": "Close"
   },
+
   "EpcQrModal": {
     "eyebrow": "European Bank Transfer (SEPA)",
     "title": "Generate SEPA QR Code (GiroCode)",
