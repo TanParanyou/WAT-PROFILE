@@ -36,7 +36,7 @@ import { Select } from "@/components/ui/Select";
 import { Textarea } from "@/components/ui/Textarea";
 import { PageLoading } from "@/components/ui/Loading";
 import { settingsAdminService, eventAdminService } from "@/services/adminService";
-import { backupService } from "@/services/backupService";
+import { backupService, type BackupStatus } from "@/services/backupService";
 import { useToast } from "@/hooks/useToast";
 import type { Setting, Event } from "@/types/entities";
 import {
@@ -49,6 +49,7 @@ import { MediaPickerDialog } from "@/components/admin/media/MediaPickerDialog";
 import type { EventsView } from "@/features/public/settings/types";
 import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/utils/cn";
+import { formatDateTimeWithRelative } from "@/utils/formatters";
 
 type SettingsTab = "branding" | "eventAlert" | "general" | "features";
 
@@ -225,14 +226,34 @@ export default function SettingsPage() {
   });
 
   const [isDownloadingBackup, setIsDownloadingBackup] = useState(false);
+  const [backupStatus, setBackupStatus] = useState<BackupStatus | null>(null);
 
   const { toast } = useToast();
+
+  const loadBackupStatus = useCallback(async () => {
+    try {
+      const status = await backupService.getStatus();
+      setBackupStatus(status);
+    } catch {
+      // Non-blocking for settings page
+    }
+  }, []);
+
+  const formatBackupDate = useCallback(
+    (isoDate: string | null | undefined) => {
+      if (!isoDate) return t("settings.neverBackedUp");
+      const result = formatDateTimeWithRelative(isoDate, locale);
+      return result === "-" ? t("settings.neverBackedUp") : result;
+    },
+    [locale, t]
+  );
 
   const handleDownloadBackup = async () => {
     setIsDownloadingBackup(true);
     try {
       await backupService.exportDatabaseSnapshot();
       toast.success(t("settings.backupSuccess"));
+      await loadBackupStatus();
     } catch {
       toast.error(t("settings.backupError"));
     } finally {
@@ -243,7 +264,10 @@ export default function SettingsPage() {
   const loadSettings = useCallback(async () => {
     try {
       setIsLoading(true);
-      const data = await settingsAdminService.getAll();
+      const [data] = await Promise.all([
+        settingsAdminService.getAll(),
+        loadBackupStatus(),
+      ]);
       setSettings(data);
       const byKey = Object.fromEntries(data.map((item) => [item.key, item.value]));
 
@@ -299,7 +323,7 @@ export default function SettingsPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [t, toast]);
+  }, [loadBackupStatus, t, toast]);
 
   useEffect(() => {
     loadSettings();
@@ -514,6 +538,17 @@ export default function SettingsPage() {
       "address",
     ];
     const socialKeys = ["facebook_url", "instagram_url", "line_url"];
+    const dedicatedKeys = [
+      "logo_url",
+      "hero_bg_url",
+      "social_sidebar_position",
+      "youtube_url",
+      "ai_translate_enabled",
+      "gemini_api_key",
+      "community_word_filter_enabled",
+      "community_blocked_words",
+      "events_default_view",
+    ];
 
     const siteNames = items.filter((s) => siteNameKeys.includes(s.key));
     const siteDescs = items.filter((s) => siteDescKeys.includes(s.key));
@@ -526,7 +561,10 @@ export default function SettingsPage() {
         !siteDescKeys.includes(s.key) &&
         !contactInfoKeys.includes(s.key) &&
         !contactAddressKeys.includes(s.key) &&
-        !socialKeys.includes(s.key),
+        !socialKeys.includes(s.key) &&
+        !dedicatedKeys.includes(s.key) &&
+        !s.key.startsWith("feature_") &&
+        !s.key.startsWith("backup_"),
     );
 
     const groups: SubSectionGroup[] = [];
@@ -1191,26 +1229,70 @@ export default function SettingsPage() {
               <div className="bg-admin-surface rounded-none border border-admin-border overflow-hidden shadow-sm">
                 <div className="px-6 py-4 bg-admin-surface border-b border-admin-border flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <Database size={18} className="text-blue-500" />
+                    <Database size={18} className="text-admin-action" />
                     <h2 className="text-base font-semibold text-admin-foreground">
                       {t("settings.backupTitle")}
                     </h2>
                   </div>
                   <span className="text-xs text-admin-muted uppercase tracking-wider font-mono">
-                    Maintenance
+                    {t("settings.backupZeroCostBadge")}
                   </span>
                 </div>
-                <div className="p-6 space-y-4">
+                <div className="p-6 space-y-5">
                   <p className="text-xs text-admin-muted">
                     {t("settings.backupDesc")}
                   </p>
+
+                  {/* Last Backup Timestamps Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    {/* Automated Cloud Backup Status */}
+                    <div className="p-4 bg-admin-surface-muted/30 border border-admin-border space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-medium text-admin-foreground">
+                          {t("settings.lastAutomatedBackup")}
+                        </span>
+                        {backupStatus?.automated_status === "success" && (
+                          <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 bg-admin-surface border border-admin-border text-admin-foreground">
+                            {t("settings.backupStatusSuccess")}
+                          </span>
+                        )}
+                        {backupStatus?.automated_status === "failed" && (
+                          <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 bg-admin-surface border border-admin-border text-admin-danger">
+                            {t("settings.backupStatusFailed")}
+                          </span>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-admin-muted">
+                        <Clock size={14} className="shrink-0 text-admin-muted" />
+                        <span>{formatBackupDate(backupStatus?.last_automated_at)}</span>
+                      </div>
+                    </div>
+
+                    {/* Manual JSON Snapshot Status */}
+                    <div className="p-4 bg-admin-surface-muted/30 border border-admin-border space-y-2">
+                      <div className="flex items-center justify-between">
+                        <span className="text-xs font-medium text-admin-foreground">
+                          {t("settings.lastManualSnapshot")}
+                        </span>
+                        <span className="text-[10px] uppercase font-mono px-1.5 py-0.5 bg-admin-surface border border-admin-border text-admin-muted">
+                          {backupStatus?.total_tables ?? 24} {t("settings.tablesIncluded")}
+                        </span>
+                      </div>
+                      <div className="flex items-center gap-2 text-xs text-admin-muted">
+                        <Clock size={14} className="shrink-0 text-admin-muted" />
+                        <span>{formatBackupDate(backupStatus?.last_snapshot_at)}</span>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Action Row */}
                   <div className="p-4 bg-admin-surface-muted/30 border border-admin-border flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="space-y-1">
                       <div className="text-xs font-medium text-admin-foreground">
                         JSON Application Snapshot
                       </div>
                       <div className="text-[11px] text-admin-muted">
-                        Export complete database tables (Events, Monks, Gallery, Donations, Members, Settings)
+                        Export complete database tables (Events, Monks, Gallery, Donations, Members, Community Q&A, Content CMS, Settings)
                       </div>
                     </div>
                     <Button

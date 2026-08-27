@@ -1,6 +1,19 @@
 import adminApi from "./adminApi";
 
+export interface BackupStatus {
+  last_automated_at: string | null;
+  last_snapshot_at: string | null;
+  automated_status: string;
+  automated_records_count: number;
+  total_tables: number;
+}
+
 export const backupService = {
+  async getStatus(): Promise<BackupStatus> {
+    const res = await adminApi.get<{ data: BackupStatus }>("/admin/backup/status");
+    return res.data.data;
+  },
+
   async exportDatabaseSnapshot(): Promise<void> {
     const res = await adminApi.get("/admin/backup/export", {
       responseType: "blob",
@@ -20,3 +33,4 @@ export const backupService = {
     window.URL.revokeObjectURL(url);
   },
 };
+

@@ -24,6 +24,45 @@ func NewBackupHandler(db *gorm.DB) *BackupHandler {
 	}
 }
 
+// GetBackupStatus - Admin: Retrieve latest automated and manual backup timestamps and counts
+func (h *BackupHandler) GetBackupStatus(c *fiber.Ctx) error {
+	status, err := h.backupService.GetBackupStatus()
+	if err != nil {
+		logger.Log.Error().Err(err).Msg("Failed to retrieve backup status")
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to retrieve backup status")
+	}
+
+	return utils.SuccessResponse(c, status)
+}
+
+type RecordBackupRequest struct {
+	Status      string `json:"status"`
+	RecordCount int64  `json:"record_count"`
+	Notes       string `json:"notes"`
+}
+
+// RecordAutomatedBackup - Record automated cloud backup execution timestamp
+func (h *BackupHandler) RecordAutomatedBackup(c *fiber.Ctx) error {
+	var req RecordBackupRequest
+	if err := c.BodyParser(&req); err != nil {
+		req.Status = "success"
+	}
+
+	if err := h.backupService.RecordAutomatedBackup(req.Status, req.RecordCount, req.Notes); err != nil {
+		logger.Log.Error().Err(err).Msg("Failed to record automated backup")
+		return utils.ErrorResponse(c, fiber.StatusInternalServerError, "Failed to record automated backup")
+	}
+
+	if h.auditService != nil {
+		_ = h.auditService.LogAction(c, "create", "automated_backup_record", "system", map[string]interface{}{
+			"status":  req.Status,
+			"records": req.RecordCount,
+		})
+	}
+
+	return utils.MessageResponse(c, "Automated backup status recorded successfully")
+}
+
 // ExportDatabaseDump - Admin: Export JSON database snapshot (super_admin only)
 func (h *BackupHandler) ExportDatabaseDump(c *fiber.Ctx) error {
 	user, _ := middleware.GetCurrentUser(c)
@@ -52,3 +91,4 @@ func (h *BackupHandler) ExportDatabaseDump(c *fiber.Ctx) error {
 
 	return c.JSON(snapshot)
 }
+

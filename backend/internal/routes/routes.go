@@ -456,6 +456,8 @@ func adminRouteDefinitions() []AdminRouteDefinition {
 		{Method: fiber.MethodGet, Path: "/event-alert", Resource: "settings", Action: "read", HandlerKey: "settings.eventAlert.get"},
 		{Method: fiber.MethodPut, Path: "/event-alert", Resource: "settings", Action: "update", HandlerKey: "settings.eventAlert.save"},
 		{Method: fiber.MethodPost, Path: "/ai/translate", Resource: "settings", Action: "update", HandlerKey: "ai.translate"},
+		{Method: fiber.MethodGet, Path: "/backup/status", Resource: "settings", Action: "read", HandlerKey: "backup.status"},
+		{Method: fiber.MethodPost, Path: "/backup/record", Resource: "settings", Action: "update", HandlerKey: "backup.record"},
 		{Method: fiber.MethodGet, Path: "/backup/export", Resource: "settings", Action: "update", HandlerKey: "backup.export"},
 
 		// Chatbot Knowledge Base Management
@@ -693,6 +695,8 @@ func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service, accountCfg config.Accou
 		"settings.eventAlert.get":       eventAlertHandler.Get,
 		"settings.eventAlert.save":      eventAlertHandler.Save,
 		"ai.translate":                  aiTranslationHandler.TranslateDraft,
+		"backup.status":                 backupHandler.GetBackupStatus,
+		"backup.record":                 backupHandler.RecordAutomatedBackup,
 		"backup.export":                 backupHandler.ExportDatabaseDump,
 		"website.about.get":             publicContentHandler.GetAbout,
 		"website.about.save":            publicContentHandler.SaveAbout,

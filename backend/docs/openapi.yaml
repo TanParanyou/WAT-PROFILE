@@ -5458,6 +5458,80 @@ paths:
         '200':
           description: Setting upserted
 
+  /admin/backup/status:
+    get:
+      tags: [Admin - Settings]
+      summary: Retrieve backup and snapshot status
+      description: Returns the latest timestamps and execution status for automated cloud backup and manual JSON snapshot. Requires `settings:read` permission.
+      security:
+        - AdminBearerAuth: []
+      responses:
+        '200':
+          description: Backup status information
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: object
+                    properties:
+                      last_automated_at:
+                        type: string
+                        format: date-time
+                        nullable: true
+                      last_snapshot_at:
+                        type: string
+                        format: date-time
+                        nullable: true
+                      automated_status:
+                        type: string
+                        example: success
+                      automated_records_count:
+                        type: integer
+                        example: 1250
+                      total_tables:
+                        type: integer
+                        example: 24
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/backup/record:
+    post:
+      tags: [Admin - Settings]
+      summary: Record automated cloud backup execution
+      description: Records timestamp, status, and affected row count of an automated backup execution. Requires `settings:update` permission.
+      security:
+        - AdminBearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                status:
+                  type: string
+                  example: success
+                record_count:
+                  type: integer
+                  example: 1250
+                notes:
+                  type: string
+                  example: pg_dump to Cloudflare R2
+      responses:
+        '200':
+          description: Backup status recorded
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
   /admin/backup/export:
     get:
       tags: [Admin - Settings]
