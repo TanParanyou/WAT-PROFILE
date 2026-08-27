@@ -78,6 +78,16 @@ func (r *Role) HasPermission(resource, action string) bool {
 		return true
 	}
 
+	// 2. Any active admin role always has access to self-profile and security settings
+	if resource == "profile" && r.AdminAccess {
+		return true
+	}
+
+	// 3. Any active admin role always has read access to dashboard and notifications
+	if resource == "dashboard" && action == "read" && r.AdminAccess {
+		return true
+	}
+
 	if r.Permissions == nil {
 		return false
 	}

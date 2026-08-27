@@ -49,6 +49,45 @@ func TestRole_HasPermission(t *testing.T) {
 			expected: false,
 		},
 		{
+			name: "Non-system admin role with admin_access always has profile permission",
+			role: Role{
+				Name:        "custom_admin",
+				IsActive:    true,
+				IsSystem:    false,
+				AdminAccess: true,
+				Permissions: PermissionsMap{},
+			},
+			resource: "profile",
+			action:   "update",
+			expected: true,
+		},
+		{
+			name: "Non-admin role without admin_access has no profile permission by default",
+			role: Role{
+				Name:        "member",
+				IsActive:    true,
+				IsSystem:    false,
+				AdminAccess: false,
+				Permissions: PermissionsMap{},
+			},
+			resource: "profile",
+			action:   "update",
+			expected: false,
+		},
+		{
+			name: "Non-system admin role with admin_access always has dashboard read permission",
+			role: Role{
+				Name:        "custom_admin",
+				IsActive:    true,
+				IsSystem:    false,
+				AdminAccess: true,
+				Permissions: PermissionsMap{},
+			},
+			resource: "dashboard",
+			action:   "read",
+			expected: true,
+		},
+		{
 			name: "Global wildcard permission {'*': 'all'}",
 			role: Role{
 				Name:     "custom_super",

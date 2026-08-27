@@ -281,7 +281,12 @@ func (s *UserService) Delete(id, currentUserID uuid.UUID) error {
 		}
 	}
 
-	return s.db.Delete(&models.User{}, "id = ?", id).Error
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&models.Media{}).Where("uploaded_by_id = ?", id).Update("uploaded_by_id", nil).Error; err != nil {
+			return err
+		}
+		return tx.Delete(&models.User{}, "id = ?", id).Error
+	})
 }
 
 // BulkDelete removes multiple users by their IDs, ensuring no self-delete and last super admin is preserved
@@ -311,7 +316,12 @@ func (s *UserService) BulkDelete(ids []uuid.UUID, currentUserID uuid.UUID) error
 		return errors.New("cannot delete all remaining active super admins in a bulk operation")
 	}
 
-	return s.db.Where("id IN ?", ids).Delete(&models.User{}).Error
+	return s.db.Transaction(func(tx *gorm.DB) error {
+		if err := tx.Model(&models.Media{}).Where("uploaded_by_id IN ?", ids).Update("uploaded_by_id", nil).Error; err != nil {
+			return err
+		}
+		return tx.Where("id IN ?", ids).Delete(&models.User{}).Error
+	})
 }
 
 // UpdateProfile allows a user to update their own profile (name, email, avatar_url) and optionally their password
