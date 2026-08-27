@@ -176,20 +176,39 @@ docker compose -f docker-compose.prod.yml logs -f backend
 
 ## 6. การสำรองข้อมูลและการดูแลรักษา (Backup & Maintenance)
 
-### การ Backup Database อัตโนมัติทุกวัน (Daily Automated Backup)
-ตั้งค่า cron job บน Host เพื่อสำรองข้อมูล PostgreSQL ทุกคืนเวลา 03:00 น.:
-```bash
-sudo crontab -e
-```
-เพิ่มบรรทัดต่อไปนี้:
-```cron
-0 3 * * * docker exec wat_postgres pg_dump -U postgres wat_profile | gzip > /var/backups/wat_profile_$(date +\%Y\%m\%d).sql.gz && find /var/backups/ -name "wat_profile_*.sql.gz" -mtime +30 -delete
-```
+ระบบรองรับการสำรองข้อมูลแบบ **Zero-Cost (ฟรี 100%)** ทั้งการสำรองขึ้น Cloudflare R2 Free Tier อัตโนมัติ และการดาวน์โหลด JSON Application Snapshot ผ่านหน้า Admin Settings
 
-### การ Restore Database จากไฟล์ Backup
-```bash
-gunzip < /var/backups/wat_profile_YYYYMMDD.sql.gz | docker exec -i wat_postgres psql -U postgres -d wat_profile
-```
+### 6.1 การตั้งค่า Backup อัตโนมัติทุกคืน (Daily Automated Backup)
+1. ให้สิทธิ์ execute แก่ script:
+   ```bash
+   chmod +x /srv/wat-profile/scripts/backup-db.sh
+   ```
+2. ตั้งค่า cron job บน Host เพื่อรันทุกคืนเวลา 03:00 น.:
+   ```bash
+   crontab -e
+   ```
+   เพิ่มบรรทัดต่อไปนี้:
+   ```cron
+   0 3 * * * /srv/wat-profile/scripts/backup-db.sh >> /var/log/wat_profile_backup.log 2>&1
+   ```
+   *Script จะทำ `pg_dump` บีบอัดเป็น `.sql.gz` + ส่งขึ้น Cloudflare R2 + บันทึกวันเวลา Backup ล่าสุดลงในระบบ + ลบไฟล์เก่าเกิน 30 วันอัตโนมัติ*
+
+### 6.2 การตรวจสอบวันเวลา Backup ล่าสุด
+- **ผ่านหน้าเว็บ:** ไปที่ **Admin Settings** (`/admin/settings`) ในหัวข้อ **Database Backup & Snapshot** จะแสดงวัน-เวลาสำรองข้อมูลอัตโนมัติล่าสุด และวัน-เวลาที่ดาวน์โหลด Snapshot ล่าสุด
+- **ผ่าน API:**
+  ```bash
+  curl -H "Authorization: Bearer <ADMIN_TOKEN>" http://localhost:8080/api/v1/admin/backup/status
+  ```
+
+### 6.3 การ Restore Database จากไฟล์ Backup
+1. **Restore จากไฟล์ Local:**
+   ```bash
+   ./scripts/restore-db.sh /path/to/wat_db_backup_YYYY-MM-DD_HHMMSS.sql.gz
+   ```
+2. **Restore ผ่าน Docker psql:**
+   ```bash
+   gunzip < /var/backups/wat_db_backup_YYYY-MM-DD_HHMMSS.sql.gz | docker exec -i wat_postgres psql -U postgres -d wat_profile
+   ```
 
 ### การอัปเดตเวอร์ชันใหม่ (Rolling Update)
 เมื่อมีการ push โค้ดเวอร์ชันใหม่:
