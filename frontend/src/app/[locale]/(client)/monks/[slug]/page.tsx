@@ -91,7 +91,7 @@ export default async function MonkDetailPage({ params }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-site-canvas text-site-foreground">
       {monkSchema ? (
         <script
           type="application/ld+json"

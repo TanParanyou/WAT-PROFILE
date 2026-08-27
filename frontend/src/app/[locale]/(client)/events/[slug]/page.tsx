@@ -121,7 +121,7 @@ export default async function EventDetailPage({ params }: Props) {
   };
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-site-canvas text-site-foreground">
       {eventSchema ? (
         <script
           type="application/ld+json"

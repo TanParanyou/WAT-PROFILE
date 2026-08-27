@@ -175,7 +175,6 @@ export function ProfileForm() {
             {t("account.closedPurgeBody", {
               date: new Intl.DateTimeFormat(locale, {
                 dateStyle: "long",
-                timeZone: "Europe/Berlin",
               }).format(new Date(closedPurgeAfter)),
             })}
           </p>
@@ -272,7 +271,6 @@ export function ProfileForm() {
               {t("account.closedPurgeBody", {
                 date: new Intl.DateTimeFormat(locale, {
                   dateStyle: "long",
-                  timeZone: "Europe/Berlin",
                 }).format(new Date(account.purge_after)),
               })}
             </p>
@@ -523,6 +521,7 @@ export function ProfileForm() {
               <input
                 id="profile-display-name"
                 type="text"
+                autoComplete="name"
                 {...displayNameField}
                 className={inputBase}
                 aria-invalid={errors.displayName ? true : undefined}

@@ -39,16 +39,21 @@ export default function ProfilePage() {
   const [newPassword, setNewPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
 
-  const [errors, setErrors] = useState<{
+  const [profileErrors, setProfileErrors] = useState<{
     name?: string;
     email?: string;
+  }>({});
+
+  const [passwordErrors, setPasswordErrors] = useState<{
     currentPassword?: string;
     newPassword?: string;
     confirmPassword?: string;
   }>({});
 
-  const [isSubmitting, setIsSubmitting] = useState(false);
-  const [isSuccess, setIsSuccess] = useState(false);
+  const [isProfileSubmitting, setIsProfileSubmitting] = useState(false);
+  const [isProfileSuccess, setIsProfileSuccess] = useState(false);
+  const [isPasswordSubmitting, setIsPasswordSubmitting] = useState(false);
+  const [isPasswordSuccess, setIsPasswordSuccess] = useState(false);
 
   useEffect(() => {
     if (user) {
@@ -62,8 +67,8 @@ export default function ProfilePage() {
     return <PageLoading />;
   }
 
-  const validate = () => {
-    const errs: typeof errors = {};
+  const validateProfile = () => {
+    const errs: typeof profileErrors = {};
 
     if (!name.trim()) {
       errs.name = t("profile.nameRequired");
@@ -75,52 +80,48 @@ export default function ProfilePage() {
       errs.email = t("profile.invalidEmail");
     }
 
-    if (newPassword || confirmPassword || currentPassword) {
-      if (!currentPassword) {
-        errs.currentPassword = t("profile.currentPasswordRequired");
-      }
-      if (!newPassword) {
-        errs.newPassword = t("profile.passwordTooShort");
-      } else if (newPassword.length < 12) {
-        errs.newPassword = t("profile.passwordTooShort");
-      }
-      if (newPassword !== confirmPassword) {
-        errs.confirmPassword = t("profile.passwordMismatch");
-      }
-    }
-
-    setErrors(errs);
+    setProfileErrors(errs);
     return Object.keys(errs).length === 0;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsSuccess(false);
+  const validatePassword = () => {
+    const errs: typeof passwordErrors = {};
 
-    if (!validate()) {
+    if (!currentPassword) {
+      errs.currentPassword = t("profile.currentPasswordRequired");
+    }
+    if (!newPassword) {
+      errs.newPassword = t("profile.passwordTooShort");
+    } else if (newPassword.length < 12) {
+      errs.newPassword = t("profile.passwordTooShort");
+    }
+    if (newPassword !== confirmPassword) {
+      errs.confirmPassword = t("profile.passwordMismatch");
+    }
+
+    setPasswordErrors(errs);
+    return Object.keys(errs).length === 0;
+  };
+
+  const handleProfileSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsProfileSuccess(false);
+
+    if (!validateProfile()) {
       return;
     }
 
-    setIsSubmitting(true);
+    setIsProfileSubmitting(true);
     try {
       await updateProfile({
         name: name.trim(),
         email: email.trim(),
         avatar_url: avatarUrl.trim(),
-        ...(newPassword
-          ? {
-              current_password: currentPassword,
-              new_password: newPassword,
-            }
-          : {}),
       });
 
-      setCurrentPassword("");
-      setNewPassword("");
-      setConfirmPassword("");
-      setIsSuccess(true);
-      toast.success(t("profile.updateSuccess"));
-      setTimeout(() => setIsSuccess(false), 3000);
+      setIsProfileSuccess(true);
+      toast.success(t("profile.profileUpdateSuccess"));
+      setTimeout(() => setIsProfileSuccess(false), 3000);
     } catch (err: unknown) {
       const errorMsg =
         err && typeof err === "object" && "response" in err
@@ -128,7 +129,39 @@ export default function ProfilePage() {
           : null;
       toast.error(errorMsg || t("profile.updateError"));
     } finally {
-      setIsSubmitting(false);
+      setIsProfileSubmitting(false);
+    }
+  };
+
+  const handlePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setIsPasswordSuccess(false);
+
+    if (!validatePassword()) {
+      return;
+    }
+
+    setIsPasswordSubmitting(true);
+    try {
+      await updateProfile({
+        current_password: currentPassword,
+        new_password: newPassword,
+      });
+
+      setCurrentPassword("");
+      setNewPassword("");
+      setConfirmPassword("");
+      setIsPasswordSuccess(true);
+      toast.success(t("profile.passwordUpdateSuccess"));
+      setTimeout(() => setIsPasswordSuccess(false), 3000);
+    } catch (err: unknown) {
+      const errorMsg =
+        err && typeof err === "object" && "response" in err
+          ? (err as { response?: { data?: { error?: string } } }).response?.data?.error
+          : null;
+      toast.error(errorMsg || t("profile.updateError"));
+    } finally {
+      setIsPasswordSubmitting(false);
     }
   };
 
@@ -197,9 +230,9 @@ export default function ProfilePage() {
 
       {/* Tab 1: General Profile & Password */}
       {activeTab === "general" && (
-        <form onSubmit={handleSubmit} className="space-y-6">
-          {/* Personal Info Card */}
-          <div className="bg-admin-surface border border-admin-border p-6 space-y-6">
+        <div className="space-y-6">
+          {/* Form 1: Personal Info Card */}
+          <form onSubmit={handleProfileSubmit} className="bg-admin-surface border border-admin-border p-6 space-y-6">
             <div className="flex items-center gap-3 pb-4 border-b border-admin-border">
               <div className="h-10 w-10 bg-admin-surface-muted border border-admin-border flex items-center justify-center text-admin-foreground">
                 <User size={20} />
@@ -224,23 +257,27 @@ export default function ProfilePage() {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
                   id="profile-name"
+                  name="name"
                   type="text"
                   label={t("profile.name")}
                   placeholder={t("profile.namePlaceholder")}
                   value={name}
                   onChange={(e) => setName(e.target.value)}
-                  error={errors.name}
+                  error={profileErrors.name}
+                  autoComplete="name"
                   required
                 />
 
                 <Input
                   id="profile-email"
+                  name="email"
                   type="email"
                   label={t("profile.email")}
                   placeholder={t("profile.emailPlaceholder")}
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  error={errors.email}
+                  error={profileErrors.email}
+                  autoComplete="email"
                   required
                 />
               </div>
@@ -267,11 +304,32 @@ export default function ProfilePage() {
                   </span>
                 </div>
               </div>
-            </div>
-          </div>
 
-          {/* Security & Password Card */}
-          <div className="bg-admin-surface border border-admin-border p-6 space-y-6">
+              {/* Actions for Profile Info */}
+              <div className="flex items-center justify-between pt-2 border-t border-admin-border">
+                {isProfileSuccess ? (
+                  <div className="flex items-center gap-2 text-sm text-admin-action font-medium">
+                    <CheckCircle2 size={16} />
+                    <span>{t("profile.profileUpdateSuccess")}</span>
+                  </div>
+                ) : (
+                  <div />
+                )}
+
+                <Button
+                  type="submit"
+                  variant="primary"
+                  isLoading={isProfileSubmitting}
+                  icon={<Save size={16} />}
+                >
+                  {t("profile.saveProfile")}
+                </Button>
+              </div>
+            </div>
+          </form>
+
+          {/* Form 2: Security & Password Card */}
+          <form onSubmit={handlePasswordSubmit} className="bg-admin-surface border border-admin-border p-6 space-y-6">
             <div className="flex items-center gap-3 pb-4 border-b border-admin-border">
               <div className="h-10 w-10 bg-admin-surface-muted border border-admin-border flex items-center justify-center text-admin-foreground">
                 <Key size={20} />
@@ -289,59 +347,68 @@ export default function ProfilePage() {
             <div className="space-y-4">
               <Input
                 id="current-password"
+                name="current_password"
                 type="password"
                 label={t("profile.currentPassword")}
                 placeholder={t("profile.currentPasswordPlaceholder")}
                 value={currentPassword}
                 onChange={(e) => setCurrentPassword(e.target.value)}
-                error={errors.currentPassword}
+                error={passwordErrors.currentPassword}
+                autoComplete="current-password"
+                required
               />
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <Input
                   id="new-password"
+                  name="new_password"
                   type="password"
                   label={t("profile.newPassword")}
                   placeholder={t("profile.newPasswordPlaceholder")}
                   value={newPassword}
                   onChange={(e) => setNewPassword(e.target.value)}
-                  error={errors.newPassword}
+                  error={passwordErrors.newPassword}
+                  autoComplete="new-password"
+                  required
                 />
 
                 <Input
                   id="confirm-password"
+                  name="confirm_password"
                   type="password"
                   label={t("profile.confirmPassword")}
                   placeholder={t("profile.confirmPasswordPlaceholder")}
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
-                  error={errors.confirmPassword}
+                  error={passwordErrors.confirmPassword}
+                  autoComplete="new-password"
+                  required
                 />
               </div>
-            </div>
-          </div>
 
-          {/* Actions */}
-          <div className="flex items-center justify-between pt-2">
-            {isSuccess ? (
-              <div className="flex items-center gap-2 text-sm text-admin-action font-medium">
-                <CheckCircle2 size={16} />
-                <span>{t("profile.updateSuccess")}</span>
+              {/* Actions for Password Change */}
+              <div className="flex items-center justify-between pt-2 border-t border-admin-border">
+                {isPasswordSuccess ? (
+                  <div className="flex items-center gap-2 text-sm text-admin-action font-medium">
+                    <CheckCircle2 size={16} />
+                    <span>{t("profile.passwordUpdateSuccess")}</span>
+                  </div>
+                ) : (
+                  <div />
+                )}
+
+                <Button
+                  type="submit"
+                  variant="primary"
+                  isLoading={isPasswordSubmitting}
+                  icon={<Key size={16} />}
+                >
+                  {t("profile.changePassword")}
+                </Button>
               </div>
-            ) : (
-              <div />
-            )}
-
-            <Button
-              type="submit"
-              variant="primary"
-              isLoading={isSubmitting}
-              icon={<Save size={16} />}
-            >
-              {t("actions.save")}
-            </Button>
-          </div>
-        </form>
+            </div>
+          </form>
+        </div>
       )}
 
       {/* Tab 2: Two-Factor Authentication */}

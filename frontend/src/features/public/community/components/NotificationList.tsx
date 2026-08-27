@@ -1,12 +1,14 @@
 "use client";
 
-import { useTranslations } from "next-intl";
+import { useLocale, useTranslations } from "next-intl";
 import { Link } from "@/navigation";
 import { useCommunityNotificationsQuery, useMarkAllCommunityNotificationsRead, useMarkCommunityNotificationRead } from "../queries";
 import { Check, CheckCircle2, MessageSquare, ShieldCheck, ThumbsUp, AlertCircle, FileEdit } from "lucide-react";
+import { formatDateTimeWithRelative } from "@/utils/formatters";
 
 export function NotificationList() {
   const t = useTranslations("Community");
+  const locale = useLocale();
   const query = useCommunityNotificationsQuery(true);
   const markRead = useMarkCommunityNotificationRead();
   const markAll = useMarkAllCommunityNotificationsRead();
@@ -38,7 +40,7 @@ export function NotificationList() {
             className="inline-flex min-h-10 items-center gap-1.5 border border-site-border bg-site-canvas px-3.5 py-1.5 text-xs font-semibold text-site-foreground transition-colors hover:bg-site-surface focus-visible:outline-3 focus-visible:outline-offset-2 focus-visible:outline-site-focus disabled:opacity-60"
           >
             <Check size={14} />
-            <span>{t("markAllRead")}</span>
+            <span>{t("markAllAsRead")}</span>
           </button>
         ) : null}
       </div>
@@ -48,14 +50,15 @@ export function NotificationList() {
           {t("noNotifications")}
         </p>
       ) : (
-        <ul className="divide-y divide-site-border border-b border-site-border">
+        <div className="divide-y divide-site-border border-b border-site-border" role="list">
           {query.data.items.map((notification) => {
             const isUnread = !notification.read_at;
             return (
-              <li
+              <article
                 key={notification.id}
-                className={`flex flex-col gap-3 py-5 sm:flex-row sm:items-center sm:justify-between ${
-                  isUnread ? "bg-site-surface/30 px-3 -mx-3 border-l-2 border-site-accent" : ""
+                role="listitem"
+                className={`flex flex-col gap-3 py-4 transition-colors sm:flex-row sm:items-center sm:justify-between ${
+                  isUnread ? "bg-site-surface/30 px-3 -mx-3 border-l-2 border-site-accent" : "bg-site-canvas opacity-80"
                 }`}
               >
                 <div className="flex items-start gap-3 min-w-0">
@@ -67,11 +70,7 @@ export function NotificationList() {
                       {notificationTitle(t, notification.event_type)}
                     </p>
                     <time dateTime={notification.created_at} className="mt-1 block text-xs text-site-muted">
-                      {new Intl.DateTimeFormat("en-GB", {
-                        dateStyle: "medium",
-                        timeStyle: "short",
-                        timeZone: "Europe/Berlin",
-                      }).format(new Date(notification.created_at))}
+                      {formatDateTimeWithRelative(notification.created_at, locale)}
                     </time>
                   </div>
                 </div>
@@ -96,10 +95,10 @@ export function NotificationList() {
                     </button>
                   ) : null}
                 </div>
-              </li>
+              </article>
             );
           })}
-        </ul>
+        </div>
       )}
     </section>
   );

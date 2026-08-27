@@ -19,6 +19,7 @@ import {
 } from "../queries";
 import type { CommunityAnswer, CommunityComment, CommunityLocale } from "../types";
 import { ArrowLeft, Check, Edit3, MessageSquare, ShieldCheck, User } from "lucide-react";
+import { formatDateTimeWithRelative } from "@/utils/formatters";
 import { CommunityRichTextEditor } from "./CommunityRichTextEditor";
 import { HelpfulButton } from "./HelpfulButton";
 import { ReportDialog } from "./ReportDialog";
@@ -67,9 +68,7 @@ export function QuestionDetailContent({ id }: { id: string }) {
   }
 
   const detail = query.data;
-  const date = new Intl.DateTimeFormat(locale, { dateStyle: "long", timeZone: "Europe/Berlin" }).format(
-    new Date(detail.last_activity_at),
-  );
+  const date = formatDateTimeWithRelative(detail.last_activity_at, locale);
   const canContribute =
     session.status === "authenticated" && !["locked", "archived"].includes(detail.question.lifecycle_status);
 
@@ -314,8 +313,9 @@ function AnswerCard({
   const [showComments, setShowComments] = useState(false);
   const [isReplying, setIsReplying] = useState(false);
 
-  const answerDate = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: "Europe/Berlin" }).format(
-    new Date(answer.published_at || answer.created_at),
+  const answerDate = formatDateTimeWithRelative(
+    answer.published_at || answer.created_at,
+    locale,
   );
 
   return (
@@ -464,9 +464,7 @@ function CommentRow({
   enabled: boolean;
 }) {
   const t = useTranslations("Community");
-  const commentDate = new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: "Europe/Berlin" }).format(
-    new Date(comment.created_at),
-  );
+  const commentDate = formatDateTimeWithRelative(comment.created_at, locale);
 
   return (
     <div className="pt-3 first:pt-0">

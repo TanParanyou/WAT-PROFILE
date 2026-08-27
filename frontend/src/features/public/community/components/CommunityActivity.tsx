@@ -13,6 +13,7 @@ import { toCommunityApiError } from "../api";
 import { useCommunityActivityQuery, useDeleteCommunityQuestion } from "../queries";
 import type { CommunityLocale, CommunityMemberQuestion } from "../types";
 import { Edit3, Plus, Trash2 } from "lucide-react";
+import { formatDateTimeWithRelative } from "@/utils/formatters";
 
 function supportedLocale(value: string): CommunityLocale {
   return value === "en" || value === "de" ? value : "th";
@@ -205,9 +206,7 @@ function ActivityRow({
 
           <p className="mt-2 text-xs text-site-muted">
             {t("activityUpdated", {
-              date: new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: "Europe/Berlin" }).format(
-                new Date(question.updated_at),
-              ),
+              date: formatDateTimeWithRelative(question.updated_at, locale),
             })}
           </p>
         </div>

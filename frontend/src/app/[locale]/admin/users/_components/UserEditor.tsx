@@ -5,7 +5,6 @@ import { useRouter } from "@/navigation";
 import { Input } from "@/components/ui/Input";
 import { Select } from "@/components/ui/Select";
 import { Switch } from "@/components/ui/Switch";
-import { Button } from "@/components/ui/Button";
 import { PageLoading } from "@/components/ui/Loading";
 import { userAdminService, roleAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
@@ -161,6 +160,7 @@ export function UserEditor({ id }: UserEditorProps) {
               id="name"
               label={`${t("users.form.name")} *`}
               placeholder={t("users.form.namePlaceholder")}
+              autoComplete="name"
               {...register("name")}
               error={errors.name?.message}
             />
@@ -171,6 +171,7 @@ export function UserEditor({ id }: UserEditorProps) {
                 label={`${t("users.form.email")} *`}
                 type="email"
                 placeholder={t("users.form.emailPlaceholder")}
+                autoComplete="email"
                 {...register("email")}
                 error={errors.email?.message}
               />
@@ -194,6 +195,7 @@ export function UserEditor({ id }: UserEditorProps) {
               placeholder={
                 isEditMode ? "••••••••" : t("users.form.passwordPlaceholder")
               }
+              autoComplete="new-password"
               {...register("password")}
               error={errors.password?.message}
             />

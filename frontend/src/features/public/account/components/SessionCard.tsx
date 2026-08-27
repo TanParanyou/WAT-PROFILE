@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useTranslations } from "next-intl";
 import { Laptop, Loader2, ShieldCheck, Smartphone } from "lucide-react";
 import type { AccountSession } from "@/features/public/account/types";
+import { formatDateTimeWithRelative } from "@/utils/formatters";
 
 export interface SessionCardProps {
   session: AccountSession;
@@ -124,12 +125,6 @@ export function SessionCard({ session, locale, isRevoking, onRevoke }: SessionCa
 }
 
 function formatTimestamp(value: string, locale: string): string {
-  const date = new Date(value);
-  if (Number.isNaN(date.getTime())) return "—";
-
-  return new Intl.DateTimeFormat(locale, {
-    dateStyle: "medium",
-    timeStyle: "short",
-    timeZone: "Europe/Berlin",
-  }).format(date);
+  const result = formatDateTimeWithRelative(value, locale);
+  return result === "-" ? "—" : result;
 }

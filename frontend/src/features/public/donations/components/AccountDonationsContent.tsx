@@ -35,7 +35,6 @@ function formatDate(dateStr: string, locale: string): string {
     const date = new Date(dateStr);
     return new Intl.DateTimeFormat(locale, {
       dateStyle: "medium",
-      timeZone: "Europe/Berlin",
     }).format(date);
   } catch {
     return dateStr;

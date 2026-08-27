@@ -1,6 +1,7 @@
 import { Link } from "@/navigation";
 import type { CommunityLocale, CommunityQuestionListItem } from "../types";
 import { CheckCircle2, MessageSquare, ShieldCheck, User } from "lucide-react";
+import { formatDateTimeWithRelative } from "@/utils/formatters";
 
 interface QuestionListProps {
   items: readonly CommunityQuestionListItem[];
@@ -10,16 +11,11 @@ interface QuestionListProps {
   statusLabel: (status: CommunityQuestionListItem["lifecycle_status"]) => string;
 }
 
-const dateOptions: Intl.DateTimeFormatOptions = {
-  dateStyle: "medium",
-  timeZone: "Europe/Berlin",
-};
-
 export function QuestionList({ items, locale, answerLabel, activityLabel, statusLabel }: QuestionListProps) {
   return (
     <div className="divide-y divide-site-border border-y border-site-border" role="list">
       {items.map((item) => {
-        const date = new Intl.DateTimeFormat(locale, dateOptions).format(new Date(item.last_activity_at));
+        const date = formatDateTimeWithRelative(item.last_activity_at, locale);
         const isResolved = item.lifecycle_status === "resolved";
         const hasOfficial = item.official_answer_count > 0;
         const hasAnswers = item.published_answer_count > 0;

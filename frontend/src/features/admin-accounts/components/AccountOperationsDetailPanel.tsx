@@ -66,7 +66,7 @@ export function AccountOperationsDetailPanel({ account, onClose }: AccountOperat
   }, [pendingAction]);
 
   const dateFormatter = useMemo(
-    () => new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short", timeZone: "Europe/Berlin" }),
+    () => new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeStyle: "short" }),
     [locale],
   );
 

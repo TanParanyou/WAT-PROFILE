@@ -58,7 +58,7 @@ export default function AdminAccountsPage() {
   };
 
   const dateFormatter = useMemo(
-    () => new Intl.DateTimeFormat(locale, { dateStyle: "medium", timeZone: "Europe/Berlin" }),
+    () => new Intl.DateTimeFormat(locale, { dateStyle: "medium" }),
     [locale],
   );
 

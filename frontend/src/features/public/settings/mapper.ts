@@ -43,7 +43,7 @@ export function getFallbackPublicSiteSettings(): PublicSiteSettings {
       instagram: siteConfig.social.instagram ?? "",
       line: siteConfig.social.line ?? "",
     },
-    logoUrl: siteConfig.logo.light,
+    logoUrl: "",
     heroBgUrl: "/images/hero-bg.png",
     socialSidebarPosition: siteConfig.layout.socialSidebarPosition,
     defaultEventsView: "calendar",
