@@ -97,41 +97,26 @@ export default function HeroSection() {
           </motion.div>
         </div>
 
-        {/* ฝั่งรูปภาพ: แสดงเฉพาะเมื่อมี heroBgUrl */}
+        {/* ฝั่งรูปภาพ: จัดวางในกรอบเรียบหรูสไตล์ Zen ตาม DESIGN.md ปราศจากคราบ Gradient เลอะทับภาพ */}
         {heroBgUrl ? (
-          <motion.div
-            initial={{ opacity: reduceMotion ? 1 : 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ duration: 0.65, ease: easeOutSmooth, delay: reduceMotion ? 0 : 0.15 }}
-            className="relative aspect-[4/3] w-full min-h-[260px] overflow-hidden bg-site-canvas sm:aspect-[16/10] sm:min-h-[340px] lg:col-span-5 lg:aspect-auto lg:min-h-full"
-          >
-            <Image
-              src={heroBgUrl}
-              alt={t("heroImageAlt")}
-              fill
-              priority
-              unoptimized={/^https?:\/\//.test(heroBgUrl)}
-              sizes="(max-width: 1024px) 100vw, 42vw"
-              className="object-cover object-center"
-            />
-
-            {/* 1. สำหรับ Mobile: Fade บางๆ เฉพาะขอบบนและล่าง (เพียง 8-10% ริมขอบ) */}
-            <div
-              className="pointer-events-none absolute inset-0 z-10 bg-[linear-gradient(to_bottom,var(--public-canvas)_0%,transparent_10%,transparent_90%,var(--public-canvas)_100%)] lg:hidden"
-              aria-hidden="true"
-            />
-
-            {/* 2. สำหรับ Desktop: Fade บางๆ เฉพาะริมขอบซ้าย (เพียง 10-12%) เพื่อลบสันขอบแข็งโดยไม่บังภาพ */}
-            <div
-              className="pointer-events-none absolute inset-0 z-10 hidden lg:block lg:bg-[linear-gradient(to_right,var(--public-canvas)_0%,transparent_12%)]"
-              aria-hidden="true"
-            />
-            {/* Fade ขอบบน/ล่างของภาพใน desktop แบบอ่อนๆ ชิดขอบ */}
-            <div
-              className="pointer-events-none absolute inset-0 z-10 hidden lg:block lg:bg-[linear-gradient(to_bottom,var(--public-canvas)_0%,transparent_6%,transparent_94%,var(--public-canvas)_100%)] opacity-60"
-              aria-hidden="true"
-            />
-          </motion.div>
+          <div className="relative flex items-center justify-center border-t border-site-border p-6 sm:p-10 lg:col-span-5 lg:border-t-0 lg:border-l lg:p-8 xl:p-12">
+            <motion.div
+              initial={{ opacity: reduceMotion ? 1 : 0, scale: reduceMotion ? 1 : 0.98 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ duration: 0.65, ease: easeOutSmooth, delay: reduceMotion ? 0 : 0.15 }}
+              className="relative aspect-[4/5] w-full max-w-[480px] overflow-hidden border border-site-border bg-site-surface shadow-xl"
+            >
+              <Image
+                src={heroBgUrl}
+                alt={t("heroImageAlt")}
+                fill
+                priority
+                unoptimized={/^https?:\/\//.test(heroBgUrl)}
+                sizes="(max-width: 1024px) 100vw, 42vw"
+                className="object-cover object-center"
+              />
+            </motion.div>
+          </div>
         ) : null}
       </div>
     </section>

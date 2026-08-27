@@ -304,3 +304,41 @@ export function formatPhoneNumber(phone: string | null | undefined): string {
   return trimmed;
 }
 
+/**
+ * formatDateTimeWithRelative: Formats a date into local date-time with relative time appended.
+ * e.g. "27 ส.ค. 2569, 23:05 (เมื่อสักครู่)" / "27. Aug. 2026, 18:05 (gerade eben)"
+ */
+export function formatDateTimeWithRelative(
+  dateStr: string | Date | null | undefined,
+  locale: string = "th",
+): string {
+  if (!dateStr) return "-";
+  const dt = formatDateTime(dateStr, locale);
+  if (dt === "-") return "-";
+  const rel = formatRelativeTime(dateStr, locale);
+  if (rel === "-" || rel === dt) return dt;
+  return `${dt} (${rel})`;
+}
+
+/**
+ * formatTempleEventTime: Formats physical temple event times pinned to Europe/Berlin timezone.
+ * e.g. "09:00 - 11:00 (Berlin Time)" / "09:00 - 11:00 น. (เวลาเยอรมนี)"
+ */
+export function formatTempleEventTime(
+  startTime: string | Date | null | undefined,
+  endTime: string | Date | null | undefined,
+  locale: string = "th",
+): string {
+  const baseRange = formatTimeRange(startTime, endTime, locale);
+  if (baseRange === "-") return "-";
+
+  const tzLabel =
+    locale === "th"
+      ? "เวลาเยอรมนี"
+      : locale === "de"
+      ? "dt. Zeit"
+      : "Berlin Time";
+
+  return `${baseRange} (${tzLabel})`;
+}
+

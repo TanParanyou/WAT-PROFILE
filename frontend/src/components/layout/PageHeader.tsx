@@ -46,13 +46,13 @@ export default function PageHeader({
       ? "pb-12 pt-24 md:pb-14 md:pt-28"
       : "pb-12 pt-24 md:pb-14 md:pt-28";
   const alignmentClass = align === "center" ? "mx-auto text-center" : "text-left";
-  const textClass = isImage ? "text-site-on-action" : "text-site-foreground";
-  const subtitleClass = isImage ? "text-site-on-action/90" : "text-site-body";
+  const textClass = isImage ? "text-white" : "text-site-foreground";
+  const subtitleClass = isImage ? "text-white/90" : "text-site-body";
 
   return (
     <header
       className={`relative overflow-hidden border-b border-site-border ${heightClass} ${
-        isReading ? "bg-site-canvas" : isImage ? "bg-site-action" : "bg-site-surface"
+        isReading ? "bg-site-canvas" : isImage ? "bg-[#1c1a17]" : "bg-site-surface"
       }`}
     >
       {isReading ? (
@@ -73,7 +73,7 @@ export default function PageHeader({
             sizes="100vw"
             className="object-cover"
           />
-          <div className="absolute inset-0 bg-site-action/70" aria-hidden="true" />
+          <div className="absolute inset-0 bg-black/65 backdrop-blur-[1px]" aria-hidden="true" />
         </>
       ) : null}
 

@@ -228,6 +228,15 @@
     color-scheme: light;
 }
 
+/* Public Theme Logo switcher */
+[data-public-theme="dark"] .public-logo-light,
+.dark .public-logo-light {
+    display: none !important;
+}
+:root:not([data-public-theme="dark"]):not(.dark) .public-logo-dark {
+    display: none !important;
+}
+
 .public-theme input[type="checkbox"] {
     accent-color: var(--public-accent);
 }
@@ -544,4 +553,13 @@
 
 *::-webkit-scrollbar-thumb:hover {
     background: rgba(93, 64, 55, 0.8);
+}
+
+/* Prevent iOS Safari / WebKit auto-zoom on input focus for mobile devices */
+@media screen and (max-width: 767px) {
+    input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="hidden"]):not([type="button"]):not([type="submit"]):not([type="reset"]),
+    textarea,
+    select {
+        font-size: 16px !important;
+    }
 }

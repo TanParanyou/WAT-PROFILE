@@ -542,22 +542,26 @@ export function TwoFactorAuthCard() {
 
               <Input
                 id="disable-password"
+                name="password"
                 type="password"
                 label={t("profile.currentPassword")}
                 placeholder="••••••••"
                 value={disablePassword}
                 onChange={(e) => setDisablePassword(e.target.value)}
+                autoComplete="current-password"
                 required
               />
 
               <Input
                 id="disable-code"
+                name="code"
                 type="text"
                 label={t("security.totpOrBackupCode")}
                 placeholder="123456"
                 value={disableCode}
                 onChange={(e) => setDisableCode(e.target.value.trim())}
                 error={disableError}
+                autoComplete="one-time-code"
                 required
               />
 
@@ -614,12 +618,14 @@ export function TwoFactorAuthCard() {
 
                 <Input
                   id="regenerate-password"
+                  name="password"
                   type="password"
                   label={t("profile.currentPassword")}
                   placeholder="••••••••"
                   value={regeneratePassword}
                   onChange={(e) => setRegeneratePassword(e.target.value)}
                   error={regenerateError}
+                  autoComplete="current-password"
                   required
                 />
 

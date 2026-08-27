@@ -92,19 +92,49 @@ export default function Navbar() {
   const accountLabel =
     accountSession.status === "authenticated" ? t("accountProfile") : t("accountLogin");
 
+  const isCustomLogo = Boolean(
+    settings.logoUrl &&
+      settings.logoUrl !== STATIC_ASSETS.LOGO.DEFAULT &&
+      settings.logoUrl !== STATIC_ASSETS.LOGO.LIGHT &&
+      settings.logoUrl !== STATIC_ASSETS.LOGO.DARK &&
+      settings.logoUrl !== siteConfig.logo.light &&
+      settings.logoUrl !== siteConfig.logo.dark
+  );
+
   return (
     <header className="fixed top-0 z-50 w-full border-b border-site-border bg-site-canvas text-site-foreground print:hidden">
       <div className="mx-auto flex min-h-[72px] max-w-[1440px] items-center justify-between gap-4 px-6 sm:px-10 lg:px-[6vw]">
         <Link href="/" className="relative z-50 flex min-w-0 items-center gap-3 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus">
           <span className="relative flex size-11 shrink-0 items-center justify-center overflow-hidden border border-site-border bg-site-canvas">
-            <Image
-              src={settings.logoUrl || STATIC_ASSETS.LOGO.DEFAULT}
-              alt={getLocalizedText(siteConfig.siteName, locale)}
-              fill
-              sizes="44px"
-              priority
-              className="object-cover"
-            />
+            {!isCustomLogo ? (
+              <>
+                <Image
+                  src={STATIC_ASSETS.LOGO.LIGHT}
+                  alt={getLocalizedText(siteConfig.siteName, locale)}
+                  fill
+                  sizes="44px"
+                  priority
+                  className="public-logo-light object-cover"
+                />
+                <Image
+                  src={STATIC_ASSETS.LOGO.DARK}
+                  alt={getLocalizedText(siteConfig.siteName, locale)}
+                  fill
+                  sizes="44px"
+                  priority
+                  className="public-logo-dark object-cover"
+                />
+              </>
+            ) : (
+              <Image
+                src={settings.logoUrl}
+                alt={getLocalizedText(siteConfig.siteName, locale)}
+                fill
+                sizes="44px"
+                priority
+                className="object-cover"
+              />
+            )}
           </span>
           <span className="min-w-0">
             <span className="block truncate font-heading text-lg font-medium leading-none">{tSite("name")}</span>

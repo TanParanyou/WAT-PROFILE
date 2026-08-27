@@ -16,6 +16,15 @@ export const scheduleSchema = z
   .refine(
     (data) => data.schedule_type !== "weekly" || data.day_of_week !== null,
     { message: "กรุณาเลือกวัน", path: ["day_of_week"] },
+  )
+  .refine(
+    (data) => {
+      if (data.time_start && data.time_end) {
+        return data.time_end > data.time_start;
+      }
+      return true;
+    },
+    { message: "เวลาสิ้นสุดต้องมากกว่าเวลาเริ่มต้น", path: ["time_end"] },
   );
 
 export type ScheduleFormData = z.infer<typeof scheduleSchema>;
