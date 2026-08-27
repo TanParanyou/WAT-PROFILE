@@ -273,11 +273,11 @@ export default function AdminChatbotKnowledgeBasePage() {
         />
 
         {/* Toolbar & Filters */}
-        <div className="flex flex-col gap-3 rounded-none border border-neutral-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900 sm:flex-row sm:items-center sm:justify-between">
+        <div className="flex flex-col gap-3 rounded-none border border-admin-border bg-admin-surface p-4 sm:flex-row sm:items-center sm:justify-between">
           <div className="flex flex-1 flex-col gap-2 sm:flex-row sm:items-center">
             {/* Search */}
-            <div className="relative min-w-[240px]">
-              <Search className="absolute left-3 top-2.5 h-4 w-4 text-neutral-400" />
+            <div className="relative min-w-[260px]">
+              <Search className="absolute left-3 top-3 h-4 w-4 text-admin-muted" />
               <input
                 type="text"
                 value={search}
@@ -286,20 +286,20 @@ export default function AdminChatbotKnowledgeBasePage() {
                   setPage(1);
                 }}
                 placeholder={t("searchPlaceholder")}
-                className="w-full border border-neutral-300 bg-white py-2 pl-9 pr-3 text-xs text-neutral-900 placeholder:text-neutral-400 focus:border-amber-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
+                className="w-full border border-admin-control-border bg-admin-surface py-2 pl-9 pr-3 text-xs text-admin-foreground placeholder:text-admin-muted focus-visible:border-admin-focus focus-visible:outline-admin-focus"
               />
             </div>
 
             {/* Category Filter */}
             <div className="flex items-center gap-1.5">
-              <Filter className="h-3.5 w-3.5 text-neutral-400" />
+              <Filter className="h-3.5 w-3.5 text-admin-muted" />
               <select
                 value={category}
                 onChange={(e) => {
                   setCategory(e.target.value);
                   setPage(1);
                 }}
-                className="border border-neutral-300 bg-white px-2.5 py-2 text-xs text-neutral-900 focus:border-amber-500 focus:outline-none dark:border-neutral-700 dark:bg-neutral-800 dark:text-neutral-100"
+                className="border border-admin-control-border bg-admin-surface px-3 py-2 text-xs text-admin-foreground focus-visible:border-admin-focus focus-visible:outline-admin-focus"
               >
                 <option value="all">{t("categoryAll")}</option>
                 <option value="general">{t("categoryGeneral")}</option>
@@ -320,11 +320,11 @@ export default function AdminChatbotKnowledgeBasePage() {
                 setActiveOnly(e.target.checked);
                 setPage(1);
               }}
-              className="h-4 w-4 rounded border-neutral-300 text-amber-600 focus:ring-amber-500"
+              className="h-4 w-4 rounded border-admin-control-border text-admin-action focus:ring-admin-focus"
             />
             <label
               htmlFor="active_only_filter"
-              className="text-xs text-neutral-700 dark:text-neutral-300"
+              className="text-xs font-medium text-admin-body cursor-pointer"
             >
               {t("active")}
             </label>
@@ -332,7 +332,7 @@ export default function AdminChatbotKnowledgeBasePage() {
         </div>
 
         {/* Data Table */}
-        <div className="border border-neutral-200 bg-white dark:border-neutral-800 dark:bg-neutral-900">
+        <div className="border border-admin-border bg-admin-surface">
           <DataTable
             columns={columns}
             data={data?.data || []}

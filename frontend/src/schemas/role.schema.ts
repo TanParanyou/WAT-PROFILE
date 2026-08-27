@@ -4,6 +4,7 @@ export const roleSchema = z.object({
   name: z.string().min(1, "Role name is required"),
   description: z.string().optional(),
   is_active: z.boolean(),
+  admin_access: z.boolean().optional(),
   is_system: z.boolean().optional(),
   permissions: z
     .record(z.string(), z.unknown())

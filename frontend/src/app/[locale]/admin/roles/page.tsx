@@ -100,6 +100,7 @@ export default function RolesPage() {
       name: "",
       description: "",
       is_active: true,
+      admin_access: true,
       permissions: {},
     },
   });
@@ -110,6 +111,7 @@ export default function RolesPage() {
       name: "",
       description: "",
       is_active: true,
+      admin_access: true,
       permissions: {},
     });
     setIsModalOpen(true);
@@ -121,6 +123,7 @@ export default function RolesPage() {
       name: role.name,
       description: role.description || "",
       is_active: role.is_active,
+      admin_access: role.admin_access ?? false,
       permissions: role.permissions || {},
     });
     setIsModalOpen(true);
@@ -219,6 +222,16 @@ export default function RolesPage() {
       ),
     },
     { header: t("columns.description"), accessorKey: "description" },
+    {
+      header: t("columns.adminAccess"),
+      accessorKey: "admin_access",
+      cell: (v) => (
+        <StatusBadge
+          label={v ? "Admin" : "Member"}
+          variant={v ? "info" : "default"}
+        />
+      ),
+    },
     {
       header: t("columns.status"),
       accessorKey: "is_active",
@@ -399,8 +412,22 @@ export default function RolesPage() {
             )}
           </div>
 
-          {!Boolean(editingRole?.is_system) && (
-            <div className="mt-4">
+          <div className="space-y-3 pt-2">
+            <Controller
+              control={control}
+              name="admin_access"
+              render={({ field }) => (
+                <Switch
+                  id="role-admin-access"
+                  label={t("roles.form.adminAccess")}
+                  checked={Boolean(field.value)}
+                  disabled={Boolean(editingRole?.is_system && editingRole?.admin_access)}
+                  onChange={(e) => field.onChange(e.target.checked)}
+                />
+              )}
+            />
+
+            {!Boolean(editingRole?.is_system) && (
               <Controller
                 control={control}
                 name="is_active"
@@ -413,8 +440,8 @@ export default function RolesPage() {
                   />
                 )}
               />
-            </div>
-          )}
+            )}
+          </div>
         </div>
       </FormModal>
     </div>

@@ -88,26 +88,26 @@ export function AdminNotificationCenter() {
 
       {/* Notifications Popover Menu */}
       {isOpen && (
-        <div className="absolute right-0 mt-2 w-80 sm:w-96 bg-admin-surface border border-admin-border shadow-xl z-50 rounded-none overflow-hidden animate-in fade-in-50 zoom-in-95">
+        <div className="fixed inset-x-3 top-16 sm:absolute sm:inset-x-auto sm:right-0 sm:top-full sm:mt-2 sm:w-96 bg-admin-surface border border-admin-border shadow-xl z-50 rounded-none overflow-hidden animate-in fade-in-50 zoom-in-95 max-h-[calc(100vh-5rem)] flex flex-col">
           {/* Header */}
-          <div className="p-3 border-b border-admin-border bg-admin-surface-muted/50 flex items-center justify-between">
+          <div className="p-3 border-b border-admin-border bg-admin-surface-muted/50 flex items-center justify-between shrink-0">
             <div className="flex items-center gap-2">
               <span className="font-semibold text-sm text-admin-foreground">{t("title")}</span>
               {totalUnread > 0 && (
-                <span className="px-1.5 py-0.5 text-[11px] font-medium bg-admin-danger-surface text-admin-danger border border-admin-danger/20">
+                <span className="px-1.5 py-0.5 text-[11px] font-medium bg-admin-danger-surface text-admin-danger border border-admin-danger/20 shrink-0">
                   {t("unreadCount", { count: totalUnread })}
                 </span>
               )}
             </div>
-            {isLoading && <Loader2 size={14} className="animate-spin text-admin-muted" />}
+            {isLoading && <Loader2 size={14} className="animate-spin text-admin-muted shrink-0" />}
           </div>
 
           {/* Filter Chips */}
-          <div className="flex items-center gap-1.5 p-2 border-b border-admin-border bg-admin-surface text-xs overflow-x-auto">
+          <div className="flex items-center gap-1.5 p-2 border-b border-admin-border bg-admin-surface text-xs overflow-x-auto shrink-0">
             <button
               type="button"
               onClick={() => setActiveFilter("all")}
-              className={`px-2.5 py-1 text-[11px] font-medium transition-colors ${
+              className={`px-2.5 py-1 text-[11px] font-medium transition-colors shrink-0 whitespace-nowrap ${
                 activeFilter === "all"
                   ? "bg-admin-action text-admin-on-action"
                   : "bg-admin-surface-muted text-admin-muted hover:text-admin-foreground"
@@ -119,7 +119,7 @@ export function AdminNotificationCenter() {
               <button
                 type="button"
                 onClick={() => setActiveFilter("contact")}
-                className={`px-2.5 py-1 text-[11px] font-medium transition-colors ${
+                className={`px-2.5 py-1 text-[11px] font-medium transition-colors shrink-0 whitespace-nowrap ${
                   activeFilter === "contact"
                     ? "bg-admin-action text-admin-on-action"
                     : "bg-admin-surface-muted text-admin-muted hover:text-admin-foreground"
@@ -132,7 +132,7 @@ export function AdminNotificationCenter() {
               <button
                 type="button"
                 onClick={() => setActiveFilter("registration")}
-                className={`px-2.5 py-1 text-[11px] font-medium transition-colors ${
+                className={`px-2.5 py-1 text-[11px] font-medium transition-colors shrink-0 whitespace-nowrap ${
                   activeFilter === "registration"
                     ? "bg-admin-action text-admin-on-action"
                     : "bg-admin-surface-muted text-admin-muted hover:text-admin-foreground"
@@ -145,7 +145,7 @@ export function AdminNotificationCenter() {
               <button
                 type="button"
                 onClick={() => setActiveFilter("donation")}
-                className={`px-2.5 py-1 text-[11px] font-medium transition-colors ${
+                className={`px-2.5 py-1 text-[11px] font-medium transition-colors shrink-0 whitespace-nowrap ${
                   activeFilter === "donation"
                     ? "bg-admin-action text-admin-on-action"
                     : "bg-admin-surface-muted text-admin-muted hover:text-admin-foreground"
@@ -157,7 +157,7 @@ export function AdminNotificationCenter() {
           </div>
 
           {/* List of Notification Items */}
-          <div className="max-h-80 overflow-y-auto divide-y divide-admin-border">
+          <div className="max-h-80 sm:max-h-96 overflow-y-auto divide-y divide-admin-border flex-1">
             {filteredItems.length === 0 ? (
               <div className="py-8 px-4 text-center">
                 <CheckCircle2 size={28} className="mx-auto text-admin-success mb-2 opacity-80" />
@@ -177,7 +177,7 @@ export function AdminNotificationCenter() {
                     <p className="text-xs font-semibold text-admin-foreground group-hover:text-admin-action transition-colors truncate">
                       {item.title}
                     </p>
-                    <p className="text-[11px] text-admin-muted line-clamp-2 mt-0.5">
+                    <p className="text-[11px] text-admin-muted line-clamp-2 mt-0.5 break-words">
                       {item.message}
                     </p>
                     <p className="text-[10px] text-admin-muted/80 mt-1 font-mono">
@@ -195,7 +195,7 @@ export function AdminNotificationCenter() {
           </div>
 
           {/* Footer */}
-          <div className="p-2 border-t border-admin-border bg-admin-surface-muted/30 text-center">
+          <div className="p-2 border-t border-admin-border bg-admin-surface-muted/30 text-center shrink-0">
             <Link
               href="/admin/contacts"
               onClick={() => setIsOpen(false)}

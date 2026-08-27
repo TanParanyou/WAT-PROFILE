@@ -181,9 +181,9 @@ export const gettingStartedGuides: GuideArticle[] = [
           de: "Passwort sicher ändern",
         },
         description: {
-          th: "ในส่วน 'เปลี่ยนรหัสผ่าน' ให้กรอกรหัสผ่านปัจจุบัน ตามด้วยรหัสผ่านใหม่อย่างน้อย 8 ตัวอักษรที่มีตัวพิมพ์ใหญ่ พิมพ์เล็ก ตัวเลข และสัญลักษณ์",
-          en: "In the password section, enter your current password followed by a strong new password (minimum 8 chars with mixed case, numbers, and symbols).",
-          de: "Geben Sie Ihr aktuelles Passwort und ein sicheres neues Passwort (mind. 8 Zeichen mit Groß-/Kleinbuchstaben, Zahlen und Symbolen) ein.",
+          th: "ในส่วน 'เปลี่ยนรหัสผ่าน' ให้กรอกรหัสผ่านปัจจุบัน ตามด้วยรหัสผ่านใหม่อย่างน้อย 12 ตัวอักษรที่มีตัวพิมพ์ใหญ่ พิมพ์เล็ก ตัวเลข และสัญลักษณ์",
+          en: "In the password section, enter your current password followed by a strong new password (minimum 12 chars with mixed case, numbers, and symbols).",
+          de: "Geben Sie Ihr aktuelles Passwort und ein sicheres neues Passwort (mind. 12 Zeichen mit Groß-/Kleinbuchstaben, Zahlen und Symbolen) ein.",
         },
         warning: {
           th: "ห้ามบอกรหัสผ่านแก่ผู้อื่น ระบบแอดมินจะไม่ถามรหัสผ่านของคุณผ่านช่องทางใดๆ",

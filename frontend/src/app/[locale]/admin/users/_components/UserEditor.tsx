@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/useToast";
 import { useApiError } from "@/hooks/useApiError";
 import { useTranslations } from "next-intl";
 import { useForm, Controller, FormProvider } from "react-hook-form";
+import { useQueryClient } from "@tanstack/react-query";
 import { zodResolver } from "@hookform/resolvers/zod";
 import {
   createUserSchema,
@@ -29,10 +30,11 @@ export function UserEditor({ id }: UserEditorProps) {
   const isEditMode = !!id;
   const t = useTranslations("Admin");
   const router = useRouter();
+  const queryClient = useQueryClient();
   const { toast } = useToast();
   const { handleApiError } = useApiError();
   const [isLoading, setIsLoading] = useState(false);
-  const [isFetching, setIsFetching] = useState(isEditMode);
+  const [isFetching, setIsFetching] = useState(true);
   const [roles, setRoles] = useState<{ value: string; label: string }[]>([]);
 
   const methods = useForm<UpdateUserFormData>({
@@ -57,32 +59,43 @@ export function UserEditor({ id }: UserEditorProps) {
 
   // Fetch roles and user data if editing
   useEffect(() => {
+    let isMounted = true;
     const loadData = async () => {
+      setIsFetching(true);
       try {
         const rolesRes = await roleAdminService.getAll();
         const options = rolesRes.data.map((r) => ({
           value: String(r.id),
           label: r.name,
         }));
-        setRoles([{ value: "", label: t("users.form.selectRole") }, ...options]);
+        if (isMounted) {
+          setRoles([{ value: "", label: t("users.form.selectRole") }, ...options]);
+        }
 
         if (id) {
           const user = await userAdminService.getById(id);
-          reset({
-            name: user.name,
-            email: user.email,
-            password: "",
-            role_id: user.role_id ? String(user.role_id) : "",
-            is_active: user.is_active,
-          });
+          if (isMounted) {
+            reset({
+              name: user.name,
+              email: user.email,
+              password: "",
+              role_id: user.role_id ? String(user.role_id) : "",
+              is_active: user.is_active,
+            });
+          }
         }
       } catch (err: unknown) {
         handleApiError(err);
       } finally {
-        setIsFetching(false);
+        if (isMounted) {
+          setIsFetching(false);
+        }
       }
     };
     loadData();
+    return () => {
+      isMounted = false;
+    };
   }, [id, reset, handleApiError, t]);
 
   const onSubmit = async (data: UpdateUserFormData) => {
@@ -90,7 +103,7 @@ export function UserEditor({ id }: UserEditorProps) {
     try {
       const payload = {
         ...data,
-        role_id: data.role_id ? Number(data.role_id) : null,
+        role_id: data.role_id ? data.role_id : null,
         ...(isEditMode && !data.password ? {} : { password: data.password }),
       };
 
@@ -104,6 +117,7 @@ export function UserEditor({ id }: UserEditorProps) {
           payload as unknown as Record<string, unknown>,
         );
       }
+      await queryClient.invalidateQueries({ queryKey: ["admin", "users"] });
       toast.success(t("common.success"));
       router.push("/admin/users");
     } catch (err: unknown) {
@@ -160,19 +174,12 @@ export function UserEditor({ id }: UserEditorProps) {
                 {...register("email")}
                 error={errors.email?.message}
               />
-              <Controller
-                control={control}
-                name="role_id"
-                render={({ field }) => (
-                  <Select
-                    id="role_id"
-                    label={t("users.form.role")}
-                    options={roles}
-                    value={field.value || ""}
-                    onChange={(e) => field.onChange(e.target.value)}
-                    error={errors.role_id?.message}
-                  />
-                )}
+              <Select
+                id="role_id"
+                label={t("users.form.role")}
+                options={roles}
+                {...register("role_id")}
+                error={errors.role_id?.message}
               />
             </div>
 

@@ -155,6 +155,10 @@
       "edit": "Edit",
       "delete": "Delete",
       "save": "Save",
+      "saving": "Saving...",
+      "order": "Order",
+      "view": "View Image",
+      "csvId": "ID",
       "cancel": "Cancel",
       "close": "Close",
       "previous": "Previous",
@@ -787,6 +791,13 @@
       "loadingData": "Loading data...",
       "dragToReorder": "Drag and drop to reorder",
       "savingOrder": "Saving image order...",
+      "reorderSuccess": "Gallery reordered successfully",
+      "reorderFailed": "Failed to reorder gallery",
+      "uploadErrors": {
+        "invalidType": "Please select image files only",
+        "fileTooLarge": "File size must not exceed 15MB",
+        "uploadFailed": "Failed to upload image. Please try again"
+      },
       "addCategory": "Add New Category",
       "quickAddCategory": "+ New Category",
       "createCategoryTitle": "Create New Category",
@@ -1660,7 +1671,7 @@
         "selectRole": "Select a role...",
         "password": "Password",
         "newPasswordOptional": "New password (leave blank to keep unchanged)",
-        "passwordPlaceholder": "Enter password (at least 8 characters)",
+        "passwordPlaceholder": "Enter password (at least 12 characters)",
         "active": "Active user"
       }
     },
@@ -1879,7 +1890,8 @@
         "name": "Role Name",
         "description": "Description",
         "permissions": "Permissions",
-        "active": "Active Role"
+        "active": "Active Role",
+        "adminAccess": "Grant Admin Panel Access (Admin Access)"
       },
       "cannotDeleteAdmin": "Cannot delete 'admin' role"
     },
@@ -1891,6 +1903,7 @@
       "roleName": "Role Name",
       "nameTh": "Name (TH)",
       "status": "Status",
+      "adminAccess": "Admin Access",
       "actions": "Actions",
       "position": "Position",
       "type": "Type",
@@ -2059,6 +2072,11 @@
       "save": "Save"
     },
     "media": {
+      "title": "Media Library",
+      "sub": "Manage image assets, crop metadata, and inspect system references.",
+      "trashSub": "Items in trash can be restored or permanently purged.",
+      "uploadImage": "Upload Image",
+      "uploading": "Uploading...",
       "filters": {
         "mimeType": "File Type",
         "category": "Category",
@@ -2075,13 +2093,31 @@
       "backToLibrary": "Back to Media",
       "trash": "Trash",
       "details": {
+        "altText": "Alt Text",
+        "caption": "Caption",
+        "folderCategory": "Folder / Category",
+        "credit": "Credit / Source",
         "usageTitle": "Media Usage",
         "noUsage": "No usage found",
+        "noUsageFound": "No usage found",
+        "saveSuccess": "Media updated successfully",
+        "saveFailed": "Failed to update media",
+        "confirmDeleteTitle": "Move Media to Trash",
+        "confirmDeleteMsg": "Are you sure you want to move this media item to trash?",
+        "confirmDeleteWithRefs": "This media is currently used in {count} place(s). Are you sure you want to move it to trash?",
+        "deleteSuccess": "Media moved to trash successfully",
+        "deleteFailed": "Failed to move media to trash",
         "restore": "Restore Media",
+        "restoreSuccess": "Media restored successfully",
+        "restoreFailed": "Failed to restore media",
         "restoring": "Restoring...",
+        "confirmPurgeTitle": "Permanently Delete Media",
+        "confirmPurgeMsg": "Are you sure you want to permanently delete this media? This action cannot be undone.",
+        "confirmPurgeWithRefs": "This media is currently used in {count} place(s). Permanently deleting it will break images on the site. Are you sure?",
         "purge": "Delete Permanently",
-        "purging": "Deleting...",
-        "purgeFailed": "Failed to delete media permanently"
+        "purgeSuccess": "Media permanently deleted successfully",
+        "purgeFailed": "Failed to delete media permanently",
+        "purging": "Deleting..."
       }
     },
     "mediaSafety": {

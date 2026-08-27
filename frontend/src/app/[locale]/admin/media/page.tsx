@@ -31,6 +31,8 @@ interface MediaFilters extends AdminFilterRecord {
 
 export default function MediaLibraryPage() {
   const t = useTranslations("Admin.media");
+  const tCommon = useTranslations("Admin.common");
+  const tSidebar = useTranslations("Admin.sidebar");
   const { toast } = useToast();
   const queryClient = useQueryClient();
   const [selectedMedia, setSelectedMedia] = useState<Media | null>(null);
@@ -111,14 +113,14 @@ export default function MediaLibraryPage() {
     activeChips.push({
       key: "from",
       value: listState.params.filters.from,
-      label: t("common.filter.fromDate", { date: listState.params.filters.from }),
+      label: tCommon("filter.fromDate", { date: listState.params.filters.from }),
     });
   }
   if (listState.params.filters.to) {
     activeChips.push({
       key: "to",
       value: listState.params.filters.to,
-      label: t("common.filter.toDate", { date: listState.params.filters.to }),
+      label: tCommon("filter.toDate", { date: listState.params.filters.to }),
     });
   }
 
@@ -180,12 +182,12 @@ export default function MediaLibraryPage() {
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between mb-4">
           <div>
             <h1 className="text-xl font-semibold text-admin-foreground tracking-tight">
-              {showTrash ? t("mediaSafety.trash") : t("sidebar.media")}
+              {showTrash ? t("trash") : tSidebar("media")}
             </h1>
             <p className="text-xs text-admin-muted mt-0.5">
               {showTrash
-                ? t("mediaLibrary.trashSub") || "Items in trash can be restored or permanently purged."
-                : t("mediaLibrary.sub") || "Manage image assets, crop metadata, and inspect system references."}
+                ? t("trashSub") || "Items in trash can be restored or permanently purged."
+                : t("sub") || "Manage image assets, crop metadata, and inspect system references."}
             </p>
           </div>
 
@@ -198,7 +200,7 @@ export default function MediaLibraryPage() {
               }}
               className="mr-2 text-xs uppercase tracking-wider"
             >
-              {showTrash ? t("media.backToLibrary") : t("media.trash")}
+              {showTrash ? t("backToLibrary") : t("trash")}
             </Button>
             <input
               type="file"
@@ -217,7 +219,7 @@ export default function MediaLibraryPage() {
               ) : (
                 <Upload className="w-4 h-4" />
               )}
-              {isUploading ? "Uploading..." : "Upload Image"}
+              {isUploading ? t("uploading") : t("uploadImage")}
             </Button>
           </div>
         </div>
@@ -272,7 +274,7 @@ export default function MediaLibraryPage() {
           }
         >
           <AdminDateRangeFilter
-            label={t("common.filter.uploadDate")}
+            label={tCommon("filter.uploadDate")}
             from={listState.params.filters.from}
             to={listState.params.filters.to}
             onChange={({ from, to }) => {

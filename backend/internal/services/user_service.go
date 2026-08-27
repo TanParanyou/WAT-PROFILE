@@ -241,15 +241,22 @@ func (s *UserService) Update(user *models.User, newPassword string) error {
 		reason = "account_disabled"
 	}
 
+	user.Role = nil
 	if reason == "" {
-		return s.db.Save(user).Error
+		if err := s.db.Omit("Role").Save(user).Error; err != nil {
+			return err
+		}
+		return s.db.Preload("Role").First(user, "id = ?", user.ID).Error
 	}
 
 	return s.db.Transaction(func(tx *gorm.DB) error {
-		if err := tx.Save(user).Error; err != nil {
+		if err := tx.Omit("Role").Save(user).Error; err != nil {
 			return err
 		}
-		return revokeAllAdminSessionsTx(tx, user.ID, reason, time.Now())
+		if err := revokeAllAdminSessionsTx(tx, user.ID, reason, time.Now()); err != nil {
+			return err
+		}
+		return tx.Preload("Role").First(user, "id = ?", user.ID).Error
 	})
 }
 
