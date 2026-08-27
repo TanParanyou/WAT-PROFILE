@@ -324,7 +324,7 @@ const ChatWidgetInner: React.FC<ChatWidgetInnerProps> = ({ locale }) => {
             rows={1}
             maxLength={500}
             disabled={sendMutation.isPending}
-            className="h-[36px] max-h-[72px] flex-1 resize-none bg-transparent px-2 py-1.5 text-xs text-site-foreground placeholder:text-site-foreground/40 focus:outline-none disabled:opacity-50"
+            className="h-[36px] max-h-[72px] flex-1 resize-none bg-transparent px-2 py-1.5 text-base sm:text-xs text-site-foreground placeholder:text-site-foreground/40 focus:outline-none disabled:opacity-50"
           />
           <button
             type="button"

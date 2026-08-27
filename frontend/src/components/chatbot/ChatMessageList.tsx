@@ -106,7 +106,7 @@ function renderFormattedInline(text: string): React.ReactNode {
             key={`l-${keyCounter++}`}
             href={rawUrl}
             target={isInternal ? undefined : "_blank"}
-            rel={isInternal ? undefined : "noopener noreferrer"}
+            rel={isInternal ? undefined : "noopener noreferrer nofollow"}
             className="text-site-accent font-medium underline underline-offset-2 hover:opacity-80 transition-opacity"
           >
             {linkMatch[1]}
