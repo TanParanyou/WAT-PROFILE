@@ -3,6 +3,7 @@ package handlers
 import (
 	"errors"
 	"os"
+	"strings"
 	"time"
 
 	"github.com/gofiber/fiber/v2"
@@ -57,6 +58,25 @@ func adminCookieSecure() bool {
 	return os.Getenv("ADMIN_COOKIE_SECURE") == "true"
 }
 
+func adminCookieSameSite() string {
+	val := strings.ToLower(os.Getenv("ADMIN_COOKIE_SAMESITE"))
+	switch val {
+	case "none":
+		return fiber.CookieSameSiteNoneMode
+	case "lax":
+		return fiber.CookieSameSiteLaxMode
+	case "strict":
+		return fiber.CookieSameSiteStrictMode
+	default:
+		// When running with HTTPS/Secure enabled (such as cross-domain Vercel to Render),
+		// default to SameSite=None so modern browsers send credentials on refresh requests.
+		if adminCookieSecure() {
+			return fiber.CookieSameSiteNoneMode
+		}
+		return fiber.CookieSameSiteLaxMode
+	}
+}
+
 // adminRefreshCookieOptions returns the shared cookie configuration so set and
 // clear paths cannot drift.
 func (h *AdminAuthHandler) adminRefreshCookieOptions() *fiber.Cookie {
@@ -65,7 +85,7 @@ func (h *AdminAuthHandler) adminRefreshCookieOptions() *fiber.Cookie {
 		Path:     adminCookiePath,
 		HTTPOnly: true,
 		Secure:   adminCookieSecure(),
-		SameSite: fiber.CookieSameSiteStrictMode,
+		SameSite: adminCookieSameSite(),
 	}
 }
 

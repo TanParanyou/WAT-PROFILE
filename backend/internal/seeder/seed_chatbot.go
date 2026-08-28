@@ -76,6 +76,51 @@ func (s *Seeder) SeedChatbotKnowledgeBase() error {
 			Keywords: []string{"บวช", "ถือศีล", "เนกขัมมะ", "ordination", "monk", "retreat", "precepts", "Ordination", "Klosteraufenthalt"},
 			Priority: 7,
 		},
+		{
+			Category: "general",
+			Question: models.MultiLangText{
+				"th": "ที่จอดรถและการเดินทางด้วยรถสาธารณะ",
+				"en": "Parking and public transportation options",
+				"de": "Parkplätze und Anreise mit öffentlichen Verkehrsmitteln",
+			},
+			Answer: models.MultiLangText{
+				"th": "วัดมีที่จอดรถฟรีภายในบริเวณวัดสำหรับผู้มาเยือน สำหรับการเดินทางด้วยรถสาธารณะ สามารถนั่งรถไฟ S-Bahn สาย S7, S8 หรือ S9 ลงที่สถานี Frankfurt-Niederrad หรือ Frankfurt-Louisa แล้วต่อรถบัสสาย 78 หรือ 61 มายังวัดได้อย่างสะดวก",
+				"en": "Free visitor parking is available on temple grounds. For public transit, take S-Bahn S7, S8, or S9 to Frankfurt-Niederrad or Louisa station, then connect to bus line 78 or 61 directly to the temple area.",
+				"de": "Kostenlose Besucherparkplätze stehen auf dem Tempelgelände zur Verfügung. Mit den öffentlichen Verkehrsmitteln erreichen Sie uns mit der S-Bahn S7, S8 oder S9 bis Frankfurt-Niederrad oder Louisa, danach mit dem Bus 78 oder 61.",
+			},
+			Keywords: []string{"ที่จอดรถ", "จอดรถ", "รถไฟ", "รถเมล์", "parking", "parkplatz", "transit", "s-bahn", "bus", "transport"},
+			Priority: 8,
+		},
+		{
+			Category: "practice",
+			Question: models.MultiLangText{
+				"th": "การถวายภัตตาหารเช้า-เพล และการถวายสังฆทาน",
+				"en": "Offering morning/lunch meals and Sanghadana to monks",
+				"de": "Essensgaben (Dāna) und Gaben an die Mönchsgemeinschaft",
+			},
+			Answer: models.MultiLangText{
+				"th": "ญาติโยมสามารถมาร่วมทำบุญตักบาตรและถวายภัตตาหารเพลได้ทุกวัน เวลา 10:00 - 11:00 น. สำหรับการถวายสังฆทาน ผ้าไตรจีวร หรือปัจจัย สามารถนำมาถวายได้ตลอดช่วงเวลาเปิดของวัด",
+				"en": "Devotees are welcome to offer morning and lunch meals to the Sangha daily between 10:00 and 11:00 AM. Sanghadana offerings, monk robes, and requisites can be offered throughout the day during temple opening hours.",
+				"de": "Gläubige sind herzlich eingeladen, täglich zwischen 10:00 und 11:00 Uhr Essensgaben für das Mittagessen der Mönche darzubringen. Spenden und Sanghadana können während der gesamten Öffnungszeiten überreicht werden.",
+			},
+			Keywords: []string{"ถวายอาหาร", "ตักบาตร", "สังฆทาน", "ทำบุญ", "ภัตตาหาร", "food offering", "alms", "sanghadana", "dana", "Essensspende"},
+			Priority: 8,
+		},
+		{
+			Category: "general",
+			Question: models.MultiLangText{
+				"th": "การนิมนต์พระสงฆ์ไปประกอบพิธีทำบุญบ้าน หรือพิธีนอกสถานที่",
+				"en": "Inviting monks for house blessings or outside ceremonies",
+				"de": "Einladung von Mönchen zu Haussegnungen und Zeremonien",
+			},
+			Answer: models.MultiLangText{
+				"th": "หากท่านต้องการนิมนต์คณะสงฆ์ไปเจริญพระพุทธมนต์ ทำบุญขึ้นบ้านใหม่ หรือประกอบพิธีบำเพ็ญกุศล กรุณาติดต่อล่วงหน้าอย่างน้อย 1-2 สัปดาห์ ผ่านแบบฟอร์มติดต่อในหน้าเว็บไซต์ หรือโทร +49 69 12345678 เพื่อนัดหมายวันเวลา",
+				"en": "To invite monks for house blessings, business openings, or memorial services, please contact us at least 1-2 weeks in advance via the website Contact form or by calling +49 69 12345678 to coordinate schedule and arrangements.",
+				"de": "Für Haussegnungen, Gedenkfeiern oder besondere Zeremonien bitten wir um eine Voranmeldung von mindestens 1–2 Wochen über unser Kontaktformular oder telefonisch unter +49 69 12345678.",
+			},
+			Keywords: []string{"นิมนต์พระ", "ทำบุญบ้าน", "ขึ้นบ้านใหม่", "งานศพ", "พิธี", "house blessing", "ceremony", "memorial", "invitation", "Segnung", "Zeremonie"},
+			Priority: 7,
+		},
 	}
 
 	for _, item := range items {

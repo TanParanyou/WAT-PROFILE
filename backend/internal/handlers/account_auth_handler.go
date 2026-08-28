@@ -114,12 +114,16 @@ func traceID(c *fiber.Ctx) string {
 // publicRefreshCookieOptions returns the shared cookie configuration so set and
 // clear paths cannot drift.
 func (h *AccountAuthHandler) publicRefreshCookieOptions() *fiber.Cookie {
+	sameSite := fiber.CookieSameSiteLaxMode
+	if h.cfg.CookieSecure {
+		sameSite = fiber.CookieSameSiteNoneMode
+	}
 	return &fiber.Cookie{
 		Name:     publicRefreshCookie,
 		Path:     publicCookiePath,
 		HTTPOnly: true,
 		Secure:   h.cfg.CookieSecure,
-		SameSite: fiber.CookieSameSiteLaxMode,
+		SameSite: sameSite,
 	}
 }
 

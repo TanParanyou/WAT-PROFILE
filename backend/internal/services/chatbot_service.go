@@ -242,94 +242,164 @@ func (s *ChatbotService) getCandidateModels(ctx context.Context, apiKey string) 
 }
 
 // aggregateContext compiles relevant dynamic temple data and knowledge base entries into Markdown format
+// aggregateContext compiles relevant dynamic temple data and knowledge base entries into Markdown format
 func (s *ChatbotService) aggregateContext(ctx context.Context, query string, locale string) string {
 	var sb strings.Builder
 
-	sb.WriteString("=== TEMPLE INFORMATION ===\n")
+	sb.WriteString("=== TEMPLE INFORMATION & VISITING LOGISTICS ===\n")
 	sb.WriteString("Temple Name: Wat Loung Por Sai (วัดหลวงพ่อใส)\n")
 	sb.WriteString("Tradition: Theravada Buddhist Forest Tradition (พระพุทธศาสนาเถรวาทสายวัดป่า)\n")
 	sb.WriteString("Location: Waldstraße 108, 60528 Frankfurt am Main, Germany\n")
-	sb.WriteString("Opening Hours: Every day 06:00 - 20:00 CET\n")
+	sb.WriteString("Opening Hours: Daily 06:00 - 20:00 CET (เปิดทุกวัน 06:00 - 20:00 น.)\n")
+	sb.WriteString("Public Transit: S-Bahn S7 / S8 / S9 (Station: Frankfurt-Niederrad or Louisa), Bus line 78 or 61\n")
+	sb.WriteString("Parking: Free visitor parking available on temple grounds\n")
 	sb.WriteString("Contact Email: info@watloungporsai.de\n")
-	sb.WriteString("Contact Phone: +49 69 12345678\n\n")
+	sb.WriteString("Contact Phone: +49 69 12345678\n")
+	sb.WriteString("Dress Code: Polite, modest attire covering shoulders and knees. Remove shoes before entering the Main Sanctuary/Vihara. Free admission.\n\n")
 
 	// 1. Live Active Upcoming Events (next 30 days)
-	var events []models.Event
-	now := time.Now()
-	thirtyDaysLater := now.AddDate(0, 0, 30)
-	if err := s.db.WithContext(ctx).
-		Where("is_active = ? AND start_date <= ?", true, thirtyDaysLater).
-		Order("start_date ASC").
-		Limit(5).
-		Find(&events).Error; err == nil && len(events) > 0 {
-		sb.WriteString("=== UPCOMING EVENTS ===\n")
-		for _, e := range events {
-			title := e.Title.Get(locale)
-			loc := e.Location.Get(locale)
-			sb.WriteString(fmt.Sprintf("- Event: %s (Date: %s, Location: %s)\n",
-				title, e.StartDate.Format("2006-01-02"), loc))
-		}
-		sb.WriteString("\n")
-	}
-
-	// 2. Live Active Schedules
-	var schedules []models.Schedule
-	if err := s.db.WithContext(ctx).
-		Where("is_active = ?", true).
-		Order("display_order ASC").
-		Limit(8).
-		Find(&schedules).Error; err == nil && len(schedules) > 0 {
-		sb.WriteString("=== REGULAR SCHEDULES ===\n")
-		for _, sch := range schedules {
-			activity := sch.Activity.Get(locale)
-			loc := sch.Location.Get(locale)
-			timeStr := ""
-			if sch.TimeStart != nil {
-				timeStr = sch.TimeStart.Format("15:04")
-				if sch.TimeEnd != nil {
-					timeStr += " - " + sch.TimeEnd.Format("15:04")
+	if s.db != nil {
+		var events []models.Event
+		now := time.Now()
+		thirtyDaysLater := now.AddDate(0, 0, 30)
+		if err := s.db.WithContext(ctx).
+			Where("is_active = ? AND start_date <= ?", true, thirtyDaysLater).
+			Order("start_date ASC").
+			Limit(5).
+			Find(&events).Error; err == nil && len(events) > 0 {
+			sb.WriteString("=== UPCOMING EVENTS ===\n")
+			for _, e := range events {
+				title := e.Title.Get(locale)
+				if title == "" {
+					title = e.Title.Get("th")
 				}
+				loc := e.Location.Get(locale)
+				if loc == "" {
+					loc = e.Location.Get("th")
+				}
+				sb.WriteString(fmt.Sprintf("- Event: %s (Date: %s, Location: %s)\n",
+					title, e.StartDate.Format("2006-01-02"), loc))
 			}
-			sb.WriteString(fmt.Sprintf("- [%s] %s (Time: %s, Location: %s)\n",
-				sch.ScheduleType, activity, timeStr, loc))
+			sb.WriteString("\n")
 		}
-		sb.WriteString("\n")
-	}
 
-	// 3. Monastic Community Summary
-	var monkCount int64
-	s.db.WithContext(ctx).Model(&models.Monk{}).Where("is_active = ?", true).Count(&monkCount)
-	sb.WriteString(fmt.Sprintf("=== MONKS ===\nThere are currently %d resident monks actively serving the temple community.\n\n", monkCount))
-
-	// 4. Knowledge Base Q&A Entries
-	var kbItems []models.ChatbotKnowledgeBase
-	s.db.WithContext(ctx).
-		Where("is_active = ?", true).
-		Order("priority DESC, id ASC").
-		Limit(10).
-		Find(&kbItems)
-
-	if len(kbItems) > 0 {
-		sb.WriteString("=== KNOWLEDGE BASE (Q&A) ===\n")
-		for _, kb := range kbItems {
-			q := kb.Question.Get(locale)
-			if q == "" {
-				q = kb.Question.Get("th")
+		// 2. Live Active Schedules
+		var schedules []models.Schedule
+		if err := s.db.WithContext(ctx).
+			Where("is_active = ?", true).
+			Order("display_order ASC").
+			Limit(8).
+			Find(&schedules).Error; err == nil && len(schedules) > 0 {
+			sb.WriteString("=== REGULAR SCHEDULES ===\n")
+			for _, sch := range schedules {
+				activity := sch.Activity.Get(locale)
+				if activity == "" {
+					activity = sch.Activity.Get("th")
+				}
+				loc := sch.Location.Get(locale)
+				timeStr := ""
+				if sch.TimeStart != nil {
+					timeStr = sch.TimeStart.Format("15:04")
+					if sch.TimeEnd != nil {
+						timeStr += " - " + sch.TimeEnd.Format("15:04")
+					}
+				}
+				sb.WriteString(fmt.Sprintf("- [%s] %s (Time: %s, Location: %s)\n",
+					sch.ScheduleType, activity, timeStr, loc))
 			}
-			a := kb.Answer.Get(locale)
-			if a == "" {
-				a = kb.Answer.Get("th")
-			}
-			sb.WriteString(fmt.Sprintf("Q: %s\nA: %s\n\n", q, a))
+			sb.WriteString("\n")
 		}
-	}
 
-	// 5. Admin Custom Extra System Prompt
-	var extraPromptSetting models.Setting
-	if err := s.db.WithContext(ctx).Where("key = ?", "chatbot_system_prompt_extra").First(&extraPromptSetting).Error; err == nil && extraPromptSetting.Value != "" {
-		sb.WriteString("=== SPECIAL ANNOUNCEMENT / EXTRA INSTRUCTIONS ===\n")
-		sb.WriteString(extraPromptSetting.Value)
-		sb.WriteString("\n\n")
+		// 3. Monastic Community Summary & Resident Monks
+		var monks []models.Monk
+		if err := s.db.WithContext(ctx).
+			Where("is_active = ?", true).
+			Order("display_order ASC").
+			Find(&monks).Error; err == nil && len(monks) > 0 {
+			sb.WriteString("=== MONASTIC COMMUNITY (คณะสงฆ์) ===\n")
+			for _, m := range monks {
+				name := m.Name.Get(locale)
+				if name == "" {
+					name = m.Name.Get("th")
+				}
+				title := m.Title.Get(locale)
+				if title == "" {
+					title = m.Title.Get("th")
+				}
+				dharma := m.DharmaName.Get(locale)
+				if dharma == "" {
+					dharma = m.DharmaName.Get("th")
+				}
+				pos := m.Position
+				if pos == "" {
+					pos = "Resident Monk"
+				}
+				sb.WriteString(fmt.Sprintf("- %s %s (%s) - Position: %s\n", title, name, dharma, pos))
+			}
+			sb.WriteString("\n")
+		}
+
+		// 4. Knowledge Base Q&A Entries (Intelligent Keyword Search + High Priority FAQ)
+		var kbItems []models.ChatbotKnowledgeBase
+		searchWords := strings.Fields(strings.ToLower(query))
+		var matchingIDs []uint
+
+		for _, w := range searchWords {
+			if len(w) >= 2 {
+				var ids []uint
+				term := "%" + w + "%"
+				s.db.WithContext(ctx).Model(&models.ChatbotKnowledgeBase{}).
+					Where("is_active = ? AND (LOWER(question->>'th') LIKE ? OR LOWER(question->>'en') LIKE ? OR LOWER(question->>'de') LIKE ? OR LOWER(array_to_string(keywords, ',')) LIKE ?)", true, term, term, term, term).
+					Pluck("id", &ids)
+				matchingIDs = append(matchingIDs, ids...)
+			}
+		}
+
+		if len(matchingIDs) > 0 {
+			s.db.WithContext(ctx).
+				Where("is_active = ? AND id IN ?", true, matchingIDs).
+				Order("priority DESC, id ASC").
+				Limit(8).
+				Find(&kbItems)
+		}
+
+		// Top off with high-priority general FAQs if few matched
+		if len(kbItems) < 8 {
+			var generalItems []models.ChatbotKnowledgeBase
+			existingIDs := make([]uint, 0, len(kbItems))
+			for _, item := range kbItems {
+				existingIDs = append(existingIDs, item.ID)
+			}
+			q := s.db.WithContext(ctx).Where("is_active = ?", true)
+			if len(existingIDs) > 0 {
+				q = q.Where("id NOT IN ?", existingIDs)
+			}
+			q.Order("priority DESC, id ASC").Limit(8 - len(kbItems)).Find(&generalItems)
+			kbItems = append(kbItems, generalItems...)
+		}
+
+		if len(kbItems) > 0 {
+			sb.WriteString("=== KNOWLEDGE BASE (Q&A) ===\n")
+			for _, kb := range kbItems {
+				q := kb.Question.Get(locale)
+				if q == "" {
+					q = kb.Question.Get("th")
+				}
+				a := kb.Answer.Get(locale)
+				if a == "" {
+					a = kb.Answer.Get("th")
+				}
+				sb.WriteString(fmt.Sprintf("Q: %s\nA: %s\n\n", q, a))
+			}
+		}
+
+		// 5. Admin Custom Extra System Prompt
+		var extraPromptSetting models.Setting
+		if err := s.db.WithContext(ctx).Where("key = ?", "chatbot_system_prompt_extra").First(&extraPromptSetting).Error; err == nil && extraPromptSetting.Value != "" {
+			sb.WriteString("=== SPECIAL ANNOUNCEMENT / EXTRA INSTRUCTIONS ===\n")
+			sb.WriteString(extraPromptSetting.Value)
+			sb.WriteString("\n\n")
+		}
 	}
 
 	return sb.String()
@@ -394,8 +464,11 @@ Your Persona & Communication Rules:
    - If Thai: Use respectful, polite phrasing (e.g. "สวัสดีครับ / เจริญพรครับ", "ยินดีให้ข้อมูลครับ").
    - If German: Use polite, welcoming, serene phrasing (e.g. "Herzlich willkommen im Wat Loung Por Sai", "Gerne informieren wir Sie").
    - If English: Use warm, respectful, peaceful phrasing.
-3. Scope: Answer questions ONLY about Wat Loung Por Sai, Buddhist meditation, temple events, visiting guidelines, monastic community, ordination, and donations.
-4. Format: Respond with a single valid JSON object with the following schema:
+3. Structure: Use markdown formatting (bullet points, bold text) for easy reading. Keep answers concise, actionable, and warm.
+4. Suggested Follow-ups: ALWAYS generate 2-3 short, highly relevant follow-up question ideas based on the conversation topic.
+
+Response Format:
+Respond with a single valid JSON object with the following schema:
 {
   "reply": "Your markdown-formatted polite response here in %s...",
   "suggested_followups": ["2-3 short relevant follow-up question suggestions in %s"]
@@ -425,6 +498,8 @@ Your Persona & Communication Rules:
 		Parts: []geminiPart{{Text: userPrompt}},
 	})
 
+	temp := 0.3
+	topP := 0.95
 	reqBody := geminiRequest{
 		SystemInstruction: &geminiContent{
 			Parts: []geminiPart{{Text: systemInstruction}},
@@ -432,6 +507,8 @@ Your Persona & Communication Rules:
 		Contents: contents,
 	}
 	reqBody.GenerationConfig.ResponseMimeType = "application/json"
+	reqBody.GenerationConfig.Temperature = &temp
+	reqBody.GenerationConfig.TopP = &topP
 
 	jsonPayload, err := json.Marshal(reqBody)
 	if err != nil {
