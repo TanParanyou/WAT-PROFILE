@@ -189,9 +189,9 @@ export default function ContactContent({ locale, cmsPage }: ContactContentProps)
               <span>{successMessage}</span>
             </div>
           )}
-          <p className="text-sm leading-6 text-text-700">
+          <p className="text-sm leading-6 text-site-muted">
             {t("privacyNotice")}{" "}
-            <Link href={privacyLink} className="font-medium text-text-900 underline decoration-primary/40 underline-offset-4 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary">
+            <Link href={privacyLink} className="font-medium text-site-foreground underline decoration-site-accent/40 underline-offset-4 hover:text-site-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-site-focus">
               {t("privacyLink")}
             </Link>
           </p>
@@ -232,7 +232,7 @@ function Field({
   const errorId = `${id}-error`;
   return (
     <div>
-      <label className="block text-sm font-semibold text-text-800" htmlFor={id}>
+      <label className="block text-sm font-semibold text-site-foreground" htmlFor={id}>
       {label}
       {textarea ? (
         <textarea id={id} rows={6} className={base} required maxLength={maxLength} aria-invalid={Boolean(error)} aria-describedby={error ? errorId : undefined} {...registration} />

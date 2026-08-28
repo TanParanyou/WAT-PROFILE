@@ -71,7 +71,7 @@ export function PublicContactPageLayout({
   );
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="min-h-screen bg-site-canvas text-site-foreground">
       <PageHeader variant="color" align="left" title={title} subtitle={description} />
       <PageContainer width="content">
         <div className="grid gap-12 lg:grid-cols-2 lg:gap-x-14 lg:gap-y-16">
@@ -97,7 +97,7 @@ export function PublicContactPageLayout({
                 <InfoRow icon={<Phone size={20} aria-hidden="true" />} title={labels.phone}>
                   <a
                     href={`tel:${phone}`}
-                    className="underline decoration-primary/40 underline-offset-4 hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                    className="underline decoration-site-accent/40 underline-offset-4 hover:text-site-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-site-focus"
                   >
                     {phone}
                   </a>
@@ -107,7 +107,7 @@ export function PublicContactPageLayout({
                 <InfoRow icon={<Mail size={20} aria-hidden="true" />} title={labels.email}>
                   <a
                     href={`mailto:${email}`}
-                    className="break-all underline decoration-primary/40 underline-offset-4 hover:text-primary focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-primary"
+                    className="break-all underline decoration-site-accent/40 underline-offset-4 hover:text-site-accent focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-site-focus"
                   >
                     {email}
                   </a>
@@ -123,7 +123,7 @@ export function PublicContactPageLayout({
                       <p>{getLocalizedText(openingHours.time, locale)}</p>
                     ) : null}
                     {getLocalizedText(openingHours.notice, locale) ? (
-                      <p className="text-sm text-text-700">
+                      <p className="text-sm text-site-muted">
                         {getLocalizedText(openingHours.notice, locale)}
                       </p>
                     ) : null}
@@ -140,7 +140,7 @@ export function PublicContactPageLayout({
                     ) : null}
                     {publicTransport.length > 0 ? (
                       <div>
-                        <h3 className="font-semibold text-text-900">{t("publicTransport")}</h3>
+                        <h3 className="font-semibold text-site-foreground">{t("publicTransport")}</h3>
                         <ul className="mt-2 list-disc space-y-1 pl-5">
                           {publicTransport.map((item, index) => {
                             const itemText = getLocalizedText(item, locale);
@@ -184,17 +184,17 @@ export function PublicContactPageLayout({
               {page.body.contact_form.enabled ? (
                 formSlot
               ) : (
-                <p className="py-10 text-center text-text-700">{t("formDisabled")}</p>
+                <p className="py-10 text-center text-site-muted">{t("formDisabled")}</p>
               )}
             </div>
           </section>
 
           {hasSocials || hasBank ? (
-            <section className="border-t border-primary/15 pt-12 lg:col-span-2 lg:row-start-3">
+            <section className="border-t border-site-divider pt-12 lg:col-span-2 lg:row-start-3">
               <div className="grid gap-10 md:grid-cols-2">
                 {hasSocials ? (
                   <div>
-                    <h2 className="font-heading text-2xl font-bold text-text-900">{labels.social}</h2>
+                    <h2 className="font-heading text-2xl font-bold text-site-foreground">{labels.social}</h2>
                     <div className="mt-5 flex flex-wrap gap-3">
                       {socialLinks.map((item) => (
                         <a
@@ -218,11 +218,11 @@ export function PublicContactPageLayout({
                 ) : null}
                 {hasBank ? (
                   <div>
-                    <h2 className="flex items-center gap-3 font-heading text-2xl font-bold text-text-900">
+                    <h2 className="flex items-center gap-3 font-heading text-2xl font-bold text-site-foreground">
                       <CreditCard size={22} aria-hidden="true" />
                       {labels.bank}
                     </h2>
-                    <dl className="mt-5 grid gap-2 text-sm text-text-800">
+                    <dl className="mt-5 grid gap-2 text-sm text-site-body">
                       {getLocalizedText(bank.bank_name, locale) ? (
                         <div>{getLocalizedText(bank.bank_name, locale)}</div>
                       ) : null}
@@ -259,8 +259,8 @@ function InfoRow({
         {icon}
       </div>
       <div>
-        <h3 className="font-heading text-lg font-bold text-text-900">{title}</h3>
-        <div className="mt-1 leading-7 text-text-800">{children}</div>
+        <h3 className="font-heading text-lg font-bold text-site-foreground">{title}</h3>
+        <div className="mt-1 leading-7 text-site-body">{children}</div>
       </div>
     </div>
   );
@@ -269,7 +269,7 @@ function InfoRow({
 function InfoGroup({ title, children }: { title: string; children: React.ReactNode }) {
   return (
     <div>
-      <h3 className="font-semibold text-text-900">{title}</h3>
+      <h3 className="font-semibold text-site-foreground">{title}</h3>
       <p className="mt-1">{children}</p>
     </div>
   );
