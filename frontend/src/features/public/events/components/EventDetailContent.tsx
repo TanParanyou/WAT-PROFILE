@@ -34,6 +34,7 @@ import type { PublicEventDto } from "../types";
 import { EventDetailSkeleton } from "./EventDetailSkeleton";
 import { getLocalizedPlainText } from "@/features/public/shared/rich-text";
 import { RegistrationPanel } from "@/features/public/event-registration/components/RegistrationPanel";
+import { AnalyticsTracker } from "@/components/analytics/AnalyticsTracker";
 
 interface EventDetailContentProps {
   slug: string;
@@ -125,6 +126,7 @@ export function EventDetailContent({ slug, initialEvent }: EventDetailContentPro
 
   return (
     <div className="w-full">
+      <AnalyticsTracker resourceType="event" resourceId={event.id} />
       {/* 1. Status Badges & Action Bar */}
       <section className="border-b border-site-border pb-6 mb-8">
         <div className="flex flex-wrap items-center justify-between gap-3">
