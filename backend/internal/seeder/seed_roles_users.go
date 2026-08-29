@@ -36,6 +36,8 @@ func (s *Seeder) SeedRoles() error {
 				"chanting":           "all",
 				"community":          "all",
 				"chatbot":            "all",
+				"news":               "all",
+				"site_alerts":        "all",
 			},
 			IsActive:    true,
 			AdminAccess: true,
@@ -43,7 +45,7 @@ func (s *Seeder) SeedRoles() error {
 		},
 		{
 			Name:        "editor",
-			Description: "Content editor - manages events, monks, gallery, schedules, website",
+			Description: "Content editor - manages events, monks, gallery, schedules, website, news, alerts",
 			Permissions: models.PermissionsMap{
 				"dashboard":          "read",
 				"events":             "all",
@@ -56,6 +58,8 @@ func (s *Seeder) SeedRoles() error {
 				"profile":            "update",
 				"chanting":           "all",
 				"chatbot":            "all",
+				"news":               "all",
+				"site_alerts":        "all",
 			},
 			IsActive:    true,
 			AdminAccess: true,

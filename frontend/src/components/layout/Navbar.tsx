@@ -84,6 +84,7 @@ export default function Navbar() {
       ],
     },
     { type: "link", name: t("events"), href: "/events" },
+    { type: "link", name: t("news"), href: "/news" },
     { type: "link", name: t("chanting"), href: "/chanting" },
     ...(isCommunityEnabled ? [{ type: "link" as const, name: t("community"), href: "/community" }] : []),
     { type: "link", name: t("contact"), href: "/contact" },
@@ -102,7 +103,7 @@ export default function Navbar() {
   );
 
   return (
-    <header className="fixed top-0 z-50 w-full border-b border-site-border bg-site-canvas text-site-foreground print:hidden">
+    <header className="relative w-full border-b border-site-border bg-site-canvas text-site-foreground print:hidden">
       <div className="mx-auto flex min-h-[72px] max-w-[1440px] items-center justify-between gap-4 px-6 sm:px-10 lg:px-[6vw]">
         <Link href="/" className="relative z-50 flex min-w-0 items-center gap-3 focus-visible:outline-3 focus-visible:outline-offset-4 focus-visible:outline-site-focus">
           <span className="relative flex size-11 shrink-0 items-center justify-center overflow-hidden border border-site-border bg-site-canvas">

@@ -100,3 +100,45 @@ _Avoid_: Privacy Ticket
 **Personal Data Erasure**:
 การลบหรือทำข้อมูลส่วนบุคคลให้ไม่สามารถระบุตัวบุคคลได้ หลังเจ้าหน้าที่ตรวจและยืนยันคำขอแล้ว
 _Avoid_: Immediate Deletion
+
+## News & Articles
+
+**News Article**:
+บทความหรือข่าวประชาสัมพันธ์ของวัด ที่มีเนื้อหาขนาดยาว รูปภาพประกอบ และรองรับ 3 ภาษา (TH/EN/DE)
+_Avoid_: Post, Blog, News Entry
+
+**News Category**:
+หมวดหมู่สำหรับจัดกลุ่มข่าวสารและบทความ เช่น ข่าวประชาสัมพันธ์, เกร็ดธรรมะ, รายงานกิจกรรม
+_Avoid_: Topic, Type
+
+**Featured Article**:
+News Article ที่ถูกปักหมุดให้แสดงเป็นข่าวเด่นในหน้าแรกหรือด้านบนสุดของหน้ารายการข่าว
+_Avoid_: Pinned Post, Highlight
+
+**Draft Article**:
+News Article ที่อยู่ระหว่างการร่าง ยังไม่แสดงบนเว็บไซต์สาธารณะ
+
+**Scheduled Article**:
+News Article ที่ตั้งเวลาเผยแพร่ล่วงหน้า และจะแสดงผลบนเว็บไซต์สาธารณะเมื่อถึงเวลาที่กำหนด
+
+**Published Article**:
+News Article ที่เผยแพร่บนเว็บไซต์สาธารณะเรียบร้อยแล้ว
+
+**Archived Article**:
+News Article ที่ปลดออกจากการเผยแพร่โดยไม่ลบข้อมูลออกจากระบบ
+
+## Site Alerts & Announcements
+
+**Site Alert**:
+ข้อความประกาศด่วนหรือแจ้งเตือนสำคัญของวัด ที่แสดงเป็นแถบด้านบนหรือป๊อปอัปบนหน้าเว็บ
+_Avoid_: Notification, Flash News
+
+**Alert Banner**:
+Site Alert ที่แสดงเป็นแถบข้อความด้านบนสุดของหน้าเว็บ
+
+**Alert Popup**:
+Site Alert ที่แสดงเป็นหน้าต่างป๊อปอัปตรงกลางจอ สำหรับกรณีฉุกเฉินระดับวิกฤต
+
+**Dismissed Alert**:
+Site Alert ที่ผู้เข้าชมกดปิด (✕) แล้ว และระบบจำสถานะไว้ใน LocalStorage เพื่อไม่ให้แสดงซ้ำ
+

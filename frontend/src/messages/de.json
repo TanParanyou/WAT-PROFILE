@@ -5,6 +5,7 @@
     "aboutOverview": "Über den Tempel",
     "events": "Veranstaltungen",
     "calendar": "Kalender",
+    "news": "Aktuelles",
     "visit": "Besuch",
     "gallery": "Galerie",
     "contact": "Kontakt",
@@ -26,6 +27,7 @@
   "Footer": {
     "aboutUs": "Über Uns",
     "events": "Veranstaltungen",
+    "news": "Aktuelles",
     "calendar": "Kalender",
     "donate": "Spenden",
     "contactUs": "Kontakt",
@@ -1187,6 +1189,7 @@
     "unreadNotifications": "{count} ungelesen",
     "unreadLabel": "Ungelesen",
     "markAllRead": "Alle als gelesen markieren",
+    "markAllAsRead": "Alle als gelesen markieren",
     "markRead": "Als gelesen markieren",
     "noNotifications": "Noch keine Benachrichtigungen.",
     "viewNotification": "Inhalt ansehen",
@@ -1341,6 +1344,30 @@
     "errorFallback": "Entschuldigung, der Assistent ist derzeit nicht erreichbar. Bitte versuchen Sie es später erneut oder kontaktieren Sie uns direkt.",
     "resetConfirm": "Möchten Sie den gesamten Chatverlauf wirklich löschen?",
     "cancel": "Abbrechen"
+  },
+  "news": {
+    "title": "Nachrichten & Artikel",
+    "subtitle": "Berichte, Neuigkeiten und Dhamma-Eindrücke aus Wat Loung Por Sai",
+    "allCategories": "Alle",
+    "searchPlaceholder": "Nachrichten und Artikel durchsuchen...",
+    "featuredBadge": "Top-Beitrag",
+    "readMore": "Weiterlesen",
+    "readFullArticle": "Vollständigen Artikel lesen",
+    "shareArticle": "Artikel teilen",
+    "copyLink": "Link kopieren",
+    "linkCopied": "Link kopiert",
+    "more": "Mehr",
+    "backToNews": "Zurück zur Übersicht",
+    "relatedNews": "Verwandte Beiträge",
+    "noArticlesFound": "Keine Artikel gefunden",
+    "noArticlesInCategory": "Noch keine Artikel in dieser Kategorie",
+    "latestNews": "Aktuelle Nachrichten & Berichte",
+    "latestNewsSubtitle": "Bleiben Sie auf dem Laufenden über Aktivitäten, Ankündigungen und Geschichten",
+    "publishedOn": "Veröffentlicht am",
+    "writtenBy": "Verfasst von",
+    "gallery": "Bildergalerie",
+    "viewAllNews": "Alle Nachrichten ansehen",
+    "close": "Schließen"
   }
 }
 

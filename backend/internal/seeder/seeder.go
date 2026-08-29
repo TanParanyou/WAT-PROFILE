@@ -39,6 +39,9 @@ func (s *Seeder) SeedEssential() error {
 	if err := s.SeedChatbotKnowledgeBase(); err != nil {
 		return fmt.Errorf("seed chatbot kb: %w", err)
 	}
+	if err := s.SeedNewsAndAlerts(); err != nil {
+		return fmt.Errorf("seed news and alerts: %w", err)
+	}
 
 	log.Println("==> Essential Seed completed successfully!")
 	return nil
@@ -116,6 +119,11 @@ func (s *Seeder) SeedFull() error {
 		return fmt.Errorf("seed chatbot kb: %w", err)
 	}
 
-	log.Println("==> Full Seed completed successfully across all 13 modules!")
+	// 14. News & Site Alerts
+	if err := s.SeedNewsAndAlerts(); err != nil {
+		return fmt.Errorf("seed news and alerts: %w", err)
+	}
+
+	log.Println("==> Full Seed completed successfully across all 14 modules!")
 	return nil
 }

@@ -83,9 +83,97 @@ tags:
     description: Public multilingual chatbot assistant
   - name: Admin - Chatbot
     description: Knowledge Base management for Chatbot (Admin only)
+  - name: News
+    description: News, announcements, and articles (Public)
+  - name: Site Alerts
+    description: Urgent site alerts and banners (Public)
+  - name: Admin - News
+    description: News and articles management (Admin only)
+  - name: Admin - News Categories
+    description: News category management (Admin only)
+  - name: Admin - Site Alerts
+    description: Site alerts management (Admin only)
 
 paths:
   # ==================== PUBLIC ====================
+  /public/news:
+    get:
+      tags: [News]
+      summary: Get published news and articles
+      parameters:
+        - name: page
+          in: query
+          required: false
+          schema: { type: integer, default: 1 }
+        - name: limit
+          in: query
+          required: false
+          schema: { type: integer, default: 10 }
+        - name: category_id
+          in: query
+          required: false
+          schema: { type: integer }
+        - name: search
+          in: query
+          required: false
+          schema: { type: string }
+      responses:
+        '200':
+          description: Paginated list of published articles
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  data: { type: array, items: { type: object } }
+                  pagination: { type: object }
+
+  /public/news/categories:
+    get:
+      tags: [News]
+      summary: Get active news categories
+      responses:
+        '200':
+          description: List of active categories
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  data: { type: array, items: { type: object } }
+
+  /public/news/{slug}:
+    get:
+      tags: [News]
+      summary: Get published article by slug
+      parameters:
+        - name: slug
+          in: path
+          required: true
+          schema: { type: string }
+      responses:
+        '200':
+          description: Article detail
+        '404':
+          description: Article not found
+
+  /public/alerts:
+    get:
+      tags: [Site Alerts]
+      summary: Get active site alerts
+      responses:
+        '200':
+          description: List of currently active alerts
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success: { type: boolean, example: true }
+                  data: { type: array, items: { type: object } }
+
   /public/chatbot/message:
     post:
       tags: [Chatbot]
@@ -1239,6 +1327,41 @@ paths:
                 type: object
                 additionalProperties:
                   type: string
+
+  /public/analytics/track:
+    post:
+      tags: [Analytics]
+      summary: Log public pageview and visitor metrics
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                path:
+                  type: string
+                  example: /events/vesak-day-2026
+                locale:
+                  type: string
+                  example: th
+                resource_type:
+                  type: string
+                  example: event
+                resource_id:
+                  type: string
+                  example: "12"
+                referrer:
+                  type: string
+                  example: https://facebook.com
+      responses:
+        '200':
+          description: Tracking payload accepted
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
 
   # ==================== AUTH ====================
   /auth/register:
@@ -2724,6 +2847,157 @@ paths:
                                   format: date-time
                                 is_new:
                                   type: boolean
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/analytics/overview:
+    get:
+      tags: [Admin - Analytics]
+      summary: Get comprehensive analytics overview (views, unique visitors, devices, locales, trends)
+      description: Requires the `dashboard:read` permission.
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: from
+          in: query
+          description: Start date (YYYY-MM-DD)
+          schema:
+            type: string
+        - name: to
+          in: query
+          description: End date (YYYY-MM-DD)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Analytics overview data
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/analytics/trends:
+    get:
+      tags: [Admin - Analytics]
+      summary: Get time-series trend data points
+      description: Requires the `dashboard:read` permission.
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: resource_type
+          in: query
+          description: Optional filter by resource type (e.g. event, page, news)
+          schema:
+            type: string
+        - name: from
+          in: query
+          description: Start date (YYYY-MM-DD)
+          schema:
+            type: string
+        - name: to
+          in: query
+          description: End date (YYYY-MM-DD)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: List of trend data points
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/analytics/top-resources:
+    get:
+      tags: [Admin - Analytics]
+      summary: Get top performing pages or entities
+      description: Requires the `dashboard:read` permission.
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: resource_type
+          in: query
+          description: Optional filter by resource type (e.g. event, page, news)
+          schema:
+            type: string
+        - name: limit
+          in: query
+          description: Max items to return (default 10)
+          schema:
+            type: integer
+        - name: from
+          in: query
+          description: Start date (YYYY-MM-DD)
+          schema:
+            type: string
+        - name: to
+          in: query
+          description: End date (YYYY-MM-DD)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Top resource items
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '403':
+          $ref: '#/components/responses/Forbidden'
+
+  /admin/analytics/resources/{type}/{id}:
+    get:
+      tags: [Admin - Analytics]
+      summary: Get detailed analytics for a specific entity
+      description: Requires the `dashboard:read` permission.
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: type
+          in: path
+          required: true
+          description: Resource type (e.g. event, monk, news)
+          schema:
+            type: string
+        - name: id
+          in: path
+          required: true
+          description: Resource ID
+          schema:
+            type: string
+        - name: from
+          in: query
+          description: Start date (YYYY-MM-DD)
+          schema:
+            type: string
+        - name: to
+          in: query
+          description: End date (YYYY-MM-DD)
+          schema:
+            type: string
+      responses:
+        '200':
+          description: Resource analytics details
+          content:
+            application/json:
+              schema:
+                allOf:
+                  - $ref: '#/components/schemas/SuccessResponse'
         '401':
           $ref: '#/components/responses/Unauthorized'
         '403':
@@ -5735,11 +6009,248 @@ paths:
           description: Toggled knowledge base item
           content:
             application/json:
-              schema:
-                type: object
-                properties:
-                  success: { type: boolean, example: true }
-                  data: { $ref: '#/components/schemas/ChatbotKnowledgeBaseItem' }
+  # ==================== ADMIN - News ====================
+  /admin/news:
+    get:
+      tags: [Admin - News]
+      summary: List all news articles
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: page
+          in: query
+          schema: { type: integer, default: 1 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20 }
+        - name: status
+          in: query
+          schema: { type: string, enum: [draft, scheduled, published, archived, all] }
+        - name: category_id
+          in: query
+          schema: { type: integer }
+        - name: search
+          in: query
+          schema: { type: string }
+      responses:
+        '200':
+          description: Paginated list of news articles
+    post:
+      tags: [Admin - News]
+      summary: Create news article
+      security:
+        - AdminBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [slug, title]
+              properties:
+                slug: { type: string }
+                title: { $ref: '#/components/schemas/MultiLangText' }
+                excerpt: { $ref: '#/components/schemas/MultiLangText' }
+                content: { type: object }
+                cover_image_url: { type: string }
+                gallery_urls: { type: array, items: { type: string } }
+                category_id: { type: integer }
+                author_name: { type: string }
+                publish_status: { type: string, enum: [draft, scheduled, published, archived] }
+                published_at: { type: string, format: date-time }
+                scheduled_at: { type: string, format: date-time }
+                is_featured: { type: boolean }
+                is_pinned: { type: boolean }
+      responses:
+        '201':
+          description: News article created
+
+  /admin/news/{id}:
+    get:
+      tags: [Admin - News]
+      summary: Get news article by ID
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: News article detail
+    put:
+      tags: [Admin - News]
+      summary: Update news article
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+      responses:
+        '200':
+          description: News article updated
+    delete:
+      tags: [Admin - News]
+      summary: Delete news article
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: News article deleted
+
+  # ==================== ADMIN - News Categories ====================
+  /admin/news-categories:
+    get:
+      tags: [Admin - News Categories]
+      summary: List all news categories
+      security:
+        - AdminBearerAuth: []
+      responses:
+        '200':
+          description: List of categories
+    post:
+      tags: [Admin - News Categories]
+      summary: Create news category
+      security:
+        - AdminBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [slug, name]
+              properties:
+                slug: { type: string }
+                name: { $ref: '#/components/schemas/MultiLangText' }
+                description: { $ref: '#/components/schemas/MultiLangText' }
+                is_active: { type: boolean }
+                display_order: { type: integer }
+      responses:
+        '201':
+          description: Category created
+
+  /admin/news-categories/{id}:
+    put:
+      tags: [Admin - News Categories]
+      summary: Update news category
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Category updated
+    delete:
+      tags: [Admin - News Categories]
+      summary: Delete news category
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Category deleted
+
+  # ==================== ADMIN - Site Alerts ====================
+  /admin/site-alerts:
+    get:
+      tags: [Admin - Site Alerts]
+      summary: List all site alerts
+      security:
+        - AdminBearerAuth: []
+      responses:
+        '200':
+          description: Paginated list of alerts
+    post:
+      tags: [Admin - Site Alerts]
+      summary: Create site alert
+      security:
+        - AdminBearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [title, message]
+              properties:
+                title: { $ref: '#/components/schemas/MultiLangText' }
+                message: { $ref: '#/components/schemas/MultiLangText' }
+                severity: { type: string, enum: [info, warning, critical] }
+                display_type: { type: string, enum: [top_banner, modal_popup] }
+                scope: { type: string, enum: [all_pages, home_only] }
+                action_text: { $ref: '#/components/schemas/MultiLangText' }
+                action_url: { type: string }
+                starts_at: { type: string, format: date-time }
+                ends_at: { type: string, format: date-time }
+                is_active: { type: boolean }
+                display_order: { type: integer }
+                is_dismissible: { type: boolean }
+      responses:
+        '201':
+          description: Alert created
+
+  /admin/site-alerts/{id}:
+    get:
+      tags: [Admin - Site Alerts]
+      summary: Get site alert by ID
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Alert detail
+    put:
+      tags: [Admin - Site Alerts]
+      summary: Update site alert
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Alert updated
+    delete:
+      tags: [Admin - Site Alerts]
+      summary: Delete site alert
+      security:
+        - AdminBearerAuth: []
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema: { type: integer }
+      responses:
+        '200':
+          description: Alert deleted
 
 components:
   securitySchemes:

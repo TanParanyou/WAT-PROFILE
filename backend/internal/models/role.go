@@ -83,8 +83,8 @@ func (r *Role) HasPermission(resource, action string) bool {
 		return true
 	}
 
-	// 3. Any active admin role always has read access to dashboard and notifications
-	if resource == "dashboard" && action == "read" && r.AdminAccess {
+	// 3. Any active admin role always has read access to dashboard, notifications, and analytics
+	if (resource == "dashboard" || resource == "analytics") && action == "read" && r.AdminAccess {
 		return true
 	}
 

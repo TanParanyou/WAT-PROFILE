@@ -27,9 +27,13 @@ import {
   BookOpen,
   Phone,
   FileText,
+  FileCheck2,
   Settings,
   MessageCircleQuestion,
   MessageSquare,
+  Newspaper,
+  Megaphone,
+  BarChart3,
 } from "lucide-react";
 import { usePermission } from "@/hooks/usePermission";
 import { cn } from "@/utils/cn";
@@ -57,6 +61,9 @@ const sidebarGroups: SidebarGroup[] = [
     titleKey: "websiteGroup",
     resource: "website",
     items: [
+      { labelKey: "analytics", href: "/admin/analytics", icon: BarChart3 },
+      { labelKey: "news", href: "/admin/news", icon: Newspaper, resource: "news" },
+      { labelKey: "siteAlerts", href: "/admin/alerts", icon: Megaphone, resource: "site_alerts" },
       { labelKey: "about", href: "/admin/about", icon: BookOpen },
       { labelKey: "contact", href: "/admin/contact", icon: Phone },
       { labelKey: "impressum", href: "/admin/impressum", icon: FileText },
@@ -83,6 +90,7 @@ const sidebarGroups: SidebarGroup[] = [
     items: [
       { labelKey: "members", href: "/admin/members", icon: UserCheck, resource: "members" },
       { labelKey: "donations", href: "/admin/donations", icon: HandCoins, resource: "donations" },
+      { labelKey: "forms", href: "/admin/forms", icon: FileCheck2, resource: "donations" },
       { labelKey: "contacts", href: "/admin/contacts", icon: Mail, resource: "contacts" },
       { labelKey: "privacyRequests", href: "/admin/privacy-requests", icon: FileKey, resource: "privacy_requests" },
     ],

@@ -5,6 +5,7 @@ import HeroSection from "@/components/home/HeroSection";
 import WelcomeSection from "@/components/home/WelcomeSection";
 import EventsSection from "@/components/home/EventsSection";
 import DonationSection from "@/components/home/DonationSection";
+import HomeNewsSection from "@/components/home/HomeNewsSection";
 import EventAlertModal from "@/components/home/EventAlertModal";
 import { siteConfig } from "@/config/site.config";
 import { getLocalizedText } from "@/utils/localizedText";
@@ -49,6 +50,7 @@ export default async function PublicHomePage({ params }: { params: Promise<{ loc
       <HeroSection />
       <WelcomeSection />
       <EventsSection locale={locale} />
+      <HomeNewsSection />
       <DonationSection />
       <EventAlertModal />
     </div>

@@ -22,10 +22,11 @@ import type { Chanting } from "@/types/chanting";
 
 // Generic CRUD helpers สำหรับ admin endpoints
 export function createAdminService<T>(resource: string) {
+  const cleanResource = resource.replace(/^\/+|\/+$/g, '');
   return {
     async getPaginated(params: AdminListParams): Promise<PaginatedResponse<T>> {
       const queryString = serializeAdminListParams(params);
-      const url = queryString ? `/admin/${resource}?${queryString}` : `/admin/${resource}`;
+      const url = queryString ? `/admin/${cleanResource}?${queryString}` : `/admin/${cleanResource}`;
       const res = await api.get<PaginatedResponse<T>>(url);
       return res.data;
     },
@@ -36,7 +37,7 @@ export function createAdminService<T>(resource: string) {
     async getAll(
       params?: Record<string, string | number>,
     ): Promise<{ data: T[]; total: number }> {
-      const res = await api.get(`/admin/${resource}`, { params: { limit: 100, ...params } });
+      const res = await api.get(`/admin/${cleanResource}`, { params: { limit: 100, ...params } });
       const body = res.data;
       // รองรับทั้ง paginated และ non-paginated response
       if (body.pagination) {
@@ -47,29 +48,29 @@ export function createAdminService<T>(resource: string) {
     },
 
     async getById(id: number | string): Promise<T> {
-      const res = await api.get<ApiResponse<T>>(`/admin/${resource}/${id}`);
+      const res = await api.get<ApiResponse<T>>(`/admin/${cleanResource}/${id}`);
       return res.data.data!;
     },
 
     async create(data: Partial<T>): Promise<T> {
-      const res = await api.post<ApiResponse<T>>(`/admin/${resource}`, data);
+      const res = await api.post<ApiResponse<T>>(`/admin/${cleanResource}`, data);
       return res.data.data!;
     },
 
     async update(id: number | string, data: Partial<T>): Promise<T> {
       const res = await api.put<ApiResponse<T>>(
-        `/admin/${resource}/${id}`,
+        `/admin/${cleanResource}/${id}`,
         data,
       );
       return res.data.data!;
     },
 
     async delete(id: number | string): Promise<void> {
-      await api.delete(`/admin/${resource}/${id}`);
+      await api.delete(`/admin/${cleanResource}/${id}`);
     },
 
     async bulkDelete(ids: (number | string)[]): Promise<void> {
-      await api.delete(`/admin/${resource}/bulk`, { data: { ids } });
+      await api.delete(`/admin/${cleanResource}/bulk`, { data: { ids } });
     },
   };
 }

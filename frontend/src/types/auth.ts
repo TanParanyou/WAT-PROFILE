@@ -92,4 +92,7 @@ export type PermissionResource =
   | "calendar_resources"
   | "community"
   | "chanting"
-  | "chatbot";
+  | "chatbot"
+  | "news"
+  | "site_alerts"
+  | "analytics";

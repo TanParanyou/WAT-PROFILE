@@ -105,6 +105,11 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 	eventAlertHandler := handlers.NewEventAlertHandler(db)
 	personalDataRequestHandler := handlers.NewPersonalDataRequestHandler(db)
 	chatbotHandler := handlers.NewChatbotHandler(db)
+	auditService := services.NewAuditService(db)
+	newsCategoryHandler := handlers.NewNewsCategoryHandler(db, auditService)
+	newsArticleHandler := handlers.NewNewsArticleHandler(db, auditService)
+	siteAlertHandler := handlers.NewSiteAlertHandler(db, auditService)
+	analyticsHandler := handlers.NewAnalyticsHandler(db)
 
 	// ============ PUBLIC ROUTES (No Auth Required) ============
 	public := api.Group("/public")
@@ -112,6 +117,12 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 	public.Get("/community/categories", communityPublicHandler.GetCategories)
 	public.Get("/community/questions", communityPublicHandler.ListQuestions)
 	public.Get("/community/questions/:id", communityPublicHandler.GetQuestion)
+
+	// News & Site Alerts (Public)
+	public.Get("/news", newsArticleHandler.GetPublicNews)
+	public.Get("/news/categories", newsCategoryHandler.GetPublicCategories)
+	public.Get("/news/:slug", newsArticleHandler.GetPublicNewsBySlug)
+	public.Get("/alerts", siteAlertHandler.GetPublicAlerts)
 
 	// Public Content Pages
 	public.Get("/about", publicContentHandler.GetPublicAbout)
@@ -158,6 +169,9 @@ func SetupRoutes(app *fiber.App, db *gorm.DB, r2 *storage.R2Service, accountCfg 
 	public.Get("/settings", settingsHandler.GetPublicSettings)
 	public.Get("/event-alert", eventAlertHandler.Get)
 	public.Get("/pages/:slug", contentHandler.GetPublicPage)
+
+	// Analytics Tracking (public - no auth)
+	public.Post("/analytics/track", analyticsHandler.TrackPageView)
 
 	// Event Registration (public - no auth)
 	if accountCfg.Enabled {
@@ -284,10 +298,14 @@ func registerAdminRoutes(group fiber.Router, definitions []AdminRouteDefinition,
 // routes must be declared before their parameterized siblings.
 func adminRouteDefinitions() []AdminRouteDefinition {
 	return []AdminRouteDefinition{
-		// Dashboard & Notifications
+		// Dashboard & Notifications & Analytics
 		{Method: fiber.MethodGet, Path: "/dashboard/stats", Resource: "dashboard", Action: "read", HandlerKey: "dashboard.stats"},
 		{Method: fiber.MethodGet, Path: "/dashboard/overview", Resource: "dashboard", Action: "read", HandlerKey: "dashboard.overview"},
 		{Method: fiber.MethodGet, Path: "/notifications", Resource: "dashboard", Action: "read", HandlerKey: "dashboard.notifications"},
+		{Method: fiber.MethodGet, Path: "/analytics/overview", Resource: "dashboard", Action: "read", HandlerKey: "analytics.overview"},
+		{Method: fiber.MethodGet, Path: "/analytics/trends", Resource: "dashboard", Action: "read", HandlerKey: "analytics.trends"},
+		{Method: fiber.MethodGet, Path: "/analytics/top-resources", Resource: "dashboard", Action: "read", HandlerKey: "analytics.topResources"},
+		{Method: fiber.MethodGet, Path: "/analytics/resources/:type/:id", Resource: "dashboard", Action: "read", HandlerKey: "analytics.resourceStats"},
 
 		// Community Moderation
 		{Method: fiber.MethodGet, Path: "/community/queue", Resource: "community", Action: "read", HandlerKey: "community.queue"},
@@ -509,6 +527,24 @@ func adminRouteDefinitions() []AdminRouteDefinition {
 		{Method: fiber.MethodPost, Path: "/account-operations/:id/enable", Resource: "account_operations", Action: "update", HandlerKey: "accountOps.enable"},
 		{Method: fiber.MethodPost, Path: "/account-operations/:id/logout-all", Resource: "account_operations", Action: "update", HandlerKey: "accountOps.logoutAll"},
 
+		// News & Categories Management
+		{Method: fiber.MethodGet, Path: "/news", Resource: "news", Action: "read", HandlerKey: "news.list"},
+		{Method: fiber.MethodGet, Path: "/news/:id", Resource: "news", Action: "read", HandlerKey: "news.get"},
+		{Method: fiber.MethodPost, Path: "/news", Resource: "news", Action: "create", HandlerKey: "news.create"},
+		{Method: fiber.MethodPut, Path: "/news/:id", Resource: "news", Action: "update", HandlerKey: "news.update"},
+		{Method: fiber.MethodDelete, Path: "/news/:id", Resource: "news", Action: "delete", HandlerKey: "news.delete"},
+		{Method: fiber.MethodGet, Path: "/news-categories", Resource: "news", Action: "read", HandlerKey: "newsCategories.list"},
+		{Method: fiber.MethodPost, Path: "/news-categories", Resource: "news", Action: "create", HandlerKey: "newsCategories.create"},
+		{Method: fiber.MethodPut, Path: "/news-categories/:id", Resource: "news", Action: "update", HandlerKey: "newsCategories.update"},
+		{Method: fiber.MethodDelete, Path: "/news-categories/:id", Resource: "news", Action: "delete", HandlerKey: "newsCategories.delete"},
+
+		// Site Alerts Management
+		{Method: fiber.MethodGet, Path: "/site-alerts", Resource: "site_alerts", Action: "read", HandlerKey: "siteAlerts.list"},
+		{Method: fiber.MethodGet, Path: "/site-alerts/:id", Resource: "site_alerts", Action: "read", HandlerKey: "siteAlerts.get"},
+		{Method: fiber.MethodPost, Path: "/site-alerts", Resource: "site_alerts", Action: "create", HandlerKey: "siteAlerts.create"},
+		{Method: fiber.MethodPut, Path: "/site-alerts/:id", Resource: "site_alerts", Action: "update", HandlerKey: "siteAlerts.update"},
+		{Method: fiber.MethodDelete, Path: "/site-alerts/:id", Resource: "site_alerts", Action: "delete", HandlerKey: "siteAlerts.delete"},
+
 		// Role Management (reuse "users" permission resource)
 		{Method: fiber.MethodGet, Path: "/roles", Resource: "users", Action: "read", HandlerKey: "roles.list"},
 		{Method: fiber.MethodGet, Path: "/roles/:id", Resource: "users", Action: "read", HandlerKey: "roles.get"},
@@ -554,12 +590,35 @@ func adminHandlerMap(db *gorm.DB, r2 *storage.R2Service, accountCfg config.Accou
 	aiTranslationHandler := handlers.NewAiTranslationHandler(db)
 	backupHandler := handlers.NewBackupHandler(db)
 	adminChatbotHandler := handlers.NewAdminChatbotHandler(db)
+	auditService := services.NewAuditService(db)
+	newsCategoryHandler := handlers.NewNewsCategoryHandler(db, auditService)
+	newsArticleHandler := handlers.NewNewsArticleHandler(db, auditService)
+	siteAlertHandler := handlers.NewSiteAlertHandler(db, auditService)
 
 	emailSender, _ := services.NewAccountEmailSender(accountCfg)
 	securityHandler := handlers.NewAdminSecurityHandler(db, emailSender)
 	sessionHandler := handlers.NewAdminSessionHandler(db)
+	analyticsHandler := handlers.NewAnalyticsHandler(db)
 
 	return map[string]fiber.Handler{
+		"analytics.overview":            analyticsHandler.GetOverview,
+		"analytics.trends":              analyticsHandler.GetTrends,
+		"analytics.topResources":        analyticsHandler.GetTopResources,
+		"analytics.resourceStats":       analyticsHandler.GetResourceStats,
+		"news.list":                     newsArticleHandler.GetAdminNews,
+		"news.get":                      newsArticleHandler.GetNewsByID,
+		"news.create":                   newsArticleHandler.CreateNews,
+		"news.update":                   newsArticleHandler.UpdateNews,
+		"news.delete":                   newsArticleHandler.DeleteNews,
+		"newsCategories.list":           newsCategoryHandler.GetAdminCategories,
+		"newsCategories.create":         newsCategoryHandler.CreateCategory,
+		"newsCategories.update":         newsCategoryHandler.UpdateCategory,
+		"newsCategories.delete":         newsCategoryHandler.DeleteCategory,
+		"siteAlerts.list":               siteAlertHandler.GetAdminAlerts,
+		"siteAlerts.get":                siteAlertHandler.GetAlertByID,
+		"siteAlerts.create":             siteAlertHandler.CreateAlert,
+		"siteAlerts.update":             siteAlertHandler.UpdateAlert,
+		"siteAlerts.delete":             siteAlertHandler.DeleteAlert,
 		"chatbot.kb.list":               adminChatbotHandler.GetAllKnowledgeBase,
 		"chatbot.kb.get":                adminChatbotHandler.GetKnowledgeBaseByID,
 		"chatbot.kb.create":             adminChatbotHandler.CreateKnowledgeBase,

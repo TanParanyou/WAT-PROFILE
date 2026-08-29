@@ -5,7 +5,8 @@
     "aboutOverview": "About the Temple",
     "events": "Events",
     "calendar": "Calendar",
-    "visit": "Visit",
+    "news": "News",
+    "visit": "Plan Your Visit",
     "gallery": "Gallery",
     "contact": "Contact",
     "monks": "Monks History",
@@ -26,6 +27,7 @@
   "Footer": {
     "aboutUs": "About Us",
     "events": "Events",
+    "news": "News",
     "calendar": "Calendar",
     "donate": "Donate",
     "contactUs": "Contact Us",
@@ -1187,6 +1189,7 @@
     "unreadNotifications": "{count} unread",
     "unreadLabel": "Unread",
     "markAllRead": "Mark all as read",
+    "markAllAsRead": "Mark all as read",
     "markRead": "Mark as read",
     "noNotifications": "No notifications yet.",
     "viewNotification": "View content",
@@ -1341,6 +1344,30 @@
     "errorFallback": "Sorry, the assistant is currently unable to reply. Please try again later or contact temple staff directly.",
     "resetConfirm": "Are you sure you want to clear the conversation history?",
     "cancel": "Cancel"
+  },
+  "news": {
+    "title": "News & Articles",
+    "subtitle": "Stories, updates, and Dhamma insights from Wat Loung Por Sai",
+    "allCategories": "All",
+    "searchPlaceholder": "Search news and articles...",
+    "featuredBadge": "Featured",
+    "readMore": "Read More",
+    "readFullArticle": "Read Full Article",
+    "shareArticle": "Share Article",
+    "copyLink": "Copy Link",
+    "linkCopied": "Link Copied",
+    "more": "More",
+    "backToNews": "Back to News",
+    "relatedNews": "Related Stories",
+    "noArticlesFound": "No articles found matching your search",
+    "noArticlesInCategory": "No articles in this category yet",
+    "latestNews": "Latest News & Stories",
+    "latestNewsSubtitle": "Stay updated with community events, announcements, and temple stories",
+    "publishedOn": "Published on",
+    "writtenBy": "Written by",
+    "gallery": "Photo Gallery",
+    "viewAllNews": "View All News",
+    "close": "Close"
   }
 }
 

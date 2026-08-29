@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { MapPin } from "lucide-react";
+import { MapPin, BarChart3 } from "lucide-react";
 import { Link } from "@/navigation";
 import { useTranslations, useLocale } from "next-intl";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
@@ -411,6 +411,10 @@ export default function EventsListPage() {
         breadcrumbs={[{ label: t("events.title") }]}
         actions={
           <div className="flex flex-wrap items-center gap-3">
+            <Link href="/admin/analytics" className="inline-flex min-h-11 items-center gap-1.5 border border-admin-border px-4 text-sm hover:bg-admin-surface-muted focus-visible:outline-2 focus-visible:outline-admin-focus">
+              <BarChart3 size={14} />
+              <span>{t("analytics.title") || "สถิติผู้เข้าชม"}</span>
+            </Link>
             <Link href="/admin/events/categories" className="inline-flex min-h-11 items-center border border-admin-border px-4 text-sm hover:bg-admin-surface-muted focus-visible:outline-2 focus-visible:outline-admin-focus">{t("events.categories")}</Link>
             <Link href="/admin/calendar" className="inline-flex min-h-11 items-center border border-admin-border px-4 text-sm hover:bg-admin-surface-muted focus-visible:outline-2 focus-visible:outline-admin-focus">{t("events.calendarView")}</Link>
             <PermissionButton

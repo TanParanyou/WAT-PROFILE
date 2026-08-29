@@ -9,6 +9,9 @@ import { PublicSiteSettingsProvider } from "@/features/public/settings/PublicSit
 import { PublicThemeProvider } from "@/components/public/theme/PublicThemeProvider";
 import { AccountSessionProvider } from "@/features/public/account/AccountSessionProvider";
 import { ChatWidget } from "@/components/chatbot/ChatWidget";
+import { SiteAlertBanner } from "@/components/public/SiteAlertBanner";
+import { SiteAlertModal } from "@/components/public/SiteAlertModal";
+import { AnalyticsTracker } from "@/components/analytics/AnalyticsTracker";
 
 export default function ClientLayout({
   children,
@@ -20,8 +23,13 @@ export default function ClientLayout({
       <div className="public-theme flex min-h-screen flex-col bg-site-canvas text-site-foreground">
         <AccountSessionProvider>
           <PublicSiteSettingsProvider>
+            <AnalyticsTracker />
             <ServiceWorkerRegister />
-            <Navbar />
+            <div className="fixed top-0 left-0 right-0 z-50 w-full flex flex-col">
+              <SiteAlertBanner />
+              <Navbar />
+            </div>
+            <SiteAlertModal />
             <CookieConsent />
             <main className="grow">{children}</main>
             <Footer />
