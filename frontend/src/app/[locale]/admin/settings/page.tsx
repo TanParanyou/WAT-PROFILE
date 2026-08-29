@@ -26,6 +26,7 @@ import {
   Download,
   Loader2,
   ShieldAlert,
+  Award,
 } from "lucide-react";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { FormActionBar } from "@/components/admin/FormActionBar";
@@ -51,7 +52,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { cn } from "@/utils/cn";
 import { formatDateTimeWithRelative } from "@/utils/formatters";
 
-type SettingsTab = "branding" | "eventAlert" | "general" | "features";
+type SettingsTab = "branding" | "certificate" | "eventAlert" | "general" | "features";
 
 interface ShellMediaAssetProps {
   label: string;
@@ -204,6 +205,33 @@ export default function SettingsPage() {
   const [communityBlockedWords, setCommunityBlockedWords] = useState("");
   const [initialCommunityBlockedWords, setInitialCommunityBlockedWords] = useState("");
 
+  const [certificate, setCertificate] = useState({
+    org_name_th: "วัดหลวงพ่อสาย เยอรมนี",
+    org_name_de: "WAT LOUNG POR SAI e.V.",
+    org_subtitle: "Theravada Buddhist Temple & Community Association e.V.",
+    tax_number: "VR 12345 / FA Frankfurt",
+    address: "Darmstädter Landstraße, Frankfurt am Main, Germany",
+    blessing_th: "ขออาราธนาคุณพระศรีรัตนตรัย จงดลบันดาลให้ท่านและครอบครัวประสบแต่ความสุข ความเจริญ ด้วยจตุรพิธพรชัยทุกประการเทอญ",
+    blessing_de: "Möge diese heilsame Tat Ihnen und Ihrer Familie dauerhaften Frieden, Freude und Wohlergehen bringen.",
+    signatory_name: "พระครูวิมลธรรมวิเทศ",
+    signatory_title: "Vorstand / เจ้าอาวาส",
+    seal_url: "",
+    signature_url: "",
+  });
+  const [initialCertificate, setInitialCertificate] = useState({
+    org_name_th: "วัดหลวงพ่อสาย เยอรมนี",
+    org_name_de: "WAT LOUNG POR SAI e.V.",
+    org_subtitle: "Theravada Buddhist Temple & Community Association e.V.",
+    tax_number: "VR 12345 / FA Frankfurt",
+    address: "Darmstädter Landstraße, Frankfurt am Main, Germany",
+    blessing_th: "ขออาราธนาคุณพระศรีรัตนตรัย จงดลบันดาลให้ท่านและครอบครัวประสบแต่ความสุข ความเจริญ ด้วยจตุรพิธพรชัยทุกประการเทอญ",
+    blessing_de: "Möge diese heilsame Tat Ihnen und Ihrer Familie dauerhaften Frieden, Freude und Wohlergehen bringen.",
+    signatory_name: "พระครูวิมลธรรมวิเทศ",
+    signatory_title: "Vorstand / เจ้าอาวาส",
+    seal_url: "",
+    signature_url: "",
+  });
+
   const { user } = useAuth();
   const isSuperAdmin = Boolean(
     user?.role?.name === "super_admin" ||
@@ -311,6 +339,22 @@ export default function SettingsPage() {
       setCommunityBlockedWords(commBlockedWords);
       setInitialCommunityBlockedWords(commBlockedWords);
 
+      const certVal = {
+        org_name_th: byKey.certificate_org_name_th ?? "วัดหลวงพ่อสาย เยอรมนี",
+        org_name_de: byKey.certificate_org_name_de ?? "WAT LOUNG POR SAI e.V.",
+        org_subtitle: byKey.certificate_org_subtitle ?? "Theravada Buddhist Temple & Community Association e.V.",
+        tax_number: byKey.certificate_tax_number ?? "VR 12345 / FA Frankfurt",
+        address: byKey.certificate_address ?? "Darmstädter Landstraße, Frankfurt am Main, Germany",
+        blessing_th: byKey.certificate_blessing_th ?? "ขออาราธนาคุณพระศรีรัตนตรัย จงดลบันดาลให้ท่านและครอบครัวประสบแต่ความสุข ความเจริญ ด้วยจตุรพิธพรชัยทุกประการเทอญ",
+        blessing_de: byKey.certificate_blessing_de ?? "Möge diese heilsame Tat Ihnen und Ihrer Familie dauerhaften Frieden, Freude und Wohlergehen bringen.",
+        signatory_name: byKey.certificate_signatory_name ?? "พระครูวิมลธรรมวิเทศ",
+        signatory_title: byKey.certificate_signatory_title ?? "Vorstand / เจ้าอาวาส",
+        seal_url: byKey.certificate_seal_url ?? "",
+        signature_url: byKey.certificate_signature_url ?? "",
+      };
+      setCertificate(certVal);
+      setInitialCertificate(certVal);
+
       const [alertSettings, eventResult] = await Promise.all([
         fetchAdminEventAlertSettings(),
         eventAdminService.getAll({ is_active: "true" }),
@@ -337,6 +381,7 @@ export default function SettingsPage() {
 
   const isAlertChanged = JSON.stringify(alert) !== JSON.stringify(initialAlert);
   const isShellChanged = JSON.stringify(shell) !== JSON.stringify(initialShell);
+  const isCertificateChanged = JSON.stringify(certificate) !== JSON.stringify(initialCertificate);
   const isEventsDefaultViewChanged = eventsDefaultView !== initialEventsDefaultView;
   const isAiTranslateChanged = aiTranslateEnabled !== initialAiTranslateEnabled;
   const isCommunityFilterChanged =
@@ -348,6 +393,7 @@ export default function SettingsPage() {
     Object.keys(changes).length > 0 ||
     isAlertChanged ||
     isShellChanged ||
+    isCertificateChanged ||
     isEventsDefaultViewChanged ||
     isAiTranslateChanged ||
     isCommunityFilterChanged ||
@@ -370,6 +416,21 @@ export default function SettingsPage() {
           { key: "hero_bg_url", value: shell.hero_bg_url },
           { key: "social_sidebar_position", value: shell.social_sidebar_position },
           { key: "youtube_url", value: shell.youtube_url },
+        ]);
+      }
+      if (isCertificateChanged) {
+        await settingsAdminService.update([
+          { key: "certificate_org_name_th", value: certificate.org_name_th },
+          { key: "certificate_org_name_de", value: certificate.org_name_de },
+          { key: "certificate_org_subtitle", value: certificate.org_subtitle },
+          { key: "certificate_tax_number", value: certificate.tax_number },
+          { key: "certificate_address", value: certificate.address },
+          { key: "certificate_blessing_th", value: certificate.blessing_th },
+          { key: "certificate_blessing_de", value: certificate.blessing_de },
+          { key: "certificate_signatory_name", value: certificate.signatory_name },
+          { key: "certificate_signatory_title", value: certificate.signatory_title },
+          { key: "certificate_seal_url", value: certificate.seal_url },
+          { key: "certificate_signature_url", value: certificate.signature_url },
         ]);
       }
       if (isEventsDefaultViewChanged) {
@@ -417,6 +478,7 @@ export default function SettingsPage() {
           s.category !== "donation" &&
           s.category !== "features" &&
           !s.key.startsWith("feature_") &&
+          !s.key.startsWith("certificate_") &&
           ![
             "logo_url",
             "hero_bg_url",
@@ -660,6 +722,23 @@ export default function SettingsPage() {
               {isShellChanged || isEventsDefaultViewChanged ? (
                 <span className="h-2 w-2 rounded-full bg-amber-500" />
               ) : null}
+            </button>
+
+            <button
+              type="button"
+              onClick={() => setActiveTab("certificate")}
+              className={cn(
+                "flex items-center gap-2 px-4 py-3 text-sm font-medium border-b-2 transition-colors whitespace-nowrap",
+                activeTab === "certificate"
+                  ? "border-admin-foreground text-admin-foreground"
+                  : "border-transparent text-admin-muted hover:text-admin-body hover:border-admin-border",
+              )}
+            >
+              <Award size={16} />
+              {t("settings.tabs.certificate")}
+              {isCertificateChanged && (
+                <span className="h-2 w-2 rounded-full bg-amber-500" />
+              )}
             </button>
 
             <button
@@ -992,6 +1071,173 @@ export default function SettingsPage() {
                       </a>
                     </div>
                   )}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* ========================================================================= */}
+          {/* TAB: CERTIFICATE & RECEIPT TEMPLATE                                       */}
+          {/* ========================================================================= */}
+          {activeTab === "certificate" && (
+            <div className="space-y-6">
+              {/* Section 1: Organization & Legal / Tax Info */}
+              <div className="bg-admin-surface border border-admin-border p-6 space-y-6 rounded-none">
+                <div className="border-b border-admin-border pb-3">
+                  <div className="flex items-center gap-2">
+                    <Award size={18} className="text-admin-muted" />
+                    <h2 className="text-base font-semibold text-admin-foreground">
+                      {t("settings.certificateSectionTitle")}
+                    </h2>
+                  </div>
+                  <p className="text-xs text-admin-muted mt-1">
+                    {t("settings.certificateSectionDesc")}
+                  </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Input
+                    id="cert-org-name-th"
+                    label={t("settings.certOrgNameTh")}
+                    value={certificate.org_name_th}
+                    onChange={(e) =>
+                      setCertificate((prev) => ({ ...prev, org_name_th: e.target.value }))
+                    }
+                  />
+                  <Input
+                    id="cert-org-name-de"
+                    label={t("settings.certOrgNameDe")}
+                    value={certificate.org_name_de}
+                    onChange={(e) =>
+                      setCertificate((prev) => ({ ...prev, org_name_de: e.target.value }))
+                    }
+                  />
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Input
+                    id="cert-org-subtitle"
+                    label={t("settings.certOrgSubtitle")}
+                    value={certificate.org_subtitle}
+                    onChange={(e) =>
+                      setCertificate((prev) => ({ ...prev, org_subtitle: e.target.value }))
+                    }
+                  />
+                  <Input
+                    id="cert-tax-number"
+                    label={t("settings.certTaxNumber")}
+                    value={certificate.tax_number}
+                    onChange={(e) =>
+                      setCertificate((prev) => ({ ...prev, tax_number: e.target.value }))
+                    }
+                  />
+                </div>
+
+                <div>
+                  <Textarea
+                    id="cert-address"
+                    label={t("settings.certAddress")}
+                    value={certificate.address}
+                    rows={2}
+                    onChange={(e) =>
+                      setCertificate((prev) => ({ ...prev, address: e.target.value }))
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Section 2: Blessing Quotes & Acknowledgement */}
+              <div className="bg-admin-surface border border-admin-border p-6 space-y-6 rounded-none">
+                <div className="border-b border-admin-border pb-3">
+                  <h2 className="text-base font-semibold text-admin-foreground">
+                    {t("settings.certBlessingTh")} &amp; {t("settings.certBlessingDe")}
+                  </h2>
+                </div>
+
+                <div className="space-y-4">
+                  <Textarea
+                    id="cert-blessing-th"
+                    label={t("settings.certBlessingTh")}
+                    value={certificate.blessing_th}
+                    rows={3}
+                    onChange={(e) =>
+                      setCertificate((prev) => ({ ...prev, blessing_th: e.target.value }))
+                    }
+                  />
+                  <Textarea
+                    id="cert-blessing-de"
+                    label={t("settings.certBlessingDe")}
+                    value={certificate.blessing_de}
+                    rows={3}
+                    onChange={(e) =>
+                      setCertificate((prev) => ({ ...prev, blessing_de: e.target.value }))
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Section 3: Signatory Details */}
+              <div className="bg-admin-surface border border-admin-border p-6 space-y-6 rounded-none">
+                <div className="border-b border-admin-border pb-3">
+                  <h2 className="text-base font-semibold text-admin-foreground">
+                    {t("settings.certSignatoryName")} / {t("settings.certSignatoryTitle")}
+                  </h2>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <Input
+                    id="cert-signatory-name"
+                    label={t("settings.certSignatoryName")}
+                    value={certificate.signatory_name}
+                    onChange={(e) =>
+                      setCertificate((prev) => ({ ...prev, signatory_name: e.target.value }))
+                    }
+                  />
+                  <Input
+                    id="cert-signatory-title"
+                    label={t("settings.certSignatoryTitle")}
+                    value={certificate.signatory_title}
+                    onChange={(e) =>
+                      setCertificate((prev) => ({ ...prev, signatory_title: e.target.value }))
+                    }
+                  />
+                </div>
+              </div>
+
+              {/* Section 4: Official Seal & Default Signature Assets */}
+              <div className="bg-admin-surface border border-admin-border p-6 space-y-6 rounded-none">
+                <div className="border-b border-admin-border pb-3">
+                  <h2 className="text-base font-semibold text-admin-foreground">
+                    {t("settings.certSealUrl")} &amp; {t("settings.certSignatureUrl")}
+                  </h2>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  <ShellMediaAssetField
+                    label={t("settings.certSealUrl")}
+                    value={certificate.seal_url}
+                    placeholder="/images/icon/wat-seal.png"
+                    hint={t("settings.certSealHint")}
+                    isLogo={true}
+                    onChange={(url) =>
+                      setCertificate((prev) => ({ ...prev, seal_url: url }))
+                    }
+                    selectButtonText={t("settings.selectFromMedia")}
+                    clearButtonText={t("settings.clearImage")}
+                  />
+
+                  <ShellMediaAssetField
+                    label={t("settings.certSignatureUrl")}
+                    value={certificate.signature_url}
+                    placeholder="/images/signature/abbot.png"
+                    hint={t("settings.certSignatureHint")}
+                    isLogo={true}
+                    onChange={(url) =>
+                      setCertificate((prev) => ({ ...prev, signature_url: url }))
+                    }
+                    selectButtonText={t("settings.selectFromMedia")}
+                    clearButtonText={t("settings.clearImage")}
+                  />
                 </div>
               </div>
             </div>

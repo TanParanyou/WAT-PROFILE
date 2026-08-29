@@ -1,7 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
-import { useCallback, useEffect, useRef } from "react";
+import React, { useState, useMemo, useCallback, useEffect, useRef } from "react";
 import { useTranslations, useLocale } from "next-intl";
 import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { PermissionGuard } from "@/components/admin/PermissionGuard";
@@ -9,13 +8,13 @@ import { AdminTableAction, AdminTableActionGroup } from "@/components/admin/Admi
 import { StatusBadge } from "@/components/admin/StatusBadge";
 import { DataTable, Column } from "@/components/ui/DataTable";
 import { useConfirm } from "@/hooks/useConfirm";
-import { donationAdminService } from "@/services/adminService";
+import { donationAdminService, settingsAdminService } from "@/services/adminService";
 import { useToast } from "@/hooks/useToast";
 import type { Donation } from "@/types/entities";
 import { useRowSelection } from "@/hooks/useRowSelection";
 import { Icons } from "@/components/ui/Icons";
 import { Button } from "@/components/ui/Button";
-import { Eye, FileImage, FileText, CheckCircle2, Send, XCircle } from "lucide-react";
+import { Eye, FileImage, FileText, CheckCircle2, Send, XCircle, Award } from "lucide-react";
 import { useAdminListState } from "@/features/admin-list/useAdminListState";
 import { useAdminListQuery } from "@/features/admin-list/useAdminListQuery";
 import type { AdminFilterRecord, AdminFilterDefinition } from "@/features/admin-list/types";
@@ -33,6 +32,7 @@ import { StaffDonationForm } from "@/features/admin/donations/StaffDonationForm"
 import { CancelDonationDialog } from "@/features/admin/donations/CancelDonationDialog";
 import { DonationProofPreviewDrawer, type DonationProofPreviewKind } from "@/features/admin/donations/DonationProofPreviewModal";
 import { AnnualDonationModal } from "./_components/AnnualDonationModal";
+import { DonationCertificateModal } from "./_components/DonationCertificateModal";
 
 interface DonationFilters extends AdminFilterRecord {
   status: string[];
@@ -57,6 +57,8 @@ export default function DonationsPage() {
   const [showStaffForm, setShowStaffForm] = useState(false);
   const [isAnnualModalOpen, setIsAnnualModalOpen] = useState(false);
   const [selectedDonationForView, setSelectedDonationForView] = useState<Donation | null>(null);
+  const [certificateDonation, setCertificateDonation] = useState<Donation | null>(null);
+  const [isCertificateModalOpen, setIsCertificateModalOpen] = useState(false);
   const [cancelID, setCancelID] = useState<number | null>(null);
   const [isProofPreviewOpen, setIsProofPreviewOpen] = useState(false);
   const [previewType, setPreviewType] = useState<"proof" | "receipt">("proof");
@@ -95,6 +97,16 @@ export default function DonationsPage() {
     queryKey: ["admin", "donations", "filter-options"],
     queryFn: () => donationAdminService.getFilterOptions(),
   });
+
+  const { data: settingsData } = useQuery({
+    queryKey: ["admin", "settings"],
+    queryFn: () => settingsAdminService.getAll(),
+  });
+
+  const settingsMap = useMemo(() => {
+    if (!settingsData) return {};
+    return Object.fromEntries(settingsData.map((s) => [s.key, s.value]));
+  }, [settingsData]);
 
   const statusLabelMap: Record<string, string> = {
     pending: t("donations.statusPending"),
@@ -360,15 +372,27 @@ export default function DonationsPage() {
             />
           )}
           {row.status === "confirmed" && (
-            <AdminTableAction
-              resource="donations"
-              action="read"
-              label={t("donations.viewReceipt") || "ดูใบเสร็จ"}
-              icon={<FileText size={16} />}
-              isLoading={proofPreviewLoadingId === row.id}
-              disabled={proofPreviewLoadingId === row.id}
-              onClick={() => void handleReceiptPreview(row)}
-            />
+            <>
+              <AdminTableAction
+                resource="donations"
+                action="read"
+                label="ออกใบอนุโมทนาบัตร / Certificate"
+                icon={<Award size={16} />}
+                onClick={() => {
+                  setCertificateDonation(row);
+                  setIsCertificateModalOpen(true);
+                }}
+              />
+              <AdminTableAction
+                resource="donations"
+                action="read"
+                label={t("donations.viewReceipt") || "ดูใบเสร็จ"}
+                icon={<FileText size={16} />}
+                isLoading={proofPreviewLoadingId === row.id}
+                disabled={proofPreviewLoadingId === row.id}
+                onClick={() => void handleReceiptPreview(row)}
+              />
+            </>
           )}
           {row.status === "pending" && (
             <AdminTableAction
@@ -567,10 +591,25 @@ export default function DonationsPage() {
         }}
         onViewProof={handleProof}
         onViewReceipt={(donation) => void handleReceiptPreview(donation)}
+        onIssueCertificate={(donation) => {
+          setShowStaffForm(false);
+          setSelectedDonationForView(null);
+          setCertificateDonation(donation);
+          setIsCertificateModalOpen(true);
+        }}
       />
       <AnnualDonationModal
         isOpen={isAnnualModalOpen}
         onClose={() => setIsAnnualModalOpen(false)}
+      />
+      <DonationCertificateModal
+        isOpen={isCertificateModalOpen}
+        onClose={() => {
+          setIsCertificateModalOpen(false);
+          setCertificateDonation(null);
+        }}
+        donation={certificateDonation}
+        settings={settingsMap}
       />
     </div>
   );

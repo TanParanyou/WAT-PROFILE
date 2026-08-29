@@ -35,6 +35,7 @@ import {
   FileCheck,
   FileImage,
   FileText,
+  Award,
 } from "lucide-react";
 import { cn } from "@/utils/cn";
 import { AdminCurrencyConverter } from "./AdminCurrencyConverter";
@@ -49,6 +50,7 @@ export interface StaffDonationFormProps {
   onClose?: () => void;
   onViewProof?: (id: number) => void;
   onViewReceipt?: (donation: Donation) => void;
+  onIssueCertificate?: (donation: Donation) => void;
 }
 
 const QUICK_AMOUNTS = [10, 20, 50, 100, 200, 500];
@@ -63,6 +65,7 @@ export function StaffDonationForm({
   onClose,
   onViewProof,
   onViewReceipt,
+  onIssueCertificate,
 }: StaffDonationFormProps) {
   const t = useTranslations("Admin");
   const locale = useLocale() as "th" | "en" | "de";
@@ -347,6 +350,20 @@ export function StaffDonationForm({
                       >
                         <FileImage size={16} />
                         {t("donations.viewProof")}
+                      </Button>
+                    </div>
+                  )}
+
+                  {viewDonation.status === "confirmed" && onIssueCertificate && (
+                    <div className="pt-2">
+                      <Button
+                        type="button"
+                        variant="primary"
+                        onClick={() => onIssueCertificate(viewDonation)}
+                        className="w-full flex items-center justify-center gap-2 text-sm"
+                      >
+                        <Award size={16} />
+                        ออกใบอนุโมทนาบัตร / Certificate
                       </Button>
                     </div>
                   )}
