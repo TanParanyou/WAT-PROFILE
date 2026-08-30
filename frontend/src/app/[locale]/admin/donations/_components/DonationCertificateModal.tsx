@@ -7,12 +7,12 @@ import {
   Loader2,
   X,
   Languages,
-  PenLine,
-  CheckCircle2,
   FileCheck2,
 } from "lucide-react";
 import type { Donation } from "@/types/entities";
-import { SignaturePad } from "./SignaturePad";
+import type { SignatureMode } from "@/types/signatures";
+import { SignatureManager } from "@/components/admin/SignatureManager";
+import { useSignaturePresets } from "@/hooks/useSignaturePresets";
 import { cn } from "@/utils/cn";
 
 interface DonationCertificateModalProps {
@@ -23,7 +23,6 @@ interface DonationCertificateModalProps {
 }
 
 type LanguageMode = "bilingual" | "th" | "de";
-type SignatureMode = "saved" | "pad" | "none";
 
 export function DonationCertificateModal({
   isOpen,
@@ -92,6 +91,17 @@ function DonationCertificateModalContent({
   const signatoryTitle = settings.certificate_signatory_title || "Vorstand / เจ้าอาวาส";
   const sealUrl = settings.certificate_seal_url || "";
   const savedSignatureUrl = settings.certificate_signature_url || "";
+
+  const {
+    presets: signaturePresets,
+    selectedPresetId,
+    setSelectedPresetId,
+    savePreset: handleSaveToPresets,
+    deletePreset: handleDeletePreset,
+    resolveActiveSignature,
+  } = useSignaturePresets(savedSignatureUrl);
+
+  const activeSignatureUrl = resolveActiveSignature(signatureMode, liveSignature);
 
   const formattedAmount = useMemo(() => {
     return amount.toLocaleString("de-DE", {
@@ -338,73 +348,20 @@ function DonationCertificateModalContent({
               </div>
             </div>
 
-            {/* Signature Mode Controls */}
-            <div className="bg-admin-surface border border-admin-border p-4 space-y-3 rounded-none">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-admin-foreground border-b border-admin-border pb-2 flex items-center justify-between">
-                <span>การลงลายมือชื่อ (Signature)</span>
-                <PenLine size={13} className="text-admin-muted" />
-              </h3>
-
-              <div className="grid grid-cols-3 gap-1.5">
-                {[
-                  { id: "saved", label: "รูปลายเซ็น" },
-                  { id: "pad", label: "เซ็นสด" },
-                  { id: "none", label: "เว้นว่าง" },
-                ].map((s) => (
-                  <button
-                    key={s.id}
-                    type="button"
-                    onClick={() => setSignatureMode(s.id as SignatureMode)}
-                    className={cn(
-                      "py-1.5 px-2 text-xs font-medium border text-center transition-colors",
-                      signatureMode === s.id
-                        ? "border-admin-focus bg-admin-focus/10 text-admin-focus font-bold"
-                        : "border-admin-control-border bg-admin-surface text-admin-foreground hover:bg-admin-surface-muted"
-                    )}
-                  >
-                    {s.label}
-                  </button>
-                ))}
-              </div>
-
-              {signatureMode === "saved" && (
-                <div className="p-2.5 bg-admin-surface-muted/50 border border-admin-border text-xs space-y-2">
-                  <div className="flex items-center justify-between">
-                    <span className="text-admin-muted">รูปลายเซ็นจาก Settings:</span>
-                    {savedSignatureUrl ? (
-                      <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
-                        <CheckCircle2 size={12} /> มีรูปพร้อมใช้
-                      </span>
-                    ) : (
-                      <span className="text-amber-600 dark:text-amber-400">ยังไม่มีรูปลายเซ็น</span>
-                    )}
-                  </div>
-                  {savedSignatureUrl && (
-                    <div className="h-14 bg-white border border-gray-200 flex items-center justify-center p-1">
-                      {/* eslint-disable-next-line @next/next/no-img-element */}
-                      <img
-                        src={savedSignatureUrl}
-                        alt="Saved Signature"
-                        className="max-h-full max-w-full object-contain"
-                      />
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {signatureMode === "pad" && (
-                <SignaturePad
-                  value={liveSignature}
-                  onChange={(url) => setLiveSignature(url)}
-                />
-              )}
-
-              {signatureMode === "none" && (
-                <p className="text-[11px] text-admin-muted italic leading-relaxed">
-                  * จะแสดงเส้นประสำหรับให้เจ้าอาวาสหรือไวยาวัจกรลงลายมือชื่อจริงด้วยปากกาหลังพิมพ์เอกสาร
-                </p>
-              )}
-            </div>
+            {/* Reusable Signature Manager Component */}
+            <SignatureManager
+              signatureMode={signatureMode}
+              onModeChange={setSignatureMode}
+              liveSignature={liveSignature}
+              onLiveSignatureChange={setLiveSignature}
+              savedSignatureUrl={savedSignatureUrl}
+              defaultSignatoryName={signatoryName}
+              selectedPresetId={selectedPresetId}
+              onSelectPresetId={setSelectedPresetId}
+              presets={signaturePresets}
+              onSaveToPresets={(name, url) => handleSaveToPresets(name, url, signatoryName, signatoryTitle)}
+              onDeletePreset={handleDeletePreset}
+            />
           </div>
 
           {/* RIGHT LIVE A4 PREVIEW SHEET */}
@@ -560,20 +517,12 @@ function DonationCertificateModalContent({
                     <div className="relative inline-block w-48 text-center">
                       {/* Signature Image / Canvas / Blank Line */}
                       <div className="h-16 flex items-center justify-center relative">
-                        {signatureMode === "saved" && savedSignatureUrl && (
+                        {activeSignatureUrl && (
                           /* eslint-disable-next-line @next/next/no-img-element */
                           <img
-                            src={savedSignatureUrl}
+                            src={activeSignatureUrl}
                             crossOrigin="anonymous"
                             alt="Signature"
-                            className="max-h-14 max-w-full object-contain"
-                          />
-                        )}
-                        {signatureMode === "pad" && liveSignature && (
-                          /* eslint-disable-next-line @next/next/no-img-element */
-                          <img
-                            src={liveSignature}
-                            alt="Live Signature"
                             className="max-h-14 max-w-full object-contain"
                           />
                         )}
@@ -584,6 +533,12 @@ function DonationCertificateModalContent({
                       <p className="text-[11px] text-zinc-500">{signatoryTitle}</p>
                       <p className="text-[10px] text-zinc-400 mt-0.5">ผู้มีอำนาจลงนาม / Authorized Signatory</p>
                     </div>
+
+                    {signatureMode !== "none" && (
+                      <p className="text-[9px] text-zinc-400 italic pt-1 text-right">
+                        * Hinweis: Dieses Dokument wurde maschinell erstellt und ist ohne handschriftliche Unterschrift rechtsgültig (§ 10b EStG).
+                      </p>
+                    )}
                   </div>
                 </div>
               </div>

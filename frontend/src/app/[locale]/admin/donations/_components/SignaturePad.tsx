@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useRef, useState, useEffect, useCallback } from "react";
-import { RotateCcw, PenTool } from "lucide-react";
+import { RotateCcw, PenTool, Save, BookmarkPlus, Check, Loader2 } from "lucide-react";
 
 interface SignaturePadProps {
   value?: string | null;
@@ -10,6 +10,10 @@ interface SignaturePadProps {
   clearButtonText?: string;
   helperText?: string;
   height?: number;
+  onSaveAsDefault?: (dataUrl: string) => Promise<void> | void;
+  onSaveToPresets?: (name: string, dataUrl: string) => Promise<void> | void;
+  canSaveDefault?: boolean;
+  isSaving?: boolean;
 }
 
 export function SignaturePad({
@@ -19,10 +23,16 @@ export function SignaturePad({
   clearButtonText = "ล้างลายเซ็น",
   helperText = "ใช้เมาส์ ทัชสกรีน หรือปากกา วาดลายเซ็นภายในกรอบ",
   height = 140,
+  onSaveAsDefault,
+  onSaveToPresets,
+  canSaveDefault = true,
+  isSaving = false,
 }: SignaturePadProps) {
   const canvasRef = useRef<HTMLCanvasElement | null>(null);
   const isDrawingRef = useRef(false);
-  const [hasDrawn, setHasDrawn] = useState(false);
+  const [hasDrawn, setHasDrawn] = useState(Boolean(value));
+  const [showPresetInput, setShowPresetInput] = useState(false);
+  const [presetName, setPresetName] = useState("");
 
   // Setup canvas size with DPI scaling
   const setupCanvas = useCallback(() => {
@@ -192,6 +202,73 @@ export function SignaturePad({
           </div>
         )}
       </div>
+
+      {hasDrawn && (
+        <div className="pt-1 space-y-2">
+          <div className="flex flex-wrap items-center gap-2">
+            {onSaveAsDefault && canSaveDefault && (
+              <button
+                type="button"
+                onClick={() => {
+                  const canvas = canvasRef.current;
+                  const dataUrl = value || canvas?.toDataURL("image/png");
+                  if (dataUrl) onSaveAsDefault(dataUrl);
+                }}
+                disabled={isSaving}
+                className="px-2.5 py-1 text-xs font-semibold bg-amber-600 hover:bg-amber-700 text-white inline-flex items-center gap-1.5 transition-colors disabled:opacity-50 shadow-xs"
+              >
+                {isSaving ? <Loader2 size={12} className="animate-spin" /> : <Save size={12} />}
+                <span>บันทึกเป็นลายเซ็นวัด (Default)</span>
+              </button>
+            )}
+
+            {onSaveToPresets && (
+              <button
+                type="button"
+                onClick={() => setShowPresetInput(!showPresetInput)}
+                className="px-2.5 py-1 text-xs font-medium border border-admin-control-border bg-admin-surface hover:bg-admin-surface-muted text-admin-foreground inline-flex items-center gap-1.5 transition-colors"
+              >
+                <BookmarkPlus size={12} />
+                <span>บันทึกลงคลังลายเซ็น</span>
+              </button>
+            )}
+          </div>
+
+          {showPresetInput && onSaveToPresets && (
+            <div className="p-2.5 bg-admin-surface-muted/60 border border-admin-border space-y-2">
+              <label className="text-[11px] font-medium text-admin-foreground block">
+                ตั้งชื่อลายเซ็นเพื่อนำมาใช้ซ้ำ (เช่น ลายเซ็นไวยาวัจกร, ลายเซ็นเจ้าอาวาส):
+              </label>
+              <div className="flex items-center gap-1.5">
+                <input
+                  type="text"
+                  value={presetName}
+                  onChange={(e) => setPresetName(e.target.value)}
+                  placeholder="เช่น ลายเซ็นพระครูวิมลธรรมวิเทศ"
+                  className="flex-1 text-xs p-1.5 border border-admin-control-border bg-admin-surface text-admin-foreground"
+                />
+                <button
+                  type="button"
+                  disabled={!presetName.trim() || isSaving}
+                  onClick={() => {
+                    const canvas = canvasRef.current;
+                    const dataUrl = value || canvas?.toDataURL("image/png");
+                    if (dataUrl && presetName.trim()) {
+                      onSaveToPresets(presetName.trim(), dataUrl);
+                      setPresetName("");
+                      setShowPresetInput(false);
+                    }
+                  }}
+                  className="px-3 py-1.5 text-xs font-semibold bg-admin-focus text-white hover:bg-admin-focus/90 transition-colors disabled:opacity-50 inline-flex items-center gap-1"
+                >
+                  <Check size={13} />
+                  <span>บันทึก</span>
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
+      )}
 
       {helperText && (
         <p className="text-[11px] text-admin-muted leading-relaxed">

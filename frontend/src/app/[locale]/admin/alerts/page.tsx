@@ -3,11 +3,12 @@
 import React, { useState, useEffect } from 'react';
 import { useRouter } from '@/navigation';
 import { useLocale, useTranslations } from 'next-intl';
-import { Plus, Edit, Trash2, AlertTriangle, AlertCircle, Info, ToggleLeft, ToggleRight } from 'lucide-react';
+import { Plus, Edit, Trash2, AlertTriangle, AlertCircle, Info } from 'lucide-react';
 import { adminAlertService } from '@/services/alertService';
 import { AdminPageHeader } from '@/components/admin/AdminPageHeader';
 import { DataTable, Column } from '@/components/ui/DataTable';
 import { Button } from '@/components/ui/Button';
+import { Switch } from '@/components/ui/Switch';
 import { StatusBadge } from '@/components/admin/StatusBadge';
 import { useConfirm } from '@/hooks/useConfirm';
 import { useDataTable } from '@/hooks/useDataTable';
@@ -139,23 +140,10 @@ export default function AdminAlertsPage() {
     {
       header: t('table.status'),
       cell: (_, item) => (
-        <button
-          type="button"
-          onClick={() => handleToggleActive(item)}
-          className="flex items-center gap-1.5 text-xs font-medium focus:outline-none"
-        >
-          {item.is_active ? (
-            <>
-              <ToggleRight className="w-5 h-5 text-admin-success" />
-              <span className="text-admin-success">{t('activeOn')}</span>
-            </>
-          ) : (
-            <>
-              <ToggleLeft className="w-5 h-5 text-admin-muted" />
-              <span className="text-admin-muted">{t('activeOff')}</span>
-            </>
-          )}
-        </button>
+        <Switch
+          checked={item.is_active}
+          onChange={() => handleToggleActive(item)}
+        />
       ),
     },
     {

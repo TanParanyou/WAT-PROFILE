@@ -581,4 +581,246 @@ export const websiteCmsGuides: GuideArticle[] = [
     relatedSlugs: ["about", "contact", "events", "environment-config"],
     updatedAt: "2026-08-26",
   },
+  {
+    id: "guide-news",
+    slug: "news",
+    category: "website",
+    title: {
+      th: "ข่าวสารและประกาศวัด (News & Announcements)",
+      en: "News Articles & Temple Announcements",
+      de: "Neuigkeiten & Tempelankündigungen",
+    },
+    summary: {
+      th: "การเขียนและเผยแพร่ข่าวสารประชาสัมพันธ์งานบุญ การจัดหมวดหมู่ข่าว การปักหมุดข่าวเด่น (Featured) และการอัปโหลดภาพหน้าปก 16:9",
+      en: "Publishing temple news articles, categorization, featured pinned stories, and 16:9 banner media management.",
+      de: "Veröffentlichung von Tempelnachrichten, Kategorisierung, Hervorhebung von Beiträgen und 16:9-Bildverwaltung.",
+    },
+    iconName: "Newspaper",
+    resource: "news",
+    routePath: "/admin/news",
+    quickSteps: [
+      {
+        th: "เข้าเมนู /admin/news เพื่อดูรายการข่าวสารทั้งหมด",
+        en: "Navigate to /admin/news to view all news posts.",
+        de: "Zu /admin/news gehen für die Übersicht aller Artikel.",
+      },
+      {
+        th: "กด '+ เขียนข่าวสารใหม่' กรอกหัวข้อ เนื้อหา 3 ภาษา และอัปโหลดภาพปก",
+        en: "Click '+ Create Article', enter content in 3 languages, and upload cover image.",
+        de: "Auf '+ Artikel verfassen' klicken, Inhalte in 3 Sprachen eingeben und Titelbild hochladen.",
+      },
+      {
+        th: "เลือกหมวดหมู่ ติ๊ก 'ปักหมุดข่าวเด่น' (ถ้ามี) แล้วกดบันทึกเผยแพร่",
+        en: "Assign category, toggle 'Featured' if needed, and publish.",
+        de: "Kategorie wählen, bei Bedarf 'Hervorgehoben' aktivieren und veröffentlichen.",
+      },
+    ],
+    statusLegends: [
+      {
+        badgeVariant: "success",
+        label: { th: "Published (เผยแพร่)", en: "Published", de: "Veröffentlicht" },
+        meaning: {
+          th: "ข่าวสารแสดงผลบนหน้าเว็บไซต์สาธารณะและส่งเข้าระบบ RSS Feed",
+          en: "Article is publicly visible on the website and RSS feeds.",
+          de: "Der Artikel ist öffentlich sichtbar und im Feed verfügbar.",
+        },
+      },
+      {
+        badgeVariant: "default",
+        label: { th: "Draft (แบบร่าง)", en: "Draft", de: "Entwurf" },
+        meaning: {
+          th: "แบบร่างที่ยังไม่เปิดเผยต่อสาธารณะ สามารถแก้ไขต่อได้",
+          en: "Draft article visible only to administrators.",
+          de: "Entwurf, der nur für Administratoren sichtbar ist.",
+        },
+      },
+      {
+        badgeVariant: "warning",
+        label: { th: "Featured (ปักหมุด)", en: "Featured", de: "Hervorgehoben" },
+        meaning: {
+          th: "ปักหมุดแสดงเป็นการ์ดข่าวเด่นขนาดใหญ่บนหน้าแรกของเว็บไซต์",
+          en: "Pinned as a prominent hero story on the website homepage.",
+          de: "Wird als Hauptnachricht auf der Startseite hervorgehoben.",
+        },
+      },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: {
+          th: "การเขียนเนื้อหาข่าวสาร 3 ภาษา",
+          en: "Draft Multilingual Article Content",
+          de: "Dreisprachigen Artikelinhalt verfassen",
+        },
+        description: {
+          th: "กรอกหัวข้อข่าว เนื้อหาย่อ (Excerpt) และเนื้อหาฉบับเต็มผ่าน Rich Text Editor ให้ครบทั้งภาษาไทย อังกฤษ และเยอรมัน พร้อมจัดรูปแบบตัวหนา ลิสต์รายการ และลิงก์อ้างอิง",
+          en: "Write headline, summary excerpt, and full body using the Rich Text Editor across Thai, English, and German tabs.",
+          de: "Geben Sie Überschrift, Kurzzusammenfassung und Volltext über den Rich-Text-Editor in TH, EN und DE ein.",
+        },
+      },
+      {
+        stepNumber: 2,
+        title: {
+          th: "การเลือกหมวดหมู่และปักหมุดข่าวเด่น",
+          en: "Categorization & Featured Pinning",
+          de: "Kategorisierung & Hervorhebung",
+        },
+        description: {
+          th: "เลือกหมวดหมู่ข่าวที่ตรงกับเนื้อหา (เช่น งานบุญประเพณี, ข่าวสารทั่วไป, ธรรมะบรรยาย) และเปิดสวิตช์ 'ปักหมุดข่าวเด่น' หากเป็นข่าวสำคัญที่ต้องการให้แสดงบนแถบแบนเนอร์หน้าแรก",
+          en: "Select appropriate category (e.g. Traditional Ceremonies, General News, Dhamma) and enable 'Featured Story' for top homepage placement.",
+          de: "Wählen Sie die Kategorie und aktivieren Sie 'Hervorheben', um den Beitrag oben auf der Startseite zu platzieren.",
+        },
+      },
+      {
+        stepNumber: 3,
+        title: {
+          th: "การอัปโหลดภาพปกและเผยแพร่",
+          en: "Upload Cover Media & Publish",
+          de: "Titelbild hochladen & veröffentlichen",
+        },
+        description: {
+          th: "อัปโหลดภาพหน้าปกขนาด 16:9 จากคลังสื่อ (Media Library) แล้วเปลี่ยนสถานะเป็น 'Published' เพื่อให้ข่าวสารออนไลน์ทันที",
+          en: "Attach a 16:9 banner image from Media Library and set status to 'Published' to go live immediately.",
+          de: "Wählen Sie ein 16:9-Titelbild aus der Mediathek und setzen Sie den Status auf 'Veröffentlicht'.",
+        },
+      },
+    ],
+    faqs: [
+      {
+        question: {
+          th: "สามารถตั้งเวลาเผยแพร่ข่าวล่วงหน้าได้หรือไม่?",
+          en: "Can I schedule news articles for future publication?",
+          de: "Können Artikel für die spätere Veröffentlichung geplant werden?",
+        },
+        answer: {
+          th: "สามารถกำหนดวันที่เผยแพร่ (Published At) ในแบบฟอร์มได้ โดยระบบจะแสดงวันที่ตามที่ระบุบนการ์ดข่าวสาร",
+          en: "Yes, specify the desired 'Published At' timestamp in the editor form.",
+          de: "Ja, geben Sie das gewünschte Veröffentlichungsdatum im Editor an.",
+        },
+      },
+    ],
+    relatedSlugs: ["events", "media", "about"],
+    updatedAt: "2026-08-30",
+  },
+  {
+    id: "guide-alerts",
+    slug: "alerts",
+    category: "website",
+    title: {
+      th: "แถบประกาศด่วนบนหัวเว็บ (Site Banner Alerts)",
+      en: "Site Banner & Emergency Alerts",
+      de: "Webseiten-Banner & Eilmitteilungen",
+    },
+    summary: {
+      th: "การสร้างและควบคุมแถบประกาศด่วนบน Header เว็บไซต์ เลือกระดับความสำคัญ (Info, Warning, Emergency) และการตั้งเวลาเปิด-ปิดอัตโนมัติ",
+      en: "Creating top-level sticky header banner alerts, severity levels (Info, Warning, Emergency), and scheduling rules.",
+      de: "Erstellung von Banner-Benachrichtigungen im Seitenkopf, Dringlichkeitsstufen und zeitgesteuerte Anzeige.",
+    },
+    iconName: "AlertTriangle",
+    resource: "site_alerts",
+    routePath: "/admin/alerts",
+    quickSteps: [
+      {
+        th: "เข้าเมนู /admin/alerts เพื่อดูรายการประกาศด่วนทั้งหมด",
+        en: "Navigate to /admin/alerts to view all site alerts.",
+        de: "Zu /admin/alerts gehen für alle Banner-Mitteilungen.",
+      },
+      {
+        th: "กด '+ สร้างประกาศด่วน' ระบุข้อความและเลือกระดับความสำคัญ",
+        en: "Click '+ Create Alert', enter message and select severity level.",
+        de: "Auf '+ Mitteilung erstellen' klicken, Text eingeben und Stufe wählen.",
+      },
+      {
+        th: "เปิดสวิตช์ 'Active' หรือกำหนดวันเริ่มต้น-สิ้นสุดการแสดงผล",
+        en: "Enable 'Active' or specify start and end display schedule.",
+        de: "'Aktiv' einschalten oder Start- und Endzeitpunkt festlegen.",
+      },
+    ],
+    statusLegends: [
+      {
+        badgeVariant: "info",
+        label: { th: "Info (ข่าวทั่วไป)", en: "Info", de: "Info" },
+        meaning: {
+          th: "แถบสีฟ้าอ่อน สำหรับแจ้งข่าวทั่วไป เช่น การถ่ายทอดสดพิธี หรือเปลี่ยนช่องทางติดต่อ",
+          en: "Soft blue banner for general updates (e.g. live stream announcements).",
+          de: "Blaues Banner für allgemeine Hinweise (z.B. Livestream-Ankündigungen).",
+        },
+      },
+      {
+        badgeVariant: "warning",
+        label: { th: "Warning (เตือนสำคัญ)", en: "Warning", de: "Warnung" },
+        meaning: {
+          th: "แถบสีเหลือง สำหรับแจ้งเตือนการเปลี่ยนแปลง เช่น เลื่อนเวลาพิธี หรือที่จอดรถเต็ม",
+          en: "Amber banner for important schedule adjustments or parking notices.",
+          de: "Gelbes Banner für Terminverschiebungen oder wichtige Änderungen.",
+        },
+      },
+      {
+        badgeVariant: "danger",
+        label: { th: "Emergency (ฉุกเฉิน)", en: "Emergency", de: "Dringend" },
+        meaning: {
+          th: "แถบสีแดงเด่นชัด สำหรับเหตุฉุกเฉิน เช่น วัดปิดชั่วคราวจากสภาพอากาศ หรือเหตุจำเป็นเร่งด่วน",
+          en: "Red alert banner for emergency temple closures or urgent advisories.",
+          de: "Rotes Banner für Notfälle oder temporäre Tempelschließungen.",
+        },
+      },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: {
+          th: "การเลือกระดับความสำคัญและการแสดงผล",
+          en: "Select Alert Severity & Placement",
+          de: "Dringlichkeitsstufe wählen",
+        },
+        description: {
+          th: "เลือกระดับความสำคัญให้เหมาะสมกับสถานการณ์: 'Info' สำหรับข่าวสารทั่วไป, 'Warning' สำหรับการปรับเปลี่ยนกำหนดการ, และ 'Emergency' สำหรับเหตุจำเป็นเร่งด่วน",
+          en: "Choose appropriate severity: Info for general news, Warning for schedule shifts, and Emergency for urgent notices.",
+          de: "Wählen Sie Info für allgemeine Hinweise, Warnung für Terminänderungen und Dringend für Notfälle.",
+        },
+      },
+      {
+        stepNumber: 2,
+        title: {
+          th: "กรอกข้อความสั้นกระชับและปุ่ม Action ลิงก์",
+          en: "Enter Concise Message & Action Button",
+          de: "Kurznachricht & Aktions-Link eintragen",
+        },
+        description: {
+          th: "ระบุข้อความประกาศที่สั้นกระชับ เข้าใจง่าย 3 ภาษา (TH, EN, DE) และสามารถใส่ปุ่มกดพร้อมลิงก์ไปยังหน้ารายละเอียดหรือถ่ายทอดสดได้",
+          en: "Provide short, punchy copy across 3 languages with an optional action button linking to relevant details or live stream.",
+          de: "Geben Sie kurze, prägnante Texte in 3 Sprachen ein, optional mit Aktions-Button.",
+        },
+      },
+      {
+        stepNumber: 3,
+        title: {
+          th: "การตั้งเวลาเปิด-ปิดอัตโนมัติ (Scheduling)",
+          en: "Configure Display Time Window",
+          de: "Anzeigezeitraum einstellen",
+        },
+        description: {
+          th: "สามารถกำหนดวันและเวลาเริ่มต้น-สิ้นสุด เพื่อให้แถบประกาศแสดงผลและหายไปจากหน้าเว็บโดยอัตโนมัติเมื่อครบกำหนด",
+          en: "Set optional start and expiry timestamps so the banner automatically appears and dismisses on schedule.",
+          de: "Legen Sie Beginn und Ende fest, damit das Banner automatisch ein- und ausgeblendet wird.",
+        },
+      },
+    ],
+    faqs: [
+      {
+        question: {
+          th: "ญาติโยมสามารถกดปิดแถบประกาศบนหน้าจอได้หรือไม่?",
+          en: "Can website visitors dismiss the banner?",
+          de: "Können Besucher das Banner schließen?",
+        },
+        answer: {
+          th: "สามารถกดปุ่ม [X] เพื่อปิดแถบประกาศได้ โดยระบบจะบันทึกสถานะการปิดไว้ในเบราว์เซอร์ชั่วคราวเพื่อไม่ให้รบกวนการอ่านเนื้อหา",
+          en: "Yes, visitors can click the [X] dismiss button. The state is remembered during their session.",
+          de: "Ja, Besucher können das Banner schließen; die Auswahl bleibt für die Sitzung gespeichert.",
+        },
+      },
+    ],
+    relatedSlugs: ["news", "events", "settings"],
+    updatedAt: "2026-08-30",
+  },
 ];

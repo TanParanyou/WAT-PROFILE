@@ -32,6 +32,11 @@ import {
   Terminal,
   MessageSquare,
   Music,
+  Newspaper,
+  AlertTriangle,
+  FileCheck2,
+  BarChart3,
+  Database,
 } from "lucide-react";
 
 export const guideIconMap: Record<string, LucideIcon> = {
@@ -64,6 +69,11 @@ export const guideIconMap: Record<string, LucideIcon> = {
   Terminal,
   MessageSquare,
   Music,
+  Newspaper,
+  AlertTriangle,
+  FileCheck2,
+  BarChart3,
+  Database,
 };
 
 export function GuideIcon({

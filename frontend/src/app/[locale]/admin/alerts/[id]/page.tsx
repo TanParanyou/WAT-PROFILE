@@ -11,7 +11,7 @@ import { MultiLangInput } from '@/components/admin/MultiLangInput';
 import { Button } from '@/components/ui/Button';
 import { Input } from '@/components/ui/Input';
 import { Select } from '@/components/ui/Select';
-import { Checkbox } from '@/components/ui/Checkbox';
+import { Switch } from '@/components/ui/Switch';
 import { useToast } from '@/hooks/useToast';
 import { SiteAlert, SiteAlertFormData, SiteAlertSeverity, SiteAlertDisplayType, SiteAlertScope } from '@/types/alert';
 import { MultiLangText } from '@/types/api';
@@ -276,8 +276,8 @@ export default function AdminAlertFormPage() {
                 }}
               />
 
-              <div className="pt-2 space-y-2 border-t border-admin-border">
-                <Checkbox
+              <div className="pt-2 space-y-3 border-t border-admin-border">
+                <Switch
                   label={t('form.isActive')}
                   checked={formData.is_active}
                   onChange={(e) => {
@@ -285,7 +285,7 @@ export default function AdminAlertFormPage() {
                     setFormData({ ...formData, is_active: e.target.checked });
                   }}
                 />
-                <Checkbox
+                <Switch
                   label={t('form.isDismissible')}
                   checked={formData.is_dismissible}
                   onChange={(e) => {

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { type Editor, useEditorState } from "@tiptap/react";
 import { useTranslations } from "next-intl";
 import {
@@ -8,26 +8,46 @@ import {
   Redo,
   Bold,
   Italic,
+  Underline as UnderlineIcon,
   Strikethrough,
+  Code as CodeIcon,
+  Subscript as SubscriptIcon,
+  Superscript as SuperscriptIcon,
   RemoveFormatting,
   List,
   ListOrdered,
+  Indent as IndentIcon,
+  Outdent as OutdentIcon,
   Quote,
   Minus,
-  Link,
+  Link as LinkIcon,
   Image as ImageIcon,
   AlignLeft,
   AlignCenter,
   AlignRight,
   AlignJustify,
+  Baseline,
+  Highlighter,
+  Maximize2,
+  Minimize2,
+  ChevronDown,
 } from "lucide-react";
 import { MediaPickerDialog } from "../media/MediaPickerDialog";
 import { RichTextLinkDialog } from "./RichTextLinkDialog";
-import { getRichTextToolbarState } from "@/lib/rich-text/editor-commands";
+import {
+  getRichTextToolbarState,
+  setBlockType,
+  clearAllFormatting,
+  indent,
+  outdent,
+  type BlockType,
+} from "@/lib/rich-text/editor-commands";
 
 type RichTextToolbarProps = {
   editor: Editor;
   disabled?: boolean;
+  isFullscreen?: boolean;
+  onToggleFullscreen?: () => void;
 };
 
 type SavedSelection = {
@@ -35,16 +55,62 @@ type SavedSelection = {
   to: number;
 };
 
-export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarProps) {
+const TEXT_COLORS = [
+  { key: "default", value: "" },
+  { key: "black", value: "#000000" },
+  { key: "darkGray", value: "#4B5563" },
+  { key: "red", value: "#DC2626" },
+  { key: "orange", value: "#EA580C" },
+  { key: "amber", value: "#D97706" },
+  { key: "green", value: "#16A34A" },
+  { key: "blue", value: "#2563EB" },
+  { key: "purple", value: "#9333EA" },
+];
+
+const HIGHLIGHT_COLORS = [
+  { key: "none", value: "" },
+  { key: "yellow", value: "#FEF08A" },
+  { key: "green", value: "#BBF7D0" },
+  { key: "cyan", value: "#BAE6FD" },
+  { key: "pink", value: "#FBCFE8" },
+  { key: "orange", value: "#FED7AA" },
+];
+
+export function RichTextToolbar({
+  editor,
+  disabled = false,
+  isFullscreen = false,
+  onToggleFullscreen,
+}: RichTextToolbarProps) {
   const t = useTranslations("Admin.richText");
   const [isMediaOpen, setIsMediaOpen] = useState(false);
   const [isLinkOpen, setIsLinkOpen] = useState(false);
+  const [isColorMenuOpen, setIsColorMenuOpen] = useState(false);
+  const [isHighlightMenuOpen, setIsHighlightMenuOpen] = useState(false);
   const [pendingSelection, setPendingSelection] = useState<SavedSelection | null>(null);
+
+  const colorMenuRef = useRef<HTMLDivElement>(null);
+  const highlightMenuRef = useRef<HTMLDivElement>(null);
+
   const toolbarState = useEditorState({
     editor,
     selector: ({ editor: currentEditor }) =>
       currentEditor ? getRichTextToolbarState(currentEditor) : null,
   });
+
+  // Close color popovers when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (colorMenuRef.current && !colorMenuRef.current.contains(event.target as Node)) {
+        setIsColorMenuOpen(false);
+      }
+      if (highlightMenuRef.current && !highlightMenuRef.current.contains(event.target as Node)) {
+        setIsHighlightMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
 
   const snapshotSelection = (): SavedSelection => ({
     from: editor.state.selection.from,
@@ -61,17 +127,23 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
     setIsLinkOpen(true);
   };
 
-  const handleLinkSave = (url: string) => {
+  const handleLinkSave = (url: string, openInNewTab: boolean) => {
     setIsLinkOpen(false);
     const selection = pendingSelection ?? snapshotSelection();
     setPendingSelection(null);
+
+    const attributes: { href: string; target?: string; rel?: string } = { href: url };
+    if (openInNewTab) {
+      attributes.target = "_blank";
+      attributes.rel = "noopener noreferrer";
+    }
 
     editor
       .chain()
       .focus()
       .setTextSelection(selection)
       .extendMarkRange("link")
-      .setLink({ href: url })
+      .setLink(attributes)
       .run();
   };
 
@@ -108,44 +180,50 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
       .run();
   };
 
-  const getBlockType = () => {
+  const getBlockType = (): BlockType => {
     return toolbarState?.blockType ?? "paragraph";
   };
 
   const handleBlockTypeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (disabled) return;
-    const type = e.target.value;
-    const { from, to } = editor.state.selection;
-    const chain = editor.chain().focus().setTextSelection({ from, to });
-    
-    if (type === "heading2") {
-      chain.setHeading({ level: 2 }).run();
-    } else if (type === "heading3") {
-      chain.setHeading({ level: 3 }).run();
-    } else {
-      chain.setParagraph().run();
-    }
+    const type = e.target.value as BlockType;
+    setBlockType(editor, type);
   };
 
   const getFontSize = () => {
-    return editor.getAttributes("textStyle").fontSize || "default";
+    return toolbarState?.fontSize || "default";
   };
 
   const handleFontSizeChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     if (disabled) return;
     const size = e.target.value;
-    const { from, to } = editor.state.selection;
-    const chain = editor.chain().focus().setTextSelection({ from, to });
-
     if (size === "default") {
-      chain.unsetFontSize().run();
+      editor.chain().focus().unsetFontSize().run();
     } else {
-      chain.setFontSize(size).run();
+      editor.chain().focus().setFontSize(size).run();
+    }
+  };
+
+  const handleColorSelect = (color: string) => {
+    setIsColorMenuOpen(false);
+    if (!color) {
+      editor.chain().focus().unsetColor().run();
+    } else {
+      editor.chain().focus().setColor(color).run();
+    }
+  };
+
+  const handleHighlightSelect = (color: string) => {
+    setIsHighlightMenuOpen(false);
+    if (!color) {
+      editor.chain().focus().unsetHighlight().run();
+    } else {
+      editor.chain().focus().setHighlight({ color }).run();
     }
   };
 
   const toolbarButtonClass = (isActive = false) => `
-    p-1.5 rounded text-admin-body transition-colors
+    p-1.5 rounded-none text-admin-body transition-colors
     focus-visible:outline-2 focus-visible:outline-admin-focus
     disabled:cursor-not-allowed disabled:opacity-40
     ${isActive ? "bg-admin-selected text-admin-selected-foreground font-bold hover:bg-admin-selected/80" : "hover:bg-admin-border hover:text-admin-foreground"}
@@ -160,7 +238,8 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
   };
 
   return (
-    <div className="flex flex-wrap items-center gap-1 border-b border-admin-border bg-admin-surface-muted p-2">
+    <div className="flex flex-wrap items-center gap-1 border-b border-admin-border bg-admin-surface-muted p-1.5 sm:p-2 select-none">
+      {/* Undo & Redo */}
       <button
         type="button"
         onMouseDown={keepEditorSelection}
@@ -186,23 +265,29 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
 
       <div className="w-[1px] h-5 bg-admin-border mx-1" />
 
+      {/* Block Type Dropdown */}
       <select
         value={getBlockType()}
         onChange={handleBlockTypeChange}
         disabled={disabled}
-        className="px-2 py-1 text-xs rounded border border-admin-control-border bg-admin-surface text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus disabled:cursor-not-allowed disabled:opacity-40"
+        className="px-2 py-1 text-xs rounded-none border border-admin-control-border bg-admin-surface text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus disabled:cursor-not-allowed disabled:opacity-40"
         aria-label={t("toolbar.paragraph")}
       >
         <option value="paragraph">{t("blockType.paragraph")}</option>
+        <option value="heading1">{t("blockType.heading1")}</option>
         <option value="heading2">{t("blockType.heading2")}</option>
         <option value="heading3">{t("blockType.heading3")}</option>
+        <option value="heading4">{t("blockType.heading4")}</option>
+        <option value="blockquote">{t("blockType.blockquote")}</option>
+        <option value="codeBlock">{t("blockType.codeBlock")}</option>
       </select>
 
+      {/* Font Size Dropdown */}
       <select
         value={getFontSize()}
         onChange={handleFontSizeChange}
         disabled={disabled}
-        className="px-2 py-1 text-xs rounded border border-admin-control-border bg-admin-surface text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus disabled:cursor-not-allowed disabled:opacity-40"
+        className="px-2 py-1 text-xs rounded-none border border-admin-control-border bg-admin-surface text-admin-foreground focus-visible:outline-2 focus-visible:outline-admin-focus disabled:cursor-not-allowed disabled:opacity-40"
         aria-label={t("toolbar.fontSize")}
       >
         <option value="default">{t("toolbar.size")}</option>
@@ -218,6 +303,7 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
 
       <div className="w-[1px] h-5 bg-admin-border mx-1" />
 
+      {/* Basic Marks: Bold, Italic, Underline, Strike, Code, Sub, Sup */}
       <button
         type="button"
         onMouseDown={keepEditorSelection}
@@ -243,6 +329,17 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
       <button
         type="button"
         onMouseDown={keepEditorSelection}
+        onClick={() => !disabled && editor.chain().focus().toggleUnderline().run()}
+        disabled={disabled}
+        className={toolbarButtonClass(toolbarState?.underline)}
+        title={getTitle("underline")}
+        aria-label={t("toolbar.underline")}
+      >
+        <UnderlineIcon size={16} />
+      </button>
+      <button
+        type="button"
+        onMouseDown={keepEditorSelection}
         onClick={() => !disabled && editor.chain().focus().toggleStrike().run()}
         disabled={disabled || !editor.can().toggleStrike()}
         className={toolbarButtonClass(toolbarState?.strike)}
@@ -251,16 +348,130 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
       >
         <Strikethrough size={16} />
       </button>
-
-      <div className="w-[1px] h-5 bg-admin-border mx-1" />
-
       <button
         type="button"
         onMouseDown={keepEditorSelection}
-        onClick={() => !disabled && editor.chain().focus().setTextAlign('left').run()}
-        disabled={disabled || !editor.can().setTextAlign('left')}
+        onClick={() => !disabled && editor.chain().focus().toggleCode().run()}
+        disabled={disabled || !editor.can().toggleCode()}
+        className={toolbarButtonClass(toolbarState?.code)}
+        title={getTitle("code", editor.can().toggleCode())}
+        aria-label={t("toolbar.code")}
+      >
+        <CodeIcon size={16} />
+      </button>
+      <button
+        type="button"
+        onMouseDown={keepEditorSelection}
+        onClick={() => !disabled && editor.chain().focus().toggleSubscript().run()}
+        disabled={disabled}
+        className={toolbarButtonClass(toolbarState?.subscript)}
+        title={getTitle("subscript")}
+        aria-label={t("toolbar.subscript")}
+      >
+        <SubscriptIcon size={16} />
+      </button>
+      <button
+        type="button"
+        onMouseDown={keepEditorSelection}
+        onClick={() => !disabled && editor.chain().focus().toggleSuperscript().run()}
+        disabled={disabled}
+        className={toolbarButtonClass(toolbarState?.superscript)}
+        title={getTitle("superscript")}
+        aria-label={t("toolbar.superscript")}
+      >
+        <SuperscriptIcon size={16} />
+      </button>
+
+      <div className="w-[1px] h-5 bg-admin-border mx-1" />
+
+      {/* Text Color Picker Dropdown */}
+      <div className="relative" ref={colorMenuRef}>
+        <button
+          type="button"
+          onMouseDown={keepEditorSelection}
+          onClick={() => !disabled && setIsColorMenuOpen((prev) => !prev)}
+          disabled={disabled}
+          className={`${toolbarButtonClass(Boolean(toolbarState?.textColor))} flex items-center gap-0.5`}
+          title={t("toolbar.textColor")}
+          aria-label={t("toolbar.textColor")}
+        >
+          <Baseline size={16} style={{ color: toolbarState?.textColor || undefined }} />
+          <ChevronDown size={10} />
+        </button>
+
+        {isColorMenuOpen && (
+          <div className="absolute left-0 top-full mt-1 z-30 bg-admin-surface border border-admin-border p-2 shadow-lg rounded-none grid grid-cols-3 gap-1.5 w-36">
+            {TEXT_COLORS.map((c) => {
+              const label = t(`colors.${c.key}`);
+              return (
+                <button
+                  key={c.value}
+                  type="button"
+                  onClick={() => handleColorSelect(c.value)}
+                  className="flex items-center gap-1.5 p-1 rounded-none text-xs hover:bg-admin-surface-muted text-admin-foreground w-full"
+                  title={label}
+                >
+                  <span
+                    className="w-4 h-4 rounded-none border border-admin-control-border inline-block flex-shrink-0"
+                    style={{ backgroundColor: c.value || "transparent" }}
+                  />
+                  <span className="truncate text-[10px]">{label}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      {/* Highlight Color Picker Dropdown */}
+      <div className="relative" ref={highlightMenuRef}>
+        <button
+          type="button"
+          onMouseDown={keepEditorSelection}
+          onClick={() => !disabled && setIsHighlightMenuOpen((prev) => !prev)}
+          disabled={disabled}
+          className={`${toolbarButtonClass(Boolean(toolbarState?.highlight))} flex items-center gap-0.5`}
+          title={t("toolbar.highlight")}
+          aria-label={t("toolbar.highlight")}
+        >
+          <Highlighter size={16} style={{ backgroundColor: toolbarState?.highlight || undefined }} />
+          <ChevronDown size={10} />
+        </button>
+
+        {isHighlightMenuOpen && (
+          <div className="absolute left-0 top-full mt-1 z-30 bg-admin-surface border border-admin-border p-2 shadow-lg rounded-none grid grid-cols-2 gap-1.5 w-32">
+            {HIGHLIGHT_COLORS.map((c) => {
+              const label = t(`colors.${c.key}`);
+              return (
+                <button
+                  key={c.value}
+                  type="button"
+                  onClick={() => handleHighlightSelect(c.value)}
+                  className="flex items-center gap-1.5 p-1 rounded-none text-xs hover:bg-admin-surface-muted text-admin-foreground w-full"
+                  title={label}
+                >
+                  <span
+                    className="w-4 h-4 rounded-none border border-admin-control-border inline-block flex-shrink-0"
+                    style={{ backgroundColor: c.value || "transparent" }}
+                  />
+                  <span className="truncate text-[10px]">{label}</span>
+                </button>
+              );
+            })}
+          </div>
+        )}
+      </div>
+
+      <div className="w-[1px] h-5 bg-admin-border mx-1" />
+
+      {/* Alignment Buttons */}
+      <button
+        type="button"
+        onMouseDown={keepEditorSelection}
+        onClick={() => !disabled && editor.chain().focus().setTextAlign("left").run()}
+        disabled={disabled || !editor.can().setTextAlign("left")}
         className={toolbarButtonClass(toolbarState?.alignLeft)}
-        title={getTitle("alignLeft", editor.can().setTextAlign('left'))}
+        title={getTitle("alignLeft", editor.can().setTextAlign("left"))}
         aria-label={t("toolbar.alignLeft")}
       >
         <AlignLeft size={16} />
@@ -268,10 +479,10 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
       <button
         type="button"
         onMouseDown={keepEditorSelection}
-        onClick={() => !disabled && editor.chain().focus().setTextAlign('center').run()}
-        disabled={disabled || !editor.can().setTextAlign('center')}
+        onClick={() => !disabled && editor.chain().focus().setTextAlign("center").run()}
+        disabled={disabled || !editor.can().setTextAlign("center")}
         className={toolbarButtonClass(toolbarState?.alignCenter)}
-        title={getTitle("alignCenter", editor.can().setTextAlign('center'))}
+        title={getTitle("alignCenter", editor.can().setTextAlign("center"))}
         aria-label={t("toolbar.alignCenter")}
       >
         <AlignCenter size={16} />
@@ -279,10 +490,10 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
       <button
         type="button"
         onMouseDown={keepEditorSelection}
-        onClick={() => !disabled && editor.chain().focus().setTextAlign('right').run()}
-        disabled={disabled || !editor.can().setTextAlign('right')}
+        onClick={() => !disabled && editor.chain().focus().setTextAlign("right").run()}
+        disabled={disabled || !editor.can().setTextAlign("right")}
         className={toolbarButtonClass(toolbarState?.alignRight)}
-        title={getTitle("alignRight", editor.can().setTextAlign('right'))}
+        title={getTitle("alignRight", editor.can().setTextAlign("right"))}
         aria-label={t("toolbar.alignRight")}
       >
         <AlignRight size={16} />
@@ -290,10 +501,10 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
       <button
         type="button"
         onMouseDown={keepEditorSelection}
-        onClick={() => !disabled && editor.chain().focus().setTextAlign('justify').run()}
-        disabled={disabled || !editor.can().setTextAlign('justify')}
+        onClick={() => !disabled && editor.chain().focus().setTextAlign("justify").run()}
+        disabled={disabled || !editor.can().setTextAlign("justify")}
         className={toolbarButtonClass(toolbarState?.alignJustify)}
-        title={getTitle("alignJustify", editor.can().setTextAlign('justify'))}
+        title={getTitle("alignJustify", editor.can().setTextAlign("justify"))}
         aria-label={t("toolbar.alignJustify")}
       >
         <AlignJustify size={16} />
@@ -301,6 +512,7 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
 
       <div className="w-[1px] h-5 bg-admin-border mx-1" />
 
+      {/* Lists & Indentation */}
       <button
         type="button"
         onMouseDown={keepEditorSelection}
@@ -322,6 +534,28 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
         aria-label={t("toolbar.orderedList")}
       >
         <ListOrdered size={16} />
+      </button>
+      <button
+        type="button"
+        onMouseDown={keepEditorSelection}
+        onClick={() => !disabled && outdent(editor)}
+        disabled={disabled || !editor.can().liftListItem("listItem")}
+        className={toolbarButtonClass()}
+        title={getTitle("outdent", editor.can().liftListItem("listItem"))}
+        aria-label={t("toolbar.outdent")}
+      >
+        <OutdentIcon size={16} />
+      </button>
+      <button
+        type="button"
+        onMouseDown={keepEditorSelection}
+        onClick={() => !disabled && indent(editor)}
+        disabled={disabled || !editor.can().sinkListItem("listItem")}
+        className={toolbarButtonClass()}
+        title={getTitle("indent", editor.can().sinkListItem("listItem"))}
+        aria-label={t("toolbar.indent")}
+      >
+        <IndentIcon size={16} />
       </button>
       <button
         type="button"
@@ -348,6 +582,7 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
 
       <div className="w-[1px] h-5 bg-admin-border mx-1" />
 
+      {/* Links, Image, Clear Formatting */}
       <button
         type="button"
         onMouseDown={keepEditorSelection}
@@ -357,7 +592,7 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
         title={getTitle("link")}
         aria-label={t("toolbar.link")}
       >
-        <Link size={16} />
+        <LinkIcon size={16} />
       </button>
       <button
         type="button"
@@ -373,7 +608,7 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
       <button
         type="button"
         onMouseDown={keepEditorSelection}
-        onClick={() => !disabled && editor.chain().focus().unsetAllMarks().clearNodes().run()}
+        onClick={() => !disabled && clearAllFormatting(editor)}
         disabled={disabled}
         className={toolbarButtonClass()}
         title={getTitle("clearFormat")}
@@ -382,9 +617,28 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
         <RemoveFormatting size={16} />
       </button>
 
+      {/* Fullscreen Toggle */}
+      {onToggleFullscreen && (
+        <>
+          <div className="flex-1" />
+          <button
+            type="button"
+            onMouseDown={keepEditorSelection}
+            onClick={onToggleFullscreen}
+            className={toolbarButtonClass(isFullscreen)}
+            title={isFullscreen ? t("toolbar.exitFullscreen") : t("toolbar.fullscreen")}
+            aria-label={isFullscreen ? t("toolbar.exitFullscreen") : t("toolbar.fullscreen")}
+          >
+            {isFullscreen ? <Minimize2 size={16} /> : <Maximize2 size={16} />}
+          </button>
+        </>
+      )}
+
+      {/* Link Dialog */}
       <RichTextLinkDialog
         isOpen={isLinkOpen}
         initialUrl={editor.getAttributes("link").href || ""}
+        initialOpenInNewTab={editor.getAttributes("link").target === "_blank"}
         onClose={() => {
           setIsLinkOpen(false);
           setPendingSelection(null);
@@ -393,6 +647,7 @@ export function RichTextToolbar({ editor, disabled = false }: RichTextToolbarPro
         onRemove={handleLinkRemove}
       />
 
+      {/* Media Picker Dialog */}
       <MediaPickerDialog
         isOpen={isMediaOpen}
         onClose={() => {

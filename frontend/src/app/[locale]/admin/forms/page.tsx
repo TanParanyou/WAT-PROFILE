@@ -12,7 +12,6 @@ import {
   Sparkles,
   Settings,
   Languages,
-  PenLine,
   CheckCircle2,
   RefreshCw,
   X,
@@ -25,11 +24,14 @@ import { AdminPageHeader } from "@/components/admin/AdminPageHeader";
 import { Button } from "@/components/ui/Button";
 import { Drawer } from "@/components/ui/Drawer";
 import { ImageUpload } from "@/components/admin/ImageUpload";
+import { SignatureManager } from "@/components/admin/SignatureManager";
 import { useToast } from "@/hooks/useToast";
+import { usePermission } from "@/hooks/usePermission";
+import { useSignaturePresets } from "@/hooks/useSignaturePresets";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { donationAdminService, settingsAdminService } from "@/services/adminService";
 import type { Donation } from "@/types/entities";
-import { SignaturePad } from "../donations/_components/SignaturePad";
+import type { SignatureMode } from "@/types/signatures";
 import { cn } from "@/utils/cn";
 
 type TemplateType =
@@ -39,7 +41,6 @@ type TemplateType =
   | "appreciation_letter";
 
 type LanguageMode = "bilingual" | "th" | "de";
-type SignatureMode = "saved" | "pad" | "none";
 
 interface TemplateOption {
   id: TemplateType;
@@ -128,6 +129,42 @@ export default function DocumentFormsHubPage() {
     return Object.fromEntries(settingsData.map((s) => [s.key, s.value]));
   }, [settingsData]);
 
+  const { can } = usePermission();
+  const canManageSettings = can("settings", "update") || can("donations", "update");
+
+  const savedSignatureUrl = settingsMap.certificate_signature_url || "";
+  const {
+    presets: signaturePresets,
+    selectedPresetId,
+    setSelectedPresetId,
+    savePreset: handleSaveToPresets,
+    deletePreset: handleDeletePreset,
+    resolveActiveSignature,
+  } = useSignaturePresets(savedSignatureUrl);
+
+  const activeSignatureUrl = resolveActiveSignature(signatureMode, liveSignature);
+
+  const handleSaveAsWatDefault = async (dataUrl: string) => {
+    if (!canManageSettings) {
+      toast.error("คุณไม่มีสิทธิ์แก้ไขลายเซ็นหลักของวัด (ต้องมีสิทธิ์ Settings หรือ Donations Update)");
+      return;
+    }
+    setIsSavingSettings(true);
+    try {
+      await settingsAdminService.update([
+        { key: "certificate_signature_url", value: dataUrl },
+      ]);
+      await queryClient.invalidateQueries({ queryKey: ["admin", "settings"] });
+      toast.success("บันทึกลายเซ็นเป็นลายเซ็นทางการของวัดเรียบร้อยแล้ว");
+      setSelectedPresetId("default");
+      setSignatureMode("saved");
+    } catch {
+      toast.error("ไม่สามารถบันทึกลายเซ็นได้ กรุณาลองใหม่อีกครั้ง");
+    } finally {
+      setIsSavingSettings(false);
+    }
+  };
+
   // Drawer Form State for in-page Settings
   const [drawerOrgNameTh, setDrawerOrgNameTh] = useState("");
   const [drawerOrgNameDe, setDrawerOrgNameDe] = useState("");
@@ -203,7 +240,6 @@ export default function DocumentFormsHubPage() {
   const signatoryName = settingsMap.certificate_signatory_name || "พระครูวิมลธรรมวิเทศ";
   const signatoryTitle = settingsMap.certificate_signatory_title || "Vorstand / เจ้าอาวาส";
   const sealUrl = settingsMap.certificate_seal_url || "";
-  const savedSignatureUrl = settingsMap.certificate_signature_url || "";
 
   const handleSelectDonation = (d: Donation) => {
     setRecipientName(d.donor_name || (d.is_anonymous ? "Anonymous Donor / ผู้มีจิตศรัทธา" : ""));
@@ -679,79 +715,24 @@ export default function DocumentFormsHubPage() {
             </div>
           </div>
 
-          {/* Signature Mode Controls */}
-          <div className="bg-admin-surface border border-admin-border p-4 space-y-3 rounded-none">
-            <h3 className="text-xs font-bold uppercase tracking-wider text-admin-foreground border-b border-admin-border pb-2 flex items-center justify-between">
-              <span>การลงลายมือชื่อ (Signature)</span>
-              <PenLine size={13} className="text-admin-muted" />
-            </h3>
-
-            <div className="grid grid-cols-3 gap-1.5">
-              {[
-                { id: "saved", label: "รูปลายเซ็น" },
-                { id: "pad", label: "เซ็นสด" },
-                { id: "none", label: "เว้นว่าง" },
-              ].map((s) => (
-                <button
-                  key={s.id}
-                  type="button"
-                  onClick={() => setSignatureMode(s.id as SignatureMode)}
-                  className={cn(
-                    "py-1.5 px-2 text-xs font-medium border text-center transition-colors",
-                    signatureMode === s.id
-                      ? "border-admin-focus bg-admin-focus/10 text-admin-focus font-bold"
-                      : "border-admin-control-border bg-admin-surface text-admin-foreground hover:bg-admin-surface-muted"
-                  )}
-                >
-                  {s.label}
-                </button>
-              ))}
-            </div>
-
-            {signatureMode === "saved" && (
-              <div className="p-2.5 bg-admin-surface-muted/50 border border-admin-border text-xs space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="text-admin-muted">รูปลายเซ็นจาก Settings:</span>
-                  {savedSignatureUrl ? (
-                    <span className="text-emerald-600 dark:text-emerald-400 font-semibold flex items-center gap-1">
-                      <CheckCircle2 size={12} /> มีรูปพร้อมใช้
-                    </span>
-                  ) : (
-                    <button
-                      type="button"
-                      onClick={openSettingsDrawer}
-                      className="text-amber-600 dark:text-amber-400 underline font-medium"
-                    >
-                      + อัปโหลดรูปในหน้านี้
-                    </button>
-                  )}
-                </div>
-                {savedSignatureUrl && (
-                  <div className="h-14 bg-white border border-gray-200 flex items-center justify-center p-1">
-                    {/* eslint-disable-next-line @next/next/no-img-element */}
-                    <img
-                      src={savedSignatureUrl}
-                      alt="Saved Signature"
-                      className="max-h-full max-w-full object-contain"
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-
-            {signatureMode === "pad" && (
-              <SignaturePad
-                value={liveSignature}
-                onChange={(url) => setLiveSignature(url)}
-              />
-            )}
-
-            {signatureMode === "none" && (
-              <p className="text-[11px] text-admin-muted italic leading-relaxed">
-                * จะแสดงเส้นประสำหรับให้เจ้าอาวาสหรือผู้มีอำนาจลงนามด้วยปากกาจริงหลังพิมพ์เอกสาร
-              </p>
-            )}
-          </div>
+          {/* Reusable Signature Manager Component */}
+          <SignatureManager
+            signatureMode={signatureMode}
+            onModeChange={setSignatureMode}
+            liveSignature={liveSignature}
+            onLiveSignatureChange={setLiveSignature}
+            savedSignatureUrl={savedSignatureUrl}
+            defaultSignatoryName={signatoryName}
+            selectedPresetId={selectedPresetId}
+            onSelectPresetId={setSelectedPresetId}
+            presets={signaturePresets}
+            onSaveToPresets={(name, url) => handleSaveToPresets(name, url, signatoryName, signatoryTitle)}
+            onDeletePreset={handleDeletePreset}
+            onSaveAsWatDefault={handleSaveAsWatDefault}
+            canSaveWatDefault={canManageSettings}
+            isSavingWatDefault={isSavingSettings}
+            onOpenSettings={openSettingsDrawer}
+          />
         </div>
 
         {/* RIGHT COLUMN: LIVE A4 PREVIEW (Printable Container) */}
@@ -959,20 +940,12 @@ export default function DocumentFormsHubPage() {
                   <div className="relative inline-block w-48 text-center">
                     {/* Signature Image / Canvas / Blank Line */}
                     <div className="h-16 flex items-center justify-center relative">
-                      {signatureMode === "saved" && savedSignatureUrl && (
+                      {activeSignatureUrl && (
                         /* eslint-disable-next-line @next/next/no-img-element */
                         <img
-                          src={savedSignatureUrl}
+                          src={activeSignatureUrl}
                           crossOrigin="anonymous"
                           alt="Signature"
-                          className="max-h-14 max-w-full object-contain"
-                        />
-                      )}
-                      {signatureMode === "pad" && liveSignature && (
-                        /* eslint-disable-next-line @next/next/no-img-element */
-                        <img
-                          src={liveSignature}
-                          alt="Live Signature"
                           className="max-h-14 max-w-full object-contain"
                         />
                       )}
@@ -983,6 +956,12 @@ export default function DocumentFormsHubPage() {
                     <p className="text-[11px] text-zinc-500">{signatoryTitle}</p>
                     <p className="text-[10px] text-zinc-400 mt-0.5">ผู้มีอำนาจลงนาม / Authorized Signatory</p>
                   </div>
+
+                  {signatureMode !== "none" && (
+                    <p className="text-[9px] text-zinc-400 italic pt-1 text-right">
+                      * Hinweis: Dieses Dokument wurde maschinell erstellt und ist ohne handschriftliche Unterschrift rechtsgültig (§ 10b EStG).
+                    </p>
+                  )}
                 </div>
               </div>
             </div>

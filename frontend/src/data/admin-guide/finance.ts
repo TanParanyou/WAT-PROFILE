@@ -368,4 +368,131 @@ export const financeGuides: GuideArticle[] = [
     relatedSlugs: ["privacy", "members", "audit-logs"],
     updatedAt: "2026-08-19",
   },
+  {
+    id: "guide-forms",
+    slug: "forms",
+    category: "finance",
+    title: {
+      th: "ระบบออกเอกสารและใบอนุโมทนาบัตร (Official Certificates & Forms)",
+      en: "Official Certificates & Document Generator",
+      de: "Offizielle Urkunden & Spendenbescheinigungen",
+    },
+    summary: {
+      th: "การออกใบอนุโมทนาบัตร, หนังสือรับรองเงินบริจาคประจำปี (Zuwendungsbestätigung), เกียรติบัตรการบวช/ปฏิบัติธรรม พร้อมลายเซ็นดิจิทัลและพิมพ์ PDF",
+      en: "Generating official donation receipts, annual tax certificates (Zuwendungsbestätigung), ordination certificates, with digital signatures and bilingual PDF export.",
+      de: "Erstellung von Spendenquittungen, jährlichen Steuerbescheinigungen (Zuwendungsbestätigung), Ordinationsurkunden mit digitaler Signatur und zweisprachigem PDF-Export.",
+    },
+    iconName: "FileCheck2",
+    resource: "donations",
+    routePath: "/admin/forms",
+    quickSteps: [
+      {
+        th: "เข้าเมนู /admin/forms เพื่อเลือกเทมเพลตเอกสารที่ต้องการออก",
+        en: "Navigate to /admin/forms and select the certificate template.",
+        de: "Zu /admin/forms gehen und gewünschte Urkundenvorlage auswählen.",
+      },
+      {
+        th: "ค้นหาผู้บริจาคหรือผู้รับเกียรติบัตร และเลือกโหมดภาษา (Bilingual TH/DE)",
+        en: "Search donor/recipient and select bilingual language mode (TH/DE).",
+        de: "Spender/Empfänger suchen und zweisprachigen Modus (TH/DE) wählen.",
+      },
+      {
+        th: "เซ็นชื่อผ่าน Digital Signature Pad และกด 'พิมพ์เอกสาร (PDF)'",
+        en: "Sign using the Digital Signature Pad and export PDF document.",
+        de: "Über das digitale Signaturfeld unterschreiben und PDF exportieren.",
+      },
+    ],
+    statusLegends: [
+      {
+        badgeVariant: "success",
+        label: { th: "Ready to Print (พร้อมพิมพ์)", en: "Ready to Print", de: "Druckbereit" },
+        meaning: {
+          th: "เอกสารครบถ้วนสมบูรณ์ มีตราประทับวัดและพร้อมส่งออกไฟล์ PDF",
+          en: "Certificate is fully populated with official seal and ready for export.",
+          de: "Bescheinigung ist vollständig ausgefüllt und druckbereit.",
+        },
+      },
+      {
+        badgeVariant: "info",
+        label: { th: "Signed (ลงนามแล้ว)", en: "Signed", de: "Signiert" },
+        meaning: {
+          th: "มีลายเซ็นดิจิทัลของเจ้าอาวาสหรือไวยาวัจกรแนบในเอกสาร",
+          en: "Features verified digital signature of the Abbot or Treasurer.",
+          de: "Enthält die digitale Unterschrift des Abts oder Kassenwarts.",
+        },
+      },
+      {
+        badgeVariant: "warning",
+        label: { th: "Tax Compliant", en: "Tax Compliant", de: "Steuerkonform" },
+        meaning: {
+          th: "จัดทำตามมาตรฐาน Finanzamt เยอรมนี สำหรับลดหย่อนภาษีเงินบริจาค",
+          en: "Format fully complies with German tax authority (Finanzamt) standards.",
+          de: "Entspricht den offiziellen Vorgaben des deutschen Finanzamts.",
+        },
+      },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: {
+          th: "เลือกเทมเพลตเอกสารที่ต้องการออก",
+          en: "Select Certificate Template",
+          de: "Urkundenvorlage auswählen",
+        },
+        description: {
+          th: "เลือกระหว่าง: 1. ใบอนุโมทนาบัตรรายครั้ง 2. หนังสือรับรองภาษีประจำปี (Annual Tax Certificate) 3. เกียรติบัตรการบวช/ปฏิบัติธรรม หรือ 4. จดหมายขอบคุณและอนุโมทนา",
+          en: "Choose from 4 official templates: Donation Receipt, Annual Tax Certificate, Ordination/Meditation Certificate, or Appreciation Letter.",
+          de: "Wählen Sie aus 4 Vorlagen: Einzelspendenbeleg, Jahressteuerbescheinigung, Ordinationsurkunde oder Dankschreiben.",
+        },
+        image: "/images/guide/forms-certificate.svg",
+        imageCaption: {
+          th: "หน้าตัวอย่างเอกสารใบอนุโมทนาบัตร ลายเซ็นดิจิทัล และการส่งออก PDF สองภาษา",
+          en: "Certificate generator preview with digital signature pad and bilingual PDF export",
+          de: "Urkunden-Generator mit digitaler Signatur und zweisprachigem PDF-Export",
+        },
+      },
+      {
+        stepNumber: 2,
+        title: {
+          th: "การดึงข้อมูลผู้บริจาคและโหมดสองภาษา (TH / DE)",
+          en: "Auto-fill Donor Data & Bilingual Mode",
+          de: "Automatische Spenderdaten & Zweisprachigkeit",
+        },
+        description: {
+          th: "พิมพ์ค้นหาชื่อผู้บริจาค ระบบจะดึงยอดเงิน วันที่ และเลขประจำตัวผู้เสียภาษีมาใส่ในฟอร์มอัตโนมัติ พร้อมแสดงข้อความสองภาษา ไทย-เยอรมัน อย่างถูกต้องตามกฎหมาย",
+          en: "Search donor name to auto-populate contribution amounts, dates, and tax IDs in both Thai and German legal formats.",
+          de: "Spendername suchen, um Beträge, Daten und Steuer-ID automatisch auf Deutsch und Thailändisch einzufügen.",
+        },
+      },
+      {
+        stepNumber: 3,
+        title: {
+          th: "การลงนามด้วย Digital Signature Pad และส่งออก PDF",
+          en: "Sign via Digital Pad & Export PDF",
+          de: "Digital unterschreiben & PDF exportieren",
+        },
+        description: {
+          th: "ใช้เมาส์ แท็บเล็ต หรือปากกาสไตลัสเซ็นชื่อบน Signature Pad หรือเลือกลายเซ็นที่บันทึกไว้ในระบบ จากนั้นกดปุ่ม 'พิมพ์เอกสาร (PDF)' เพื่อพิมพ์ลงกระดาษ A4 หรือส่งอีเมลให้ญาติโยม",
+          en: "Sign on the touchscreen pad or use a saved digital signature, then click 'Export PDF' for physical A4 printing or email delivery.",
+          de: "Unterschreiben Sie auf dem Touchpad oder nutzen Sie die gespeicherte Signatur, dann klicken Sie auf 'PDF exportieren'.",
+        },
+      },
+    ],
+    faqs: [
+      {
+        question: {
+          th: "หนังสือรับรองประจำปีสามารถรวมยอดบริจาคหลายๆ ครั้งตลอดทั้งปีได้หรือไม่?",
+          en: "Can the annual tax certificate aggregate multiple donations across the full year?",
+          de: "Fasst die Jahresbescheinigung alle Spenden eines Kalenderjahres zusammen?",
+        },
+        answer: {
+          th: "ได้ เมื่อเลือกชื่อผู้บริจาค ระบบจะคำนวณผลรวมยอดบริจาคทั้งหมดในปีภาษีนั้น พร้อมแจกแจงรายการแต่ละครั้งในเอกสารแนบตามมาตรฐาน Finanzamt",
+          en: "Yes, the system automatically aggregates all verified contributions for that tax year with an itemized schedule attached.",
+          de: "Ja, das System fasst alle verifizierten Spenden des Steuerjahres mit Einzelaufstellung automatisch zusammen.",
+        },
+      },
+    ],
+    relatedSlugs: ["donations", "members", "settings"],
+    updatedAt: "2026-08-30",
+  },
 ];

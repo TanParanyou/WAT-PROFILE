@@ -9,17 +9,18 @@ import { useTranslations } from "next-intl";
 type RichTextLinkDialogProps = {
   isOpen: boolean;
   initialUrl: string;
+  initialOpenInNewTab?: boolean;
   onClose: () => void;
-  onSave: (url: string) => void;
+  onSave: (url: string, openInNewTab: boolean) => void;
   onRemove: () => void;
 };
 
 export function isValidRichTextLink(value: string): boolean {
   const url = value.trim();
-  if (url.startsWith("/")) return true;
+  if (url.startsWith("/") && !url.startsWith("//")) return true;
   try {
     const parsed = new URL(url);
-    return ["http:", "https:", "mailto:"].includes(parsed.protocol);
+    return ["http:", "https:", "mailto:", "tel:"].includes(parsed.protocol);
   } catch {
     return false;
   }
@@ -28,6 +29,7 @@ export function isValidRichTextLink(value: string): boolean {
 export function RichTextLinkDialog({
   isOpen,
   initialUrl,
+  initialOpenInNewTab = false,
   onClose,
   onSave,
   onRemove,
@@ -36,8 +38,9 @@ export function RichTextLinkDialog({
 
   return (
     <RichTextLinkDialogContent
-      key={initialUrl}
+      key={`${initialUrl}-${initialOpenInNewTab}`}
       initialUrl={initialUrl}
+      initialOpenInNewTab={initialOpenInNewTab}
       onClose={onClose}
       onSave={onSave}
       onRemove={onRemove}
@@ -48,6 +51,7 @@ export function RichTextLinkDialog({
 function RichTextLinkDialogContent({
   isOpen,
   initialUrl,
+  initialOpenInNewTab = false,
   onClose,
   onSave,
   onRemove,
@@ -55,18 +59,29 @@ function RichTextLinkDialogContent({
   const t = useTranslations("Admin.richText");
   const tCommon = useTranslations("Admin.common");
   const [url, setUrl] = useState(initialUrl);
+  const [openInNewTab, setOpenInNewTab] = useState(initialOpenInNewTab);
   const [error, setError] = useState("");
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     e.stopPropagation();
-    const trimmed = url.trim();
+    let trimmed = url.trim();
+    if (!trimmed) {
+      setError(t("linkDialog.invalidUrl"));
+      return;
+    }
+    // Auto-prefix https:// if user wrote example.com without protocol and not a path
+    if (!trimmed.startsWith("/") && !/^https?:\/\//i.test(trimmed) && !/^(mailto|tel):/i.test(trimmed)) {
+      if (trimmed.includes(".") && !trimmed.includes(" ")) {
+        trimmed = `https://${trimmed}`;
+      }
+    }
     if (!isValidRichTextLink(trimmed)) {
       setError(t("linkDialog.invalidUrl"));
       return;
     }
     setError("");
-    onSave(trimmed);
+    onSave(trimmed, openInNewTab);
   };
 
   const footer = (
@@ -123,6 +138,16 @@ function RichTextLinkDialogContent({
           error={error}
           autoFocus
         />
+
+        <label className="flex items-center gap-2.5 cursor-pointer text-sm text-admin-body select-none">
+          <input
+            type="checkbox"
+            checked={openInNewTab}
+            onChange={(e) => setOpenInNewTab(e.target.checked)}
+            className="rounded border-admin-control-border text-admin-action focus:ring-admin-focus"
+          />
+          <span>{t("linkDialog.openInNewTab")}</span>
+        </label>
       </div>
     </Modal>
   );

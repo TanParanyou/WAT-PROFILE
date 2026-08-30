@@ -520,4 +520,234 @@ export const systemGuides: GuideArticle[] = [
     relatedSlugs: ["settings", "audit-logs", "users"],
     updatedAt: "2026-08-19",
   },
+  {
+    id: "guide-analytics",
+    slug: "analytics",
+    category: "system",
+    title: {
+      th: "สถิติและการใช้งานเว็บไซต์ (Web Analytics & Insights)",
+      en: "Web Traffic Analytics & Insights",
+      de: "Web-Analytics & Besucherstatistiken",
+    },
+    summary: {
+      th: "การดูสถิติผู้เข้าชมเว็บไซต์ ยอดวิวหน้าเว็บ สัดส่วนอุปกรณ์ (Desktop vs Mobile vs Tablet) และหน้ายอดนิยม (กิจกรรม, บทสวดมนต์, ข่าวสาร)",
+      en: "Viewing total pageviews, unique visitors, device breakdown (Desktop/Mobile/Tablet), and top content trends.",
+      de: "Übersicht über Seitenaufrufe, Besucher, Geräteverteilung (Desktop/Mobil/Tablet) und beliebte Inhalte.",
+    },
+    iconName: "BarChart3",
+    resource: "analytics",
+    routePath: "/admin/analytics",
+    quickSteps: [
+      {
+        th: "เข้าเมนู /admin/analytics เพื่อดูแดชบอร์ดสถิติรวม",
+        en: "Navigate to /admin/analytics to open the insights dashboard.",
+        de: "Zu /admin/analytics gehen für das Statistik-Dashboard.",
+      },
+      {
+        th: "เลือกช่วงเวลาที่ต้องการดู (7 วัน, 30 วัน, หรือ 1 ปี)",
+        en: "Select time range filter (7 days, 30 days, or 1 year).",
+        de: "Zeitraum auswählen (7 Tage, 30 Tage oder 1 Jahr).",
+      },
+      {
+        th: "สลับแท็บเพื่อดูสถิติแยกตามหมวดหมู่ เช่น กิจกรรม บทสวดมนต์ พระสงฆ์",
+        en: "Switch resource tabs to inspect Events, Chanting, or Monk views.",
+        de: "Reiter wechseln für Statistiken zu Events, Gesängen oder Mönchen.",
+      },
+    ],
+    statusLegends: [
+      {
+        badgeVariant: "success",
+        label: { th: "Real-time Metrics", en: "Real-time Metrics", de: "Echtzeit-Metriken" },
+        meaning: {
+          th: "สถิติผู้เข้าชมอัปเดตต่อเนื่องแบบ Real-time",
+          en: "Visitor statistics updated continuously in real time.",
+          de: "Besucherstatistiken werden in Echtzeit aktualisiert.",
+        },
+      },
+      {
+        badgeVariant: "info",
+        label: { th: "Privacy-first", en: "Privacy-first", de: "Datenschutzkonform" },
+        meaning: {
+          th: "การเก็บสถิติไม่ใช้ Third-party Cookie และไม่เก็บข้อมูลระบุตัวตนส่วนบุคคล (GDPR compliant)",
+          en: "Cookie-less and GDPR compliant analytics with zero personally identifiable data.",
+          de: "Cookielose und DSGVO-konforme Analyse ohne Erfassung persönlicher Daten.",
+        },
+      },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: {
+          th: "การดูภาพรวมสถิติผู้เข้าชม (Total Pageviews & Visitors)",
+          en: "Overview Metrics & Trends",
+          de: "Gesamtübersicht & Besuchertrends",
+        },
+        description: {
+          th: "ตรวจสอบการ์ดสถิติสรุป: ยอดเปิดดูหน้ารวม (Pageviews), จำนวนผู้เข้าชมที่ไม่ซ้ำ (Unique Visitors), และแนวโน้มการเติบโตเปรียบเทียบกับช่วงเวลาก่อนหน้า",
+          en: "Review high-level KPI cards: Total Pageviews, Unique Visitors, and growth trends compared to the previous period.",
+          de: "Überprüfen Sie Kennzahlen: Gesamtaufrufe, eindeutige Besucher und Trendvergleiche.",
+        },
+      },
+      {
+        stepNumber: 2,
+        title: {
+          th: "การวิเคราะห์อุปกรณ์ผู้ใช้งาน (Device Breakdown)",
+          en: "Analyze Device Distribution",
+          de: "Geräteverteilung analysieren",
+        },
+        description: {
+          th: "ดูกราฟวงกลมแสดงสัดส่วนผู้ใช้สมาร์ทโฟน (Mobile), คอมพิวเตอร์ (Desktop), และแท็บเล็ต (Tablet) เพื่อช่วยในการออกแบบเนื้อหาให้เหมาะสมกับอุปกรณ์ที่ญาติโยมใช้งานจริง",
+          en: "Inspect the donut chart showing smartphone, desktop, and tablet distribution to tailor layout and media sizes effectively.",
+          de: "Prüfen Sie das Kreisdiagramm zur mobilen und Desktop-Nutzung zur optimalen Gestaltung von Inhalten.",
+        },
+      },
+      {
+        stepNumber: 3,
+        title: {
+          th: "การจัดอันดับเนื้อหายอดนิยม (Top Content)",
+          en: "Top Visited Pages & Resources",
+          de: "Beliebteste Seiten & Inhalte",
+        },
+        description: {
+          th: "ตรวจสอบตาราง 10 อันดับแรกของหน้าเว็บ กิจกรรม บทสวดมนต์ หรือข่าวสารที่มีผู้สนใจเข้าอ่านมากที่สุด ช่วยให้วัดจัดเตรียมข้อมูลและกิจกรรมได้อย่างตรงจุด",
+          en: "Explore the Top 10 list of most engaged events, chanting verses, and news announcements to plan future temple activities.",
+          de: "Erkennen Sie die 10 beliebtesten Veranstaltungen und Gesänge für eine gezielte Planung.",
+        },
+      },
+    ],
+    faqs: [
+      {
+        question: {
+          th: "ระบบ Analytics มีการส่งข้อมูลให้ Google หรือภายนอกหรือไม่?",
+          en: "Does the analytics engine share data with external third parties?",
+          de: "Werden Analysedaten an Dritte oder Google weitergegeben?",
+        },
+        answer: {
+          th: "ไม่เลย ระบบ Analytics นี้ทำงานอยู่บนเซิร์ฟเวอร์ของวัดเอง 100% จึงปลอดภัย เป็นส่วนตัว และสอดคล้องตามมาตรฐาน GDPR สหภาพยุโรปอย่างเคร่งครัด",
+          en: "No, all analytics processing runs 100% on self-hosted temple infrastructure, ensuring complete GDPR privacy.",
+          de: "Nein, die Analyse läuft vollständig auf eigener Infrastruktur nach strengen DSGVO-Richtlinien.",
+        },
+      },
+    ],
+    relatedSlugs: ["dashboard", "events", "news"],
+    updatedAt: "2026-08-30",
+  },
+  {
+    id: "guide-backup",
+    slug: "backup",
+    category: "system",
+    title: {
+      th: "การสำรองและกู้คืนฐานข้อมูล (Backup & Disaster Recovery)",
+      en: "Database Backup & Disaster Recovery",
+      de: "Datenbank-Backup & Systemwiederherstellung",
+    },
+    summary: {
+      th: "ขั้นตอนการสร้าง Database Snapshot สำรองข้อมูลคำสอน บทสวด สมาชิก และประวัติการทำบุญ พร้อมแนวทางกู้คืนระบบเมื่อเกิดเหตุฉุกเฉิน",
+      en: "Creating PostgreSQL database snapshots, downloading encrypted archives, and disaster recovery procedures.",
+      de: "Erstellung von PostgreSQL-Datenbank-Snapshots, Archiv-Downloads und Notfall-Wiederherstellung.",
+    },
+    iconName: "Database",
+    resource: "settings",
+    superAdminOnly: true,
+    routePath: "/admin/settings",
+    quickSteps: [
+      {
+        th: "เข้าเมนู /admin/settings ไปที่หัวข้อ 'การสำรองข้อมูล' (Database Backup)",
+        en: "Navigate to /admin/settings > Database Backup section.",
+        de: "Zu /admin/settings > Bereich Datenbank-Backup gehen.",
+      },
+      {
+        th: "กดปุ่ม 'สร้าง Snapshot สำรองข้อมูลทันที'",
+        en: "Click 'Create Database Snapshot Now'.",
+        de: "Auf 'Jetzt Datenbank-Snapshot erstellen' klicken.",
+      },
+      {
+        th: "ดาวน์โหลดไฟล์ .sql.gz สำรองเก็บไว้ในพื้นที่ปลอดภัยภายนอก",
+        en: "Download the encrypted .sql.gz archive to secure external storage.",
+        de: "Laden Sie das .sql.gz Archiv auf einen sicheren externen Speicher herunter.",
+      },
+    ],
+    statusLegends: [
+      {
+        badgeVariant: "success",
+        label: { th: "Backup Complete", en: "Backup Complete", de: "Backup abgeschlossen" },
+        meaning: {
+          th: "การสำรองข้อมูลสำเร็จ ไฟล์ Snapshot พร้อมดาวน์โหลด",
+          en: "Snapshot created successfully and verified.",
+          de: "Snapshot erfolgreich erstellt und verifiziert.",
+        },
+      },
+      {
+        badgeVariant: "danger",
+        label: { th: "Super Admin Only", en: "Super Admin Only", de: "Nur Super-Admin" },
+        meaning: {
+          th: "การสำรองและกู้คืนฐานข้อมูลสงวนสิทธิ์เฉพาะผู้ดูแลระบบสูงสุดเท่านั้น",
+          en: "Access to raw database backups is restricted exclusively to Super Administrators.",
+          de: "Zugriff auf Datenbank-Backups ist ausschließlich Super-Administratoren vorbehalten.",
+        },
+      },
+    ],
+    steps: [
+      {
+        stepNumber: 1,
+        title: {
+          th: "การสร้างไฟล์สำรองฐานข้อมูลแบบ On-demand",
+          en: "Create On-demand Database Snapshot",
+          de: "Datenbank-Snapshot manuell erstellen",
+        },
+        description: {
+          th: "กดปุ่ม 'สร้างสำรองข้อมูล' ระบบจะเรียกคำสั่ง pg_dump เพื่อสำรองตารางข้อมูลทั้งหมดในฐานข้อมูล PostgreSQL รวมถึงบทสวดมนต์ บัญชีสมาชิก สถิติ และการตั้งค่าระบบ",
+          en: "Trigger an on-demand snapshot. The system runs pg_dump across all PostgreSQL tables including members, chanting texts, donations, and RBAC configs.",
+          de: "Erstellen Sie ein Backup aller PostgreSQL-Tabellen inklusive Mitglieder, Gesänge, Spenden und Rollen.",
+        },
+      },
+      {
+        stepNumber: 2,
+        title: {
+          th: "การดาวน์โหลดและจัดเก็บตามหลักความปลอดภัย (3-2-1 Backup Rule)",
+          en: "Secure Off-site Archiving (3-2-1 Rule)",
+          de: "Sichere externe Archivierung (3-2-1-Regel)",
+        },
+        description: {
+          th: "ดาวน์โหลดไฟล์สำรองที่บีบอัด (.sql.gz) ไปเก็บไว้ในพื้นที่จัดเก็บปลอดภัยภายนอก เช่น ฮาร์ดดิสก์เข้ารหัสของวัด หรือ Cloud Storage ที่มีการเข้ารหัสลับ",
+          en: "Download compressed .sql.gz archive and store off-site on encrypted temple drives following the 3-2-1 backup strategy.",
+          de: "Speichern Sie das komprimierte Archiv auf verschlüsselten externen Medien nach der 3-2-1-Backup-Strategie.",
+        },
+        warning: {
+          th: "ไฟล์สำรองฐานข้อมูลมีข้อมูลส่วนบุคคลของญาติโยม ห้ามส่งต่อผ่านแชทสาธารณะหรืออีเมลที่ไม่เข้ารหัสเด็ดขาด",
+          en: "Database backups contain sensitive personal data. Never share via unencrypted channels.",
+          de: "Backups enthalten personenbezogene Daten. Niemals über unverschlüsselte Kanäle weitergeben.",
+        },
+      },
+      {
+        stepNumber: 3,
+        title: {
+          th: "ขั้นตอนการกู้คืนระบบเมื่อเกิดเหตุฉุกเฉิน (Disaster Recovery)",
+          en: "Disaster Recovery Restoration",
+          de: "Wiederherstellung im Notfall",
+        },
+        description: {
+          th: "ในกรณีที่เซิร์ฟเวอร์เสียหาย สามารถใช้คำสั่ง pg_restore เพื่อนำเข้าไฟล์สำรองล่าสุดกลับคืนสู่ฐานข้อมูลใหม่ได้ในเวลาไม่กี่นาที ตามคู่มือ docs/PRODUCTION_RUNBOOK.md",
+          en: "In case of server failure, restore the latest backup using pg_restore within minutes following docs/PRODUCTION_RUNBOOK.md.",
+          de: "Im Notfall kann das System über pg_restore gemäß docs/PRODUCTION_RUNBOOK.md innerhalb weniger Minuten wiederhergestellt werden.",
+        },
+      },
+    ],
+    faqs: [
+      {
+        question: {
+          th: "ระบบมีการสำรองข้อมูลอัตโนมัติประจำวันหรือไม่?",
+          en: "Is there an automated daily backup schedule?",
+          de: "Gibt es ein automatisiertes tägliches Backup?",
+        },
+        answer: {
+          th: "มี ระบบคลาวด์และเซิร์ฟเวอร์หลักมี Cronjob สำรองข้อมูลอัตโนมัติทุกเที่ยงคืน (00:00 UTC) ควบคู่กับการกดสำรองข้อมูลแบบ Manual ผ่านหน้านี้",
+          en: "Yes, the production server runs an automated nightly cronjob snapshot alongside manual on-demand triggers.",
+          de: "Ja, der Produktionsserver führt jede Nacht um 00:00 Uhr automatische Backups durch.",
+        },
+      },
+    ],
+    relatedSlugs: ["settings", "environment-config", "audit-logs"],
+    updatedAt: "2026-08-30",
+  },
 ];
