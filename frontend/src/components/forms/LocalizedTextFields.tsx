@@ -1,10 +1,13 @@
 "use client";
 
+import { useState } from "react";
+import { Loader2, Sparkles } from "lucide-react";
 import { useTranslations } from "next-intl";
 import type { FieldErrors, FieldValues, Path, UseFormRegister, UseFormSetValue, UseFormWatch } from "react-hook-form";
 import { Input } from "@/components/ui/Input";
 import { WEBSITE_CMS_LOCALES } from "@/utils/websiteCms";
 import { useWebsiteCmsEditorStore } from "@/stores/website-cms-editor-store";
+import { useAiTranslate } from "@/hooks/useAiTranslate";
 
 type Props<T extends FieldValues> = {
   label: string;
@@ -31,6 +34,8 @@ export function LocalizedTextFields<T extends FieldValues>({
 }: Props<T>) {
   const t = useTranslations("Admin.website");
   const store = useWebsiteCmsEditorStore();
+  const { translateDraft, isTranslating } = useAiTranslate();
+  const [translatingLocale, setTranslatingLocale] = useState<string | null>(null);
 
   const active = propActiveLocale || store.activeLocale;
   const setActive = (locale: "th" | "en" | "de") => {
@@ -48,8 +53,8 @@ export function LocalizedTextFields<T extends FieldValues>({
     return !!fieldErrors?.[locale]?.message;
   };
 
-  const handleAutoTranslate = (targetLocale: "th" | "en" | "de") => {
-    if (!setValue || !watch) return;
+  const handleAutoTranslate = async (targetLocale: "th" | "en" | "de") => {
+    if (!setValue || !watch || isTranslating) return;
     
     const sourceLocale = (WEBSITE_CMS_LOCALES as readonly string[]).find(
       (loc) => loc !== targetLocale && String(watch(`${name}.${loc}` as Path<T>) || "").trim()
@@ -57,20 +62,26 @@ export function LocalizedTextFields<T extends FieldValues>({
     
     if (!sourceLocale) return;
 
-    const sourceValue = String(watch(`${name}.${sourceLocale}` as Path<T>));
+    const sourceValue = String(watch(`${name}.${sourceLocale}` as Path<T>)).trim();
     if (!sourceValue) return;
 
-    // Simple mock translation logic
-    let translatedText = sourceValue;
-    if (sourceLocale === "th" && targetLocale === "en") {
-      translatedText = `[EN] ${sourceValue}`;
-    } else if (sourceLocale === "th" && targetLocale === "de") {
-      translatedText = `[DE] ${sourceValue}`;
-    } else {
-      translatedText = `[Translated] ${sourceValue}`;
-    }
+    setTranslatingLocale(targetLocale);
+    try {
+      const res = await translateDraft({
+        text: sourceValue,
+        source_lang: sourceLocale as "th" | "en" | "de",
+        target_langs: [targetLocale],
+      });
 
-    setValue(`${name}.${targetLocale}` as Path<T>, translatedText as unknown as never, { shouldDirty: true });
+      const translatedText = res?.translations?.[targetLocale];
+      if (translatedText) {
+        setValue(`${name}.${targetLocale}` as Path<T>, translatedText as unknown as never, { shouldDirty: true });
+      }
+    } catch {
+      // Error is handled via useAiTranslate toast notification
+    } finally {
+      setTranslatingLocale(null);
+    }
   };
 
   const handleCopyFrom = (targetLocale: "th" | "en" | "de") => {
@@ -145,10 +156,16 @@ export function LocalizedTextFields<T extends FieldValues>({
                   </button>
                   <button
                     type="button"
+                    disabled={isTranslating}
                     onClick={() => handleAutoTranslate(locale)}
-                    className="text-[10px] text-admin-warning hover:text-admin-foreground bg-admin-warning-surface hover:bg-admin-surface border border-admin-border px-1.5 py-0.5 rounded-none transition-colors cursor-pointer"
-                    title="Auto-translate"
+                    className="inline-flex items-center gap-1 text-[10px] text-amber-700 hover:text-amber-800 bg-amber-50 hover:bg-amber-100 disabled:opacity-50 disabled:cursor-not-allowed border border-amber-200 px-1.5 py-0.5 rounded transition-colors cursor-pointer"
+                    title="Auto-translate via AI"
                   >
+                    {translatingLocale === locale ? (
+                      <Loader2 className="w-2.5 h-2.5 animate-spin" />
+                    ) : (
+                      <Sparkles className="w-2.5 h-2.5" />
+                    )}
                     Translate
                   </button>
                 </div>
