@@ -62,10 +62,19 @@ Do not use `make be-migrate`: the current target omits the required CLI subcomma
 - Local AutoMigrate may help development, but it does not replace migration files.
 
 Community Q&A uses migrations `000046_create_community_qa` and
-`000047_seed_community_qa`. The schema migration enables `pg_trgm`, creates only
-Community-owned tables, and is reversible on a disposable database. The seed
-migration inserts the four localized categories and the Admin `community` permission;
-its down migration deactivates seeded categories so referenced content is preserved.
+`000047_seed_community_qa` (with constraints refined in `000056`). The schema migration enables `pg_trgm`, creates only
+Community-owned tables, and is reversible on a disposable database.
+
+Recent notable migrations (up to `000059`):
+- `000045_create_calendar_resources`: Managed calendar resource registry.
+- `000048_create_event_categories`: Event category taxonomy.
+- `000049_add_admin_security_features`: Two-factor authentication (TOTP/backup codes) and active session tracking.
+- `000050_add_scheduled_publishing_to_events`: Event draft/publish scheduling.
+- `000051_add_is_system_to_roles`: System role protection against accidental deletion.
+- `000054_create_chantings_table`: Digital chanting book with Pali text, multi-language translations, and audio support.
+- `000055_create_chatbot_knowledge_base`: AI Chatbot knowledge base Q&A pairs.
+- `000058_create_news_and_site_alerts`: News articles, categories, and urgent site alert banners/popups.
+- `000059_create_analytics_page_views`: Anonymized multi-entity page view tracking for Analytics Hub.
 
 ## Data contracts
 

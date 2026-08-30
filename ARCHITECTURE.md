@@ -53,8 +53,8 @@ The frontend utilizes separated HTTP clients based on security context:
 - `internal/services/` owns domain operations and GORM queries.
 - `internal/models/` owns persisted models and JSONB value types.
 - `internal/middleware/` owns JWT context and RBAC checks.
-- `internal/publiccontent/`, `internal/richtext/`, `internal/seo/`, and
-  `internal/eventalert/` contain focused domain policies.
+- `internal/publiccontent/`, `internal/richtext/`, `internal/seo/`, `internal/eventalert/`,
+  `internal/community/`, `internal/donations/`, and `internal/accountauth/` contain focused domain policies.
 - `pkg/utils/response.go` defines the common response envelope.
 
 New database access belongs in a service. Existing direct GORM access in
@@ -66,6 +66,7 @@ New database access belongs in a service. Existing direct GORM access in
 |---|---|
 | `/api/v1/public` | Anonymous reads and public submissions |
 | `/api/v1/auth` | Register, login, refresh, current user |
+| `/api/v1/accounts` | Public authenticated account lifecycle (email verify, Google OAuth, password reset) |
 | `/api/v1/member` | Authenticated member operations |
 | `/api/v1/admin` | Authenticated operations with per-resource permissions |
 
@@ -93,7 +94,7 @@ Errors use `{ "success": false, "error": "...", "trace_id": "..." }`.
 | Form state | React Hook Form |
 | Form validation | Zod plus backend validation |
 | CMS editor view state | Zustand |
-| Auth tokens | Browser local storage via auth service |
+| Auth tokens | Browser local storage via auth service (Public Member) / In-memory & HttpOnly cookie (Admin) |
 | Uploaded binary objects | R2; metadata remains in PostgreSQL |
 
 ## Security boundaries
@@ -123,8 +124,6 @@ Errors use `{ "success": false, "error": "...", "trace_id": "..." }`.
 
 ## Known architecture gaps
 
-- OpenAPI does not yet cover every registered route.
-- Frontend TypeScript tests have no configured aggregate runner.
-- GORM AutoMigrate and versioned SQL migrations coexist; production must not use both
-  as competing migration authorities.
-- Docker builder Go version does not match `backend/go.mod`.
+- Frontend TypeScript test runner uses `node:test` without ts-node resolution; run verification through type-check, lint, and build.
+- GORM AutoMigrate and versioned SQL migrations coexist; production must set `DB_AUTO_MIGRATE=false` and use versioned SQL migrations only.
+

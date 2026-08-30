@@ -7,15 +7,10 @@
 | Frontend | `cd frontend && npm ci && npm run build` | `cd frontend && npm run start` |
 | Backend | `cd backend && go build -o bin/server ./cmd/app` | `cd backend && ./bin/server` |
 | Backend image | `cd backend && docker build -t wat-profile-api .` | `docker run -p 8080:8080 --env-file backend/.env wat-profile-api` |
+| Operations worker | `cd backend && go build -o bin/operations-worker ./cmd/operations-worker` | `cd backend && ./bin/operations-worker` |
 
-The repository does not contain CI workflows, Docker Compose, infrastructure as code,
-or a production frontend image. Do not infer a hosting platform from old documents.
-
-## Current blocker
-
-`backend/go.mod` declares Go 1.24, while `backend/Dockerfile` builds with
-`golang:1.22-alpine`. The Docker build is not a reliable release path until those
-versions are aligned and the image build passes. This document does not change config.
+The repository contains GitHub Actions CI workflows (`.github/workflows/ci.yml`, `test.yml`)
+for automated verification of frontend, backend, test suites, and Docker builds.
 
 ## Runtime ports and endpoints
 
@@ -233,7 +228,5 @@ Report this gap; do not claim the tests passed.
 
 - Confirm frontend/backend hosting platforms, domains, TLS, and rollback owner.
 - Confirm secret manager, log sink, uptime monitoring, and alerting.
-- Confirm PostgreSQL backup/restore drill and retention.
-- Align Docker Go version with `backend/go.mod`.
-- Add CI for the required checks and migration validation.
-- Add `NEXT_PUBLIC_API_URL` to the committed frontend env example.
+- Confirm PostgreSQL backup/restore drill and retention schedule.
+

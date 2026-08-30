@@ -1,7 +1,11 @@
-Claude’s Plan
-Admin Panel — Implementation Plan
-Context
-Backend API มีระบบ admin ครบ (JWT auth, RBAC with JSONB permissions, CRUD ทุก entity) แต่ frontend ยังไม่มี admin panel — ต้องสร้างใหม่ทั้งหมด โดยเน้น component-based architecture และ permission system เป็นหลัก
+# Admin Panel — Architecture & Implementation Reference
+
+> **สถานะ:** ✅ พัฒนาเสร็จสมบูรณ์แล้ว 100% ในระบบ Production  
+> สำหรับคู่มือการใช้งานจริง กรุณาดูที่ [`docs/ADMIN-USER-MANUAL-TH.md`](./ADMIN-USER-MANUAL-TH.md)  
+> เอกสารนี้จัดเก็บไว้เป็นเอกสารอ้างอิงสถาปัตยกรรมและการออกแบบระบบ Permission / Reusable Components
+
+## Context
+Backend API มีระบบ admin ครบ (JWT auth, RBAC with JSONB permissions, CRUD ทุก entity) พร้อม frontend Admin Panel ที่สร้างขึ้นบน Component-Based Architecture และ Granular Permission System (Defense in Depth) ครบทุกฟังก์ชัน
 
 หลักการออกแบบ
 

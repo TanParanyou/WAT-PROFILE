@@ -1,25 +1,32 @@
 # WAT-PROFILE Backend API 🏛️
 
-Backend API for Wat Loung Por Sai temple management system built with Go Fiber + PostgreSQL + JSONB Multi-language Support.
+Backend REST API for Wat Loung Por Sai temple management system built with Go Fiber v2 + PostgreSQL + GORM + JSONB Multi-language Support.
 
 ---
 
 ## ✨ Features
 
-- ✅ **Authentication** - JWT with refresh tokens
-- ✅ **RBAC** - Role-based access control
-- ✅ **Multi-language** - JSONB support for TH/EN/DE
-- ✅ **Temple Management** - Events, Monks, Gallery
-- ✅ **Member System** - Temple member management
-- ✅ **Donation System** - Donation tracking
-- ✅ **Event Registration** - Event registration system
+- 🔐 **Authentication & Security** - Multi-tiered JWT auth (In-Memory Admin token, SHA-256 rotating HttpOnly refresh cookie, 2FA/TOTP)
+- 🛡️ **Granular RBAC** - Role-Based Access Control mapped via JSONB permissions with route middleware
+- 🌐 **Multi-language (TH/EN/DE)** - First-class JSONB multi-language support across all entities
+- 📅 **Events & Calendar** - Event schedules, categories, calendar resource registry, and scheduled publishing
+- 👥 **Monks & Daily Schedules** - Monks directory with rich text bios and recurring/daily routine schedules
+- 🖼️ **Gallery & Media Recycle Bin** - Cloudflare R2 integration, image crop, reference tracking, and 30-day trash retention
+- 💰 **Donations & Certificates** - Self-reported donation proof review, staff entry, multi-currency, and digital signature PDF generation
+- 🎟️ **Event Registrations & Check-in** - Individual & group registrations, QR passes, and mobile attendance check-in
+- 📰 **News & Site Alerts** - Multilingual news articles, categories, urgent alert banners and emergency popups
+- 📜 **Digital Chanting Book** - Pali text, multilingual translations, audio player integration, and holy days calendar
+- 🤖 **AI Chatbot** - Integrated AI chatbot with prompt sanitization, rate limits, and Admin Knowledge Base
+- 💬 **Community Q&A** - Dharma discussion forum with rich-text editor, official answers, voting, and moderation queue
+- 📊 **Analytics Hub** - Privacy-friendly anonymized page view tracking and aggregation endpoints
+- 💾 **Automated Backups** - Daily R2 database backups and JSON application snapshot export
 
 ---
 
 ## 🚀 Quick Start
 
 ### Prerequisites
-- Go 1.22+
+- Go 1.24+ (Module declared as Go 1.24)
 - PostgreSQL 15+
 
 ### 1. Install Dependencies
@@ -34,277 +41,89 @@ go mod download
 cp .env.example .env
 ```
 
-Edit `.env`:
-```env
-DATABASE_URL=postgresql://postgres:password@localhost:5432/wat_profile?sslmode=disable
-JWT_SECRET=your-super-secret-key-change-this
-ALLOWED_ORIGINS=http://localhost:3000
-```
+Edit `.env` values (never commit this file).
 
-### 3. Run PostgreSQL (Docker)
+### 3. Run Migrations & Seed
 
 ```bash
-docker run --name postgres-wat \
-  -e POSTGRES_PASSWORD=password \
-  -e POSTGRES_DB=wat_profile \
-  -p 5432:5432 \
-  -d postgres:15
+go run cmd/migrate/main.go up
+go run cmd/seed/main.go
 ```
 
-### 4. Run Backend
+### 4. Run Backend API Server
 
 ```bash
 go run cmd/app/main.go
 ```
 
-**Backend API:** http://localhost:8080
+- **Backend API:** `http://localhost:8080`
+- **Health check:** `http://localhost:8080/health`
+- **Scalar API Reference:** `http://localhost:8080/docs`
+- **OpenAPI Asset:** `http://localhost:8080/docs/openapi.yaml`
 
 ---
 
-## 📡 API Endpoints
+## 📡 API Endpoints Overview
 
-### Public Endpoints (No Auth)
-
-```
-GET  /api/v1/public/events           # List all events
-GET  /api/v1/public/events/:slug     # Get event details
-GET  /api/v1/public/monks            # List all monks
-GET  /api/v1/public/monks/:slug      # Get monk details
-GET  /api/v1/public/gallery          # List gallery images
-GET  /api/v1/public/gallery/categories  # Gallery categories
-```
+### Public Endpoints (No Auth Required)
+- `GET /api/v1/public/events` — List events with filters & pagination
+- `GET /api/v1/public/events/:slug` — Event details
+- `GET /api/v1/public/calendar` — Public calendar feed
+- `GET /api/v1/public/news` — Public news articles & categories
+- `GET /api/v1/public/alerts` — Active urgent site alerts
+- `GET /api/v1/public/chanting` — Digital chanting book entries
+- `POST /api/v1/public/chatbot/message` — AI chatbot message interaction
+- `GET /api/v1/public/monks` — Monks directory
+- `GET /api/v1/public/gallery` — Gallery images & categories
+- `GET /api/v1/public/schedules` — Daily & weekly routine schedules
+- `POST /api/v1/public/donations` — Submit self-reported donation with proof slip
+- `POST /api/v1/public/contact` — Submit contact inquiry
+- `POST /api/v1/public/analytics/track` — Anonymized page view tracking
+- `GET /api/v1/public/about`, `contact`, `privacy`, `impressum` — Static public content
 
 ### Auth Endpoints
+- `POST /api/v1/auth/login` — Public member login
+- `POST /api/v1/auth/refresh` — Refresh member access token
+- `POST /api/v1/auth/admin/login` — Admin login (Strict rate limit, HttpOnly cookie)
+- `POST /api/v1/auth/admin/refresh` — Rotate Admin session via cookie
+- `POST /api/v1/auth/admin/logout` — Revoke Admin session
 
-```
-POST /api/v1/auth/register           # Register new user
-POST /api/v1/auth/login              # Login (Member)
-POST /api/v1/auth/refresh            # Refresh access token (Member)
-GET  /api/v1/auth/me                 # Get current user (Protected)
-```
+### Admin Endpoints (Admin Token + `PermissionRequired`)
+- `/api/v1/admin/dashboard/*` — Real-time stats & overview
+- `/api/v1/admin/analytics/*` — Analytics overview, trends, top resources
+- `/api/v1/admin/events/*` & `/event-categories/*` — Events & category CRUD
+- `/api/v1/admin/calendar-resources/*` — Calendar location/resource registry
+- `/api/v1/admin/monks/*` — Monks directory management
+- `/api/v1/admin/chanting/*` — Chanting book & audio management
+- `/api/v1/admin/gallery/*` & `/upload` — Gallery & R2 file uploads
+- `/api/v1/admin/media/*` — Media lifecycle, reference checks & recycle bin
+- `/api/v1/admin/donations/*` — Donation proof review, confirmation & PDF certificates
+- `/api/v1/admin/news/*` & `/news-categories/*` — News articles & categories
+- `/api/v1/admin/site-alerts/*` — Site alert banners & popups
+- `/api/v1/admin/chatbot/knowledge-base/*` — AI Chatbot knowledge base management
+- `/api/v1/admin/community/*` — Community moderation queue, official answers & restrictions
+- `/api/v1/admin/users/*` & `/roles/*` — User accounts & RBAC permission matrix
+- `/api/v1/admin/audit-logs/*` — System audit logs with filter & export
+- `/api/v1/admin/backup/*` — Daily R2 backup status & JSON snapshot export
 
-### Admin Auth Endpoints
+---
 
-Admin sessions use a separate, hardened flow. The refresh credential is a
-rotating opaque token stored only as a SHA-256 hash server-side and delivered
-exclusively via the `wat_admin_refresh` HttpOnly cookie
-(path `/api/v1/auth/admin`, SameSite=Strict, Secure outside local development).
-It is never returned in a JSON body.
+## 🐳 Docker Deployment
 
-```
-POST /api/v1/auth/admin/login        # Admin login (5 req/min per IP)
-POST /api/v1/auth/admin/refresh      # Rotate Admin session (cookie)
-POST /api/v1/auth/admin/logout       # Revoke Admin session (cookie)
-```
+The multi-stage `Dockerfile` compiles all binaries using `golang:1.25.0-alpine` with runtime on `alpine:3.20`:
 
-Every Admin route requires both an `aud=admin` access token and a
-`dashboard:read` (or resource-scoped) permission. Role eligibility is driven by
-`roles.admin_access = true`, never by role name or permission presence.
-
-### Admin Endpoints (Auth + Admin Role Required)
-
-```
-# Events Management
-GET    /api/v1/admin/events          # List events
-POST   /api/v1/admin/events          # Create event
-PUT    /api/v1/admin/events/:id      # Update event
-DELETE /api/v1/admin/events/:id      # Delete event
-
-# Monks Management
-GET    /api/v1/admin/monks           # List monks
-POST   /api/v1/admin/monks           # Create monk
-PUT    /api/v1/admin/monks/:id       # Update monk
-DELETE /api/v1/admin/monks/:id       # Delete monk
-
-# Gallery Management
-GET    /api/v1/admin/gallery         # List galleries
-POST   /api/v1/admin/gallery         # Upload image
-DELETE /api/v1/admin/gallery/:id     # Delete image
+```bash
+docker build -t wat-profile-api .
+docker run -p 8080:8080 --env-file .env wat-profile-api
 ```
 
 ---
 
-## 🧪 Test API
+## 📚 Documentation Links
 
-### 1. Health Check
+- **Architecture**: [`../ARCHITECTURE.md`](../ARCHITECTURE.md)
+- **Database & Migrations**: [`../docs/DATABASE.md`](../docs/DATABASE.md)
+- **Deployment Specification**: [`../docs/DEPLOYMENT.md`](../docs/DEPLOYMENT.md)
+- **Production Runbook**: [`../docs/PRODUCTION_RUNBOOK.md`](../docs/PRODUCTION_RUNBOOK.md)
+- **Admin User Manual**: [`../docs/ADMIN-USER-MANUAL-TH.md`](../docs/ADMIN-USER-MANUAL-TH.md)
 
-```bash
-curl http://localhost:8080/health
-```
-
-### 2. Register User
-
-```bash
-curl -X POST http://localhost:8080/api/v1/auth/register \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "admin@watloungporsai.de",
-    "password": "password123",
-    "name": "Admin User"
-  }'
-```
-
-### 3. Login
-
-```bash
-curl -X POST http://localhost:8080/api/v1/auth/login \
-  -H "Content-Type: application/json" \
-  -d '{
-    "email": "admin@watloungporsai.de",
-    "password": "password123"
-  }'
-```
-
-Response:
-```json
-{
-  "success": true,
-  "data": {
-    "access_token": "eyJhbGc...",
-    "refresh_token": "eyJhbGc...",
-    "user": { ... }
-  }
-}
-```
-
-### 4. Admin Login
-
-```bash
-curl -X POST http://localhost:8080/api/v1/auth/admin/login \
-  -H "Content-Type: application/json" \
-  -H "Origin: http://localhost:3000" \
-  -d '{
-    "email": "admin@watloungporsai.de",
-    "password": "password123"
-  }'
-```
-
-Response (the refresh credential is set as the HttpOnly `wat_admin_refresh`
-cookie and is never present in the JSON body):
-```json
-{
-  "success": true,
-  "data": {
-    "access_token": "eyJhbGc...",
-    "user": { "id": "...", "email": "admin@watloungporsai.de", "role": { "admin_access": true } }
-  }
-}
-```
-
-The Admin access token must be kept only in memory; do not store it in
-`localStorage` or `sessionStorage`. Use `/api/v1/auth/admin/refresh` to rotate
-the session and `/api/v1/auth/admin/logout` to revoke it.
-
-### 5. Create Event (Admin)
-
-```bash
-curl -X POST http://localhost:8080/api/v1/admin/events \
-  -H "Content-Type: application/json" \
-  -H "Authorization: Bearer YOUR_ADMIN_ACCESS_TOKEN" \
-  -d '{
-    "slug": "meditation-retreat-2024",
-    "title": {
-      "th": "ปฏิบัติธรรมประจำปี",
-      "en": "Annual Meditation Retreat",
-      "de": "Jährlicher Meditations-Retreat"
-    },
-    "description": {
-      "th": "คอร์สปฏิบัติธรรม 7 วัน",
-      "en": "7-day meditation course",
-      "de": "7-tägiger Meditationskurs"
-    },
-    "event_date": "2024-12-01T00:00:00Z",
-    "event_type": "meditation_course",
-    "is_active": true
-  }'
-```
-
-### 6. Get Public Events
-
-```bash
-curl http://localhost:8080/api/v1/public/events
-```
-
----
-
-## 🗄️ Database Models
-
-### Core Models (11 tables)
-
-1. **users**, **roles** - Authentication & RBAC
-2. **events**, **event_schedules** - Events management
-3. **monks** - Monk profiles
-4. **gallery**, **gallery_categories** - Gallery images
-5. **schedules** - Daily/weekly schedules
-6. **members** - Temple members
-7. **donations**, **donation_categories** - Donation tracking
-8. **event_registrations** - Event registrations
-9. **contact_inquiries** - Contact form submissions
-
-### Multi-language JSONB Example
-
-```sql
--- Events table
-CREATE TABLE events (
-    id SERIAL PRIMARY KEY,
-    slug VARCHAR(100) UNIQUE NOT NULL,
-    title JSONB NOT NULL,  -- {"th": "", "en": "Title", "de": ""}
-    description JSONB,
-    event_date DATE NOT NULL,
-    ...
-);
-```
-
----
-
-## 🐳 Deployment
-
-### Build Docker Image
-
-```bash
-docker build -t wat-profile-backend .
-```
-
-### Run with Docker Compose
-
-```bash
-docker-compose up -d
-```
-
----
-
-## 📚 Documentation
-
-- **Full Implementation Plan**: `D:\syaco\WAT-PROFILE\docs\backend\README.md`
-- **Template Documentation**: `D:\syaco\WAT-PROFILE\docs\template\README.md`
-
----
-
-## 🔐 Security
-
-- JWT tokens expire in 15 minutes (access) / 7 days (Member refresh)
-- Admin access tokens are short-lived, carry `aud=admin`, and are held only in
-  client memory
-- Admin refresh credentials rotate on every refresh, are stored server-side
-  only as SHA-256 hashes, and are delivered via an HttpOnly cookie
-- Password changes or account deactivation revoke all active Admin sessions
-- Reuse of a rotated Admin refresh credential revokes the session
-- Passwords hashed with bcrypt
-- CORS enabled for specified origins only; Admin auth endpoints additionally
-  reject non-allowed `Origin` headers
-- Admin-only routes protected by audience-verified middleware plus
-  per-resource permissions (including `dashboard:read`)
-
----
-
-## 🎯 Next Steps
-
-1. ✅ Backend is running
-2. Create admin user via `/auth/register`
-3. Test endpoints with Postman/curl
-4. Integrate with frontend
-5. Deploy to Railway/Render
-
----
-
-**Built with ❤️ for Wat Loung Por Sai**
